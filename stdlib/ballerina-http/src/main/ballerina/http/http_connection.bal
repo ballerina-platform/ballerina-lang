@@ -16,11 +16,6 @@
 
 package ballerina.http;
 
-@Description {value:"Represent 'content-length' header name"}
-public @final string CONTENT_LENGTH = "content-length";
-
-@final string HEADER_KEY_LOCATION = "Location";
-
 documentation {
     Represents HTTP connection which can be used to comminicate either with client or with other service.
 }
@@ -31,21 +26,21 @@ public type Connection object {
     @Param {value:"res: The outbound response message"}
     @Return {value:"Error occured during HTTP server connector respond"}
     @Return {value:"Returns null if any error does not exist."}
-    public native function respond(Response res) returns (HttpConnectorError |null);
+    public native function respond(Response res) returns (HttpConnectorError | ());
 
     @Description {value:"Forwards inbound response to the caller"}
     @Param {value:"conn: The server connector connection"}
     @Param {value:"res: The inbound response message"}
     @Return {value:"Error occured during HTTP server connector forward"}
     @Return {value:"Returns null if any error does not exist."}
-    public native function forward(Response res) returns (HttpConnectorError |null);
+    public native function forward(Response res) returns (HttpConnectorError | ());
 
     @Description { value:"Sends a push promise to the caller."}
     @Param { value:"conn: The server connector connection" }
     @Param { value:"promise: Push promise message" }
     @Return { value:"Error occured during HTTP server connector forward" }
     @Return {value:"Returns null if any error does not exist."}
-    public native function promise(PushPromise promise) returns (HttpConnectorError |null);
+    public native function promise(PushPromise promise) returns (HttpConnectorError | ());
 
     @Description { value:"Sends a promised push response to the caller."}
     @Param { value:"conn: The server connector connection" }
@@ -53,7 +48,7 @@ public type Connection object {
     @Param { value:"res: The outbound response message" }
     @Return { value:"Error occured during HTTP server connector forward" }
     @Return {value:"Returns null if any error does not exist."}
-    public native function pushPromisedResponse(PushPromise promise, Response res) returns (HttpConnectorError |null);
+    public native function pushPromisedResponse(PushPromise promise, Response res) returns (HttpConnectorError | ());
 
     @Description {value:"Sends a upgrade request with custom headers"}
     @Param {value:"headers: a map of custom headers for handshake."}
@@ -64,8 +59,9 @@ public type Connection object {
     @Param {value:"reason: Reason for closing the connection"}
     public native function cancelUpgradeToWebSocket(int status, string reason);
 
-    public function respondContinue() returns (HttpConnectorError | null);
-    public function redirect(Response response, RedirectCode code, string[] locations) returns (HttpConnectorError | null);
+    public function respondContinue() returns (HttpConnectorError | ());
+    
+    public function redirect(Response response, RedirectCode code, string[] locations) returns (HttpConnectorError | ());
 }
 
 /////////////////////////////////
@@ -86,10 +82,10 @@ public type RedirectCode "MULTIPLE_CHOICES_300"|"MOVED_PERMANENTLY_301"|"FOUND_3
 @Param { value:"conn: The server connector connection" }
 @Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
 @Return {value:"Returns null if any error does not exist."}
-public function Connection::respondContinue () returns (HttpConnectorError | null) {
-    Response res = {};
+public function Connection::respondContinue () returns (HttpConnectorError | ()) {
+    Response res;
     res.statusCode = 100;
-    return conn.respond(res);
+    return self.respond(res);
 }
 
 @Description { value:"Sends a redirect response to the user with given redirection status code." }
@@ -99,7 +95,7 @@ public function Connection::respondContinue () returns (HttpConnectorError | nul
 @Param { value:"locations: Array of locations where the redirection can happen." }
 @Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
 @Return { value:"Returns null if any error does not exist." }
-public function <Connection conn> redirect (Response response, RedirectCode code, string[] locations) returns (HttpConnectorError | null) {
+public function Connection::redirect (Response response, RedirectCode code, string[] locations) returns (HttpConnectorError | ()) {
     if (code == RedirectCode.MULTIPLE_CHOICES_300) {
         response.statusCode = 300;
     } else if (code == RedirectCode.MOVED_PERMANENTLY_301) {
@@ -122,6 +118,6 @@ public function <Connection conn> redirect (Response response, RedirectCode code
     }
     locationsStr = locationsStr.subString(0, (lengthof locationsStr) - 1);
 
-    response.setHeader(HEADER_KEY_LOCATION, locationsStr);
+    response.setHeader(LOCATION, locationsStr);
     return conn.respond(response);
 }
