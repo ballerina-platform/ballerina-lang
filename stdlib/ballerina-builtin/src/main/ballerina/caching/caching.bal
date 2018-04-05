@@ -26,7 +26,7 @@ import ballerina/util;
 @final int CACHE_CLEANUP_INTERVAL = 5000;
 
 @Description {value:"Map which stores all of the caches."}
-map cacheMap;
+map cacheMap = {"_": "_"}; //TODO: temp workaround unti pkg level init is fixed // fixme
 
 @Description {value:"Cleanup task ID."}
 string cacheCleanupTaskID = createCacheCleanupTask();
