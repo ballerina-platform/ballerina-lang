@@ -140,7 +140,7 @@ public type Entity object {
 
     @Description {value:"Set the entity body with a given file handler"}
     @Param {value:"fileHandler: Represent a file"}
-    public function setFileAsEntityBody (file:File fileHandler);
+    public function setFileAsEntityBody (file:Path fileHandler);
 
     @Description {value:"Set the entity body with the given json content"}
     @Param {value:"jsonContent: Json content that needs to be set to entity"}
@@ -242,7 +242,7 @@ public type Entity object {
     public native function hasHeader (string headerName) returns boolean;
 };
 
-public function Entity::setFileAsEntityBody (file:File fileHandler) {
+public function Entity::setFileAsEntityBody (file:Path fileHandler) {
     io:ByteChannel byteChannel = fileHandler.openChannel(READ_PERMISSION);
     self.setByteChannel(byteChannel);
 }
