@@ -17,16 +17,16 @@
 package ballerina.transactions;
 import ballerina/io;
 
-@final string PROTOCOL_COMPLETION = "completion";
-@final string PROTOCOL_VOLATILE = "volatile";
-@final string PROTOCOL_DURABLE = "durable";
-type ProtocolName PROTOCOL_COMPLETION | PROTOCOL_VOLATILE | PROTOCOL_DURABLE;
+type ProtocolName "completion" | "volatile" | "durable";
+@final ProtocolName PROTOCOL_COMPLETION = "completion";
+@final ProtocolName PROTOCOL_VOLATILE = "volatile";
+@final ProtocolName PROTOCOL_DURABLE = "durable";
 
-@final string TXN_STATE_ACTIVE = "active";
-@final string TXN_STATE_PREPARED = "prepared";
-@final string TXN_STATE_COMMITTED = "committed";
-@final string TXN_STATE_ABORTED = "aborted";
-type TransactionState TXN_STATE_ACTIVE | TXN_STATE_PREPARED | TXN_STATE_COMMITTED | TXN_STATE_ABORTED;
+type TransactionState "active" | "prepared" | "committed" | "aborted";
+@final TransactionState TXN_STATE_ACTIVE = "active";
+@final TransactionState TXN_STATE_PREPARED = "prepared";
+@final TransactionState TXN_STATE_COMMITTED = "committed";
+@final TransactionState TXN_STATE_ABORTED = "aborted";
 
 @final string TRANSACTION_CONTEXT_VERSION = "1.0";
 
