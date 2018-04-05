@@ -46,7 +46,7 @@ public class Close extends AbstractSQLAction {
     public void execute(Context context) {
         try {
             BStruct bConnector = (BStruct) context.getRefArgument(0);
-            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
+            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
             closeConnections(datasource);
             context.setReturnValues(null);
         } catch (Throwable e) {
