@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.observe.trace.extension.jaeger;
 
+import com.uber.jaeger.Configuration;
 import io.opentracing.Tracer;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.util.tracer.OpenTracer;
@@ -53,22 +54,24 @@ public class OpenTracingExtension implements OpenTracer {
     public Tracer getTracer(String tracerName, Map<String, String> configProperties, String serviceName)
             throws InvalidConfigurationException {
 
-        return new com.uber.jaeger.Configuration(serviceName,
-                new com.uber.jaeger.Configuration.SamplerConfiguration(
-                        getValidStringConfig(configProperties.get(SAMPLER_TYPE_CONFIG), DEFAULT_SAMPLER_TYPE),
+        return new Configuration(
+                serviceName,
+                new Configuration.SamplerConfiguration(
+                        configProperties.getOrDefault(SAMPLER_TYPE_CONFIG, DEFAULT_SAMPLER_TYPE),
                         getValidIntegerConfig(configProperties.get(SAMPLER_PARAM_CONFIG),
-                                DEFAULT_SAMPLER_PARAM, SAMPLER_PARAM_CONFIG)),
-                new com.uber.jaeger.Configuration.ReporterConfiguration(
-                        getValidBooleanConfig(configProperties.get(REPORTER_LOG_SPANS_CONFIG),
-                                DEFAULT_REPORTER_LOG_SPANS, REPORTER_LOG_SPANS_CONFIG),
-                        getValidStringConfig(configProperties.get(REPORTER_HOST_NAME_CONFIG),
-                                DEFAULT_REPORTER_HOSTNAME),
+                                DEFAULT_SAMPLER_PARAM, SAMPLER_PARAM_CONFIG)
+                ),
+                new Configuration.ReporterConfiguration(
+                        Boolean.parseBoolean(String.valueOf(configProperties
+                                .getOrDefault(REPORTER_LOG_SPANS_CONFIG, String.valueOf(DEFAULT_REPORTER_LOG_SPANS)))),
+                        configProperties.getOrDefault(REPORTER_HOST_NAME_CONFIG, DEFAULT_REPORTER_HOSTNAME),
                         getValidIntegerConfig(configProperties.get(REPORTER_PORT_CONFIG),
                                 DEFAULT_REPORTER_PORT, REPORTER_PORT_CONFIG),
                         getValidIntegerConfig(configProperties.get(REPORTER_FLUSH_INTERVAL_MS_CONFIG),
                                 DEFAULT_REPORTER_FLUSH_INTERVAL, REPORTER_FLUSH_INTERVAL_MS_CONFIG),
                         getValidIntegerConfig(configProperties.get(REPORTER_MAX_BUFFER_SPANS_CONFIG),
-                                DEFAULT_REPORTER_MAX_BUFFER_SPANS, REPORTER_MAX_BUFFER_SPANS_CONFIG))
+                                DEFAULT_REPORTER_MAX_BUFFER_SPANS, REPORTER_MAX_BUFFER_SPANS_CONFIG)
+                )
         ).getTracerBuilder().withScopeManager(NoOpScopeManager.INSTANCE).build();
     }
 
@@ -77,34 +80,12 @@ public class OpenTracingExtension implements OpenTracer {
         return TRACER_NAME;
     }
 
-    private String getValidStringConfig(String config, String defaultValue) {
-        if (config == null || config.trim().isEmpty()) {
-            return defaultValue;
-        } else {
-            return config;
-        }
-    }
-
     private int getValidIntegerConfig(String config, int defaultValue, String configName) {
         if (config == null) {
             return defaultValue;
         } else {
             try {
                 return Integer.parseInt(config);
-            } catch (NumberFormatException ex) {
-                consoleError.println("ballerina: observability tracing configuration " + configName
-                        + " is invalid. Default value of " + defaultValue + " will be used.");
-                return defaultValue;
-            }
-        }
-    }
-
-    private boolean getValidBooleanConfig(String config, boolean defaultValue, String configName) {
-        if (config == null) {
-            return defaultValue;
-        } else {
-            try {
-                return Boolean.parseBoolean(config);
             } catch (NumberFormatException ex) {
                 consoleError.println("ballerina: observability tracing configuration " + configName
                         + " is invalid. Default value of " + defaultValue + " will be used.");
