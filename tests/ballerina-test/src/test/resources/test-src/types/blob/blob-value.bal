@@ -1,6 +1,6 @@
 blob glbVarBlob;
 
-struct BinaryData {
+type BinaryData {
     blob blobField;
 }
 

@@ -26,7 +26,8 @@ public enum MessageKind {
     
     USER_DEFINED(0),
     WRAPPER(1),
-    EMPTY(2);
+    EMPTY(2),
+    STRUCT(3);
     
     private final int typeValue;
     

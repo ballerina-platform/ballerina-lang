@@ -23,7 +23,7 @@ enum CoordinationType {
     TWO_PHASE_COMMIT
 }
 
-const string TWO_PHASE_COMMIT = "2pc";
+@final string TWO_PHASE_COMMIT = "2pc";
 
 string[] coordinationTypes = [TWO_PHASE_COMMIT];
 

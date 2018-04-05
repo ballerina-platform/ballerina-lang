@@ -1,9 +1,10 @@
 import ballerina/grpc;
 import ballerina/io;
-import ballerina/log;
+import ballerina/runtime;
 
+string response = "";
 int total = 0;
-function main (string[] args) {
+function testClientStreaming (string[] args) returns (string) {
     // Client endpoint configuration
     endpoint helloWorldClient helloWorldEp {
         host:"localhost",
@@ -22,22 +23,28 @@ function main (string[] args) {
         }
     }
 
-    log:printInfo("Initialized connection sucessfully.");
+    io:print("Initialized connection sucessfully.");
 
-    string[] greets = ["Hi", "Hey", "GM"];
-    var name = "John";
-    foreach greet in greets {
-        log:printInfo("send greeting: " + greet + " " + name);
-        grpc:ConnectorError connErr = ep -> send(greet + " " + name);
+    foreach greet in args {
+        io:print("send greeting: " + greet);
+        grpc:ConnectorError connErr = ep -> send(greet);
         if (connErr != null) {
             io:println("Error at LotsOfGreetings : " + connErr.message);
         }
     }
     _ = ep -> complete();
 
-    //to hold the programme
-    while (total == 0) {}
+    int wait = 0;
+    while(total < 1) {
+        runtime:sleepCurrentWorker(1000);
+        io:println("msg count: " + total);
+        if (wait > 10) {
+            break;
+        }
+        wait++;
+    }
     io:println("completed successfully");
+    return response;
 }
 
 // Server Message Listener.
@@ -45,8 +52,9 @@ service<grpc:Listener> helloWorldMessageListener {
 
     // Resource registered to receive server messages
     onMessage (string message) {
-        total = 1;
+        response = untaint message;
         io:println("Response received from server: " + message);
+        total = 1;
     }
 
     // Resource registered to receive server error messages

@@ -1,6 +1,6 @@
 import ballerina/sql;
 
-struct Employee {
+type Employee {
     int id;
     string name;
 }

@@ -3,9 +3,9 @@ import ballerina/math;
 function testFuncInvocation (int a, int b, int c) returns (int) {
     int x;
     x = 10;
-    a = add(a, b);
-    a = add(a, c);
-    return add(a, x);
+    int val = add(a, b);
+    val = add(val, c);
+    return add(val, x);
 }
 
 function add(int x, int y) returns (int) {
@@ -37,11 +37,12 @@ function testReturnNativeFuncInvocationWithinNativeFuncInvocation(float x) retur
 
 function sum (int a) returns @untainted int {
     int x;
+    int val;
     if (a > 0) {
         x = sum(a - 1);
-        a =  a + x;
+        val =  a + x;
     }
-    return a;
+    return val;
 }
 
 function getPowerOfN (float a, float n) returns (float) {

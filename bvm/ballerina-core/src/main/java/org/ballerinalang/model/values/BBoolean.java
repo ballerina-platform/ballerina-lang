@@ -76,8 +76,23 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return ((BBoolean) obj).booleanValue() == value;
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        BBoolean bBoolean = (BBoolean) o;
+
+        return value == bBoolean.value;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (value ? 1 : 0);
     }
 
     @Override

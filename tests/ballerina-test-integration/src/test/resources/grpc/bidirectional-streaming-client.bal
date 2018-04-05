@@ -4,7 +4,7 @@ package client;
 import ballerina/grpc;
 import ballerina/io;
 import ballerina/log;
-import ballerina.runtime;
+import ballerina/runtime;
 
 int total = 0;
 function main (string[] args) {

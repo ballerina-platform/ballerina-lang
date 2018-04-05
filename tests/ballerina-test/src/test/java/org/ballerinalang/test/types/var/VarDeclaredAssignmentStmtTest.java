@@ -162,7 +162,7 @@ public class VarDeclaredAssignmentStmtTest {
         //var type is not not allowed in variable def statements
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-type-variable-def-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting {'.', '[', '=', '@', '=?'}", 2, 12);
+        BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting {'.', '[', '=', '!', '@'}", 2, 12);
     }
 
     @Test(description = "Test var in global variable def.")
