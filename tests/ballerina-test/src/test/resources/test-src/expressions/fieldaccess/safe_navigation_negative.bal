@@ -1,4 +1,4 @@
-struct Person {
+type Person {
     int a;
     string fname = "John";
     string lname;
@@ -6,12 +6,12 @@ struct Person {
     Info|() info2;
 }
 
-struct Info {
+type Info {
     Address|error address1;
     Address|() address2;
 }
 
-struct Address {
+type Address {
     string street;
     string city;
     string country = "Sri Lanka";
@@ -33,4 +33,10 @@ function testFieldAcessWithoutErrorLifting () returns any {
     Person|error p = prsn;
     string|error|() x = p!info1.address1!city;
     return x;
+}
+
+function testFunctionInvocReturnType () {
+    json j;
+    string s = j.toString();
+    string[] keys = j.getKeys();
 }

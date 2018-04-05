@@ -30,10 +30,11 @@ function concatBoolean(int index, boolean value){
 }
 
 function concatJSON(int index, json value){
-    output = output + index + ":" + value.toString() + " ";
+    var stringValue = value.toString() but { error => ""};
+    output = output + index + ":" + stringValue + " ";
 }
 
-struct person {
+type person {
     string name;
     int age;
 }

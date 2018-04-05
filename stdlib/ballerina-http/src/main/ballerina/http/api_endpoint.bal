@@ -24,15 +24,20 @@ public type ApiEndpoint object {
         ServiceEndpointConfiguration config;
         ServiceEndpoint httpEndpoint;
     }
-    public function init (ServiceEndpointConfiguration config);
-    public function register (typedesc serviceType);
-    public function start ();
-    public function getClient () returns (Connection);
-    public function stop ();
 
     new () {
         httpEndpoint = new;
     }
+
+    public function init (ServiceEndpointConfiguration config);
+
+    public function register (typedesc serviceType);
+
+    public function start ();
+
+    public function getClient () returns (Connection);
+
+    public function stop ();
 }
 
 @Description {value:"Add authn and authz filters"}
