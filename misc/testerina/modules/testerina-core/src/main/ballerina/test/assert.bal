@@ -1,20 +1,19 @@
 package ballerina.test;
 import ballerina/reflect;
 
-const string assertFailureErrorCategory = "assert-failure";
-
-const string arraysNotEqualMessage = "Arrays are not equal";
-const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
+@final string assertFailureErrorCategory = "assert-failure";
+@final string arraysNotEqualMessage = "Arrays are not equal";
+@final string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
 
 @Description{value:"The error struct for assertion errors"}
 @Field{value:"The assertion error message"}
 @Field{value:"The error which caused the assertion error"}
 @Field{value:"The assert error category"}
-public struct AssertError {
+type AssertError {
     string message;
     error[] cause;
     string category;
-}
+};
 
 @Description{value:"Creates an AssertError with custom message and category"}
 @Param{value:"errorMessage: Custom message for the ballerina error"}

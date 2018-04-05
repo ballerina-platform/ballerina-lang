@@ -33,7 +33,7 @@ public type JWTAuthenticator object {
         caching:Cache? authCache;
     }
     public function authenticate (string jwtToken) returns (boolean|error);
-    function JWTAuthenticator::authenticateFromCache (string jwtToken)
+    function authenticateFromCache (string jwtToken)
                                                 returns (boolean, boolean)|(boolean, boolean, jwt:Payload);
 };
 

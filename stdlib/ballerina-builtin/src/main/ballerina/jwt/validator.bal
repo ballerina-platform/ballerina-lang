@@ -25,7 +25,7 @@ public type JWTValidatorConfig {
     string issuer;
     string audience;
     string certificateAlias;
-}
+};
 
 @Description {value:"Validity given JWT token"}
 @Param {value:"jwtToken: JWT token that need to validate"}

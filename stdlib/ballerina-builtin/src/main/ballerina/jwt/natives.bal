@@ -38,7 +38,7 @@ public type Header {
     string cty;
     string kid;
     map customClaims;
-}
+};
 
 @Description {value:"Represents a JWT payload"}
 public type Payload {
@@ -50,4 +50,4 @@ public type Payload {
     int nbf;
     int iat;
     map customClaims;
-}
+};
