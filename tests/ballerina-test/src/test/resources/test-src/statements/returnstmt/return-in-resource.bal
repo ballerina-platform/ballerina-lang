@@ -4,14 +4,18 @@ service<DummyService> helloWorld {
     }
 }
 
-struct DummyEndpoint {}
-
-function <DummyEndpoint s> init (struct {} conf)  {
+type Config {
 }
 
-struct DummyService {}
+type DummyEndpoint object {
 
-function <DummyService s> getEndpoint() returns (DummyEndpoint) {
-    DummyEndpoint ep = {};
-    return ep;
+    function init (Config conf)  {
+    }
+}
+type DummyService object{
+
+    function getEndpoint() returns (DummyEndpoint) {
+        DummyEndpoint ep = new;
+        return ep;
+    }
 }
