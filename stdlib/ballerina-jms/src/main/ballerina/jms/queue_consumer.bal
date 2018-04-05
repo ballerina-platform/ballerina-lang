@@ -12,13 +12,13 @@ public type QueueConsumer object {
     public function init(QueueConsumerEndpointConfiguration config) {
         self.config = config;
         SessionConnector sessionConnector = config.session.getClient();
-        consumer.createConsumer(sessionConnector);
+        self.createConsumer(sessionConnector);
         log:printInfo("Consumer created for queue " + config.queueName);
     }
 
     public function register (typedesc serviceType) {
-        QueueConsumerConnector connector = consumer.connector;
-        consumer.registerListener(serviceType, connector);
+        QueueConsumerConnector connector = self.connector;
+        self.registerListener(serviceType, connector);
     }
 
     native function registerListener(typedesc serviceType, QueueConsumerConnector connector);
@@ -29,7 +29,7 @@ public type QueueConsumer object {
     }
 
     public function getClient () returns (QueueConsumerConnector) {
-        return consumer.connector;
+        return self.connector;
     }
 
     public function stop () {

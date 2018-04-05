@@ -2,44 +2,45 @@ package ballerina.jms;
 
 import ballerina/log;
 
-public struct QueueSender {
-    QueueSenderConnector connector;
-    QueueSenderEndpointConfiguration config;
+public type QueueSender object {
+    public {
+        QueueSenderConnector connector;
+        QueueSenderEndpointConfiguration config;
+    }
+
+    new () {
+        self.connector = new ();
+    }
+
+    public function init(QueueSenderEndpointConfiguration config) {
+        self.config = config;
+        SessionConnector sessionConnector = config.session.getClient();
+        self.initQueueSender(sessionConnector);
+    }
+
+    public native function initQueueSender(SessionConnector connector);
+
+    public function register (typedesc serviceType) {
+    }
+
+    public function start () {
+    }
+
+    public function getClient () returns (QueueSenderConnector) {
+        return self.connector;
+    }
+
+    public function stop () {
+    }
 }
 
-public function <QueueSender sender> QueueSender() {
-    sender.connector = {};
-}
-
-public struct QueueSenderConnector {
-
-}
-
-public struct QueueSenderEndpointConfiguration {
+public type QueueSenderEndpointConfiguration {
     Session session;
     string queueName;
 }
 
-public function <QueueSender ep> init(QueueSenderEndpointConfiguration config) {
-    ep.config = config;
-    SessionConnector sessionConnector = config.session.getClient();
-    ep.initQueueSender(sessionConnector);
+public type QueueSenderConnector object {
+    public native function send (Message m);
 }
 
-public native function <QueueSender ep> initQueueSender(SessionConnector connector);
-
-public function <QueueSender ep> register (typedesc serviceType) {
-}
-
-public function <QueueSender ep> start () {
-}
-
-public function <QueueSender ep> getClient () returns (QueueSenderConnector) {
-    return ep.connector;
-}
-
-public function <QueueSender ep> stop () {
-}
-
-public native function <QueueSenderConnector connector> send (Message m);
 

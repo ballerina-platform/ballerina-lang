@@ -34,7 +34,7 @@ public type Session object {
     public native function createTextMessage (string content) returns (Message);
 }
 
-type SessionConfiguration {
+public type SessionConfiguration {
     Connection connection;
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
 }
