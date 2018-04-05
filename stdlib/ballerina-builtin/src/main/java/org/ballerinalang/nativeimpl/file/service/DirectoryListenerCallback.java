@@ -20,18 +20,23 @@ package org.ballerinalang.nativeimpl.file.service;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BStruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@code DirectoryListenerCallback} is the responsible for acting on notifications received from Ballerina side.
  */
 public class DirectoryListenerCallback implements CallableUnitCallback {
+
+    private static final Logger log = LoggerFactory.getLogger(DirectoryListenerCallback.class);
+
     @Override
     public void notifySuccess() {
-        //TODO:
+        log.debug("File Listener: event deliver successfully.");
     }
 
     @Override
-    public void notifyFailure(BStruct bStruct) {
-        //TODO:
+    public void notifyFailure(BStruct struct) {
+        log.debug("File Listener: event deliver failed.");
     }
 }
