@@ -204,7 +204,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.FieldType;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -1077,13 +1077,14 @@ public class BLangPackageBuilder {
     }
 
     public void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName,
-                                           FieldType fieldType) {
+                                           FieldKind fieldType, boolean safeNavigate) {
         BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldBasedAccess.pos = pos;
         fieldBasedAccess.addWS(ws);
         fieldBasedAccess.field = (BLangIdentifier) createIdentifier(fieldName);
         fieldBasedAccess.expr = (BLangVariableReference) exprNodeStack.pop();
-        fieldBasedAccess.fieldType = fieldType;
+        fieldBasedAccess.fieldKind = fieldType;
+        fieldBasedAccess.safeNavigate = safeNavigate;
         addExpressionNode(fieldBasedAccess);
     }
 

@@ -38,7 +38,6 @@ orgName
 definition
     :   serviceDefinition
     |   functionDefinition
-    |   structDefinition
     |   typeDefinition
     |   annotationDefinition
     |   globalVariableDefinition
@@ -86,18 +85,6 @@ callableUnitSignature
     :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
     ;
 
-structDefinition
-    :   (PUBLIC)? STRUCT Identifier structBody
-    ;
-
-structBody
-    :   LEFT_BRACE fieldDefinition* privateStructBody? RIGHT_BRACE
-    ;
-
-privateStructBody
-    :   PRIVATE COLON fieldDefinition*
-    ;
-
 typeDefinition
     :   (PUBLIC)? TYPE Identifier typeName
     |   (PUBLIC)? TYPE Identifier finiteType
@@ -108,11 +95,11 @@ objectBody
     ;
 
 publicObjectFields
-    :   PUBLIC LEFT_BRACE objectFieldDefinition* RIGHT_BRACE
+    :   PUBLIC LEFT_BRACE fieldDefinition* RIGHT_BRACE
     ;
 
 privateObjectFields
-    :   PRIVATE LEFT_BRACE objectFieldDefinition* RIGHT_BRACE
+    :   PRIVATE LEFT_BRACE fieldDefinition* RIGHT_BRACE
     ;
 
 objectInitializer
@@ -128,7 +115,7 @@ objectFunctions
     ;
 
 // TODO merge with fieldDefinition later
-objectFieldDefinition
+fieldDefinition
     :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
@@ -224,7 +211,7 @@ typeName
     ;
 
 fieldDefinitionList
-    :   objectFieldDefinition*
+    :   fieldDefinition*
     ;
 
 // Temporary production rule name
@@ -248,15 +235,10 @@ builtInTypeName
 referenceTypeName
     :   builtInReferenceTypeName
     |   userDefineTypeName
-    |   anonStructTypeName
     ;
 
 userDefineTypeName
     :   nameReference
-    ;
-
-anonStructTypeName
-    : STRUCT structBody
     ;
 
 valueTypeName
@@ -508,7 +490,7 @@ variableReference
     ;
 
 field
-    : DOT (Identifier | MUL)
+    : (DOT | NOT) (Identifier | MUL)
     ;
 
 index
@@ -686,10 +668,6 @@ restParameter
 formalParameterList
     :   (parameter | defaultableParameter) (COMMA (parameter | defaultableParameter))* (COMMA restParameter)?
     |   restParameter
-    ;
-
-fieldDefinition
-    :   typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 simpleLiteral
