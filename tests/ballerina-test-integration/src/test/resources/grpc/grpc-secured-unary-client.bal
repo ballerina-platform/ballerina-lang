@@ -57,10 +57,12 @@ public type helloWorldBlockingStub object {
         any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("helloWorld/hello", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
-                return new error(payloadError.message);
+                error err = {message:payloadError.message};
+                return err;
             }
-            any|string payload => {
-                return payload but { string => payload, any => new error("Unexpected type.") };
+            any payload => {
+                string result = <string> payload;
+                return result;
             }
         }
     }
@@ -81,7 +83,8 @@ public type helloWorldStub object {
     function<helloWorldStub stub> hello(string req, typedesc listener) returns (error|()) {
         var err1 = self.serviceStub.nonBlockingExecute("helloWorld/hello", req, listener);
         if (err1 != ()) {
-            return new error(err1.message);
+            error err = {message:err1.message};
+            return err;
         }
         return ();
     }

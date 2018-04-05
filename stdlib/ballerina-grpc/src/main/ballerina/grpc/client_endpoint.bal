@@ -70,9 +70,9 @@ documentation {
 }
 
 public type ClientEndpointConfiguration {
-    string host,
-    int port,
-    SSL ssl,
+    string host;
+    int port;
+    SSL ssl;
 }
 
 documentation {
@@ -93,20 +93,20 @@ documentation {
 }
 
 public type SSL {
-    string trustStoreFile,
-    string trustStorePassword,
-    string keyStoreFile,
-    string keyStorePassword,
-    string sslEnabledProtocols,
-    string sslVerifyClient,
-    string ciphers,
-    string certPassword,
-    string tlsStoreType,
-    string sslProtocol,
-    boolean validateCertEnabled,
-    int cacheSize,
-    int cacheValidityPeriod,
-    boolean hostNameVerificationEnabled,
+    string trustStoreFile;
+    string trustStorePassword;
+    string keyStoreFile;
+    string keyStorePassword;
+    string sslEnabledProtocols;
+    string sslVerifyClient;
+    string ciphers;
+    string certPassword;
+    string tlsStoreType;
+    string sslProtocol;
+    boolean validateCertEnabled;
+    int cacheSize;
+    int cacheValidityPeriod;
+    boolean hostNameVerificationEnabled;
 }
 
 public type Listener object {

@@ -21,7 +21,7 @@ endpoint grpc:Service ep {
     port:9090
 };
 
-@grpc:serviceConfig {generateClientConnector:true}
+@grpc:serviceConfig {generateClientConnector:false}
 service<grpc:Endpoint> helloWorld bind ep {
 
     testInputNestedStruct (endpoint client, Person req) {

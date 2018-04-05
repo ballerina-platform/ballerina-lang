@@ -49,7 +49,7 @@ service<grpc:Listener> helloWorldMessageListener {
 
     // Resource registered to receive server error messages
     onError (grpc:ServerError err) {
-        if (err != null) {
+        if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }
@@ -69,7 +69,7 @@ public type helloWorldStub object {
         grpc:ServiceStub serviceStub;
     }
     function initStub (grpc:Client clientEndpoint) {
-        grpc:ServiceStub navStub = {};
+        grpc:ServiceStub navStub = new;
         navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
         self.serviceStub = navStub;
     }
@@ -77,7 +77,8 @@ public type helloWorldStub object {
     function lotsOfReplies (string req, typedesc listener) returns (error| ()) {
         var err1 = self.serviceStub.nonBlockingExecute("helloWorld/lotsOfReplies", req, listener);
         if (err1 != ()) {
-            return new error(err1.message);
+            error err = {message:err1.message};
+            return err;
         }
         return ();
     }

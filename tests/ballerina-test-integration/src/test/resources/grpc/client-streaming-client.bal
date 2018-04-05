@@ -88,7 +88,8 @@ public type helloWorldStub object {
         var res = self.serviceStub.streamingExecute("helloWorld/LotsOfGreetings", listener);
         match res {
             grpc:ConnectorError err => {
-                return new error(err.message);
+                error err1 = {message:err.message};
+                return err1;
             }
             grpc:Client con => {
                 return con;

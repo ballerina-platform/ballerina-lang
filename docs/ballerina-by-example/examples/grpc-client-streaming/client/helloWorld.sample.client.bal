@@ -31,7 +31,7 @@ function main (string[] args) {
     foreach greet in greets {
         log:printInfo("send greeting: " + greet + " " + name);
         grpc:ConnectorError connErr = ep -> send(greet + " " + name);
-        if (connErr != null) {
+        if (connErr != ()) {
             io:println("Error at LotsOfGreetings : " + connErr.message);
         }
     }
@@ -53,7 +53,7 @@ service<grpc:Listener> helloWorldMessageListener {
 
     // Resource registered to receive server error messages
     onError (grpc:ServerError err) {
-        if (err != null) {
+        if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }

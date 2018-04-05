@@ -16,7 +16,7 @@ function main (string[] args) {
         error payloadError => {
             io:println("Error occured while sending event " + payloadError.message);
         }
-        any| null => {
+        () => {
             io:println("Connected successfully");
         }
     }
@@ -35,7 +35,7 @@ service<grpc:Listener> helloWorldMessageListener {
 
     // Resource registered to receive server error messages
     onError (grpc:ServerError err) {
-        if (err != null) {
+        if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }

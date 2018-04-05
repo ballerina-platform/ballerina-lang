@@ -71,8 +71,9 @@ public type chatStub object {
     function <chatStub stub> chat (typedesc listener) returns (grpc:Client|error) {
         var res = stub.serviceStub.streamingExecute("chat/chat", listener);
         match res {
-            grpc:ConnectorError err => {
-                return new error(err.message);
+            grpc:ConnectorError err1 => {
+                error err = {message:err1.message};
+                return err;
             }
             grpc:Client con => {
                 return con;

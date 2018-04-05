@@ -114,10 +114,12 @@ public type helloWorldBlockingStub object {
         any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("helloWorld/hello", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
-                return new error(payloadError.message);
+                error err = {message:payloadError.message};
+                return err;
             }
-            any|string payload => {
-                return payload but { string => payload, any => new error("Unexpected type.") };
+            any payload => {
+                string result = <string> payload;
+                return result;
             }
         }
     }
@@ -126,10 +128,12 @@ public type helloWorldBlockingStub object {
         any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("helloWorld/testInt", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
-                return new error(payloadError.message);
+                error err = {message:payloadError.message};
+                return err;
             }
-            any|int payload => {
-                return payload but { int => payload, any => new error("Unexpected type.") };
+            any payload => {
+                int result = <int> payload;
+                return result;
             }
         }
     }
@@ -138,10 +142,12 @@ public type helloWorldBlockingStub object {
         any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("helloWorld/testFloat", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
-                return new error(payloadError.message);
+                error err = {message:payloadError.message};
+                return err;
             }
-            any|float payload => {
-                return payload but { float => payload, any => new error("Unexpected type.") };
+            any payload => {
+                float result = <float> payload;
+                return result;
             }
         }
     }
@@ -150,10 +156,12 @@ public type helloWorldBlockingStub object {
         any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("helloWorld/testBoolean", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
-                return new error(payloadError.message);
+                error err = {message:payloadError.message};
+                return err;
             }
-            any|boolean payload => {
-                return payload but { boolean => payload, any => new error("Unexpected type.") };
+            any payload => {
+                boolean result = <boolean> payload;
+                return result;
             }
         }
     }
@@ -162,10 +170,12 @@ public type helloWorldBlockingStub object {
         any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("helloWorld/testStruct", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
-                return new error(payloadError.message);
+                error err = {message:payloadError.message};
+                return err;
             }
-            any|Response payload => {
-                return payload but { Response => payload, any => new error("Unexpected type.") };
+            any payload => {
+                Response result = <Response> payload;
+                return result;
             }
         }
     }
@@ -186,7 +196,8 @@ public type helloWorldStub object {
     function hello (string req, typedesc listener) returns (error| ()) {
         var err1 = self.serviceStub.nonBlockingExecute("helloWorld/hello", req, listener);
         if (err1 != ()) {
-            return new error(err1.message);
+            error err = {message:err1.message};
+            return err;
         }
         return ();
     }
@@ -194,7 +205,8 @@ public type helloWorldStub object {
     function testInt (int req, typedesc listener) returns (error| ()) {
         var err1 = self.serviceStub.nonBlockingExecute("helloWorld/testInt", req, listener);
         if (err1 != ()) {
-            return new error(err1.message);
+            error err = {message:err1.message};
+            return err;
         }
         return ();
     }
@@ -202,7 +214,8 @@ public type helloWorldStub object {
     function testFloat (float req, typedesc listener) returns (error| ()) {
         var err1 = self.serviceStub.nonBlockingExecute("helloWorld/testFloat", req, listener);
         if (err1 != ()) {
-            return new error(err1.message);
+            error err = {message:err1.message};
+            return err;
         }
         return ();
     }
@@ -210,7 +223,8 @@ public type helloWorldStub object {
     function testBoolean (boolean req, typedesc listener) returns (error| ()) {
         var err1 = self.serviceStub.nonBlockingExecute("helloWorld/testBoolean", req, listener);
         if (err1 != ()) {
-            return new error(err1.message);
+            error err = {message:err1.message};
+            return err;
         }
         return ();
     }
@@ -218,7 +232,8 @@ public type helloWorldStub object {
     function testStruct (Request req, typedesc listener) returns (error| ()) {
         var err1 = self.serviceStub.nonBlockingExecute("helloWorld/testStruct", req, listener);
         if (err1 != ()) {
-            return new error(err1.message);
+            error err = {message:err1.message};
+            return err;
         }
         return ();
     }

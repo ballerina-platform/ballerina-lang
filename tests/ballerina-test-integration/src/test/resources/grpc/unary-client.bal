@@ -54,9 +54,9 @@ public type helloWorldBlockingStub object {
                 return e;
             }
 
-            any|string payload => {
-                return payload but { string => payload,
-                                     any => new error("Unexpected type.")};
+            any payload => {
+                string result = <string> payload;
+                return result;
             }
         }
     }
@@ -76,7 +76,7 @@ public type helloWorldStub object {
 
     function hello (string req, typedesc listener) returns (error|()) {
         var err1 = self.serviceStub.nonBlockingExecute("helloWorld/hello", req, listener);
-        if (err1 != null && err1.message != null) {
+        if (err1 != ()) {
             error e = {message:err1.message};
             return e;
         }
