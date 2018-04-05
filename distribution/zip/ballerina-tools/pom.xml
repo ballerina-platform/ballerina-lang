@@ -47,10 +47,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-packerina</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-cli-utils</artifactId>
         </dependency>
         <dependency>
@@ -128,6 +124,7 @@
                 </executions>
             </plugin>
 
+            <!-- TODO: Temporary removed, need to include fix NPE issue
             <plugin>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>docerina-maven-plugin</artifactId>
@@ -164,6 +161,7 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            -->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

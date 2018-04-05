@@ -47,10 +47,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -98,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -232,6 +235,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         compUnitNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
     }
 
+    public void visit(BLangTypeDefinition typeDefinition) {
+        //TODO
+    }
+
     @Override
     public void visit(BLangFunction funcNode) {
         this.returnWithintransactionCheckStack.push(true);
@@ -348,6 +355,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(abortNode.pos, DiagnosticCode.ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
+        this.lastStatement = true;
+    }
+    
+    @Override
+    public void visit(BLangDone doneNode) {
         this.lastStatement = true;
     }
 
@@ -587,6 +599,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangObject objectNode) {
+        /* ignore */
+    }
+
+    public void visit(BLangRecord record) {
         /* ignore */
     }
 

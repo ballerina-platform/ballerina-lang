@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ServiceLoader;
 
 /**
  * Class that creates the list of tracers for a given service.
@@ -42,22 +43,23 @@ class TracersStore {
         if (openTracingConfig != null) {
             this.tracers = new ArrayList<>();
             this.tracerStore = new HashMap<>();
+
+            ServiceLoader<OpenTracer> openTracers = ServiceLoader.load(OpenTracer.class);
+            HashMap<String, OpenTracer> tracerMap = new HashMap<>();
+            openTracers.forEach(t -> tracerMap.put(t.getName(), t));
+
             for (TracerConfig tracerConfig : openTracingConfig.getTracers()) {
                 if (tracerConfig.isEnabled()) {
-                    try {
-                        Class<?> openTracerClass = Class
-                                .forName(tracerConfig.getClassName()).asSubclass(OpenTracer.class);
-                        this.tracers.add(new TracerGenerator(tracerConfig.getName(), (OpenTracer)
-                                openTracerClass.newInstance(), tracerConfig.getConfiguration()));
-                    } catch (Throwable ignored) {
-                        //Tracers will get added only of there's no errors.
-                        //If tracers contains errors, empty map will return.
+                    OpenTracer tracer = tracerMap.get(tracerConfig.getName());
+                    if (tracer != null) {
+                        this.tracers.add(new TracerGenerator(tracer.getName(),
+                                tracer, tracerConfig.getConfiguration()));
                     }
                 }
             }
         } else {
             this.tracers = Collections.emptyList();
-            this.tracerStore = Collections.emptyMap();
+            this.tracerStore = new HashMap<>();
         }
     }
 

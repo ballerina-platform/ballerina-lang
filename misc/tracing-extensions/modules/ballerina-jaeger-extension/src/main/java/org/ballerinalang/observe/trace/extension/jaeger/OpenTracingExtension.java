@@ -18,6 +18,7 @@
 package org.ballerinalang.observe.trace.extension.jaeger;
 
 import io.opentracing.Tracer;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.util.tracer.OpenTracer;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 import org.slf4j.Logger;
@@ -44,9 +45,11 @@ import static org.ballerinalang.observe.trace.extension.jaeger.Constants.TRACER_
 /**
  * This is the open tracing extension class for {@link OpenTracer}.
  */
+@JavaSPIService("org.ballerinalang.util.tracer.OpenTracer")
 public class OpenTracingExtension implements OpenTracer {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenTracingExtension.class);
+    private static final String NAME = "jaeger";
 
     @Override
     public Tracer getTracer(String tracerName, Properties configProperties, String serviceName)
@@ -68,6 +71,11 @@ public class OpenTracingExtension implements OpenTracer {
                         (Integer) configProperties.get(REPORTER_FLUSH_INTERVAL_MS_CONFIG),
                         (Integer) configProperties.get(REPORTER_MAX_BUFFER_SPANS_CONFIG))
         ).getTracerBuilder().withScopeManager(NoOpScopeManager.INSTANCE).build();
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private void validateConfiguration(Properties configuration) {

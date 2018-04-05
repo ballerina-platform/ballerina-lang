@@ -208,42 +208,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitStructDefinition(BallerinaParser.StructDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterStructBody(BallerinaParser.StructBodyContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitStructBody(BallerinaParser.StructBodyContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterPrivateStructBody(BallerinaParser.PrivateStructBodyContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPrivateStructBody(BallerinaParser.PrivateStructBodyContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -328,13 +292,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterObjectFieldDefinition(BallerinaParser.ObjectFieldDefinitionContext ctx) { }
+	@Override public void enterFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitObjectFieldDefinition(BallerinaParser.ObjectFieldDefinitionContext ctx) { }
+	@Override public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -412,30 +376,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEnumDefinition(BallerinaParser.EnumDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitEnumDefinition(BallerinaParser.EnumDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterEnumerator(BallerinaParser.EnumeratorContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitEnumerator(BallerinaParser.EnumeratorContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -455,18 +395,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAttachmentPoint(BallerinaParser.AttachmentPointContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -544,6 +472,30 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFiniteType(BallerinaParser.FiniteTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFiniteType(BallerinaParser.FiniteTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFiniteTypeUnit(BallerinaParser.FiniteTypeUnitContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFiniteTypeUnit(BallerinaParser.FiniteTypeUnitContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTupleTypeNameLabel(BallerinaParser.TupleTypeNameLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -551,6 +503,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTupleTypeNameLabel(BallerinaParser.TupleTypeNameLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRecordTypeNameLabel(BallerinaParser.RecordTypeNameLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRecordTypeNameLabel(BallerinaParser.RecordTypeNameLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -628,6 +592,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFieldDefinitionList(BallerinaParser.FieldDefinitionListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFieldDefinitionList(BallerinaParser.FieldDefinitionListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSimpleTypeName(BallerinaParser.SimpleTypeNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -671,18 +647,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitUserDefineTypeName(BallerinaParser.UserDefineTypeNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAnonStructTypeName(BallerinaParser.AnonStructTypeNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAnonStructTypeName(BallerinaParser.AnonStructTypeNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -832,13 +796,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTableInitlization(BallerinaParser.TableInitlizationContext ctx) { }
+	@Override public void enterTableInitialization(BallerinaParser.TableInitializationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTableInitlization(BallerinaParser.TableInitlizationContext ctx) { }
+	@Override public void exitTableInitialization(BallerinaParser.TableInitializationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -2116,18 +2080,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterSimpleLiteral(BallerinaParser.SimpleLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2447,6 +2399,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitForeverStatement(BallerinaParser.ForeverStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDoneStatement(BallerinaParser.DoneStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDoneStatement(BallerinaParser.DoneStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

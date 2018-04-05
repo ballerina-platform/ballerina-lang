@@ -67,9 +67,11 @@ public class ServiceProtoConstants {
     public static final String WRAPPER_STRING_MESSAGE = "StringValue";
     public static final String WRAPPER_BYTES_MESSAGE = "BytesValue";
 
+    public static final String STRUCT_LIST_MESSAGE = "ListValue";
+
     public static final Map<Integer, String> FIELD_TYPE_MAP;
     static {
-        Map<Integer, String> sTypeMap = new HashMap<>();;
+        Map<Integer, String> sTypeMap = new HashMap<>();
         sTypeMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE, "double");
         sTypeMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE, "float");
         sTypeMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE, "int64");

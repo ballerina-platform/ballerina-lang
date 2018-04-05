@@ -103,31 +103,6 @@ class AbstractVariableNode extends Node {
 
 
 
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
-
-
     setAnnotationAttachments(newValue, silent, title) {
         const oldValue = this.annotationAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -245,6 +220,31 @@ class AbstractVariableNode extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
 
 
     setDocumentationAttachments(newValue, silent, title) {
@@ -484,6 +484,29 @@ class AbstractVariableNode extends Node {
         return _.filter(this.deprecatedAttachments, predicateFunction);
     }
 
+
+
+    isSafeAssignment() {
+        return this.safeAssignment;
+    }
+
+    setSafeAssignment(newValue, silent, title) {
+        const oldValue = this.safeAssignment;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.safeAssignment = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'safeAssignment',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
 
 }
 

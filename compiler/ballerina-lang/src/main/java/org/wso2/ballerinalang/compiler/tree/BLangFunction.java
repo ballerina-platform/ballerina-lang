@@ -21,10 +21,13 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @since 0.94
@@ -39,6 +42,10 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     public boolean attachedOuterFunction;
 
     public boolean interfaceFunction;
+
+    public BLangBlockStmt enclBlockStmt;
+
+    public Set<BLangVariable> closureVarList =  new LinkedHashSet<>();
 
     public Map<BVarSymbol, BLangStatement> initFunctionStmts = new LinkedHashMap<>();
 

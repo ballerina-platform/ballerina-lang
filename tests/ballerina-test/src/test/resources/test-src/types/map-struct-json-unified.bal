@@ -102,10 +102,3 @@ function testAccessArrayInStruct () returns (int, int) {
     string statusKey = "status";
     return (p1.marks[1], p1["marks"][2]);
 }
-
-function testMapInitWithAnyType () returns (any, map) {
-    any a = {name:"Supun"};
-    map mapCast;
-    mapCast =? <map>a;
-    return (a, mapCast);
-}

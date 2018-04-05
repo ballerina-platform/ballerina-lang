@@ -17,9 +17,9 @@
 package ballerina.transactions;
 import ballerina/io;
 
-const string PROTOCOL_COMPLETION = "completion";
-const string PROTOCOL_VOLATILE = "volatile";
-const string PROTOCOL_DURABLE = "durable";
+@final string PROTOCOL_COMPLETION = "completion";
+@final string PROTOCOL_VOLATILE = "volatile";
+@final string PROTOCOL_DURABLE = "durable";
 
 enum Protocols {
     COMPLETION, DURABLE, VOLATILE
@@ -29,22 +29,22 @@ public enum TransactionState {
     ACTIVE, PREPARED, COMMITTED, ABORTED
 }
 
-const string TRANSACTION_CONTEXT_VERSION = "1.0";
+@final string TRANSACTION_CONTEXT_VERSION = "1.0";
 
-public const string COMMAND_PREPARE = "prepare";
-public const string COMMAND_COMMIT = "commit";
-public const string COMMAND_ABORT = "abort";
+@final public string COMMAND_PREPARE = "prepare";
+@final public string COMMAND_COMMIT = "commit";
+@final public string COMMAND_ABORT = "abort";
 
-public const string OUTCOME_PREPARED = "prepared";
-public const string OUTCOME_NOT_PREPARED = "Not-Prepared";
-public const string OUTCOME_MIXED = "mixed";
-public const string OUTCOME_ABORTED = "aborted";
-public const string OUTCOME_COMMITTED = "committed";
-public const string OUTCOME_HAZARD = "Hazard-Outcome";
-public const string OUTCOME_FAILED_EOT = "Failed-EOT";
-public const string OUTCOME_READ_ONLY = "read-only";
+@final public string OUTCOME_PREPARED = "prepared";
+@final public string OUTCOME_NOT_PREPARED = "Not-Prepared";
+@final public string OUTCOME_MIXED = "mixed";
+@final public string OUTCOME_ABORTED = "aborted";
+@final public string OUTCOME_COMMITTED = "committed";
+@final public string OUTCOME_HAZARD = "Hazard-Outcome";
+@final public string OUTCOME_FAILED_EOT = "Failed-EOT";
+@final public string OUTCOME_READ_ONLY = "read-only";
 
-public struct TransactionContext {
+public type TransactionContext {
     string contextVersion = "1.0";
     string transactionId;
     int transactionBlockId;
@@ -52,7 +52,7 @@ public struct TransactionContext {
     string registerAtURL;
 }
 
-struct Participant {
+type Participant {
     string participantId;
     Protocol[] participantProtocols;
 }
@@ -65,7 +65,7 @@ documentation {
                 the `protocolFn` will be called
     F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
 }
-public struct Protocol {
+public type Protocol {
     string name;
     string url;
     int transactionBlockId;
@@ -74,7 +74,7 @@ public struct Protocol {
                string protocolAction) returns boolean)|null protocolFn;
 }
 
-public struct RegistrationRequest {
+public type RegistrationRequest {
     string transactionId;
     string participantId;
     Protocol[] participantProtocols;
@@ -90,11 +90,10 @@ public function regRequestToJson (RegistrationRequest req) returns json {
         protocols[lengthof protocols] = j2;
     }
     j.participantProtocols = protocols;
-    //j.participantProtocols = [{name:req.participantProtocols[0].name, url:req.participantProtocols[0].url}];
     return j;
 }
 
-public struct RegistrationResponse {
+public type RegistrationResponse {
     string transactionId;
     Protocol[] coordinatorProtocols;
 }
@@ -112,7 +111,6 @@ public function regResponseToJson (RegistrationResponse res) returns json {
 }
 
 public function jsonToRegResponse (json j) returns RegistrationResponse {
-    io:println(j.transactionId);
     //string transactionId =? <string>j.transactionId; //TODO: Fix
     string transactionId = <string>jsonToAny(j.transactionId);
     RegistrationResponse res = {transactionId:transactionId};
@@ -140,23 +138,23 @@ function jsonToAny(json j) returns any {
     }
 }
 
-public struct RequestError {
+public type RequestError {
     string errorMessage;
 }
 
-public struct PrepareRequest {
+public type PrepareRequest {
     string transactionId;
 }
 
-public struct PrepareResponse {
+public type PrepareResponse {
     string message;
 }
 
-public struct NotifyRequest {
+public type NotifyRequest {
     string transactionId;
     string message;
 }
 
-public struct NotifyResponse {
+public type NotifyResponse {
     string message;
 }

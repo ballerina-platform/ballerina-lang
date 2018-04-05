@@ -50,9 +50,9 @@ service<http:WebSocketService> wsService {
         io:println("New WebSocket connection: " + ep.id);
     }
 
-    onTextMessage (endpoint ep, http:TextFrame frame) {
-        io:println(frame.text);
-        _ = ep -> pushText(frame.text);
+    onText (endpoint ep, string text) {
+        io:println(text);
+        _ = ep -> pushText(text);
     }
 
     onIdleTimeout (endpoint ep) {

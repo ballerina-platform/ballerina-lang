@@ -17,9 +17,14 @@
 package ballerina.config;
 
 @Description {value:"Retrieves the specified configuration value as a string"}
-@Param { value:"configKey: The configuration to be retrieved" }
-@Return { value:"Configuration value mapped by the configKey" }
+@Param {value:"configKey: The configuration to be retrieved" }
+@Return {value:"Configuration value mapped by the configKey" }
 public native function getAsString(string configKey) returns (string|null);
+
+@Description {value:"Retrieves the specified table of configurations as a map"}
+@Param {value:"tableHeader: The table to be retrieved"}
+@Return {value:"The specified table"}
+public native function getTable (string tableHeader) returns map;
 
 @Description {value:"Checks whether the given key is in the configuration registry"}
 @Param {value:"configKey: The configuration key to be looked-up"}

@@ -65,6 +65,16 @@ public class Symbols {
         return typeSymbol;
     }
 
+    public static BTypeSymbol createRecordSymbol(int flags,
+                                                 Name name,
+                                                 PackageID pkgID,
+                                                 BType type,
+                                                 BSymbol owner) {
+        BStructSymbol typeSymbol = new BStructSymbol(SymTag.RECORD, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.RECORD;
+        return typeSymbol;
+    }
+
     public static BTypeSymbol createEnumSymbol(int flags,
                                                Name name,
                                                PackageID pkgID,
@@ -72,6 +82,16 @@ public class Symbols {
                                                BSymbol owner) {
         BTypeSymbol typeSymbol = createTypeSymbol(SymTag.ENUM, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.ENUM;
+        return typeSymbol;
+    }
+
+    public static BTypeSymbol createTypeDefinitionSymbol(int flags,
+                                                         Name name,
+                                                         PackageID pkgID,
+                                                         BType type,
+                                                         BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE_DEF, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.TYPE_DEF;
         return typeSymbol;
     }
 

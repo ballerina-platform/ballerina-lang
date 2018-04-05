@@ -17,14 +17,14 @@
 package ballerina.http;
 
 // TODO: Document these. Should we make FORWARD a private constant?
-public const string FORWARD = "FORWARD";
-public const string GET = "GET";
-public const string POST = "POST";
-public const string DELETE = "DELETE";
-public const string OPTIONS = "OPTIONS";
-public const string PUT = "PUT";
-public const string PATCH = "PATCH";
-public const string HEAD = "HEAD";
+@final public string FORWARD = "FORWARD";
+@final public string GET = "GET";
+@final public string POST = "POST";
+@final public string DELETE = "DELETE";
+@final public string OPTIONS = "OPTIONS";
+@final public string PUT = "PUT";
+@final public string PATCH = "PATCH";
+@final public string HEAD = "HEAD";
 
 enum HttpOperation {
     GET, POST, DELETE, OPTIONS, PUT, PATCH, HEAD, FORWARD
@@ -115,10 +115,18 @@ function createHttpClientArray (ClientEndpointConfiguration config) returns Http
         if (!httpClientRequired) {
             httpClients[i] = createCircuitBreakerClient(uri, config);
         } else {
-            if (config.cacheConfig.enabled) {
-                httpClients[i] = createHttpCachingClient(uri, config, config.cacheConfig);
-            } else {
-                httpClients[i] = createHttpClient(uri, config);
+            var retryConfig = config.retry;
+            match retryConfig {
+                Retry retry => {
+                    httpClients[i] = createRetryClient(uri, config);
+                }
+                int | null => {
+                    if (config.cacheConfig.enabled) {
+                        httpClients[i] = createHttpCachingClient(uri, config, config.cacheConfig);
+                    } else {
+                        httpClients[i] = createHttpClient(uri, config);
+                    }
+                }
             }
         }
         httpClients[i].config = config;

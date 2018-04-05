@@ -43,7 +43,7 @@ documentation {
 }
 caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache", 900000, 100, 0.1);
 
-const boolean scheduleInit = scheduleTimer(1000, 60000);
+@final boolean scheduleInit = scheduleTimer(1000, 60000);
 
 function scheduleTimer (int delay, int interval) returns boolean {
     function () returns (error|null) onTriggerFunction = cleanupTransactions;
@@ -61,6 +61,7 @@ function cleanupTransactions () returns error|null {
                         boolean prepareSuccessful = prepareResourceManagers(twopcTxn.transactionId, twopcTxn.transactionBlockId);
                         if (prepareSuccessful) {
                             twopcTxn.state = TransactionState.PREPARED;
+                            log:printInfo("Auto-prepared participated  transaction: " + participatedTxnId);
                         } else {
                             log:printError("Auto-prepare of participated transaction: " + participatedTxnId + " failed");
                         }
@@ -69,6 +70,7 @@ function cleanupTransactions () returns error|null {
                         boolean commitSuccessful = commitResourceManagers(twopcTxn.transactionId, twopcTxn.transactionBlockId);
                         if (commitSuccessful) {
                             twopcTxn.state = TransactionState.COMMITTED;
+                            log:printInfo("Auto-committed participated  transaction: " + participatedTxnId);
                         } else {
                             log:printError("Auto-commit of participated transaction: " + participatedTxnId + " failed");
                         }
@@ -143,7 +145,7 @@ function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
     log:printError(msg);
     http:Response res = {statusCode:http:BAD_REQUEST_400};
     RequestError err = {errorMessage:msg};
-    json resPayload =? <json>err;
+    json resPayload = check <json>err;
     res.setJsonPayload(resPayload);
     var respondResult = ep -> respond(res);
     match respondResult {
@@ -156,10 +158,7 @@ function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
 
 function createNewTransaction (string coordinationType, int transactionBlockId) returns TwoPhaseCommitTransaction {
     if (coordinationType == TWO_PHASE_COMMIT) {
-        TwoPhaseCommitTransaction twopcTxn = {transactionId:util:uuid(),
-                                                 transactionBlockId:transactionBlockId,
-                                                 createdTime:time:currentTime().time,
-                                                 coordinationType:coordinationType};
+        TwoPhaseCommitTransaction twopcTxn = new (util:uuid(), transactionBlockId, coordinationType = coordinationType);
         return twopcTxn;
     } else {
         error e = {message:"Unknown coordination type: " + coordinationType};
@@ -225,10 +224,7 @@ function registerParticipantWithLocalInitiator (string transactionId,
             txn.participants[participantId] = participant;
 
             //Set initiator protocols
-            TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId,
-                                                     transactionBlockId:transactionBlockId,
-                                                     createdTime:time:currentTime().time,
-                                                     coordinationType:TWO_PHASE_COMMIT};
+            TwoPhaseCommitTransaction twopcTxn = new (transactionId, transactionBlockId);
             Protocol initiatorProto = {name:"durable", transactionBlockId:transactionBlockId};
             twopcTxn.coordinatorProtocols = [initiatorProto];
 
@@ -300,7 +296,7 @@ function removeInitiatedTransaction (string transactionId) {
 
 function getInitiatorClientEP (string registerAtURL) returns InitiatorClientEP {
     if (httpClientCache.hasKey(registerAtURL)) {
-        InitiatorClientEP initiatorEP =? <InitiatorClientEP>httpClientCache.get(registerAtURL);
+        InitiatorClientEP initiatorEP = check <InitiatorClientEP>httpClientCache.get(registerAtURL);
         return initiatorEP;
     } else {
         InitiatorClientEP initiatorEP = {};
@@ -314,7 +310,7 @@ function getInitiatorClientEP (string registerAtURL) returns InitiatorClientEP {
 
 function getParticipant2pcClientEP (string participantURL) returns Participant2pcClientEP {
     if (httpClientCache.hasKey(participantURL)) {
-        Participant2pcClientEP participantEP =? <Participant2pcClientEP>httpClientCache.get(participantURL);
+        Participant2pcClientEP participantEP = check <Participant2pcClientEP>httpClientCache.get(participantURL);
         return participantEP;
     } else {
         Participant2pcClientEP participantEP = {};
@@ -360,10 +356,7 @@ public function registerParticipantWithRemoteInitiator (string transactionId,
         }
         RegistrationResponse regRes => {
             Protocol[] coordinatorProtocols = regRes.coordinatorProtocols;
-            TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId,
-                                                     transactionBlockId:transactionBlockId,
-                                                     createdTime:time:currentTime().time,
-                                                     coordinationType:TWO_PHASE_COMMIT};
+            TwoPhaseCommitTransaction twopcTxn = new (transactionId, transactionBlockId);
             twopcTxn.coordinatorProtocols = coordinatorProtocols;
             participatedTransactions[participatedTxnId] = twopcTxn;
             TransactionContext txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,

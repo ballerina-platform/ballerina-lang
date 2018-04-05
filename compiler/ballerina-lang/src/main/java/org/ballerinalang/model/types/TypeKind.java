@@ -75,6 +75,8 @@ public enum TypeKind {
     XML_ATTRIBUTES("xml-attributes"),
     INTERMEDIATE_COLLECTION("intermediate_collection"),
     TUPLE("tuple"),
+    RECORD("record"),
+    FINITE("finite"),
     ;
 
     private String name;

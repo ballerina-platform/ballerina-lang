@@ -39,6 +39,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public int nameCPIndex;
     public String pkgPath;
+    public int versionCPIndex;
+    public String pkgVersion;
     private FunctionInfo initFunctionInfo, startFunctionInfo, stopFunctionInfo;
 
     private ConstantPoolEntry[] constPool;
@@ -67,6 +69,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private Map<String, TransformerInfo> transformerInfoMap = new LinkedHashMap<>();
 
+    public Map<String, TypeDefinitionInfo> typeDefInfoMap = new HashMap<>();
+
     // cache values.
     ProgramFile programFile;
 
@@ -78,7 +82,13 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return pkgPath;
     }
 
-    // CP
+    public int getPackageVersionCPIndex() {
+        return versionCPIndex;
+    }
+
+    public String getPackageVersion() {
+        return pkgVersion;
+    }
 
     public int addCPEntry(ConstantPoolEntry cpEntry) {
         if (constantPoolEntries.contains(cpEntry)) {
@@ -157,6 +167,19 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     public void addEnumInfo(String enumName, EnumInfo enumInfo) {
         enumInfoMap.put(enumName, enumInfo);
         structureTypeInfoMap.put(enumName, enumInfo);
+    }
+
+    public void addTypeDefinitionInfo(String typeDefinitionName, TypeDefinitionInfo typeDefinitionInfo) {
+        typeDefInfoMap.put(typeDefinitionName, typeDefinitionInfo);
+        structureTypeInfoMap.put(typeDefinitionName, typeDefinitionInfo);
+    }
+
+    public TypeDefinitionInfo[] getTypeDefinitionInfoEntries() {
+        return typeDefInfoMap.values().toArray(new TypeDefinitionInfo[0]);
+    }
+
+    public TypeDefinitionInfo getTypeDefinitionInfo(String typeDefName) {
+        return typeDefInfoMap.get(typeDefName);
     }
 
     public EnumInfo[] getEnumInfoEntries() {
