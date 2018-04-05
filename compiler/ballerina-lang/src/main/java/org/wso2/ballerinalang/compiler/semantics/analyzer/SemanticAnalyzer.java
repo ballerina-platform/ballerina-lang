@@ -1283,13 +1283,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                 get(streamIdentifier);
                         if (streamFieldList == null) {
                             dlog.error(((BLangSelectClause) ((BLangStreamingQueryStatement) streamingQueryStatement).
-                                    getSelectClause()).pos, DiagnosticCode.UNDEFINED_STREAM_REFERENCE);
+                                            getSelectClause()).pos, DiagnosticCode.UNDEFINED_STREAM_REFERENCE,
+                                    streamIdentifier);
                         } else {
                             structField = getStructField(streamFieldList, attributeName);
                             if (structField == null) {
                                 dlog.error(((BLangSelectClause) ((BLangStreamingQueryStatement)
-                                        streamingQueryStatement).getSelectClause()).pos,
-                                        DiagnosticCode.UNDEFINED_STREAM_ATTRIBUTE);
+                                                streamingQueryStatement).getSelectClause()).pos,
+                                        DiagnosticCode.UNDEFINED_STREAM_ATTRIBUTE, attributeName);
                             } else {
                                 BStructType.BStructField outputStructField = outputStreamFieldList.get(i);
                                 this.types.checkType(((BLangStreamAction) ((BLangStreamingQueryStatement)
@@ -1310,7 +1311,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         }
                         if (structField == null) {
                             dlog.error(((BLangSelectClause) ((BLangStreamingQueryStatement) streamingQueryStatement).
-                                    getSelectClause()).pos, DiagnosticCode.UNDEFINED_STREAM_ATTRIBUTE);
+                                    getSelectClause()).pos, DiagnosticCode.UNDEFINED_STREAM_ATTRIBUTE, attributeName);
                         } else {
                             BStructType.BStructField outputStructField = outputStreamFieldList.get(i);
                             this.types.checkType(((BLangStreamAction) ((BLangStreamingQueryStatement)
