@@ -143,8 +143,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.ANON_STRUCT;
-
 /**
  * This represents the code analyzing pass of semantic analysis.
  * <p>
@@ -990,10 +988,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         BSymbol symbol = node.type.tsymbol;
-        //skip anonymous struct definitions
-        if (symbol instanceof BStructSymbol && symbol.getName().getValue().startsWith(ANON_STRUCT)) {
-            return;
-        }
 
         if (!(env.enclPkg.symbol.pkgID == symbol.pkgID || (Symbols.isPublic(symbol)))) {
             dlog.error(node.pos, DiagnosticCode.ATTEMPT_REFER_NON_PUBLIC_SYMBOL, symbol.name);

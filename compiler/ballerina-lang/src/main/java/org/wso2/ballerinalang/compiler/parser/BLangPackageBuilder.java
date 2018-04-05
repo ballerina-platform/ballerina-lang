@@ -450,6 +450,7 @@ public class BLangPackageBuilder {
 
         // Create an anonymous record and add it to the list of records in the current package.
         BLangRecord recordNode = populateRecordNode(pos, ws, anonRecordGenName, true);
+        recordNode.addFlag(Flag.PUBLIC);
         this.compUnit.addTopLevelNode(recordNode);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), recordNode.name));
@@ -1443,6 +1444,7 @@ public class BLangPackageBuilder {
 
         // Create an anonymous object and add it to the list of objects in the current package.
         BLangObject objectNode = populateObjectNode(pos, ws, anonObjectGenName, true);
+        objectNode.addFlag(Flag.PUBLIC);
         this.compUnit.addTopLevelNode(objectNode);
 
         addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), objectNode.name));
