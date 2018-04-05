@@ -19,4 +19,4 @@ package ballerina.builtin;
 public type error {
     string message;
     error[] cause;
-}
+};

@@ -7,7 +7,7 @@ type Department object {
     new (dptName = "", employees) {
         
     }
-}
+};
 
 type Person object {
     public {
@@ -17,7 +17,7 @@ type Person object {
         int age = 999;
         Family family;
     }
-}
+};
 
 type Family object {
     public {
@@ -25,7 +25,7 @@ type Family object {
         int noOfChildren;
         string[] children;
     }
-}
+};
 
 function testCreateObject () returns (string, map, int) {
     map address1;
