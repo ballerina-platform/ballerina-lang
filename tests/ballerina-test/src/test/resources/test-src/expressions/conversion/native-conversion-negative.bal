@@ -45,7 +45,7 @@ type Info {
 function testStructWithIncompatibleTypeMapToJson () returns (json) {
     Info info = {};
     json j;
-    j =? <json>info;
+    j = check <json>info;
     return j;
 
 }
