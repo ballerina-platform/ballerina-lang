@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -21,51 +21,55 @@ package org.ballerinalang.nativeimpl.file;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.file.utils.Constants;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createFileStruct;
+import java.nio.file.Path;
 
 /**
- * Lists the files in the specified directory.
+ * List out the content in directory.
  *
- * @since 0.94.1
+ * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "file",
         functionName = "list",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRUCT),
-                @ReturnType(type = TypeKind.STRUCT), @ReturnType(type = TypeKind.STRUCT)},
+        args = {@Argument(name = "path", type = TypeKind.STRUCT, structType = "Path",
+                structPackage = "ballerina.file")},
+        returnType = {
+                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRUCT),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.file")
+        },
         isPublic = true
 )
-public class ListFiles extends BlockingNativeCallableUnit {
+public class List extends BlockingNativeCallableUnit {
 
-    private static final Logger log = LoggerFactory.getLogger(ListFiles.class);
+    private static final Logger log = LoggerFactory.getLogger(List.class);
 
     @Override
     public void execute(Context context) {
-        BStruct fileStruct = (BStruct) context.getRefArgument(0);
-        String path = fileStruct.getStringField(0);
-        List<BStruct> structList = new ArrayList<>();
-        BRefValueArray filesList;
-
+        BStruct pathStruct = (BStruct) context.getRefArgument(0);
+        Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
+        final BRefValueArray filesList = new BRefValueArray(new BArrayType(pathStruct.getType()));
         try {
-            Files.list(Paths.get(path)).forEach(p -> structList.add(createFileStruct(context, p.toString())));
-            filesList = new BRefValueArray(structList.toArray(new BRefType[0]), fileStruct.getType());
+            Files.list(path).forEach(p -> {
+                BStruct filePaths = BLangConnectorSPIUtil.createBStruct(context, Constants.FILE_PACKAGE,
+                        Constants.PATH_STRUCT);
+                filePaths.addNativeData(Constants.PATH_DEFINITION_NAME, p);
+                long index = filesList.size();
+                filesList.add((index), filePaths);
+            });
             context.setReturnValues(filesList);
         } catch (IOException | SecurityException e) {
             String msg;

@@ -260,13 +260,13 @@ public function <Response response> setMultiparts (mime:Entity[] bodyParts, stri
 
 @Description {value:"Sets the entity body of the outbound response with the given file content"}
 @Param {value:"response: The response message"}
-@Param {value:"fileHandler: File that needs to be set to the payload"}
+@Param {value:"path: File that needs to be set to the payload"}
 @Param {value:"contentType: Content-Type of the file"}
-public function <Response response> setFileAsPayload (file:File fileHandler, string contentType) {
+public function <Response response> setFileAsPayload (file:Path path, string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = response.getEntityWithoutBody();
     entity.contentType = mediaType;
-    entity.setFileAsEntityBody(fileHandler);
+    entity.setFileAsEntityBody(path);
     response.setEntity(entity);
 }
 

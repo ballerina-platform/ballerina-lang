@@ -15,67 +15,59 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.file.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.File;
 import java.nio.file.Path;
 
 /**
- * Deletes a given file or a directory.
+ * Creates the file at the path specified in the File struct.
  *
  * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "file",
-        functionName = "delete",
+        functionName = "Path.toAbsolutePath",
         args = {
                 @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path", structPackage = "ballerina.file")
         },
         returnType = {
-                @ReturnType(type = TypeKind.BOOLEAN),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.file")
+                @ReturnType(type = TypeKind.STRUCT, structType = "Path", structPackage = "ballerina.file")
         },
         isPublic = true
 )
-public class Delete extends BlockingNativeCallableUnit {
+public class ToAbsolutePath extends BlockingNativeCallableUnit {
 
-    @Override 
+    /**
+     * Returns the absolute path of the file.
+     *
+     * @param path the path to the file location.
+     * @return the absolute path reference.
+     */
+    private Path getAbsolutePath(Path path) {
+        return path.toAbsolutePath();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void execute(Context context) {
         BStruct pathStruct = (BStruct) context.getRefArgument(0);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-        File targetFile = new File(path.toUri());
-        if (!targetFile.exists()) {
-            throw new BallerinaException("failed to delete file: file not found: " + targetFile.getPath());
-        }
-        if (!delete(targetFile)) {
-            throw new BallerinaException("failed to delete file: " + targetFile.getPath());
-        }
-        context.setReturnValues();
+        BStruct absolutePath = BLangConnectorSPIUtil.createBStruct(context, Constants.FILE_PACKAGE, Constants
+                .PATH_STRUCT);
+        absolutePath.addNativeData(Constants.PATH_DEFINITION_NAME, getAbsolutePath(path));
+        context.setReturnValues(absolutePath);
     }
-
-    private boolean delete(File targetFile) {
-        String[] entries = targetFile.list();
-        if (entries != null && entries.length != 0) {
-            for (String s : entries) {
-                File currentFile = new File(targetFile.getPath(), s);
-                if (currentFile.isDirectory()) {
-                    delete(currentFile);
-                } else if (!currentFile.delete()) {
-                    return false;
-                }
-            }
-        }
-        return targetFile.delete();
-    }
-
 }
