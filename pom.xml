@@ -211,6 +211,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jms</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>strip-bouncycastle</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -904,6 +909,28 @@
                 <artifactId>ballerina-metrics</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
+
+            <!-- JMS connector dependencies -->
+            <dependency>
+                <groupId>org.wso2.transport.jms</groupId>
+                <artifactId>transport-jms</artifactId>
+                <version>${wso2.transport.jms.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.jms</groupId>
+                <artifactId>javax.jms-api</artifactId>
+                <version>${javax.jms.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.andes.wso2</groupId>
+                <artifactId>andes-client</artifactId>
+                <version>${andes.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.securevault</groupId>
+                <artifactId>org.wso2.securevault</artifactId>
+                <version>${wso2.securevault.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -999,6 +1026,7 @@
                 <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
+                <module>stdlib/ballerina-jms</module>
                 <module>stdlib/strip-bouncycastle</module>
 
                 <module>bvm/ballerina-core</module>
@@ -1049,6 +1077,7 @@
                 <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
+                <module>stdlib/ballerina-jms</module>
                 <module>stdlib/strip-bouncycastle</module>
 
                 <module>bvm/ballerina-core</module>
@@ -1091,6 +1120,7 @@
                 <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
+                <module>stdlib/ballerina-jms</module>
                 <module>stdlib/strip-bouncycastle</module>
 
                 <module>bvm/ballerina-core</module>
@@ -1586,6 +1616,11 @@
         <latencyutils.version>2.0.3</latencyutils.version>
         <prometheus.simple.client.version>0.3.0</prometheus.simple.client.version>
 
+        <!-- JMS Connector -->
+        <wso2.transport.jms.version>6.0.50</wso2.transport.jms.version>
+        <javax.jms.version>2.0.1</javax.jms.version>
+        <andes.client.version>3.2.49</andes.client.version>
+        <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
     </properties>
 
 </project>
