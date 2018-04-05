@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -102,12 +103,16 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
                 funcNode.requiredParams.forEach(this::acceptNode);
             }
 
-            if (funcNode.body != null) {
-                this.acceptNode(funcNode.body);
+            if (funcNode.returnTypeNode != null && !(funcNode.returnTypeNode.type instanceof BNilType)) {
+                this.acceptNode(funcNode.returnTypeNode);
             }
 
             if (funcNode.endpoints != null && !funcNode.endpoints.isEmpty()) {
                 funcNode.endpoints.forEach(this::acceptNode);
+            }
+
+            if (funcNode.body != null) {
+                this.acceptNode(funcNode.body);
             }
 
             if (!funcNode.workers.isEmpty()) {
