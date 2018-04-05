@@ -9,7 +9,7 @@ public function main (string[] args) {
     secureFunction(x1, x1);
 
     int x3;
-    x3 =? <int>args[0];
+    x3 = check <int>args[0];
     x3++;
     secureFunction(x3,x3);
 }
