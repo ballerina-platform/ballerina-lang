@@ -18,6 +18,7 @@
 package org.ballerinalang.util.metrics;
 
 
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.metrics.noop.NoOpMetricProvider;
 import org.ballerinalang.util.metrics.spi.MetricProvider;
 
@@ -31,6 +32,8 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
+
 /**
  * Registry for keeping metrics by name.
  */
@@ -42,6 +45,8 @@ public class MetricRegistry {
     private final ConcurrentMap<MetricId, Metric> metrics;
     // Lock used to read and write to metrics maps
     private final StampedLock stampedLock;
+
+    private static final String METRIC_PROVIDER_NAME = CONFIG_TABLE_METRICS + ".provider";
 
     /**
      * Lazy initialization for Default {@link MetricRegistry}.
@@ -56,13 +61,21 @@ public class MetricRegistry {
 
     public MetricRegistry() {
         this(() -> {
+            ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+            String providerName = configRegistry.getConfiguration(METRIC_PROVIDER_NAME);
             // Look for MetricProvider implementations
             Iterator<MetricProvider> metricProviders = ServiceLoader.load(MetricProvider.class).iterator();
             MetricProvider metricProvider = null;
             while (metricProviders.hasNext()) {
                 MetricProvider temp = metricProviders.next();
-                if (!NoOpMetricProvider.class.isInstance(temp)) {
+                if (providerName != null && providerName.equalsIgnoreCase(temp.getName())) {
                     metricProvider = temp;
+                    break;
+                } else {
+                    if (!NoOpMetricProvider.class.isInstance(temp)) {
+                        metricProvider = temp;
+                        break;
+                    }
                 }
             }
             if (metricProvider == null) {

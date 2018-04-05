@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.util.metrics.noop;
 
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.util.metrics.CallbackGauge;
 import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.Gauge;
@@ -30,7 +31,13 @@ import java.util.function.ToDoubleFunction;
 /**
  * Provide No-Op implementations of metrics.
  */
+@JavaSPIService("org.ballerinalang.util.metrics.spi.MetricProvider")
 public class NoOpMetricProvider implements MetricProvider {
+
+    @Override
+    public String getName() {
+        return "NoOp";
+    }
 
     @Override
     public Counter newCounter(MetricId metricId) {

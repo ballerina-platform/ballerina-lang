@@ -35,6 +35,11 @@ import java.util.function.ToDoubleFunction;
 public class MicrometerMetricProvider implements MetricProvider {
 
     @Override
+    public String getName() {
+        return "Micrometer";
+    }
+
+    @Override
     public Counter newCounter(MetricId metricId) {
         return new MicrometerCounter(metricId);
     }
