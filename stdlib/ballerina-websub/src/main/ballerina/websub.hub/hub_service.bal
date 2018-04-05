@@ -84,7 +84,7 @@ service<http:Service> hubService bind hubServiceEP {
             _ = client -> respond(response);
             if (validSubscriptionRequest) {
                 string callback = <string> params[websub:HUB_CALLBACK];
-                callback =? uri:decode(callback, "UTF-8");
+                callback =? http:decode(callback, "UTF-8");
                 verifyIntent(callback, params);
             }
             done;
@@ -203,7 +203,7 @@ service<http:Service> hubService bind hubServiceEP {
 function validateSubscriptionChangeRequest(string mode, map params) returns (boolean|string) {
     string topic = <string> params[websub:HUB_TOPIC];
     string callback = <string> params[websub:HUB_CALLBACK];
-    callback =? uri:decode(callback, "UTF-8");
+    callback =? http:decode(callback, "UTF-8");
     if (topic != "" && callback != "") {
         PendingSubscriptionChangeRequest pendingRequest = { mode:mode, topic:topic, callback:callback};
         pendingRequests.registerPendingRequest(pendingRequest);

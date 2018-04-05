@@ -21,6 +21,7 @@ package org.ballerinalang.net.websub;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
@@ -97,7 +98,9 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         BValue httpRequest = getHttpRequest(httpResource, httpCarbonMessage);
 
         // invoke request path filters
-        invokeRequestFilters(httpCarbonMessage, httpRequest, getRequestFilterContext(httpResource));
+        WorkerExecutionContext parentCtx = new WorkerExecutionContext(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile());
+        invokeRequestFilters(httpCarbonMessage, httpRequest, getRequestFilterContext(httpResource), parentCtx);
 
         Resource balResource = httpResource.getBalResource();
         List<ParamDetail> paramDetails = balResource.getParamDetails();

@@ -21,9 +21,9 @@ function testUnarySecuredBlocking() returns (string) {
         host:"localhost",
         port:8085,
         ssl:{
-                trustStoreFile:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                trustStorePassword:"ballerina"
-            }
+            trustStoreFile:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            trustStorePassword:"ballerina"
+        }
     };
 
     string|error unionResp = helloWorldBlockingEp -> hello("WSO2");
@@ -46,7 +46,7 @@ struct helloWorldBlockingStub {
     grpc:ServiceStub serviceStub;
 }
 
-function <helloWorldBlockingStub stub> initStub (grpc:Client clientEndpoint) {
+function<helloWorldBlockingStub stub> initStub(grpc:Client clientEndpoint) {
     grpc:ServiceStub navStub = {};
     navStub.initStub(clientEndpoint, "blocking", descriptorKey, descriptorMap);
     stub.serviceStub = navStub;
@@ -57,13 +57,13 @@ struct helloWorldStub {
     grpc:ServiceStub serviceStub;
 }
 
-function <helloWorldStub stub> initStub (grpc:Client clientEndpoint) {
+function<helloWorldStub stub> initStub(grpc:Client clientEndpoint) {
     grpc:ServiceStub navStub = {};
     navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
     stub.serviceStub = navStub;
 }
 
-function <helloWorldBlockingStub stub> hello (string req) returns (string|error) {
+function<helloWorldBlockingStub stub> hello(string req) returns (string|error) {
     any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("helloWorld/hello", req);
     match unionResp {
         grpc:ConnectorError payloadError => {
@@ -84,7 +84,7 @@ function <helloWorldBlockingStub stub> hello (string req) returns (string|error)
     }
 }
 
-function <helloWorldStub stub> hello (string req, typedesc listener) returns (error| null) {
+function<helloWorldStub stub> hello(string req, typedesc listener) returns (error|null) {
     var err1 = stub.serviceStub.nonBlockingExecute("helloWorld/hello", req, listener);
     if (err1 != null && err1.message != null) {
         error e = {message:err1.message};
@@ -98,7 +98,7 @@ public struct helloWorldBlockingClient {
     helloWorldBlockingStub stub;
 }
 
-public function <helloWorldBlockingClient ep> init (grpc:ClientEndpointConfiguration config) {
+public function<helloWorldBlockingClient ep> init(grpc:ClientEndpointConfiguration config) {
     // initialize client endpoint.
     grpc:Client client = {};
     client.init(config);
@@ -109,7 +109,7 @@ public function <helloWorldBlockingClient ep> init (grpc:ClientEndpointConfigura
     ep.stub = stub;
 }
 
-public function <helloWorldBlockingClient ep> getClient () returns (helloWorldBlockingStub) {
+public function<helloWorldBlockingClient ep> getClient() returns (helloWorldBlockingStub) {
     return ep.stub;
 }
 
@@ -118,7 +118,7 @@ public struct helloWorldClient {
     helloWorldStub stub;
 }
 
-public function <helloWorldClient ep> init (grpc:ClientEndpointConfiguration config) {
+public function<helloWorldClient ep> init(grpc:ClientEndpointConfiguration config) {
     // initialize client endpoint.
     grpc:Client client = {};
     client.init(config);
@@ -129,7 +129,7 @@ public function <helloWorldClient ep> init (grpc:ClientEndpointConfiguration con
     ep.stub = stub;
 }
 
-public function <helloWorldClient ep> getClient () returns (helloWorldStub) {
+public function<helloWorldClient ep> getClient() returns (helloWorldStub) {
     return ep.stub;
 }
 

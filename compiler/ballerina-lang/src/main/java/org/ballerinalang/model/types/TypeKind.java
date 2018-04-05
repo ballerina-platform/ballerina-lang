@@ -76,6 +76,7 @@ public enum TypeKind {
     INTERMEDIATE_COLLECTION("intermediate_collection"),
     TUPLE("tuple"),
     RECORD("record"),
+    FINITE("finite"),
     ;
 
     private String name;

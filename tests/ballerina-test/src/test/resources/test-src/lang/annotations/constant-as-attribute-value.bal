@@ -1,5 +1,5 @@
 
-const string stringvalue = getString();
+@final string stringvalue = getString();
 
 @Args{value : stringvalue}
 function foo () {

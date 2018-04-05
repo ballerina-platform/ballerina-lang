@@ -39,7 +39,7 @@ public class LSPackageCache {
     public LSPackageCache() {
         List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
         builtInPackages.forEach(this::addPackage);
-        this.loadPackagesMap();
+//        this.loadPackagesMap();
     }
 
     /**
@@ -90,7 +90,7 @@ public class LSPackageCache {
         return this.packageMap.containsKey(packageName);
     }
     
-    private void loadPackagesMap() {
+    public void loadPackagesMap() {
         CompilerContext tempCompilerContext = CommonUtil.prepareTempCompilerContext();
         for (String staticPkgName : staticPkgNames) {
             PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),

@@ -16,7 +16,6 @@
 package ballerina.websub;
 
 import ballerina/http;
-import ballerina/net.uri;
 
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///
@@ -99,8 +98,8 @@ function <SubscriberServiceEndpoint ep> sendSubscriptionRequest () {
             match (retrieveHubAndTopicUrl(resourceUrl)) {
                 (string, string) discoveredDetails => {
                     var (retHub, retTopic) = discoveredDetails;
-                    retHub =? uri:decode(retHub, "UTF-8");
-                    retTopic =? uri:decode(retTopic, "UTF-8");
+                    retHub =? http:decode(retHub, "UTF-8");
+                    retTopic =? http:decode(retTopic, "UTF-8");
                     subscriptionDetails["hub"] = retHub;
                     hub = retHub;
                     subscriptionDetails["topic"] = retTopic;

@@ -58,8 +58,8 @@ native function <Request req> getEntityWithoutBody () returns (mime:Entity);
 /// Ballerina Implementations ///
 /////////////////////////////////
 
-const string HEADER_VAL_100_CONTINUE = "100-continue";
-const string HEADER_KEY_EXPECT = "Expect";
+@final string HEADER_VAL_100_CONTINUE = "100-continue";
+@final string HEADER_KEY_EXPECT = "Expect";
 
 @Description {value:"Check whether the requested header exists"}
 @Param {value:"req: The request message"}
