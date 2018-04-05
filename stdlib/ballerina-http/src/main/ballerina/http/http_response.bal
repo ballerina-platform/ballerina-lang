@@ -155,47 +155,47 @@ public type Response object {
 /////////////////////////////////
 
 public function Response::hasHeader (string headerName) returns (boolean) {
-    mime:Entity entity = res.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     return entity.hasHeader(headerName);
 }
 
 public function Response::getHeader (string headerName) returns (string) {
-    mime:Entity entity = res.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
 
 public function Response::addHeader (string headerName, string headerValue) {
-    mime:Entity entity = res.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.addHeader(headerName, headerValue);
 }
 
 public function Response::getHeaders (string headerName) returns (string[]) {
-    mime:Entity entity = res.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
 
 public function Response::setHeader (string headerName, string headerValue) {
-    mime:Entity entity = res.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.setHeader(headerName, headerValue);
 }
 
 public function Response::removeHeader (string key) {
-    mime:Entity entity = res.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.removeHeader(key);
 }
 
 public function Response::removeAllHeaders () {
-    mime:Entity entity = res.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.removeAllHeaders();
 }
 
 public function Response::getCopyOfAllHeaders () returns (map) {
-    mime:Entity entity = res.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     return entity.getCopyOfAllHeaders();
 }
 
 public function Response::getJsonPayload () returns (json | PayloadError) {
-    match response.getEntity() {
+    match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity mimeEntity => {
             match mimeEntity.getJson() {
@@ -207,7 +207,7 @@ public function Response::getJsonPayload () returns (json | PayloadError) {
 }
 
 public function Response::getXmlPayload () returns (xml | PayloadError) {
-    match response.getEntity() {
+    match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity mimeEntity => {
             match mimeEntity.getXml() {
@@ -219,7 +219,7 @@ public function Response::getXmlPayload () returns (xml | PayloadError) {
 }
 
 public function Response::getStringPayload () returns (string | PayloadError) {
-    match response.getEntity() {
+    match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity mimeEntity => {
             match mimeEntity.getText() {
@@ -231,7 +231,7 @@ public function Response::getStringPayload () returns (string | PayloadError) {
 }
 
 public function Response::getBinaryPayload () returns (blob | PayloadError) {
-    match response.getEntity() {
+    match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity mimeEntity => {
             match mimeEntity.getBlob() {
@@ -243,7 +243,7 @@ public function Response::getBinaryPayload () returns (blob | PayloadError) {
 }
 
 public function Response::getByteChannel () returns (io:ByteChannel | PayloadError) {
-    match response.getEntity() {
+    match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity mimeEntity => {
             match mimeEntity.getByteChannel() {
@@ -255,7 +255,7 @@ public function Response::getByteChannel () returns (io:ByteChannel | PayloadErr
 }
 
 public function Response::getMultiparts () returns mime:Entity[] | mime:EntityError {
-    var mimeEntity = response.getEntity();
+    var mimeEntity = self.getEntity();
     match mimeEntity {
         mime:Entity entity => return entity.getBodyParts();
         mime:EntityError err => return err;
@@ -263,56 +263,56 @@ public function Response::getMultiparts () returns mime:Entity[] | mime:EntityEr
 }
 
 public function Response::setJsonPayload (json payload) {
-    mime:Entity entity = response.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.setJson(payload);
     entity.contentType = getMediaTypeFromResponse(response, mime:APPLICATION_JSON);
-    response.setEntity(entity);
+    self.setEntity(entity);
 }
 
 public function Response::setXmlPayload (xml payload) {
-    mime:Entity entity = response.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.setXml(payload);
     entity.contentType = getMediaTypeFromResponse(response, mime:APPLICATION_XML);
-    response.setEntity(entity);
+    self.setEntity(entity);
 }
 
 public function Response::setStringPayload (string payload) {
-    mime:Entity entity = response.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.setText(payload);
     entity.contentType = getMediaTypeFromResponse(response, mime:TEXT_PLAIN);
-    response.setEntity(entity);
+    self.setEntity(entity);
 }
 
 public function Response::setBinaryPayload (blob payload) {
-    mime:Entity entity = response.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.setBlob(payload);
     entity.contentType = getMediaTypeFromResponse(response, mime:APPLICATION_OCTET_STREAM);
-    response.setEntity(entity);
+    self.setEntity(entity);
 }
 
 public function Response::setMultiparts (mime:Entity[] bodyParts, string contentType) {
-    mime:Entity entity = response.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     mime:MediaType mediaType = getMediaTypeFromResponse(response, mime:MULTIPART_MIXED);
     if (contentType != null && contentType != "") {
         mediaType = mime:getMediaType(contentType);
     }
     entity.contentType = mediaType;
     entity.setBodyParts(bodyParts);
-    response.setEntity(entity);
+    self.setEntity(entity);
 }
 
 public function Response::setFileAsPayload (file:File fileHandler, string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
-    mime:Entity entity = response.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.contentType = mediaType;
     entity.setFileAsEntityBody(fileHandler);
-    response.setEntity(entity);
+    self.setEntity(entity);
 }
 
 public function Response::setByteChannel (io:ByteChannel payload) {
-    mime:Entity entity = response.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.setByteChannel(payload);
-    response.setEntity(entity);
+    self.setEntity(entity);
 }
 
 @Description {value:"Construct MediaType struct from the content-type header value"}

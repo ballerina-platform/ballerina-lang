@@ -4,8 +4,7 @@ import ballerina/file;
 import ballerina/io;
 import ballerina/mime;
 
-const string HEADER_VAL_100_CONTINUE = "100-continue";
-const string HEADER_KEY_EXPECT = "Expect";
+@final string HEADER_VAL_100_CONTINUE = "100-continue";
 
 @Description { value:"Represents an HTTP request message"}
 @Field {value:"path: Resource path of request URI"}
@@ -179,51 +178,51 @@ public type Request object {
 /////////////////////////////////
 
 public function Request::hasHeader (string headerName) returns (boolean) {
-    mime:Entity entity = req.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     return entity.hasHeader(headerName);
 }
 
 public function Request::getHeader (string headerName) returns (string) {
-    mime:Entity entity = req.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
 
 public function Request::getHeaders (string headerName) returns (string[]) {
-    mime:Entity entity = req.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
 
 public function Request::setHeader (string headerName, string headerValue) {
-    mime:Entity entity = req.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.setHeader(headerName, headerValue);
 }
 
 public function Request::addHeader (string headerName, string headerValue) {
-    mime:Entity entity = req.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.addHeader(headerName, headerValue);
 }
 
 public function Request::removeHeader (string key) {
-    mime:Entity entity = req.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.removeHeader(key);
 }
 
 public function Request::removeAllHeaders () {
-    mime:Entity entity = req.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.removeAllHeaders();
 }
 
 public function Request::getCopyOfAllHeaders () returns (map) {
-    mime:Entity entity = req.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     return entity.getCopyOfAllHeaders();
 }
 
 public function Request::expects100Continue () returns (boolean) {
-    return req.getHeader(HEADER_KEY_EXPECT) ==  HEADER_VAL_100_CONTINUE;
+    return self.hasHeader(EXPECT) ? self.getHeader(EXPECT) ==  "100-continue" : false;
 }
 
 public function Request::getJsonPayload () returns (json | PayloadError) {
-    match request.getEntity() {
+    match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity mimeEntity => {
             match mimeEntity.getJson() {
@@ -235,7 +234,7 @@ public function Request::getJsonPayload () returns (json | PayloadError) {
 }
 
 public function Request::getXmlPayload () returns (xml | PayloadError) {
-    match request.getEntity() {
+    match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity mimeEntity => {
             match mimeEntity.getXml() {
@@ -247,7 +246,7 @@ public function Request::getXmlPayload () returns (xml | PayloadError) {
 }
 
 public function Request::getStringPayload () returns (string | PayloadError) {
-    match request.getEntity() {
+    match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity mimeEntity => {
             match mimeEntity.getText() {
@@ -259,7 +258,7 @@ public function Request::getStringPayload () returns (string | PayloadError) {
 }
 
 public function Request::getBinaryPayload () returns (blob | PayloadError) {
-    match request.getEntity() {
+    match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity mimeEntity => {
             match mimeEntity.getBlob() {
@@ -271,7 +270,7 @@ public function Request::getBinaryPayload () returns (blob | PayloadError) {
 }
 
 public function Request::getByteChannel () returns (io:ByteChannel | PayloadError) {
-    match request.getEntity() {
+    match self.getEntity() {
         mime:EntityError err => return <PayloadError>err;
             mime:Entity mimeEntity => {
             match mimeEntity.getByteChannel() {
@@ -283,7 +282,7 @@ public function Request::getByteChannel () returns (io:ByteChannel | PayloadErro
 }
 
 public function Request::getFormParams () returns (map | PayloadError) {
-    var mimeEntity = request.getEntity();     
+    var mimeEntity = self.getEntity();
     match mimeEntity {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity entity => {
@@ -318,7 +317,7 @@ public function Request::getFormParams () returns (map | PayloadError) {
 }
 
 public function Request::getMultiparts () returns (mime:Entity[] | mime:EntityError) {
-    var mimeEntity = request.getEntity();
+    var mimeEntity = self.getEntity();
     match mimeEntity {
         mime:Entity entity => return entity.getBodyParts();
         mime:EntityError err => return err;
@@ -326,56 +325,56 @@ public function Request::getMultiparts () returns (mime:Entity[] | mime:EntityEr
 }
 
 public function Request::setJsonPayload (json payload) {
-    mime:Entity entity = request.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.setJson(payload);
     entity.contentType = getMediaTypeFromRequest(request, mime:APPLICATION_JSON);
-    request.setEntity(entity);
+    self.setEntity(entity);
 }
 
 public function Request::setXmlPayload (xml payload) {
-    mime:Entity entity = request.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.setXml(payload);
     entity.contentType = getMediaTypeFromRequest(request, mime:APPLICATION_XML);
-    request.setEntity(entity);
+    self.setEntity(entity);
 }
 
 public function Request::setStringPayload (string payload) {
-    mime:Entity entity = request.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.setText(payload);
     entity.contentType = getMediaTypeFromRequest(request, mime:TEXT_PLAIN);
-    request.setEntity(entity);
+    self.setEntity(entity);
 }
 
 public function Request::setBinaryPayload (blob payload) {
-    mime:Entity entity = request.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.setBlob(payload);
     entity.contentType = getMediaTypeFromRequest(request, mime:APPLICATION_OCTET_STREAM);
-    request.setEntity(entity);
+    self.setEntity(entity);
 }
 
 public function Request::setMultiparts (mime:Entity[] bodyParts, string contentType) {
-    mime:Entity entity = request.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     mime:MediaType mediaType = getMediaTypeFromRequest(request, mime:MULTIPART_MIXED);
     if (contentType != null && contentType != "") {
         mediaType = mime:getMediaType(contentType);
     }
     entity.contentType = mediaType;
     entity.setBodyParts(bodyParts);
-    request.setEntity(entity);
+    self.setEntity(entity);
 }
 
 public function Request::setFileAsPayload (file:File fileHandler, string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
-    mime:Entity entity = request.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.setFileAsEntityBody(fileHandler);
     entity.contentType = mediaType;
-    request.setEntity(entity);
+    self.setEntity(entity);
 }
 
 public function Request::setByteChannel (io:ByteChannel payload) {
-    mime:Entity entity = request.getEntityWithoutBody();
+    mime:Entity entity = self.getEntityWithoutBody();
     entity.setByteChannel(payload);
-    request.setEntity(entity);
+    self.setEntity(entity);
 }
 
 @Description {value:"Construct MediaType struct from the content-type header value"}

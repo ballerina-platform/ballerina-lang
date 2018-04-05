@@ -35,6 +35,9 @@ documentation { HTTP header key 'date'. The timestamp at the time the response w
 documentation { HTTP header key 'etag'. A finger print for a resource which is used by HTTP caches to identify whether a resource representation has changed. }
 @final public string ETAG = "etag";
 
+documentation { HTTP header key 'expect'. Specifies expectations to be fulfilled by the server. }
+@final public string EXPECT = "expect";
+
 documentation { HTTP header key 'expires'. Specifies the time at which the response becomes stale. }
 @final public string EXPIRES = "expires";
 
