@@ -76,11 +76,11 @@ public struct ServiceEndpointConfiguration {
     string host;
     int port;
     KeepAlive keepAlive;
-    TransferEncoding|null transferEncoding;
+    TransferEncoding? transferEncoding;
     Chunking chunking;
-    ServiceSecureSocket|null secureSocket;
+    ServiceSecureSocket? secureSocket;
     string httpVersion;
-    RequestLimits|null requestLimits;
+    RequestLimits? requestLimits;
     Filter[] filters;
 }
 
@@ -104,14 +104,14 @@ public function <ServiceEndpointConfiguration config> ServiceEndpointConfigurati
 @Field {value:"sessionCreation: Enable/disable new ssl session creation"}
 @Field {value:"ocspStapling: Enable/disable ocsp stapling"}
 public struct ServiceSecureSocket {
-    TrustStore|null trustStore;
-    KeyStore|null keyStore;
-    Protocols|null protocols;
-    ValidateCert|null validateCert;
+    TrustStore? trustStore;
+    KeyStore? keyStore;
+    Protocols? protocols;
+    ValidateCert? validateCert;
     string ciphers;
     string sslVerifyClient;
     boolean sessionCreation;
-    ServiceOcspStapling|null ocspStapling;
+    ServiceOcspStapling? ocspStapling;
 }
 
 @Description {value:"Initializes the ServiceSecureSocket struct with default values."}
