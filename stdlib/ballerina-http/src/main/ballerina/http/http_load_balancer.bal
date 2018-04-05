@@ -20,11 +20,6 @@ package ballerina.http;
 @final public string ROUND_ROBIN = "round-robin";
 
 @Description {value:"Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient."}
-@Field {value:"serviceUri: This is there just so that the struct is equivalent to HttpClient. This has no bearing on the functionality."}
-@Field {value:"config: The client endpoint configurations for the load balancer"}
-@Field {value:"loadBalanceClientsArray: The clients for the load balance endpoints"}
-@Field {value:"algorithm: The load balance algorithm. Round robin algorithm is provided out of the box."}
-@Field {value:"nextIndex: Indicates the next client to be used. Users should not edit this."}
 public type LoadBalancer object {
    public {
        string serviceUri;
@@ -154,7 +149,7 @@ public type LoadBalanceConnectorError {
     string message,
     error[] cause,
     int statusCode,
-    HttpConnectorError[] httpConnectorError
+    HttpConnectorError[] httpConnectorError,
 }
 
 
