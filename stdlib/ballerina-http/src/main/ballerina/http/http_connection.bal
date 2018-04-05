@@ -17,56 +17,56 @@
 package ballerina.http;
 
 @Description {value:"Represent 'content-length' header name"}
-public const string CONTENT_LENGTH = "content-length";
+public @final string CONTENT_LENGTH = "content-length";
 
-const string HEADER_KEY_LOCATION = "Location";
+@final string HEADER_KEY_LOCATION = "Location";
 
 documentation {
     Represents HTTP connection which can be used to comminicate either with client or with other service.
 }
-public struct Connection {
+public type Connection object {
+
+    @Description {value:"Sends outbound response to the caller"}
+    @Param {value:"conn: The server connector connection"}
+    @Param {value:"res: The outbound response message"}
+    @Return {value:"Error occured during HTTP server connector respond"}
+    @Return {value:"Returns null if any error does not exist."}
+    public native function respond(Response res) returns (HttpConnectorError |null);
+
+    @Description {value:"Forwards inbound response to the caller"}
+    @Param {value:"conn: The server connector connection"}
+    @Param {value:"res: The inbound response message"}
+    @Return {value:"Error occured during HTTP server connector forward"}
+    @Return {value:"Returns null if any error does not exist."}
+    public native function forward(Response res) returns (HttpConnectorError |null);
+
+    @Description { value:"Sends a push promise to the caller."}
+    @Param { value:"conn: The server connector connection" }
+    @Param { value:"promise: Push promise message" }
+    @Return { value:"Error occured during HTTP server connector forward" }
+    @Return {value:"Returns null if any error does not exist."}
+    public native function promise(PushPromise promise) returns (HttpConnectorError |null);
+
+    @Description { value:"Sends a promised push response to the caller."}
+    @Param { value:"conn: The server connector connection" }
+    @Param { value:"promise: Push promise message" }
+    @Param { value:"res: The outbound response message" }
+    @Return { value:"Error occured during HTTP server connector forward" }
+    @Return {value:"Returns null if any error does not exist."}
+    public native function pushPromisedResponse(PushPromise promise, Response res) returns (HttpConnectorError |null);
+
+    @Description {value:"Sends a upgrade request with custom headers"}
+    @Param {value:"headers: a map of custom headers for handshake."}
+    public native function upgradeToWebSocket(map headers) returns WebSocketEndpoint;
+
+    @Description {value:"Cancels the handshake"}
+    @Param {value:"statusCode: Status code for closing the connection"}
+    @Param {value:"reason: Reason for closing the connection"}
+    public native function cancelUpgradeToWebSocket(int status, string reason);
+
+    public function respondContinue() returns (HttpConnectorError | null);
+    public function redirect(Response response, RedirectCode code, string[] locations) returns (HttpConnectorError | null);
 }
-
-//////////////////////////////
-/// Native Implementations ///
-//////////////////////////////
-@Description {value:"Sends outbound response to the caller"}
-@Param {value:"conn: The server connector connection"}
-@Param {value:"res: The outbound response message"}
-@Return {value:"Error occured during HTTP server connector respond"}
-@Return {value:"Returns null if any error does not exist."}
-public native function <Connection conn> respond(Response res) returns (HttpConnectorError | null);
-
-@Description {value:"Forwards inbound response to the caller"}
-@Param {value:"conn: The server connector connection"}
-@Param {value:"res: The inbound response message"}
-@Return {value:"Error occured during HTTP server connector forward"}
-@Return {value:"Returns null if any error does not exist."}
-public native function <Connection conn> forward(Response res) returns (HttpConnectorError | null);
-
-@Description { value:"Sends a push promise to the caller."}
-@Param { value:"conn: The server connector connection" }
-@Param { value:"promise: Push promise message" }
-@Return { value:"Error occured during HTTP server connector forward" }
-@Return {value:"Returns null if any error does not exist."}
-public native function <Connection conn> promise(PushPromise promise) returns (HttpConnectorError | null);
-
-@Description { value:"Sends a promised push response to the caller."}
-@Param { value:"conn: The server connector connection" }
-@Param { value:"promise: Push promise message" }
-@Param { value:"res: The outbound response message" }
-@Return { value:"Error occured during HTTP server connector forward" }
-@Return {value:"Returns null if any error does not exist."}
-public native function <Connection conn> pushPromisedResponse(PushPromise promise, Response res) returns (HttpConnectorError | null);
-
-@Description {value:"Sends a upgrade request with custom headers"}
-@Param {value:"headers: a map of custom headers for handshake."}
-public native function <Connection conn> upgradeToWebSocket (map headers) returns WebSocketEndpoint;
-
-@Description {value:"Cancels the handshake"}
-@Param {value:"statusCode: Status code for closing the connection"}
-@Param {value:"reason: Reason for closing the connection"}
-public native function <Connection conn> cancelUpgradeToWebSocket (int status, string reason);
 
 /////////////////////////////////
 /// Ballerina Implementations ///
@@ -79,21 +79,14 @@ public native function <Connection conn> cancelUpgradeToWebSocket (int status, s
 @Field { value:"NOT_MODIFIED_304: Represents status code 304 - Not Modified."}
 @Field { value:"USE_PROXY_305: Represents status code 305 - Use Proxy."}
 @Field { value:"TEMPORARY_REDIRECT_307: Represents status code 307 - Temporary Redirect."}
-public enum RedirectCode {
-    MULTIPLE_CHOICES_300,
-    MOVED_PERMANENTLY_301,
-    FOUND_302,
-    SEE_OTHER_303,
-    NOT_MODIFIED_304,
-    USE_PROXY_305,
-    TEMPORARY_REDIRECT_307
-}
+public type RedirectCode "MULTIPLE_CHOICES_300"|"MOVED_PERMANENTLY_301"|"FOUND_302"|"SEE_OTHER_303"|"NOT_MODIFIED_304"
+    |"USE_PROXY_305"|"TEMPORARY_REDIRECT_307";
 
 @Description { value:"Sends a 100-continue response to the client."}
 @Param { value:"conn: The server connector connection" }
 @Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
 @Return {value:"Returns null if any error does not exist."}
-public function <Connection conn> respondContinue () returns (HttpConnectorError | null) {
+public function Connection::respondContinue () returns (HttpConnectorError | null) {
     Response res = {};
     res.statusCode = 100;
     return conn.respond(res);
