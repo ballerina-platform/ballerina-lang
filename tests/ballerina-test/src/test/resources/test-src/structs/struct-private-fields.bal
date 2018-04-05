@@ -1,6 +1,6 @@
 import org.foo;
 
-public struct employee01 {
+public type employee01 {
     int age;
     string name;
     string address;
@@ -11,7 +11,7 @@ public struct employee01 {
         int employeeId = 123456;
 }
 
-public struct person {
+public type person {
     int age;
     string name;
     string address;
@@ -20,7 +20,7 @@ public struct person {
         int id;
 }
 
-public struct employee {
+public type employee {
     int age;
     string name;
     string address;
@@ -30,12 +30,12 @@ public struct employee {
         int employeeId = 123456;
 }
 
-public struct userA {
+public type userA {
     int age;
     string name;
 }
 
-public struct userB {
+public type userB {
     int age;
     string name;
     string address;

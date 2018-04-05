@@ -75,7 +75,8 @@ function anyfloattostring() returns (string) {
 }
 
 function anyjsontostring() returns (string) {
-    any value = {"a":"b"};
+    json j = {"a":"b"};
+    any value = j;
     string result;
     //any to string should be a conversion
     result = <string>value;
@@ -128,7 +129,7 @@ function testStringToJson(string s) returns (json) {
     return s;
 }
 
-struct Person {
+type Person {
     string name;
     int age;
     map address;
@@ -140,7 +141,7 @@ struct Person {
     boolean alive;
 }
 
-struct Student {
+type Student {
     string name;
     int age;
     map address;
@@ -178,14 +179,19 @@ function testStructAsAnyToStruct() returns (Person) {
 }
 
 function testAnyToStruct() returns (Person) {
-    any a = { name:"Supun",
+    json address = {"city":"Kandy", "country":"SriLanka"};
+    map parent = {name:"Parent", age:50};
+    map info = {status:"single"};
+    int[] marks = [24, 81];
+    map a = { name:"Supun",
                 age:25,
-                parent:{name:"Parent", age:50},
-                address:{"city":"Kandy", "country":"SriLanka"},
-                info:{status:"single"},
-                marks:[24, 81]
+                parent:parent,
+                address:address,
+                info:info,
+                marks:marks
             };
-    var p2 =? <Person> a;
+    any b = a;
+    var p2 =? <Person> b;
     return p2;
 }
 
@@ -246,7 +252,7 @@ function testIncompatibleJsonToBoolean() returns (boolean) {
     return value;
 }
 
-struct Address {
+type Address {
     string city;
     string country;
 }
@@ -342,7 +348,7 @@ function testAnyJsonToJson() returns (json) {
 }
 
 function testAnyArrayToJson() returns (json) {
-    any a = [8,4,6];
+    any[] a = [8,4,6];
     json value;
     value =? <json> a;
     return value;
@@ -362,12 +368,12 @@ function testAnyNullToXml() returns (xml) {
     return value;
 }
 
-struct A {
+type A {
     string x;
     int y;
 }
 
-struct B {
+type B {
     string x;
 }
 
@@ -539,7 +545,7 @@ function testAnyToTableWithErrors() returns (table | error) {
     return casted;
 }
 
-struct Employee {
+type Employee {
     int id;
     string name;
 }

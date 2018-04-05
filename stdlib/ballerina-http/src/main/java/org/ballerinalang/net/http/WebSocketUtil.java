@@ -85,7 +85,7 @@ public abstract class WebSocketUtil {
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 
-    public static void handleHandshake(WebSocketService wsService,
+    public static void handleHandshake(WebSocketService wsService, WebSocketConnectionManager connectionManager,
                                        HttpHeaders headers, WebSocketInitMessage initMessage, Context context,
                                        CallableUnitCallback callback) {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
@@ -108,7 +108,8 @@ public abstract class WebSocketUtil {
                 webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
                 WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
                                                                                              webSocketEndpoint);
-                WebSocketConnectionManager.getInstance().addConnection(session.getId(), connectionInfo);
+                connectionManager.addConnection(session.getId(), connectionInfo);
+                webSocketConnector.addNativeData(WebSocketConstants.WEBSOCKET_CONNECTION_MANAGER, connectionManager);
                 if (context != null && callback != null) {
                     context.setReturnValues(webSocketEndpoint);
                     callback.notifySuccess();

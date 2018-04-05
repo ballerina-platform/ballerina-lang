@@ -67,7 +67,7 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
                 match errorResp {
                     error err =>  throw err;
                 }
-            }  
+            }
             io:ByteChannel channel => sourceChannel = channel;
         }
 
@@ -79,7 +79,7 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
             error err = {message:"package version information is missing from the remote repository"};
             throw err;
         }
-       
+
         string canonicalLinkURL = linkHeaderVal.subString(linkHeaderVal.indexOf("<") + 1, linkHeaderVal.indexOf(">"));
         string pkgVersion = canonicalLinkURL.subString(canonicalLinkURL.lastIndexOf("/") + 1, canonicalLinkURL.length());
 
@@ -96,7 +96,7 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
 
         io:ByteChannel destDirChannel = getFileChannel(destArchivePath, "w");
         string toAndFrom = " [central.ballerina.io -> home repo]";
-        
+
         io:IOError destDirChannelCloseError = {};
         io:IOError srcCloseError = {};
 
@@ -125,14 +125,14 @@ function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, in
     var bytesRead = channel.read(numberOfBytes);
     match bytesRead {
         (blob, int) byteResponse => {
-            (bytes, numberOfBytesRead) = byteResponse;         
+            (bytes, numberOfBytesRead) = byteResponse;
         }
         io:IOError errRes => {
                 var errorResp = <error> errRes;
                 match errorResp {
                     error err =>  throw err;
                 }
-        }  
+        }
     }
     return (bytes, numberOfBytesRead);
 }
@@ -146,7 +146,7 @@ function writeBytes (io:ByteChannel channel, blob content, int startOffset) retu
                 match errorResp {
                     error err =>  throw err;
                 }
-        }  
+        }
         int noOfBytes => numberOfBytesWritten = noOfBytes;
     }
     return numberOfBytesWritten;
@@ -219,11 +219,11 @@ function truncateString (string text) returns (string) {
     return text;
 }
 
-function createDirectories (string directoryPath) returns (boolean) {
-    file:File folder = {path:directoryPath};
-    if (!folder.exists()) {
-        var makeDirs = folder.mkdirs();
-        match makeDirs {
+function createDirectories(string directoryPath) returns (boolean) {
+    file:Path dirPath = file:getPath(directoryPath);
+    if (!file:exists(dirPath)){
+        var directoryCreationStatus = file:createDirectory(dirPath);
+        match directoryCreationStatus {
             boolean created => return created;
             error err => throw err;
         }
