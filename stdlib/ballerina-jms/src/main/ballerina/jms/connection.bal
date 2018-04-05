@@ -1,42 +1,38 @@
 package ballerina.jms;
 
-public struct Connection {
-    ConnectionConnector connector;
-    ConnectionConfiguration config;
+public type Connection object {
+    public {
+        ConnectionConnector connector;
+        ConnectionConfiguration config;
+    }
+
+    public new() {
+        connector = new;
+    }
+
+    public function init(ConnectionConfiguration config) {
+        self.config = config;
+        initEndpoint();
+    }
+
+    public native function initEndpoint();
+
+    public native function register (typedesc serviceType);
+
+    public native function start ();
+
+    public function getClient () returns (ConnectionConnector) {
+        return connection.connector;
+    }
+
+    public native function stop ();
 }
 
-public struct ConnectionConfiguration {
-    string initialContextFactory;
-    string providerUrl;
-    string connectionFactoryName;
+public type ConnectionConfiguration {
+    string initialContextFactory = "wso2mbInitialContextFactory";
+    string providerUrl = "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'";
+    string connectionFactoryName = "ConnectionFactory";
     map properties;
 }
 
-public function <Connection connection> Connection() {
-    connection.connector = {};
-}
-
-public function <ConnectionConfiguration config> ConnectionConfiguration() {
-    config.initialContextFactory = "wso2mbInitialContextFactory";
-    config.providerUrl = "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'";
-    config.connectionFactoryName = "ConnectionFactory";
-}
-
-public function<Connection connection> init(ConnectionConfiguration config) {
-    connection.config = config;
-    connection.initEndpoint();
-}
-
-public struct ConnectionConnector {}
-
-public native function<Connection connection> initEndpoint();
-
-public native function <Connection connection> register (typedesc serviceType);
-
-public native function <Connection connection> start ();
-
-public function <Connection connection> getClient () returns (ConnectionConnector) {
-    return connection.connector;
-}
-
-public native function <Connection connection> stop ();
+public type ConnectionConnector object {}
