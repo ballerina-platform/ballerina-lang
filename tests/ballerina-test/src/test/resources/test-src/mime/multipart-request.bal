@@ -30,7 +30,7 @@ service<http:Service> test bind mockEP {
                          setErrorResponse(response, err);
                     }
                     string textPayload => {
-                            mime:Entity entity = {};
+                            mime:Entity entity = new;
                             entity.setText(textPayload);
                             response.setEntity(entity);
                     }
