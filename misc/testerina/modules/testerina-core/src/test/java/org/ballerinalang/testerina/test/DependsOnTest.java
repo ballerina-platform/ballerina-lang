@@ -59,13 +59,11 @@ public class DependsOnTest {
 
     @Test(expectedExceptions = BallerinaException.class)
     public void tesDependsOnFunctionsMissingFunction() {
+
         cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("depends-on-negative.bal")}, new
             ArrayList<>());
-//        Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
-//        Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 4);
-//        Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "failed"), 0);
     }
 
     private void cleanup() {

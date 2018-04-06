@@ -389,7 +389,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             }
             for (String dependsOnFn : test.getDependsOnTestFunctions()) {
                 if (!functions.stream().anyMatch(func -> func.getName().equals(dependsOnFn))) {
-                    throw new BallerinaException("Cannot find the specified dependsOn function");
+                    throw new BallerinaException("Cannot find the specified dependsOn function : " + dependsOnFn);
                 }
                 test.addDependsOnTestFunction(functions.stream().filter(e -> e.getName().equals(dependsOnFn))
                                                        .findFirst().get());
