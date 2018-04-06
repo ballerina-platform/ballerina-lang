@@ -160,7 +160,7 @@ function setAuthContext (jwt:Payload jwtPayload, string jwtToken) {
             authContext.scopes = scopeString.split(" ");
             _ = jwtPayload.customClaims.remove(SCOPES);
         }
-        () => {}
+        any => {}
     }
 
     match jwtPayload.customClaims[GROUPS] {
@@ -168,7 +168,7 @@ function setAuthContext (jwt:Payload jwtPayload, string jwtToken) {
             authContext.groups = userGroups;
             _ = jwtPayload.customClaims.remove(GROUPS);
         }
-        () => {}
+        any => {}
     }
 
     match jwtPayload.customClaims[USERNAME] {
@@ -180,6 +180,7 @@ function setAuthContext (jwt:Payload jwtPayload, string jwtToken) {
             // By default set sub as username.
             authContext.username = jwtPayload.sub;
         }
+        any => {}
     }
 
     authContext.authType = AUTH_TYPE_JWT;
