@@ -230,13 +230,14 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
 
         // For the moment we don't have to pass it down to transport as we only support
         // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
-        String transferEncoding = clientEndpointConfig.getEnumField(HttpConstants.CLIENT_EP_TRNASFER_ENCODING);
+        String transferEncoding =
+                clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_TRNASFER_ENCODING).getStringValue();
         if (transferEncoding != null && !HttpConstants.ANN_CONFIG_ATTR_CHUNKING.equalsIgnoreCase(transferEncoding)) {
             throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
                     + transferEncoding);
         }
 
-        String chunking = clientEndpointConfig.getEnumField(HttpConstants.CLIENT_EP_CHUNKING);
+        String chunking = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_CHUNKING).getStringValue();
         senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
 
         long endpointTimeout = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);

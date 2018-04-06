@@ -175,11 +175,11 @@ function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload j
         error err = {message:"No Registered IDP found for the JWT with issuer name : " + jwtPayload.iss};
         return err;
     }
-    if (!validateAudience(jwtPayload, config)) {
-        //TODO need to set expected audience or available audience list
-        error err = {message:"Invalid audience"};
-        return err;
-    }
+    //if (!validateAudience(jwtPayload, config)) {
+    //    //TODO need to set expected audience or available audience list
+    //    error err = {message:"Invalid audience"};
+    //    return err;
+    //}
     if (!validateExpirationTime(jwtPayload)) {
         error err = {message:"JWT token is expired"};
         return err;

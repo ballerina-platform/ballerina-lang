@@ -77,6 +77,8 @@ public class LauncherUtils {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
+        loadConfigurations(sourceRootPath, runtimeParams, configFilePath, observeFlag, metricsParams, tracingParams);
+
         if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
         } else if (Files.isRegularFile(fullPath) &&
@@ -93,29 +95,6 @@ public class LauncherUtils {
         // If there is no main or service entry point, throw an error
         if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
             throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
-        }
-
-        Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
-        try {
-            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, ballerinaConfPath);
-            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
-
-            if (observeFlag) {
-                ConfigRegistry.getInstance()
-                        .addConfiguration(ObservabilityConstants.CONFIG_METRICS_ENABLED, String.valueOf(Boolean.TRUE));
-                ConfigRegistry.getInstance()
-                        .addConfiguration(ObservabilityConstants.CONFIG_TRACING_ENABLED, String.valueOf(Boolean.TRUE));
-                metricsParams.forEach(
-                        (key, value) -> ConfigRegistry.getInstance()
-                                .addConfiguration(ObservabilityConstants.CONFIG_TABLE_METRICS + "." + key, value));
-                tracingParams.forEach(
-                        (key, value) -> ConfigRegistry.getInstance()
-                                .addConfiguration(ObservabilityConstants.CONFIG_TABLE_TRACING + "." + key, value));
-            }
-
-        } catch (IOException e) {
-            throw new RuntimeException(
-                    "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);
         }
 
         boolean runServicesOrNoMainEP = runServices || !programFile.isMainEPAvailable();
@@ -309,6 +288,43 @@ public class LauncherUtils {
                 byteOutStream.close();
             } catch (IOException ignore) {
             }
+        }
+    }
+
+    /**
+     * Initializes the {@link ConfigRegistry} and loads {@link LogManager} configs.
+     *
+     * @param sourceRootPath source directory
+     * @param runtimeParams  run time parameters
+     * @param configFilePath config file path
+     * @param observeFlag    to indicate whether observability is enabled
+     * @param metricsParams  configuration parameters for metrics
+     * @param tracingParams  configuration parameters for tracing
+     */
+    private static void loadConfigurations(Path sourceRootPath, Map<String, String> runtimeParams,
+                                           String configFilePath, boolean observeFlag,
+                                           Map<String, String> metricsParams, Map<String, String> tracingParams) {
+        Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
+        try {
+            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, ballerinaConfPath);
+            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
+
+            if (observeFlag) {
+                ConfigRegistry.getInstance()
+                        .addConfiguration(ObservabilityConstants.CONFIG_METRICS_ENABLED, String.valueOf(Boolean.TRUE));
+                ConfigRegistry.getInstance()
+                        .addConfiguration(ObservabilityConstants.CONFIG_TRACING_ENABLED, String.valueOf(Boolean.TRUE));
+                metricsParams.forEach(
+                        (key, value) -> ConfigRegistry.getInstance()
+                                .addConfiguration(ObservabilityConstants.CONFIG_TABLE_METRICS + "." + key, value));
+                tracingParams.forEach(
+                        (key, value) -> ConfigRegistry.getInstance()
+                                .addConfiguration(ObservabilityConstants.CONFIG_TABLE_TRACING + "." + key, value));
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);
         }
     }
 }
