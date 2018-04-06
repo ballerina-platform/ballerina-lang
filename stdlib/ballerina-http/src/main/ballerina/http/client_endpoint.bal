@@ -267,9 +267,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
                                                                 rollingWindow:cb.rollingWindow
                                                             };
             CircuitHealth circuitHealth = {startTime:circuitStartTime, totalBuckets: bucketArray};
-            CircuitBreakerClient cbClient = new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig,
-                cbHttpClient, circuitHealth);
-            return cbClient;
+            return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
         }
         () => {
             //remove following once we can ignore
