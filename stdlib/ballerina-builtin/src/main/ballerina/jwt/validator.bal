@@ -81,8 +81,8 @@ function parseJWT (string[] encodedJWTComponents) returns ((Header, Payload)|err
 }
 
 function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json, json)|error) {
-    string jwtHeader = getDecodedValue(util:base64Decode(urlDecode(encodedJWTComponents[0])));
-    string jwtPayload = getDecodedValue(util:base64Decode(urlDecode(encodedJWTComponents[1])));
+    string jwtHeader = getDecodedValue(util:base64DecodeString(urlDecode(encodedJWTComponents[0])));
+    string jwtPayload = getDecodedValue(util:base64DecodeString(urlDecode(encodedJWTComponents[1])));
     json jwtHeaderJson = {};
     json jwtPayloadJson = {};
 
@@ -175,11 +175,11 @@ function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload j
         error err = {message:"No Registered IDP found for the JWT with issuer name : " + jwtPayload.iss};
         return err;
     }
-    if (!validateAudience(jwtPayload, config)) {
-        //TODO need to set expected audience or available audience list
-        error err = {message:"Invalid audience"};
-        return err;
-    }
+    //if (!validateAudience(jwtPayload, config)) {
+    //    //TODO need to set expected audience or available audience list
+    //    error err = {message:"Invalid audience"};
+    //    return err;
+    //}
     if (!validateExpirationTime(jwtPayload)) {
         error err = {message:"JWT token is expired"};
         return err;
@@ -246,12 +246,9 @@ function urlDecode (string encodedString) returns (string) {
     return decodedString;
 }
 
-function getDecodedValue ((string  | blob  | io:ByteChannel | util:Base64DecodeError) decodedData) returns (string) {
+function getDecodedValue ((string  | util:Base64DecodeError) decodedData) returns (string) {
     match decodedData {
         string returnString => return returnString;
-        blob returnBlob => return "error";
-        io:ByteChannel returnChannel => return "error";
         util:Base64DecodeError returnError => return "error";
-        () => return "error";
     }
 }
