@@ -27,14 +27,24 @@ function main (string[] args) {
     json apple = {name:"apple", colors:["red", "green"], price:5};
     // For json: Use only single json type variable
     foreach j in apple{
-        io:println("value: " + j.toString());
+        match <string>j {
+            string js => {
+                io:println("value: " + js);
+            }
+            error e => {}
+        }
     }
 
     io:println("\nIterating over a json array");
     // To Iterate over JSON array, first cast it into an array of json (json[]).
-    json[] colors =? <json[]> apple.colors;
+    json[] colors = check <json[]> apple.colors;
     foreach i, j in colors{
-        io:println("color " + i + " : " + j.toString());
+        match <string>j {
+            string js => {
+                io:println("color " + i + " : " + js);
+            }
+            error e => {}
+        }
     }
 
     io:println("\nIterating over a xml");

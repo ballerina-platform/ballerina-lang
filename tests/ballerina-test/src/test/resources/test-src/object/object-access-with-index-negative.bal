@@ -14,4 +14,4 @@ type Department object {
         string dptName;
         int count;
     }
-}
+};

@@ -51,4 +51,4 @@ public native function getMaxInactiveInterval() returns (int);
 @Description { value:"Sets the maximum inactive interval for the session. The session expires after this time period." }
 @Param { value:"timeInterval: Session max inactive interval" }
 public native function setMaxInactiveInterval(int timeInterval);
-}
+};

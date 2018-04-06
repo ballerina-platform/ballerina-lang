@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -117,6 +118,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -352,7 +354,6 @@ public class TypeChecker extends BLangNodeVisitor {
                         type.tag == TypeTags.MAP ||
                         type.tag == TypeTags.STRUCT ||
                         type.tag == TypeTags.NONE ||
-                        type.tag == TypeTags.STREAM ||
                         type.tag == TypeTags.ANY)
                 .collect(Collectors.toList());
     }
@@ -606,6 +607,49 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
+    }
+
+    public void visit(BLangElvisExpr elvisExpr) {
+        BType lhsType = checkExpr(elvisExpr.lhsExpr, env);
+        BType actualType = symTable.errType;
+        if (lhsType != symTable.errType) {
+            if (lhsType.tag == TypeTags.UNION && lhsType.isNullable()) {
+                BUnionType unionType = (BUnionType) lhsType;
+                HashSet<BType> memberTypes = new HashSet<BType>();
+                Iterator<BType> iterator = unionType.getMemberTypes().iterator();
+                while (iterator.hasNext()) {
+                    BType memberType = iterator.next();
+                    if (memberType != symTable.nilType) {
+                        memberTypes.add(memberType);
+                    }
+                }
+                if (memberTypes.size() == 1) {
+                    BType[] memberArray = new BType[1];
+                    memberTypes.toArray(memberArray);
+                    actualType = memberArray[0];
+                } else {
+                    actualType = new BUnionType(null, memberTypes, false);
+                }
+            } else {
+                dlog.error(elvisExpr.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED,
+                        OperatorKind.ELVIS, lhsType);
+            }
+        }
+        BType rhsReturnType = checkExpr(elvisExpr.rhsExpr, env, expType);
+        BType lhsReturnType = types.checkType(elvisExpr.lhsExpr.pos, actualType, expType,
+                DiagnosticCode.INCOMPATIBLE_TYPES);
+        if (rhsReturnType == symTable.errType || lhsReturnType == symTable.errType) {
+            resultType = symTable.errType;
+        } else if (expType == symTable.noType) {
+            if (types.isSameType(rhsReturnType, lhsReturnType)) {
+                resultType = lhsReturnType;
+            } else {
+                dlog.error(elvisExpr.rhsExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, lhsReturnType, rhsReturnType);
+                resultType = symTable.errType;
+            }
+        } else {
+            resultType = expType;
+        }
     }
 
     @Override

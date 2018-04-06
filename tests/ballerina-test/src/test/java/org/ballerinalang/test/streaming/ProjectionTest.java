@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.streaming;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -34,10 +35,12 @@ import org.testng.annotations.Test;
 public class ProjectionTest {
 
     private CompileResult result;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/streaming/projection-streaming-test.bal");
+        resultNegative = BCompileUtil.compile("test-src/streaming/projection-streaming-negative-test.bal");
     }
 
     @Test(description = "Test projection streaming query")
@@ -55,6 +58,17 @@ public class ProjectionTest {
         Assert.assertEquals(employee0.getStringField(0), "Raja");
         Assert.assertEquals(employee1.getIntField(0), 33);
         Assert.assertEquals(employee2.getStringField(1), "married");
+    }
+
+    @Test(description = "Test streaming projection query with errors")
+    public void testProjectionNegativeCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        BAssertUtil.validateError(resultNegative, 0,
+                "undefined stream attribute 'address' found in select clause",
+                44, 9);
+        BAssertUtil.validateError(resultNegative, 1,
+                "Incompatible stream action argument type 'Employee' defined",
+                45, 9);
     }
 
 }

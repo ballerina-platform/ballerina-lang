@@ -25,35 +25,11 @@ import ballerina/config;
 @final string registrationPath = "/register";
 @final string registrationPathPattern = "/{transactionBlockId}" + registrationPath;
 
-@final string coordinatorHost = getCoordinatorHost();
-@final int coordinatorPort = getCoordinatorPort();
+//TODO: replace with elvis operator config:getAsString("http.coordinator.host") ?: getHostAddress();
+@final string coordinatorHost = config:getAsString("http.coordinator.host") but { () => getHostAddress()};
+@final int coordinatorPort = (<int>(config:getAsString("http.coordinator.port") but { () => getAvailablePort()}))
+                             but { error => getAvailablePort()};
 
-function getCoordinatorHost () returns string {
-    string host;
-    var result = config:getAsString("http.coordinator.host");
-    match result {
-        string h => host = h;
-        null => host = getHostAddress();
-    }
-    return host;
-}
-
-function getCoordinatorPort () returns int {
-    int port;
-    var result = config:getAsString("http.coordinator.port");
-    match result {
-        string p => {
-            var result2 = <int>p;
-            match result2 {
-                error e => port = getAvailablePort();
-                int p2 => port = p2;
-            }
-        }
-        null => port = getAvailablePort();
-    }
-    return port;
-}
-
-endpoint http:ServiceEndpoint coordinatorServerEP {
+endpoint http:ServiceEndpoint coordinatorListener {
     port:coordinatorPort
 };

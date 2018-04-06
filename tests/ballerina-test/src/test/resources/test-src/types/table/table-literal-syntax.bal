@@ -1,9 +1,9 @@
-struct Person {
-    int id;
-    int age;
-    float salary;
-    string name;
-    boolean married;
+type Person {
+    int id,
+    int age,
+    float salary,
+    string name,
+    boolean married,
 }
 
 function testTableAddOnUnconstrainedTable() returns (int) {

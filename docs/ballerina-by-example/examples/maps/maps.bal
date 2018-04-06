@@ -2,7 +2,7 @@ import ballerina/io;
 
 function main (string[] args) {
     //Here's how you create an empty map.
-    map m = {};
+    map m;
 
     //Here's how you create a map with initial values.
     map addrMap = {line1:"No. 20", line2:"Palm Grove",

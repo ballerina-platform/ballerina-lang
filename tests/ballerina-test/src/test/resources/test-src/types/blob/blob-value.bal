@@ -2,7 +2,7 @@ blob glbVarBlob;
 
 type BinaryData {
     blob blobField;
-}
+};
 
 function testBlobParameter(blob b) returns (blob) {
     blob a;

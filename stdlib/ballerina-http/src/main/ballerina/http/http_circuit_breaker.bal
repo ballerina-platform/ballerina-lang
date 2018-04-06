@@ -47,7 +47,7 @@ public type CircuitHealth {
    time:Time lastErrorTime,
    Bucket[] totalBuckets,
    int lastUsedBucketId,
-}
+};
 
 documentation {
     Represents Circuit Breaker configuration.
@@ -62,7 +62,7 @@ public type CircuitBreakerConfig {
     float failureThreshold,
     int resetTimeout,
     int[] statusCodes,
-}
+};
 
 documentation {
     Represents Circuit Breaker rolling window configuration.
@@ -73,7 +73,7 @@ documentation {
 public type RollingWindow {
     int timeWindow,
     int bucketSize,
-}
+};
 
 documentation {
     Represents Circuit Breaker sub window (Bucket).
@@ -84,7 +84,7 @@ documentation {
 public type Bucket {
     int successCount,
     int failureCount,
-}
+};
 
 public type CircuitBreakerInferredConfig {
    float failureThreshold,
@@ -92,7 +92,7 @@ public type CircuitBreakerInferredConfig {
    boolean[] statusCodes,
    int noOfBuckets,
    RollingWindow rollingWindow,
-}
+};
 
 documentation {
     Represents an HTTP Circuit Breaker client to be used with the HTTP client connector to gracefully handle network errors.
@@ -224,7 +224,7 @@ public type CircuitBreakerClient object {
     @Param { value:"promise: The Push Promise need to be rejected" }
     @Return { value:"Whether operation is successful" }
     public function rejectPromise (PushPromise promise) returns (boolean); 
-}
+};
 
 public function CircuitBreakerClient::post (string path, Request request) returns (Response | HttpConnectorError) {
    HttpClient httpClient = self.httpClient;
@@ -541,7 +541,7 @@ public function CircuitBreakerClient::rejectPromise (PushPromise promise) return
 public function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentState,
                                     CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (CircuitState) {
     lock {
-       if (currentState == "OPEN") {
+       if (currentState == CB_OPEN_STATE) {
            time:Time currentT = time:currentTime();
            int elapsedTime = currentT.time - circuitHealth.lastErrorTime.time;
 

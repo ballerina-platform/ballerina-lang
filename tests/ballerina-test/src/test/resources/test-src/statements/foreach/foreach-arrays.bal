@@ -37,7 +37,7 @@ function concatJSON(int index, json value){
 type person {
     string name;
     int age;
-}
+};
 
 function concatPerson(int index, person value){
     output = output + index + ":" + "name=" +  value.name + ",age=" + value.age + " ";

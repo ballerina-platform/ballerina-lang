@@ -4,7 +4,7 @@ function testSimpleWorker (string msg) returns string {
 
 type TStruct {
     string msg;
-}
+};
 
 function testSimpleWorkerVM (string msg) returns string {
     worker default {

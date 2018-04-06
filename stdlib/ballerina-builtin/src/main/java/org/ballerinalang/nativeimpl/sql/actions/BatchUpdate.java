@@ -43,7 +43,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
         orgName = "ballerina", packageName = "sql",
         functionName = "batchUpdate",
         receiver = @Receiver(type = TypeKind.STRUCT,
-                             structType = "ClientConnector",
+                             structType = Constants.SQL_CLIENT,
                              structPackage = "ballerina.sql"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
@@ -67,7 +67,7 @@ public class BatchUpdate extends AbstractSQLAction {
             BStruct bConnector = (BStruct) context.getRefArgument(0);
             String query = context.getStringArgument(0);
             BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
-            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
+            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
 
             ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
                     getParentWorkerExecutionContext());

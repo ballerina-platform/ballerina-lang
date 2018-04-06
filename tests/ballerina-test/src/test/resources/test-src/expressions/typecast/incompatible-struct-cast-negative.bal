@@ -5,7 +5,7 @@ type Person {
     json info;
     map address;
     int[] marks;
-}
+};
 
 
 type Student {
@@ -13,7 +13,7 @@ type Student {
     int age;
     map address;
     int[] marks;
-}
+};
 
 function testStructToStruct() returns (Person) {
     Student s = { name:"Supun", 

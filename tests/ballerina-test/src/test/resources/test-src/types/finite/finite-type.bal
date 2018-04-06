@@ -85,7 +85,7 @@ type POrInt Person|int;
 
 type Person {
    string name;
-}
+};
 
 function finiteAssignmentRefValueType() returns POrInt {
     Person p = {name:"abc"};

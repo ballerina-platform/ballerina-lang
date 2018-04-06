@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -76,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
@@ -179,6 +181,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
+import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
 
 /**
  * @since 0.94
@@ -197,7 +200,7 @@ public class Desugar extends BLangNodeVisitor {
     private IterableCodeDesugar iterableCodeDesugar;
     private AnnotationDesugar annotationDesugar;
     private EndpointDesugar endpointDesugar;
-    private SqlQueryBuilder sqlQueryBuilder;
+    private InMemoryTableQueryBuilder inMemoryTableQueryBuilder;
     private Types types;
     private Names names;
     private SiddhiQueryBuilder siddhiQueryBuilder;
@@ -231,7 +234,7 @@ public class Desugar extends BLangNodeVisitor {
         this.iterableCodeDesugar = IterableCodeDesugar.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
         this.endpointDesugar = EndpointDesugar.getInstance(context);
-        this.sqlQueryBuilder = SqlQueryBuilder.getInstance(context);
+        this.inMemoryTableQueryBuilder = InMemoryTableQueryBuilder.getInstance(context);
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
@@ -514,17 +517,16 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariableDef varDefNode) {
-        if (varDefNode.var.expr instanceof BLangRecordLiteral &&
-                ((BLangRecordLiteral) varDefNode.var.expr).type.tag == TypeTags.STREAM) {
-            ((BLangRecordLiteral) varDefNode.var.expr).name = varDefNode.var.name;
-        }
-
         varDefNode.var = rewrite(varDefNode.var, env);
         BLangVariable varNode = varDefNode.var;
 
         // Generate default init expression, if rhs expr is null
         if (varNode.expr == null) {
-            varNode.expr = getInitExpr(varNode.type);
+            if (varNode.type instanceof BStreamType) {
+                varNode.expr = new BLangStreamLiteral(varNode.type, varNode.name);
+            } else {
+                varNode.expr = getInitExpr(varNode.type);
+            }
         }
 
         if (!varNode.safeAssignment) {
@@ -573,10 +575,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        if (assignNode.expr.type.tag == TypeTags.STREAM && assignNode.varRef instanceof BLangSimpleVarRef) {
-                ((BLangRecordLiteral) assignNode.expr).name =
-                        ((BLangSimpleVarRef) assignNode.varRef).variableName;
-        }
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         assignNode.expr = rewriteExpr(assignNode.expr);
         result = assignNode;
@@ -953,14 +951,14 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangInvocation createInvocationForForeverBlock(BLangForever forever) {
         List<BLangExpression> args = new ArrayList<>();
-        BLangLiteral streamingQueryLiteral = ASTBuilderUtil.createLiteral(forever.pos, symTable.stringType, forever
-                .getSiddhiQuery());
+        BLangLiteral streamingQueryLiteral = ASTBuilderUtil.createLiteral(forever.pos, symTable.stringType,
+                forever.getSiddhiQuery());
         args.add(streamingQueryLiteral);
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInStreamRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInTableRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutStreamRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutTableRefs());
-        addFunctionPointersToArgs(args, forever.gettreamingQueryStatements());
+        addFunctionPointersToArgs(args, forever.getStreamingQueryStatements());
         return createInvocationNode(CREATE_FOREVER, args, symTable.noType);
     }
 
@@ -1214,6 +1212,15 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
+    public void visit(BLangElvisExpr elvisExpr) {
+        BLangMatchExpression matchExpr = ASTBuilderUtil.createMatchExpression(elvisExpr.lhsExpr);
+        matchExpr.patternClauses.add(getMatchNullPatternGivenExpression(elvisExpr.pos,
+                rewriteExpr(elvisExpr.rhsExpr)));
+        matchExpr.type = elvisExpr.type;
+        matchExpr.pos = elvisExpr.pos;
+        result = rewriteExpr(matchExpr);
+    }
+
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         if (bracedOrTupleExpr.isBracedExpr) {
@@ -1350,13 +1357,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.exprs = rewriteExprs(workerSendNode.exprs);
+        workerSendNode.expr = rewriteExpr(workerSendNode.expr);
         result = workerSendNode;
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.exprs = rewriteExprs(workerReceiveNode.exprs);
+        workerReceiveNode.expr = rewriteExpr(workerReceiveNode.expr);
         result = workerReceiveNode;
     }
 
@@ -1470,7 +1477,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangTableQueryExpression tableQueryExpression) {
-        sqlQueryBuilder.visit(tableQueryExpression);
+        inMemoryTableQueryBuilder.visit(tableQueryExpression);
 
         /*replace the table expression with a function invocation,
          so that we manually call a native function "queryTable". */
@@ -2255,8 +2262,6 @@ public class Desugar extends BLangNodeVisitor {
                 break;
             case TypeTags.XML:
                 return new BLangXMLSequenceLiteral(type);
-            case TypeTags.STREAM:
-                return new BLangStreamLiteral(type, null);
             case TypeTags.MAP:
                 return new BLangMapLiteral(new ArrayList<>(), type);
             case TypeTags.STRUCT:
@@ -2444,6 +2449,21 @@ public class Desugar extends BLangNodeVisitor {
         errorPattern.expr = ASTBuilderUtil.createVariableRef(pos, errorPatternVar.symbol);
         errorPattern.pos = pos;
         return errorPattern;
+    }
+
+    private BLangMatchExprPatternClause getMatchNullPatternGivenExpression(DiagnosticPos pos,
+                                                                           BLangExpression expr) {
+        String nullPatternVarName = IGNORE.toString();
+        BLangVariable errorPatternVar = ASTBuilderUtil.createVariable(pos, nullPatternVarName, symTable.nilType, null,
+                new BVarSymbol(0, names.fromString(nullPatternVarName), this.env.scope.owner.pkgID, symTable.nilType,
+                        this.env.scope.owner));
+
+        BLangMatchExprPatternClause nullPattern =
+                (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
+        nullPattern.variable = errorPatternVar;
+        nullPattern.expr = expr;
+        nullPattern.pos = pos;
+        return nullPattern;
     }
 
     private BLangMatchExprPatternClause getMatchNullPattern(DiagnosticPos pos) {

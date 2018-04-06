@@ -8,7 +8,7 @@ type Person {
     any a;
     float score;
     boolean alive;
-}
+};
 
 function testVarDeclarationWithAtLeaseOneNonDeclaredSymbol () returns (int, error) {
     int a;
@@ -165,7 +165,7 @@ function testIncompatibleJsonToStructWithErrors() returns (Person | error) {
 type PersonA {
     string name;
     int age;
-}
+};
 
 function testJsonToStructWithErrors() returns (PersonA | error) {
     json j = {name:"supun", age:"25"};
@@ -178,11 +178,11 @@ function testJsonToStructWithErrors() returns (PersonA | error) {
 type A {
     string x;
     int y;
-}
+};
 
 type B {
     string x;
-}
+};
 
 function testCompatibleStructForceCasting() returns (A | error) {
     A a = {x: "x-valueof-a", y:4};

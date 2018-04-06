@@ -5,14 +5,14 @@ import ballerina/auth.utils;
 import ballerina/runtime;
 
 function testBasicAuthenticatorCreationWithoutCache () returns (basic:BasicAuthenticator, userstore:UserStore,
-                                                               caching:Cache|()) {
+                                                               caching:Cache?) {
     userstore:FilebasedUserstore fileBasedUserstore = new;
     basic:BasicAuthenticator authenticator = basic:createAuthenticator(fileBasedUserstore, ());
     return (authenticator, authenticator.userStore, authenticator.authCache);
 }
 
 function testBasicAuthenticatorCreationWithCache () returns (basic:BasicAuthenticator, userstore:UserStore,
-                                                            caching:Cache|()) {
+                                                            caching:Cache?) {
     userstore:FilebasedUserstore fileBasedUserstore = new;
     basic:BasicAuthenticator authenticator = basic:createAuthenticator(fileBasedUserstore,
                                                                        utils:createCache("auth_cache"));
