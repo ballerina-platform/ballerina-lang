@@ -49,12 +49,12 @@ public type TransactionContext {
     @readonly int transactionBlockId;
     @readonly string coordinationType;
     @readonly string registerAtURL;
-}
+};
 
 type Participant {
     string participantId;
     Protocol[] participantProtocols;
-}
+};
 
 documentation {
     This represents the protocol associated with the coordination type.
@@ -71,13 +71,13 @@ public type Protocol {
     @readonly (function (string transactionId,
                            int transactionBlockId,
                            string protocolAction) returns boolean)? protocolFn;
-}
+};
 
 public type RegistrationRequest {
     string transactionId;
     string participantId;
     Protocol[] participantProtocols;
-}
+};
 
 public function regRequestToJson (RegistrationRequest req) returns json {
     json j = {};
@@ -95,7 +95,7 @@ public function regRequestToJson (RegistrationRequest req) returns json {
 public type RegistrationResponse {
     string transactionId;
     Protocol[] coordinatorProtocols;
-}
+};
 
 public function regResponseToJson (RegistrationResponse res) returns json {
     json j = {};
@@ -132,28 +132,28 @@ function jsonToAny(json j) returns any {
         int i => return i;
         string s => return s;
         boolean b => return b;
-        null => return null;
+        () => return null;
         json j2 => return j2;
     }
 }
 
 public type RequestError {
     string errorMessage;
-}
+};
 
 public type PrepareRequest {
     string transactionId;
-}
+};
 
 public type PrepareResponse {
     string message;
-}
+};
 
 public type NotifyRequest {
     string transactionId;
     string message;
-}
+};
 
 public type NotifyResponse {
     string message;
-}
+};

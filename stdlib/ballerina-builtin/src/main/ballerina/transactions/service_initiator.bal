@@ -34,9 +34,9 @@ function getCoordinationTypeToProtocolsMap () returns map<string[]> {
 @http:ServiceConfig {
     basePath:initiatorCoordinatorBasePath
 }
-documentation {
-    Service on the initiator which is independent from the coordination type and handles registration of remote participants.
-}
+//documentation {
+//    Service on the initiator which is independent from the coordination type and handles registration of remote participants.
+//}
 service InitiatorService bind coordinatorListener {
 
     @http:ResourceConfig {

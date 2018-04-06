@@ -22,9 +22,9 @@ import ballerina/http;
 @http:ServiceConfig {
     basePath:participant2pcCoordinatorBasePath
 }
-documentation {
-    Service on the participant which handles protocol messages related to the 2-phase commit (2PC) coordination type.
-}
+//documentation {
+//    Service on the participant which handles protocol messages related to the 2-phase commit (2PC) coordination type.
+//}
 service Participant2pcService bind coordinatorListener {
 
     @http:ResourceConfig {

@@ -369,4 +369,4 @@ type TwoPhaseCommitTransaction object {
             log:printError(failedMessage);
         }
     }
-}
+};

@@ -120,7 +120,7 @@ service<http:Service> participant1 bind participant1EP {
                                     io:print("Participant1 could not forward response from participant2 to initiator. Error:");
                                     io:println(err);
                                 }
-                                null => io:print("");
+                                () => io:print("");
                             }
                         }
                     }
@@ -175,7 +175,7 @@ function sendErrorResponseToInitiator(http:ServiceEndpoint conn) {
             io:print("Participant1 could not send error response to initiator. Error:");
             io:println(respondErr);
         }
-        null => return;
+        () => return;
     }
 }
 
@@ -218,4 +218,4 @@ type State object {
                             [abortedByParticipant, abortedFunctionCalled, committedFunctionCalled,
                             localParticipantAbortedFunctionCalled, localParticipantCommittedFunctionCalled]);
     }
-}
+};

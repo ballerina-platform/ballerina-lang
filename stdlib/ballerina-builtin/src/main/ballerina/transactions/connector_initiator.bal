@@ -21,11 +21,11 @@ import ballerina/http;
 type InitiatorClientConfig {
     string registerAtURL;
     int endpointTimeout;
-    struct {
+    {
         int count;
         int interval;
     } retryConfig;
-}
+};
 
 type InitiatorClientEP object {
     private {
@@ -45,7 +45,7 @@ type InitiatorClientEP object {
         client.clientEP = self;
         return client;
     }
-}
+};
 
 type InitiatorClient object {
     private {
@@ -65,7 +65,8 @@ type InitiatorClient object {
         json reqPayload = regRequestToJson(regReq);
         http:Request req = {};
         req.setJsonPayload(reqPayload);
-        http:Response res = httpClient -> post("", req) but {error};
+        var result = httpClient -> post("", req);
+        http:Response res = check result;
         int statusCode = res.statusCode;
         if (statusCode != http:OK_200) {
             error err = {message:"Registration for transaction: " + transactionId + " failed"};
@@ -74,4 +75,4 @@ type InitiatorClient object {
         json resPayload = check res.getJsonPayload();
         return jsonToRegResponse(resPayload);
     }
-}
+};

@@ -52,7 +52,7 @@ service<http:Service> participant2 bind participant2EP {
                 io:print("Participant2 could not send response to participant1. Error:");
                 io:println(err);
             }
-            null => io:print("");
+            () => io:print("");
         }
     }
 
@@ -71,7 +71,7 @@ service<http:Service> participant2 bind participant2EP {
                 io:print("Participant2 could not send response to participant1. Error:");
                 io:println(err);
             }
-            null => io:print("");
+            () => io:print("");
         }
     }
 
@@ -123,7 +123,7 @@ function saveToDatabase(http:ServiceEndpoint conn, http:Request req, boolean sho
         string uuid = util:uuid();
 
         var result = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                                 values ('John', 'Doe', '" + uuid +"', 5000.75, 'USA')", null);
+                                                 values ('John', 'Doe', '" + uuid +"', 5000.75, 'USA')", ());
         match result {
             int insertCount => io:println(insertCount);
             error => io:println("");
@@ -135,7 +135,7 @@ function saveToDatabase(http:ServiceEndpoint conn, http:Request req, boolean sho
                 io:print("Participant2 could not send response to participant1. Error:");
                 io:println(err);
             }
-            null => io:print("");
+            () => io:print("");
         }
         if(shouldAbort) {
             abort;
@@ -180,4 +180,4 @@ type State object {
                             [abortedFunctionCalled, committedFunctionCalled,
                                 localParticipantCommittedFunctionCalled, localParticipantAbortedFunctionCalled]);
     }
-}
+};

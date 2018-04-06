@@ -21,11 +21,11 @@ import ballerina/http;
 public type Participant2pcClientConfig {
     string participantURL;
     int endpointTimeout;
-    struct {
+    {
         int count;
         int interval;
     } retryConfig;
-}
+};
 
 public type Participant2pcClientEP object {
 
@@ -43,12 +43,12 @@ public type Participant2pcClientEP object {
         self.conf = conf;
     }
 
-    public function<Participant2pcClientEP ep> getClient() returns Participant2pcClient {
+    public function getClient() returns Participant2pcClient {
         Participant2pcClient client = new;
         client.clientEP = self;
         return client;
     }
-}
+};
 
 public type Participant2pcClient object {
 
@@ -62,7 +62,8 @@ public type Participant2pcClient object {
         PrepareRequest prepareReq = {transactionId:transactionId};
         json j = check <json>prepareReq;
         req.setJsonPayload(j);
-        http:Response res = httpClient -> post("/prepare", req) but {error};
+        var  result = httpClient -> post("/prepare", req);
+        http:Response = check result;
         int statusCode = res.statusCode;
         if (statusCode == http:NOT_FOUND_404) {
             error err = {message:"Transaction-Unknown"};
@@ -83,7 +84,8 @@ public type Participant2pcClient object {
         NotifyRequest notifyReq = {transactionId:transactionId, message:message};
         json j = check <json>notifyReq;
         req.setJsonPayload(j);
-        http:Response res = httpClient -> post("/notify", req) but {error};
+        var result = httpClient -> post("/notify", req);
+        http:Response res = check result;
         json payload = check res.getJsonPayload();
         NotifyResponse notifyRes = <NotifyResponse>payload;  //TODO: Change this this to use the safe assignment operator
         string msg = notifyRes.message;
@@ -91,13 +93,14 @@ public type Participant2pcClient object {
         if (statusCode == http:OK_200) {
             return msg;
         } else if ((statusCode == http:BAD_REQUEST_400 && msg == "Not-Prepared") ||
-        (statusCode == http:NOT_FOUND_404 && msg == "Transaction-Unknown") ||
-        (statusCode == http:INTERNAL_SERVER_ERROR_500 && msg == "Failed-EOT")) {
+                    (statusCode == http:NOT_FOUND_404 && msg == "Transaction-Unknown") ||
+                    (statusCode == http:INTERNAL_SERVER_ERROR_500 && msg == "Failed-EOT")) {
             error participantErr = {message:msg};
             return participantErr;
         } else {
-            error participantErr = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " + self.clientEP.conf.participantURL};
+            error participantErr = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " +
+                                    self.clientEP.conf.participantURL};
             return participantErr;
         }
     }
-}
+};
