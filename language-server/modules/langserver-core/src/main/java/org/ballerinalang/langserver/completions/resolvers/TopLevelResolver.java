@@ -86,23 +86,11 @@ public class TopLevelResolver extends AbstractItemResolver {
     private void addTopLevelItems(ArrayList<CompletionItem> completionItems) {
         addStaticItem(completionItems, ItemResolverConstants.IMPORT, ItemResolverConstants.IMPORT + " ",
                 ItemResolverConstants.KEYWORD_TYPE);
-        addStaticItem(completionItems, ItemResolverConstants.PACKAGE, ItemResolverConstants.PACKAGE + " ",
-                ItemResolverConstants.KEYWORD_TYPE);
-        addStaticItem(completionItems, ItemResolverConstants.CONST, ItemResolverConstants.CONST + " ",
-                ItemResolverConstants.KEYWORD_TYPE);
         addStaticItem(completionItems, ItemResolverConstants.FUNCTION, Snippet.FUNCTION.toString(),
                 ItemResolverConstants.SNIPPET_TYPE);
         addStaticItem(completionItems, ItemResolverConstants.MAIN_FUNCTION, Snippet.MAIN_FUNCTION.toString(),
                 ItemResolverConstants.SNIPPET_TYPE);
-        addStaticItem(completionItems, ItemResolverConstants.ENUM, Snippet.ENUM.toString(),
-                ItemResolverConstants.SNIPPET_TYPE);
         addStaticItem(completionItems, ItemResolverConstants.SERVICE, Snippet.SERVICE.toString(),
-                ItemResolverConstants.SNIPPET_TYPE);
-        addStaticItem(completionItems, ItemResolverConstants.TRANSFORMER, Snippet.TRANSFORMER.toString(),
-                ItemResolverConstants.SNIPPET_TYPE);
-        addStaticItem(completionItems, ItemResolverConstants.CONNECTOR, Snippet.CONNECTOR_DEFINITION.toString(),
-                ItemResolverConstants.SNIPPET_TYPE);
-        addStaticItem(completionItems, ItemResolverConstants.STRUCT, Snippet.STRUCT_DEFINITION.toString(),
                 ItemResolverConstants.SNIPPET_TYPE);
         addStaticItem(completionItems, ItemResolverConstants.ANNOTATION, Snippet.ANNOTATION_DEFINITION.toString(),
                 ItemResolverConstants.SNIPPET_TYPE);
