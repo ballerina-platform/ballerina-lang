@@ -13,14 +13,21 @@ jms:Session jmsSession = new (jmsConnection, {
 });
 
 // Initialize a Queue sender on top of the the created sessions
-endpoint jms:QueueSender queueSender {
+endpoint jms:QueueConsumer queueConsumer {
     session: jmsSession,
     queueName: "MyQueue"
 };
 
 public function main (string[] args) {
-    // Create a Text message.
-    jms:Message m = jmsSession.createTextMessage("Test Text");
-    // Send the Ballerina message to the JMS provider.
-    queueSender -> send(m);
+    // Receive a message from the JMS provider.
+    var result = queueConsumer -> receive(1000);
+
+    match result {
+        jms:Message msg => {
+            log:printInfo("Message received " + msg.getTextMessageContent());
+        }
+        () => {
+            log:printInfo("Message not received");
+        }
+    }
 }
