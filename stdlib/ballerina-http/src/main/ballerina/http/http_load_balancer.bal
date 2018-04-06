@@ -29,13 +29,7 @@ public type LoadBalancer object {
        int nextIndex; // Keeps to index which needs to be take the next load balance endpoint.
    }
 
-   public new (serviceUri, config, loadBalanceClientsArray, algorithm, nextIndex) {
-       self.serviceUri = serviceUri;
-       self.config = config;
-       self.loadBalanceClientsArray = loadBalanceClientsArray;
-       self.algorithm = algorithm;
-       self.nextIndex = nextIndex;
-   }
+   public new (serviceUri, config, loadBalanceClientsArray, algorithm, nextIndex) {}
 
     @Description {value:"The POST action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
@@ -242,9 +236,7 @@ public function LoadBalancer::get (string path, Request request) returns (Respon
 @Return { value:"The Handle for further interactions" }
 @Return { value:"The Error occured during HTTP client invocation" }
 public function LoadBalancer::submit (string httpVerb, string path, Request req) returns (HttpHandle | HttpConnectorError) {
-    //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-    HttpConnectorError httpConnectorError = {statusCode:501};
-    httpConnectorError.message = "Unsupported action for LoadBalancer Connector";
+    HttpConnectorError httpConnectorError = {message:"Unsupported action for LoadBalancer client."};
     return httpConnectorError;
 }
 
@@ -253,9 +245,7 @@ public function LoadBalancer::submit (string httpVerb, string path, Request req)
 @Return { value:"The HTTP response message" }
 @Return { value:"The Error occured during HTTP client invocation" }
 public function LoadBalancer::getResponse (HttpHandle handle) returns (Response | HttpConnectorError) {
-    //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-    HttpConnectorError httpConnectorError = {statusCode:501};
-    httpConnectorError.message = "Unsupported action for LoadBalancer Connector";
+    HttpConnectorError httpConnectorError = {message:"Unsupported action for LoadBalancer client."};
     return httpConnectorError;
 }
 
@@ -271,9 +261,7 @@ public function LoadBalancer::hasPromise (HttpHandle handle) returns (boolean) {
 @Return { value:"The HTTP Push Promise message" }
 @Return { value:"The Error occured during HTTP client invocation" }
 public function LoadBalancer::getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError) {
-    //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-    HttpConnectorError httpConnectorError = {statusCode:501};
-    httpConnectorError.message = "Unsupported action for LoadBalancer Connector";
+    HttpConnectorError httpConnectorError = {message:"Unsupported action for LoadBalancer client."};
     return httpConnectorError;
 }
 
@@ -282,9 +270,7 @@ public function LoadBalancer::getNextPromise (HttpHandle handle) returns (PushPr
 @Return { value:"HTTP The Push Response message" }
 @Return { value:"The Error occured during HTTP client invocation" }
 public function LoadBalancer::getPromisedResponse (PushPromise promise) returns (Response | HttpConnectorError) {
-    //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-    HttpConnectorError httpConnectorError = {statusCode:501};
-    httpConnectorError.message = "Unsupported action for LoadBalancer Connector";
+    HttpConnectorError httpConnectorError = {message:"Unsupported action for LoadBalancer client."};
     return httpConnectorError;
 }
 
@@ -303,10 +289,7 @@ function performLoadBalanceExecuteAction (LoadBalancer lb, string path, Request 
     if (connectorAction != HTTP_NONE) {
         return performLoadBalanceAction(lb, path, outRequest, connectorAction);
     } else {
-        //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-        HttpConnectorError httpConnectorError = {statusCode:501};
-        httpConnectorError.statusCode = 501;
-        httpConnectorError.message = "Unsupported connector action received.";
+        HttpConnectorError httpConnectorError = {message:"Unsupported connector action received.", statusCode:501};
         return httpConnectorError;
     }
 }
@@ -366,7 +349,7 @@ public function roundRobin(LoadBalancer lb, HttpClient[] loadBalanceConfigArray)
 function populateGenericLoadBalanceConnectorError (LoadBalanceConnectorError loadBalanceConnectorError)
                                                     returns (HttpConnectorError) {
     int nErrs = lengthof loadBalanceConnectorError.httpConnectorError;
-    loadBalanceConnectorError.statusCode = 500;
+    loadBalanceConnectorError.statusCode = INTERNAL_SERVER_ERROR_500;
     loadBalanceConnectorError.message = "All the load balance endpoints failed. Last error was: "
                                         + loadBalanceConnectorError.httpConnectorError[nErrs - 1].message;
     HttpConnectorError httpConnectorError = loadBalanceConnectorError;
