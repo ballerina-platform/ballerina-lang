@@ -50,11 +50,11 @@ public class GetHash extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         String baseString = context.getStringArgument(0);
-        BEnumerator algorithm = (BEnumerator) context.getRefArgument(0);
+        BString algorithm = (BString) context.getNullableRefArgument(0);
         String hashAlgorithm;
 
         //todo document the supported algorithm
-        switch (algorithm.getName()) {
+        switch (algorithm.stringValue()) {
             case "SHA1":
                 hashAlgorithm = "SHA-1";
                 break;
