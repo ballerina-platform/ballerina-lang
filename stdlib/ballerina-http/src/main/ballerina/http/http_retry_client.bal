@@ -26,7 +26,6 @@ public type RetryClient object {
     documentation {
         The POST function implementation of the HTTP retry client. Protects the invocation of the POST function attached to the underlying HTTP client.
 
-        T{{client}} - RetryClient struct that the post function should be attached to.
         P{{path}} - Target service url.
         P{{request}}  - A request message.
     }
@@ -35,7 +34,6 @@ public type RetryClient object {
     documentation {
         The HEAD function implementation of the HTTP retry client. Protects the invocation of the HEAD function attached to the underlying HTTP client.
 
-        T{{client}} - RetryClient struct that the head function should be attached to.
         P{{path}} - Target service url.
         P{{request}}  - A request message.
     }
@@ -44,7 +42,6 @@ public type RetryClient object {
     documentation {
         The PUT function implementation of the HTTP retry client. Protects the invocation of the PUT function attached to the underlying HTTP client.
 
-        T{{client}} - RetryClient struct that the put function should be attached to.
         P{{path}} - Target service url.
         P{{request}}  - A request message.
     }
@@ -53,7 +50,6 @@ public type RetryClient object {
     documentation {
         The FORWARD function implementation of the HTTP retry client. Protects the invocation of the FORWARD function attached to the underlying HTTP client.
 
-        T{{client}} - RetryClient struct that the forward function should be attached to.
         P{{path}} - Target service url.
         P{{request}}  - A request message.
     }
@@ -62,7 +58,6 @@ public type RetryClient object {
     documentation {
         The EXECUTE function implementation of the HTTP retry client. Protects the invocation of the EXECUTE function attached to the underlying HTTP client.
 
-        T{{client}} - RetryClient struct that the forward function should be attached to.
         P{{httpVerb}} - HTTP verb to be used for the request.
         P{{path}} - Target service url.
         P{{request}}  - A request message.
@@ -72,7 +67,6 @@ public type RetryClient object {
     documentation {
         The PATCH function implementation of the HTTP retry client. Protects the invocation of the PATCH function attached to the underlying HTTP client.
 
-        T{{client}} - RetryClient struct that the patch function should be attached to.
         P{{path}} - Target service url.
         P{{request}}  - A request message.
     }
@@ -81,7 +75,6 @@ public type RetryClient object {
     documentation {
         The DELETE function implementation of the HTTP retry client. Protects the invocation of the DELETE function attached to the underlying HTTP client.
 
-        T{{client}} - RetryClient struct that the delete function should be attached to.
         P{{path}} - Target service url.
         P{{request}}  - A request message.
     }
@@ -90,7 +83,6 @@ public type RetryClient object {
     documentation {
         The GET function implementation of the HTTP retry client. Protects the invocation of the GET function attached to the underlying HTTP client.
 
-        T{{client}} - RetryClient struct that the get function should be attached to.
         P{{path}} - Target service url.
         P{{request}}  - A request message.
     }
@@ -99,7 +91,6 @@ public type RetryClient object {
     documentation {
         The OPTIONS function implementation of the HTTP retry client. Protects the invocation of the OPTIONS function attached to the underlying HTTP client.
 
-        T{{client}} - RetryClient struct that the options function should be attached to.
         P{{path}} - Target service url.
         P{{request}}  - A request message.
     }
@@ -108,7 +99,6 @@ public type RetryClient object {
     documentation {
         The SUBMIT function implementation of the HTTP retry client.
 
-        T{{client}} - RetryClient struct that the delete function should be attached to.
         P{{httpVerb}} - HTTP verb to be used for the request.
         P{{path}} - Target service url.
         P{{request}}  - A request message.
@@ -118,7 +108,6 @@ public type RetryClient object {
     documentation {
         The getResponse function implementation of the HTTP retry client.
 
-        T{{client}} - RetryClient struct that the delete function should be attached to.
         P{{handle}} -The Handle which relates to previous async invocation.
     }
     public function getResponse (HttpHandle handle) returns (Response | HttpConnectorError);
@@ -126,7 +115,6 @@ public type RetryClient object {
     documentation {
         The hasPromise function implementation of the HTTP retry client.
 
-        T{{client}} - RetryClient struct that the delete function should be attached to.
         P{{handle}} -The Handle which relates to previous async invocation.
     }
     public function hasPromise (HttpHandle handle) returns (boolean);
@@ -134,7 +122,6 @@ public type RetryClient object {
     documentation {
         The getNextPromise function implementation of the HTTP retry client.
 
-        T{{client}} - RetryClient struct that the getNextPromise function should be attached to.
         P{{handle}} -The Handle which relates to previous async invocation.
     }
     public function getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError);
@@ -142,7 +129,6 @@ public type RetryClient object {
     documentation {
         The getPromisedResponse function implementation of the HTTP retry client.
 
-        T{{client}} - RetryClient struct that the getNextPromise function should be attached to.
         P{{promise}} - The related Push Promise message.
     }
     public function getPromisedResponse (PushPromise promise) returns (Response | HttpConnectorError);
@@ -150,7 +136,6 @@ public type RetryClient object {
     documentation {
         The rejectPromise function implementation of the HTTP retry client.
 
-        T{{client}} - RetryClient struct that the getNextPromise function should be attached to.
         P{{promise}} - The Push Promise need to be rejected.
     }
     public function rejectPromise (PushPromise promise) returns (boolean);

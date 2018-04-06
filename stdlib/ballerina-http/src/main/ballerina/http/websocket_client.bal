@@ -40,7 +40,8 @@ public type WebSocketClient object {
 
     @Description {value:"Stops the registered service"}
     public function stop () {
-        _ = self.getClient().close(1001, "The connection has been stopped");
+        WebSocketConnector webSocketConnector = self.getClient();
+        WebSocketConnectorError|() ignoredValue = webSocketConnector.close(1001, "The connection has been stopped");
     }
 };
 

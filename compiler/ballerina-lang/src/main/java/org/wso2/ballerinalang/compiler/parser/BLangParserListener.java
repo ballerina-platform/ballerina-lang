@@ -504,11 +504,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String name = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
         if (ctx.parent instanceof BallerinaParser.PublicObjectFieldsContext) {
-            this.pkgBuilder
-                    .addFieldToObject(currentPos, ws, name, exprAvailable, ctx.annotationAttachment().size(), false);
+            this.pkgBuilder.addFieldToObject(currentPos, ws, name,
+                    exprAvailable, ctx.annotationAttachment().size(), false);
         } else if (ctx.parent instanceof BallerinaParser.PrivateObjectFieldsContext) {
-            this.pkgBuilder
-                    .addFieldToObject(currentPos, ws, name, exprAvailable, ctx.annotationAttachment().size(), true);
+            this.pkgBuilder.addFieldToObject(currentPos, ws, name,
+                    exprAvailable, ctx.annotationAttachment().size(), true);
         } else if (ctx.parent instanceof BallerinaParser.FieldDefinitionListContext) {
             this.pkgBuilder.addFieldToRecord(currentPos, ws, name, exprAvailable, ctx.annotationAttachment().size());
         }

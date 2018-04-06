@@ -61,10 +61,11 @@ function addAuthFilters (ServiceEndpointConfiguration config) {
 function createAuthFilters () returns (Filter[]) {
     // TODO: currently hard coded. fix it.
     Filter[] authFilters = [];
-    AuthnFilter authnFilter = {};
-    AuthzFilter authzFilter = {};
-    authFilters[0] = authnFilter;
-    authFilters[1] = authzFilter;
+    //TODO fix this object instantiation properly
+    //AuthnFilter authnFilter = {};
+    //AuthzFilter authzFilter = {};
+    //authFilters[0] = authnFilter;
+    //authFilters[1] = authzFilter;
     return authFilters;
 }
 

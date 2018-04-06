@@ -59,7 +59,7 @@ public class StartSpanWithParentContext extends BlockingNativeCallableUnit {
 
         String serviceName = context.getStringArgument(0);
         String spanName = context.getStringArgument(1);
-        BMap tags = (BMap) context.getRefArgument(0);
+        BMap tags = (BMap) context.getNullableRefArgument(0);
         String reference = context.getRefArgument(1).stringValue();
         BStruct parentSpanContextStruct = (BStruct) context.getRefArgument(2);
         PrintStream err = System.err;
@@ -79,7 +79,7 @@ public class StartSpanWithParentContext extends BlockingNativeCallableUnit {
                 Utils.toStringMap(tags), ReferenceType.valueOf(reference), extractedSpanContextMap);
 
         if (spanId != null) {
-            context.setReturnValues(Utils.createSpanStruct(context, spanId, serviceName, spanName));
+            context.setReturnValues(Utils.createSpanStruct(context, serviceName, spanName, spanId));
         } else {
             context.setReturnValues(Utils.createSpanStruct(context, null, null, null));
             err.println("ballerina: Can not use tracing API when tracing is disabled");

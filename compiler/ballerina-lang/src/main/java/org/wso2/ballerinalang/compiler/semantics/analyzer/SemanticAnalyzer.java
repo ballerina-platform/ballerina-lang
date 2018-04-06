@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
@@ -533,8 +534,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // If the variable is a package/service/connector level variable, we don't need to check types.
         // It will we done during the init-function of the respective construct is visited.
-        if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE ||
-                (ownerSymTag & SymTag.SERVICE) == SymTag.SERVICE ||
+        if ((ownerSymTag & SymTag.SERVICE) == SymTag.SERVICE ||
                 (ownerSymTag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
             return;
         }
@@ -923,8 +923,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     final BEndpointVarSymbol bEndpointVarSymbol = symbolEnter.defineEndpointVarSymbol(variable.pos,
                             EnumSet.noneOf(Flag.class), variable.type, names.fromString(actualVarName), resourceEnv);
                     variable.symbol = bEndpointVarSymbol;
-                    endpointSPIAnalyzer.populateEndpointSymbol((BStructSymbol) variable.type.tsymbol,
-                            bEndpointVarSymbol);
+                    if (variable.type.tsymbol.kind == SymbolKind.OBJECT
+                            || variable.type.tsymbol.kind == SymbolKind.RECORD) {
+                        endpointSPIAnalyzer.populateEndpointSymbol((BStructSymbol) variable.type.tsymbol,
+                                bEndpointVarSymbol);
+                    }
                 } else {
                     variable.type = symTable.errType;
                     variable.symbol = symbolEnter.defineVarSymbol(variable.pos, EnumSet.noneOf(Flag.class),

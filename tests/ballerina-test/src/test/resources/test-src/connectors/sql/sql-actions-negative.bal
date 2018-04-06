@@ -1,6 +1,6 @@
 import ballerina/sql;
 
-function testSelectData () returns (string) {
+function testSelectData () returns (json) {
     endpoint sql:Client testDB {
         database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -16,8 +16,7 @@ function testSelectData () returns (string) {
 
         match x {
             table dt => {
-                var j = check <json>dt;
-                firstName = j.toString();
+                return check <json>dt;
             }
             sql:SQLConnectorError err1 => {
                firstName = err1.message;
@@ -27,7 +26,7 @@ function testSelectData () returns (string) {
     } finally {
         _ = testDB -> close();
     }
-    return firstName;
+    return null;
 }
 
 
@@ -67,7 +66,7 @@ function testGeneratedKeyOnInsert () returns (string) {
 
 
 
-function testCallProcedure () returns (string) {
+function testCallProcedure () returns (json) {
     endpoint sql:Client testDB {
         database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -82,8 +81,7 @@ function testCallProcedure () returns (string) {
         var x = testDB -> call("{call InsertPersonDataInfo(100,'James')}", null, null);
         match x {
             table[] dt  =>{
-                var j = check <json>dt[0];
-                firstName = j.toString();
+                return check <json>dt[0];
             }
             sql:SQLConnectorError err1 =>{
                 firstName = err1.message;
@@ -93,7 +91,7 @@ function testCallProcedure () returns (string) {
     } finally {
         _ = testDB -> close();
     }
-    return firstName;
+    return null;
 }
 
 function testBatchUpdate () returns (string) {
@@ -144,7 +142,7 @@ function testBatchUpdate () returns (string) {
     return returnVal;
 }
 
-function testInvalidArrayofQueryParameters () returns (string) {
+function testInvalidArrayofQueryParameters () returns (json) {
     endpoint sql:Client testDB {
         database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
@@ -164,8 +162,7 @@ function testInvalidArrayofQueryParameters () returns (string) {
         var x = testDB -> select("SELECT FirstName from Customers where registrationID in (?)", parameters, null);
         match x {
             table dt  =>{
-                var j = check <json>dt;
-                value = j.toString();
+                return check <json>dt;
             }
             sql:SQLConnectorError err1 =>{
                 value = err1.message;
@@ -175,5 +172,5 @@ function testInvalidArrayofQueryParameters () returns (string) {
     } finally {
         _ = testDB -> close();
     }
-    return value;
+    return null;
 }
