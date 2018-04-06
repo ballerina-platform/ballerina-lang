@@ -26,7 +26,7 @@ endpoint http:ServiceEndpoint ep1 {
 }
 service echoService bind ep1 {
     resourceOne (endpoint outboundEP, http:Request clientRequest) {
-        observe:Span span = observe:startSpan("testService", "echo span", (), observe:ReferenceType_ROOT, ());
+        observe:Span span = observe:startSpan("testService", "echo span", (), observe:REFERENCE_TYPE_ROOT, ());
         span.log("TestEvent", "This is a test info log");
         span.logError("TestError", "This is a test error log");
         span.addTag("TestTag", "Test tag message");
@@ -44,7 +44,7 @@ service echoService bind ep1 {
 
     resourceTwo (endpoint outboundEP, http:Request clientRequest) {
         observe:SpanContext spanContext = observe:extractTraceContextFromHttpHeader(clientRequest, "test-group");
-        observe:Span span = observe:startSpan("testService", "resource two", (), observe:ReferenceType_CHILDOF, spanContext);
+        observe:Span span = observe:startSpan("testService", "resource two", (), observe:REFERENCE_TYPE_CHILDOF, spanContext);
         string | () baggageItem = span.getBaggageItem("BaggageItem");
         http:Response res = new;
         res.setStringPayload("Hello, World 2!");
@@ -64,7 +64,7 @@ function callNextResource(observe:Span parentSpan) returns (http:Response | ()) 
     endpoint http:ClientEndpoint httpEndpoint {
         targets : [{url: "http://localhost:9090/echoService"}]
     };
-    observe:Span span = observe:startSpan("testService", "calling next resource", (), observe:ReferenceType_CHILDOF, parentSpan);
+    observe:Span span = observe:startSpan("testService", "calling next resource", (), observe:REFERENCE_TYPE_CHILDOF, parentSpan);
     span.setBaggageItem("BaggageItem", "Baggage message");
     http:Request request = new;
     request = span.injectTraceContextToHttpHeader(request, "test-group");

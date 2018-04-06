@@ -18,11 +18,11 @@ package ballerina.observe;
 
 import ballerina/http;
 
-public type ReferenceType "CHILDOF" | "FOLLOWSFROM" | "ROOT";
+public type REFERENCE_TYPE "CHILDOF" | "FOLLOWSFROM" | "ROOT";
 
-@final public ReferenceType ReferenceType_CHILDOF = "CHILDOF";
-@final public ReferenceType ReferenceType_FOLLOWSFROM = "FOLLOWSFROM";
-@final public ReferenceType ReferenceType_ROOT = "ROOT";
+@final public REFERENCE_TYPE REFERENCE_TYPE_CHILDOF = "CHILDOF";
+@final public REFERENCE_TYPE REFERENCE_TYPE_FOLLOWSFROM = "FOLLOWSFROM";
+@final public REFERENCE_TYPE REFERENCE_TYPE_ROOT = "ROOT";
 
 @Description {value:"Represents a opentracing span in Ballerina"}
 @Field {value:"spanId: The id of the span"}
@@ -40,7 +40,6 @@ public type Span object {
     }
 
     @Description {value:"Finish the span specified by the spanId"}
-    @Param {value:"spanId: The ID of the span to be finished"}
     public native function finishSpan();
 
     @Description {value:"Add a tag to the current span. Tags are given as a key value pair"}
@@ -55,7 +54,7 @@ public type Span object {
 
     @Description {value:"Add a baggage item to the current span. Baggage items are given as a key value pair"}
     @Param {value:"tagKey: The key of the key value pair"}
-    public native function getBaggageItem(string baggageKey) returns (string|());
+    public native function getBaggageItem(string baggageKey) returns string | ();
 
     @Description {value:"Attach an info log to the current span"}
     @Param {value:"event: The type of event this log represents"}
@@ -69,13 +68,13 @@ public type Span object {
 
     @Description {value:"Adds span headers when request chaining"}
     @Return {value:"The span context as a key value pair that should be passed out to an external function"}
-    public native function injectTraceContext (string traceGroup) returns (map);
+    public native function injectTraceContext (string traceGroup) returns map;
 
     @Description {value:"Injects the span context the Request so it can be sent to another service"}
     @Param {value:"req: The http request used when calling an endpoint"}
     @Param {value:"traceGroup: The group that the span context is associated to"}
     @Return {value:"The http request which includes the span context related headers"}
-    public function injectTraceContextToHttpHeader (http:Request req, string traceGroup) returns (http:Request) {
+    public function injectTraceContextToHttpHeader (http:Request req, string traceGroup) returns http:Request {
         map headers = self.injectTraceContext(traceGroup);
         foreach key, v in headers {
             var value = <string>v;
@@ -90,7 +89,7 @@ public type Span object {
                 SpanContext is just a representation of a propogated Span and can not be finished."}
 @Field {value:"contextMap: The map containing information to build span contexts of opentracing implementations"}
 public type SpanContext {
-    map contextMap,
+    map<string> contextMap,
 };
 
 @Description {value:"Starts a span and sets the specified reference to parent span"}
@@ -100,8 +99,8 @@ public type SpanContext {
 @Param {value:"reference: childOf, followsFrom, root"}
 @Param {value:"parentSpan: Can be of type Span or SpanContext. If no parent null can be given"}
 @Return {value:"The newly started span"}
-public function startSpan(string serviceName, string spanName, map | () tags, ReferenceType reference,
-                                                                Span | SpanContext | () parentSpan) returns (Span) {
+public function startSpan(string serviceName, string spanName, map | () tags, REFERENCE_TYPE reference,
+                                                                Span | SpanContext | () parentSpan) returns Span {
     match parentSpan {
         Span span => return startSpanWithParentSpan(serviceName, spanName, tags, reference, span);
         SpanContext spanContext => {
@@ -115,13 +114,13 @@ public function startSpan(string serviceName, string spanName, map | () tags, Re
 @Param {value:"headers: The map of headers"}
 @Param {value:"traceGroup: The kind of error. e.g. DBError"}
 @Return {value:"The SpanContext that was propogated from another service"}
-public native function extractTraceContext (map headers, string traceGroup) returns (SpanContext);
+public native function extractTraceContext (map headers, string traceGroup) returns SpanContext;
 
 @Description {value:"Method to save the parent span and extract the span Id"}
 @Param {value:"req: The http request that contains the header maps"}
 @Param {value:"traceGroup: The group to which this span belongs to"}
 @Return {value:"The SpanContext that was propogated from another service"}
-public function extractTraceContextFromHttpHeader (http:Request req, string traceGroup) returns (SpanContext) {
+public function extractTraceContextFromHttpHeader (http:Request req, string traceGroup) returns SpanContext {
     map headers = req.getCopyOfAllHeaders();
     return extractTraceContext(headers, traceGroup);
 }
@@ -131,7 +130,7 @@ public function extractTraceContextFromHttpHeader (http:Request req, string trac
 @Param {value:"spanName: The name of the span"}
 @Param {value:"tags: The map of tags to be associated to the span"}
 @Return {value:"The newly started span"}
-native function startRootSpan(string serviceName, string spanName, map | () tags) returns (Span);
+native function startRootSpan(string serviceName, string spanName, map | () tags) returns Span;
 
 @Description {value:"Starts a span and sets the specified reference to parent span"}
 @Param {value:"serviceName: The service name of the process"}
@@ -141,7 +140,7 @@ native function startRootSpan(string serviceName, string spanName, map | () tags
 @Param {value:"parentSpan: Instance of Span to be referenced to"}
 @Return {value:"The newly started span"}
 native function startSpanWithParentSpan(string serviceName, string spanName, map | () tags,
-                                                    ReferenceType reference, Span parentSpan) returns (Span);
+                                                            REFERENCE_TYPE reference, Span parentSpan) returns Span;
 
 @Description {value:"Starts a span and sets the specified reference to parent span"}
 @Param {value:"serviceName: The service name of the process"}
@@ -151,4 +150,4 @@ native function startSpanWithParentSpan(string serviceName, string spanName, map
 @Param {value:"parentSpanContext: Instance of SpanContext to be referenced to"}
 @Return {value:"The newly started span"}
 native function startSpanWithParentContext(string serviceName, string spanName, map | () tags,
-                                                ReferenceType reference, SpanContext parentSpanContext) returns (Span);
+                                                REFERENCE_TYPE reference, SpanContext parentSpanContext) returns Span;
