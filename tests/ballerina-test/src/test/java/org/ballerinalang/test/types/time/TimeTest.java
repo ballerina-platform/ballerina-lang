@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
  */
 public class TimeTest {
 
-    CompileResult result;
+    private CompileResult result;
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/time/time-type.bal");

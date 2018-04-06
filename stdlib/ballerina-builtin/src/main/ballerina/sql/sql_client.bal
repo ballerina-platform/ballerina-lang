@@ -16,17 +16,17 @@
 
 package ballerina.sql;
 
-@Description {value:"Parameter struct represents a query parameter for the SQL queries specified in connector actions"}
+@Description {value:"Parameter represents a query parameter for the SQL queries specified in connector actions"}
 @Field {value:"sqlType: The data type of the corresponding SQL parameter"}
 @Field {value:"value: Value of paramter pass into the SQL query"}
 @Field {value:"direction: Direction of the SQL Parameter IN, OUT, or INOUT"}
-@Field {value:"structType: In case of OUT direction, if the sqlType is REFCURSOR, this represents the struct type to
+@Field {value:"recordType: In case of OUT direction, if the sqlType is REFCURSOR, this represents the record type to
 map a result row"}
 public type Parameter {
     Type sqlType,
     any value,
     Direction direction,
-    typedesc structType,
+    typedesc recordType,
 };
 
 @Description {value:"The Databases which has direct parameter support."}
@@ -192,8 +192,7 @@ public type SQLClient object {
     @Return {value:"Result set(s) for the given query"}
     @Return {value:"The Error occured during SQL client invocation"}
     public native function call (@sensitive string sqlQuery, (Parameter[] | ()) parameters,
-        (typedesc | ()) structType)
-        returns @tainted (table[] | SQLConnectorError);
+        (typedesc | ()) recordType) returns @tainted (table[] | SQLConnectorError);
 
     @Description {value:"The select action implementation for SQL connector to select data from tables."}
     @Param {value:"sqlQuery: SQL query to execute"}
@@ -201,8 +200,7 @@ public type SQLClient object {
     @Return {value:"Result set for the given query"}
     @Return {value:"The Error occured during SQL client invocation"}
     public native function select (@sensitive string sqlQuery, (Parameter[] | ()) parameters,
-        (typedesc | ()) structType)
-        returns @tainted (table | SQLConnectorError);
+        (typedesc | ()) recordType) returns @tainted (table | SQLConnectorError);
 
     @Description {value:"The close action implementation for SQL connector to shutdown the connection pool."}
     @Return {value:"The Error occured during SQL client invocation"}
@@ -237,7 +235,7 @@ public type SQLClient object {
         returns (int, string[]) | SQLConnectorError;
 };
 
-@Description { value:"SQLConnectorError struct represents an error occured during the SQL client invocation" }
+@Description { value:"SQLConnectorError represents an error occured during the SQL client invocation" }
 @Field {value:"message:  An error message explaining about the error"}
 @Field {value:"cause: The error(s) that caused SQLConnectorError to get thrown"}
 public type SQLConnectorError {

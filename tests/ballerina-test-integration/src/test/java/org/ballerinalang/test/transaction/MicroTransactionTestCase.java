@@ -40,6 +40,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Testing micro transaction header behaviour.
  */
+@Test(groups = {"broken"})
 public class MicroTransactionTestCase {
     private ServerInstance initiator;
     private ServerInstance participant1;

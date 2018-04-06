@@ -13,7 +13,7 @@ endpoint grpc:Service ep {
     clientStreaming:true,
     serverStreaming:true,
     generateClientConnector:false}
-service<grpc:Endpoint> chat bind ep {
+service<grpc:Endpoint> Chat bind ep {
     map consMap;
     onOpen (endpoint client) {
         consMap[<string>client.getClient().getID()] = client;
@@ -64,4 +64,4 @@ service<grpc:Endpoint> chat bind ep {
 type ChatMessage {
     string name;
     string message;
-}
+};

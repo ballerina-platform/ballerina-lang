@@ -150,13 +150,12 @@ public class MessageUtils {
      * @param error          error message struct
      */
     static void handleFailure(StreamObserver<Message> streamObserver, BStruct error) {
-        int statusCode = Integer.parseInt(String.valueOf(error.getIntField(0)));
         String errorMsg = error.getStringField(0);
         LOG.error(errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         if (streamObserver != null) {
-            streamObserver.onError(new StatusRuntimeException(Status.fromCodeValue(statusCode).withDescription
-                    (errorMsg)));
+            streamObserver.onError(new StatusRuntimeException(Status.fromCodeValue(Status.Code.INTERNAL.value())
+                    .withDescription(errorMsg)));
         }
     }
     
