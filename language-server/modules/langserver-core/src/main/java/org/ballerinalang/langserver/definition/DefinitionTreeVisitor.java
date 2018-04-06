@@ -31,12 +31,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -450,6 +452,39 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
         if (patternClauseNode.body != null) {
             this.acceptNode(patternClauseNode.body);
+        }
+    }
+
+    @Override
+    public void visit(BLangRecord record) {
+        if (record.name.getValue()
+                .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
+            this.context.put(NodeContextKeys.NODE_KEY, record);
+            terminateVisitor = true;
+        }
+
+        if (!record.fields.isEmpty()) {
+            record.fields.forEach(this::acceptNode);
+        }
+
+        if (record.initFunction != null &&
+                !(record.initFunction.returnTypeNode.type instanceof BNilType)) {
+            this.acceptNode(record.initFunction);
+        }
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral recordLiteral) {
+        if (!recordLiteral.keyValuePairs.isEmpty()) {
+            recordLiteral.keyValuePairs.forEach((bLangRecordKeyValue -> {
+                if (bLangRecordKeyValue.valueExpr != null) {
+                    this.acceptNode(bLangRecordKeyValue.valueExpr);
+                }
+            }));
+        }
+
+        if (recordLiteral.impConversionExpr != null) {
+            this.acceptNode(recordLiteral.impConversionExpr);
         }
     }
 

@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -49,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -711,6 +713,43 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
         if (!typeInitExpr.argsExpr.isEmpty()) {
             typeInitExpr.argsExpr.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangRecord record) {
+        if (record.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
+                record.symbol.owner.pkgID.name.getValue()
+                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
+                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
+                        .equals(record.symbol.pkgID.name.getValue()) &&
+                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(record.name.getValue())) {
+            addLocation(record, record.symbol.owner.pkgID.name.getValue(),
+                    record.pos.getSource().pkgID.name.getValue());
+        }
+
+        if (!record.fields.isEmpty()) {
+            record.fields.forEach(this::acceptNode);
+        }
+
+        if (record.initFunction != null &&
+                !(record.initFunction.returnTypeNode.type instanceof BNilType)) {
+            this.acceptNode(record.initFunction);
+        }
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral recordLiteral) {
+        if (!recordLiteral.keyValuePairs.isEmpty()) {
+            recordLiteral.keyValuePairs.forEach((bLangRecordKeyValue -> {
+                if (bLangRecordKeyValue.valueExpr != null) {
+                    this.acceptNode(bLangRecordKeyValue.valueExpr);
+                }
+            }));
+        }
+
+        if (recordLiteral.impConversionExpr != null) {
+            this.acceptNode(recordLiteral.impConversionExpr);
         }
     }
 
