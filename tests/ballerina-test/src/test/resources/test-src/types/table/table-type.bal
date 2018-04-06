@@ -633,62 +633,64 @@ function testDateTime (int datein, int timein, int timestampin) returns (string,
     return (date, time, timestamp, datetime);
 }
 
-//function testDateTimeAsTimeStruct () returns (int, int, int, int, int, int, int, int ) {
-//    endpoint sql:Client testDB {
-//        database: sql:DB_HSQLDB_FILE,
-//        host: "./target/tempdb/",
-//        port: 0,
-//        name: "TEST_DATA_TABLE_DB",
-//        username: "SA",
-//        password: "",
-//        options: {maximumPoolSize:1}
-//    };
-//
-//    int dateInserted;
-//    int dateRetrieved;
-//    int timeInserted;
-//    int timeRetrieved;
-//    int timestampInserted;
-//    int timestampRetrieved;
-//    int datetimeInserted;
-//    int datetimeRetrieved;
-//
-//    time:Time dateStruct = time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
-//    time:Timezone zoneValue = {zoneId:"UTC"};
-//    time:Time timeStruct = {time:51323000, zone:zoneValue};
-//    time:Time timestampStruct = time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
-//    time:Time datetimeStruct = time:createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
-//    dateInserted = dateStruct.time;
-//    timeInserted = timeStruct.time;
-//    timestampInserted = timestampStruct.time;
-//    datetimeInserted = datetimeStruct.time;
-//
-//    sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:31};
-//    sql:Parameter para1 = {sqlType:sql:TYPE_DATE, value:dateStruct};
-//    sql:Parameter para2 = {sqlType:sql:TYPE_TIME, value:timeStruct};
-//    sql:Parameter para3 = {sqlType:sql:TYPE_TIMESTAMP, value:timestampStruct};
-//    sql:Parameter para4 = {sqlType:sql:TYPE_DATETIME, value:datetimeStruct};
-//    sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
-//
-//    var countRet = testDB -> update("Insert into DateTimeTypes
-//        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", parameters);
-//    int count = check countRet;
-//
-//    var dtRet = testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
-//                from DateTimeTypes where row_id = 31", null, typeof ResultDatesStruct);
-//    table dt = check dtRet;
-//
-//    while (dt.hasNext()) {
-//        var rs = check <ResultDatesStruct>dt.getNext();
-//        dateRetrieved = rs.DATE_TYPE.time;
-//        timeRetrieved = rs.TIME_TYPE.time;
-//        timestampRetrieved = rs.TIMESTAMP_TYPE.time;
-//        datetimeRetrieved = rs.DATETIME_TYPE.time;
-//    }
-//     _ = testDB -> close();
-//    return (dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
-//        datetimeInserted, datetimeRetrieved);
-//}
+function testDateTimeAsTimeStruct () returns (int, int, int, int, int, int, int, int ) {
+    endpoint sql:Client testDB {
+        database: sql:DB_HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_DATA_TABLE_DB",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    };
+
+    int dateInserted;
+    int dateRetrieved;
+    int timeInserted;
+    int timeRetrieved;
+    int timestampInserted;
+    int timestampRetrieved;
+    int datetimeInserted;
+    int datetimeRetrieved;
+
+    time:Time dateStruct = time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
+
+    time:Timezone zoneValue = {zoneId:"UTC"};
+    time:Time timeStruct =new (51323000, zoneValue);
+
+    time:Time timestampStruct = time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
+    time:Time datetimeStruct = time:createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
+    dateInserted = dateStruct.time;
+    timeInserted = timeStruct.time;
+    timestampInserted = timestampStruct.time;
+    datetimeInserted = datetimeStruct.time;
+
+    sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:31};
+    sql:Parameter para1 = {sqlType:sql:TYPE_DATE, value:dateStruct};
+    sql:Parameter para2 = {sqlType:sql:TYPE_TIME, value:timeStruct};
+    sql:Parameter para3 = {sqlType:sql:TYPE_TIMESTAMP, value:timestampStruct};
+    sql:Parameter para4 = {sqlType:sql:TYPE_DATETIME, value:datetimeStruct};
+    sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
+
+    var countRet = testDB -> update("Insert into DateTimeTypes
+        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", parameters);
+    int count = check countRet;
+
+    var dtRet = testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
+                from DateTimeTypes where row_id = 31", (), typeof ResultDatesStruct);
+    table dt = check dtRet;
+
+    while (dt.hasNext()) {
+        ResultDatesStruct rs = check <ResultDatesStruct>dt.getNext();
+        dateRetrieved = rs.DATE_TYPE.time;
+        timeRetrieved = rs.TIME_TYPE.time;
+        timestampRetrieved = rs.TIMESTAMP_TYPE.time;
+        datetimeRetrieved = rs.DATETIME_TYPE.time;
+    }
+     _ = testDB -> close();
+    return (dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
+        datetimeInserted, datetimeRetrieved);
+}
 
 function testDateTimeInt (int datein, int timein, int timestampin) returns (int, int, int, int) {
     endpoint sql:Client testDB {
