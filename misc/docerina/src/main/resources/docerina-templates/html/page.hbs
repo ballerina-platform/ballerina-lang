@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="/img/favicon.ico">
-    <title></title>
-    <script src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+    <title>Ballerina.io - API Docs</title>
+    <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
         crossorigin="anonymous">
     <!-- Optional theme -->
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
         crossorigin="anonymous">
     <!-- Latest compiled and minified JavaScript -->
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
 
     <!-- Nanoscroller JS -->
@@ -22,7 +22,7 @@
     <!-- Docerina JS -->
     <script src="docerina-theme/js/docerina.js"></script>
     <script type="text/javascript" src="/js/highlight.pack.js"></script>
-    <link rel="stylesheet" href="https://use.typekit.net/son4ymv.css" />
+    <link rel="stylesheet" href="//use.typekit.net/son4ymv.css" />
     {{!-- <link rel="stylesheet" href="http://b.content.wso2.com/sites/all/ballerina.io-cdn/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="http://b.content.wso2.com/sites/all/ballerina.io-cdn/css/theme_extra.css" type="text/css" />
     <link rel="stylesheet" href="http://b.content.wso2.com/sites/all/ballerina.io-cdn/css/highlight.css">
@@ -53,7 +53,7 @@
         <div class="container">
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 cBallerina-io-Logo-Container">
                 <a class="cLogo" href="/">
-                    <img src="http://b.content.wso2.com/sites/all/ballerina.io-cdn/img/ballerina-logo.svg" alt="Ballerina" />
+                    <img src="//b.content.wso2.com/sites/all/ballerina.io-cdn/img/ballerina-logo.svg" alt="Ballerina" />
                 </a>
             </div>
         </div>
@@ -64,7 +64,7 @@
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3 cBallerina-io-Home-Left-col">
                 <div class="cBlallerina-io-docs-left-nav-container">
                     <div class="cSideBar-Button">
-                        <img src="http://b.content.wso2.com/sites/all/ballerina.io-cdn/img/sidebar.svg" />
+                        <img src="//b.content.wso2.com/sites/all/ballerina.io-cdn/img/sidebar.svg" />
                     </div>
                     <div class="cLectColStyle">
                         <div class="cBallerina-io-docs-Title">TABLE OF CONTENTS</div>
@@ -132,22 +132,21 @@
                 </div>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 cBallerina-io-Home-Middle-col">
+                <div class="cBallerina-io-breadcrumbs">
                 <div role="navigation" aria-label="breadcrumbs navigation">
-
-                    <ul>
-                        <li>
-                            <a href="/">Home</a>
-                        </li>
-                        <li>»</li>
-                        <li>
-                            <a href="/learn">Lean</a>
-                        </li>
-                        <li>»</li>
-                        <li>{{name}}</li>
-                    </ul>
+                <ul class="wy-breadcrumbs">
+                <li>
+                                        <a href="/">Home</a>
+                                    </li>
+                                    <li>»</li>
+                                    <li>
+                                        <a href="/learn">Lean</a>
+                                    </li>
+                                    <li>»</li>
+                                    <li>{{name}}</li>
+                </ul>
                 </div>
-
-
+                </div>
 
 
                 <div class="cBlallerina-io-docs-content-container">
@@ -158,18 +157,18 @@
                                 <div>
                                     <div id="content" class="nano">
                                         <div class="nano-content">
-                                            <h3 class="thin-text padding-bottom">
+                                            <h1 class="thin-text padding-bottom">
                                                 <span class="bold">{{heading.value}}</span>
                                                 {{#if heading.isPackageName}} package {{/if}}
-                                            </h3>
+                                            </h1>
                                             {{#each constructs}}
                                             <div class="construct-wrapper">
                                                 <!--Primitive Types-->
                                                 {{#if isPrimitiveType}}
-                                                <h4 id="{{name}}">
+                                                <h2 id="{{name}}">
                                                     <span class="{{icon}} sm-icon"></span>
                                                     {{name}}
-                                                </h4>
+                                                </h2>
                                                 {{#if description}}
                                                 <p>
                                                     <span class="fw-right gray xs-icon"></span>{{description}}
@@ -179,11 +178,11 @@
                                                     <ul>
                                                         {{#each children}}
                                                         <li>
-                                                            <h4 id="{{../name}}-{{name}}">
+                                                            <h2 id="{{../name}}-{{name}}">
                                                                 <span class={{icon}}></span>
                                                                 <span class="thin-text light-gray">&lt; {{../name}} &gt;</span>
                                                                 {{name}} ( {{join parameters " , "}} ) {{#if returnParams}} ( {{join returnParams " , "}} ) {{/if}}
-                                                            </h4>
+                                                            </h2>
                                                             {{#if description}}
                                                             <p>
                                                                 <span class="fw-right gray xs-icon"></span>{{description}}
@@ -232,10 +231,10 @@
                                                 {{/if}} {{/if}}
                                                 <!-- Function -->
                                                 {{#if isFunction}}
-                                                <h4 id="{{name}}">
+                                                <h2 id="{{name}}">
                                                     <span class="{{icon}} sm-icon"> </span>
                                                     public function {{name}} ( {{join parameters " , "}} ) {{#if returnParams}} ( {{join returnParams " , "}} ) {{/if}}
-                                                </h4>
+                                                </h2>
                                                 {{#if description}}
                                                 <p>
                                                     <span class="fw-right gray xs-icon"></span>{{description}}
@@ -279,10 +278,10 @@
                                                 {{/if}} {{/if}}
                                                 <!-- Struct-binded functions grouped together -->
                                                 {{#if isStruct}}
-                                                <h4 id="{{name}}">
+                                                <h2 id="{{name}}">
                                                     <span class="{{icon}} sm-icon"></span>
                                                     public struct {{name}}
-                                                </h4>
+                                                </h2>
                                                 {{#if description}}
                                                 <p>
                                                     <span class="fw-right gray xs-icon"></span>{{description}}
@@ -312,11 +311,11 @@
                                                     <ul>
                                                         {{#each children}}
                                                         <li>
-                                                            <h4 id="{{../name}}-{{name}}">
+                                                            <h2 id="{{../name}}-{{name}}">
                                                                 <span class={{icon}}></span>
                                                                 <span class="thin-text light-gray">&lt; {{../name}} &gt;</span>
                                                                 {{name}} ( {{join parameters " , "}} ) {{#if returnParams}} ( {{join returnParams " , "}} ) {{/if}}
-                                                            </h4>
+                                                            </h2>
                                                             {{#if description}}
                                                             <p>
                                                                 <span class="fw-right gray xs-icon"></span>{{description}}
@@ -365,10 +364,10 @@
                                                 {{/if}} {{/if}}
                                                 <!-- Connectors and its actions -->
                                                 {{#if isConnector}}
-                                                <h4 id="{{name}}">
+                                                <h2 id="{{name}}">
                                                     <span class="{{icon}} sm-icon"></span>
                                                     public connector {{name}} ( {{join parameters " , "}} )
-                                                </h4>
+                                                </h2>
                                                 {{#if description}}
                                                 <p>
                                                     <span class="fw-right gray xs-icon"></span>{{description}}
@@ -393,17 +392,17 @@
                                                 </table>
                                                 {{/if}} {{#if children}}
                                                 <div class="function-wrapper">
-                                                    <h4>Actions:</h4>
+                                                    <h2>Actions:</h2>
                                                     <ul>
                                                         {{#each children}}
                                                         <li>
-                                                            <h4 id="{{../name}}-{{name}}">
+                                                            <h2 id="{{../name}}-{{name}}">
                                                                 <span class={{icon}}></span>
                                                                 <span class="thin-text light-gray">
                                                                     < {{../name}}>
                                                                 </span>
                                                                 {{name}} ( {{join parameters " , "}} ) {{#if returnParams}} ( {{join returnParams " , "}} ) {{/if}}
-                                                            </h4>
+                                                            </h2>
                                                             {{#if description}}
                                                             <p>
                                                                 <span class="fw-right gray xs-icon"></span>{{description}}
@@ -452,10 +451,10 @@
                                                 {{/if}} {{/if}}
                                                 <!-- Enums-->
                                                 {{#if isEnum}}
-                                                <h4 id="{{name}}">
+                                                <h2 id="{{name}}">
                                                     <span class="{{icon}} sm-icon"></span>
                                                     public enum {{name}}
-                                                </h4>
+                                                </h2>
                                                 {{#if description}}
                                                 <p>
                                                     <span class="fw-right gray xs-icon"></span>{{description}}
@@ -479,10 +478,10 @@
                                                 {{/if}} {{/if}}
                                                 <!-- Annotations-->
                                                 {{#if isAnnotation}}
-                                                <h4 id="{{name}}">
+                                                <h2 id="{{name}}">
                                                     <span class="{{icon}} sm-icon"></span>
                                                     public annotation {{name}}
-                                                </h4>
+                                                </h2>
                                                 {{#if description}}
                                                 <p>
                                                     <span class="fw-right gray xs-icon"></span>{{description}}
@@ -508,10 +507,10 @@
                                                 {{/if}} {{/if}}
                                                 <!-- Global Variables-->
                                                 {{#if isGlobalVariable}}
-                                                <h4 id="{{name}}">
+                                                <h2 id="{{name}}">
                                                     <span class="{{icon}} sm-icon"></span>
                                                     {{name}}
-                                                </h4>
+                                                </h2>
                                                 <table>
                                                     <tr>
                                                         <th class="col-md-3">Attribute Name</th>
@@ -539,7 +538,7 @@
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3 cBallerina-io-Home-Right-col">
                 <div class="cBlallerina-io-docs-right-nav-container">
                     <div class="cSideBar-Button">
-                        <img src="http://b.content.wso2.com/sites/all/ballerina.io-cdn/img/sidebar.svg" />
+                        <img src="//b.content.wso2.com/sites/all/ballerina.io-cdn/img/sidebar.svg" />
                     </div>
                     <div class="cLectColStyle">
                         {{!-- <div class="cBallerina-io-docs-Title">PRIMITIVE TYPES</div> --}}
