@@ -97,8 +97,8 @@ type Request {
     string name;
     string message;
     int age;
-}
+};
 
 type Response {
     string resp;
-}
+};

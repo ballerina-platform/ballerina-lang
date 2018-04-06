@@ -61,12 +61,11 @@ public type HelloWorldBlockingStub object {
                 return err;
             }
             any payload => {
-                string result = <string> payload;
-                return result;
+                return <string> payload;
             }
         }
     }
-}
+};
 
 public type HelloWorldStub object {
     public {
@@ -80,15 +79,15 @@ public type HelloWorldStub object {
         self.serviceStub = navStub;
     }
 
-    function<HelloWorldStub stub> hello(string req, typedesc listener) returns (error|()) {
-        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/hello", req, listener);
+    function hello(string req, typedesc listener) returns (error?) {
+        grpc:ConnectorError err1 = self.serviceStub.nonBlockingExecute("HelloWorld/hello", req, listener);
         if (err1 != ()) {
             error err = {message:err1.message};
             return err;
         }
         return ();
     }
-}
+};
 
 
 public type HelloWorldBlockingClient object {
@@ -111,7 +110,7 @@ public type HelloWorldBlockingClient object {
     public function getClient() returns (HelloWorldBlockingStub) {
         return self.stub;
     }
-}
+};
 
 public type HelloWorldClient object {
     public {
@@ -133,7 +132,7 @@ public type HelloWorldClient object {
     public function getClient() returns (HelloWorldStub) {
         return self.stub;
     }
-}
+};
 
 
 @final string DESCRIPTOR_KEY = "HelloWorld.proto";

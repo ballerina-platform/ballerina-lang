@@ -3,7 +3,7 @@ import ballerina/grpc;
 import ballerina/io;
 import ballerina/runtime;
 
-string[] responses = new;
+string[] responses;
 int total = 0;
 function testServerStreaming (string name) returns (string[]) {
     // Client endpoint configuration
@@ -82,7 +82,7 @@ public type HelloWorldStub object {
         }
         return ();
     }
-}
+};
 
 
 // Non-blocking client endpoint
@@ -106,7 +106,7 @@ public type HelloWorldClient object {
     public function getClient () returns (HelloWorldStub) {
         return self.stub;
     }
-}
+};
 
 @final string DESCRIPTOR_KEY = "HelloWorld.proto";
 map descriptorMap =

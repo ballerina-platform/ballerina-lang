@@ -96,8 +96,7 @@ public type HelloWorldBlockingStub object {
                 return err;
             }
             any payload => {
-                string result = <string> payload;
-                return result;
+                return <string> payload;
             }
         }
     }
@@ -110,8 +109,7 @@ public type HelloWorldBlockingStub object {
                 return err;
             }
             any payload => {
-                int result = <int> payload;
-                return result;
+                return <int> payload;
             }
         }
     }
@@ -124,8 +122,7 @@ public type HelloWorldBlockingStub object {
                 return err;
             }
             any payload => {
-                float result = <float> payload;
-                return result;
+                return <float> payload;
             }
         }
     }
@@ -138,8 +135,7 @@ public type HelloWorldBlockingStub object {
                 return err;
             }
             any payload => {
-                boolean result = <boolean> payload;
-                return result;
+                return <boolean> payload;
             }
         }
     }
@@ -152,12 +148,11 @@ public type HelloWorldBlockingStub object {
                 return err;
             }
             any payload => {
-                Response result = <Response> payload;
-                return result;
+                return <Response> payload;
             }
         }
     }
-}
+};
 
 
 public type HelloWorldStub object {
@@ -216,7 +211,7 @@ public type HelloWorldStub object {
         }
         return ();
     }
-}
+};
 
 
 public type HelloWorldBlockingClient object {
@@ -239,7 +234,7 @@ public type HelloWorldBlockingClient object {
     public function getClient () returns (HelloWorldBlockingStub) {
         return self.stub;
     }
-}
+};
 
 
 public type HelloWorldClient object {
@@ -262,7 +257,7 @@ public type HelloWorldClient object {
     public function getClient () returns (HelloWorldStub) {
         return self.stub;
     }
-}
+};
 
 @final string DESCRIPTOR_KEY = "HelloWorld.proto";
 map descriptorMap =
@@ -279,8 +274,8 @@ type Request {
     string name;
     string message;
     int age;
-}
+};
 
 type Response {
     string resp;
-}
+};

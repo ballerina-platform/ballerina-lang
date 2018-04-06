@@ -118,68 +118,63 @@ public type HelloWorldBlockingStub object {
                 return err;
             }
             any payload => {
-                string result = <string> payload;
-                return result;
+                return <string> payload;
             }
         }
     }
 
     function testInt (int req) returns (int|error) {
-        any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("HelloWorld/testInt", req);
+        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/testInt", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
                 error err = {message:payloadError.message};
                 return err;
             }
             any payload => {
-                int result = <int> payload;
-                return result;
+                return <int> payload;
             }
         }
     }
 
     function testFloat (float req) returns (float|error) {
-        any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("HelloWorld/testFloat", req);
+        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/testFloat", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
                 error err = {message:payloadError.message};
                 return err;
             }
             any payload => {
-                float result = <float> payload;
-                return result;
+                return <float> payload;
             }
         }
     }
 
     function testBoolean (boolean req) returns (boolean|error) {
-        any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("HelloWorld/testBoolean", req);
+        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/testBoolean", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
                 error err = {message:payloadError.message};
                 return err;
             }
             any payload => {
-                boolean result = <boolean> payload;
-                return result;
+                return <boolean> payload;
             }
         }
     }
 
     function testStruct (Request req) returns (Response|error) {
-        any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("HelloWorld/testStruct", req);
+        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/testStruct", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
                 error err = {message:payloadError.message};
                 return err;
             }
             any payload => {
-                Response result = <Response> payload;
-                return result;
+                return <Response> payload;
             }
         }
     }
-}
+};
 
 public type HelloWorldStub object {
     public {
@@ -237,7 +232,7 @@ public type HelloWorldStub object {
         }
         return ();
     }
-}
+};
 
 
 public type HelloWorldBlockingClient object {
@@ -260,7 +255,7 @@ public type HelloWorldBlockingClient object {
     public function getClient () returns (HelloWorldBlockingStub) {
         return self.stub;
     }
-}
+};
 
 
 public type helloWorldClient object {
@@ -283,7 +278,7 @@ public type helloWorldClient object {
     public function getClient () returns (HelloWorldStub) {
         return self.stub;
     }
-}
+};
 
 @final string DESCRIPTOR_KEY = "HelloWorld.proto";
 map descriptorMap =
@@ -300,8 +295,8 @@ type Request {
     string name;
     string message;
     int age;
-}
+};
 
 type Response {
     string resp;
-}
+};
