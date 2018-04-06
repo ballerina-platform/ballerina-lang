@@ -17,27 +17,27 @@
 package ballerina.http;
 
 @Description {value:"Authentication header name"}
-const string AUTH_HEADER = "Authorization";
+@final string AUTH_HEADER = "Authorization";
 @Description {value:"Basic authentication scheme"}
-const string AUTH_SCHEME_BASIC = "Basic";
+@final string AUTH_SCHEME_BASIC = "Basic";
 @Description {value:"Bearer authentication scheme"}
-const string AUTH_SCHEME_BEARER = "Bearer";
+@final string AUTH_SCHEME_BEARER = "Bearer";
 @Description {value:"Auth annotation package"}
-const string AUTH_ANN_PACKAGE = "ballerina.auth";
+@final string AUTH_ANN_PACKAGE = "ballerina.auth";
 @Description {value:"Auth annotation name"}
-const string AUTH_ANN_NAME = "Config";
+@final string AUTH_ANN_NAME = "Config";
 
 @Description {value:"Extracts the basic authentication header value from the request"}
 @Param {value:"req: Request instance"}
 @Return {value:"string: value of the basic authentication header, or null if not found"}
-public function extractBasicAuthHeaderValue (Request req) returns (string|null) {
+public function extractBasicAuthHeaderValue (Request req) returns (string|()) {
     // extract authorization header
     try {
         return req.getHeader(AUTH_HEADER);
     } catch (error e) {
         log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.message);
     }
-    return null;
+    return ();
 }
 
 @Description {value:"Error handler"}

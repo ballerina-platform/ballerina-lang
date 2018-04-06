@@ -1,5 +1,5 @@
 
-const float ^"const IL" = 88.90;
+@final float ^"const IL" = 88.90;
 
 string ^"global var" = "this is a IL with global var";
 
@@ -25,11 +25,11 @@ function useILWithinStruct() returns (string, string, int) {
     return (person.^"first name", person.^"last name", person.^"current age");
 }
 
-struct Person {
+type Person {
     string ^"first name";
     string ^"last name";
     int ^"current age";
-}
+};
 
 function useILInStructVar() returns (string, string, int) {
     Person ^"person 1" = {^"first name": "Harry", ^"last name":"potter", ^"current age": 25};
@@ -112,11 +112,11 @@ function useILInStructName() returns (string, string, int, string) {
     return (^"person one".^"first name", ^"person one".^"last name", ^"person one".^"current age", ^"person one"["first name"]);
 }
 
-struct ^"family person" {
+type ^"family person" {
     string ^"first name";
     string ^"last name";
     int ^"current age";
-}
+};
 
 function testUnicodeInIL() returns (string) {
     string ^"සිංහල වචනය" = "සිංහල වාක්‍යක්";

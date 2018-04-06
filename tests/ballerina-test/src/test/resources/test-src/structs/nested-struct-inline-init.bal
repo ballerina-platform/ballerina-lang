@@ -1,6 +1,6 @@
 string child = "Bob";
 
-struct Person {
+type Person {
     string name = "default first name";
     string fname;
     string lname;
@@ -8,13 +8,13 @@ struct Person {
     int age = 999;
 
     Family family = {spouse : "Jane"};
-}
+};
 
-struct Family {
+type Family {
     string spouse;
     int noOfChildren;
     string[] children = ["Alex", child];
-}
+};
 
 function testCreateStruct () returns Person {
     Person emp = {lname:"Doe"};

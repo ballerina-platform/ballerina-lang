@@ -1,18 +1,18 @@
-struct Department {
+type Department {
     string dptName;
     boolean y;
-}
+};
 
-struct Department {
+type Department {
     string name;
     int[] a1;
-}
+};
 
-struct Department2 {
+type Department2 {
     string dptName;
     int id;
     string id;
-}
+};
 
 function testUndeclaredStructInit () {
     Department123 dpt1 = {name:"HR"};

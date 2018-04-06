@@ -1,9 +1,9 @@
-function testXmlNull () returns (xml|null, xml|null, int) {
-    xml|null x1 = null;
-    xml|null x2 = null;
+function testXmlNull () returns (xml|(), xml|(), int) {
+    xml|() x1;
+    xml|() x2;
     int a;
     match (x2){
-        null => a = 5;
+        () => a = 5;
         any => a = 0;
     }
 
@@ -20,21 +20,21 @@ function testJsonNull () returns (json, json, int) {
     return (j1, j2, a);
 }
 
-function testStructNull () returns (Person|null, Person|null, int) {
-    Person|null p1 = null;
-    Person|null p2 = null;
+function testStructNull () returns (Person|(), Person|(), int) {
+    Person|() p1;
+    Person|() p2;
     int a;
     match (p1){
-        null => a = 7;
+        () => a = 7;
         any => a = 0;
     }
 
     return (p1, p2, a);
 }
 
-struct Person {
+type Person {
     string name;
-}
+};
 
 function testArrayNull () returns (string[], Person[], int) {
     string[] s;
@@ -79,7 +79,7 @@ function testNullMapAccess () returns (string) {
 
 function testCastingNull (any j) returns (xml) {
     xml x;
-    x =? <xml>j;
+    x = check <xml>j;
 
     return x;
 }
@@ -138,12 +138,12 @@ function testNullInForkJoin () returns (json, json) {
         }
     } join (all) (map allReplies) {
         any[] temp;
-        temp =? <any[]>allReplies["foo"];
+        temp = check <any[]>allReplies["foo"];
         json m1;
-        m1 =? <json>temp[0];
-        temp =? <any[]>allReplies["bar"];
+        m1 = check <json>temp[0];
+        temp = check <any[]>allReplies["bar"];
         json m2;
-        m2 =? <json>temp[0];
+        m2 = check <json>temp[0];
         return (m1, m2);
     } timeout (30000) (map msgs) {
         return (null, null);
@@ -162,7 +162,7 @@ function testNullInForkJoin () returns (json, json) {
 function testMapOfNulls () returns (map) {
     string x1 = "<x1>test xml1</x1>";
     xml x2;
-    xml | null x3 = null;
+    xml | () x3;
     string x4 = "<x4>test xml4</x4>";
     map xmlMap = {"x1":x1, "x2":x2, "x3":x3, "x4":x4, "x5":null};
     return xmlMap;

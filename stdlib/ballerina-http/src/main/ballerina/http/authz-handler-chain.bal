@@ -20,16 +20,21 @@ import ballerina/log;
 
 @Description {value:"Representation of Authorization Handler chain"}
 @Field {value:"authzHandlers: map of authz handlers"}
-public struct AuthzHandlerChain {
-    map authzHandlers;
-}
+public type AuthzHandlerChain object {
+    public {
+        map authzHandlers;
+    }
+    new () {
+    }
+    public function handle (Request req, string[] scopes, string resourceName) returns (boolean);
+};
 
 @Description {value:"Creates an Authz handler chain"}
 @Return {value:"AuthzHandlerChain: AuthzHandlerChain instance"}
 public function createAuthzHandlerChain () returns (AuthzHandlerChain) {
-    AuthzHandlerChain authzHandlerChain = {authzHandlers:{}};
+    AuthzHandlerChain authzHandlerChain = new;
     // TODO: read the authz handlers from a config file and load them dynamically. currently its hardcoded.
-    HttpAuthzHandler authzHandler = {};
+    HttpAuthzHandler authzHandler = new;
     authzHandlerChain.authzHandlers[authzHandler.name] = authzHandler;
     return authzHandlerChain;
 }
@@ -39,10 +44,10 @@ public function createAuthzHandlerChain () returns (AuthzHandlerChain) {
 @Param {value:"scopes: array of scope names"}
 @Param {value:"resourceName: name of the resource which is being accessed"}
 @Return {value:"boolean: true if authorization check is a success, else false"}
-public function <AuthzHandlerChain authzHandlerChain> handle (Request req, string[] scopes,
+public function AuthzHandlerChain::handle (Request req, string[] scopes,
                                                               string resourceName) returns (boolean) {
     foreach currentAuthHandlerType, currentAuthHandler in authzHandlerChain.authzHandlers {
-        var authzHandler =? <HttpAuthzHandler> currentAuthHandler;
+        var authzHandler = check <HttpAuthzHandler> currentAuthHandler;
         if (authzHandler.canHandle(req)) {
             log:printDebug("trying to authorize with the authz handler: " + currentAuthHandlerType);
             return authzHandler.handle(req, scopes, resourceName);

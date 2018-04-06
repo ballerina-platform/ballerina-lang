@@ -1,11 +1,11 @@
-struct Department {
+type Department {
     string dptName;
     boolean y;
-}
+};
 
-struct person {
+type person {
     string a;
-}
+};
 
 function testInvalidFieldNameInit () {
     string name;

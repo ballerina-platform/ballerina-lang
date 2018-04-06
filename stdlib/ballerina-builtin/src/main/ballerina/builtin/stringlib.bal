@@ -119,9 +119,9 @@ public native function <string mainString> toBlob (string encoding) returns (blo
 
 @Description { value: "Represents a Regular expression in ballerina and can perform various Regular expression methods."}
 @Field { value : "regex:Pattern as a String"}
-public struct Regex {
+public type Regex {
    string pattern;
-}
+};
 
 @Description { value:"Finds all the strings matching the regular expression"}
 @Param { value:"mainString: The original string argument" }

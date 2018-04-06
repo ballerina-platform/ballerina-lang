@@ -73,7 +73,7 @@ function xmlValueOf(xml x) returns (string) {
     return io:sprintf("%s", value);
 }
 
-function jsonValueOf(json j) returns (string) {
+function jsonValueOf(json j) returns (string?) {
     return j.toString();
 }
 

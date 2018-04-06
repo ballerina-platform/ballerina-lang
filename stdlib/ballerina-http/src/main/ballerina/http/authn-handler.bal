@@ -18,13 +18,15 @@ package ballerina.http;
 
 @Description {value:"Representation of Authentication handler for HTTP traffic. Any authention interceptor for
 basic authentication should be struct-wise similar to HttpAuthnInterceptor"}
-public struct HttpAuthnHandler {
-}
+public type HttpAuthnHandler object {
+    public function canHandle (Request req) returns (boolean);
+    public function handle (Request req) returns (boolean);
+};
 
 @Description {value:"Intercepts a HTTP request for authentication"}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if authentication is a success, else false"}
-public function <HttpAuthnHandler authnHandler> canHandle (Request req) returns (boolean) {
+public function HttpAuthnHandler::canHandle (Request req) returns (boolean) {
     error e = {message:"Not implemented"};
     throw e;
 }
@@ -32,7 +34,7 @@ public function <HttpAuthnHandler authnHandler> canHandle (Request req) returns 
 @Description {value:"Checks if the provided HTTP request can be authenticated with basic auth"}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if its possible authenticate with basic auth, else false"}
-public function <HttpAuthnHandler authnHandler> handle (Request req) returns (boolean) {
+public function HttpAuthnHandler::handle (Request req) returns (boolean) {
     error e = {message:"Not implemented"};
     throw e;
 }

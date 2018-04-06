@@ -19,27 +19,34 @@ package ballerina.http;
 import ballerina/auth.basic;
 import ballerina/auth.utils;
 import ballerina/auth.userstore;
-import ballerina/security.crypto;
 import ballerina/log;
 
 @Description {value:"Authentication cache name"}
-const string AUTH_CACHE = "basic_auth_cache";
+@final string AUTH_CACHE = "basic_auth_cache";
 
-userstore:FilebasedUserstore fileBasedUserstore = {};
-userstore:UserStore userstore =? <userstore:UserStore>fileBasedUserstore;
+userstore:FilebasedUserstore fileBasedUserstore = new;
+userstore:UserStore userstore = <userstore:UserStore> fileBasedUserstore;
 @Description {value:"Basic authenticator instance"}
 basic:BasicAuthenticator basicAuthenticator = basic:createAuthenticator(userstore, utils:createCache(AUTH_CACHE));
 
 @Description {value:"Representation of Basic Auth handler for HTTP traffic"}
 @Field {value:"name: Authentication handler name"}
-public struct HttpBasicAuthnHandler {
-    string name = "basic";
-}
+public type HttpBasicAuthnHandler object {
+    public {
+        string name;
+    }
+    new () {
+        name = "basic";
+    }
+
+    public function canHandle (Request req) returns (boolean);
+    public function handle (Request req) returns (boolean);
+};
 
 @Description {value:"Intercepts a request for authentication"}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if authentication is a success, else false"}
-public function <HttpBasicAuthnHandler basicAuthnHandler> handle (Request req) returns (boolean) {
+public function HttpBasicAuthnHandler::handle (Request req) returns (boolean) {
 
     // extract the header value
     var basicAuthHeader = extractBasicAuthHeaderValue(req);
@@ -48,53 +55,20 @@ public function <HttpBasicAuthnHandler basicAuthnHandler> handle (Request req) r
         string basicAuthHeaderStr => {
             basicAuthHeaderValue = basicAuthHeaderStr;
         }
-        any|null => {
+        () => {
             log:printError("Error in extracting basic authentication header");
             return false;
         }
     }
-    
-    // check in the cache - cache key is the sha256 hash of the basic auth header value
-    string basicAuthCacheKey = crypto:getHash(basicAuthHeaderValue, crypto:Algorithm.SHA256);
-    var cacheResult = getCachedValue(basicAuthCacheKey);
-    match cacheResult {
-        boolean authenticationResult => {
-            return authenticationResult;
+    var credentials = utils:extractBasicAuthCredentials(basicAuthHeaderValue);
+    match credentials {
+        (string, string) creds => {
+            var (username, password) = creds;
+            return basicAuthenticator.authenticate(username, password);
         }
-        any|null => {
-            var credentials = utils:extractBasicAuthCredentials(basicAuthHeaderValue);
-            match credentials {
-                (string, string) creds => {
-                    var (username, password) = creds;
-                    basic:AuthenticationInfo authInfo = basic:createAuthenticationInfo
-                                                        (username, basicAuthenticator.authenticate(username, password));
-                    // cache result
-                    basicAuthenticator.cacheAuthResult(basicAuthCacheKey, authInfo);
-                    if (authInfo.isAuthenticated) {
-                        log:printDebug("Successfully authenticated against the userstore");
-                    } else {
-                        log:printDebug("Authentication failure");
-                    }
-                    return authInfo.isAuthenticated;
-                }
-                error err => {
-                    log:printErrorCause("Error in decoding basic authentication header", err);
-                    return false;
-                }
-            }
-        }
-    }
-}
-
-function getCachedValue (string cacheKey) returns (boolean | null) {
-    match basicAuthenticator.getCachedAuthResult(cacheKey) {
-        basic:AuthenticationInfo authnInfo => {
-            log:printDebug("Auth cache hit");
-            return authnInfo.isAuthenticated;
-        }
-        any|null => {
-            log:printDebug("Auth cache miss");
-            return null;
+        error err => {
+            log:printErrorCause("Error in decoding basic authentication header", err);
+            return false;
         }
     }
 }
@@ -102,7 +76,7 @@ function getCachedValue (string cacheKey) returns (boolean | null) {
 @Description {value:"Checks if the provided request can be authenticated with basic auth"}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if its possible authenticate with basic auth, else false"}
-public function <HttpBasicAuthnHandler basicAuthnHandler> canHandle (Request req) returns (boolean) {
+public function HttpBasicAuthnHandler::canHandle (Request req) returns (boolean) {
     string basicAuthHeader;
     try {
         basicAuthHeader = req.getHeader(AUTH_HEADER);

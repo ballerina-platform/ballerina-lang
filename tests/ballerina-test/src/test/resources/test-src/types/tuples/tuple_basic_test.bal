@@ -42,9 +42,9 @@ function basicTupleTest () returns (string) {
     return exFlow;
 }
 
-struct FooStruct {
+type FooStruct {
     string x;
-}
+};
 
 function addValue (string value) {
     exFlow += value;

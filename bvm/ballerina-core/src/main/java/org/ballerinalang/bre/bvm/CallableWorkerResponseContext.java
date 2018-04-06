@@ -97,7 +97,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
                 this.propagateErrorToTarget();
             }
         } else {
-            if (!this.isFulfilled()) {
+            if (!this.isFulfilled() && this.isWorkersDone()) {
                 this.setAsFulfilled();
                 this.setCurrentSignal(signal);
                 this.printStoredErrors();
@@ -122,6 +122,8 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     }
     
     protected boolean isWorkersDone() {
+        /* return count is not mentioned here, because, when a return happens, it will be immediately fulfilled,
+         * and there is no need to call this function to find out if all workers are done */
         return ((this.workerErrors == null ? 0 : this.workerErrors.size()) + this.haltCount) >= this.workerCount;
     }
     

@@ -1,13 +1,13 @@
 import ballerina/reflect;
 
-// Start Structs
-struct SimplePerson {
+// Start types
+type SimplePerson {
     string name;
     int age = -1;
     boolean married;
-}
+};
 
-function testPrimitiveStructs() returns (boolean) {
+function testPrimitiveTypes() returns (boolean) {
     SimplePerson sp1 = {name: "Nick", age: 25, married: true};
     SimplePerson sp2 = {age: 25, married: true, name: "Nick"};
 
@@ -19,18 +19,18 @@ function testPrimitiveStructs() returns (boolean) {
            !reflect:equals(sp1,spUnmatchString) &&
            !reflect:equals(sp1,spUnmatchInt) &&
            !reflect:equals(sp1,spUnmatchBoolean) &&
-           !reflect:equals(sp1,null) &&
-           !reflect:equals(null,sp1);
+           !reflect:equals(sp1,()) &&
+           !reflect:equals((),sp1);
 }
 
-public struct ArrayedPerson {
+public type ArrayedPerson {
     string name;
     int age = -1;
     boolean married;
     string[] address;
-}
+};
 
-function testStructsWithArrays() returns (boolean) {
+function testTypesWithArrays() returns (boolean) {
     ArrayedPerson ap1 = {name: "Nick", married: true, address: ["20", "Palm Grove"]};
     ArrayedPerson ap2 = {name: "Nick", married: true, address: ["20", "Palm Grove"]};
 
@@ -40,26 +40,26 @@ function testStructsWithArrays() returns (boolean) {
     return reflect:equals(ap1,ap2) &&
            !reflect:equals(ap1,apUnmatch) &&
            !reflect:equals(ap1,apUnordered) &&
-           !reflect:equals(ap1,null) &&
-           !reflect:equals(null,ap1);
+           !reflect:equals(ap1,()) &&
+           !reflect:equals((),ap1);
 }
 
-public struct Wheel {
+public type Wheel {
     int pressure;
-}
+};
 
-public struct Engine {
+public type Engine {
     string model;
     float capacity;
-}
+};
 
-public struct Car {
+public type Car {
     string name;
     Wheel[] wheels;
     Engine engine;
-}
+};
 
-public function testNestedStructs() returns (boolean) {
+public function testNestedTypes() returns (boolean) {
     Car c1 = {name: "Charger",
                  engine: {model: "v8", capacity: 2000},
                  wheels: [{pressure: 30}, {pressure: 31}, {pressure: 30}, {pressure: 29}]};
@@ -80,11 +80,11 @@ public function testNestedStructs() returns (boolean) {
            !reflect:equals(c1,c3Unmatch) &&
            !reflect:equals(c1,c4Unmatch) &&
            !reflect:equals(c1,c5Unmatch) &&
-           !reflect:equals(c1,null) &&
-           !reflect:equals(null,c1);
+           !reflect:equals(c1,()) &&
+           !reflect:equals((),c1);
 }
 
-// End Structs
+// End types
 
 // Start Array of Arrays
 
@@ -96,8 +96,8 @@ public function testArraysOfArrays() returns (boolean) {
 
     return reflect:equals(aa1,aa2) &&
            !reflect:equals(aa1,aaUnmatch) &&
-           !reflect:equals(aa1,null) &&
-           !reflect:equals(null,aa1);
+           !reflect:equals(aa1,()) &&
+           !reflect:equals((),aa1);
 }
 
 // End Array of Arrays
@@ -105,30 +105,32 @@ public function testArraysOfArrays() returns (boolean) {
 // Start Maps
 
 public function testMaps () returns (boolean) {
+int[] a = [900, 2230];
+int[] b = [2230, 900];
     map m1 = {line1:"No. 20", line2:"Palm Grove",
-                 city:"Colombo 03", country:"Sri Lanka", checkinsTimes: ["0900", 2230]};
+                 city:"Colombo 03", country:"Sri Lanka", checkinsTimes: a};
     map m2 = {line1:"No. 20", line2:"Palm Grove",
-                 city:"Colombo 03", country:"Sri Lanka", checkinsTimes: ["0900", 2230]};
+                 city:"Colombo 03", country:"Sri Lanka", checkinsTimes: a};
 
     map mUnorder = {line1:"No. 20", city:"Colombo 03", line2:"Palm Grove",
-                       country:"Sri Lanka", checkinsTimes: ["0900", 2230]};
+                       country:"Sri Lanka", checkinsTimes: a};
 
     map mArrayUnorder = {line1:"No. 20", line2:"Palm Grove",
-                            city:"Colombo 03", country:"Sri Lanka", checkinsTimes: [2230, "0900"]};
+                            city:"Colombo 03", country:"Sri Lanka", checkinsTimes: b};
 
     map mStringValueMismatch = {line1:"No. 20", line2:"Palm Groveeeeeeee",
-                                   city:"Colombo 03", country:"Sri Lanka", checkinsTimes: ["0900", 2230]};
+                                   city:"Colombo 03", country:"Sri Lanka", checkinsTimes: a};
 
     map mMissingKeys = {line1:"No. 20",
-                           city:"Colombo 03", country:"Sri Lanka", checkinsTimes: ["0900", 2230]};
+                           city:"Colombo 03", country:"Sri Lanka", checkinsTimes: a};
 
     return reflect:equals(m1,m2) &&
             reflect:equals(m1,mUnorder) &&
            !reflect:equals(m1,mArrayUnorder) &&
            !reflect:equals(m1,mStringValueMismatch) &&
            !reflect:equals(m1,mMissingKeys) &&
-           !reflect:equals(m1,null) &&
-           !reflect:equals(null,m1);
+           !reflect:equals(m1,()) &&
+           !reflect:equals((),m1);
 }
 
 // End Maps
@@ -141,18 +143,14 @@ public function testAnyType() returns (boolean) {
 
     any aUnmatch1 = 10;
     any aUnmatch2 = "Hello";
-    any aUnmatch3 = [4,5];
-    any aUnmatch4 = {num: 20, lane:"Palm Grove"};
-    any aUnmatch5 = false;
+    any aUnmatch3 = false;
 
     return reflect:equals(a1,a2) &&
            !reflect:equals(a1,aUnmatch1) &&
            !reflect:equals(a1,aUnmatch2) &&
            !reflect:equals(a1,aUnmatch3) &&
-           !reflect:equals(a1,aUnmatch4) &&
-           !reflect:equals(a1,aUnmatch5) &&
-           !reflect:equals(a1,null) &&
-           !reflect:equals(null,a1);
+           !reflect:equals(a1,()) &&
+           !reflect:equals((),a1);
 }
 
 // End Any
@@ -171,8 +169,8 @@ json jBoolean1 = true;
 json jBoolean2 = true;
 json jBooleanUnmatch = false;
 
-json jNull1 = null;
-json jNull2 = null;
+json jNull1 = ();
+json jNull2 = ();
 
 json empty1 = {};
 json empty2 = {};
@@ -232,8 +230,8 @@ public function testJSONObjects() returns (boolean) {
             reflect:equals(jObj1,jObjUnordered) &&
            !reflect:equals(jObj1,jObjUnmatch1) &&
            !reflect:equals(jObj1,jObjUnmatch2) &&
-           !reflect:equals(jObj1,null) &&
-           !reflect:equals(null,jObj1);
+           !reflect:equals(jObj1,()) &&
+           !reflect:equals((),jObj1);
 
 }
 
@@ -260,7 +258,7 @@ public function testJSONNested() returns (boolean) {
                               },
                      products:[{price: 40.50, isNew: true, name:"apple"},
                                {name:"orange", price: 30.50}],
-                     manager: null
+                     manager: ()
                  };
     json jObj2 = {   name:"Target",
                      location:{
@@ -269,7 +267,7 @@ public function testJSONNested() returns (boolean) {
                               },
                      products:[{price: 40.50, isNew: true, name:"apple"},
                                {name:"orange", price: 30.50}],
-                     manager: null
+                     manager: ()
                  };
 
     json jObjUnordered = {name:"Target",
@@ -279,7 +277,7 @@ public function testJSONNested() returns (boolean) {
                                           address1:"19, sample road",
                                           postalCode: 6789
                                       },
-                             manager:null
+                             manager:()
                          };
 
     json jObjUnmatch1 = {name:"Cubs",
@@ -289,7 +287,7 @@ public function testJSONNested() returns (boolean) {
                                          address1:"19, sample road",
                                          postalCode: 6789
                                      },
-                            manager:null
+                            manager:()
                         };
 
     json jObjUnmatch2 = {name:"Target",
@@ -300,7 +298,7 @@ public function testJSONNested() returns (boolean) {
                                          address1:"19, sample road",
                                          postalCode: 6789
                                      },
-                            manager:null
+                            manager:()
                         };
 
     json jObjUnmatch3 = {name:"Target",
@@ -311,7 +309,7 @@ public function testJSONNested() returns (boolean) {
                                          address1:"70, sample road",
                                          postalCode: 6789
                                      },
-                            manager:null
+                            manager:()
                         };
 
     json jObjUnmatch4 = {name:"Target",
@@ -322,7 +320,7 @@ public function testJSONNested() returns (boolean) {
                                          address1:"19, sample road",
                                          postalCode: 6789
                                      },
-                            manager:null
+                            manager:()
                         };
 
     json jObjUnmatch5 = {   name:"Target",
@@ -332,7 +330,7 @@ public function testJSONNested() returns (boolean) {
                                      },
                             products:[{price: 88.99, isNew: true, name:"apple"},
                                       {name:"orange", price: 30.50}],
-                            manager: null
+                            manager: ()
                         };
 
     json jObjUnmatch6 = {   name:"Target",
@@ -352,7 +350,7 @@ public function testJSONNested() returns (boolean) {
                                      },
                             products:[{price: 40.50, old: true, name:"apple"},
                                       {name:"orange", price: 30.50}],
-                            manager: null
+                            manager: ()
                         };
 
     json jObjUnmatch8 = {};

@@ -15,7 +15,7 @@
 // under the License.
 import ballerina/io;
 import ballerina/grpc;
-import ballerina.runtime;
+import ballerina/runtime;
 
 string[] responses = [];
 int total = 0;
@@ -42,7 +42,7 @@ function testUnaryNonBlockingClient () returns (string []) {
     while(total < 2) {
         runtime:sleepCurrentWorker(1000);
         io:println("msg count: " + total);
-        if (wait > 5) {
+        if (wait > 10) {
             break;
         }
         wait++;

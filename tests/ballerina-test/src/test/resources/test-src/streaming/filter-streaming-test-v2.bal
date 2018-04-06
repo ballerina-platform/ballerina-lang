@@ -17,19 +17,19 @@
 import ballerina/runtime;
 import ballerina/io;
 
-struct Employee {
+type Employee {
     string name;
     int age;
     string status;
-}
+};
 
-struct Teacher {
+type Teacher {
     string name;
     int age;
     string status;
     string batch;
     string school;
-}
+};
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;

@@ -27,9 +27,11 @@ import java.util.Set;
 public class Flags {
     public static final int PUBLIC = 1;
     public static final int NATIVE = 2;
-    public static final int CONST = 4;
+    public static final int FINAL = 4;
     public static final int ATTACHED = 8;
     public static final int DEPRECATED = 16;
+    public static final int READONLY = 32;
+    public static final int FUNCTION_FINAL = 64;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -41,14 +43,17 @@ public class Flags {
                 case NATIVE:
                     mask |= NATIVE;
                     break;
-                case CONST:
-                    mask |= CONST;
+                case FINAL:
+                    mask |= FINAL;
                     break;
                 case ATTACHED:
                     mask |= ATTACHED;
                     break;
                 case DEPRECATED:
                     mask |= DEPRECATED;
+                    break;
+                case READONLY:
+                    mask |= READONLY;
                     break;
             }
         }

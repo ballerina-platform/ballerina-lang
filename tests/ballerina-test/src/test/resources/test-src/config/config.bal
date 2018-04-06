@@ -1,6 +1,6 @@
 import ballerina/config;
 
-function testGetAsString(string key) returns (string|null) {
+function testGetAsString(string key) returns (string|()) {
     return config:getAsString(key);
 }
 

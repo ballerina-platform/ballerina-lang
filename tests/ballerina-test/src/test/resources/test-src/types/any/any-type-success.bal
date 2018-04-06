@@ -35,10 +35,10 @@ function tableReturnFunction () returns (table) {
     return tb;
 }
 
-struct Employee {
+type Employee {
     int id;
     string name;
-}
+};
 
 
 function anyMethodParameter() returns (any) {
@@ -48,7 +48,7 @@ function anyMethodParameter() returns (any) {
 
 function anyParam(any val) returns (int) {
   int m;
-  m =? <int>val;
+  m = check <int>val;
   return m;
 }
 
@@ -58,17 +58,17 @@ function anyInStructTest() returns (any) {
   return sample.val;
 }
 
-struct Sample {
+type Sample {
   int i;
   any val;
   string msg;
-}
+};
 
 
 function successfulIntCasting() returns (int) {
   any abc = floatReturn();
   float floatVal;
-  floatVal =? <float>abc;
+  floatVal = check <float>abc;
   //Int to float is a conversion now
   int intVal;
   intVal = <int>floatVal;

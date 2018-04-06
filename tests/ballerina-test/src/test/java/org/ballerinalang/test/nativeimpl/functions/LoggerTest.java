@@ -43,7 +43,7 @@ public class LoggerTest {
     private PrintStream original;
     private CompileResult result;
 
-//    @BeforeTest
+    //    @BeforeClass
     public void setup() {
         original = System.err;
         System.setErr(new PrintStream(consoleOutput));

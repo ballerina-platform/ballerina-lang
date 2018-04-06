@@ -25,7 +25,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -87,16 +87,16 @@ public class FileBasedUserstoreTest {
     public void testReadGroupsOfNonExistingUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsOfNonExistingUser");
         Assert.assertTrue(returns != null);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertEquals(((BStringArray) returns[0]).size(), 0);
     }
 
     @Test(description = "Test case for reading groups of a user")
     public void testReadGroupsOfUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsOfUser");
         Assert.assertTrue(returns != null);
-        BString groups = (BString) returns[0];
-        log.info("groups: " + groups);
-        Assert.assertNotNull(groups);
-        Assert.assertEquals(groups.stringValue(), "xyz");
+        BStringArray groups = ((BStringArray) returns[0]);
+        Assert.assertEquals(groups.size(), 1);
+
+        Assert.assertEquals(groups.get(0), "xyz");
     }
 }

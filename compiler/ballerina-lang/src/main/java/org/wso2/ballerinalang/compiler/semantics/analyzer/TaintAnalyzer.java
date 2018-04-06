@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-//import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -59,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -87,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -257,6 +258,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    public void visit(BLangTypeDefinition typeDefinition) {
+        /* ignore */
+    }
+
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
@@ -273,6 +278,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        if (funcNode.attachedOuterFunction) {
+            // Clear taint table of the interface deceleration when, declaration is found.
+            funcNode.symbol.taintTable = null;
+        }
         if (isEntryPoint(funcNode)) {
             visitEntryPoint(funcNode, funcEnv);
         } else {
@@ -711,11 +720,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.exprs.forEach(expr -> expr.accept(this));
+        workerSendNode.expr.accept(this);
     }
 
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.exprs.forEach(expr -> expr.accept(this));
+        workerReceiveNode.expr.accept(this);
     }
 
     // Expressions
@@ -826,7 +835,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit typeInit) {
-        /* ignore */
+        boolean typeTaintedStatus = false;
+        for (BLangExpression expr : typeInit.argsExpr) {
+            expr.accept(this);
+            // TODO: Improve
+            // If one value ot type init is tainted, the complete type is tainted.
+            if (getObservedTaintedStatus()) {
+                typeTaintedStatus = getObservedTaintedStatus();
+            }
+            typeInit.objectInitInvocation.accept(this);
+        }
+        setTaintedStatusList(typeTaintedStatus);
     }
 
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
@@ -853,6 +872,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         binaryExpr.rhsExpr.accept(this);
         boolean rhsTaintedCheckResult = getObservedTaintedStatus();
         setTaintedStatusList(lhsTaintedCheckResult || rhsTaintedCheckResult);
+    }
+
+    public void visit(BLangElvisExpr elvisExpr) {
+        //TODO
     }
 
     @Override
