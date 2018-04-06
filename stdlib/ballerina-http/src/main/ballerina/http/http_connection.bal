@@ -75,17 +75,15 @@ public type Connection object {
 @Field { value:"NOT_MODIFIED_304: Represents status code 304 - Not Modified."}
 @Field { value:"USE_PROXY_305: Represents status code 305 - Use Proxy."}
 @Field { value:"TEMPORARY_REDIRECT_307: Represents status code 307 - Temporary Redirect."}
+public type RedirectCode 300 | 301 | 302 | 303 | 304 | 305 | 307;
 
-public type MULTIPLE_CHOICES_300 "MULTIPLE_CHOICES_300";
-public type MOVED_PERMANENTLY_301 "MOVED_PERMANENTLY_301";
-public type FOUND_302 "FOUND_302";
-public type SEE_OTHER_303 "SEE_OTHER_303";
-public type NOT_MODIFIED_304 "NOT_MODIFIED_304";
-public type USE_PROXY_305 "USE_PROXY_305";
-public type TEMPORARY_REDIRECT_307 "TEMPORARY_REDIRECT_307";
-
-public type RedirectCode MULTIPLE_CHOICES_300|MOVED_PERMANENTLY_301|FOUND_302|SEE_OTHER_303|NOT_MODIFIED_304
-    |USE_PROXY_305|TEMPORARY_REDIRECT_307;
+@final RedirectCode REDIRECT_MULTIPLE_CHOICES_300 = 300;
+@final RedirectCode REDIRECT_MOVED_PERMANENTLY_301 = 301;
+@final RedirectCode REDIRECT_FOUND_302 = 302;
+@final RedirectCode REDIRECT_SEE_OTHER_303 = 303;
+@final RedirectCode REDIRECT_NOT_MODIFIED_304 = 304;
+@final RedirectCode REDIRECT_USE_PROXY_305 = 305;
+@final RedirectCode REDIRECT_TEMPORARY_REDIRECT_307 = 307;
 
 @Description { value:"Sends a 100-continue response to the client."}
 @Param { value:"conn: The server connector connection" }
@@ -93,7 +91,7 @@ public type RedirectCode MULTIPLE_CHOICES_300|MOVED_PERMANENTLY_301|FOUND_302|SE
 @Return {value:"Returns null if any error does not exist."}
 public function Connection::respondContinue () returns (HttpConnectorError | ()) {
     Response res;
-    res.statusCode = 100;
+    res.statusCode = CONTINUE_100;
     return self.respond(res);
 }
 
@@ -105,14 +103,20 @@ public function Connection::respondContinue () returns (HttpConnectorError | ())
 @Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
 @Return { value:"Returns null if any error does not exist." }
 public function Connection::redirect (Response response, RedirectCode code, string[] locations) returns (HttpConnectorError | ()) {
-    match code {
-        MULTIPLE_CHOICES_300 => response.statusCode = 300;
-        MOVED_PERMANENTLY_301 => response.statusCode = 301;
-        FOUND_302 => response.statusCode = 302;
-        SEE_OTHER_303 => response.statusCode = 303;
-        NOT_MODIFIED_304 => response.statusCode = 304;
-        USE_PROXY_305 => response.statusCode = 305;
-        TEMPORARY_REDIRECT_307 => response.statusCode = 307;
+    if (code == REDIRECT_MULTIPLE_CHOICES_300) {
+        response.statusCode = MULTIPLE_CHOICES_300;
+    } else if (code == REDIRECT_MOVED_PERMANENTLY_301) {
+        response.statusCode = MOVED_PERMANENTLY_301;
+    } else if (code == REDIRECT_FOUND_302) {
+        response.statusCode = FOUND_302;
+    } else if (code == REDIRECT_SEE_OTHER_303) {
+        response.statusCode = SEE_OTHER_303;
+    } else if (code == REDIRECT_NOT_MODIFIED_304) {
+        response.statusCode = NOT_MODIFIED_304;
+    } else if (code == REDIRECT_USE_PROXY_305) {
+        response.statusCode = USE_PROXY_305;
+    } else if (code == REDIRECT_TEMPORARY_REDIRECT_307) {
+        response.statusCode = TEMPORARY_REDIRECT_307;
     }
     string locationsStr = "";
     foreach location in locations {

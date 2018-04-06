@@ -28,32 +28,28 @@ import org.ballerinalang.nativeimpl.sql.Constants;
 import org.ballerinalang.nativeimpl.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 
 /**
  * Returns the SQL Client connector.
  *
- * @since 0.965
+ * @since 0.970
  */
 
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
-        functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Client",
-                             structPackage = "ballerina.sql"),
-        args = {@Argument(name = "epName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
+        functionName = "createSQLClient",
+        args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
         isPublic = true
 )
-public class InitEndpoint extends BlockingNativeCallableUnit {
+public class CreateSQLClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Struct clientEndpointConfig = clientEndpoint.getStructField(Constants.CLIENT_ENDPOINT_CONFIG);
+        BStruct configBStruct = (BStruct) context.getRefArgument(0);
+        Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
 
         //Extract parameters from the endpoint config
-        String database = clientEndpointConfig.getEnumField(Constants.EndpointConfig.DATABASE);
+        String database = clientEndpointConfig.getRefField(Constants.EndpointConfig.DATABASE).getStringValue();
         String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
         int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
         String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
@@ -64,18 +60,9 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         SQLDatasource datasource = new SQLDatasource();
         datasource.init(options, database, host, port, username, password, name);
 
-
-        BStruct ballerinaClientConnector;
-        if (clientEndpoint.getNativeData(Constants.B_CONNECTOR) != null) {
-            ballerinaClientConnector = (BStruct) clientEndpoint.getNativeData(Constants.B_CONNECTOR);
-        } else {
-            ballerinaClientConnector = BLangConnectorSPIUtil
-                    .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CLIENT_CONNECTOR,
-                            database, host, port, name, username, password, options, clientEndpointConfig);
-            clientEndpoint.addNativeData(Constants.B_CONNECTOR, ballerinaClientConnector);
-        }
-
-        ballerinaClientConnector.addNativeData(Constants.CLIENT_CONNECTOR, datasource);
-        context.setReturnValues();
+        BStruct sqlClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH,
+                Constants.SQL_CLIENT);
+        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
+        context.setReturnValues(sqlClient);
     }
 }

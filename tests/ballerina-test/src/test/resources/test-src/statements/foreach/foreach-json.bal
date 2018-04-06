@@ -74,12 +74,12 @@ function testJSONNull () returns (string) {
 type Protocols {
     string data;
     Protocol[] plist;
-}
+};
 
 type Protocol {
     string name;
     string url;
-}
+};
 
 function testJSONToStructCast () returns string | error {
     json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};

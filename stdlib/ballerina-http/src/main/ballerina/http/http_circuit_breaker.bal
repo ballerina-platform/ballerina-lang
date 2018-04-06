@@ -224,7 +224,7 @@ public type CircuitBreakerClient object {
     @Param { value:"promise: The Push Promise need to be rejected" }
     @Return { value:"Whether operation is successful" }
     public function rejectPromise (PushPromise promise) returns (boolean); 
-}
+};
 
 public function CircuitBreakerClient::post (string path, Request request) returns (Response | HttpConnectorError) {
    HttpClient httpClient = self.httpClient;
@@ -541,7 +541,7 @@ public function CircuitBreakerClient::rejectPromise (PushPromise promise) return
 public function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentState,
                                     CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (CircuitState) {
     lock {
-       if (currentState == "OPEN") {
+       if (currentState == CB_OPEN_STATE) {
            time:Time currentT = time:currentTime();
            int elapsedTime = currentT.time - circuitHealth.lastErrorTime.time;
 

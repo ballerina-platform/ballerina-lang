@@ -15,7 +15,7 @@ public type personFoo {
     string name;
     string ssn;
     int id;
-}
+};
 
 public function testCompileTimeStructEq() {
     personFoo pf = {age:10, name:"dd", ssn:"123-44-3333", id:123};

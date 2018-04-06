@@ -140,9 +140,9 @@ public type Response object {
 
     @Description {value:"Sets the entity body of the outbound response with the given file content"}
     @Param {value:"response: The response message"}
-    @Param {value:"fileHandler: File that needs to be set to the payload"}
+    @Param {value:"filePath: Path to the file that needs to be set to the payload"}
     @Param {value:"contentType: Content-Type of the file"}
-    public function setFileAsPayload (file:File fileHandler, string contentType);
+    public function setFileAsPayload (file:Path filePath, string contentType);
 
     @Description {value:"Sets a byte channel as the outbound response payload"}
     @Param {value:"response: The response message"}
@@ -265,34 +265,34 @@ public function Response::getMultiparts () returns mime:Entity[] | mime:EntityEr
 public function Response::setJsonPayload (json payload) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setJson(payload);
-    entity.contentType = getMediaTypeFromResponse(response, mime:APPLICATION_JSON);
+    entity.contentType = getMediaTypeFromResponse(self, mime:APPLICATION_JSON);
     self.setEntity(entity);
 }
 
 public function Response::setXmlPayload (xml payload) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setXml(payload);
-    entity.contentType = getMediaTypeFromResponse(response, mime:APPLICATION_XML);
+    entity.contentType = getMediaTypeFromResponse(self, mime:APPLICATION_XML);
     self.setEntity(entity);
 }
 
 public function Response::setStringPayload (string payload) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setText(payload);
-    entity.contentType = getMediaTypeFromResponse(response, mime:TEXT_PLAIN);
+    entity.contentType = getMediaTypeFromResponse(self, mime:TEXT_PLAIN);
     self.setEntity(entity);
 }
 
 public function Response::setBinaryPayload (blob payload) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setBlob(payload);
-    entity.contentType = getMediaTypeFromResponse(response, mime:APPLICATION_OCTET_STREAM);
+    entity.contentType = getMediaTypeFromResponse(self, mime:APPLICATION_OCTET_STREAM);
     self.setEntity(entity);
 }
 
 public function Response::setMultiparts (mime:Entity[] bodyParts, string contentType) {
     mime:Entity entity = self.getEntityWithoutBody();
-    mime:MediaType mediaType = getMediaTypeFromResponse(response, mime:MULTIPART_MIXED);
+    mime:MediaType mediaType = getMediaTypeFromResponse(self, mime:MULTIPART_MIXED);
     if (contentType != null && contentType != "") {
         mediaType = mime:getMediaType(contentType);
     }
@@ -301,11 +301,11 @@ public function Response::setMultiparts (mime:Entity[] bodyParts, string content
     self.setEntity(entity);
 }
 
-public function Response::setFileAsPayload (file:File fileHandler, string contentType) {
+public function Response::setFileAsPayload (file:Path filePath, string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = self.getEntityWithoutBody();
     entity.contentType = mediaType;
-    entity.setFileAsEntityBody(fileHandler);
+    entity.setFileAsEntityBody(filePath);
     self.setEntity(entity);
 }
 

@@ -93,7 +93,7 @@ function addMapToJson (json inJson, map mapToConvert) returns (json) {
                 int[] value = check (<int[]>mapToConvert[key]);
                 inJson[key] = convertIntArrayToJson(value);
             } else if (typeof mapToConvert[key] == typeof string) {
-                string value = check (<string>mapToConvert[key]);
+                string value = <string>mapToConvert[key];
                 inJson[key] = value;
             } else if (typeof mapToConvert[key] == typeof int) {
                 int value = check (<int>mapToConvert[key]);

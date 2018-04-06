@@ -29,7 +29,7 @@ type Person {
     string ^"first name";
     string ^"last name";
     int ^"current age";
-}
+};
 
 function useILInStructVar() returns (string, string, int) {
     Person ^"person 1" = {^"first name": "Harry", ^"last name":"potter", ^"current age": 25};
@@ -116,7 +116,7 @@ type ^"family person" {
     string ^"first name";
     string ^"last name";
     int ^"current age";
-}
+};
 
 function testUnicodeInIL() returns (string) {
     string ^"සිංහල වචනය" = "සිංහල වාක්‍යක්";

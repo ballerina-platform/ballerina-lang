@@ -22,7 +22,7 @@ public type person1 object {
     public function getSSN () returns (string);
 
     public function setSSN (string ssn);
-}
+};
 
 public function person1::getName () returns (string) {
     return name;
@@ -62,7 +62,7 @@ public type employee1 object {
     public function setSSN (string ssn);
 
     public function getEmployeeId () returns (int);
-}
+};
 
 public function employee1::getName () returns (string) {
     return name;
@@ -111,7 +111,7 @@ public type person2 object {
     public function getSSN () returns (string);
 
     public function setSSN (string ssn);
-}
+};
 
 public function person2::getName () returns (string) {
     return name;
@@ -149,7 +149,7 @@ public type employee2 object {
     public function setSSN (string ssn);
 
     public function getEmployeeId () returns (int);
-}
+};
 
 public function employee2::getName () returns (string) {
     return name;
@@ -213,7 +213,7 @@ public type employee3 object {
     public function setSSN (string ssn);
 
     public function getEmployeeId () returns (int);
-}
+};
 
 public function employee3::getName () returns (string) {
     return name;
@@ -269,7 +269,7 @@ type userA object {
     function getName () returns (string);
 
     function getAge () returns (int);
-}
+};
 
 function userA::getName () returns (string) {
     return name;
@@ -289,7 +289,7 @@ type userB object {
     function getName () returns (string);
 
     function getAge () returns (int);
-}
+};
 
 function userB::getName () returns (string) {
     return name;
@@ -310,7 +310,7 @@ type userFoo object {
     function getName () returns (string);
 
     function getAge () returns (int);
-}
+};
 
 function userFoo::getName () returns (string) {
     return name;
@@ -345,7 +345,7 @@ public type userPA object {
     public function getName () returns (string);
 
     public function getAge () returns (int);
-}
+};
 
 public function userPA::getName () returns (string) {
     return name;
@@ -365,7 +365,7 @@ public type userPB object {
     public function getName () returns (string);
 
     public function getAge () returns (int);
-}
+};
 
 public function userPB::getName () returns (string) {
     return name;
@@ -386,7 +386,7 @@ public type userPFoo object {
     public function getName () returns (string);
 
     public function getAge () returns (int);
-}
+};
 
 public function userPFoo::getName () returns (string) {
     return name;
@@ -451,7 +451,7 @@ type personC object {
     function setContact(addressStruct ad);
 
     function getAddress() returns (string);
-}
+};
 
 function personC::setContact(addressStruct ad){
     address = ad;
@@ -468,7 +468,7 @@ type addressStruct object {
     }
 
     function toString() returns (string);
-}
+};
 
 function addressStruct::toString() returns (string){
     return no + city;
@@ -482,7 +482,7 @@ type officeAddressStruct object {
     }
 
     function toString() returns (string);
-}
+};
 
 function officeAddressStruct::toString() returns (string){
     return department + no + city;
@@ -532,7 +532,7 @@ type AnyStruct object {
     function shout (AnotherAnyStruct aa) returns (string);
 
     function call () returns (AnotherAnyStruct);
-}
+};
 
 function AnyStruct::shout (AnotherAnyStruct aa) returns (string) {
     var j =check <json>aa;
@@ -555,7 +555,7 @@ type SomeStruct object {
     function shout (SomeOtherStruct aa) returns (string);
 
     function call () returns (SomeOtherStruct);
-}
+};
 
 function SomeStruct::shout (SomeOtherStruct aa) returns (string) {
     var j = check <json>aa;
@@ -572,7 +572,7 @@ type SomeOtherStruct object {
     public {
         string s;
     }
-}
+};
 
 type AnotherAnyStruct object {
-}
+};
