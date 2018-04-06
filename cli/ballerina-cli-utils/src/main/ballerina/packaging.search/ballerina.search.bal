@@ -14,49 +14,24 @@ function search (string url, string querySearched) {
                     filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 },
-                hostNameVerification:false,
-                sessionCreation: true
+                hostNameVerification:false
                 }
             }  
         ]
     };
-    io:println("11");
     http:Request req = new;
-    // http:Response res = new;
     var result = httpEndpoint -> get(querySearched, req);
     http:Response httpResponse = check result;
-    io:println("22");
-    // match httpResponse {
-    //  http:HttpConnectorError errRes => {
-    //      var errorResp = <error> errRes;
-    //      match errorResp {
-    //          error err =>  throw err;
-    //      }
-    //  }
-    //  http:Response response => res = response;
-    // }
+
     json jsonResponse = check (httpResponse.getJsonPayload());
-    io:println("33");
-    // json jsonObj;
-    // match jsonResponse {
-    //         mime:EntityError errRes => {
-    //             var errorResp = <error> errRes;
-    //             match errorResp {
-    //                 error err =>  throw err;
-    //             }
-    //         }  
-    //         json j => jsonObj = j;            
-    // }
+
     if (httpResponse.statusCode != 200) {
-        io:println("44");
         string message = (jsonResponse.msg.toString() but {()=> "error occurred when searching for packages"});
         io:println(message);
-        // io:println(jsonResponse.msg.toString()); 
     } else {
-        json artifacts = jsonResponse.artifacts but {()=> null};
-        io:println("55");
-        int artifactsLength = lengthof artifacts;
-        if (artifactsLength > 0) {
+        json[] artifacts = check <json[]>jsonResponse.artifacts;
+        if (artifacts == null || lengthof artifacts > 0) {
+            int artifactsLength = lengthof artifacts;
             io:println("Ballerina Central");
             printInCLI("NAME", 30);
             printInCLI("DESCRIPTION", 40);
@@ -68,7 +43,6 @@ function search (string url, string querySearched) {
             int i = 0;
             while (i < artifactsLength) {
                 json jsonElement = artifacts[i];
-                
                 string orgName = (jsonElement.orgName.toString() but {()=> ""});
                 string packageName = (jsonElement.packageName.toString() but {()=> ""});
                 printInCLI(orgName + "/" + packageName, 30);
@@ -76,9 +50,8 @@ function search (string url, string querySearched) {
                 string summary = (jsonElement.summary.toString() but {()=> ""});
                 printInCLI(summary, 40);
                 
-                // array
-                string authors = (jsonElement.author.toString() but {()=> ""});
-                printInCLI(authors, 25);
+                string authors = (jsonElement.authors.toString() but {()=> ""});
+                printInCLI(authors, 40);
 
                 json createTimeJson = jsonElement.createdDate but {()=> null};
                 printInCLI(getDateCreated(createTimeJson), 20);
@@ -118,7 +91,5 @@ function getDateCreated(json jsonObj) returns string {
 }
 
 function main (string[] args) {
-    // search(args[0], args[1]);
-    io:println("00");
-     search("https://api.staging-central.ballerina.io/packages/", "?query=natasha");
+    search(args[0], args[1]);
 }

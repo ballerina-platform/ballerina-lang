@@ -22,16 +22,22 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
         ],
         followRedirects : { enabled : true, maxCount : 5 }
     };
+    io:println("11");
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
     http:Request req = new;
     // http:Response res = new;
     req.addHeader("Accept-Encoding", "identity");
+
+    io:println("22");
     
     //http:Response httpResponse = check (httpEndpoint -> get("", req));
 
     var result = httpEndpoint -> get("", req);
+     io:println("33");
     http:Response httpResponse = check result;
+
+     io:println(httpResponse);
 
     // match httpResponse {
     //  http:HttpConnectorError errRes => {
@@ -72,6 +78,7 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
         // }
         // io:ByteChannel sourceChannel = {};
         io:ByteChannel sourceChannel = check (httpResponse.getByteChannel());
+        io:println("44");
         // match srcChannel {
         //     mime:EntityError errRes => {
         //         var errorResp = <error> errRes;
@@ -125,6 +132,8 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
 
         io:ByteChannel destDirChannel = getFileChannel(destArchivePath, "w");
         string toAndFrom = " [central.ballerina.io -> home repo]";
+
+        io:println("55");
         
         // io:IOError destDirChannelCloseError = new;
         // io:IOError srcCloseError = new;
@@ -139,8 +148,8 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
 
 public function main(string[] args){
     // pullPackage(args[0], args[1], args[2], args[3]);
-    pullPackage("https://api.staging-central.ballerina.io/packages/natasha/my.app/1.0.0", 
-    "/home/natasha/.ballerina_home/repo/natasha/my.app", "natasha/my.app", "/");
+    pullPackage("https://api.staging-central.ballerina.io/packages/natasha/hello/3.0.0", 
+    "/home/natasha/Desktop/package/hello", "natasha/hello", "/");
 
 }
 
