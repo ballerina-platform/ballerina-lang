@@ -43,6 +43,8 @@ import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 
 import javax.websocket.Session;
 
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+
 /**
  * Get the ID of the connection.
  *
@@ -50,10 +52,10 @@ import javax.websocket.Session;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "start",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClient",
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.http"),
         isPublic = true
 )
 public class Start extends BlockingNativeCallableUnit {
@@ -65,7 +67,7 @@ public class Start extends BlockingNativeCallableUnit {
         Struct clientEndpointConfig = clientEndpoint.getStructField(HttpConstants.CLIENT_ENDPOINT_CONFIG);
         Object configs = clientEndpointConfig.getNativeData(WebSocketConstants.CLIENT_CONNECTOR_CONFIGS);
         if (configs == null || !(configs instanceof WsClientConnectorConfig)) {
-            throw new BallerinaConnectorException("Initialize the service before starting it");
+            throw new BallerinaConnectorException("Error in initializing: Missing client endpoint configurations");
         }
         WebSocketClientConnector clientConnector =
                 connectorFactory.createWsClientConnector((WsClientConnectorConfig) configs);
@@ -73,7 +75,7 @@ public class Start extends BlockingNativeCallableUnit {
                 clientConnectorListener = new WebSocketClientConnectorListener();
         Object serviceConfig = clientEndpointConfig.getNativeData(WebSocketConstants.CLIENT_SERVICE_CONFIG);
         if (serviceConfig == null || !(serviceConfig instanceof WebSocketService)) {
-            throw new BallerinaConnectorException("Initialize the service before starting it");
+            throw new BallerinaConnectorException("Error in initializing: A callbackService is required");
         }
         WebSocketService wsService = (WebSocketService) serviceConfig;
         HandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
@@ -98,21 +100,23 @@ public class Start extends BlockingNativeCallableUnit {
         @Override
         public void onSuccess(Session session) {
             //using only one service endpoint in the client as there can be only one connection.
-            BStruct serviceEndpoint = ((BStruct) context.getRefArgument(0));
-            BStruct wsConnection = WebSocketUtil.createAndGetBStruct(wsService.getResources()[0]);
-            wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-            serviceEndpoint.setRefField(2, new BMap());
-            WebSocketUtil.populateEndpoint(session, serviceEndpoint);
+            BStruct webSocketClientEndpoint = ((BStruct) context.getRefArgument(0));
+            BStruct webSocketConnector = BLangConnectorSPIUtil.createBStruct(
+                    wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                    PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
+            webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
+            webSocketClientEndpoint.setRefField(2, new BMap());
+            WebSocketUtil.populateEndpoint(session, webSocketClientEndpoint);
             WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
-                                                                                         serviceEndpoint);
+                                                                                         webSocketClientEndpoint);
             clientConnectorListener.setConnectionInfo(connectionInfo);
-            serviceEndpoint.setRefField(0, wsConnection);
+            webSocketClientEndpoint.setRefField(0, webSocketConnector);
             context.setReturnValues();
         }
 
         @Override
         public void onError(Throwable t) {
-            throw new BallerinaConnectorException("Initialize the service before starting it");
+            throw new BallerinaConnectorException("Error occured: " + t.getMessage());
         }
     }
 }

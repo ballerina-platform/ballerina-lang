@@ -43,12 +43,12 @@ class Header extends React.Component {
         const { width, height, panelResizeInProgress } = this.props;
         const viewProps = { width, height, panelResizeInProgress };
         return (
-            <header className="header header-default">
-                <div id="header-container">
-                    <div className="pull-left brand">
-                        <span>Ballerina</span><span className="appname">Composer </span>
+            <header className='header header-default'>
+                <div id='header-container'>
+                    <div className='pull-left brand'>
+                        <i className='fw fw-composer composer-logo'/>
                     </div>
-                    <div className="pull-left">
+                    <div className='pull-left'>
                         {this.props.views.map((viewDef) => {
                             return createViewFromViewDef(viewDef, viewProps);
                         })}

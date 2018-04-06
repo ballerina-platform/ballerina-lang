@@ -1,6 +1,6 @@
 function (string a, int b) returns (string) glf1 = foo;
 
-function (string a, boolean b) returns (string) glf2 = function (string a, boolean b) returns(string){
+function (string a, boolean b) returns (string) glf2 = (string a, boolean b) => (string){
                                                                return a + b;
                                                            };
 

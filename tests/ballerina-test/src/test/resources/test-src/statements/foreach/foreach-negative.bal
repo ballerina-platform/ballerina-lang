@@ -31,7 +31,7 @@ function test4(){
     }
 }
 
-struct person {
+type person {
     int id;
 }
 
@@ -59,7 +59,7 @@ function test7(){
 
 function test8(){
     json j = ["a" , "b", "c"];
-    var a =? <json[]> j;
+    var a = check <json[]> j;
     foreach x,y in a {
         io:print(x);
         io:println(y);

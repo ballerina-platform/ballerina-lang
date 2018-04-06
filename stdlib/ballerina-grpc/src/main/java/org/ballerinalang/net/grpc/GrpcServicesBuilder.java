@@ -109,7 +109,7 @@ public class GrpcServicesBuilder {
     }
     
     private static ServerServiceDefinition getServiceDefinition(Service service, Descriptors.ServiceDescriptor
-            serviceDescriptor) throws GrpcServerException {
+            serviceDescriptor) {
         // Generate full service name for the service definition. <package>.<service>
         final String serviceName;
         if (ServiceProtoConstants.CLASSPATH_SYMBOL.equals(service.getPackage())) {
@@ -127,7 +127,13 @@ public class GrpcServicesBuilder {
             Descriptors.Descriptor responseDescriptor = serviceDescriptor.findMethodByName(methodDescriptor.getName())
                     .getOutputType();
             MessageRegistry.getInstance().addMessageDescriptor(requestDescriptor.getName(), requestDescriptor);
+            for (Descriptors.Descriptor nestedType : requestDescriptor.getNestedTypes()) {
+                MessageRegistry.getInstance().addMessageDescriptor(nestedType.getName(), nestedType);
+            }
             MessageRegistry.getInstance().addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
+            for (Descriptors.Descriptor nestedType : responseDescriptor.getNestedTypes()) {
+                MessageRegistry.getInstance().addMessageDescriptor(nestedType.getName(), nestedType);
+            }
 
             MethodDescriptor.Marshaller<Message> reqMarshaller = ProtoUtils.marshaller(Message.newBuilder
                     (requestDescriptor.getName()).build());
@@ -184,7 +190,7 @@ public class GrpcServicesBuilder {
             GrpcServerException {
 
         if (serverBuilder == null) {
-            throw new GrpcServerException("Error while starting gRPC server, clientresponder builder is null");
+            throw new GrpcServerException("Error while starting gRPC server, client responder builder is null");
         }
         Server server = serverBuilder.build();
         if (server != null) {

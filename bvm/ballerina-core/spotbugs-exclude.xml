@@ -20,7 +20,7 @@
         <Package name="org.ballerinalang.model.values"/>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.bre"/>
+        <Package name="org.ballerinalang.bre*"/>
     </Match>
     <Match>
         <Package name="org.ballerinalang.model.statements"/>

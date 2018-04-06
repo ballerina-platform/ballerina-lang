@@ -1,9 +1,8 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/io;
-import ballerina/net.http.endpoints;
 import ballerina/auth;
 
-endpoint endpoints:ApiEndpoint ep {
+endpoint http:ApiEndpoint ep {
     port:9090
 };
 

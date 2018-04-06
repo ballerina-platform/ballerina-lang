@@ -1,10 +1,10 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 import ballerina/file;
 import ballerina/io;
 
 endpoint http:ClientEndpoint clientEP {
-    targets:[{uri:"http://localhost:9090"}]
+    targets:[{url:"http://localhost:9090"}]
 };
 
 endpoint http:ServiceEndpoint multipartEP {

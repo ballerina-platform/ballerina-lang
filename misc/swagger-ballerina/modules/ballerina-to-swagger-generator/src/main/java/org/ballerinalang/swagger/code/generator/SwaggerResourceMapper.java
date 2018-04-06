@@ -471,7 +471,7 @@ class SwaggerResourceMapper {
     }
 
     /**
-     * Parses the 'ballerina.net.http@path' annotation and update the operation adaptor.
+     * Parses the 'ballerina/http@path' annotation and update the operation adaptor.
      *
      * @param resource         The ballerina resource definition.
      * @param operationAdaptor The operation adaptor.

@@ -1,4 +1,4 @@
-package ballerina.net.http;
+package ballerina.http;
 
 import ballerina/net.ws;
 

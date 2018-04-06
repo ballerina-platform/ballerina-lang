@@ -1,7 +1,5 @@
 // This is client implementation for bidirectional streaming scenario
-package client;
-
-import ballerina/net.grpc;
+import ballerina/grpc;
 import ballerina/io;
 import ballerina/log;
 import ballerina.runtime;
@@ -9,14 +7,14 @@ import ballerina.runtime;
 int total = 0;
 function main (string[] args) {
 
-    endpoint chatClient chatEp {
+    endpoint ChatClient chatEp {
         host:"localhost",
         port:9090
     };
 
     endpoint grpc:Client ep;
     // Executing unary non-blocking call registering server message listener.
-    var res = chatEp -> chat(typeof chatMessageListener);
+    var res = chatEp -> chat(typeof ChatMessageListener);
     match res {
         grpc:error err => {
             io:print("error");
@@ -25,11 +23,11 @@ function main (string[] args) {
             ep = con;
         }
     }
-    ChatMessage mes = {};
+    ChatMessage mes = new;
     mes.name = "Sam";
     mes.message = "Hi ";
     grpc:ConnectorError connErr = ep -> send(mes);
-    if (connErr != null) {
+    if (connErr != ()) {
         io:println("Error at LotsOfGreetings : " + connErr.message);
     }
     //this will hold forever since this is chat application
@@ -38,14 +36,14 @@ function main (string[] args) {
 }
 
 
-service<grpc:Listener> chatMessageListener {
+service<grpc:Listener> ChatMessageListener {
 
     onMessage (string message) {
         io:println("Response received from server: " + message);
     }
 
     onError (grpc:ServerError err) {
-        if (err != null) {
+        if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }
@@ -54,4 +52,3 @@ service<grpc:Listener> chatMessageListener {
         io:println("Server Complete Sending Responses.");
     }
 }
-

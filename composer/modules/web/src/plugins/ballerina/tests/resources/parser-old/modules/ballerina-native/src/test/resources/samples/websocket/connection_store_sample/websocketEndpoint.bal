@@ -1,6 +1,6 @@
 import ballerina/lang.system;
 import ballerina/net.ws;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/lang.messages;
 
 @http:configuration {basePath:"/chat-store"}

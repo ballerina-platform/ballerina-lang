@@ -12,8 +12,7 @@ import java.util.stream.Stream;
 /**
  * Patten of a set of resource (usually source files).
  * EG: patten of bal in a jar. url patten. file patten.
- * <p>
- * <p>
+ *
  * Made out of 4 types of parts.
  * Path                      - exact match to the a dir or file name
  * Wildcard                  - any dir matches

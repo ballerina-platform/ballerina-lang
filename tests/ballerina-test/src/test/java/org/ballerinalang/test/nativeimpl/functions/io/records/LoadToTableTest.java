@@ -45,7 +45,7 @@ public class LoadToTableTest {
 
     @BeforeClass
     public void setup() {
-        recordsInputOutputProgramFile = BCompileUtil.compile("test-src/io/recordio.bal");
+        recordsInputOutputProgramFile = BCompileUtil.compile("test-src/io/record_io.bal");
     }
 
     @Test(description = "Test successful data load")

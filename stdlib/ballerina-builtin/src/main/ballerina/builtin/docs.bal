@@ -20,9 +20,9 @@ deprecated {}
 public annotation Description docData;
 
 deprecated {}
-struct docData {
+type docData {
     string value;
-}
+};
 
 deprecated {}
 public annotation<resource, function> Param docData;
@@ -31,4 +31,4 @@ deprecated {}
 public annotation<function> Return docData;
 
 deprecated {}
-public annotation<annotation, enum, struct> Field docData;
+public annotation<annotation, type, object> Field docData;

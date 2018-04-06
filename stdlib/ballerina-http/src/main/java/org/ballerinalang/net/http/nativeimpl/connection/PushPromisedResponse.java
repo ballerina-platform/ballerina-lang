@@ -39,18 +39,18 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
  * {@code PushPromisedResponse} is the native function to respond back the client with Server Push response.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "pushPromisedResponse",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.http"),
         args = {@Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
-                structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.http"),
                 @Argument(name = "res", type = TypeKind.STRUCT, structType = "OutResponse",
-                structPackage = "ballerina.net.http")
+                structPackage = "ballerina.http")
 
         },
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                                 structPackage = "ballerina.net.http"),
+                                 structPackage = "ballerina.http"),
         isPublic = true
 )
 public class PushPromisedResponse extends ConnectionAction {

@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 3,
+    "character": 10
+  },
+  "source": "packageimport/source/packageImport.bal",
+  "items": [
+      {
+        "label":"endpoint",
+        "detail":"Snippet",
+        "sortText":"190",
+        "insertText":"endpoint ${1:http:ServiceEndpoint} ${2:endpointName} {\n\t${3}\n};",
+        "insertTextFormat":"Snippet"
+      },
+      {
+        "label":"worker",
+        "detail":"Snippet",
+        "sortText":"190",
+        "insertText":"worker ${1:name} {\n\t${2}\n}",
+        "insertTextFormat":"Snippet"
+      }
+  ]
+}

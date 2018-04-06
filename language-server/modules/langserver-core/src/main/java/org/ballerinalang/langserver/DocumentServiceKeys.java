@@ -33,32 +33,30 @@ import java.util.List;
  * @since 0.95.5
  */
 public class DocumentServiceKeys {
-    public static final LanguageServerContext.Key<String> FILE_URI_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<TextDocumentPositionParams> POSITION_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<String> FILE_NAME_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<CompilerContext> COMPILER_CONTEXT_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<ParserRuleContext> PARSER_RULE_CONTEXT_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<TokenStream> TOKEN_STREAM_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<Vocabulary> VOCABULARY_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<Integer> TOKEN_INDEX_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<SymbolTable> SYMBOL_TABLE_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<List<SymbolInformation>> SYMBOL_LIST_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<BLangPackageContext> B_LANG_PACKAGE_CONTEXT_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<String> CURRENT_PACKAGE_NAME_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<TextDocumentServiceContext> OPERATION_META_CONTEXT_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<BLangPackage> CURRENT_BLANG_PACKAGE_CONTEXT_KEY
-            = new LanguageServerContext.Key<>();
+    public static final LSContext.Key<String> FILE_URI_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<TextDocumentPositionParams> POSITION_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> FILE_NAME_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<CompilerContext> COMPILER_CONTEXT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<ParserRuleContext> PARSER_RULE_CONTEXT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<TokenStream> TOKEN_STREAM_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Vocabulary> VOCABULARY_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Integer> TOKEN_INDEX_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<SymbolTable> SYMBOL_TABLE_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<List<SymbolInformation>> SYMBOL_LIST_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> CURRENT_PACKAGE_NAME_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<LSServiceOperationContext> OPERATION_META_CONTEXT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<BLangPackage> CURRENT_BLANG_PACKAGE_CONTEXT_KEY
+            = new LSContext.Key<>();
 }

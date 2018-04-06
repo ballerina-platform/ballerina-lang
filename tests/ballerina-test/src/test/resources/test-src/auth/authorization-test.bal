@@ -5,18 +5,18 @@ import ballerina/auth.utils;
 
 function testAuthzCheckerCreationWithoutCache () returns (authz:AuthzChecker,
                                                   permissionstore:PermissionStore,
-                                                  caching:Cache|null) {
-    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-    permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
-    authz:AuthzChecker checker = authz:createChecker(permissionStore, null);
+                                                  caching:Cache|()) {
+    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = new;
+    permissionstore:PermissionStore permissionStore = check <permissionstore:PermissionStore>fileBasedPermissionstore;
+    authz:AuthzChecker checker = authz:createChecker(permissionStore, ());
     return (checker, checker.permissionstore, checker.authzCache);
 }
 
 function testAuthzCheckerCreationWithCache () returns (authz:AuthzChecker,
                                                permissionstore:PermissionStore,
-                                               caching:Cache|null) {
-    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-    permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
+                                               caching:Cache|()) {
+    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = new;
+    permissionstore:PermissionStore permissionStore = check <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
     return (checker, checker.permissionstore, checker.authzCache);
 }
@@ -26,33 +26,33 @@ function testAuthzCheckerCreationWithCache () returns (authz:AuthzChecker,
 //}
 
 function testAuthorizationForNonExistingUser () returns (boolean) {
-    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-    permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
+    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = new;
+    permissionstore:PermissionStore permissionStore = check <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
     string[] scopes = ["scope1"];
-    return checker.check("ayoma", scopes);
+    return checker.authorize("ayoma", "sayHello", "GET", scopes);
 }
 
 function testAuthorizationForNonExistingScope () returns (boolean) {
-    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-    permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
+    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = new;
+    permissionstore:PermissionStore permissionStore = check <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
     string[] scopes = ["scope-y"];
-    return checker.check("ishara", scopes);
+    return checker.authorize("ishara", "sayHello", "GET", scopes);
 }
 
 function testAuthorizationSuccess () returns (boolean) {
-    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-    permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
+    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = new;
+    permissionstore:PermissionStore permissionStore = check <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
     string[] scopes = ["scope2"];
-    return checker.check("isuru", scopes);
+    return checker.authorize("isuru", "sayHello", "GET", scopes);
 }
 
 function testAuthorizationSuccessWithMultipleScopes () returns (boolean) {
-    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-    permissionstore:PermissionStore permissionStore = <permissionstore:PermissionStore>fileBasedPermissionstore;
+    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = new;
+    permissionstore:PermissionStore permissionStore = check <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
     string[] scopes = ["scope2", "scope1"];
-    return checker.check("isuru", scopes);
+    return checker.authorize("isuru", "sayHello", "GET", scopes);
 }

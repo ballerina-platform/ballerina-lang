@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 
 int i = 0;
 int j = 0;

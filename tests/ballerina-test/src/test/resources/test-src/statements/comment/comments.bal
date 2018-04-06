@@ -59,10 +59,10 @@ service<DummyService> FooService {
         }
 }
 
-transformer <Person p,string s> {
+//transformer <Person p,string s> {
   // send the name of the person
-  s = p.name;
-}
+//  s = p.name;
+//}
 
 // end of file
 

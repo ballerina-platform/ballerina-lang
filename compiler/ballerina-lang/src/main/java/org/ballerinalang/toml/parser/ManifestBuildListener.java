@@ -50,61 +50,26 @@ public class ManifestBuildListener extends TomlBaseListener {
         this.manifest = manifest;
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     *
-     * @param ctx
-     */
     @Override
     public void enterKeyVal(TomlParser.KeyValContext ctx) {
         currentKey.push(ctx.key().getText());
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     *
-     * @param ctx
-     */
     @Override
     public void enterBasicStringValue(TomlParser.BasicStringValueContext ctx) {
         setToManifest(ctx.getText());
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     *
-     * @param ctx
-     */
     @Override
     public void exitKeyVal(TomlParser.KeyValContext ctx) {
         setDependencyAndPatches();
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     *
-     * @param ctx
-     */
     @Override
     public void enterArray(TomlParser.ArrayContext ctx) {
         setToManifest(ctx.arrayValues());
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     *
-     * @param ctx
-     */
     @Override
     public void enterStdTable(TomlParser.StdTableContext ctx) {
         List<String> tableHeading = new ArrayList<>();
@@ -126,28 +91,11 @@ public class ManifestBuildListener extends TomlBaseListener {
         addHeader(tableHeading);
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     *
-     * @param ctx
-     */
     @Override
     public void enterInlineTable(TomlParser.InlineTableContext ctx) {
         setToManifest(ctx.inlineTableKeyvals());
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does ncommentStartSymbol : HASH;
-     * nonEol :  '\r'| '\t';
-     * <p>
-     * comment :  commentStartSymbol wsCommentNewline basicChar* nonEol*;othing.</p>
-     *
-     * @param ctx
-     */
     @Override
     public void exitInlineTable(TomlParser.InlineTableContext ctx) {
         setDependencyAndPatches();

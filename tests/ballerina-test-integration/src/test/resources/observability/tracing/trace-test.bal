@@ -13,8 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/testing;
+import ballerina/observe;
 
 endpoint http:ServiceEndpoint ep1 {
     port : 9090
@@ -23,38 +24,54 @@ endpoint http:ServiceEndpoint ep1 {
 @http:ServiceConfig {
     basePath:"/echoService"
 }
-service<http:Service> echoService bind ep1 {
+service echoService bind ep1 {
     resourceOne (endpoint outboundEP, http:Request clientRequest) {
-        http:Response outResponse = {};
-        http:Request request = {};
-        var response = callNextResource();
+        observe:Span span = observe:startSpan("testService", "echo span", (), observe:REFERENCE_TYPE_ROOT, ());
+        span.log("TestEvent", "This is a test info log");
+        span.logError("TestError", "This is a test error log");
+        span.addTag("TestTag", "Test tag message");
+        http:Response outResponse = new;
+        http:Request request = new;
+        http:Response | () response = callNextResource(span);
         outResponse.setStringPayload("Hello, World!");
-        _ = outboundEP -> respond(response);
+        match response {
+            http:Response res => _ = outboundEP -> respond(res);
+            () => _ = outboundEP -> respond(new http:Response());
+        }
+
+        span.finishSpan();
     }
 
     resourceTwo (endpoint outboundEP, http:Request clientRequest) {
-        http:Response res = {};
+        observe:SpanContext spanContext = observe:extractTraceContextFromHttpHeader(clientRequest, "test-group");
+        observe:Span span = observe:startSpan("testService", "resource two", (), observe:REFERENCE_TYPE_CHILDOF, spanContext);
+        string | () baggageItem = span.getBaggageItem("BaggageItem");
+        http:Response res = new;
         res.setStringPayload("Hello, World 2!");
         _ = outboundEP -> respond(res);
+        span.finishSpan();
     }
 
     getFinishedSpansCount(endpoint outboundEP, http:Request clientRequest) {
-        http:Response res = {};
+        http:Response res = new;
         string returnString = testing:getFinishedSpansCount();
         res.setStringPayload(returnString);
         _ = outboundEP -> respond(res);
     }
 }
 
-function callNextResource() returns (http:Response) {
+function callNextResource(observe:Span parentSpan) returns (http:Response | ()) {
     endpoint http:ClientEndpoint httpEndpoint {
-        targets : [{uri : "http://localhost:9090/echoService"}]
+        targets : [{url: "http://localhost:9090/echoService"}]
     };
-
-    http:Request request = {};
+    observe:Span span = observe:startSpan("testService", "calling next resource", (), observe:REFERENCE_TYPE_CHILDOF, parentSpan);
+    span.setBaggageItem("BaggageItem", "Baggage message");
+    http:Request request = new;
+    request = span.injectTraceContextToHttpHeader(request, "test-group");
     var resp = httpEndpoint -> get("/resourceTwo", request);
+    span.finishSpan();
     match resp {
-        http:HttpConnectorError err => return {};
+        http:HttpConnectorError err => return ();
         http:Response response => return response;
     }
 }

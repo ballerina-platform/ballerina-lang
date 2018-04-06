@@ -1,6 +1,6 @@
 package ballerina.net.websub;
 
-import ballerina/net.http;
+import ballerina/http;
 
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///

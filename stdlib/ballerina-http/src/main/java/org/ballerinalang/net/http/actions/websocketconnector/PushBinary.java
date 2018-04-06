@@ -16,6 +16,7 @@
 
 package org.ballerinalang.net.http.actions.websocketconnector;
 
+import io.netty.channel.ChannelFuture;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -24,6 +25,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.WebSocketUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.nio.ByteBuffer;
@@ -33,10 +35,10 @@ import javax.websocket.Session;
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "pushBinary",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                structPackage = "ballerina.net.http"),
+                             structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.STRUCT),
                 @Argument(name = "data", type = TypeKind.BLOB)
@@ -50,10 +52,12 @@ public class PushBinary extends BlockingNativeCallableUnit {
             BStruct wsConnection = (BStruct) context.getRefArgument(0);
             Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
             byte[] binaryData = context.getBlobArgument(0);
-            session.getBasicRemote().sendBinary(ByteBuffer.wrap(binaryData));
+            ChannelFuture webSocketChannelFuture = (ChannelFuture) session.getAsyncRemote().sendBinary(
+                    ByteBuffer.wrap(binaryData));
+            context.setReturnValues(
+                    WebSocketUtil.getWebSocketError(context, webSocketChannelFuture, "Failed to send binary message"));
         } catch (Throwable e) {
             throw new BallerinaException("Cannot send the message. Error occurred.");
         }
-        context.setReturnValues();
     }
 }

@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * BTestRunner entity class.
@@ -81,14 +82,69 @@ public class BTestRunner {
         TesterinaRegistry.getInstance().setGroups(groups);
         TesterinaRegistry.getInstance().setShouldIncludeGroups(shouldIncludeGroups);
 
+        // Compile and build the test suites
+        compileAndBuildSuites(sourceRoot, sourceFilePaths);
+        // execute the test programs
+        execute();
+        // print the report
+        tReport.printSummary();
+    }
+
+    /**
+     * lists the groups available in tests.
+     *
+     * @param sourceRoot      source root of the project
+     * @param sourceFilePaths package or program file paths
+     */
+    public void listGroups(String sourceRoot, Path[] sourceFilePaths) {
+        //Build the test suites
+        compileAndBuildSuites(sourceRoot, sourceFilePaths);
+        List<String> groupList = getGroupList();
+        if (groupList.size() == 0) {
+            outStream.println("There are no groups available!");
+        } else {
+            outStream.println("Following groups are available : ");
+            outStream.println(groupList);
+        }
+    }
+
+    /**
+     * Returns a distinct list of groups in test functions.
+     *
+     * @return a list of groups
+     */
+    public List<String> getGroupList() {
+
+        Map<String, TestSuite> testSuites = TesterinaRegistry.getInstance().getTestSuites();
+        if (testSuites.isEmpty()) {
+            throw new BallerinaException("No test functions found in the provided ballerina files.");
+        }
+        List<String> groupList = new ArrayList<>();
+        testSuites.forEach((packageName, suite) -> {
+            suite.getTests().forEach(test -> {
+                if (test.getGroups().size() > 0) {
+                    groupList.addAll(test.getGroups());
+                }
+            });
+        });
+        return groupList.stream().distinct().collect(Collectors.toList());
+    }
+
+    /**
+     * Compiles the source and populate the registry with suites.
+     * @param sourceRoot source root
+     * @param sourceFilePaths List of @{@link Path} of ballerina files
+     */
+    private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths)  {
+
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
             // compile
             CompileResult compileResult = BCompileUtil.compile(sourceRoot == null ? programDirPath.toString() :
-                    sourceRoot, sourcePackage.toString(), CompilerPhase.CODE_GEN);
+                sourceRoot, sourcePackage.toString(), CompilerPhase.CODE_GEN);
             // print errors
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
                 errStream.println(diagnostic.getKind() + ": " + diagnostic.getPosition() + " " + diagnostic
-                        .getMessage());
+                    .getMessage());
             }
             if (compileResult.getDiagnostics().length > 0) {
                 throw new BallerinaException("[ERROR] Compilation failed.");
@@ -113,10 +169,7 @@ public class BTestRunner {
                 }
             });
         });
-        // execute the test programs
-        execute();
-        // print the report
-        tReport.printSummary();
+        TesterinaRegistry.getInstance().setTestSuitesCompiled(true);
     }
 
     /**
@@ -134,6 +187,7 @@ public class BTestRunner {
             outStream.println("---------------------------------------------------------------------------");
             outStream.println("Running Tests of Package: " + packageName);
             outStream.println("---------------------------------------------------------------------------");
+            shouldSkip.set(false);
             TestAnnotationProcessor.injectMocks(suite);
             tReport.addPackageReport(packageName);
             if (suite.getInitFunction() != null) {
@@ -144,22 +198,24 @@ public class BTestRunner {
                 String errorMsg;
                 try {
                     test.invoke();
-                } catch (BallerinaException e) {
+                } catch (Throwable e) {
                     shouldSkip.set(true);
                     errorMsg = String.format("Failed to execute before test suite function [%s] of test suite " +
                                              "package [%s]. Cause: %s", test.getName(), packageName, e.getMessage());
                     errStream.println(errorMsg);
                 }
             });
+            List<String> failedOrSkippedTests = new ArrayList<>();
             suite.getTests().forEach(test -> {
-                if (!shouldSkip.get()) {
+                AtomicBoolean shouldSkipTest = new AtomicBoolean(false);
+                if (!shouldSkip.get() && !shouldSkipTest.get()) {
                     // run the beforeEach tests
                     suite.getBeforeEachFunctions().forEach(beforeEachTest -> {
                         String errorMsg;
                         try {
                             beforeEachTest.invoke();
-                        } catch (BallerinaException e) {
-                            shouldSkip.set(true);
+                        } catch (Throwable e) {
+                            shouldSkipTest.set(true);
                             errorMsg = String.format("Failed to execute before each test function [%s] for the "
                                                      + "test [%s] of test suite package [%s]. Cause: %s",
                                     beforeEachTest.getName(),
@@ -168,15 +224,15 @@ public class BTestRunner {
                         }
                     });
                 }
-                if (!shouldSkip.get()) {
+                if (!shouldSkip.get() && !shouldSkipTest.get()) {
                     // run before tests
                     String errorMsg;
                     try {
                         if (test.getBeforeTestFunctionObj() != null) {
                             test.getBeforeTestFunctionObj().invoke();
                         }
-                    } catch (BallerinaException e) {
-                        shouldSkip.set(true);
+                    } catch (Throwable e) {
+                        shouldSkipTest.set(true);
                         errorMsg = String.format("Failed to execute before test function" + " [%s] for the test " +
                                                  "[%s] of test suite package [%s]. Cause: %s",
                                 test.getBeforeTestFunctionObj().getName
@@ -187,7 +243,12 @@ public class BTestRunner {
                 // run the test
                 TesterinaResult functionResult = null;
                 try {
-                    if (!shouldSkip.get()) {
+                    if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests)) {
+                      shouldSkipTest.set(true);
+                    }
+
+                    // Check whether the this test depends on any failed or skipped functions
+                    if (!shouldSkip.get() && !shouldSkipTest.get()) {
                         BValue[] valueSets = null;
                         if (test.getDataProviderFunction() != null) {
                             valueSets = test.getDataProviderFunction().invoke();
@@ -196,7 +257,7 @@ public class BTestRunner {
                             test.getTestFunction().invoke();
                             // report the test result
                             functionResult = new TesterinaResult(test.getTestFunction().getName(), true, shouldSkip
-                                    .get(), null);
+                                .get(), null);
                             tReport.addFunctionResult(packageName, functionResult);
                         } else {
                             List<BValue[]> argList = extractArguments(valueSets);
@@ -208,12 +269,15 @@ public class BTestRunner {
                             });
                         }
                     } else {
+                        // If the test function is skipped lets add it to the failed test list
+                        failedOrSkippedTests.add(test.getTestFunction().getName());
                         // report the test result
-                        functionResult = new TesterinaResult(test.getTestFunction().getName(), false, shouldSkip.get
-                                (), null);
+                        functionResult = new TesterinaResult(test.getTestFunction().getName(), false, true, null);
                         tReport.addFunctionResult(packageName, functionResult);
                     }
-                } catch (Exception e) {
+                } catch (Throwable e) {
+                    // If the test function is skipped lets add it to the failed test list
+                    failedOrSkippedTests.add(test.getTestFunction().getName());
                     String errorMsg = String.format("Failed to execute the test function [%s] of test suite package "
                             + "[%s]. Cause: %s", test.getTestFunction().getName(), packageName, e.getMessage());
                     errStream.println(errorMsg);
@@ -221,7 +285,6 @@ public class BTestRunner {
                     functionResult = new TesterinaResult(test.getTestFunction().getName(), false, shouldSkip.get(),
                             errorMsg);
                     tReport.addFunctionResult(packageName, functionResult);
-                    return;
                 }
 
                 // run the after tests
@@ -230,7 +293,7 @@ public class BTestRunner {
                     if (test.getAfterTestFunctionObj() != null) {
                         test.getAfterTestFunctionObj().invoke();
                     }
-                } catch (BallerinaException e) {
+                } catch (Throwable e) {
                     error = String.format("Failed to execute after test function" + " [%s] for the test [%s] of test " +
                                           "suite package [%s]. Cause: %s", test.getAfterTestFunctionObj().getName(),
                             test.getTestFunction().getName(), packageName, e.getMessage());
@@ -242,7 +305,7 @@ public class BTestRunner {
                     String errorMsg2;
                     try {
                         afterEachTest.invoke();
-                    } catch (BallerinaException e) {
+                    } catch (Throwable e) {
                         errorMsg2 = String.format("Failed to execute after each test function" + " [%s] for the test " +
                                                   "[%s] of test suite package [%s]. Cause: %s", afterEachTest.getName(),
                                 test.getTestFunction().getName(), packageName, e.getMessage());
@@ -257,7 +320,7 @@ public class BTestRunner {
                 String errorMsg;
                 try {
                     func.invoke();
-                } catch (BallerinaException e) {
+                } catch (Throwable e) {
                     errorMsg = String.format("Failed to execute after test suite function [%s] of test suite " +
                                              "package [%s]. Cause: %s", func.getName(), packageName, e.getMessage());
                     errStream.println(errorMsg);
@@ -266,6 +329,10 @@ public class BTestRunner {
             // print package test results
             tReport.printTestSuiteSummary(packageName);
         });
+    }
+
+    private boolean isTestDependsOnFailedFunctions(List<String> failedOrSkippedTests, List<String> dependentTests) {
+        return failedOrSkippedTests.stream().parallel().anyMatch(dependentTests::contains);
     }
 
     /**

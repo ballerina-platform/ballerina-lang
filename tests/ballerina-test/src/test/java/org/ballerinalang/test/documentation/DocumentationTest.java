@@ -111,17 +111,17 @@ public class DocumentationTest {
         List<BLangDocumentation> docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, " Documentation for Test struct\n");
+        Assert.assertEquals(dNode.documentationText, " Documentation for Test type\n");
         Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "a");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
-                " struct `field a` documentation\n");
+                " type `field a` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "b");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
-                " struct `field b` documentation\n");
+                " type `field b` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "c");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationText,
-                " struct `field c` documentation");
+                " type `field c` documentation");
     }
 
     @Test(description = "Test doc function.")
@@ -148,18 +148,18 @@ public class DocumentationTest {
         docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
         dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, " Documentation for File struct\n");
+        Assert.assertEquals(dNode.documentationText, " Documentation for File type\n");
         Assert.assertEquals(dNode.getAttributes().size(), 1);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "path");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
-                " struct `field path` documentation\n");
+                " type `field path` documentation\n");
 
     }
 
     @Test(description = "Test doc negative cases.", enabled = true)
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/negative.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 16);
+        Assert.assertEquals(compileResult.getWarnCount(), 14);
         BAssertUtil.validateWarning(compileResult, 0,
                 "already documented attribute 'a'", 5, 1);
         BAssertUtil.validateWarning(compileResult, 1,
@@ -176,30 +176,30 @@ public class DocumentationTest {
                 "already documented attribute 'file'", 45, 1);
         BAssertUtil.validateWarning(compileResult, 7,
                 "no such documentable attribute 'successfuls' with doc prefix 'R'", 47, 1);
+//        BAssertUtil.validateWarning(compileResult, 8,
+//                "no such documentable attribute 'pa' with doc prefix 'T'", 63, 2);
+//        BAssertUtil.validateWarning(compileResult, 9,
+//                "already documented attribute 'e'", 65, 2);
         BAssertUtil.validateWarning(compileResult, 8,
-                "no such documentable attribute 'pa' with doc prefix 'T'", 63, 2);
-        BAssertUtil.validateWarning(compileResult, 9,
-                "already documented attribute 'e'", 65, 2);
-        BAssertUtil.validateWarning(compileResult, 10,
                 "already documented attribute 'url'", 89, 1);
-        BAssertUtil.validateWarning(compileResult, 11,
+        BAssertUtil.validateWarning(compileResult, 9,
                 "no such documentable attribute 'urls' with doc prefix 'P'", 90, 1);
         /*BAssertUtil.validateWarning(compileResult, 12,
                 "already documented attribute 's'", 96, 5);*//*Commented since no longer support named returns*/
         /*BAssertUtil.validateWarning(compileResult, 13,
                 "no such documentable attribute 'ssss' with doc prefix 'R'", 97, 5);*/
         /*Commented since no longer support named returns*/
-        BAssertUtil.validateWarning(compileResult, 12,
+        BAssertUtil.validateWarning(compileResult, 10,
                 "no such documentable attribute 'conn' with doc prefix 'P'", 104, 1);
-        BAssertUtil.validateWarning(compileResult, 13,
+        BAssertUtil.validateWarning(compileResult, 11,
                 "already documented attribute 'req'", 110, 5);
-        BAssertUtil.validateWarning(compileResult, 14,
+        BAssertUtil.validateWarning(compileResult, 12,
                 "no such documentable attribute 'reqest' with doc prefix 'P'", 111, 5);
-        BAssertUtil.validateWarning(compileResult, 15,
+        BAssertUtil.validateWarning(compileResult, 13,
                 "no such documentable attribute 'testConstd' with doc prefix 'V'", 121, 1);
     }
 
-    @Test(description = "Test doc transformer.")
+//    @Test(description = "Test doc transformer.")
     public void testDocTransformer() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/transformer.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -389,22 +389,22 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " enum `field bar` documentation");
 
-        docNodes = ((BLangTransformer) packageNode.getTransformers().get(0)).docAttachments;
-        dNode = docNodes.get(0);
-        Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, "\n" +
-                " Transformer Foo Person -> Employee\n" +
-                " ");
-        Assert.assertEquals(dNode.getAttributes().size(), 3);
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "p");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
-                " input struct Person source used for transformation\n ");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "e");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
-                " output struct Employee struct which Person transformed to\n ");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "defaultAddress");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationText,
-                " address which serves Eg: `POSTCODE 112`\n");
+//        docNodes = ((BLangTransformer) packageNode.getTransformers().get(0)).docAttachments;
+//        dNode = docNodes.get(0);
+//        Assert.assertNotNull(dNode);
+//        Assert.assertEquals(dNode.documentationText, "\n" +
+//                " Transformer Foo Person -> Employee\n" +
+//                " ");
+//        Assert.assertEquals(dNode.getAttributes().size(), 3);
+//        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "p");
+//        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
+//                " input struct Person source used for transformation\n ");
+//        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "e");
+//        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
+//                " output struct Employee struct which Person transformed to\n ");
+//        Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "defaultAddress");
+//        Assert.assertEquals(dNode.getAttributes().get(2).documentationText,
+//                " address which serves Eg: `POSTCODE 112`\n");
 
         BLangService service = (BLangService) packageNode.getServices().get(0);
         docNodes = service.docAttachments;
@@ -505,10 +505,10 @@ public class DocumentationTest {
 
     }
 
-    @Test(description = "Test doc deprecated Transformer.")
+//    @Test(description = "Test doc deprecated Transformer.")
     public void testDeprecatedTransformer() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/deprecated_transformer.bal");
-        Assert.assertEquals(0, compileResult.getWarnCount());
+        Assert.assertEquals(compileResult.getWarnCount(), 0);
         PackageNode packageNode = compileResult.getAST();
         List<BLangDeprecatedNode> dNodes = ((BLangTransformer) packageNode
                 .getTransformers().get(0)).deprecatedAttachments;

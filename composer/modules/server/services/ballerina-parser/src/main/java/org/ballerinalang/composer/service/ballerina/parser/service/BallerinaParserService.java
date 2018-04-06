@@ -389,9 +389,9 @@ public class BallerinaParserService implements ComposerService {
         BType type = ((BLangNode) node).type;
         if (node instanceof BLangInvocation) {
             JsonArray jsonElements = new JsonArray();
-            for (BType returnType : ((BLangInvocation) node).types) {
+            /*for (BType returnType : ((BLangInvocation) node).types) {
                 jsonElements.add(returnType.getKind().typeName());
-            }
+            }*/
             return jsonElements;
         } else if (type != null) {
             JsonArray jsonElements = new JsonArray();

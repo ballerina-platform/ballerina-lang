@@ -126,7 +126,7 @@ public class IterableCodeDesugar {
                 ctx.iteratorFuncSymbol, Collections.emptyList(), symResolver);
         iExpr.requiredArgs.add(ctx.collectionExpr);
         if (ctx.getLastOperation().expectedType == symTable.noType
-                || ctx.getLastOperation().expectedType == symTable.voidType) {
+                || ctx.getLastOperation().expectedType == symTable.nilType) {
             ctx.iteratorCaller = iExpr;
         } else {
             ctx.iteratorCaller = ASTBuilderUtil.wrapToConversionExpr(ctx.getLastOperation().expectedType, iExpr,
@@ -193,9 +193,14 @@ public class IterableCodeDesugar {
         // Create and define function signature.
         final BLangFunction funcNode = ASTBuilderUtil.createFunction(pos, getFunctionName(FUNC_CALLER));
         funcNode.requiredParams.add(ctx.collectionVar);
+        final BType returnType;
         if (isReturningIteratorFunction(ctx)) {
-            funcNode.retParams.add(ctx.resultVar);
+            returnType = ctx.resultType;
+        } else {
+            returnType = symTable.nilType;
         }
+        funcNode.returnTypeNode = ASTBuilderUtil.createTypeNode(returnType);
+        funcNode.desugaredReturnType = true;
 
         defineFunction(funcNode, ctx.env.enclPkg);
         ctx.iteratorFuncSymbol = funcNode.symbol;
@@ -250,7 +255,9 @@ public class IterableCodeDesugar {
         }
         final BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(firstOperation.pos, funcNode.body);
         if (isReturningIteratorFunction(ctx)) {
-            returnStmt.addExpression(ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol));
+            returnStmt.expr = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
+        } else {
+            returnStmt.expr = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
         }
     }
 
@@ -290,7 +297,7 @@ public class IterableCodeDesugar {
             // Create tuple, for lambda invocation.
             final BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos, foreachStmt.body);
             assignmentStmt.declaredWithVar = true;
-            assignmentStmt.varRefs.add(ASTBuilderUtil.createVariableRef(pos, ctx.getFirstOperation().argVar.symbol));
+            assignmentStmt.varRef = ASTBuilderUtil.createVariableRef(pos, ctx.getFirstOperation().argVar.symbol);
 
             final BLangBracedOrTupleExpr tupleExpr = (BLangBracedOrTupleExpr) TreeBuilder
                     .createBracedOrTupleExpression();
@@ -323,7 +330,9 @@ public class IterableCodeDesugar {
 
         final BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(firstOperation.pos, funcNode.body);
         if (isReturningIteratorFunction(ctx)) {
-            returnStmt.addExpression(ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol));
+            returnStmt.expr = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
+        } else {
+            returnStmt.expr = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
         }
     }
 
@@ -348,7 +357,7 @@ public class IterableCodeDesugar {
     }
 
     private boolean isReturningIteratorFunction(IterableContext ctx) {
-        return !(ctx.resultType == symTable.noType || ctx.resultType == symTable.voidType);
+        return !(ctx.resultType == symTable.noType || ctx.resultType == symTable.nilType);
     }
 
     /**
@@ -381,13 +390,14 @@ public class IterableCodeDesugar {
     private void createResultVarDefStmt(BLangFunction funcNode, IterableContext ctx) {
         BLangBlockStmt blockStmt = funcNode.body;
         final IterableKind kind = ctx.getLastOperation().kind;
-        if (ctx.resultType.tag != TypeTags.ARRAY
-                && ctx.resultType.tag != TypeTags.MAP
-                && ctx.resultType.tag != TypeTags.TABLE
-                && kind != IterableKind.MAX
-                && kind != IterableKind.MIN) {
-            return;
-        }
+//        if (ctx.resultType.tag != TypeTags.ARRAY
+//                && ctx.resultType.tag != TypeTags.MAP
+//                && ctx.resultType.tag != TypeTags.TABLE
+//                && kind != IterableKind.MAX
+//                && kind != IterableKind.MIN) {
+//            return;
+//        }
+        defineVariable(ctx.resultVar, funcNode.symbol.pkgID, funcNode);
         final DiagnosticPos pos = blockStmt.pos;
         final BLangVariableDef defStmt = ASTBuilderUtil.createVariableDefStmt(pos, blockStmt);
         defStmt.var = ctx.resultVar;
@@ -485,7 +495,7 @@ public class IterableCodeDesugar {
         add.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.intType,
                 symTable.intType);
         final BLangAssignment countAdd = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
-        countAdd.varRefs.add(ASTBuilderUtil.createVariableRef(pos, variable.symbol));
+        countAdd.varRef = ASTBuilderUtil.createVariableRef(pos, variable.symbol);
         countAdd.expr = add;
     }
 
@@ -507,7 +517,7 @@ public class IterableCodeDesugar {
         add.rhsExpr = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(0).symbol);
         add.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.ADD, add.type, add.type);
         final BLangAssignment countAdd = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
-        countAdd.varRefs.add(ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol));
+        countAdd.varRef = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
         countAdd.expr = add;
     }
 
@@ -543,7 +553,7 @@ public class IterableCodeDesugar {
         ternaryExpr.type = compare.type;
 
         final BLangAssignment countAdd = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
-        countAdd.varRefs.add(resultVar);
+        countAdd.varRef = resultVar;
         countAdd.expr = ternaryExpr;
     }
 
@@ -565,7 +575,7 @@ public class IterableCodeDesugar {
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
         indexAccessNode.type = ctx.iteratorResultVariables.get(0).symbol.type;
         final BLangAssignment valueAssign = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
-        valueAssign.varRefs.add(indexAccessNode);
+        valueAssign.varRef = indexAccessNode;
         valueAssign.expr = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(0).symbol);
 
         // create count = count + 1;
@@ -597,13 +607,14 @@ public class IterableCodeDesugar {
     private void generateMapAggregator(BLangBlockStmt blockStmt, IterableContext ctx) {
         final DiagnosticPos pos = blockStmt.pos;
         // create assignment result[key] = value
-        final BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+        final BLangIndexBasedAccess indexAccessNode =
+                (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexAccessNode.pos = pos;
         indexAccessNode.indexExpr = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(0).symbol);
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
         indexAccessNode.type = ctx.iteratorResultVariables.get(1).symbol.type;
         final BLangAssignment valueAssign = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
-        valueAssign.varRefs.add(indexAccessNode);
+        valueAssign.varRef = indexAccessNode;
         valueAssign.expr = ASTBuilderUtil.generateConversionExpr(ASTBuilderUtil.createVariableRef(pos,
                 ctx.iteratorResultVariables.get(1).symbol), symTable.anyType, symResolver);
     }
@@ -654,7 +665,7 @@ public class IterableCodeDesugar {
         ifNode.body = ASTBuilderUtil.createBlockStmt(pos);
         if (ctx.resultVar.symbol.type.tag <= TypeTags.FLOAT) {
             final BLangAssignment assign = ASTBuilderUtil.createAssignmentStmt(pos, ifNode.body);
-            assign.varRefs.add(ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol));
+            assign.varRef = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
             switch (ctx.resultVar.symbol.type.tag) {
                 case TypeTags.INT:
                     assign.expr = ASTBuilderUtil.createLiteral(pos, symTable.intType, 0L);
@@ -665,7 +676,7 @@ public class IterableCodeDesugar {
             }
         }
         final BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(pos, ifNode.body);
-        returnStmt.addExpression(ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol));
+        returnStmt.expr = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
     }
 
     /**
@@ -687,7 +698,7 @@ public class IterableCodeDesugar {
         divide.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.DIV, divide.type,
                 ctx.countVar.symbol.type);
         final BLangAssignment countAdd = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
-        countAdd.varRefs.add(ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol));
+        countAdd.varRef = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
         countAdd.expr = divide;
     }
 
@@ -769,7 +780,7 @@ public class IterableCodeDesugar {
     private void generateMap(BLangBlockStmt blockStmt, Operation operation) {
         final DiagnosticPos pos = operation.pos;
         final BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
-        assignment.varRefs.add(ASTBuilderUtil.createVariableRef(operation.pos, operation.retVar.symbol));
+        assignment.varRef = ASTBuilderUtil.createVariableRef(operation.pos, operation.retVar.symbol);
         assignment.expr = ASTBuilderUtil.createInvocationExpr(pos, operation.lambdaSymbol, Lists.of(operation.argVar)
                 , symResolver);
     }

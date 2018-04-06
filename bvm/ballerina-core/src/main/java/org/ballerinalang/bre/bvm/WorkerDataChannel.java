@@ -31,10 +31,10 @@ public class WorkerDataChannel {
     private WorkerExecutionContext pendingCtx;
 
     @SuppressWarnings("rawtypes")
-    private Queue<BRefType[]> channel = new LinkedList<>();
+    private Queue<BRefType> channel = new LinkedList<>();
 
     @SuppressWarnings("rawtypes")
-    public synchronized void putData(BRefType[] data) {
+    public synchronized void putData(BRefType data) {
         if (data != null) {
             this.channel.add(data);
             if (this.pendingCtx != null) {
@@ -45,21 +45,21 @@ public class WorkerDataChannel {
     }
     
     @SuppressWarnings("rawtypes")
-    public synchronized BRefType[] tryTakeData(WorkerExecutionContext ctx) {
-        BRefType[] data = this.channel.peek();
+    public synchronized BRefType tryTakeData(WorkerExecutionContext ctx) {
+        BRefType data = this.channel.peek();
         if (data != null) {
             this.channel.remove();
             return data;
         } else {
             this.pendingCtx = ctx;
             ctx.ip--; // we are going to execute the same worker receive operation later
-            BLangScheduler.switchToWaitForResponse(ctx);
+            BLangScheduler.workerWaitForResponse(ctx);
             return null;
         }
     }
 
     @SuppressWarnings("rawtypes")
-    public synchronized BRefType[] tryTakeData() {
+    public synchronized BRefType tryTakeData() {
         return this.channel.poll();
     }
     

@@ -187,23 +187,6 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     }
 
     /**
-     * This class represents a table type literal expression.
-     *
-     * @since 0.963.0
-     */
-    public static class BLangTableLiteral extends BLangRecordLiteral {
-
-        public BLangTableLiteral(BType tableType) {
-            this.type = tableType;
-        }
-
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
-    /**
      * This class represents a stream type literal expression.
      *
      * @since 0.964.0

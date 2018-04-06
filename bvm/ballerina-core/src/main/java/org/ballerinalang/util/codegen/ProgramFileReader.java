@@ -21,6 +21,7 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
+import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
@@ -35,7 +36,12 @@ import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BEnumerator;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
@@ -89,6 +95,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
 
+import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.MAGIC_NUMBER;
 import static org.ballerinalang.util.BLangConstants.START_FUNCTION_SUFFIX;
@@ -206,7 +213,10 @@ public class ProgramFileReader {
             case CP_ENTRY_PACKAGE:
                 cpIndex = dataInStream.readInt();
                 utf8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(cpIndex);
-                return new PackageRefCPEntry(cpIndex, utf8CPEntry.getValue());
+                int versionCPIndex = dataInStream.readInt();
+                UTF8CPEntry utf8VersionCPEntry = (UTF8CPEntry) constantPool.getCPEntry(versionCPIndex);
+                return new PackageRefCPEntry(cpIndex, utf8CPEntry.getValue(), versionCPIndex,
+                        utf8VersionCPEntry.getValue());
 
             case CP_ENTRY_FUNCTION_REF:
                 pkgCPIndex = dataInStream.readInt();
@@ -336,6 +346,12 @@ public class ProgramFileReader {
         UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
         packageInfo.nameCPIndex = pkgNameCPIndex;
         packageInfo.pkgPath = pkgNameCPEntry.getValue();
+
+        int pkgVersionCPIndex = dataInStream.readInt();
+        UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) programFile.getCPEntry(pkgVersionCPIndex);
+        packageInfo.versionCPIndex = pkgVersionCPIndex;
+        packageInfo.pkgVersion = pkgVersionCPEntry.getValue();
+
         packageInfo.setProgramFile(programFile);
         programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
@@ -344,6 +360,9 @@ public class ProgramFileReader {
 
         // Read enum info entries
         readEnumInfoEntries(dataInStream, packageInfo);
+
+        // Read type definition info entries
+        readTypeDefinitionInfoEntries(dataInStream, packageInfo);
 
         // Read connector info entries
         readConnectorInfoEntries(dataInStream, packageInfo);
@@ -426,6 +445,7 @@ public class ProgramFileReader {
             }
 
             String defaultInit = structName + INIT_FUNCTION_SUFFIX;
+            String objectInit = CONSTRUCTOR_FUNCTION_SUFFIX;
 
             // Read attached function info entries
             int attachedFuncCount = dataInStream.readShort();
@@ -444,10 +464,17 @@ public class ProgramFileReader {
                         typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
                 structInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
 
+                // TODO remove when removing struct
                 // Setting the initializer function info, if any.
                 if (structName.equals(attachedFuncName)) {
                     structInfo.initializer = functionInfo;
                 }
+                // Setting the object initializer
+                if (objectInit.equals(attachedFuncName)) {
+                    structInfo.initializer = functionInfo;
+                }
+
+                // TODO remove when removing struct
                 // Setting the default initializer function info
                 if (defaultInit.equals(attachedFuncName)) {
                     structInfo.defaultsValuesInitFunc = functionInfo;
@@ -458,6 +485,41 @@ public class ProgramFileReader {
             readAttributeInfoEntries(dataInStream, packageInfo, structInfo);
         }
     }
+
+    private void readTypeDefinitionInfoEntries(DataInputStream dataInStream,
+                                               PackageInfo packageInfo) throws IOException {
+        int typeDefCount = dataInStream.readShort();
+        for (int i = 0; i < typeDefCount; i++) {
+
+            int typeDefNameCPIndex = dataInStream.readInt();
+            int flags = dataInStream.readInt();
+            UTF8CPEntry typeDefNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeDefNameCPIndex);
+            String typeDefName = typeDefNameUTF8Entry.getValue();
+            TypeDefinitionInfo typeDefinitionInfo = new TypeDefinitionInfo(packageInfo.getPkgNameCPIndex(),
+                    packageInfo.getPkgPath(),
+                    typeDefNameCPIndex, typeDefName, flags);
+            packageInfo.addTypeDefinitionInfo(typeDefName, typeDefinitionInfo);
+
+            BFiniteType finiteType = new BFiniteType(typeDefName, packageInfo.getPkgPath());
+            typeDefinitionInfo.setType(finiteType);
+
+            int memberTypeCount = dataInStream.readShort();
+            for (int j = 0; j < memberTypeCount; j++) {
+                int memberTypeCPIndex = dataInStream.readInt();
+                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(memberTypeCPIndex);
+                finiteType.memberTypes.add(getBTypeFromDescriptor(typeRefCPEntry.getTypeSig()));
+            }
+
+            int valueSpaceCount = dataInStream.readShort();
+            for (int k = 0; k < valueSpaceCount; k++) {
+                finiteType.valueSpace.add(getDefaultValueToBValue(getDefaultValue(dataInStream, packageInfo)));
+            }
+
+            readAttributeInfoEntries(dataInStream, packageInfo, typeDefinitionInfo);
+        }
+
+    }
+
 
     private void readEnumInfoEntries(DataInputStream dataInStream,
                                      PackageInfo packageInfo) throws IOException {
@@ -886,6 +948,7 @@ public class ProgramFileReader {
             case 'T':
             case 'E':
             case 'D':
+            case 'G':
             case 'H':
             case 'Z':
                 char typeChar = chars[index];
@@ -935,6 +998,8 @@ public class ProgramFileReader {
                     }
                 } else if (typeChar == 'E') {
                     typeStack.push(packageInfoOfType.getEnumInfo(name).getType());
+                } else if (typeChar == 'G') {
+                    typeStack.push(packageInfoOfType.getTypeDefinitionInfo(name).getType());
                 } else {
                     // This is a struct type
                     typeStack.push(packageInfoOfType.getStructInfo(name).getType());
@@ -1024,6 +1089,7 @@ public class ProgramFileReader {
             case 'E':
             case 'H':
             case 'Z':
+            case 'G':
             case 'D':
                 String typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
@@ -1053,6 +1119,8 @@ public class ProgramFileReader {
                     return new BStreamType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'E') {
                     return packageInfoOfType.getEnumInfo(name).getType();
+                } else if (ch == 'G') {
+                    return packageInfoOfType.getTypeDefinitionInfo(name).getType();
                 } else {
                     return packageInfoOfType.getStructInfo(name).getType();
                 }
@@ -1370,6 +1438,20 @@ public class ProgramFileReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;
 
+                case InstructionCodes.FPLOAD: {
+                    i = codeStream.readInt();
+                    j = codeStream.readInt();
+                    k = codeStream.readInt();
+                    int[] operands = new int[3 + (k * 2)];
+                    operands[0] = i;
+                    operands[1] = j;
+                    operands[2] = k;
+                    for (int x = 0; x < (k * 2); x++) {
+                        operands[x + 3] = codeStream.readInt();
+                    }
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, operands));
+                    break;
+                }
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
@@ -1399,7 +1481,6 @@ public class ProgramFileReader {
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_END:
-                case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
                 case InstructionCodes.FNEWARRAY:
@@ -1428,7 +1509,6 @@ public class ProgramFileReader {
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWMAP:
-                case InstructionCodes.NEWTABLE:
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.F2ANY:
                 case InstructionCodes.S2ANY:
@@ -1565,6 +1645,7 @@ public class ProgramFileReader {
                 case InstructionCodes.IS_ASSIGNABLE:
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.XMLSEQLOAD:
+                case InstructionCodes.NEWTABLE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1629,9 +1710,9 @@ public class ProgramFileReader {
                             packageInfo.getCPEntry(channelRefCPIndex);
                     int sigCPIndex = codeStream.readInt();
                     UTF8CPEntry sigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(sigCPIndex);
-                    BType[] bTypes = getParamTypes(sigCPEntry.getValue(), packageInfo);
+                    BType bType = getParamTypes(sigCPEntry.getValue(), packageInfo)[0];
                     packageInfo.addInstruction(new InstructionWRKSendReceive(opcode, channelRefCPIndex,
-                            channelRefCPEntry.getWorkerDataChannelInfo(), sigCPIndex, bTypes, getArgRegs(codeStream)));
+                            channelRefCPEntry.getWorkerDataChannelInfo(), sigCPIndex, bType, codeStream.readInt()));
                     break;
                 case InstructionCodes.FORKJOIN:
                     int forkJoinIndexCPIndex = codeStream.readInt();
@@ -1832,6 +1913,36 @@ public class ProgramFileReader {
                 throw new ProgramFileFormatException("unknown default value type " + typeDesc);
         }
         return defaultValue;
+    }
+
+    private BValue getDefaultValueToBValue(DefaultValue defaultValue)
+            throws IOException {
+        String typeDesc = defaultValue.getTypeDesc();
+        BValue value;
+
+        switch (typeDesc) {
+            case TypeSignature.SIG_BOOLEAN:
+                boolean boolValue = defaultValue.getBooleanValue();
+                value = new BBoolean(boolValue);
+                break;
+            case TypeSignature.SIG_INT:
+                long intValue = defaultValue.getIntValue();
+                value = new BInteger(intValue);
+                break;
+            case TypeSignature.SIG_FLOAT:
+                double floatValue = defaultValue.getFloatValue();
+                value = new BFloat(floatValue);
+                break;
+            case TypeSignature.SIG_STRING:
+                String stringValue = defaultValue.getStringValue();
+                value = new BString(stringValue);
+                break;
+            default:
+                throw new ProgramFileFormatException("unknown default value type " + typeDesc);
+
+        }
+
+        return value;
     }
 
     private int[] getArgRegs(DataInputStream codeStream) throws IOException {

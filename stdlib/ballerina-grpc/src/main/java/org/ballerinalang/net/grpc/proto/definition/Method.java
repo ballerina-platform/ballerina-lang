@@ -41,12 +41,12 @@ public class Method {
     }
 
     public String getMethodDefinition() {
-        StringBuilder methodDefinition = new StringBuilder();
-        methodDefinition.append("\trpc ").append(methodDescriptor.getName()).append("(").append(methodDescriptor
-                .getClientStreaming() ? "stream " : "").append(methodDescriptor.getInputType()).append(") returns (")
-                .append(methodDescriptor.getServerStreaming() ? "stream " : "").append(methodDescriptor.getOutputType())
-                .append(")").append(";").append(ServiceProtoConstants.NEW_LINE_CHARACTER);
-        return methodDefinition.toString();
+
+        return "\trpc " + methodDescriptor.getName() + "(" + (methodDescriptor
+                .getClientStreaming() ? "stream " : "") +
+                methodDescriptor.getInputType() + ") returns (" +
+                (methodDescriptor.getServerStreaming() ? "stream " : "") + methodDescriptor.getOutputType() +
+                ")" + ";" + ServiceProtoConstants.NEW_LINE_CHARACTER;
     }
 
     /**

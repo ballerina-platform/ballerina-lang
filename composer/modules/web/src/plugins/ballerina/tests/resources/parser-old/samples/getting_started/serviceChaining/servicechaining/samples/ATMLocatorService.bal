@@ -1,7 +1,7 @@
 package servicechaining.samples;
 
 import ballerina/lang.messages;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/lang.system;
 
 @http:configuration {basePath:"/ABCBank"}

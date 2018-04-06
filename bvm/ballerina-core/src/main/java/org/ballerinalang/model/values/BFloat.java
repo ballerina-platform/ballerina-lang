@@ -64,8 +64,24 @@ public final class BFloat extends BValueType implements BRefType<Double> {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return ((BFloat) obj).floatValue() == value;
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        BFloat bFloat = (BFloat) o;
+
+        return Double.compare(bFloat.value, value) == 0;
+
+    }
+
+    @Override
+    public int hashCode() {
+        long temp = Double.doubleToLongBits(value);
+        return (int) (temp ^ (temp >>> 32));
     }
 
     @Override

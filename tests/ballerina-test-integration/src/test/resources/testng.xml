@@ -48,8 +48,10 @@
     </test>
     <test name="ballerina-grpc-sample-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.service.grpc.sample.GrpcClientTestCase"/>
-            <class name="org.ballerinalang.test.service.grpc.sample.GrpcServiceTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingBasicTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>
         </classes>
     </test>
 

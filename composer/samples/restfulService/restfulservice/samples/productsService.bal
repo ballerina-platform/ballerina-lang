@@ -1,7 +1,7 @@
 package restfulservice.samples;
 
 import ballerina/io;
-import ballerina/net.http;
+import ballerina/http;
 
 @http:configuration {basePath:"/productsservice"}
 service<http> productmgt {

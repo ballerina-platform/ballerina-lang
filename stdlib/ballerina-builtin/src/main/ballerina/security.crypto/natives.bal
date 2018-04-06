@@ -20,9 +20,11 @@ package ballerina.security.crypto;
 @Field {value:"MD5: MD5 algorithm"}
 @Field {value:"SHA1: SHA1 algorithm"}
 @Field {value:"SHA256: SHA256 algorithm"}
-public enum Algorithm {
-    SHA1, SHA256, MD5
-}
+public type Algorithm "SHA1" | "SHA256" | "MD5";
+
+@final public Algorithm SHA1 = "SHA1";
+@final public Algorithm SHA256 = "SHA256";
+@final public Algorithm MD5 = "MD5";
 
 @Description {value:"Returns the hash of the given string using the specified algorithm."}
 @Param {value:"baseString: The string to be hashed"}
@@ -36,3 +38,8 @@ public native function getHash (string baseString, Algorithm algorithm) returns 
 @Param {value:"algorithm: The hashing algorithm to be used"}
 @Return {value:"The hashed string"}
 public native function getHmac (string baseString, string keyString, Algorithm algorithm) returns (string);
+
+@Description {value:"Returns the CRC32 hash for the provided element. Currently supports strings and blobs."}
+@Param {value:"content: The content to be hashed"}
+@Return {value:"The generated hash"}
+public native function getCRC32 (any content) returns (string);

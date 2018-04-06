@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/runtime;
 import ballerina/io;
 
@@ -22,7 +22,7 @@ endpoint http:ClientEndpoint backendClientEP {
     },
     targets: [
                  {
-                     uri: "http://localhost:8080"
+                     url: "http://localhost:8080"
                  }
              ],
     endpointTimeout:2000

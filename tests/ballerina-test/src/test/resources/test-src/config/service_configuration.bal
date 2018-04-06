@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/config;
 
 endpoint http:ServiceEndpoint backendEP {

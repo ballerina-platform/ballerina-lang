@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 
 endpoint http:ServiceEndpoint servicEp {
@@ -47,16 +47,16 @@ service<http:WebSocketService> wsService {
 
     onOpen (endpoint ep) {
         var conn = ep.getClient();
-        io:println("New WebSocket connection: " + conn.id);
+        io:println("New WebSocket connection: " + ep.id);
     }
 
-    onTextMessage (endpoint ep, http:TextFrame frame) {
-        io:println(frame.text);
-        ep -> pushText(frame.text);
+    onText (endpoint ep, string text) {
+        io:println(text);
+        _ = ep -> pushText(text);
     }
 
     onIdleTimeout (endpoint ep) {
         var conn = ep.getClient();
-        io:println("Idle timeout: " + conn.id);
+        io:println("Idle timeout: " + ep.id);
     }
 }

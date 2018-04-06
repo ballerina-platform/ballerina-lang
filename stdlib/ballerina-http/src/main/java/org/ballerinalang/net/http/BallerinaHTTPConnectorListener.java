@@ -18,19 +18,20 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.serviceendpoint.FilterHolder;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.ballerinalang.util.tracer.TraceConstants;
-import org.ballerinalang.util.tracer.TraceManagerWrapper;
-import org.ballerinalang.util.tracer.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -41,6 +42,11 @@ import java.util.HashSet;
 import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
 
 /**
  * HTTP connector listener for Ballerina.
@@ -55,7 +61,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
     private final HashSet<FilterHolder> filterHolders;
 
     public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry,
-            HashSet<FilterHolder> filterHolders) {
+                                          HashSet<FilterHolder> filterHolders) {
         this.httpServicesRegistry = httpServicesRegistry;
         this.filterHolders = filterHolders;
     }
@@ -89,25 +95,27 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                                                               HttpResource httpResource) {
         boolean isTransactionInfectable = httpResource.isTransactionInfectable();
         Map<String, Object> properties = collectRequestProperties(httpCarbonMessage, isTransactionInfectable);
-        properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
-        properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
         // invoke the request path filters
-        invokeRequestFilters(httpCarbonMessage, signatureParams[1], getRequestFilterContext(httpResource));
+        WorkerExecutionContext parentCtx = new WorkerExecutionContext(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile());
+        invokeRequestFilters(httpCarbonMessage, signatureParams[1], getRequestFilterContext(httpResource), parentCtx);
 
-        Tracer tracer = TraceManagerWrapper.newTracer(null, false);
-        httpCarbonMessage.getHeaders().entries().stream()
-                .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
-                .forEach(e -> tracer.addProperty(e.getKey(), e.getValue()));
+        Resource balResource = httpResource.getBalResource();
 
-        Map<String, String> tags = new HashMap<>();
-        tags.put("http.method", (String) httpCarbonMessage.getProperty("HTTP_METHOD"));
-        tags.put("http.url", (String) httpCarbonMessage.getProperty("REQUEST_URL"));
-        tracer.addTags(tags);
+        ObserverContext ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_HTTP,
+                balResource.getServiceName(), balResource.getName(), null);
+        Map<String, String> httpHeaders = new HashMap<>();
+        httpCarbonMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
+        ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
+
+        ctx.addTag(TAG_KEY_HTTP_METHOD, (String) httpCarbonMessage.getProperty(HttpConstants.HTTP_METHOD));
+        ctx.addTag(TAG_KEY_PROTOCOL, (String) httpCarbonMessage.getProperty(HttpConstants.PROTOCOL));
+        ctx.addTag(TAG_KEY_HTTP_URL, (String) httpCarbonMessage.getProperty(HttpConstants.REQUEST_URL));
 
         CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage);
         //TODO handle BallerinaConnectorException
-        Executor.submit(httpResource.getBalResource(), callback, properties, tracer, signatureParams);
+        Executor.submit(balResource, callback, properties, ctx, signatureParams);
     }
 
     private BValue getRequestFilterContext(HttpResource httpResource) {
@@ -125,7 +133,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         return httpCarbonMessage.getProperty(HTTP_RESOURCE) != null;
     }
 
-    protected Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage, boolean isInfectable) {
+    private Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage, boolean isInfectable) {
         Map<String, Object> properties = new HashMap<>();
         if (httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
             Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);
@@ -143,6 +151,10 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             properties.put(Constants.TRANSACTION_URL, registerAtUrl);
             return properties;
         }
+        properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
+        properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
+        properties.put(HttpConstants.POOLED_BYTE_BUFFER_FACTORY,
+                httpCarbonMessage.getHeader(HttpConstants.POOLED_BYTE_BUFFER_FACTORY));
         return properties;
     }
 
@@ -153,8 +165,11 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
      * @param httpCarbonMessage {@link HTTPCarbonMessage} instance
      * @param requestObject     Representation of ballerina.net.Request struct
      * @param filterCtxt        filtering criteria
+     * @param parentCtx         WorkerExecutionContext instance, which corresponds to the current worker execution
+     *                          context
      */
-    private void invokeRequestFilters(HTTPCarbonMessage httpCarbonMessage, BValue requestObject, BValue filterCtxt) {
+    private void invokeRequestFilters(HTTPCarbonMessage httpCarbonMessage, BValue requestObject, BValue filterCtxt,
+            WorkerExecutionContext parentCtx) {
 
         if (!hasFilters()) {
             // no filters, return
@@ -164,8 +179,8 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         for (FilterHolder filterHolder : filterHolders) {
             // get the request filter function and invoke
             BValue[] returnValue = BLangFunctions
-                    .invokeCallable(filterHolder.getRequestFilterFunction().getFunctionInfo(),
-                            new BValue[] { requestObject, filterCtxt });
+                    .invokeCallable(filterHolder.getRequestFilterFunction().getFunctionInfo(), parentCtx,
+                            new BValue[]{requestObject, filterCtxt});
             BStruct filterResultStruct = (BStruct) returnValue[0];
             if (filterResultStruct.getBooleanField(0) == 0) {
                 // filter returned false, stop further execution

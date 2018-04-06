@@ -39,7 +39,7 @@ public class BConfigLangListener extends TomlBaseListener {
 
     private BConfig configEntries;
     private String currentTableHeader;
-    private String currentKey;
+    private StringBuilder currentKey;
     private String currentValue;
     private boolean hasEncryptedFields;
 
@@ -48,8 +48,14 @@ public class BConfigLangListener extends TomlBaseListener {
     }
 
     @Override
-    public void enterStdTable(TomlParser.StdTableContext context) {
-        currentTableHeader = context.key().getText();
+    public void exitStdTable(TomlParser.StdTableContext context) {
+        currentTableHeader = currentKey.toString();
+        currentKey = null;
+    }
+
+    @Override
+    public void enterKey(TomlParser.KeyContext context) {
+        currentKey = new StringBuilder();
     }
 
     @Override
@@ -58,8 +64,18 @@ public class BConfigLangListener extends TomlBaseListener {
     }
 
     @Override
-    public void enterKey(TomlParser.KeyContext context) {
-        currentKey = context.getText();
+    public void enterDotSep(TomlParser.DotSepContext context) {
+        currentKey.append(context.getText());
+    }
+
+    @Override
+    public void enterQuotedKey(TomlParser.QuotedKeyContext context) {
+        currentKey = currentKey.append(context.basicString().basicStringValue().getText());
+    }
+
+    @Override
+    public void enterUnquotedKey(TomlParser.UnquotedKeyContext context) {
+        currentKey = currentKey.append(context.getText());
     }
 
     @Override
@@ -123,9 +139,9 @@ public class BConfigLangListener extends TomlBaseListener {
         String configKey;
 
         if (currentTableHeader != null) {
-            configKey = currentTableHeader + CONFIG_KEY_SEPARATOR + currentKey;
+            configKey = currentTableHeader + CONFIG_KEY_SEPARATOR + currentKey.toString();
         } else {
-            configKey = currentKey;
+            configKey = currentKey.toString();
         }
 
         configEntries.addConfiguration(configKey, currentValue);

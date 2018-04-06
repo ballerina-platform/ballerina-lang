@@ -1,8 +1,7 @@
 import ballerina/io;
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
 
-endpoint mock:NonListeningServiceEndpoint echoEP {
+endpoint http:NonListeningServiceEndpoint echoEP {
     port:9090
 };
 
@@ -28,7 +27,7 @@ service<http:Service> FooService {
 
     test4 (string dummyParam) {
         io:println("test4-before");
-        return;
+        done;
         io:println("test4-after");
     }
 
@@ -41,5 +40,10 @@ service<http:Service> FooService {
             var b = "b";
             b -> w1;
         }
+    }
+
+    test6 (string dummyParam) {
+        io:println("test4-return");
+        return;
     }
 }

@@ -129,14 +129,14 @@ class DefaultNodeFactory {
     createHTTPServiceDef() {
         const service = getStaticDefaultNode('createHTTPServiceDef');
         const endpoint = getStaticDefaultNode('createHTTPEndpointDef');
-        service.setFullPackageName('ballerina/net.http');
+        service.setFullPackageName('ballerina/http');
         return [ endpoint, service];
     }
 
     createWSServiceDef() {
         const service = getStaticDefaultNode('createWSServiceDef');
         const endpoint = getStaticDefaultNode('createWSEndpointDef');
-        service.setFullPackageName('ballerina/net.http');
+        service.setFullPackageName('ballerina/http');
         return [ endpoint, service];
     }
 
@@ -351,48 +351,14 @@ class DefaultNodeFactory {
     }
 
     createEndpoint(args) {
-        const node = getNodeForFragment(FragmentUtils.createEndpointVarDefFragment(`
-            endpoint <http:HttpClient> endpoint1 {
-                create http:HttpClient("",{});
-            }
-        `));
-        const { connector, packageName, fullPackageName } = args;
+        const { endpoint, packageName, fullPackageName } = args;
+        let endpointPackageAlias = (packageName !== 'Current Package' && packageName !== '' &&
+            packageName !== 'builtin') ? (packageName + ':') : '';
+        endpointPackageAlias = endpointPackageAlias !== '' ? endpointPackageAlias.split(/[.]+/).pop() : '';
 
-        // Iterate through the params
-        const parameters = [];
-        const pkgStr = packageName !== 'Current Package' ? packageName.split(/[.]+/).pop() : '';
-        if (connector && connector.getParams()) {
-            connector.getParams().forEach((param) => {
-                let defaultValue = Environment.getDefaultValue(param.type);
-                if (defaultValue === undefined) {
-                // Check if its a struct or enum
-                    const packageDef = getPackageDefinition(fullPackageName);
-                    const identifier = param.type.split(':')[1];
-                    // TODO: Current package content should handle properly
-                    const structs = packageDef ? packageDef.getStructDefinitions() : [];
-                    const enums = packageDef ? packageDef.getEnums() : [];
-                    const type = ConnectorHelper.getTypeOfParam(identifier, structs, enums);
-                    if (type === 'struct') {
-                        defaultValue = '{}';
-                    } else {
-                        defaultValue = 'null';
-                    }
-                }
-                const paramNode = getNodeForFragment(FragmentUtils.createExpressionFragment(defaultValue));
-                parameters.push(paramNode.getVariable().getInitialExpression());
-            });
-            node.getVariable().getInitialExpression().setExpressions(parameters);
-            node.getVariable().getTypeNode().getConstraint().getTypeName()
-                .setValue(connector.getName());
-            node.getVariable().getTypeNode().getConstraint().getPackageAlias()
-                .setValue(pkgStr);
-            node.getVariable().getInitialExpression().getConnectorType().getPackageAlias()
-                .setValue(pkgStr);
-            node.getVariable().getInitialExpression().getConnectorType().getTypeName()
-                .setValue(connector.getName());
-            node.getVariable().getInitialExpression().setFullPackageName(fullPackageName);
-        }
-        return node;
+        return getNodeForFragment(FragmentUtils.createEndpointVarDefFragment(`
+            endpoint ${endpointPackageAlias + endpoint.getName()} ep {};
+        `));
     }
 
     createConnectorActionInvocationAssignmentStatement(args) {

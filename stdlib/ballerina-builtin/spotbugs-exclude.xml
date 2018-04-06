@@ -20,6 +20,6 @@
         <Package name="org.ballerinalang.builtin"/>
     </Match>
     <Match>
-        <Package name="org.ballerinalang.nativeimpl.actions.data.sql.actions"/>
+        <Package name="org.ballerinalang.nativeimpl.sql.actions"/>
     </Match>
 </FindBugsFilter>

@@ -17,40 +17,36 @@
 import ballerina/io;
 import ballerina/runtime;
 
-struct Employee {
+type Employee {
     string name;
     int age;
     string status;
-}
+};
 
-struct Teacher {
+type Teacher {
     string name;
     int age;
     string status;
     string batch;
     string school;
-}
+};
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-stream<Employee> employeeStream1 = {};
-stream<Teacher> teacherStream2 = {};
 
-function testOutputRateLimitQuery () {
+function startOutputRateLimitQuery() returns (Employee[]) {
 
-    forever{
+    stream<Employee> employeeStream1;
+    stream<Teacher> teacherStream2;
+
+    forever {
         from teacherStream2
         select name, age, status
         output first every 3 events
-        => (Employee [] emp) {
+        => (Employee[] emp) {
             employeeStream1.publish(emp);
         }
     }
-}
-
-function startOutputRateLimitQuery( ) returns (Employee []) {
-
-    testOutputRateLimitQuery ();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
@@ -75,12 +71,12 @@ function startOutputRateLimitQuery( ) returns (Employee []) {
     return globalEmployeeArray;
 }
 
-function printEmployeeNumber (Employee e) {
+function printEmployeeNumber(Employee e) {
     io:println("printEmployeeName function invoked for Employee event for Employee employee name:" + e.name);
     addToGlobalEmployeeArray(e);
 }
 
-function addToGlobalEmployeeArray (Employee e) {
+function addToGlobalEmployeeArray(Employee e) {
     globalEmployeeArray[employeeIndex] = e;
     employeeIndex = employeeIndex + 1;
 }

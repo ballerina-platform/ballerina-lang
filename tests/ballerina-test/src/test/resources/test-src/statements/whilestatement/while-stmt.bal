@@ -1,8 +1,9 @@
 function testWhileStmt(int x, int y) returns (int) {
     int z;
+    int a = y;
 
-    while(x >= y) {
-        y = y + 1;
+    while(x >= a) {
+        a = a + 1;
         z = z + 10;
     }
     return z;
@@ -34,7 +35,7 @@ function testWhileScopeWithIf() returns (int, float) {
         if(i == 0){
             operator = args[0];
         } else {
-            values[i -1] =? <float>args[i];
+            values[i -1] =check <float>args[i];
         }
         i = i + 1;
     }

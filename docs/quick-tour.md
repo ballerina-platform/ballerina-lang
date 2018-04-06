@@ -8,7 +8,7 @@ These are the available sections in this tour.
 - [Run HelloWorld](#run-helloworld)
 - [Set up the Editor](#set-up-the-editor)
 - [Write and Call an Integration Service](#write-and-call-an-integration-service)
-- [Deploying on Docker](#deploying-on-docker)
+- [Deploying on Kubernetes](#deploying-on-kubernetes)
 - [Run the Composer](#run-the-composer)
 
 ## Install Ballerina
@@ -66,7 +66,7 @@ Now, let's look at running the same Hello World program you created earlier as a
 Let's change the Hello World program to a service. Open the `hello-world.bal` file you created and replace the existing code with the following.
 
 ```Ballerina
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/io;
 
 // A service endpoint listens to HTTP request on port 9090
@@ -118,26 +118,109 @@ You get the following response.
 Hello Ballerina!
 ```
 
-## Deploying on Docker
+## Deploying on Kubernetes
 
-Now that your service is created, you can deploy this on Docker. 
+Now that your service is created, you can deploy this on Kubernetes. 
 
 > TIP: This was tested on the community edition version of Docker Edge with Kubernetes enabled and running in the background. Docker Edge comes with the option of enabling Kubernetes under Docker preferences.
 
-To do this deployment, you need to import docker into your Ballerina program first. Add the following to the top of your program.
+First, as usual add the corresponding package:
 
-```Ballerina
-import ballerinax/docker;
+```
+import ballerinax/kubernetes;
 ```
 
-Add the following code snippet to your program.
+Now, let’s add the code you need to run the service in Kubernetes.
 
-```Ballerina
-// Docker configurations
-@docker:configuration {
-   name:"pizak/helloworld",
-   tag:"1.0.0"
+```
+// Kubernetes configurations
+// This is the Kubernetes service annotation added to our listener 
+// This tells us that we want to expose it from Kubernetes 
+// The type is NodePort under the name of hello-world:
+
+@kubernetes:SVC{
+   serviceType:"NodePort",
+   name:"hello-world"
 }
+endpoint http:ServiceEndpoint listener {
+  port:9090
+};
+
+
+// This creates a docker image and a deployment into which it puts it.
+
+@kubernetes:Deployment {
+   image: "hello/hello-world",
+   name: "hello-world"
+}
+```
+
+That's it - let’s go ahead and build it.
+
+```
+$ ballerina build hello-world.bal
+```
+
+Once you build it, you get the following response. This means the service is successfully deployed in Kubernetes.
+
+```
+@docker                                  - complete 3/3
+@kubernetes:Deployment                   - complete 1/1
+@kubernetes:Service                      - complete 1/1
+```
+
+Run the following command to deploy Kubernetes artifacts:
+
+```
+kubectl apply -f /Users/Sam/Documents/Micropatch/Ballerina/QuickTour/KubTest/kubernetes/
+```
+
+This creates a folder called kubernetes and puts the deployment artifacts and the docker image inside it.
+
+```
+$ docker images |grep demo
+```
+
+```
+demo/ballerina-demo                            latest     7bb8a49ef708        38 seconds ago      120MB
+```
+
+You can now deploy it to Kubernetes using the following command.
+
+```
+$ kubectl apply -f kubernetes
+```
+
+You see the following on your console.
+
+```
+deployment "ballerina-demo" created
+service "ballerina-demo" created
+```
+
+Let’s see if it is running:
+
+```
+$ kubectl get svc
+```
+This results in output similar to the following. Make note of the port number that Kubernetes provides (31977 in this case).
+
+```
+NAME             TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)  AGE
+ballerina-demo   NodePort    10.98.238.0   <none>        9090:31977/TCP  24s
+kubernetes       ClusterIP   10.96.0.1     <none>        443/TCP  2d
+```
+
+We can now invoke the service. This example is done using local Kubernetes but the same behavior would happen in the cloud. Using the port number that Kubernetes gave us, run the following cURL command.
+
+```
+$ curl -X POST  http://localhost:31977/demo
+```
+
+You get the output from Kubernetes itself.
+
+```
+Hello World!
 ```
 
 ## Run the Composer

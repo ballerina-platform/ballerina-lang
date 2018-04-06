@@ -1,6 +1,6 @@
 package routingServices.samples;
 
-import ballerina/net.http;
+import ballerina/http;
 
 @http:configuration {basePath:"/hbr"}
 service<http> headerBasedRouting {

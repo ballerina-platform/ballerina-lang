@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 endpoint http:ServiceEndpoint helloWorldEp {
     port:9090
@@ -14,7 +14,7 @@ service<http:Service> helloWorld bind helloWorldEp {
         path:"/"
     }
     sayHello (endpoint client, http:Request req) {
-        http:Response resp = {};
+        http:Response resp = new;
         resp.setStringPayload("Hello, World!");
         _ = client -> respond(resp);
     }

@@ -10,12 +10,9 @@ import org.wso2.ballerinalang.util.HomeRepoUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.MissingResourceException;
 import java.util.stream.Stream;
 
 /**
@@ -23,27 +20,10 @@ import java.util.stream.Stream;
  */
 public class URIConverter implements Converter<URI> {
 
-    public static final String BALLERINA_PULL_BALX = "/ballerina.pull.balx";
     private final URI base;
-    private final EmbeddedExecutor executor;
-    private final URI pullBalxLocation;
 
     public URIConverter(URI base) {
         this.base = base;
-        executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-        URI uri = null;
-        URL url = executor.getClass().getResource(BALLERINA_PULL_BALX);
-        if (url != null) {
-            try {
-                uri = url.toURI();
-            } catch (URISyntaxException ignore) {
-            }
-            this.pullBalxLocation = uri;
-        } else {
-            throw new MissingResourceException("Missing internal modules when building package",
-                                               executor.getClass().toString(),
-                                               BALLERINA_PULL_BALX);
-        }
     }
 
     /**
@@ -89,11 +69,9 @@ public class URIConverter implements Converter<URI> {
         createDirectory(destDirPath);
         try {
             String fullPkgPath = orgName + "/" + pkgName;
-            executor.execute(pullBalxLocation,
-                             u.toString(),
-                             destDirPath.toString(),
-                             fullPkgPath,
-                             File.separator);
+            EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
+            executor.execute("packaging.pull/ballerina.pull.balx", u.toString(), destDirPath.toString(),
+                             fullPkgPath, File.separator);
             // TODO Simplify using ZipRepo
             Patten pattern = new Patten(Patten.WILDCARD_DIR,
                                         Patten.path(pkgName + ".zip"),

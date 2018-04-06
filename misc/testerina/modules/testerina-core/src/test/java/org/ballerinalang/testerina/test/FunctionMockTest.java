@@ -23,6 +23,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -35,8 +37,13 @@ public class FunctionMockTest {
 
     private String sourceRoot = "src/test/resources/";
 
+    // TODO : Added as a temporary solution to create .ballerina directory
     @BeforeClass
-    public void setup() {
+    public void createDir() throws IOException {
+        // TODO : Done as a workaround to create the .ballerina directory
+        Path filePath = Paths.get(sourceRoot + "/.ballerina");
+        Files.deleteIfExists(filePath);
+        Files.createDirectory(filePath);
     }
 
     private void cleanup() {

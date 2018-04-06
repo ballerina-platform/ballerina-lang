@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 int glbVarInt = 800;
 string glbVarString = "value";

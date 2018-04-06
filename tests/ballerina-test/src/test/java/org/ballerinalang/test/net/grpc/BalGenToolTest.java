@@ -159,7 +159,6 @@ public class BalGenToolTest {
                         .getFunctionInfo("helloWorldStub.bye"), "Connector not found.");
         BalFileGenerationUtils.delete(new File(protoExeName));
     }
-    
     private void removePackage(String sourceFile, String destinationFile) throws IOException {
         File file = new File(destinationFile);
         file.createNewFile();

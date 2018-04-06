@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 documentation { Documentation for Test annotation
 F{{a}} annotation `field a` documentation
@@ -15,7 +15,7 @@ annotation Test Tst;
 
 documentation { Documentation for testConst constant
 V{{testConst}} abc description}
-const string testConst = "TestConstantDocumentation";
+@final string testConst = "TestConstantDocumentation";
 
 documentation { Documentation for state enum
 F{{foo}} enum `field foo` documentation
@@ -58,16 +58,16 @@ public struct File {
     string path;
 }
 
-documentation {
- Transformer Foo Person -> Employee
- T{{pa}} input struct Person source used for transformation
- T{{e}} output struct Employee struct which Person transformed to
- T{{e}} output struct Employee struct which Person transformed to
- P{{defaultAddress}} address which serves Eg: `POSTCODE 112`
-}
-transformer <Person p, Employee e> Foo(any defaultAddress) {
-    e.name = p.firstName;
-}
+//documentation {
+// Transformer Foo Person -> Employee
+// T{{pa}} input struct Person source used for transformation
+// T{{e}} output struct Employee struct which Person transformed to
+// T{{e}} output struct Employee struct which Person transformed to
+// P{{defaultAddress}} address which serves Eg: `POSTCODE 112`
+//}
+//transformer <Person p, Employee e> Foo(any defaultAddress) {
+//    e.name = p.firstName;
+//}
 
 struct Person {
     string firstName;
@@ -119,4 +119,4 @@ service<http:Service> PizzaService {
 
 documentation { Documentation for testConst constant
 V{{testConstd}} abc description}
-const string testConsts = "TestConstantDocumentation";
+@final string testConsts = "TestConstantDocumentation";

@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -193,7 +194,7 @@ public class Types {
             return true;
         }
 
-        if (source.tag == TypeTags.NULL && (isNullable(target) || target.tag == TypeTags.JSON)) {
+        if (source.tag == TypeTags.NIL && (isNullable(target) || target.tag == TypeTags.JSON)) {
             return true;
         }
 
@@ -254,8 +255,23 @@ public class Types {
             return checkStructEquivalency(source, target);
         }
 
+        if (target.tag == TypeTags.FINITE) {
+            return isFiniteTypeAssignable(source, target);
+        }
+
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
+    }
+
+    public boolean isFiniteTypeAssignable(BType source, BType target) {
+        BFiniteType finiteType = (BFiniteType) target;
+
+        boolean foundMemberType = finiteType.memberTypes
+                .stream()
+                .map(memberType -> isAssignable(source, memberType))
+                .anyMatch(foundType -> foundType);
+
+        return foundMemberType;
     }
 
     public boolean isArrayTypesAssignable(BType source, BType target) {
@@ -294,8 +310,7 @@ public class Types {
     }
 
     public boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target) {
-        if (source.paramTypes.size() != target.paramTypes.size() ||
-                source.retTypes.size() != target.retTypes.size()) {
+        if (source.paramTypes.size() != target.paramTypes.size()) {
             return false;
         }
 
@@ -306,14 +321,13 @@ public class Types {
             }
         }
 
-        for (int i = 0; i < source.retTypes.size(); i++) {
-            if (target.retTypes.get(i).tag != TypeTags.ANY
-                    && !isAssignable(source.retTypes.get(i), target.retTypes.get(i))) {
-                return false;
-            }
+        if (source.retType == null && target.retType == null) {
+            return true;
+        } else if (source.retType == null || target.retType == null) {
+            return false;
         }
 
-        return true;
+        return isAssignable(source.retType, target.retType);
     }
 
     public boolean checkArrayEquality(BType source, BType target) {
@@ -391,11 +405,6 @@ public class Types {
                 return false;
             }
         }
-        return true;
-    }
-
-    public boolean checkStremletEquivalency(BType actualType, BType expType) {
-        //TODO temporary fix.
         return true;
     }
 
@@ -633,22 +642,6 @@ public class Types {
 
     private boolean isNullable(BType fieldType) {
         return fieldType.isNullable();
-    }
-
-    private boolean isAssignableToJSONType(BType source, BJSONType target) {
-        if (source.tag == TypeTags.JSON) {
-            return target.constraint.tag == TypeTags.NONE;
-        }
-        if (source.tag == TypeTags.ARRAY) {
-            return isArrayTypesAssignable(source, target);
-        }
-
-        if (source.tag == TypeTags.UNION) {
-            return ((BUnionType) source).memberTypes
-                            .stream()
-                            .anyMatch(memberType -> !isAssignable(memberType, target));
-        }
-        return false;
     }
 
     private boolean checkStructFieldToJSONConvertibility(BType structType, BType fieldType) {
@@ -971,8 +964,30 @@ public class Types {
         }
 
         @Override
-        public Boolean visit(BUnionType t, BType s) {
-            return t == s;
+        public Boolean visit(BUnionType tUnionType, BType s) {
+            if (s.tag != TypeTags.UNION) {
+                return false;
+            }
+
+            BUnionType sUnionType = (BUnionType) s;
+
+            if (sUnionType.memberTypes.size()
+                    != tUnionType.memberTypes.size()) {
+                return false;
+            }
+
+            Set<BType> sourceTypes = new HashSet<>();
+            Set<BType> targetTypes = new HashSet<>();
+            sourceTypes.addAll(sUnionType.memberTypes);
+            targetTypes.addAll(tUnionType.memberTypes);
+
+            boolean notSameType = sourceTypes
+                    .stream()
+                    .map(sT -> targetTypes
+                            .stream()
+                            .anyMatch(it -> isSameType(it, sT)))
+                    .anyMatch(foundSameType -> !foundSameType);
+            return !notSameType;
         }
 
         @Override
@@ -1120,7 +1135,7 @@ public class Types {
             return true;
         }
 
-        if (type.tag == TypeTags.STRUCT || type.tag == TypeTags.INVOKABLE) {
+        if (type.tag == TypeTags.STRUCT || type.tag == TypeTags.INVOKABLE || type.tag == TypeTags.FINITE) {
             return false;
         }
 

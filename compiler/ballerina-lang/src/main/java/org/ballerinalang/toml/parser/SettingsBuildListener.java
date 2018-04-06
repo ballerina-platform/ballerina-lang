@@ -48,49 +48,21 @@ public class SettingsBuildListener extends TomlBaseListener {
         this.settings = settings;
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     *
-     * @param ctx
-     */
     @Override
     public void enterKeyVal(TomlParser.KeyValContext ctx) {
         currentKey.push(ctx.key().getText());
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     *
-     * @param ctx
-     */
     @Override
     public void enterBasicStringValue(TomlParser.BasicStringValueContext ctx) {
         setToManifest(ctx.getText());
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     *
-     * @param ctx
-     */
     @Override
     public void exitKeyVal(TomlParser.KeyValContext ctx) {
         setSettingObj();
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
-     *
-     * @param ctx
-     */
     @Override
     public void enterStdTable(TomlParser.StdTableContext ctx) {
         addHeader(ctx.key().getText());

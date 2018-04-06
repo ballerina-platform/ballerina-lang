@@ -22,6 +22,31 @@ import Node from '../node';
 class AbstractEndpointTypeNode extends Node {
 
 
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
+
+
     setPackageAlias(newValue, silent, title) {
         const oldValue = this.packageAlias;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -45,31 +70,6 @@ class AbstractEndpointTypeNode extends Node {
 
     getPackageAlias() {
         return this.packageAlias;
-    }
-
-
-
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
     }
 
 
@@ -100,6 +100,52 @@ class AbstractEndpointTypeNode extends Node {
     }
 
 
+
+
+    isNullable() {
+        return this.nullable;
+    }
+
+    setNullable(newValue, silent, title) {
+        const oldValue = this.nullable;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.nullable = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'nullable',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+
+    isGrouped() {
+        return this.grouped;
+    }
+
+    setGrouped(newValue, silent, title) {
+        const oldValue = this.grouped;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.grouped = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'grouped',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
 
 }
 

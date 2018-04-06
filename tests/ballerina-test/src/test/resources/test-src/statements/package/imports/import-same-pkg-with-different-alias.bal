@@ -1,6 +1,6 @@
-import ballerina/net.http;
-import ballerina/net.http as x;
-import ballerina/net.http as y;
+import ballerina/http;
+import ballerina/http as x;
+import ballerina/http as y;
 
 function testFunc() {
     http:ClientConnector httpConnector1;

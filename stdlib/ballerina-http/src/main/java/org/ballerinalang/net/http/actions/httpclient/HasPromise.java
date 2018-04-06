@@ -35,14 +35,14 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
  * {@code HasPromise} action can be used to check whether a push promise is available.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "hasPromise",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
-                structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "handle", type = TypeKind.STRUCT, structType = "HttpHandle",
-                        structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.http")
         },
         returnType = {
                 @ReturnType(type = TypeKind.BOOLEAN)

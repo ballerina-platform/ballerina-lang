@@ -1,8 +1,7 @@
 import ballerina/io;
-import ballerina/net.http;
-import ballerina/net.http.mock;
+import ballerina/http;
 
-endpoint mock:NonListeningServiceEndpoint testEP {
+endpoint http:NonListeningServiceEndpoint testEP {
     port:9090
 };
 
@@ -22,7 +21,7 @@ service<http:Service> Ecommerce bind testEP {
         json responseJson = {"X-ORDER-ID":orderId, "ProductID":productId, "RegID":regId};
         io:println(responseJson.toString());
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(responseJson);
         _ = client -> respond(res);
     }
@@ -38,7 +37,7 @@ service<http:Service> Ecommerce bind testEP {
         responseJson = {"Template":"T2", "ProductID":productId, "RegID":regId};
         io:println(responseJson.toString());
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(responseJson);
         _ = client -> respond(res);
     }
@@ -54,7 +53,7 @@ service<http:Service> Ecommerce bind testEP {
         responseJson = {"Template":"T3", "ProductID":productId, "RegID":regId};
         io:println(responseJson.toString());
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(responseJson);
         _ = client -> respond(res);
     }
@@ -73,7 +72,7 @@ service<http:Service> Ecommerce bind testEP {
         responseJson = {"Template":"T4", "ProductID":productId, "RegID":rID};
         io:println(responseJson.toString());
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(responseJson);
         _ = client -> respond(res);
     }
@@ -94,7 +93,7 @@ service<http:Service> Ecommerce bind testEP {
         responseJson = {"Template":"T6", "ProductID":prdID, "RegID":rID};
         io:println (responseJson.toString ());
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(responseJson);
         _ = client -> respond(res);
     }
@@ -113,7 +112,7 @@ service<http:Service> Ecommerce bind testEP {
         responseJson = {"Template":"T5", "ProductID":productId, "RegID":rID};
         io:println(responseJson.toString());
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(responseJson);
         _ = client -> respond(res);
     }
@@ -122,7 +121,7 @@ service<http:Service> Ecommerce bind testEP {
         path:""
     }
      echo1 (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo11":"echo11"};
         res.setJsonPayload(responseJson);
         _ = client -> respond(res);
@@ -139,7 +138,7 @@ service<http:Service> echo111 bind testEP {
         path : "/test"
     }
      productsInfo99 (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         _ = client -> respond(res);
     }
 
@@ -148,7 +147,7 @@ service<http:Service> echo111 bind testEP {
         path : "/hi"
     }
      productsOptions (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"wso2"};
         res.setJsonPayload(responseJson);
         _ = client -> respond(res);
@@ -159,7 +158,7 @@ service<http:Service> echo111 bind testEP {
         path : "/test"
     }
      productsInfo98 (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         _ = client -> respond(res);
 
     }
@@ -169,7 +168,7 @@ service<http:Service> echo111 bind testEP {
         path : "/getme"
     }
      productsGet (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"get"};
         res.setJsonPayload(responseJson);
         _ = client -> respond(res);
@@ -180,7 +179,7 @@ service<http:Service> echo111 bind testEP {
         path : "/post"
     }
      productsPOST (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"post"};
         res.setJsonPayload(responseJson);
         _ = client -> respond(res);
@@ -191,7 +190,7 @@ service<http:Service> echo111 bind testEP {
         path : "/put"
     }
      productsPUT (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"put"};
         res.setJsonPayload(responseJson);
         _ = client -> respond(res);
@@ -214,7 +213,7 @@ service<http:Service> serviceHello bind testEP {
         path:"/test/"
     }
      productsInfo (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"sanitized"};
         res.setJsonPayload(responseJson);
         _ = client -> respond(res);
@@ -231,7 +230,7 @@ service<http:Service> echo113 bind testEP {
         path:"/ech[o/{foo}"
     }
      productsInfo (endpoint client, http:Request req, string foo) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo113": foo};
         res.setJsonPayload(responseJson);
         _ = client -> respond(res);
@@ -248,7 +247,7 @@ service<http:Service> echo114 bind testEP {
         path:"/ech%5Bo14/{foo}"
     }
      productsInfo (endpoint client, http:Request req, string foo) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo114": foo};
         res.setJsonPayload(responseJson);
         _ = client -> respond(res);

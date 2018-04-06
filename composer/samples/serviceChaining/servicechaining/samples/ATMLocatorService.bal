@@ -1,7 +1,7 @@
 package servicechaining.samples;
 
 import ballerina/io;
-import ballerina/net.http;
+import ballerina/http;
 
 @http:configuration {basePath:"/ABCBank"}
 service<http> ATMLocator {

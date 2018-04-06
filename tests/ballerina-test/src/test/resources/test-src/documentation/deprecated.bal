@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 documentation {
 Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
@@ -81,4 +81,4 @@ connector TestConnector (string url) {
 documentation { Documentation for testConst constant
 V{{testConst}} constant variable `testConst`}
 deprecated {use ```const string testConst = "TestConstantDocumentation";``` instead}
-const string testConst = "TestConstantDocumentation";
+@final string testConst = "TestConstantDocumentation";

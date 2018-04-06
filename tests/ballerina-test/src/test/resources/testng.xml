@@ -23,6 +23,7 @@ under the License.
 
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.TestSuiteListener"/>
+        <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
 
     <!-- Ballerina language Test Cases. -->
@@ -34,7 +35,9 @@ under the License.
                 <exclude name="org.ballerinalang.test.expressions.identifierliteral.*"/>
             </package>
             <package name="org.ballerinalang.test.documentation.*"/>
-            <package name="org.ballerinalang.test.statements.*"/>
+            <package name="org.ballerinalang.test.statements.*">
+                <exclude name="org.ballerinalang.test.statements.transform.*"/>
+            </package>
             <package name="org.ballerinalang.test.types.*">
                 <exclude name="org.ballerinalang.test.types.service.*"/>
                 <exclude name="org.ballerinalang.test.types.null.*"/>
@@ -51,6 +54,7 @@ under the License.
             <!--<package name="org.ballerinalang.test.debugger.*"/>-->
             <package name="org.ballerinalang.test.structs.*"/>
             <package name="org.ballerinalang.test.endpoint.*"/>
+            <package name="org.ballerinalang.test.closures.*"/>
             <!--<package name="org.ballerinalang.test.services.nativeimpl.*"/>-->
             <!--<package name="org.ballerinalang.test.services.session"/>-->
             <!--<package name="org.ballerinalang.test.services.basics"/>-->
@@ -64,14 +68,20 @@ under the License.
             <package name="org.ballerinalang.test.task.*"/>
             <!-- <package name="org.ballerinalang.test.caching.*"/> -->
             <package name="org.ballerinalang.test.mime.*"/>
-            <package name="org.ballerinalang.test.collections.*"/>
             <package name="org.ballerinalang.test.security.*"/>
             <package name="org.ballerinalang.test.jwt.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
             <package name="org.ballerinalang.test.config.*"/>
             <package name="org.ballerinalang.test.streaming.*"/>
             <package name="org.ballerinalang.test.object.*"/>
+            <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.net.grpc"/>
+            <package name="org.ballerinalang.test.metrics.*"/>
+            <package name="org.ballerinalang.test.runtime.*"/>
+            <package name="org.ballerinalang.test.net.http.*">
+                <exclude name="org.ballerinalang.test.net.http.resiliency.*"/>
+                <exclude name="org.ballerinalang.test.net.http.HttpCachingClientTest"/>
+            </package>
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->

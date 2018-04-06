@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.util.filters;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
 public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
 
     @Override
-    public List<SymbolInfo> filterItems(TextDocumentServiceContext completionContext) {
+    public List<SymbolInfo> filterItems(LSServiceOperationContext completionContext) {
 
         TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         int delimiterIndex = this.getPackageDelimiterTokenIndex(completionContext);
@@ -94,7 +94,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @param context       Document service context
      * @return {@link Boolean} connector init or not
      */
-    private boolean isConnectorInit(int startIndex, TextDocumentServiceContext context) {
+    private boolean isConnectorInit(int startIndex, LSServiceOperationContext context) {
         int nonHiddenTokenCount = 0;
         int counter = startIndex - 1;
         TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
@@ -123,7 +123,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @param delimiterIndex        delimiter index (index of either . or :)
      * @return {@link ArrayList}    List of filtered symbol info
      */
-    private ArrayList<SymbolInfo> getActionsFunctionsAndTypes(TextDocumentServiceContext completionContext,
+    private ArrayList<SymbolInfo> getActionsFunctionsAndTypes(LSServiceOperationContext completionContext,
                                                               int delimiterIndex) {
         ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
         TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
@@ -158,7 +158,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @param delimiterIndex        delimiter index (index of either . or :)
      * @return {@link ArrayList}    List of filtered symbol info
      */
-    private ArrayList<SymbolInfo> invocationsAndFieldsOnIdentifier(TextDocumentServiceContext context,
+    private ArrayList<SymbolInfo> invocationsAndFieldsOnIdentifier(LSServiceOperationContext context,
                                                                    int delimiterIndex) {
         ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
         TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
@@ -186,59 +186,68 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
                 return actionFunctionList;
             }
 
-            BType boundType = ((BInvokableType) getClientFuncType).retTypes.get(0);
-            packageID = boundType.tsymbol.pkgID.toString();
-            bTypeValue = boundType.toString();
-        } else if (bType instanceof BArrayType) {
-            packageID = ((BArrayType) bType).eType.tsymbol.pkgID.toString();
-            bTypeValue = bType.toString();
-        } else {
-            packageID = bType.tsymbol.pkgID.toString();
-            bTypeValue = bType.toString();
-        }
-
-        // Extract the package symbol. This is used to extract the entries of the particular package
-        SymbolInfo packageSymbolInfo = symbols.stream().filter(item -> {
-            Scope.ScopeEntry scopeEntry = item.getScopeEntry();
-            return (scopeEntry.symbol instanceof BPackageSymbol)
-                    && scopeEntry.symbol.pkgID.toString().equals(packageID);
-        }).findFirst().orElse(null);
-
-        if (packageSymbolInfo == null && packageID.equals(builtinPkgName)) {
-            // If the packageID is ballerina.builtin, we extract entries of builtin package
-            entries = symbolTable.builtInPackageSymbol.scope.entries;
-        } else if (packageSymbolInfo == null && packageID.equals(currentPkgName)) {
-            entries = this.getScopeEntries(bType, context);
-        } else if (packageSymbolInfo != null) {
-            // If the package exist, we extract particular entries from package
-            entries = packageSymbolInfo.getScopeEntry().symbol.scope.entries;
-        }
-        
-        entries.forEach((name, scopeEntry) -> {
-            if (scopeEntry.symbol instanceof BInvokableSymbol
-                    && ((BInvokableSymbol) scopeEntry.symbol).receiverSymbol != null) {
-                String symbolBoundedName = ((BInvokableSymbol) scopeEntry.symbol)
-                        .receiverSymbol.getType().toString();
-
-                if (symbolBoundedName.equals(bTypeValue)) {
-                    // TODO: Need to handle the name in a proper manner
+            BType boundType = ((BInvokableType) getClientFuncType).retType;
+            boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
+                if (scopeEntry.symbol instanceof BInvokableSymbol
+                        && !scopeEntry.symbol.getName().getValue().equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
                     String[] nameComponents = name.toString().split("\\.");
                     SymbolInfo actionFunctionSymbol =
                             new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
                     actionFunctionList.add(actionFunctionSymbol);
                 }
-            } else if ((scopeEntry.symbol instanceof BTypeSymbol)
-                    && bTypeValue.equals(scopeEntry.symbol.type.toString())) {
-                // Get the struct fields
-                Map<Name, Scope.ScopeEntry> fields = scopeEntry.symbol.scope.entries;
-                fields.forEach((fieldName, fieldScopeEntry) -> {
-                    actionFunctionList.add(new SymbolInfo(fieldName.getValue(), fieldScopeEntry));
-                });
+            });
+        } else {
+            if (bType instanceof BArrayType) {
+                packageID = ((BArrayType) bType).eType.tsymbol.pkgID.toString();
+                bTypeValue = bType.toString();
+            } else {
+                packageID = bType.tsymbol.pkgID.toString();
+                bTypeValue = bType.toString();
             }
-        });
-        
-        // Populate possible iterable operators over the variable
-        populateIterableOperations(variable, actionFunctionList);
+
+            // Extract the package symbol. This is used to extract the entries of the particular package
+            SymbolInfo packageSymbolInfo = symbols.stream().filter(item -> {
+                Scope.ScopeEntry scopeEntry = item.getScopeEntry();
+                return (scopeEntry.symbol instanceof BPackageSymbol)
+                        && scopeEntry.symbol.pkgID.toString().equals(packageID);
+            }).findFirst().orElse(null);
+
+            if (packageID.equals(builtinPkgName)) {
+                // If the packageID is ballerina.builtin, we extract entries of builtin package
+                entries = symbolTable.builtInPackageSymbol.scope.entries;
+            } else if (packageSymbolInfo == null && packageID.equals(currentPkgName)) {
+                entries = this.getScopeEntries(bType, context);
+            } else if (packageSymbolInfo != null) {
+                // If the package exist, we extract particular entries from package
+                entries = packageSymbolInfo.getScopeEntry().symbol.scope.entries;
+            }
+
+            entries.forEach((name, scopeEntry) -> {
+                if (scopeEntry.symbol instanceof BInvokableSymbol
+                        && ((BInvokableSymbol) scopeEntry.symbol).receiverSymbol != null) {
+                    String symbolBoundedName = ((BInvokableSymbol) scopeEntry.symbol)
+                            .receiverSymbol.getType().toString();
+
+                    if (symbolBoundedName.equals(bTypeValue)) {
+                        // TODO: Need to handle the name in a proper manner
+                        String[] nameComponents = name.toString().split("\\.");
+                        SymbolInfo actionFunctionSymbol =
+                                new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
+                        actionFunctionList.add(actionFunctionSymbol);
+                    }
+                } else if ((scopeEntry.symbol instanceof BTypeSymbol)
+                        && bTypeValue.equals(scopeEntry.symbol.type.toString())) {
+                    // Get the struct fields
+                    Map<Name, Scope.ScopeEntry> fields = scopeEntry.symbol.scope.entries;
+                    fields.forEach((fieldName, fieldScopeEntry) -> {
+                        actionFunctionList.add(new SymbolInfo(fieldName.getValue(), fieldScopeEntry));
+                    });
+                }
+            });
+
+            // Populate possible iterable operators over the variable
+            populateIterableOperations(variable, actionFunctionList);
+        }
 
         return actionFunctionList;
     }
@@ -248,7 +257,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @param completionContext     Text Document Service context (Completion Context)
      * @return {@link Integer}      Index of the delimiter
      */
-    private int getPackageDelimiterTokenIndex(TextDocumentServiceContext completionContext) {
+    private int getPackageDelimiterTokenIndex(LSServiceOperationContext completionContext) {
         ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{", "(", ")"}));
         int delimiterIndex = -1;
         int searchTokenIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
@@ -301,7 +310,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @param completionCtx     Completion context
      * @return                  {@link Map} Scope entries map
      */
-    private Map<Name, Scope.ScopeEntry> getScopeEntries(BType bType, TextDocumentServiceContext completionCtx) {
+    private Map<Name, Scope.ScopeEntry> getScopeEntries(BType bType, LSServiceOperationContext completionCtx) {
         HashMap<Name, Scope.ScopeEntry> returnMap = new HashMap<>();
         completionCtx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
                 .forEach(symbolInfo -> {

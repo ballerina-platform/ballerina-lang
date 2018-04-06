@@ -32,7 +32,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
- * Test cases for ballerina.net.http.ServiceEndpoint.
+ * Test cases for ballerina/http.ServiceEndpoint.
  */
 public class ServiceEndpointTest {
     private CompileResult serviceResult;

@@ -33,8 +33,7 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +42,6 @@ import java.util.Set;
  */
 public class Symbols {
 
-    public static final String ANON_STRUCT = "$anonStruct$";
 
     public static BTypeSymbol createStructSymbol(int flags,
                                                  Name name,
@@ -62,7 +60,16 @@ public class Symbols {
                                                  BSymbol owner) {
         BStructSymbol typeSymbol = new BStructSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.OBJECT;
-        typeSymbol.isObject = true;
+        return typeSymbol;
+    }
+
+    public static BTypeSymbol createRecordSymbol(int flags,
+                                                 Name name,
+                                                 PackageID pkgID,
+                                                 BType type,
+                                                 BSymbol owner) {
+        BStructSymbol typeSymbol = new BStructSymbol(SymTag.RECORD, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.RECORD;
         return typeSymbol;
     }
 
@@ -73,6 +80,16 @@ public class Symbols {
                                                BSymbol owner) {
         BTypeSymbol typeSymbol = createTypeSymbol(SymTag.ENUM, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.ENUM;
+        return typeSymbol;
+    }
+
+    public static BTypeSymbol createTypeDefinitionSymbol(int flags,
+                                                         Name name,
+                                                         PackageID pkgID,
+                                                         BType type,
+                                                         BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE_DEF, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.TYPE_DEF;
         return typeSymbol;
     }
 
@@ -129,8 +146,10 @@ public class Symbols {
                                                         Name name,
                                                         PackageID pkgID,
                                                         BType type,
-                                                        BSymbol owner) {
+                                                        BSymbol owner,
+                                                        boolean bodyExist) {
         BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, flags, name, pkgID, type, owner);
+        symbol.bodyExist = bodyExist;
         symbol.kind = SymbolKind.FUNCTION;
         return symbol;
     }
@@ -189,22 +208,21 @@ public class Symbols {
                                                                            PackageID pkgID,
                                                                            BSymbol owner) {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
-        List<BType> retTypes = new ArrayList<>(1);
+        BType retType;
         if (safe) {
-            retTypes.add(targetType);
+            retType = targetType;
         } else if (targetType.tag == TypeTags.UNION && targetType instanceof BUnionType) {
             BUnionType unionType = (BUnionType) targetType;
             unionType.memberTypes.add(errorType);
-            retTypes.add(unionType);
+            retType = unionType;
         } else {
-            Set<BType> memberTypes = new HashSet<>(2);
+            Set<BType> memberTypes = new LinkedHashSet<>(2);
             memberTypes.add(targetType);
             memberTypes.add(errorType);
-            BUnionType unionType = new BUnionType(null, memberTypes, false);
-            retTypes.add(unionType);
+            retType = new BUnionType(null, memberTypes, false);
         }
 
-        BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(pkgID, opType, owner, implicit, safe, opcode);
         symbol.kind = SymbolKind.CONVERSION_OPERATOR;
         return symbol;
@@ -231,8 +249,7 @@ public class Symbols {
         }
 
         List<BType> paramTypes = Lists.of(sourceType, targetType);
-        List<BType> retTypes = Lists.of(targetType);
-        BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+        BInvokableType opType = new BInvokableType(paramTypes, targetType, null);
         BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(null, opType,
                 null, false, true, opcode);
         symbol.kind = SymbolKind.CONVERSION_OPERATOR;
@@ -254,8 +271,7 @@ public class Symbols {
     public static BOperatorSymbol createTypeofOperatorSymbol(BType exprType, Types types,
                                                              SymbolTable symTable, Names names) {
         List<BType> paramTypes = Lists.of(exprType);
-        List<BType> retTypes = Lists.of(symTable.typeDesc);
-        BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+        BInvokableType opType = new BInvokableType(paramTypes, symTable.typeDesc, null);
         if (types.isValueType(exprType)) {
             return new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
                     symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPELOAD);

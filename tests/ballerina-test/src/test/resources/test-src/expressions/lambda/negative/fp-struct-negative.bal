@@ -1,4 +1,4 @@
-struct Person {
+type Person {
     string fname;
     string lname;
     function (string, string) returns (string) getName;
@@ -9,7 +9,7 @@ function getFullName (string f, string l) returns (string){
 }
 
 function test1() returns (string, string){
-    Person bob = {fname:"bob", lname:"white", getName: function (string fname, string lname) returns (string){
+    Person bob = {fname:"bob", lname:"white", getName: (string fname, string lname) => (string){
                                                               return fname + " " + lname;
                                                           }};
     Person tom = {fname:"tom", lname:"smith", getName: getFullName};

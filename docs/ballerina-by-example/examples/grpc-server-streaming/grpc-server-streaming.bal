@@ -1,7 +1,7 @@
 // This is server implementation for server streaming scenario
 import ballerina/io;
 import ballerina/log;
-import ballerina/net.grpc;
+import ballerina/grpc;
 
 // Server endpoint configuration
 endpoint grpc:Service ep {
@@ -10,7 +10,7 @@ endpoint grpc:Service ep {
 };
 
 @grpc:serviceConfig {generateClientConnector:false}
-service<grpc:Endpoint> helloWorld bind ep {
+service<grpc:Endpoint> HelloWorld bind ep {
 
     @grpc:resourceConfig {streaming:true}
     lotsOfReplies (endpoint client, string name) {
@@ -19,7 +19,7 @@ service<grpc:Endpoint> helloWorld bind ep {
         foreach greet in greets {
             log:printInfo("send reply: " + greet + " " + name);
             grpc:ConnectorError err = client -> send(greet + " " + name);
-            if (err != null) {
+            if (err != ()) {
                 io:println("Error at lotsOfReplies : " + err.message);
             }
         }

@@ -135,6 +135,12 @@ public class Command {
             commandList.add(String.valueOf(this.port));
         }
 
+        commandList.add("-e");
+        commandList.add("tracelog.http.level=TRACE");
+
+        commandList.add("-e");
+        commandList.add("tracelog.http.logto=socket;localhost:5010,");
+
         if (this.commandArgs != null) {
             commandList.addAll(Arrays.asList(this.commandArgs));
         }

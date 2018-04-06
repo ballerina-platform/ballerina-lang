@@ -27,11 +27,11 @@ docker run -v /tmp/testb:/ballerina/files -p 9090:9090 -it ballerinalang/balleri
 ## Building the image
 ```bash
 # bash build.sh -d <ballerina-dist> to build ballerina:latest
-cp ~/Downloads/ballerina-0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT.zip .
-bash build.sh -d ballerina-0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT.zip
+cp ~/Downloads/ballerina-0.970.0-alpha1-SNAPSHOT.zip .
+bash build.sh -d ballerina-0.970.0-alpha1-SNAPSHOT.zip
 
 # Or build without copying the distribution.
-bash build.sh -d ~/Downloads/ballerina-0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT.zip
+bash build.sh -d ~/Downloads/ballerina-0.970.0-alpha1-SNAPSHOT.zip
 
 # Show usage
 bash build.sh -h
@@ -77,39 +77,39 @@ After each Ballerina runtime release, the base image in the Public Docker Hub sh
 1. **OPTIONAL:** Copy the official Ballerina Runtime release to the Dockerfile context.
 ```bash
 $ cd ballerinalang/container-support/ballerina-base-image
-$ cp ~/Downloads/ballerina-0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT.zip .
+$ cp ~/Downloads/ballerina-0.970.0-alpha1-SNAPSHOT.zip .
 ```
 
 2. Build the Docker image with an organization prefix for `ballerinalang`, and a version tag of the Ballerina runtime release version.
 
 ```bash
-$ bash build.sh -d ~/dev/ballerina/ballerina-0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT.zip -v 0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT -o ballerinalang
+$ bash build.sh -d ~/dev/ballerina/ballerina-0.970.0-alpha1-SNAPSHOT.zip -v 0.970.0-alpha1-SNAPSHOT -o ballerinalang
 ```
 
-3. This will build a Docker image with name `ballerinalang/ballerina:0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT` in the local Docker repository. The `latest` tag for `ballerinalang/ballerina` should now also point to this image now.
+3. This will build a Docker image with name `ballerinalang/ballerina:0.970.0-alpha1-SNAPSHOT` in the local Docker repository. The `latest` tag for `ballerinalang/ballerina` should now also point to this image now.
 ```bash
-$ docker tag ballerinalang/ballerina:0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT ballerinalang/ballerina:latest
+$ docker tag ballerinalang/ballerina:0.970.0-alpha1-SNAPSHOT ballerinalang/ballerina:latest
 ```
 
 4. The same image should also be pushed to `ballerina` organization. For this, re-creating the image is not necessary. Instead, another set of tags can be pointed to the same image.
 ```bash
-$ docker tag ballerinalang/ballerina:0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT ballerina/ballerina:0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT
-$ docker tag ballerinalang/ballerina:0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT ballerina/ballerina:latest
+$ docker tag ballerinalang/ballerina:0.970.0-alpha1-SNAPSHOT ballerina/ballerina:0.970.0-alpha1-SNAPSHOT
+$ docker tag ballerinalang/ballerina:0.970.0-alpha1-SNAPSHOT ballerina/ballerina:latest
 ```
 
 5. If the Docker images are listed, it should show an output similar to the following. Notice that the `Image ID` column contains the same value for all four tags. This is because they all point to the same AUFS layer.
 ```
 REPOSITORY                                        TAG                                 IMAGE ID            CREATED             SIZE
-ballerinalang/ballerina                           0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT                    4daa1c1f2089        1 minute ago        142MB
+ballerinalang/ballerina                           0.970.0-alpha1-SNAPSHOT             4daa1c1f2089        1 minute ago        142MB
 ballerinalang/ballerina                           latest                              4daa1c1f2089        1 minute ago        142MB
-ballerina/ballerina                               0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT                    4daa1c1f2089        1 minute ago        142MB
+ballerina/ballerina                               0.970.0-alpha1-SNAPSHOT             4daa1c1f2089        1 minute ago        142MB
 ballerina/ballerina                               latest                              4daa1c1f2089        1 minute ago        142MB
 ```
 
 6. Push the above Docker images to the Public Docker Hub. Observe how only the first push command actually pushes any data. The rest of the push commands only push the tag details, since the image is already pushed once.
 ```bash
-$ docker push ballerinalang/ballerina:0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT
+$ docker push ballerinalang/ballerina:0.970.0-alpha1-SNAPSHOT
 $ docker push ballerinalang/ballerina:latest
-$ docker push ballerina/ballerina:0.970.0-alpha1-SNAPSHOT-alpha1-SNAPSHOT
+$ docker push ballerina/ballerina:0.970.0-alpha1-SNAPSHOT
 $ docker push ballerina/ballerina:latest
 ```

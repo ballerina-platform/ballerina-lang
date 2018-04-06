@@ -1,10 +1,10 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 import ballerina/file;
 import ballerina/io;
 
 endpoint http:ClientEndpoint clientEP {
-    targets:[{uri:"http://localhost:9090"}]
+    targets:[{url:"http://localhost:9090"}]
 };
 
 endpoint http:ServiceEndpoint multipartEP {
@@ -33,7 +33,7 @@ service<http:Service> test bind multipartEP {
         xmlFilePart.contentDisposition = getContentDispositionForFormData("xml file part");
         //This file path is relative to where the ballerina is running. If your file is located outside, please
         //give the absolute file path instead.
-        file:File fileHandler = {path:"./files/test.xml"};
+        file:Path fileHandler = file:getPath("./files/test.xml");
         xmlFilePart.setFileAsEntityBody(fileHandler);
 
         //Create a xml body part.

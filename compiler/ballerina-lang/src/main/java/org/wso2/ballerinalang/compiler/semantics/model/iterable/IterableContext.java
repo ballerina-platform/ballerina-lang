@@ -40,7 +40,9 @@ public class IterableContext {
 
     /* Filed used for code generation */
     // Variables used in iterator function.
-    public BLangVariable collectionVar = null, resultVar = null, countVar = null;
+    public BLangVariable collectionVar = null;
+    public BLangVariable resultVar = null;
+    public BLangVariable countVar = null;
     public List<BLangVariable> iteratorResultVariables = new ArrayList<>();
     public List<BType> foreachTypes = new ArrayList<>();
 

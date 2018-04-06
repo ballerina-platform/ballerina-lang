@@ -1,4 +1,4 @@
-import ballerina/data.sql;
+import ballerina/sql;
 import ballerina/io;
 
 @Description {value:"This is the Employee struct. The field names of this should match column names of the table. The field types should match with the sql types."}

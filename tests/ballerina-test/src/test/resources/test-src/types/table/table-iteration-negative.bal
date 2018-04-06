@@ -1,24 +1,24 @@
-struct Employee {
+type Employee {
     int id;
     string name;
     float salary;
-}
+};
 
-struct EmployeeIncompatible {
+type EmployeeIncompatible {
     float id;
     string name;
     float salary;
-}
+};
 
-struct EmployeeSalary {
+type EmployeeSalary {
     int id;
     float salary;
-}
+};
 
-struct EmployeeSalaryIncompatible {
+type EmployeeSalaryIncompatible {
     float id;
     float salary;
-}
+};
 
 function getSalaryInCompatibleInput(EmployeeIncompatible e) returns (EmployeeSalary) {
     EmployeeSalary s = {id: e.id, salary: e.salary};
@@ -36,7 +36,7 @@ function getSalaryIncompatibleInputOutput(EmployeeIncompatible e) returns (Emplo
 }
 
 function createTable() returns (table<Employee>) {
-    table<Employee> dt = {};
+    table<Employee> dt = table{};
 
     Employee e1 = {id:1, name:"A", salary:100};
     Employee e2 = {id:2, name:"B", salary:200};

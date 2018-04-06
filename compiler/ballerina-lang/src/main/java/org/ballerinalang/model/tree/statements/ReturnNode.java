@@ -19,14 +19,13 @@ package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
-import java.util.List;
-
 /**
  * return a, a + b, foo();.
  *
  * @since 0.94
  */
 public interface ReturnNode extends StatementNode {
-    List<? extends ExpressionNode> getExpressions();
-    void addExpression(ExpressionNode expressionNode);
+    ExpressionNode getExpression();
+
+    void setExpression(ExpressionNode expressionNode);
 }

@@ -3,7 +3,7 @@
 {{/apiPackage}}{{#modelPackage}}import {{modelPackage}};{{/modelPackage}}
 import ballerina/io;
 import ballerina/mime;
-import ballerina/net.http;
+import ballerina/http;
 
 //=====================================
 //============Client Config============
@@ -22,7 +22,7 @@ struct {{cut info.title " "}}ClientEp {
 
 function <{{cut info.title " "}}ClientEp ep> init({{cut info.title " "}}ClientConfig config) {
     endpoint http:ClientEndpoint httpEp {
-        targets: [{uri: config.serviceUrl}]
+        targets:[{url: config.serviceUrl}]
     };
 
     ep.client = httpEp;

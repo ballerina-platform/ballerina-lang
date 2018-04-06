@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 function testAddHeader (http:PushPromise promise, string key, string value) returns http:PushPromise {
     promise.addHeader(key, value);

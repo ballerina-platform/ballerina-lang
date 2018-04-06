@@ -3,7 +3,7 @@ package connectionGroupSample.sample;
 import ballerina/lang.system;
 import ballerina/lang.messages;
 import ballerina/net.ws;
-import ballerina/net.http;
+import ballerina/http;
 
 @http:configuration {basePath:"/group"}
 @ws:WebSocketUpgradePath {value:"/ws"}

@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 import ballerina/io;
 
@@ -8,9 +8,9 @@ endpoint http:ServiceEndpoint backendEP {
 
 endpoint http:ClientEndpoint lbEP {
     targets: [
-             {uri:"http://localhost:9090/mock1"},
-             {uri:"http://localhost:9090/mock2"},
-             {uri:"http://localhost:9090/mock3"}
+             {url:"http://localhost:9090/mock1"},
+             {url:"http://localhost:9090/mock2"},
+             {url:"http://localhost:9090/mock3"}
              ]
 };
 

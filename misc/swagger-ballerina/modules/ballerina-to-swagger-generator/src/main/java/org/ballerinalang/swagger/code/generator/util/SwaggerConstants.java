@@ -22,5 +22,5 @@ package org.ballerinalang.swagger.code.generator.util;
  * Contains constants used in swagger generation.
  */
 public class SwaggerConstants {
-    public static final String SWAGGER_PACKAGE_PATH = "ballerina.net.http.swagger";
+    public static final String SWAGGER_PACKAGE_PATH = "ballerina.swagger";
 }

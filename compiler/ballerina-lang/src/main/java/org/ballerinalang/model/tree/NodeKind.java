@@ -43,7 +43,10 @@ public enum NodeKind {
     RESOURCE,
     SERVICE,
     STRUCT,
+    TYPE_DEFINITION,
+    RECORD,
     OBJECT,
+    TABLE,
     VARIABLE,
     WORKER,
     XMLNS,
@@ -55,6 +58,7 @@ public enum NodeKind {
     ANNOTATION_ATTACHMENT_ATTRIBUTE_VALUE,
     ARRAY_LITERAL_EXPR,
     BINARY_EXPR,
+    ELVIS_EXPR,
     BRACED_TUPLE_EXPR,
     Type_INIT_EXPR,
     FIELD_BASED_ACCESS_EXPR,
@@ -85,6 +89,10 @@ public enum NodeKind {
     XML_COMMENT_LITERAL,
     XML_PI_LITERAL,
     XML_SEQUENCE_LITERAL,
+    STATEMENT_EXPRESSION,
+    MATCH_EXPRESSION,
+    MATCH_EXPRESSION_PATTERN_CLAUSE,
+    CHECK_EXPR,
 
     /* streams/tables expressions */
     SELECT_EXPRESSION,
@@ -92,6 +100,7 @@ public enum NodeKind {
 
     /* Statements */
     ABORT,
+    DONE,
     FAIL,
     ASSIGNMENT,
     COMPOUND_ASSIGNMENT,

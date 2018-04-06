@@ -147,7 +147,7 @@ public class AnnotationTest {
 
     @Test(description = "Test constant annotation", enabled = false)
     public void testConstantAnnotation() {
-//        if (varNode.symbol.flags == Flags.CONST) {
+//        if (varNode.symbol.flags == Flags.FINAL) {
 //            PackageVarInfo varInfo = currentPkgInfo.pkgVarInfoMap.get(varNode.getName().getValue());
 //
 //            int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,

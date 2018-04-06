@@ -69,4 +69,19 @@ public class BasicTupleTest {
         Assert.assertEquals(returns[0].stringValue(), "xz");
         Assert.assertEquals(returns[1].stringValue(), "5.0");
     }
+
+    @Test(description = "Test Function Invocation return values using tuples")
+    public void testIgnoredValue() {
+        BValue[] returns = BRunUtil.invoke(result, "testIgnoredValue1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "foo");
+
+        returns = BRunUtil.invoke(result, "testIgnoredValue2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "foo");
+
+        returns = BRunUtil.invoke(result, "testIgnoredValue3");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "foo");
+    }
 }

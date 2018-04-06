@@ -1,5 +1,5 @@
 import ballerina/lang.messages;
-import ballerina/net.http;
+import ballerina/http;
 
 @http:BasePath {value:"/identifierLiteral"}
 service |sample service| {

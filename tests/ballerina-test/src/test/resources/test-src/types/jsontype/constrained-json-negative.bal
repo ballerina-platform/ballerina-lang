@@ -1,15 +1,15 @@
-struct Person {
+type Person {
     string name;
     int age;
     string address;
-}
+};
 
-struct Student {
+type Student {
     string name;
     int age;
     string address;
     string class;
-}
+};
 
 function testJsonInitializationWithStructConstraintInvalid() returns (json, json, json){
     json<Person> j = {firstName:"John Doe", age:5, address:"London"};
@@ -34,24 +34,24 @@ function testConstraintJSONIndexing() returns (json){
     return j["bus"];
 }
 
-struct Employee {
+type Employee {
     string first_name;
     string last_name;
     int age;
     Address address;
-}
+};
 
-struct Address {
+type Address {
     string number;
     string street;
     string city;
     PhoneNumber phoneNumber;
-}
+};
 
-struct PhoneNumber {
+type PhoneNumber {
     string areaCode;
     string number;
-}
+};
 
 function tesInvalidNestedStructFieldAccess() {
     json<Employee> e = {first_name: "John",last_name: "Doe",age: 30,address: {phoneNumber: {number:"456"}, street:"York St"}};

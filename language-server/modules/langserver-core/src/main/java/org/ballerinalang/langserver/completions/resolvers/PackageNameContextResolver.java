@@ -18,9 +18,8 @@
 
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.BLangPackageContext;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSPackageCache;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
@@ -36,15 +35,13 @@ import java.util.List;
 public class PackageNameContextResolver extends AbstractItemResolver {
     
     @Override
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        BLangPackageContext bLangPkgContext = completionContext.get(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY);
-        ArrayList<PackageID> sdkPackages = bLangPkgContext
-                .getSDKPackages(completionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
 
-        sdkPackages.forEach(packageID -> {
-            String insertText = packageID.getOrgName().getValue() + "/" + packageID.getName().getValue();
-            String label = insertText + ":" + packageID.getPackageVersion().getValue();
+        LSPackageCache.getInstance().getPackageMap().entrySet().forEach(pkgEntry -> {
+            PackageID packageID = pkgEntry.getValue().packageID;
+            String label = packageID.getOrgName().getValue() + "/" + packageID.getName().getValue();
+            String insertText = label + ";";
             fillImportCompletion(label, insertText, completionItems);
         });
         

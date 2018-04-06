@@ -25,7 +25,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -47,10 +46,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -60,6 +61,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -68,11 +71,13 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -95,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -130,15 +136,11 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.stream.Collectors;
-
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.ANON_STRUCT;
 
 /**
  * This represents the code analyzing pass of semantic analysis.
@@ -230,22 +232,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         compUnitNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
     }
 
+    public void visit(BLangTypeDefinition typeDefinition) {
+        //TODO
+    }
+
     @Override
     public void visit(BLangFunction funcNode) {
         this.returnWithintransactionCheckStack.push(true);
-        this.visitInvocable(funcNode);
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        this.visitInvocable(funcNode, funcEnv);
         this.returnWithintransactionCheckStack.pop();
     }
 
-    private void visitInvocable(BLangInvokableNode invNode) {
+    private void visitInvocable(BLangInvokableNode invNode, SymbolEnv invokableEnv) {
         this.resetFunction();
         this.initNewWorkerActionSystem();
         if (Symbols.isNative(invNode.symbol)) {
             return;
         }
-        boolean invokableReturns = invNode.retParams.size() > 0;
+        boolean invokableReturns = invNode.returnTypeNode.type != symTable.nilType;
         if (invNode.workers.isEmpty()) {
-            invNode.body.accept(this);
+            analyzeNode(invNode.body, invokableEnv);
             /* the function returns, but none of the statements surely returns */
             if (invokableReturns && !this.statementReturns) {
                 this.dlog.error(invNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
@@ -254,7 +261,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         } else {
             boolean workerReturns = false;
             for (BLangWorker worker : invNode.workers) {
-                worker.accept(this);
+                analyzeNode(worker, invokableEnv);
                 workerReturns = workerReturns || this.statementReturns;
                 this.resetStatementReturns();
             }
@@ -349,6 +356,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangDone doneNode) {
+        this.lastStatement = true;
+    }
+
+    @Override
     public void visit(BLangFail failNode) {
         if (this.transactionCount == 0) {
             this.dlog.error(failNode.pos, DiagnosticCode.FAIL_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
@@ -383,6 +395,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangReturn returnStmt) {
         this.checkStatementExecutionValidity(returnStmt);
+
+        // Check whether this return statement is in resource
+        if (this.env.enclInvokable.getKind() == NodeKind.RESOURCE) {
+            this.dlog.error(returnStmt.pos, DiagnosticCode.RETURN_STMT_NOT_VALID_IN_RESOURCE);
+            return;
+        }
+
         if (this.inForkJoin() && this.inWorker()) {
             this.dlog.error(returnStmt.pos, DiagnosticCode.FORK_JOIN_WORKER_CANNOT_RETURN);
             return;
@@ -392,7 +411,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         this.statementReturns = true;
-        analyzeExprs(returnStmt.exprs);
+        analyzeExpr(returnStmt.expr);
     }
 
     @Override
@@ -548,11 +567,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
-        serviceNode.resources.forEach(res -> res.accept(this));
+        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
+        serviceNode.resources.forEach(res -> analyzeNode(res, serviceEnv));
     }
 
     public void visit(BLangResource resourceNode) {
-        this.visitInvocable(resourceNode);
+        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode,
+                resourceNode.symbol.scope, env);
+        this.visitInvocable(resourceNode, resourceEnv);
     }
 
     public void visit(BLangConnector connectorNode) {
@@ -565,7 +587,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAction actionNode) {
-        this.visitInvocable(actionNode);
+        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionNode.symbol.scope, env);
+        this.visitInvocable(actionNode, actionEnv);
     }
 
     public void visit(BLangStruct structNode) {
@@ -573,6 +596,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangObject objectNode) {
+        /* ignore */
+    }
+
+    public void visit(BLangRecord record) {
         /* ignore */
     }
 
@@ -626,16 +653,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     break;
                 case ASSIGNMENT:
                     BLangAssignment assignStmt = (BLangAssignment) stmt;
-                    assignStmt.varRefs.forEach(varRef -> {
-                        varRef.accept(new TransformerVarRefValidator(inputs,
-                                DiagnosticCode.TRANSFORMER_INVALID_INPUT_UPDATE));
+                    assignStmt.varRef.accept(new TransformerVarRefValidator(inputs,
+                            DiagnosticCode.TRANSFORMER_INVALID_INPUT_UPDATE));
 
-                        // If the stmt is declared using var, all the variable refs on lhs should be treated as inputs
-                        if (assignStmt.declaredWithVar && varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF
-                                && !inputs.contains(((BLangSimpleVarRef) varRef).symbol)) {
-                            inputs.add(((BLangSimpleVarRef) varRef).symbol);
-                        }
-                    });
+                    // If the stmt is declared using var, all the variable refs on lhs should be treated as inputs
+                    if (assignStmt.declaredWithVar && assignStmt.varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF
+                            && !inputs.contains(((BLangSimpleVarRef) assignStmt.varRef).symbol)) {
+                        inputs.add(((BLangSimpleVarRef) assignStmt.varRef).symbol);
+                    }
                     assignStmt.expr.accept(
                             new TransformerVarRefValidator(outputs, DiagnosticCode.TRANSFORMER_INVALID_OUTPUT_USAGE));
                     break;
@@ -671,7 +696,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangAssignment assignNode) {
         this.checkStatementExecutionValidity(assignNode);
-        analyzeExprs(assignNode.varRefs);
+        analyzeExpr(assignNode.varRef);
         analyzeExpr(assignNode.expr);
     }
 
@@ -745,7 +770,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         this.workerActionSystemStack.peek().addWorkerAction(workerSendNode);
-        analyzeExprs(workerSendNode.exprs);
+        analyzeExpr(workerSendNode.expr);
     }
 
     @Override
@@ -754,7 +779,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         this.workerActionSystemStack.peek().addWorkerAction(workerReceiveNode);
-        analyzeExprs(workerReceiveNode.exprs);
+        analyzeExpr(workerReceiveNode.expr);
     }
 
     public void visit(BLangLiteral literalExpr) {
@@ -770,6 +795,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeExpr(kv.valueExpr);
         });
         checkAccess(recordLiteral);
+    }
+
+    public void visit(BLangTableLiteral tableLiteral) {
+        /* ignore */
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
@@ -821,6 +850,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangBinaryExpr binaryExpr) {
         analyzeExpr(binaryExpr.lhsExpr);
         analyzeExpr(binaryExpr.rhsExpr);
+    }
+
+    public void visit(BLangElvisExpr elvisExpr) {
+        analyzeExpr(elvisExpr.lhsExpr);
+        analyzeExpr(elvisExpr.rhsExpr);
     }
 
     @Override
@@ -931,6 +965,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    @Override
+    public void visit(BLangMatchExpression bLangMatchExpression) {
+        // TODO
+    }
+
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
+        // TODO
+    }
+
+    // private methods
+
     private <E extends BLangExpression> void analyzeExpr(E node) {
         if (node == null) {
             return;
@@ -946,10 +992,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         BSymbol symbol = node.type.tsymbol;
-        //skip anonymous struct definitions
-        if (symbol instanceof BStructSymbol && symbol.getName().getValue().startsWith(ANON_STRUCT)) {
-            return;
-        }
 
         if (!(env.enclPkg.symbol.pkgID == symbol.pkgID || (Symbols.isPublic(symbol)))) {
             dlog.error(node.pos, DiagnosticCode.ATTEMPT_REFER_NON_PUBLIC_SYMBOL, symbol.name);
@@ -1029,13 +1071,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateWorkerActionParameters(BLangWorkerSend send, BLangWorkerReceive receive) {
-        List<BType> typeList = receive.exprs.stream().map(e -> e.type).collect(Collectors.toList());
-        if (send.exprs.size() != typeList.size()) {
-            this.dlog.error(send.pos, DiagnosticCode.WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH);
-        }
-        for (int i = 0; i < typeList.size(); i++) {
-            this.typeChecker.checkExpr(send.exprs.get(i), send.env, Arrays.asList(typeList.get(i)));
-        }
+        this.typeChecker.checkExpr(send.expr, send.env, receive.expr.type);
     }
 
     private boolean checkNextBreakValidityInTransaction() {
@@ -1304,11 +1340,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         public void visit(BLangWorkerSend workerSendNode) {
-            workerSendNode.exprs.forEach(expr -> expr.accept(this));
+            workerSendNode.expr.accept(this);
         }
 
         public void visit(BLangWorkerReceive workerReceiveNode) {
-            workerReceiveNode.exprs.forEach(expr -> expr.accept(this));
+            workerReceiveNode.expr.accept(this);
         }
 
         public void visit(BLangLambdaFunction bLangLambdaFunction) {

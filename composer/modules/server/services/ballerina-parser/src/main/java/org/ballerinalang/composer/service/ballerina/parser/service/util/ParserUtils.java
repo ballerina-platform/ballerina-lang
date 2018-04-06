@@ -24,17 +24,21 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Ac
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.AnnotationAttachment;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.AnnotationDef;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Connector;
+import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Endpoint;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Enum;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Enumerator;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Function;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ModelPackage;
+import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ObjectField;
+import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ObjectModel;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Parameter;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Struct;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.StructField;
-import org.ballerinalang.langserver.BallerinaPackageLoader;
 import org.ballerinalang.langserver.CollectDiagnosticListener;
+import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.LSDocument;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.model.elements.Flag;
@@ -42,6 +46,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
@@ -65,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -232,23 +238,22 @@ public class ParserUtils {
     public static Map<String, ModelPackage> getAllPackages() {
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
         // TODO: remove once the packerina api for package listing is available
-        final String[] packageNames = {"net.http", "net.http.authadaptor", "net.http.endpoints",
-                "net.http.mock", "net.http.swagger", "net.uri", "mime", "net.websub", "net.websub.hub",
-                "net.grpc", "auth", "auth.authz", "auth.authz.permissionstore", "auth.basic",
-                "auth.jwtAuth", "auth.userstore", "auth.utils", "caching", "collections", "config", "data.sql",
-                "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os", "reflect", "runtime",
-                "security.crypto", "task", "time", "transactions.coordinator", "user", "util"};
+        final String[] packageNames = {"http", "http.swagger", "net.uri", "mime", "auth", "auth.authz",
+                "auth.authz.permissionstore", "auth.basic", "auth.jwtAuth", "auth.userstore", "auth.utils", "caching",
+                "collections", "config", "data.sql", "file", "internal", "io", "jwt", "jwt.signature", "log", "math",
+                "os", "reflect", "runtime", "security.crypto", "task", "time", "transactions.coordinator", "user",
+                "util"};
         try {
-            List<BLangPackage> builtInPackages = BallerinaPackageLoader.getBuiltinPackages();
+            List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
             for (BLangPackage bLangPackage : builtInPackages) {
                 loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
             }
 
-            CompilerContext context = BallerinaPackageLoader.prepareCompilerContext();
+            CompilerContext context = CommonUtil.prepareTempCompilerContext();
             for (String packageName : packageNames) {
                 PackageID packageID = new PackageID(new Name("ballerina"),
                         new Name(packageName), new Name("0.0.0"));
-                BLangPackage bLangPackage = BallerinaPackageLoader.getPackageById(context, packageID);
+                BLangPackage bLangPackage = LSPackageLoader.getPackageById(context, packageID);
                 loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
             }
         } catch (Exception e) {
@@ -338,45 +343,8 @@ public class ParserUtils {
             pkg.getAnnotations().forEach((annotation) -> extractAnnotation(packages, packageName, annotation));
             pkg.getConnectors().forEach((connector) -> extractConnector(packages, packageName, connector));
             pkg.getEnums().forEach((enumerator) -> extractEnums(packages, packageName, enumerator));
-        }
-    }
-
-
-    /**
-     * Remove constructs from given file in given package from given package map.
-     *
-     * @param pkgName    Name of the package
-     * @param fileName   Name of the File
-     * @param packageMap Package constructs map
-     */
-    public static void removeConstructsOfFile(String pkgName, String fileName,
-                                              Map<String, ModelPackage> packageMap) {
-        ModelPackage newPkg = new ModelPackage();
-        newPkg.setName(pkgName);
-        if (packageMap.containsKey(pkgName)) {
-            ModelPackage currentPkg = packageMap.get(pkgName);
-            currentPkg.getFunctions().forEach((Function func) -> {
-                if (!func.getFileName().equals(fileName)) {
-                    newPkg.addFunctionsItem(func);
-                }
-            });
-            currentPkg.getStructs().forEach((Struct struct) -> {
-                if (!struct.getFileName().equals(fileName)) {
-                    newPkg.addStructsItem(struct);
-                }
-            });
-            currentPkg.getAnnotations().forEach((AnnotationDef annotation) -> {
-                if (!annotation.getFileName().equals(fileName)) {
-                    newPkg.addAnnotationsItem(annotation);
-                }
-            });
-            currentPkg.getConnectors().forEach((Connector connector) -> {
-                if (!connector.getFileName().equals(fileName)) {
-                    newPkg.addConnectorsItem(connector);
-                }
-            });
-            packageMap.remove(pkgName);
-            packageMap.put(pkgName, newPkg);
+            pkg.objects.forEach((object) -> extractObjects(packages, packageName, object));
+            extractEndpoints(packages, packageName, pkg.structs, pkg.functions);
         }
     }
 
@@ -481,7 +449,7 @@ public class ParserUtils {
             addParameters(parameters, function.getParameters());
 
             List<Parameter> returnParameters = new ArrayList<>();
-            addParameters(returnParameters, function.getReturnParameters());
+            //addParameters(returnParameters, function.getReturnTypeNode());
 
             List<AnnotationAttachment> annotations = new ArrayList<>();
             addAnnotations(annotations, function.getAnnotationAttachments());
@@ -500,7 +468,7 @@ public class ParserUtils {
             addParameters(parameters, function.getParameters());
 
             List<Parameter> returnParameters = new ArrayList<>();
-            addParameters(returnParameters, function.getReturnParameters());
+            //addParameters(returnParameters, function.getReturnTypeNode());
 
             List<AnnotationAttachment> annotations = new ArrayList<>();
             addAnnotations(annotations, function.getAnnotationAttachments());
@@ -562,6 +530,47 @@ public class ParserUtils {
         }
     }
 
+    private static void extractObjects(Map<String, ModelPackage> packages, String packagePath, BLangObject object) {
+        String fileName = object.getPosition().getSource().getCompilationUnitName();
+        if (packages.containsKey(packagePath)) {
+            ModelPackage modelPackage = packages.get(packagePath);
+            modelPackage.addObjectItem(
+                    createNewObject(object.name.getValue(), object.fields, object.functions, fileName));
+        } else {
+            ModelPackage modelPackage = new ModelPackage();
+            modelPackage.setName(packagePath);
+            modelPackage.addObjectItem(
+                    createNewObject(object.name.getValue(), object.fields, object.functions, fileName));
+            packages.put(packagePath, modelPackage);
+        }
+    }
+
+    private static void extractEndpoints(Map<String, ModelPackage> packages, String packagePath,
+                                         List<BLangStruct> structs, List<BLangFunction> functions) {
+        functions.forEach((function) -> {
+            if (function.getName().getValue().equals("register") && function.receiver != null &&
+                    function.receiver.getTypeNode() instanceof UserDefinedTypeNode) {
+                String structName = function.receiver.getTypeNode().type.tsymbol.name.getValue();
+                structs.forEach((struct) -> {
+                    if (struct.name.getValue().equals(structName)) {
+                        String fileName = struct.getPosition().getSource().getCompilationUnitName();
+                        if (packages.containsKey(packagePath)) {
+                            ModelPackage modelPackage = packages.get(packagePath);
+                            modelPackage.addEndpointItem(createNewEndpoint(struct.name.getValue(),
+                                    new ArrayList<>(), struct.fields, packagePath, fileName));
+                        } else {
+                            ModelPackage modelPackage = new ModelPackage();
+                            modelPackage.setName(packagePath);
+                            modelPackage.addEndpointItem(createNewEndpoint(struct.name.getValue(), new ArrayList<>(),
+                                    struct.fields, packagePath, fileName));
+                            packages.put(packagePath, modelPackage);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
     /**
      * Add parameters to a list from ballerina lang param list.
      *
@@ -611,7 +620,7 @@ public class ParserUtils {
         addAnnotations(annotations, action.getAnnotationAttachments());
 
         List<Parameter> returnParameters = new ArrayList<>();
-        addParameters(returnParameters, action.getReturnParameters());
+        //addParameters(returnParameters, action.getReturnParameters());
 
         String fileName = action.getPosition().getSource().getCompilationUnitName();
         return createNewAction(action.getName().getValue(), parameters, returnParameters, annotations, fileName);
@@ -699,6 +708,50 @@ public class ParserUtils {
         });
         struct.setFileName(fileName);
         return struct;
+    }
+
+    /**
+     * Create new object model.
+     *
+     * @param name      name of the object
+     * @param fields    object fields
+     * @param functions object bound functions
+     * @param fileName  fileName
+     * @return {@link ObjectModel}
+     */
+    private static ObjectModel createNewObject(String name, List<BLangVariable> fields, List<BLangFunction> functions,
+                                               String fileName) {
+        ObjectModel objectModel = new ObjectModel(name);
+        fields.forEach((field) -> {
+            ObjectField objectField = new ObjectField(field.name.getValue(), field.getTypeNode().type.toString());
+            objectModel.addField(objectField);
+        });
+
+        functions.forEach((function) -> {
+            List<AnnotationAttachment> annotations = new ArrayList<>();
+            addAnnotations(annotations, function.getAnnotationAttachments());
+            List<Parameter> parameters = new ArrayList<>();
+            addParameters(parameters, function.getParameters());
+            objectModel.addFunction(createNewFunction(function.name.getValue(), annotations, parameters,
+                    new ArrayList<>(), function.receiver.getTypeNode().type.toString(), false, fileName));
+        });
+
+        return objectModel;
+    }
+
+    private static Endpoint createNewEndpoint(String name, List<BLangFunction> functions, List<BLangVariable> fields,
+                                              String packageName, String fileName) {
+        Endpoint endpoint = new Endpoint(name);
+        endpoint.setFileName(fileName);
+        // TODO: find actions for the endpoint
+        endpoint.setActions(new ArrayList<>());
+        endpoint.setPackageName(packageName);
+
+        fields.forEach((field) -> {
+            endpoint.addField(createNewStructField(field.name.getValue(), field.getTypeNode().type.toString(),
+                    ""));
+        });
+        return endpoint;
     }
 
     /**
@@ -837,8 +890,14 @@ public class ParserUtils {
         sourceDocument.setSourceRoot(sourceRoot);
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceDocument,
-                true, documentManager, CompilerPhase.DEFINE);
+        if ("".equals(pkgName)) {
+            Path filePath = path.getFileName();
+            if (filePath != null) {
+                pkgName = filePath.toString();
+            }
+        }
+        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
+                                         sourceDocument, true, documentManager, CompilerPhase.DEFINE);
 
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
@@ -847,14 +906,7 @@ public class ParserUtils {
         BLangPackage bLangPackage = null;
         try {
             Compiler compiler = Compiler.getInstance(context);
-            if ("".equals(pkgName)) {
-                Path filePath = path.getFileName();
-                if (filePath != null) {
-                    bLangPackage = compiler.compile(filePath.toString());
-                }
-            } else {
-                bLangPackage = compiler.compile(pkgName);
-            }
+            bLangPackage = compiler.compile(pkgName);
         } catch (Exception e) {
             // Ignore.
         }

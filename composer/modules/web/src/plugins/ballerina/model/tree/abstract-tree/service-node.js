@@ -22,33 +22,6 @@ import Node from '../node';
 class AbstractServiceNode extends Node {
 
 
-    setInitFunction(newValue, silent, title) {
-        const oldValue = this.initFunction;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initFunction = newValue;
-
-        this.initFunction.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'initFunction',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getInitFunction() {
-        return this.initFunction;
-    }
-
-
-
     setEndpointNodes(newValue, silent, title) {
         const oldValue = this.endpointNodes;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -287,6 +260,33 @@ class AbstractServiceNode extends Node {
     }
 
 
+    setInitFunction(newValue, silent, title) {
+        const oldValue = this.initFunction;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.initFunction = newValue;
+
+        this.initFunction.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'initFunction',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getInitFunction() {
+        return this.initFunction;
+    }
+
+
+
     setServiceTypeStruct(newValue, silent, title) {
         const oldValue = this.serviceTypeStruct;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -431,6 +431,33 @@ class AbstractServiceNode extends Node {
     filterBoundEndpoints(predicateFunction) {
         return _.filter(this.boundEndpoints, predicateFunction);
     }
+
+
+    setAnonymousEndpointBind(newValue, silent, title) {
+        const oldValue = this.anonymousEndpointBind;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.anonymousEndpointBind = newValue;
+
+        this.anonymousEndpointBind.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'anonymousEndpointBind',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getAnonymousEndpointBind() {
+        return this.anonymousEndpointBind;
+    }
+
 
 
     setName(newValue, silent, title) {
@@ -579,31 +606,6 @@ class AbstractServiceNode extends Node {
     }
 
 
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
-
-
     setAnnotationAttachments(newValue, silent, title) {
         const oldValue = this.annotationAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -721,6 +723,31 @@ class AbstractServiceNode extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
 
 
     setDocumentationAttachments(newValue, silent, title) {

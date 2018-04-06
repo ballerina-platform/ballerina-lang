@@ -39,10 +39,10 @@ public class ConfigAnnotationTest {
 
     @Test
     public void testBefore() {
+        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest("src/test/resources/annotations-test", new Path[]{Paths.get("config-test.bal")}, new
                 ArrayList<>());
-        cleanup();
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 9);
     }
 

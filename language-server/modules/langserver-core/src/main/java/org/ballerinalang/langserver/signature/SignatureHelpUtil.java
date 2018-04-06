@@ -16,7 +16,8 @@
 package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSPackageCache;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.DocTag;
@@ -64,7 +65,7 @@ public class SignatureHelpUtil {
      * @param serviceContext    Text Document service context instance for the signature help operation
      */
     public static void captureCallableItemInfo(Position position, String fileContent,
-                                               TextDocumentServiceContext serviceContext) {
+                                               LSServiceOperationContext serviceContext) {
         int lineNumber = position.getLine();
         int character = position.getCharacter();
         int paramCounter = 0;
@@ -104,7 +105,7 @@ public class SignatureHelpUtil {
      * @param context                   Signature help context
      * @return {@link SignatureHelp}    Signature help for the completion
      */
-    public static SignatureHelp getFunctionSignatureHelp(TextDocumentServiceContext context) {
+    public static SignatureHelp getFunctionSignatureHelp(LSServiceOperationContext context) {
         // Get the functions List
         List<SymbolInfo> functions = context.get(SignatureKeys.FILTERED_FUNCTIONS);
         List<SignatureInformation> signatureInformationList = functions
@@ -130,7 +131,7 @@ public class SignatureHelpUtil {
      * @return {@link SignatureInformation}     Signature information for the function
      */
     private static SignatureInformation getSignatureInformation(BInvokableSymbol bInvokableSymbol,
-                                                                TextDocumentServiceContext signatureContext) {
+                                                                LSServiceOperationContext signatureContext) {
         List<ParameterInformation> parameterInformationList = new ArrayList<>();
         SignatureInformation signatureInformation = new SignatureInformation();
         SignatureInfoModel signatureInfoModel = getSignatureInfoModel(bInvokableSymbol, signatureContext);
@@ -160,14 +161,13 @@ public class SignatureHelpUtil {
      * @return {@link SignatureInfoModel}       SignatureInfoModel containing signature information
      */
     private static SignatureInfoModel getSignatureInfoModel(BInvokableSymbol bInvokableSymbol,
-                                                             TextDocumentServiceContext signatureContext) {
+                                                             LSServiceOperationContext signatureContext) {
         Map<String, String> paramDescMap = new HashMap<>();
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
         String functionName = signatureContext.get(SignatureKeys.CALLABLE_ITEM_NAME);
         CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        BLangPackage bLangPackage = signatureContext.get(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY).
-                getPackageById(compilerContext, bInvokableSymbol.pkgID);
+        BLangPackage bLangPackage = LSPackageCache.getInstance().findPackage(compilerContext, bInvokableSymbol.pkgID);
 
         BLangFunction blangFunction = bLangPackage.getFunctions().stream()
                 .filter(bLangFunction -> bLangFunction.getName().getValue().equals(functionName))
@@ -228,7 +228,7 @@ public class SignatureHelpUtil {
         return signatureInfoModel;
     }
 
-    private static void setItemInfo(String line, int startPosition, TextDocumentServiceContext signatureContext) {
+    private static void setItemInfo(String line, int startPosition, LSServiceOperationContext signatureContext) {
         int counter = startPosition;
         String callableItemName = "";
         String delimiter = "";
@@ -257,7 +257,7 @@ public class SignatureHelpUtil {
      * @param signatureContext  Signature help context
      */
     private static void captureIdentifierAgainst(String line, int startPosition,
-                                                 TextDocumentServiceContext signatureContext) {
+                                                 LSServiceOperationContext signatureContext) {
         int counter = startPosition;
         String identifier = "";
         if (".".equals(Character.toString(line.charAt(counter)))

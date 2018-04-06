@@ -3,19 +3,19 @@ function testAnonStructAsFuncParam() returns (int) {
     return testAnonStructFunc(10, {k:14, s:"sameera"});
 }
 
-function testAnonStructFunc(int i, struct {int k = 10; string s;} anonSt) returns (int) {
+function testAnonStructFunc(int i, type {int k = 10; string s;} anonSt) returns (int) {
     return anonSt.k + i;
 }
 
 
 function testAnonStructAsLocalVar() returns (int) {
-    struct {int k = 11; string s;} anonSt = {};
+    type {int k = 11; string s;} anonSt = {};
 
     return anonSt.k;
 }
 
 
-struct {string fname; string lname; int age;} person;
+type {string fname; string lname; int age;} person;
 
 function testAnonStructAsPkgVar() returns (string) {
 
@@ -25,18 +25,18 @@ function testAnonStructAsPkgVar() returns (string) {
     return person.fname + ":" + person.lname + ":" + person.age;
 }
 
-struct employee {
+type employee {
     string fname;
     string lname;
     int age;
-    struct { string line01;
+    type { string line01;
              string line02;
              string city;
              string state;
              string zipcode;
     } address;
 
-    struct {
+    type {
         string month = "JAN";
         string day = "01";
         string year = "1970";

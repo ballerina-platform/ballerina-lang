@@ -48,15 +48,15 @@ With Function mocks we can replace a function interface from the same package or
 
 ````ballerina
 @Description {value:"This is a mock function"}
-@test:mock {
+@test:Mock {
     packageName:"src.persistence",
     functionName:"addNewEvent"
 }
-function mockAddNewEvent (mod:Event evnt) (json jsonResponse, error err) {
+function mockAddNewEvent (mod:Event evnt) returns json {
 
     err = {message:"Error"};
-    jsonResponse = { "Success":"Created", "id":"2" };
-    return;
+    json jsonResponse = { "Success":"Created", "id":"2" };
+    return jsonResponse;
 }
 ````
 
@@ -67,27 +67,37 @@ Service mocks allow you to create your own service to mock the actual bach ends.
 Service mock will look something like below,
 
 ````ballerina
-import ballerina.net.http;
+import ballerina/net.http;
 
-@http:configuration {
-    basePath:"/boc",
-    port:9094
+endpoint http:ServiceEndpoint paymentGWEP {
+port:9094
+};
+
+@http:ServiceConfig {
+      endpoints:[paymentGWEP], basePath:"/boc"
 }
-service<http> PaymentServiceMock {
-    @http:resourceConfig {
+service<http:Service> PaymentService bind paymentGWEP {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/payment"
     }
 
-    resource creditOperations (http:ServerConnection conn, http:Request req) {
-        http:OutResponse res = {};
+     creditOperations (endpoint conn, http:Request req, string eventID) {
+        // Expects an API Token
+        http:Response res = {};
 
         json jsonRes = {"Payment":"Sucess!"};
         res.statusCode = 200;
         res.setJsonPayload(jsonRes);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
+````
+
+The above mock service can be started as shown below,
+
+````
+test:startServices(<Package Name>);
 ````
 
 ### Helper Functions
@@ -104,7 +114,7 @@ e.g:
 
 You can group the test functions as shown below,
 ````ballerina
-@test:config{
+@test:Config{
     groups:["unit","login_module"]
 }
 function testFunc () {
@@ -117,6 +127,11 @@ Inorder to execute tests belonging to a selected group. Run the below command.
 ballerina ``test your_package --groups unit``
 
 Note: You can also use `--disable-groups` flag to exclude groups from executing. Also un-grouped tests will be added to a group named default.
+
+You can also list available groups with the `--list-groups` flag.
+````
+e.g : ballerina test --list-groups
+````
  
 ## Writing ballerina tests
 

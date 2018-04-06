@@ -17,12 +17,16 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
+
+import java.util.stream.Stream;
 
 /**
  * @since 0.94
@@ -35,8 +39,11 @@ public class Compiler {
     private final SourceDirectoryManager sourceDirectoryManager;
     private final CompilerDriver compilerDriver;
     private final BinaryFileWriter binaryFileWriter;
+    private final DependencyTree dependencyTree;
     private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
+    private final boolean listPkg;
+    private final boolean dryRun;
 
     public static Compiler getInstance(CompilerContext context) {
         Compiler compiler = context.get(COMPILER_KEY);
@@ -52,8 +59,11 @@ public class Compiler {
         this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
         this.compilerDriver = CompilerDriver.getInstance(context);
         this.binaryFileWriter = BinaryFileWriter.getInstance(context);
+        this.dependencyTree = DependencyTree.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
+        this.listPkg = Boolean.parseBoolean(CompilerOptions.getInstance(context).get(CompilerOptionName.LIST_PKG));
+        this.dryRun = Boolean.parseBoolean(CompilerOptions.getInstance(context).get(CompilerOptionName.DRY_RUN));
     }
 
     public BLangPackage compile(String sourcePackage) {
@@ -83,11 +93,18 @@ public class Compiler {
 
     public void build() {
         // TODO Check for compilation errors
-        this.sourceDirectoryManager.listSourceFilesAndPackages()
-                .map(this.pkgLoader::loadPackage)
-                .map(this.compilerDriver::compilePackage)
-                .filter(bLangPackage -> this.dlog.errorCount == 0)
-                .forEach(this.binaryFileWriter::writeExecutableBinary);
+        Stream<BLangPackage> packages = this.sourceDirectoryManager.listSourceFilesAndPackages()
+                                                                   .map(this.pkgLoader::loadPackage)
+                                                                   .map(this.compilerDriver::compilePackage)
+                                                                   .filter(bLangPackage -> this.dlog.errorCount == 0);
+
+        if (!dryRun) {
+            packages.forEach(this.binaryFileWriter::writeExecutableBinary);
+        }
+
+        if (listPkg) {
+            packages.forEach(this.dependencyTree::listDependencyPackages);
+        }
     }
 
     public void build(String sourcePackage, String targetFileName) {

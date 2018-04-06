@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 
 endpoint http:ServiceEndpoint helloWorldEP {
@@ -33,7 +33,7 @@ service<http:Service> helloWorld bind helloWorldEP {
 
 endpoint http:ClientEndpoint clientEP {
     targets: [{
-        uri: "https://localhost:9095",
+        url: "https://localhost:9095",
         secureSocket: {
             trustStore: {
                 filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

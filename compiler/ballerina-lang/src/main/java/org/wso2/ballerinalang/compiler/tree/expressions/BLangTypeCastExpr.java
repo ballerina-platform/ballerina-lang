@@ -22,24 +22,17 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeCastNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @since 0.94
  */
-public class BLangTypeCastExpr extends BLangExpression implements TypeCastNode, MultiReturnExpr {
+public class BLangTypeCastExpr extends BLangExpression implements TypeCastNode {
 
     public BLangExpression expr;
     public BLangType typeNode;
-    public List<BType> types = new ArrayList<>(0);
     public BOperatorSymbol castSymbol;
-    private RegIndex[] regIndexes;
 
     public ExpressionNode getExpression() {
         return expr;
@@ -57,11 +50,6 @@ public class BLangTypeCastExpr extends BLangExpression implements TypeCastNode, 
         this.typeNode = (BLangType) typeNode;
     }
 
-    public boolean isMultiReturnExpr() {
-        // Unsafe casts are multi return expressions
-        return castSymbol == null;
-    }
-
     @Override
     public NodeKind getKind() {
         return NodeKind.TYPE_CAST_EXPR;
@@ -75,24 +63,5 @@ public class BLangTypeCastExpr extends BLangExpression implements TypeCastNode, 
     @Override
     public String toString() {
         return "(" + String.valueOf(type) + ") " + String.valueOf(expr);
-    }
-
-    @Override
-    public List<BType> getTypes() {
-        return types;
-    }
-
-    @Override
-    public void setTypes(List<BType> types) {
-        this.types = types;
-    }
-
-    public RegIndex[] getRegIndexes() {
-        return regIndexes;
-    }
-
-    public void setRegIndexes(RegIndex[] regIndexes) {
-        this.regIndexes = regIndexes;
-        this.regIndex = regIndexes != null && regIndexes.length > 0 ? regIndexes[0] : null;
     }
 }

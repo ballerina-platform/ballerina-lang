@@ -17,8 +17,8 @@ package org.ballerinalang.langserver.command;
 
 import com.google.gson.internal.LinkedTreeMap;
 import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
-import org.ballerinalang.langserver.WorkspaceServiceContext;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -67,7 +67,7 @@ public class CommandExecutor {
      * @param params    Parameters for the command
      * @param context   Workspace service context
      */
-    public static void executeCommand(ExecuteCommandParams params, WorkspaceServiceContext context) {
+    public static void executeCommand(ExecuteCommandParams params, LSServiceOperationContext context) {
         switch (params.getCommand()) {
             case CommandConstants.CMD_IMPORT_PACKAGE:
                 executeImportPackage(context);
@@ -88,7 +88,7 @@ public class CommandExecutor {
      * Execute the command, import package.
      * @param context   Workspace service context
      */
-    private static void executeImportPackage(WorkspaceServiceContext context) {
+    private static void executeImportPackage(LSServiceOperationContext context) {
         String documentUri = null;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
         
@@ -158,7 +158,7 @@ public class CommandExecutor {
      * Execute the add documentation command.
      * @param context   Workspace service context
      */
-    private static void executeAddDocumentation(WorkspaceServiceContext context) {
+    private static void executeAddDocumentation(LSServiceOperationContext context) {
         String topLevelNodeType = "";
         String documentUri = "";
         int line = 0;
@@ -201,7 +201,7 @@ public class CommandExecutor {
      * Generate workspace edit for generating doc comments for all top level nodes and resources.
      * @param context   Workspace Service Context
      */
-    private static void executeAddAllDocumentation(WorkspaceServiceContext context) {
+    private static void executeAddAllDocumentation(LSServiceOperationContext context) {
         String documentUri = "";
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 

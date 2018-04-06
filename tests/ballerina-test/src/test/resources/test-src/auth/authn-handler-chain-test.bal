@@ -1,30 +1,35 @@
-import ballerina/net.http.authadaptor;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 
-function testCreateAuthnHandlerChain () returns (authadaptor:AuthnHandlerChain) {
-    authadaptor:AuthnHandlerChain authnHandlerChain = authadaptor:createAuthnHandlerChain();
+function testCreateAuthnHandlerChain () returns (http:AuthnHandlerChain) {
+    http:AuthnHandlerChain authnHandlerChain = http:createAuthnHandlerChain();
     return authnHandlerChain;
 }
 
 function testAuthFailure () returns (boolean) {
-    authadaptor:AuthnHandlerChain authnHandlerChain = authadaptor:createAuthnHandlerChain();
-    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
-                                   userAgent:"curl/7.35.0", extraPathInfo:"null"};
+    http:AuthnHandlerChain authnHandlerChain = http:createAuthnHandlerChain();
+    http:Request inRequest = createRequest();
     string basicAutheaderValue = "123Basic xxxxx";
-    mime:Entity requestEntity = {};
+    mime:Entity requestEntity = new;
     requestEntity.setHeader("123Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
     return authnHandlerChain.handle(inRequest);
 }
 
 function testAuthSuccess () returns (boolean) {
-    authadaptor:AuthnHandlerChain authnHandlerChain = authadaptor:createAuthnHandlerChain();
-    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
-                                   userAgent:"curl/7.35.0", extraPathInfo:"null"};
+    http:AuthnHandlerChain authnHandlerChain = http:createAuthnHandlerChain();
+    http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
-    mime:Entity requestEntity = {};
+    mime:Entity requestEntity = new;
     requestEntity.setHeader("Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
     return authnHandlerChain.handle(inRequest);
+}
+
+function createRequest () returns (http:Request) {
+    http:Request inRequest = new;
+    inRequest.rawPath = "/helloWorld/sayHello";
+    inRequest.method = "GET";
+    inRequest.httpVersion = "1.1";
+    return inRequest;
 }

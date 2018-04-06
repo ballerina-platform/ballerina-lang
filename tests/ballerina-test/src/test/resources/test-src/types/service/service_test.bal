@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 function testServiceType () returns (typedesc) {
     typedesc ts = typeof HelloWorld;

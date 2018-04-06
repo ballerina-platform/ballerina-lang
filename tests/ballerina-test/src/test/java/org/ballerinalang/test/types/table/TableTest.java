@@ -356,7 +356,7 @@ public class TableTest {
                         + "</result></results>");
     }
 
-    @Test(groups = "TableTest", description = "Check xml conversion within transaction.")
+    @Test(groups = "TableTest", description = "Check xml conversion within transaction.", enabled = false)
     public void testToXmlWithinTransaction() {
         BValue[] returns = BRunUtil.invoke(result, "testToXmlWithinTransaction");
         Assert.assertEquals(returns.length, 2);
@@ -365,7 +365,7 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    @Test(groups = "TableTest", description = "Check JSON conversion within transaction.")
+    @Test(groups = "TableTest", description = "Check JSON conversion within transaction.", enabled = false)
     public void testToJsonWithinTransaction() {
         BValue[] returns = BRunUtil.invoke(result,  "testToJsonWithinTransaction");
         Assert.assertEquals(returns.length, 2);
@@ -531,8 +531,7 @@ public class TableTest {
         Assert.assertEquals((returns[4]).stringValue(), "100|Sample Text|Sample Text|200||null|");
     }
 
-    @Test(groups = "TableTest", description = "Check result sets with same column name or complex name.",
-          enabled = false)
+    @Test(groups = "TableTest", description = "Check result sets with same column name or complex name.")
     public void testJsonXMLConversionwithDuplicateColumnNames() {
         BValue[] returns = BRunUtil.invoke(result, "testJsonXMLConversionwithDuplicateColumnNames");
         Assert.assertEquals(returns.length, 2);

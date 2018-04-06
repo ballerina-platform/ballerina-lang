@@ -1,4 +1,4 @@
-# This sample requires starting up the subscriber service after the publisher starts the hub up
+# This sample requires starting up the subscriber service after the publisher starts up the hub
 
 $ ballerina run publisher.bal
 2018-03-23 05:30:01,517 INFO  [] - Starting up the Ballerina Hub Service

@@ -38,7 +38,7 @@ import java.util.Map;
 /**
  * Compiler plugin for ballerina client code generation.
  */
-@SupportedAnnotationPackages(value = { "ballerina.net.http.swagger" })
+@SupportedAnnotationPackages(value = { "ballerina.swagger" })
 public class ClientGeneratorPlugin extends AbstractCompilerPlugin {
     List<EndpointNode> endpoints;
 

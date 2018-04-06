@@ -52,7 +52,7 @@ public class ClientSocketTest {
 
     @BeforeClass
     public void setup() {
-        socketClient = BCompileUtil.compile("test-src/io/clientsocketio.bal");
+        socketClient = BCompileUtil.compileAndSetup("test-src/io/client_socket_io.bal");
         boolean connectionStatus;
         int numberOfRetryAttempts = 10;
         try {
@@ -131,7 +131,7 @@ public class ClientSocketTest {
     @Test(description = "Open client socket connection to the remote server")
     public void testOpenClientSocket() {
         BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT) };
-        BRunUtil.invoke(socketClient, "openSocketConnection", args);
+        BRunUtil.invokeStateful(socketClient, "openSocketConnection", args);
     }
 
     @Test(dependsOnMethods = "testOpenClientSocket", description = "Test content read/write")
@@ -139,11 +139,11 @@ public class ClientSocketTest {
         String content = "Hello World\n";
         byte[] contentBytes = content.getBytes();
         BValue[] args = { new BBlob(contentBytes)};
-        final BValue[] writeReturns = BRunUtil.invoke(socketClient, "write", args);
+        final BValue[] writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
         args = new BValue[] { new BInteger(content.length()) };
-        final BValue[] readReturns = BRunUtil.invoke(socketClient, "read", args);
+        final BValue[] readReturns = BRunUtil.invokeStateful(socketClient, "read", args);
         final BBlob readContent = (BBlob) readReturns[0];
         returnedSize = (BInteger) readReturns[1];
 
@@ -154,7 +154,7 @@ public class ClientSocketTest {
     @Test(dependsOnMethods = "testWriteReadContent",
           description = "Test the connection closure")
     public void testClosure() {
-        BRunUtil.invoke(socketClient, "closeSocket");
+        BRunUtil.invokeStateful(socketClient, "closeSocket");
     }
 
     @Test(dependsOnMethods = "testClosure",
@@ -165,10 +165,10 @@ public class ClientSocketTest {
         StructInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
         BStruct propertyStruct = BLangVMStructs.createBStruct(socketProperties, port);
         BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT), propertyStruct };
-        final BValue[] returns = BRunUtil.invoke(socketClient, "openSocketConnectionWithProps", args);
+        final BValue[] returns = BRunUtil.invokeStateful(socketClient, "openSocketConnectionWithProps", args);
         final BStruct socket = (BStruct) returns[0];
         Assert.assertEquals(socket.getIntField(1), port, "Client port didn't bind to assign port.");
         args = new BValue[] { socket };
-        BRunUtil.invoke(socketClient, "close", args);
+        BRunUtil.invokeStateful(socketClient, "close", args);
     }
 }

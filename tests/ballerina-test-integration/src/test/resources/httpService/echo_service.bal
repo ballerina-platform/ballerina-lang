@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/io;
 
 endpoint http:ServiceEndpoint echoEP {
@@ -18,11 +18,11 @@ service<http:Service> echo bind echoEP {
         var payload = req.getStringPayload();
         match payload {
             string payloadValue => {
-                http:Response resp = {};
+                http:Response resp = new;
                 resp.setStringPayload(payloadValue);
                 _ = outboundEP -> respond(resp);
             }
-            any | null => {
+            any | () => {
                 io:println("Error while fetching string payload");
             }
         }

@@ -26,32 +26,20 @@ package org.ballerinalang.util.tracer;
 public class TraceConstants {
 
     private TraceConstants() {
-
     }
 
-    static final String TRACER_MANAGER_CLASS = "org.ballerinalang.observe.trace.OpenTracerManager";
-    static final String INVOCATION_ID = "invocationId";
     static final String DEFAULT_CONNECTOR_NAME = "BallerinaConnector";
     static final String DEFAULT_ACTION_NAME = "BallerinaAction";
     public static final String TRACE_PREFIX = "trace___";
-    public static final String KEY_TRACER = "_tracer_";
+    public static final String KEY_SPAN = "_span_";
 
     public static final String TAG_KEY_SPAN_KIND = "span.kind";
-    public static final String TAG_KEY_HTTP_METHOD = "http.method";
-    public static final String TAG_KEY_HTTP_URL = "http.url";
-    public static final String TAG_KEY_HTTP_HOST = "http.host";
-    public static final String TAG_KEY_HTTP_PORT = "http.port";
-    public static final String TAG_KEY_PROTOCOL = "protocol";
-    public static final String TAG_KEY_COMPONENT = "component";
-    public static final String TAG_KEY_STR_ERROR = "error";
-    public static final String TAG_KEY_DB_STATEMENT = "db.statement";
-    public static final String TAG_KEY_DB_TYPE = "db.type";
 
+    public static final String TAG_KEY_STR_ERROR = "error";
     public static final String TAG_STR_TRUE = "true";
-    public static final String TAG_DB_TYPE_SQL = "sql";
+
     public static final String TAG_SPAN_KIND_SERVER = "server";
     public static final String TAG_SPAN_KIND_CLIENT = "client";
-    public static final String TAG_COMPONENT_BALLERINA = "ballerina";
 
     public static final String LOG_KEY_MESSAGE = "message";
     public static final String LOG_KEY_ERROR_KIND = "error.kind";
@@ -59,6 +47,13 @@ public class TraceConstants {
     public static final String LOG_ERROR_KIND_EXCEPTION = "Exception";
     public static final String LOG_EVENT_TYPE_ERROR = "error";
 
-    public static final String HTTP_HOST = "Host";
-    public static final String HTTP_PORT = "PORT";
+    public static final int TRACE_PREFIX_LENGTH = TRACE_PREFIX.length();
+
+    public static final String BALLERINA_TRACE_CONFIG_KEY = "trace.config";
+    public static final String DEFAULT_USER_API_GROUP = "user_trace_";
+
+    public static final String JAEGER = "jaeger";
+    public static final String ENABLED_CONFIG = "enabled";
+    public static final String TRACER_NAME_CONFIG = "name";
+
 }

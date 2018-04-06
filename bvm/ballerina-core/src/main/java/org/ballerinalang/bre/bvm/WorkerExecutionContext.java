@@ -25,7 +25,6 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
@@ -102,10 +101,6 @@ public class WorkerExecutionContext {
         this.retRegIndexes = retRegIndexes;
         this.globalProps = parent.globalProps;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
-        if (this.ip < 0) {
-            throw new BallerinaException("invalid worker: " + workerInfo.getWorkerName() +
-                    " in callable unit: " + callableUnitInfo.getName());
-        }
         this.runInCaller = runInCaller;
         initDebugger();
     }
@@ -123,10 +118,6 @@ public class WorkerExecutionContext {
         this.workerLocal = workerLocal;
         this.globalProps = parent.globalProps;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
-        if (this.ip < 0) {
-            throw new BallerinaException("invalid worker: " + workerInfo.getWorkerName() +
-                    " in callable unit: " + callableUnitInfo.getName());
-        }
         this.runInCaller = runInCaller;
         initDebugger();
     }

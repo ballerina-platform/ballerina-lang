@@ -75,6 +75,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private TestSuite suite;
+    private boolean enabled = true;
     /**
      * this property is used as a work-around to initialize test suites only once for a package as Compiler
      * Annotation currently emits package import events too to the process method.
@@ -83,10 +84,16 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
+        if (registry.getInstance().isTestSuitesCompiled()) {
+            enabled = false;
+        }
     }
 
     @Override
     public void process(PackageNode packageNode) {
+        if (!enabled) {
+            return;
+        }
         if (!packageInit) {
             String packageName = ((BLangPackage) packageNode).packageID == null ? "." : ((BLangPackage) packageNode)
                     .packageID.getName().getValue();
@@ -97,6 +104,9 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     @Override
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
+        if (!enabled) {
+            return;
+        }
         // annotation processor currently triggers this function for the functions of imported packages too. In order
         // to avoid processing those, we have to have below check.
         if (!suite.getSuiteName().equals(functionNode.getPosition().getSource().getPackageName())) {
@@ -155,14 +165,16 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                             shouldSkip.set(true);
                             return;
                         }
-                        // Check whether user has provided a group list
-                        if (groups != null && !groups.isEmpty()) {
-                            // check if groups attribute is present in the annotation
-                            if (GROUP_ANNOTATION_NAME.equals(name)) {
-                                if (attributeNode.getValue() instanceof BLangArrayLiteral) {
-                                    BLangArrayLiteral values = (BLangArrayLiteral) attributeNode.getValue();
-                                    boolean isGroupPresent = isGroupAvailable(groups, values.exprs.stream().map(node
-                                            -> node.toString()).collect(Collectors.toList()));
+
+                        // check if groups attribute is present in the annotation
+                        if (GROUP_ANNOTATION_NAME.equals(name)) {
+                            if (attributeNode.getValue() instanceof BLangArrayLiteral) {
+                                BLangArrayLiteral values = (BLangArrayLiteral) attributeNode.getValue();
+                                test.setGroups(values.exprs.stream().map(node -> node.toString())
+                                                           .collect(Collectors.toList()));
+                                // Check whether user has provided a group list
+                                if (groups != null && !groups.isEmpty()) {
+                                    boolean isGroupPresent = isGroupAvailable(groups, test.getGroups());
                                     if (shouldIncludeGroups) {
                                         // include only if the test belong to one of these groups
                                         if (!isGroupPresent) {
@@ -225,17 +237,23 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
      * @param programFile {@link ProgramFile} corresponds to the current ballerina package
      */
     public void packageProcessed(ProgramFile programFile) {
+        if (!enabled) {
+            return;
+        }
         packageInit = false;
         // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
         suite = TesterinaRegistry.getInstance().getTestSuites().get(programFile.getEntryPkgName());
+        if (suite == null) {
+            throw new BallerinaException("No test suite found for [package]: " + programFile.getEntryPkgName());
+        }
         suite.setInitFunction(new TesterinaFunction(programFile, programFile.getEntryPackage().getInitFunctionInfo(),
                 TesterinaFunction.Type.INIT));
         // add all functions of the package as utility functions
         Arrays.stream(programFile.getEntryPackage().getFunctionInfoEntries()).forEach(functionInfo -> {
             suite.addTestUtilityFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.UTIL));
         });
-        int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         resolveFunctions(suite);
+        int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
         suite.setTests(sortedTests);
         suite.setProgramFile(programFile);
@@ -327,14 +345,27 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                         .getTestName())).findFirst().get());
             }
 
-            if (test.getBeforeTestFunction() != null && functionNames.contains(test.getBeforeTestFunction())) {
-                test.setBeforeTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
+            if (test.getBeforeTestFunction() != null) {
+                if (functionNames.contains(test.getBeforeTestFunction())) {
+                    test.setBeforeTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
                         .getBeforeTestFunction())).findFirst().get());
+                } else {
+                    String msg = String
+                        .format("Cannot find the specified before function : [%s] for testerina function" +
+                                " : [%s]", test.getBeforeTestFunction(), test.getTestName());
+                    throw new BallerinaException(msg);
+                }
             }
-
-            if (test.getAfterTestFunction() != null && functionNames.contains(test.getAfterTestFunction())) {
-                test.setAfterTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
+            if (test.getAfterTestFunction() != null) {
+                if (functionNames.contains(test.getAfterTestFunction())) {
+                    test.setAfterTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
                         .getAfterTestFunction())).findFirst().get());
+                } else {
+                    String msg = String
+                        .format("Cannot find the specified after function : [%s] for testerina function" +
+                                " : [%s]", test.getBeforeTestFunction(), test.getTestName());
+                    throw new BallerinaException(msg);
+                }
             }
 
             if (test.getDataProvider() != null && functionNames.contains(test.getDataProvider())) {
@@ -370,9 +401,11 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 }
             }
             for (String dependsOnFn : test.getDependsOnTestFunctions()) {
-                //TODO handle missing func case
+                if (!functions.stream().parallel().anyMatch(func -> func.getName().equals(dependsOnFn))) {
+                    throw new BallerinaException("Cannot find the specified dependsOn function : " + dependsOnFn);
+                }
                 test.addDependsOnTestFunction(functions.stream().filter(e -> e.getName().equals(dependsOnFn))
-                        .findFirst().get());
+                                                       .findFirst().get());
             }
         }
 

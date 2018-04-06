@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
@@ -40,7 +40,6 @@ function printRequestCount (RequestCount reqCount) {
     io:println("ALERT!! : Received more than 6 requests within 5 second from the host: " + reqCount.host);
 }
 
-
 endpoint http:ServiceEndpoint storeServiceEndpoint {
     port:9090
 };
@@ -49,7 +48,6 @@ endpoint http:ServiceEndpoint storeServiceEndpoint {
     basePath:"/"
 }
 service<http:Service> StoreService bind storeServiceEndpoint {
-
     future ftr = async initRealtimeRequestCounter();
 
     @http:ResourceConfig {
@@ -57,8 +55,8 @@ service<http:Service> StoreService bind storeServiceEndpoint {
         path:"/requests"
     }
     requests (endpoint conn, http:Request req) {
-        string payload = untaint req.getHeader("Host");
-        ClientRequest clientRequest = {host : payload};
+        string hostName = untaint req.getHeader("Host");
+        ClientRequest clientRequest = {host : hostName};
         requestStream.publish(clientRequest);
 
         http:Response res = {};

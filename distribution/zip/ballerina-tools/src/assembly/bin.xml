@@ -130,7 +130,7 @@
         <dependencySet>
             <outputDirectory>bre/lib</outputDirectory>
             <includes>
-                <include>org.ballerinalang:ballerina-packerina:jar</include>
+                <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:testerina-core:jar</include>
                 <include>org.ballerinalang:swagger-to-ballerina-generator:jar</include>
                 <include>org.ballerinalang:protobuf-ballerina:jar</include>

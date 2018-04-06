@@ -27,11 +27,13 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -58,6 +60,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public List<BLangSimpleVarRef> boundEndpoints;
     public BStructType endpointType, endpointClientType;
+    public BLangRecordLiteral anonymousEndpointBind;
 
     public BSymbol symbol;
 
@@ -176,6 +179,16 @@ public class BLangService extends BLangNode implements ServiceNode {
     @Override
     public List<? extends SimpleVariableReferenceNode> getBoundEndpoints() {
         return this.boundEndpoints;
+    }
+
+    @Override
+    public RecordLiteralNode getAnonymousEndpointBind() {
+        return anonymousEndpointBind;
+    }
+
+    @Override
+    public void addAnonymousEndpointBind(RecordLiteralNode recordLiteralNode) {
+        this.anonymousEndpointBind = (BLangRecordLiteral) recordLiteralNode;
     }
 
     @Override

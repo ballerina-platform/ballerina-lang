@@ -1,6 +1,6 @@
 package {{packageName}};
 
-import ballerina/net.grpc;
+import ballerina/grpc;
 import ballerina/io;
 {{#stubs}}
 struct {{connectorId}}{{stubTypeName}}Stub {
@@ -21,13 +21,13 @@ function <{{connectorId}}{{stubTypeName}}Stub stub> {{operationId}} ({{inputData
             error e = {message:payloadError.message};
             return e;
         }
-        any|string payload => {
+        any|{{outputDataType}} payload => {
             match payload {
-                string s => {
+                {{outputDataType}} s => {
                     return s;
                 }
-                any nonOccurance => {
-                    error e = {message:"Unexpeted type."};
+                any nonOccurrence => {
+                    error e = {message:"Unexpected type."};
                     return e;
                 }
             }
@@ -77,11 +77,18 @@ public function <{{connectorId}}{{stubTypeName}}Client ep> init (grpc:ClientEndp
 public function <{{connectorId}}{{stubTypeName}}Client ep> getClient () returns ({{connectorId}}{{stubTypeName}}Stub) {
     return ep.stub;
 }{{/stubObjects}}{{/client}}
-{{#struct}}
+{{#structs}}
 struct {{structId}} {
-{{#attribute}}{{type}} {{name}};{{/attribute}}
+{{#attribute}}{{type}} {{name}};
+{{/attribute}}
 }
-{{/struct}}
+{{/structs}}
+{{#enums}}
+enum {{enumId}} {
+{{#enumAttribute}}{{name}}{{eoe}}
+{{/enumAttribute}}
+}
+{{/enums}}
 const string descriptorKey = "{{rootDescriptorKey}}";
 map descriptorMap =
 { {{#descriptors}}

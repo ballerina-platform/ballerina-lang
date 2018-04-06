@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.endpoint;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -67,5 +68,21 @@ public class EndpointTest {
                 "<test1>");
     }
 
+    @Test(description = "Test anonymous endpoint testEndpoint with Service")
+    public void testAnonymousEndpointWithService() {
+        CompileResult testEndpointsInFunction = BCompileUtil.compile("test-src/endpoint/test_anonymous_endpoint.bal");
+
+        BValue[] returns = BRunUtil.invoke(testEndpointsInFunction, "test1");
+        Assert.assertTrue(returns.length == 1);
+        Assert.assertEquals(returns[0].stringValue(), "init:DummyEndpoint;register:DummyEndpoint;start:DummyEndpoint;" +
+                "<test1>");
+    }
+
+    @Test(description = "Test anonymous endpoint testEndpoint with Service")
+    public void testAnonymousEndpointNegative() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/test_anonymous_endpoint_negative.bal");
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0, "undefined field 'confX' in struct 'DummyEndpointConfig'", 62, 39);
+    }
 
 }

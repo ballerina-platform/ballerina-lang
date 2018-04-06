@@ -38,6 +38,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
@@ -71,9 +72,10 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 
 /**
- * Test cases for ballerina.net.http request success native functions.
+ * Test cases for ballerina/http request success native functions.
  */
 public class RequestNativeFunctionSuccessTest {
 
@@ -83,6 +85,7 @@ public class RequestNativeFunctionSuccessTest {
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
+    private final String reqCacheControlStruct = REQUEST_CACHE_CONTROL;
     public static final String PROTOCOL_PACKAGE_FILE = "ballerina.file";
     public static final String FILE = "File";
     private static final String MOCK_ENDPOINT_NAME = "mockEP";
@@ -190,7 +193,10 @@ public class RequestNativeFunctionSuccessTest {
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg);
+        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                               reqCacheControlStruct);
+        RequestCacheControlStruct cacheControlStruct = new RequestCacheControlStruct(cacheControl);
+        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg, cacheControlStruct);
 
         BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
         BValue[] inputArg = {inRequest, key};
@@ -222,7 +228,10 @@ public class RequestNativeFunctionSuccessTest {
 
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg);
+        BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
+                                                               reqCacheControlStruct);
+        RequestCacheControlStruct cacheControlStruct = new RequestCacheControlStruct(cacheControl);
+        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg, cacheControlStruct);
 
         BString key = new BString("test-header");
         BValue[] inputArg = {inRequest, key};

@@ -1,4 +1,4 @@
-package ballerina.net.http.swagger;
+package ballerina/swagger;
 
 annotation ServiceInfo attach service {
     string title;

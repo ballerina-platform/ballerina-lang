@@ -25,9 +25,11 @@ import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.BLangConstants;
+import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -51,6 +53,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
@@ -69,10 +72,13 @@ public class LauncherUtils {
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices,
                                   Map<String, String> runtimeParams, String configFilePath, String[] args,
-                                  boolean offline) {
+                                  boolean offline, boolean observeFlag, Map<String, String> metricsParams,
+                                  Map<String, String> tracingParams) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
+        loadConfigurations(sourceRootPath, runtimeParams, configFilePath, observeFlag, metricsParams, tracingParams);
+
         if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
         } else if (Files.isRegularFile(fullPath) &&
@@ -91,16 +97,13 @@ public class LauncherUtils {
             throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
         }
 
-        Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
-        try {
-            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, ballerinaConfPath);
-            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
-        } catch (IOException e) {
-            throw new RuntimeException(
-                    "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);
-        }
+        boolean runServicesOrNoMainEP = runServices || !programFile.isMainEPAvailable();
 
-        if (runServices || !programFile.isMainEPAvailable()) {
+        // Load launcher listeners
+        ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
+        listeners.forEach(listener -> listener.beforeRunProgram(runServicesOrNoMainEP));
+
+        if (runServicesOrNoMainEP) {
             if (args.length > 0) {
                 throw LauncherUtils.createUsageException("too many arguments");
             }
@@ -108,6 +111,8 @@ public class LauncherUtils {
         } else {
             runMain(programFile, args);
         }
+
+        listeners.forEach(listener -> listener.afterRunProgram(runServicesOrNoMainEP));
     }
 
     public static void runMain(ProgramFile programFile, String[] args) {
@@ -283,6 +288,43 @@ public class LauncherUtils {
                 byteOutStream.close();
             } catch (IOException ignore) {
             }
+        }
+    }
+
+    /**
+     * Initializes the {@link ConfigRegistry} and loads {@link LogManager} configs.
+     *
+     * @param sourceRootPath source directory
+     * @param runtimeParams  run time parameters
+     * @param configFilePath config file path
+     * @param observeFlag    to indicate whether observability is enabled
+     * @param metricsParams  configuration parameters for metrics
+     * @param tracingParams  configuration parameters for tracing
+     */
+    private static void loadConfigurations(Path sourceRootPath, Map<String, String> runtimeParams,
+                                           String configFilePath, boolean observeFlag,
+                                           Map<String, String> metricsParams, Map<String, String> tracingParams) {
+        Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
+        try {
+            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, ballerinaConfPath);
+            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
+
+            if (observeFlag) {
+                ConfigRegistry.getInstance()
+                        .addConfiguration(ObservabilityConstants.CONFIG_METRICS_ENABLED, String.valueOf(Boolean.TRUE));
+                ConfigRegistry.getInstance()
+                        .addConfiguration(ObservabilityConstants.CONFIG_TRACING_ENABLED, String.valueOf(Boolean.TRUE));
+                metricsParams.forEach(
+                        (key, value) -> ConfigRegistry.getInstance()
+                                .addConfiguration(ObservabilityConstants.CONFIG_TABLE_METRICS + "." + key, value));
+                tracingParams.forEach(
+                        (key, value) -> ConfigRegistry.getInstance()
+                                .addConfiguration(ObservabilityConstants.CONFIG_TABLE_TRACING + "." + key, value));
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);
         }
     }
 }

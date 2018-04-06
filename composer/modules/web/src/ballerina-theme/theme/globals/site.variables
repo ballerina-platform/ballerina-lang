@@ -42,7 +42,7 @@ html:focus, body:focus, input[readonly]:focus{
 @grey                       : #607D8B;
 @black                      : #000000;
 @off-white                  : #f1f1f1;
-@linkColor                  : #f17b31;
+@linkColor                  : @primaryColor;
 
 /*---- Shades of Gray ----*/
 

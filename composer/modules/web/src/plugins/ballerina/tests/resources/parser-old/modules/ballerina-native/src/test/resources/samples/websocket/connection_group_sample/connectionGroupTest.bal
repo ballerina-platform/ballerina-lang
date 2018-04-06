@@ -1,7 +1,7 @@
 import ballerina/lang.system;
 import ballerina/lang.messages;
 import ballerina/net.ws;
-import ballerina/net.http;
+import ballerina/http;
 
 @http:configuration {basePath:"/chat-group"}
 @ws:WebSocketUpgradePath {value:"/ws"}

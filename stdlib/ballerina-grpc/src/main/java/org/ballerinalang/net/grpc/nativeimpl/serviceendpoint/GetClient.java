@@ -49,7 +49,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_ENDPOINT_TYPE;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_ENDPOINT_TYPE,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = CLIENT_RESPONDER, structPackage =
-                PROTOCOL_PACKAGE_GRPC)},
+                PROTOCOL_STRUCT_PACKAGE_GRPC)},
         isPublic = true
 )
 public class GetClient extends AbstractGrpcNativeFunction {

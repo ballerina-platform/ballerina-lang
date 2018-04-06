@@ -35,9 +35,9 @@ import java.nio.file.Paths;
  */
 public class DefinitionTest {
     private static final String DEFINITION_TESTS_SAMPLES = "src" + File.separator + "test" + File.separator
-            + "resources" + File.separator + "definition.test";
+            + "resources" + File.separator + "definition";
     private static final String ROOT_DIR = Paths.get("").toAbsolutePath().toString() + File.separator;
-    private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "definition.test";
+    private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "definition";
     private static final String METHOD = "textDocument/definition";
     private String balPath1 = SAMPLES_COPY_DIR + File.separator + "definition1.bal";
     private String balPath2 = SAMPLES_COPY_DIR + File.separator + "definition2.bal";
@@ -67,8 +67,8 @@ public class DefinitionTest {
                         + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-    @Test(description = "Test goto definition for structs", dataProvider = "structPositions")
-    public void definitionForStructsTest(Position position, DefinitionTestDataModel dataModel)
+    @Test(description = "Test goto definition for records", dataProvider = "recordPositions")
+    public void definitionForRecordsTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,
                 dataModel.getBallerinaFilePath(), dataModel.getBallerinaFileContent(), METHOD),
@@ -77,8 +77,8 @@ public class DefinitionTest {
                         + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-    @Test(description = "Test goto definition for global variables", dataProvider = "globalVariablePositions")
-    public void definitionForGlobalVariablesTest(Position position, DefinitionTestDataModel dataModel)
+    @Test(description = "Test goto definition for readonly variables", dataProvider = "readOnlyVariablePositions")
+    public void definitionForReadOnlyVariablesTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,
                 dataModel.getBallerinaFilePath(), dataModel.getBallerinaFileContent(), METHOD),
@@ -87,7 +87,8 @@ public class DefinitionTest {
                         " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-    @Test(description = "Test goto definition for local variables", dataProvider = "localVariablePositions")
+    @Test(description = "Test goto definition for local variables", dataProvider = "localVariablePositions",
+            enabled = false)
     public void definitionForLocalVariablesTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,
@@ -109,26 +110,26 @@ public class DefinitionTest {
         };
     }
 
-    @DataProvider(name = "structPositions")
-    public Object[][] getStructPositions() {
+    @DataProvider(name = "recordPositions")
+    public Object[][] getRecordPositions() {
         return new Object[][]{
                 {new Position(36, 7),
-                        new DefinitionTestDataModel("structInSameFile.json",
+                        new DefinitionTestDataModel("recordInSameFile.json",
                                 Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
                 {new Position(13, 7),
-                        new DefinitionTestDataModel("structInAnotherFile.json",
+                        new DefinitionTestDataModel("recordInAnotherFile.json",
                                 Paths.get(balPath2).toUri().toString(), balPath1, balFile1Content)}
         };
     }
 
-    @DataProvider(name = "globalVariablePositions")
-    public Object[][] getGlobalVariablePositions() {
+    @DataProvider(name = "readOnlyVariablePositions")
+    public Object[][] getReadOnlyVariablePositions() {
         return new Object[][]{
                 {new Position(41, 53),
-                        new DefinitionTestDataModel("globalVariableInSameFile.json",
+                        new DefinitionTestDataModel("readOnlyVariableInSameFile.json",
                                 Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
                 {new Position(11, 18),
-                        new DefinitionTestDataModel("globalVariableInAnotherFile.json",
+                        new DefinitionTestDataModel("readOnlyVariableInAnotherFile.json",
                                 Paths.get(balPath1).toUri().toString(), balPath2, balFile2Content)}
         };
     }
@@ -149,7 +150,7 @@ public class DefinitionTest {
                         new DefinitionTestDataModel("localVariableOnForeachStatement.json",
                                 Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
                 {new Position(39, 25),
-                        new DefinitionTestDataModel("localVariableOfStruct.json",
+                        new DefinitionTestDataModel("localVariableOfRecord.json",
                                 Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)}
         };
     }

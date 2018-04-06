@@ -3,7 +3,7 @@ import ballerina/lang.jsons;
 import ballerina/lang.messages;
 import ballerina/lang.strings;
 import ballerina/lang.system;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/net.uri;
 import ballerina/utils;
 

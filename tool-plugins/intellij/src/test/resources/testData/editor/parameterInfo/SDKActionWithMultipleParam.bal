@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 function main (string[] args) {
     endpoint<http:HttpClient> httpEndpoint {

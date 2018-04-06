@@ -22,33 +22,6 @@ import ExpressionNode from '../expression-node';
 class AbstractTernaryExprNode extends ExpressionNode {
 
 
-    setCondition(newValue, silent, title) {
-        const oldValue = this.condition;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.condition = newValue;
-
-        this.condition.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'condition',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getCondition() {
-        return this.condition;
-    }
-
-
-
     setThenExpression(newValue, silent, title) {
         const oldValue = this.thenExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -99,6 +72,33 @@ class AbstractTernaryExprNode extends ExpressionNode {
 
     getElseExpression() {
         return this.elseExpression;
+    }
+
+
+
+    setCondition(newValue, silent, title) {
+        const oldValue = this.condition;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.condition = newValue;
+
+        this.condition.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'condition',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getCondition() {
+        return this.condition;
     }
 
 

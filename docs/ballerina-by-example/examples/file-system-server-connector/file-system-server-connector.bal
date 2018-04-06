@@ -1,23 +1,24 @@
+import ballerina/file;
 import ballerina/log;
-import ballerina/net.fs;
 
-@Description {value:"In this particular scenario, the connector is listening to the directory specified by dirURI. "}
-@Description {value:"File events that service get registered. "}
+@Description {value:"In this particular scenario, the connector is listening to the directory specified by path. "}
 @Description {value:"Recursively monitor child directories or not. "}
-endpoint fs:ServiceEndpoint inFolder {
-    dirURI:"/home/ballerina/fs-server-connector/file-in",
-    events:"create,delete,modify",
+endpoint file:Listener inFolder {
+    path:"/home/ballerina/fs-server-connector/observed-dir",
     recursive:false
 };
 
-@fs:serviceConfig {
-    endpoints:[localFolder]
-}
-service<fs:Service> localObserver bind inFolder {
-    sayHello (fs:FileSystemEvent m) {
-        // Modified file name
-        log:printInfo(m.name);
-        // Service triggered event
-        log:printInfo(m.operation);
+service localObserver bind inFolder {
+    onCreate (file:FileEvent m) {
+        string msg = "Create: " + m.name;
+        log:printInfo(msg);
+    }
+    onDelete (file:FileEvent m) {
+        string msg = "Delete: " + m.name;
+        log:printInfo(msg);
+    }
+    onModify (file:FileEvent m) {
+        string msg = "Modify: " + m.name;
+        log:printInfo(msg);
     }
 }

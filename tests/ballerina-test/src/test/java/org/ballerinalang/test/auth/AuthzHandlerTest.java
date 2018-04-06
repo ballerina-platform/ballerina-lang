@@ -58,6 +58,27 @@ public class AuthzHandlerTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test(description = "Test case for authorization failure with no user set in authcontext")
+    public void testHandleAuthzFailureWithNoUsernameInAuthContext() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHandleAuthzFailureWithNoUsernameInAuthContext");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for canHandle failure with no user set in authcontext")
+    public void testCanHandleAuthzFailureWithNoUsernameInAuthContext() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleAuthzFailureWithNoUsernameInAuthContext");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for canHandle success")
+    public void testCanHandleAuthz() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleAuthz");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test(description = "Test case for authorization success")
     public void testHandleAuthz() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testHandleAuthz");

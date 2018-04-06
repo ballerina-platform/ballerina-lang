@@ -1,4 +1,4 @@
-import ballerina/data.sql;
+import ballerina/sql;
 
 public function main (string[] args) {
     testSelectWithTaintedQueryNegative(args);
@@ -6,7 +6,7 @@ public function main (string[] args) {
 
 public function testSelectWithTaintedQueryNegative(string[] args) {
     endpoint sql:Client testDB {
-        database: sql:DB.MYSQL,
+        database: sql:DB_MYSQL,
         host: "localhost",
         port: 3306,
         name: "testdb",

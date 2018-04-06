@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 endpoint http:ServiceEndpoint echoDummyEP {
     port:9090
@@ -28,7 +28,7 @@ service<http:Service> echo bind echoEP {
         path:"/"
     }
     echo (endpoint outboundEP, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("hello world");
         _ = outboundEP -> respond(res);
     }
@@ -43,7 +43,7 @@ service<http:Service> echoOne bind echoEP, echoHttpEP {
         path:"/abc"
     }
     echoAbc (endpoint outboundEP, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("hello world");
         _ = outboundEP -> respond(res);
     }
@@ -59,7 +59,7 @@ service<http:Service> echoDummy bind echoDummyEP {
         path:"/"
     }
     echoDummy (endpoint outboundEP, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("hello world");
         _ = outboundEP -> respond(res);
     }

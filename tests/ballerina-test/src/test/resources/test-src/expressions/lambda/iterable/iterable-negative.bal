@@ -3,9 +3,9 @@ string word;
 
 function test1(){
     int x = 0;
-    x.foreach(function (int i) { count = count + i;});
+    x.foreach((int i) => { count = count + i;});
     string y = "foo";
-    y.map(function (string s) returns (int) { return lengthof s;});
+    y.map((string s) => (int) { return lengthof s;});
 }
 
 function test2(){
@@ -13,29 +13,29 @@ function test2(){
 
     y.count();
 
-    y.filter(function (int i, string x) returns (boolean) {
+    y.filter((int i, string x) => (boolean) {
         return true;})
-     .foreach(function (string x){ word = x;}).count();
+     .foreach((string x) => { word = x;}).count();
 }
 
 function test3(){
     map<string> z = {a:"1", b:"2"};
     string[] keys = z.map(
-                     function (string s) returns (string, string) {
+                     (string s) => (string, string) {
                          return (s, "value");
     }).keys();
 }
 
 function test4() {
     map z = {a:"1", b:"2"};
-    string[] a = z.map(function (any x) returns (string, string) {
+    string[] a = z.map((any x) => (string, string) {
                            var s = <string>x;
                            return (s, "value");
                        });
-    map m = z.filter(function (string s) returns boolean {
+    map m = z.filter((string s) => boolean {
           return s == null;
     });
-    any x = z.filter(function (string s) returns boolean {
+    any x = z.filter((string s) => boolean {
          return s == null;
      });
 }
@@ -43,9 +43,9 @@ function test4() {
 function test5(){
     string[] s = ["1", "a"];
     int x;
-    x = s.foreach(function (string s){word = word + s;});
+    x = s.foreach((string s) => {word = word + s;});
 
-    var (x, y) = s.map(function ((int, string) tuple) returns (int, string) { var (i, v) = tuple;
+    var (x, y) = s.map(((int, string) tuple) => (int, string) { var (i, v) = tuple;
                            return (i * 2, v + v);
                        });
 }
@@ -60,10 +60,10 @@ function test6(){
 
 function test7(){
     string[] s = ["foo", "bar"];
-    s.foreach(function ((string, string, string) z){});
-    s.foreach(function (){});
-    s.filter(function (string s) returns (boolean, int) {return (true, 1);});
-    s.filter(function(string s){});
-    s.filter(function(person p){});
-    _ = s.filter(function (string s) returns (person) {return null;});
+    s.foreach(((string, string, string) z) => {});
+    s.foreach(() => {});
+    s.filter((string s) => (boolean, int) {return (true, 1);});
+    s.filter((string s)=>{});
+    s.filter((person p)=>{});
+    _ = s.filter((string s) => (person) {return null;});
 }

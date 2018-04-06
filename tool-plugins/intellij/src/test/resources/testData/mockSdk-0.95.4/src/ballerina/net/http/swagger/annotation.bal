@@ -1,6 +1,6 @@
-package ballerina.net.http.swagger;
+package ballerina/swagger;
 
-import ballerina/net.http;
+import ballerina/http;
 
 public annotation ServiceInfo attach service<http> {
     string title;

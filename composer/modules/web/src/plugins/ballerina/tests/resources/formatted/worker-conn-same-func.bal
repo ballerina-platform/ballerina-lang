@@ -1,4 +1,6 @@
-import ballerina/lang.system;import ballerina.net.http;
+import ballerina/lang.system;
+import ballerina/http;
+
 function function1 () {
     http:ClientConnector __endpoint1
     = create http:ClientConnector("", {});

@@ -334,6 +334,10 @@
   "Function": {
     "before annotationAttachments": "",
     "after annotationAttachments": "",
+    "before documentationAttachments": "",
+    "after documentationAttachments": "",
+    "before deprecatedAttachments": "",
+    "after deprecatedAttachments": "",
     "before function": "",
     "after function": "",
     "before (": "",
@@ -361,7 +365,9 @@
     "before >": "",
     "after >": "",
     "before name": " ",
-    "after name": ""
+    "after name": "",
+    "before returns": "",
+    "after returns": ""
   },
   "FunctionType": {
     "before function": "",

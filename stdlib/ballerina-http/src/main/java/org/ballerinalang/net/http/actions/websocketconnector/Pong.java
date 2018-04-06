@@ -33,10 +33,10 @@ import javax.websocket.Session;
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "pong",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.STRUCT),
                 @Argument(name = "data", type = TypeKind.BLOB)
@@ -50,10 +50,9 @@ public class Pong extends BlockingNativeCallableUnit {
             BStruct wsConnection = (BStruct) context.getRefArgument(0);
             Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
             byte[] binaryData = context.getBlobArgument(0);
-            session.getBasicRemote().sendPong(ByteBuffer.wrap(binaryData));
+            session.getAsyncRemote().sendPong(ByteBuffer.wrap(binaryData));
         } catch (Throwable e) {
             throw new BallerinaException("Cannot send the message. Error occurred.");
         }
-        context.setReturnValues();
     }
 }

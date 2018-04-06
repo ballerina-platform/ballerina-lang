@@ -1,6 +1,6 @@
-import ballerina/net.http;
-import ballerina/net.http.request;
-import ballerina/net.http.response;
+import ballerina/http;
+import ballerina/http.request;
+import ballerina/http.response;
 
 
 @http:configuration {basePath:"/dummy-path"}

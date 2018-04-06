@@ -186,7 +186,7 @@ public class NativeConversionTest {
         Assert.assertEquals(parent.get("name").stringValue(), "Parent");
         Assert.assertEquals(parent.get("age").longValue(), 50);
         Assert.assertTrue(parent.get("parent").isNull());
-        Assert.assertEquals(parent.get("info").toString(), "{}");
+        Assert.assertTrue(parent.get("info").isNull());
         Assert.assertTrue(parent.get("address").isNull());
         Assert.assertTrue(parent.get("marks").isNull());
 

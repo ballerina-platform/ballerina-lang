@@ -623,7 +623,7 @@ public class Util {
         return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME, CONTENT_DISPOSITION_STRUCT);
     }
 
-    static BStruct getByteChannelStruct(CompileResult result) {
+    public static BStruct getByteChannelStruct(CompileResult result) {
         return BCompileUtil.createAndGetStruct(result.getProgFile(), PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
     }
 }

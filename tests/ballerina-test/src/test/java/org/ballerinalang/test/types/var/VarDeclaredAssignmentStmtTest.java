@@ -162,7 +162,7 @@ public class VarDeclaredAssignmentStmtTest {
         //var type is not not allowed in variable def statements
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-type-variable-def-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting {'.', '[', '=', '@', '=?'}", 2, 12);
+        BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting {'.', '[', '=', '!', '@'}", 2, 12);
     }
 
     @Test(description = "Test var in global variable def.")
@@ -171,7 +171,8 @@ public class VarDeclaredAssignmentStmtTest {
         CompileResult res = BCompileUtil.compile("test-src/types/var/global-variable-def-var-type-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 2);
         BAssertUtil.validateError(res, 0, "extraneous input 'var'", 1, 1);
-        BAssertUtil.validateError(res, 1, "mismatched input '='. expecting {'[', '|', Identifier}", 1, 15);
+        BAssertUtil.validateError(res, 1,
+                "mismatched input '='. expecting {'[', '?', '|', Identifier}", 1, 15);
     }
 
     @Test
@@ -184,9 +185,8 @@ public class VarDeclaredAssignmentStmtTest {
     @Test
     public void testVarDeclarationWithStructFieldAssignmentLHSExpr() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-invalid-usage-struct-field-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 2);
+        Assert.assertEquals(res.getErrorCount(), 1);
         BAssertUtil.validateError(res, 0, "invalid assignment in variable 'human.name'", 9, 8);
-        BAssertUtil.validateError(res, 1, "no new variables on left side", 9, 4);
     }
 
     @Test

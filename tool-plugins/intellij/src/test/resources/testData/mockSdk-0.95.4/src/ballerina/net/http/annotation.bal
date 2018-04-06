@@ -1,4 +1,4 @@
-package ballerina.net.http;
+package ballerina.http;
 
 @Description { value:"Configuration for HTTP service"}
 @Field {value:"host: Host of the service"}

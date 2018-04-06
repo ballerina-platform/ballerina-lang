@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 const int const1 = 0;
 const string const2 = "test const";
 

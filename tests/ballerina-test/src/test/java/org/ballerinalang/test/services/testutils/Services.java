@@ -77,7 +77,7 @@ public class Services {
     public static HTTPCarbonMessage invokeNew(CompileResult compileResult, HTTPTestRequest request) {
 //        BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
 //                getBallerinaServerConnector(compileResult.getProgFile(), HttpConstants.HTTP_PACKAGE_PATH);
-//        BTracer bTracer = new BTracer(null, false);
+//        BSpan bTracer = new BSpan(null, false);
 //        TestCallableUnitCallback callback = new TestCallableUnitCallback(request, bTracer);
 //        HttpResource resource = HttpDispatcher.findResource(httpServerConnector.getHttpServicesRegistry(), request);
 //

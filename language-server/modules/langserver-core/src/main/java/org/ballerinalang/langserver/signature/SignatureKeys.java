@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.signature;
 
-import org.ballerinalang.langserver.LanguageServerContext;
+import org.ballerinalang.langserver.LSContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 
 import java.util.List;
@@ -27,22 +27,22 @@ import java.util.List;
  * @since 0.95.6
  */
 class SignatureKeys {
-    static final LanguageServerContext.Key<String> CALLABLE_ITEM_NAME
-            = new LanguageServerContext.Key<>();
-    static final LanguageServerContext.Key<String> ITEM_DELIMITER
-            = new LanguageServerContext.Key<>();
-    static final LanguageServerContext.Key<List<SymbolInfo>> FILTERED_FUNCTIONS
-            = new LanguageServerContext.Key<>();
+    static final LSContext.Key<String> CALLABLE_ITEM_NAME
+            = new LSContext.Key<>();
+    static final LSContext.Key<String> ITEM_DELIMITER
+            = new LSContext.Key<>();
+    static final LSContext.Key<List<SymbolInfo>> FILTERED_FUNCTIONS
+            = new LSContext.Key<>();
     /**
      * If os:get... then identifier against is os
      * If res.send(.. then identifier against is res
      */
-    static final LanguageServerContext.Key<String> IDENTIFIER_AGAINST
-            = new LanguageServerContext.Key<>();
-    static final LanguageServerContext.Key<String> IDENTIFIER_TYPE
-            = new LanguageServerContext.Key<>();
-    static final LanguageServerContext.Key<String> IDENTIFIER_PKGID
-            = new LanguageServerContext.Key<>();
-    static final LanguageServerContext.Key<Integer> PARAMETER_COUNT
-            = new LanguageServerContext.Key<>();
+    static final LSContext.Key<String> IDENTIFIER_AGAINST
+            = new LSContext.Key<>();
+    static final LSContext.Key<String> IDENTIFIER_TYPE
+            = new LSContext.Key<>();
+    static final LSContext.Key<String> IDENTIFIER_PKGID
+            = new LSContext.Key<>();
+    static final LSContext.Key<Integer> PARAMETER_COUNT
+            = new LSContext.Key<>();
 }

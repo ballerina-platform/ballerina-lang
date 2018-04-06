@@ -18,12 +18,13 @@ package ballerina.jwt;
 
 import ballerina/util;
 import ballerina/jwt.signature;
+import ballerina/io;
 
 @Description {value:"Represents JWT issuer configurations"}
-public struct JWTIssuerConfig {
+public type JWTIssuerConfig {
     string certificateAlias;
     string keyPassword;
-}
+};
 
 @Description {value:"Issue a JWT token"}
 @Param {value:"header: Header object"}
@@ -48,7 +49,9 @@ function createHeader (Header header) returns (string) {
     headerJson[ALG] = header.alg;
     headerJson[TYP] = "JWT";
     headerJson = addMapToJson(headerJson, header.customClaims);
-    return urlEncode(util:base64Encode(headerJson.toString()));
+    string headerValInString = headerJson.toString()  but {() => ""};
+    string encodedPayload = check util:base64EncodeString(headerValInString);
+    return encodedPayload;
 }
 
 function createPayload (Payload payload) returns (string|error) {
@@ -66,32 +69,27 @@ function createPayload (Payload payload) returns (string|error) {
     }
     payloadJson[AUD] = convertStringArrayToJson(payload.aud);
     payloadJson = addMapToJson(payloadJson, payload.customClaims);
-    return urlEncode(util:base64Encode(payloadJson.toString()));
-}
-
-function urlEncode (string data) returns (string) {
-    string encodedString = data.replaceAll("\\+", "-");
-    encodedString = encodedString.replaceAll("/", "_");
-    return encodedString;
+    string payloadInString = payloadJson.toString()  but {() => ""};
+    return util:base64EncodeString(payloadInString);
 }
 
 function addMapToJson (json inJson, map mapToConvert) returns (json) {
-    if (mapToConvert != null && lengthof mapToConvert != 0) {
+    if (lengthof mapToConvert != 0) {
         foreach key in mapToConvert.keys() {
             if (typeof mapToConvert[key] == typeof string[]) {
-                string[] value =? <string[]>mapToConvert[key];
+                string[] value = check (<string[]>mapToConvert[key]);
                 inJson[key] = convertStringArrayToJson(value);
             } else if (typeof mapToConvert[key] == typeof int[]) {
-                int[] value =? <int[]>mapToConvert[key];
+                int[] value = check (<int[]>mapToConvert[key]);
                 inJson[key] = convertIntArrayToJson(value);
             } else if (typeof mapToConvert[key] == typeof string) {
                 string value = <string>mapToConvert[key];
                 inJson[key] = value;
             } else if (typeof mapToConvert[key] == typeof int) {
-                int value =? <int>mapToConvert[key];
+                int value = check (<int>mapToConvert[key]);
                 inJson[key] = value;
             } else if (typeof mapToConvert[key] == typeof boolean) {
-                boolean value =? <boolean>mapToConvert[key];
+                boolean value = check (<boolean>mapToConvert[key]);
                 inJson[key] = value;
             }
         }

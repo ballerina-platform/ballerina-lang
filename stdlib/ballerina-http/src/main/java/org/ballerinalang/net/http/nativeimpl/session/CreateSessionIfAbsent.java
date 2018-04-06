@@ -42,12 +42,12 @@ import java.util.NoSuchElementException;
  * @since 0.89
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "createSessionIfAbsent",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
-                structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.http"),
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Session",
-                structPackage = "ballerina.net.http")},
+                structPackage = "ballerina.http")},
         isPublic = true
 )
 public class CreateSessionIfAbsent extends BlockingNativeCallableUnit {

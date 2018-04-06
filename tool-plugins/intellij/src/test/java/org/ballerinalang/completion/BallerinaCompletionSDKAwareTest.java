@@ -74,17 +74,17 @@ public class BallerinaCompletionSDKAwareTest extends BallerinaCompletionTestBase
     //    }
 
     //    public void testPackageInvocationAutoCompletion() {
-    //        doCheckResult("test.bal", "import ballerina.net.http; function test() {ht<caret>}",
-    //                "import ballerina.net.http; function test() {http:}", null);
+    //        doCheckResult("test.bal", "import ballerina/http; function test() {ht<caret>}",
+    //                "import ballerina/http; function test() {http:}", null);
     //    }
     //
     //    public void testFunctionInvocationFromAPackage() {
-    //        doTest("import ballerina.net.uri; function test() {uri:<caret>}", "encode");
+    //        doTest("import ballerina.http; function test() {uri:<caret>}", "encode");
     //    }
     //
     //    public void testFunctionInvocationFromAPackageAutoCompletion() {
-    //        doCheckResult("test.bal", "import ballerina.net.uri; function test() {uri:en<caret>}",
-    //                "import ballerina.net.uri; function test() {uri:encode()}", null);
+    //        doCheckResult("test.bal", "import ballerina.http; function test() {uri:en<caret>}",
+    //                "import ballerina.http; function test() {uri:encode()}", null);
     //    }
     //
     //    public void testMultiLevelFunctionInvocation1() {

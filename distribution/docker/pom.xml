@@ -230,33 +230,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>com.google.code.maven-replacer-plugin</groupId>
-                <artifactId>replacer</artifactId>
-                <version>${maven.replacer.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>replace-versions</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>replace</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <includes>
-                        <include>${basedir}/README.md</include>
-                        <include>${basedir}/ballerina-base-image/README.md</include>
-                        <include>${basedir}/ballerina-base-image/build.sh</include>
-                    </includes>
-                    <replacements>
-                        <replacement>
-                            <token>[0-9]+\.[0-9]+\.[0-9]+-SNAPSHOT|[0-9]+\.[0-9]+\.[0-9]+</token>
-                            <value>\${project.version}</value>
-                        </replacement>
-                    </replacements>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 

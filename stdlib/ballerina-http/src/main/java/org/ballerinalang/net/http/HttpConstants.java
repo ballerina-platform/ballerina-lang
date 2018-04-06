@@ -39,8 +39,8 @@ public class HttpConstants {
     public static final String DEFAULT_SUB_PATH = "/*";
 
     public static final String PROTOCOL_HTTP = "http";
-    public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.net.http";
-    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.net.http:ServiceEndpoint";
+    public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.http";
+    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.http:ServiceEndpoint";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
@@ -52,6 +52,7 @@ public class HttpConstants {
     public static final String HTTP_VERSION = "HTTP_VERSION";
     public static final String LISTENER_PORT = "LISTENER_PORT";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
+    public static final int HTTP_DEFAULT_PORT = 9090;
     public static final String TLS_STORE_TYPE = "tlsStoreType";
     public static final String PKCS_STORE_TYPE = "PKCS12";
     public static final String AUTO = "AUTO";
@@ -62,7 +63,7 @@ public class HttpConstants {
     public static final String FORWARDED_DISABLE = "disable";
     public static final String DISABLE = "disable";
 
-    public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
+    public static final String HTTP_PACKAGE_PATH = "ballerina.http";
 
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
@@ -108,6 +109,10 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
     public static final String ANN_CONFIG_ATTR_CHUNKING = "chunking";
+    public static final String ANN_CONFIG_ATTR_PATTERN = "pattern";
+    public static final String ANN_CONFIG_ATTR_ALLOW_NO_VERSION = "allowNoVersion";
+    public static final String ANN_CONFIG_ATTR_MATCH_MAJOR_VERSION = "matchMajorVersion";
+    public static final String ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE = "webSocketUpgrade";
     public static final String ANN_WEBSOCKET_ATTR_UPGRADE_PATH = "upgradePath";;
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
@@ -116,7 +121,6 @@ public class HttpConstants {
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
 
-    public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
     public static final String VALUE_ATTRIBUTE = "value";
 
     public static final String COOKIE_HEADER = "Cookie";
@@ -138,13 +142,17 @@ public class HttpConstants {
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
 
     public static final String HTTP_CLIENT = "HttpClient";
-    public static final String B_CONNECTOR = "BConnector";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
     public static final String REMOTE_ADDRESS = "REMOTE_ADDRESS";
     public static final String ORIGIN_HOST = "ORIGIN_HOST";
+    public static final String POOLED_BYTE_BUFFER_FACTORY = "POOLED_BYTE_BUFFER_FACTORY";
     public static final String HTTP_SERVICE = "HTTP_SERVICE";
+    public static final String VERSION = "{version}";
+    public static final String DEFAULT_VERSION = "v.{major}.{minor}";
+    public static final String MAJOR_VERSION = "{major}";
+    public static final String MINOR_VERSION = "{minor}";
 
     /* Annotations */
     public static final String ANNOTATION_NAME_SOURCE = "Source";
@@ -160,6 +168,8 @@ public class HttpConstants {
     public static final String HTTP_HANDLE = "HttpHandle";
     public static final String PUSH_PROMISE = "PushPromise";
     public static final String ENTITY = "Entity";
+    public static final String RESPONSE_CACHE_CONTROL = "ResponseCacheControl";
+    public static final String REQUEST_CACHE_CONTROL = "RequestCacheControl";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String HTTP_TIMEOUT_ERROR = "HttpTimeoutError";
     public static final String TYPE_STRING = "string";
@@ -190,11 +200,14 @@ public class HttpConstants {
     public static final int REQUEST_VERSION_INDEX = 2;
     public static final int REQUEST_USER_AGENT_INDEX = 3;
     public static final int REQUEST_EXTRA_PATH_INFO_INDEX = 4;
+    public static final int REQUEST_CACHE_CONTROL_INDEX = 0;
 
     //Response struct indexes
     public static final int RESPONSE_STATUS_CODE_INDEX = 0;
     public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
     public static final int RESPONSE_SERVER_INDEX = 1;
+    public static final int IN_RESPONSE_CACHE_CONTROL_INDEX = 0;
+    public static final int IN_RESPONSE_RECEIVED_TIME_INDEX = 1;
 
     //PushPromise struct indexes
     public static final int PUSH_PROMISE_PATH_INDEX = 0;
@@ -216,6 +229,27 @@ public class HttpConstants {
     public static final int RETRY_STRUCT_INDEX = 4;
     public static final int RETRY_COUNT_INDEX = 0;
     public static final int RETRY_INTERVAL_INDEX = 1;
+
+    // ResponseCacheControl struct indices
+    public static final int RES_CACHE_CONTROL_MUST_REVALIDATE_INDEX = 0;
+    public static final int RES_CACHE_CONTROL_NO_CACHE_INDEX = 1;
+    public static final int RES_CACHE_CONTROL_NO_STORE_INDEX = 2;
+    public static final int RES_CACHE_CONTROL_NO_TRANSFORM_INDEX = 3;
+    public static final int RES_CACHE_CONTROL_IS_PRIVATE_INDEX = 4;
+    public static final int RES_CACHE_CONTROL_PROXY_REVALIDATE_INDEX = 5;
+    public static final int RES_CACHE_CONTROL_MAX_AGE_INDEX = 0;
+    public static final int RES_CACHE_CONTROL_S_MAXAGE_INDEX = 1;
+    public static final int RES_CACHE_CONTROL_NO_CACHE_FIELDS_INDEX = 0;
+    public static final int RES_CACHE_CONTROL_PRIVATE_FIELDS_INDEX = 1;
+
+    // RequestCacheControl struct indices
+    public static final int REQ_CACHE_CONTROL_NO_CACHE_INDEX = 0;
+    public static final int REQ_CACHE_CONTROL_NO_STORE_INDEX = 1;
+    public static final int REQ_CACHE_CONTROL_NO_TRANSFORM_INDEX = 2;
+    public static final int REQ_CACHE_CONTROL_ONLY_IF_CACHED_INDEX = 3;
+    public static final int REQ_CACHE_CONTROL_MAX_AGE_INDEX = 0;
+    public static final int REQ_CACHE_CONTROL_MAX_STALE_INDEX = 1;
+    public static final int REQ_CACHE_CONTROL_MIN_FRESH_INDEX = 2;
 
     public static final String CONNECTION_HEADER = "Connection";
     public static final String HEADER_VAL_CONNECTION_CLOSE = "Close";
@@ -257,17 +291,18 @@ public class HttpConstants {
     public static final String PROTOCOL_VERSION = "protocolName";
     public static final String ENABLED_PROTOCOLS = "versions";
     public static final String ENABLE = "enable";
+    public static final String ENDPOINT_CONFIG_OCSP_STAPLING = "ocspStapling";
     public static final String ENDPOINT_CONFIG_KEY_STORE = "keyStore";
     public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocols";
-    public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "validateCert";
+    public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "certValidation";
 
     //SslConfiguration indexes
     public static final String SSL_CONFIG_SSL_VERIFY_CLIENT = "sslVerifyClient";
     public static final String SSL_CONFIG_CIPHERS = "ciphers";
     public static final String SSL_CONFIG_CACHE_SIZE = "cacheSize";
     public static final String SSL_CONFIG_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
-    public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "hostNameVerification";
-    public static final String SSL_CONFIG_ENABLE_SESSION_CREATION = "sessionCreation";
+    public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "verifyHostname";
+    public static final String SSL_CONFIG_ENABLE_SESSION_CREATION = "shareSession";
 
     //Client Endpoint
     public static final String CLIENT_ENDPOINT_CONFIG = "config";

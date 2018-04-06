@@ -28,10 +28,16 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 public class BJSONType extends BBuiltInRefType implements ConstrainedType {
 
     public BType constraint;
+    private boolean nullable = true;
 
     public BJSONType(int tag, BType constraint, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;
+    }
+
+    public BJSONType(int tag, BType constraint, BTypeSymbol tsymbol, boolean nullable) {
+        this(tag, constraint, tsymbol);
+        this.nullable = nullable;
     }
 
     @Override
@@ -51,6 +57,14 @@ public class BJSONType extends BBuiltInRefType implements ConstrainedType {
         }
 
         return super.toString() + "<" + constraint + ">";
+    }
+
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
     }
 
     @Override

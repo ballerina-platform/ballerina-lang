@@ -3,27 +3,13 @@
     "line": 0,
     "character": 0
   },
-  "source": "topLevelEmptyFirstLine.bal",
+  "source": "toplevel/source/topLevelEmptyFirstLine.bal",
   "items": [
     {
       "label":"import",
       "detail":"Keyword",
       "sortText":"210",
       "insertText":"import ",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"package",
-      "detail":"Keyword",
-      "sortText":"210",
-      "insertText":"package ",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"const",
-      "detail":"Keyword",
-      "sortText":"210",
-      "insertText":"const ",
       "insertTextFormat":"Snippet"
     },
     {
@@ -41,38 +27,10 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"enum",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"enum ${1:name} {\n\t\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"service",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"service\u003c${1:ServiceType}\u003e ${2:serviceName}{\n\t${3:newResource} () {\n\t}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"transformer",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"transformer\u003c${1:Source} ${2:a},${3:Target} ${4:b}\u003e{\n\t${5}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"connector",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"connector ${1:name} (${2}) {\n\t${3}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"struct",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"struct ${1:name}{\n\t${2}\n}",
+      "insertText":"service\u003c${1:http:Service}\u003e ${2:serviceName}{\n\t${3:newResource} (endpoint ${4:epReference}, ${5:http:Request request}) {\n\t}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -90,10 +48,24 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"type \u003cName\u003e object",
+      "label":"type \u003cObjectName\u003e object",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"type ${1:ObjectTypeName} object {\n\t${2}\n}",
+      "insertText":"type ${1:ObjectName} object {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"type \u003cRecordName\u003e",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"type ${1:RecordName} {\n\t${2}\n};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"endpoint",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"endpoint ${1:http:ServiceEndpoint} ${2:endpointName} {\n\t${3}\n};",
       "insertTextFormat":"Snippet"
     },
     {

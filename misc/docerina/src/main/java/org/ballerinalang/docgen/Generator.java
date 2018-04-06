@@ -271,15 +271,15 @@ public class Generator {
         }
 
         // Iterate through the return types
-        if (functionNode.getReturnParameters().size() > 0) {
-            for (int i = 0; i < functionNode.getReturnParameters().size(); i++) {
-                BLangVariable returnParam = functionNode.getReturnParameters().get(i);
-                String dataType = type(returnParam);
-                String desc = returnParamAnnotation(functionNode, i);
-                Variable variable = new Variable(returnParam.getName().value, dataType, desc);
-                returnParams.add(variable);
-            }
-        }
+//        if (functionNode.getReturnParameters().size() > 0) {
+//            for (int i = 0; i < functionNode.getReturnParameters().size(); i++) {
+//                BLangVariable returnParam = functionNode.getReturnParameters().get(i);
+//                String dataType = type(returnParam);
+//                String desc = returnParamAnnotation(functionNode, i);
+//                Variable variable = new Variable(returnParam.getName().value, dataType, desc);
+//                returnParams.add(variable);
+//            }
+//        }
         return new FunctionDoc(functionName, description(functionNode), new ArrayList<>(), parameters, returnParams);
     }
 
@@ -302,16 +302,16 @@ public class Generator {
             }
         }
 
-        // Iterate through the return types
-        if (actionNode.getReturnParameters().size() > 0) {
-            for (int i = 0; i < actionNode.getReturnParameters().size(); i++) {
-                BLangVariable returnParam = actionNode.getReturnParameters().get(i);
-                String dataType = type(returnParam);
-                String desc = returnParamAnnotation(actionNode, i);
-                Variable variable = new Variable(returnParam.getName().value, dataType, desc);
-                returnParams.add(variable);
-            }
-        }
+//        // Iterate through the return types
+//        if (actionNode.getReturnParameters().size() > 0) {
+//            for (int i = 0; i < actionNode.getReturnParameters().size(); i++) {
+//                BLangVariable returnParam = actionNode.getReturnParameters().get(i);
+//                String dataType = type(returnParam);
+//                String desc = returnParamAnnotation(actionNode, i);
+//                Variable variable = new Variable(returnParam.getName().value, dataType, desc);
+//                returnParams.add(variable);
+//            }
+//        }
         return new ActionDoc(actionName, description(actionNode), new ArrayList<>(),
                 parameters, returnParams);
     }
@@ -438,7 +438,7 @@ public class Generator {
      * @param returnTypeIndex The index of the return type.
      * @return description of the return parameter.
      */
-    private static String returnParamAnnotation(BLangNode node, int returnTypeIndex) {
+    public static String returnParamAnnotation(BLangNode node, int returnTypeIndex) {
         int currentReturnAnnotationIndex = 0;
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
             BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();

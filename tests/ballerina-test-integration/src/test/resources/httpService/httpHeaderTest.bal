@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina/http;
 
 endpoint http:ServiceEndpoint headerServiceEP {
     port: 9090
@@ -9,7 +9,7 @@ endpoint http:ServiceEndpoint stockServiceEP {
 };
 
 endpoint http:ClientEndpoint stockqEP {
-    targets: [{uri: "http://localhost:9091"}]
+    targets:[{url: "http://localhost:9091"}]
 };
 
 @http:ServiceConfig {
@@ -26,12 +26,12 @@ service<http:Service> headerService bind headerServiceEP {
             http:Response clientResponse => {
                 _ = conn -> forward(clientResponse);
             }
-            any|null => { return;}
+            any|() => {}
         }
     }
 
     id (endpoint conn, http:Request req) {
-        http:Response clntResponse = {};
+        http:Response clntResponse = new;
         var reply = stockqEP -> forward("/sample/customers", req);
 
         match reply {
@@ -47,13 +47,11 @@ service<http:Service> headerService bind headerServiceEP {
                 } else {
                     payload = {"response":"person header not available"};
                 }
-                http:Response res = {};
+                http:Response res = new;
                 res.setJsonPayload(payload);
                 _ = conn -> respond(res);
             }
-            any|null => {
-                return;
-            }
+            any|() => {}
         }
     }
 }
@@ -79,7 +77,7 @@ service<http:Service> quoteService bind stockServiceEP {
         } else {
             payload = {"response":"core header not available"};
         }
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(payload);
         _ = conn -> respond(res);
     }
@@ -89,7 +87,7 @@ service<http:Service> quoteService bind stockServiceEP {
         path:"/customers"
     }
     product (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setHeader("person", "kkk");
         res.addHeader("person", "jjj");
         _ = conn -> respond(res);

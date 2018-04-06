@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,10 +45,16 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
-        WorkspaceDocumentManagerImpl documentManager = WorkspaceDocumentManagerImpl.getInstance();
-        BLangPackageContext bLangPackageContext = new BLangPackageContext();
-        textService = new BallerinaTextDocumentService(this, documentManager, bLangPackageContext);
-        workspaceService = new BallerinaWorkspaceService(this, documentManager, bLangPackageContext);
+        LSGlobalContext lsGlobalContext = new LSGlobalContext();
+        LSPackageCache lsPackageCache = LSPackageCache.getInstance();
+        LSAnnotationCache annotationCache = new LSAnnotationCache(lsPackageCache);
+        
+        lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
+        lsGlobalContext.put(LSGlobalContextKeys.ANNOTATION_CACHE_KEY, annotationCache);
+        lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, WorkspaceDocumentManagerImpl.getInstance());
+        
+        textService = new BallerinaTextDocumentService(lsGlobalContext);
+        workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
     }
 
     public LanguageClient getClient() {

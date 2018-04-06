@@ -32,10 +32,10 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
  * {@code AddHeader} is the ballerina native function to add a header to a Push Promise.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.http",
+        orgName = "ballerina", packageName = "http",
         functionName = "addHeader",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "PushPromise",
-                structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.http"),
         args = {@Argument(name = "headerName", type = TypeKind.STRING),
                 @Argument(name = "headerValue", type = TypeKind.STRING)
         },

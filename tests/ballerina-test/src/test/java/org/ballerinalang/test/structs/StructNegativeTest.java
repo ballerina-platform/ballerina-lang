@@ -86,7 +86,7 @@ public class StructNegativeTest {
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
-                            "missing token {'int', 'float', 'boolean', 'string', 'blob'} before 'Person'");
+                            "incompatible types: expected 'constants:Person', found 'int'");
     }
 
     @Test(description = "Test accessing an field of a noninitialized struct",

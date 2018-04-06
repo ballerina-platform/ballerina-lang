@@ -1,5 +1,5 @@
 import ballerina/math;
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/log;
 
 // This is the initiator of the distributed transaction

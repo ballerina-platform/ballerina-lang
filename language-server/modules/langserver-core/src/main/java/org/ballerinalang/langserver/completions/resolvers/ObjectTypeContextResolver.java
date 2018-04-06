@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  */
 public class ObjectTypeContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
+    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> filteredTypes = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
@@ -49,7 +49,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
     private void populateSnippetSignatures(List<CompletionItem> completionItems) {
         CompletionItem functionItem = new CompletionItem();
         functionItem.setLabel(ItemResolverConstants.FUNCTION);
-        functionItem.setInsertText(Snippet.FUNCTION.toString());
+        functionItem.setInsertText(Snippet.FUNCTION_SIGNATURE.toString());
         functionItem.setInsertTextFormat(InsertTextFormat.Snippet);
         functionItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
         completionItems.add(functionItem);

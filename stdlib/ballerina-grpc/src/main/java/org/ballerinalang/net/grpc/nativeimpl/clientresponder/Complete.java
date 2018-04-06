@@ -67,7 +67,7 @@ public class Complete extends BlockingNativeCallableUnit {
         if (responseObserver == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                     .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
-                            "response sender doesnot exist"))));
+                            "response sender does not exist"))));
         } else {
             try {
                 if (!MessageUtils.isEmptyResponse(outputType)) {
