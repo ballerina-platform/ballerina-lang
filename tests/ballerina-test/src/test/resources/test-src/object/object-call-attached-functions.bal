@@ -33,7 +33,7 @@ type Person object {
 
     function getNameWrapperOutside2() returns string;
 
-}
+};
 
 function Person::getNameOut() returns string {
     return name;
