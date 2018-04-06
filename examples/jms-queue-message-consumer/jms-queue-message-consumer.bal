@@ -8,7 +8,7 @@ jms:Connection conn = new ({
 });
 
 jms:Session jmsSession = new (conn, {
-    acknowledgementMode: "CLIENT_ACKNOWLEDGE"
+    acknowledgementMode: "AUTO_ACKNOWLEDGE"
 });
 
 endpoint jms:QueueConsumer consumer {
@@ -21,6 +21,5 @@ service<jms:Consumer> jmsListener bind consumer {
     onMessage(endpoint consumer, jms:Message message) {
         string messageText = message.getTextMessageContent();
         log:printInfo("Message : " + messageText);
-        // consumer -> acknowledge (message);
   }
 }
