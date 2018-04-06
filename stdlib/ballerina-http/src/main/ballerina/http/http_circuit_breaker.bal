@@ -231,6 +231,7 @@ public function CircuitBreakerClient::post (string path, Request request) return
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
    Response response = new;
+    //TODO remove this workaround once record init is introduced
    HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
@@ -256,6 +257,7 @@ public function CircuitBreakerClient::head (string path, Request request) return
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
    Response response = new;
+    //TODO remove this workaround once record init is introduced
    HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
@@ -281,6 +283,7 @@ public function CircuitBreakerClient::put (string path, Request request) returns
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
    Response response = new;
+    //TODO remove this workaround once record init is introduced
    HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
@@ -312,6 +315,7 @@ public function CircuitBreakerClient::execute (string httpVerb, string path, Req
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
    Response response = new;
+    //TODO remove this workaround once record init is introduced
    HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
@@ -342,6 +346,7 @@ public function CircuitBreakerClient::patch (string path, Request request) retur
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
    Response response = new;
+    //TODO remove this workaround once record init is introduced
    HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
@@ -372,6 +377,7 @@ public function CircuitBreakerClient::delete (string path, Request request) retu
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
    Response response = new;
+    //TODO remove this workaround once record init is introduced
    HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
@@ -402,6 +408,7 @@ public function CircuitBreakerClient::get (string path, Request request) returns
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
     Response response = new;
+    //TODO remove this workaround once record init is introduced
     HttpConnectorError httpConnectorError = {statusCode:501};
 
     if (self.currentCircuitState == CB_OPEN_STATE) {
@@ -432,6 +439,7 @@ public function CircuitBreakerClient::options (string path, Request request) ret
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
    Response response = new;
+    //TODO remove this workaround once record init is introduced
    HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
@@ -462,6 +470,7 @@ public function CircuitBreakerClient::forward (string path, Request request) ret
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
    Response response = new;
+    //TODO remove this workaround once record init is introduced
    HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
