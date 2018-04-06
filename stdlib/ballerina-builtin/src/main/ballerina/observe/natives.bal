@@ -75,14 +75,13 @@ public type Span object {
     @Param {value:"req: The http request used when calling an endpoint"}
     @Param {value:"traceGroup: The group that the span context is associated to"}
     @Return {value:"The http request which includes the span context related headers"}
-    public function injectTraceContextToHttpHeader (http:Request req, string traceGroup)
-                                                                                        returns (http:Request) {
-    map headers = span.injectTraceContext(traceGroup);
-    foreach key, v in headers {
-        var value = <string>v;
-        req.addHeader(key, value);
-        }
-    return req;
+    public function injectTraceContextToHttpHeader (http:Request req, string traceGroup) returns (http:Request) {
+        map headers = self.injectTraceContext(traceGroup);
+        foreach key, v in headers {
+            var value = <string>v;
+            req.addHeader(key, value);
+            }
+        return req;
     }
 };
 
@@ -102,7 +101,7 @@ public type SpanContext {
 @Param {value:"parentSpan: Can be of type Span or SpanContext. If no parent null can be given"}
 @Return {value:"The newly started span"}
 public function startSpan(string serviceName, string spanName, map | () tags, ReferenceType reference,
-Span | SpanContext | () parentSpan) returns (Span) {
+                                                                Span | SpanContext | () parentSpan) returns (Span) {
     match parentSpan {
         Span span => return startSpanWithParentSpan(serviceName, spanName, tags, reference, span);
         SpanContext spanContext => {

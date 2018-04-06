@@ -59,7 +59,7 @@ public class StartSpanWithParentContext extends BlockingNativeCallableUnit {
 
         String serviceName = context.getStringArgument(0);
         String spanName = context.getStringArgument(1);
-        BMap tags = (BMap) context.getRefArgument(0);
+        BMap tags = (BMap) context.getNullableRefArgument(0);
         String reference = context.getRefArgument(1).stringValue();
         BStruct parentSpanContextStruct = (BStruct) context.getRefArgument(2);
         PrintStream err = System.err;
