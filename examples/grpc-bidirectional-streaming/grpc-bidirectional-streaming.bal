@@ -14,9 +14,11 @@ endpoint grpc:Service ep {
     serverStreaming:true,
     generateClientConnector:false}
 service<grpc:Endpoint> Chat bind ep {
-    map consMap = new;
+    map consMap;
+
     onOpen (endpoint client) {
-        consMap[<string>client.getClient().getID()] = client;
+        var connID = client -> getID();
+        consMap[<string> connID] = client;
     }
 
     onMessage (endpoint client, ChatMessage chatMsg) {
@@ -44,7 +46,8 @@ service<grpc:Endpoint> Chat bind ep {
 
     onComplete (endpoint client) {
         endpoint grpc:Service con;
-        string msg = string `{{client.getClient().getID()}} left the chat`;
+        var connID = client -> getID();
+        string msg = string `{{connID}} left the chat`;
         io:println(msg);
         var v = consMap.remove(<string>client.getClient().getID());
         string[] conKeys = consMap.keys();
@@ -64,4 +67,4 @@ service<grpc:Endpoint> Chat bind ep {
 type ChatMessage {
     string name;
     string message;
-}
+};
