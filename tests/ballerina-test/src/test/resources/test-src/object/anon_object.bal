@@ -1,25 +1,25 @@
 
 function testAnonObjectAsFuncParam() returns (int) {
-    return testAnonObjectFunc(10, {k:14, s:"sameera"});
+    return testAnonObjectFunc(10, new (14, "sameera"));
 }
 
-function testAnonObjectFunc(int i, object {public {int k = 10; string s;}} anonSt) returns (int) {
+function testAnonObjectFunc(int i, object {public {int k = 10; string s;} new (k, s){}} anonSt) returns (int) {
     return anonSt.k + i;
 }
 
 
 function testAnonObjectAsLocalVar() returns (int) {
-    object {public{int k = 11; string s;}} anonSt = {};
+    object {public{int k = 11; string s;}} anonSt = new;
 
     return anonSt.k;
 }
 
 
-object { public {string fname; string lname; int age;} new () {}} person;
+object { public {string fname; string lname; int age;} new (fname, lname) {}} person;
 
 function testAnonObjectAsPkgVar() returns (string) {
 
-    person = {fname:"sameera", lname:"jaya"};
+    person = new ("sameera", "jaya");
     person.lname = person.lname + "soma";
     person.age = 100;
     return person.fname + ":" + person.lname + ":" + person.age;
@@ -35,7 +35,7 @@ type employee object {
             string city;
             string state;
             string zipcode;
-        }} address;
+        } new (line01, city, state, zipcode) {}} address;
 
         object {public{
         string month = "JAN";
@@ -43,13 +43,15 @@ type employee object {
         string year = "1970";
         }} dateOfBirth;
     }
+
+    new (fname, lname, age, address, dateOfBirth) {}
 };
 
 function testAnonObjectAsObjectField() returns (string) {
 
-    employee e = {fname:"sam", lname:"json", age:100,
-                     address:{line01:"12 Gemba St APT 134", city:"Los Altos", state:"CA", zipcode:"95123"},
-                    dateOfBirth:{}};
+    employee e = new ("sam", "json", 100,
+                     new ("12 Gemba St APT 134", "Los Altos", "CA", "95123"),
+                        new());
     return e.dateOfBirth.month + ":" + e.address.line01 + ":" + e.address["state"] + ":" + e.fname;
 }
 
@@ -65,39 +67,39 @@ function testAnonObjectWithFunctionAsLocalVar () returns string {
 }
 
 
-type Person object {
+public type Person object {
     public {
         int age;
         string name;
-    }
-    private {
+    //}
+    //private {
         int length;
         string kind;
     }
 
-    new (age, name, length) {
+    public new (age, name, length) {
 
     }
 
-    function getName () returns string {
+    public function getName () returns string {
         return name;
     }
 
-    function getKind() returns string;
+    public function getKind() returns string;
 };
 
-function Person::getKind() returns string {
+public function Person::getKind() returns string {
     return kind;
 }
 
 function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string, string) {
-    object { public { int age; string name;} private { int length; string kind; }
-    new (age, name, string value) {
+    object { public { int age; string name;int length; string kind; }
+    public new (age, name, string value) {
         kind = " hello " + value;
     }
-    function getName () returns string { return name; }
+    public function getName () returns string { return name; }
 
-    function getKind() returns string{ return name + kind; } } value = new (5, "passed Name", "sample value");
+    public function getKind() returns string{ return name + kind; } } value = new (5, "passed Name", "sample value");
 
     Person person  = value;
 
