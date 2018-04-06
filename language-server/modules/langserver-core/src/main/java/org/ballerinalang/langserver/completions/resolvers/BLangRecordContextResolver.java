@@ -27,7 +27,7 @@ import java.util.ArrayList;
 /**
  * Item Resolver for the BLangStruct node context.
  */
-public class BLangStructContextResolver extends AbstractItemResolver {
+public class BLangRecordContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
