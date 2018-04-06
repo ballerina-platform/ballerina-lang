@@ -198,13 +198,15 @@ public function RetryClient::options (string path, Request request) returns (Res
 }
 
 public function RetryClient::submit (string httpVerb, string path, Request request) returns (HttpHandle | HttpConnectorError) {
-	HttpConnectorError httpConnectorError = {};
+    //TODO : Initialize the record type correctly once it is fixed.
+	HttpConnectorError httpConnectorError = {statusCode:501};
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
 
 public function RetryClient::getResponse (HttpHandle handle) returns (Response | HttpConnectorError) {
-	HttpConnectorError httpConnectorError = {};
+    //TODO : Initialize the record type correctly once it is fixed.
+	HttpConnectorError httpConnectorError = {statusCode:501};
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
@@ -214,13 +216,15 @@ public function RetryClient::hasPromise (HttpHandle handle) returns (boolean) {
 }
 
 public function RetryClient::getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError) {
-	HttpConnectorError httpConnectorError = {};
+    //TODO : Initialize the record type once it is fixed.
+	HttpConnectorError httpConnectorError = {statusCode:501};
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
 
 public function RetryClient::getPromisedResponse (PushPromise promise) returns (Response | HttpConnectorError) {
-	HttpConnectorError httpConnectorError = {};
+    //TODO : Initialize this correctly, once it is fixed.
+	HttpConnectorError httpConnectorError = {statusCode:501};
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
@@ -253,7 +257,8 @@ function performRetryAction (string path, Request request, HttpOperation request
     }
     HttpClient httpClient = retryClient.httpClient;
     Response response = new;
-    HttpConnectorError httpConnectorError = {};
+    //TODO : Initialize the record type correctly once it is fixed.
+    HttpConnectorError httpConnectorError = {statusCode:501};
     Request inRequest = request;
     // When performing passthrough scenarios using retry client, message needs to be built before sending out the
     // to keep the request message to retry.
