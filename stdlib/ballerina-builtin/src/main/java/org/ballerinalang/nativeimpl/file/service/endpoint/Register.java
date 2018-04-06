@@ -103,20 +103,20 @@ public class Register extends BlockingNativeCallableUnit {
         Map<String, Resource> registry = new HashMap<>(3);
         for (Resource resource : service.getResources()) {
             switch (resource.getName()) {
-            case DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE:
-                validateParameter(resource);
-                registry.put(DirectoryListenerConstants.EVENT_CREATE, resource);
-                break;
-            case DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE:
-                validateParameter(resource);
-                registry.put(DirectoryListenerConstants.EVENT_DELETE, resource);
-                break;
-            case DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY:
-                validateParameter(resource);
-                registry.put(DirectoryListenerConstants.EVENT_MODIFY, resource);
-                break;
-            default:
-                // Do nothing.
+                case DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE:
+                    validateParameter(resource);
+                    registry.put(DirectoryListenerConstants.EVENT_CREATE, resource);
+                    break;
+                case DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE:
+                    validateParameter(resource);
+                    registry.put(DirectoryListenerConstants.EVENT_DELETE, resource);
+                    break;
+                case DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY:
+                    validateParameter(resource);
+                    registry.put(DirectoryListenerConstants.EVENT_MODIFY, resource);
+                    break;
+                default:
+                    // Do nothing.
             }
         }
         if (registry.size() == 0) {
