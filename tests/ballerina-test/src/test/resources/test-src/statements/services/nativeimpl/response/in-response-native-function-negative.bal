@@ -32,7 +32,7 @@ function testRemoveHeader (http:Response res, string key) returns (http:Response
 }
 
 function testRemoveAllHeaders (http:Response ress) returns (http:Response) {
-    http:Response res = {};
+    http:Response res = new;
     res.removeAllHeaders();
     return res;
 }

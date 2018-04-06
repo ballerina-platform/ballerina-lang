@@ -45,7 +45,7 @@ public class SetBaggageItem extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct span = (BStruct) context.getRefArgument(0);
-        String spanId = span.getStringField(0);
+        String spanId = span.getStringField(2);
         String baggageKey = context.getStringArgument(0);
         String baggageValue = context.getStringArgument(1);
         OpenTracerBallerinaWrapper.getInstance().setBaggageItem(spanId, baggageKey, baggageValue);

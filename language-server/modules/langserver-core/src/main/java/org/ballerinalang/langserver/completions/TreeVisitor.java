@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.completions.util.positioning.resolvers.Conne
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ObjectTypeScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.PackageNodeScopeResolver;
+import org.ballerinalang.langserver.completions.util.positioning.resolvers.RecordScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ResourceParamScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ServiceScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.TopLevelNodeScopeResolver;
@@ -223,12 +224,10 @@ public class TreeVisitor extends LSNodeVisitor {
                 this.setTerminateVisitor(true);
             } else if (!bLangRecord.fields.isEmpty()) {
                 // Since the record definition do not have a block statement within, we push null
-                this.blockStmtStack.push(null);
+                cursorPositionResolver = RecordScopeResolver.class;
                 this.blockOwnerStack.push(bLangRecord);
-                // Cursor position is calculated against the Block statement scope resolver
-                this.cursorPositionResolver = BlockStatementScopeResolver.class;
                 bLangRecord.fields.forEach(field -> acceptNode(field, recordEnv));
-                this.blockStmtStack.pop();
+                cursorPositionResolver = TopLevelNodeScopeResolver.class;
                 this.blockOwnerStack.pop();
             }
         }

@@ -2,19 +2,19 @@ package ballerina.http;
 
 public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 
-@final Chunking CHUNKING_AUTO = "AUTO";
-@final Chunking CHUNKING_ALWAYS = "ALWAYS";
-@final Chunking CHUNKING_NEVER = "NEVER";
+@final public Chunking CHUNKING_AUTO = "AUTO";
+@final public Chunking CHUNKING_ALWAYS = "ALWAYS";
+@final public Chunking CHUNKING_NEVER = "NEVER";
 
 public type Compression "AUTO" | "ALWAYS" | "NEVER";
 
-@final Compression COMPRESSION_AUTO = "AUTO";
-@final Compression COMPRESSION_ALWAYS = "ALWAYS";
-@final Compression COMPRESSION_NEVER = "NEVER";
+@final public Compression COMPRESSION_AUTO = "AUTO";
+@final public Compression COMPRESSION_ALWAYS = "ALWAYS";
+@final public Compression COMPRESSION_NEVER = "NEVER";
 
 public type TransferEncoding "CHUNKING";
 
-@final TransferEncoding TRANSFERENCODE_CHUNKING = "CHUNKING";
+@final public TransferEncoding TRANSFERENCODE_CHUNKING = "CHUNKING";
 
 @Description { value:"TrustStore record represents trust store related options to be used for HTTP client/service invocation"}
 @Field {value:"filePath: File path to trust store file"}
@@ -33,11 +33,11 @@ public type KeyStore {
 };
 
 @Description { value:"Protocols record represents SSL/TLS protocol related options to be used for HTTP client/service invocation"}
-@Field {value:"protocolVersion: SSL Protocol to be used. eg: TLS1.2"}
-@Field {value:"enabledProtocols: SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2"}
+@Field {value:"protocolName: SSL Protocol to be used. eg: TLS1.2"}
+@Field {value:"versions: SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2"}
 public type Protocols {
     string protocolName,
-    string versions,
+    string[] versions,
 };
 
 @Description { value:"ValidateCert record represents options related to check whether a certificate is revoked or not"}

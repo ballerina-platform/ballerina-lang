@@ -77,13 +77,13 @@ public type Connection object {
 @Field { value:"TEMPORARY_REDIRECT_307: Represents status code 307 - Temporary Redirect."}
 public type RedirectCode 300 | 301 | 302 | 303 | 304 | 305 | 307;
 
-@final RedirectCode REDIRECT_MULTIPLE_CHOICES_300 = 300;
-@final RedirectCode REDIRECT_MOVED_PERMANENTLY_301 = 301;
-@final RedirectCode REDIRECT_FOUND_302 = 302;
-@final RedirectCode REDIRECT_SEE_OTHER_303 = 303;
-@final RedirectCode REDIRECT_NOT_MODIFIED_304 = 304;
-@final RedirectCode REDIRECT_USE_PROXY_305 = 305;
-@final RedirectCode REDIRECT_TEMPORARY_REDIRECT_307 = 307;
+@final public RedirectCode REDIRECT_MULTIPLE_CHOICES_300 = 300;
+@final public RedirectCode REDIRECT_MOVED_PERMANENTLY_301 = 301;
+@final public RedirectCode REDIRECT_FOUND_302 = 302;
+@final public RedirectCode REDIRECT_SEE_OTHER_303 = 303;
+@final public RedirectCode REDIRECT_NOT_MODIFIED_304 = 304;
+@final public RedirectCode REDIRECT_USE_PROXY_305 = 305;
+@final public RedirectCode REDIRECT_TEMPORARY_REDIRECT_307 = 307;
 
 @Description { value:"Sends a 100-continue response to the client."}
 @Param { value:"conn: The server connector connection" }

@@ -46,7 +46,7 @@ public function createAuthzHandlerChain () returns (AuthzHandlerChain) {
 @Return {value:"boolean: true if authorization check is a success, else false"}
 public function AuthzHandlerChain::handle (Request req, string[] scopes,
                                                               string resourceName) returns (boolean) {
-    foreach currentAuthHandlerType, currentAuthHandler in authzHandlerChain.authzHandlers {
+    foreach currentAuthHandlerType, currentAuthHandler in self.authzHandlers {
         var authzHandler = check <HttpAuthzHandler> currentAuthHandler;
         if (authzHandler.canHandle(req)) {
             log:printDebug("trying to authorize with the authz handler: " + currentAuthHandlerType);

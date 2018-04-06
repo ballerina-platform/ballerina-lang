@@ -58,7 +58,6 @@ public enum TypeKind {
     FUTURE("future"),
     PACKAGE("package"),
     STRUCT("struct"),
-    OBJECT("object"),
     ENUM("enum"),
     SERVICE("service"),
     CONNECTOR("connector"),
