@@ -3,7 +3,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 // This is an auto generated client stub which is used to communicate between gRPC client.
-public type helloWorldBlockingStub object {
+public type HelloWorldBlockingStub object {
     public {
         grpc:Client clientEndpoint;
         grpc:ServiceStub serviceStub;
@@ -11,12 +11,12 @@ public type helloWorldBlockingStub object {
 
     function initStub (grpc:Client clientEndpoint) {
         grpc:ServiceStub navStub = new;
-        navStub.initStub(clientEndpoint, "blocking", descriptorKey, descriptorMap);
+        navStub.initStub(clientEndpoint, "blocking", DESCRIPTOR_KEY, descriptorMap);
         self.serviceStub = navStub;
     }
 
     function hello (string req) returns (string|error) {
-        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("helloWorld/hello", req);
+        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/hello", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
                 error e = {message:payloadError.message};
@@ -30,7 +30,7 @@ public type helloWorldBlockingStub object {
     }
 }
 
-public type helloWorldStub object {
+public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;
         grpc:ServiceStub serviceStub;
@@ -38,12 +38,12 @@ public type helloWorldStub object {
 
     function initStub (grpc:Client clientEndpoint) {
         grpc:ServiceStub navStub = new;
-        navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
+        navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
         self.serviceStub = navStub;
     }
 
     function hello (string req, typedesc listener) returns (error| ()) {
-        var err1 = self.serviceStub.nonBlockingExecute("helloWorld/hello", req, listener);
+        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/hello", req, listener);
         if (err1 != ()) {
             error e = {message:err1.message};
             return e;
@@ -52,10 +52,10 @@ public type helloWorldStub object {
     }
 }
 
-public type helloWorldBlockingClient object {
+public type HelloWorldBlockingClient object {
     public {
         grpc:Client client;
-        helloWorldBlockingStub stub;
+        HelloWorldBlockingStub stub;
     }
 
     public function init (grpc:ClientEndpointConfiguration config) {
@@ -64,20 +64,20 @@ public type helloWorldBlockingClient object {
         client.init(config);
         self.client = client;
         // initialize service stub.
-        helloWorldBlockingStub stub = new;
+        HelloWorldBlockingStub stub = new;
         stub.initStub(client);
         self.stub = stub;
     }
 
-    public function getClient () returns (helloWorldBlockingStub) {
+    public function getClient () returns (HelloWorldBlockingStub) {
         return self.stub;
     }
 }
 
-public type helloWorldClient object {
+public type HelloWorldClient object {
     public {
         grpc:Client client;
-        helloWorldStub stub;
+        HelloWorldStub stub;
     }
 
     public function init (grpc:ClientEndpointConfiguration config) {
@@ -86,17 +86,17 @@ public type helloWorldClient object {
         client.init(config);
         self.client = client;
         // initialize service stub.
-        helloWorldStub stub = new;
+        HelloWorldStub stub = new;
         stub.initStub(client);
         self.stub = stub;
     }
 
-    public function getClient () returns (helloWorldStub) {
+    public function getClient () returns (HelloWorldStub) {
         return self.stub;
     }
 }
 
-@final string descriptorKey = "helloWorld.proto";
+@final string DESCRIPTOR_KEY = "helloWorld.proto";
 map descriptorMap =
 {
     "helloWorld.proto":"0A1068656C6C6F576F726C642E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32530A0A68656C6C6F576F726C6412450A0568656C6C6F121B676F6F676C652E70726F746F6275662E537472696E6756616C75651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528003000620670726F746F33",

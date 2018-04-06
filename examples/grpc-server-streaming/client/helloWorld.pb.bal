@@ -3,7 +3,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Non-blocking client
-public type helloWorldStub object {
+public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;
         grpc:ServiceStub serviceStub;
@@ -11,12 +11,12 @@ public type helloWorldStub object {
 
     function initStub (grpc:Client clientEndpoint) {
         grpc:ServiceStub navStub = new;
-        navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
+        navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
         self.serviceStub = navStub;
     }
 
     function lotsOfReplies (string req, typedesc listener) returns (error| ()) {
-        var err1 = self.serviceStub.nonBlockingExecute("helloWorld/lotsOfReplies", req, listener);
+        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/lotsOfReplies", req, listener);
         if (err1 != ()) {
             error e = {message:err1.message};
             return e;
@@ -26,10 +26,10 @@ public type helloWorldStub object {
 }
 
 // Non-blocking client endpoint
-public type helloWorldClient object {
+public type HelloWorldClient object {
     public {
         grpc:Client client;
-        helloWorldStub stub;
+        HelloWorldStub stub;
     }
 
     public function init (grpc:ClientEndpointConfiguration config) {
@@ -38,17 +38,17 @@ public type helloWorldClient object {
         client.init(config);
         self.client = client;
         // initialize service stub.
-        helloWorldStub stub = new;
+        HelloWorldStub stub = new;
         stub.initStub(client);
         self.stub = stub;
     }
 
-    public function getClient () returns (helloWorldStub) {
+    public function getClient () returns (HelloWorldStub) {
         return self.stub;
     }
 }
 
-@final string descriptorKey = "helloWorld.proto";
+@final string DESCRIPTOR_KEY = "helloWorld.proto";
 map descriptorMap =
 {
     "helloWorld.proto":"0A1068656C6C6F576F726C642E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32A7010A0A68656C6C6F576F726C64124D0A0D6C6F74734F665265706C696573121B676F6F676C652E70726F746F6275662E537472696E6756616C75651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528003001124A0A0A6C6F74734F6642796573121B676F6F676C652E70726F746F6275662E537472696E6756616C75651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528003001620670726F746F33",

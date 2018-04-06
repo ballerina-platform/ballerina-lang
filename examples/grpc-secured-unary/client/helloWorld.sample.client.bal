@@ -2,7 +2,7 @@
 import ballerina/io;
 
 function main (string[] args) {
-    endpoint helloWorldBlockingClient helloWorldBlockingEp {
+    endpoint HelloWorldBlockingClient helloWorldBlockingEp {
         host:"localhost",
         port:9090,
         ssl:{

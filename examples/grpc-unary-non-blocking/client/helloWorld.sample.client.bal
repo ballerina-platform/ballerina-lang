@@ -4,12 +4,12 @@ import ballerina/io;
 int total = 0;
 function main (string[] args) {
     // Client endpoint configuration
-    endpoint helloWorldClient helloWorldEp {
+    endpoint HelloWorldClient helloWorldEp {
         host:"localhost",
         port:9090
     };
     // Executing unary non-blocking call registering server message listener.
-    error| () result = helloWorldEp -> hello("WSO2", typeof helloWorldMessageListener);
+    error| () result = helloWorldEp -> hello("WSO2", typeof HelloWorldMessageListener);
     match result {
         error payloadError => {
             io:println("Error occured while sending event " + payloadError.message);
@@ -24,7 +24,7 @@ function main (string[] args) {
 }
 
 // Server Message Listener.
-service<grpc:Listener> helloWorldMessageListener {
+service<grpc:Listener> HelloWorldMessageListener {
 
     // Resource registered to receive server messages
     onMessage (string message) {

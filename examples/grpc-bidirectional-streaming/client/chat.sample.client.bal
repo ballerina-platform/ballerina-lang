@@ -7,14 +7,14 @@ import ballerina.runtime;
 int total = 0;
 function main (string[] args) {
 
-    endpoint chatClient chatEp {
+    endpoint ChatClient chatEp {
         host:"localhost",
         port:9090
     };
 
     endpoint grpc:Client ep;
     // Executing unary non-blocking call registering server message listener.
-    var res = chatEp -> chat(typeof chatMessageListener);
+    var res = chatEp -> chat(typeof ChatMessageListener);
     match res {
         grpc:error err => {
             io:print("error");
@@ -36,7 +36,7 @@ function main (string[] args) {
 }
 
 
-service<grpc:Listener> chatMessageListener {
+service<grpc:Listener> ChatMessageListener {
 
     onMessage (string message) {
         io:println("Response received from server: " + message);
@@ -52,4 +52,3 @@ service<grpc:Listener> chatMessageListener {
         io:println("Server Complete Sending Responses.");
     }
 }
-
