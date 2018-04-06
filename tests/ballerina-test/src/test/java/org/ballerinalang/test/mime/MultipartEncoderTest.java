@@ -70,8 +70,8 @@ public class MultipartEncoderTest {
     @BeforeClass
     public void setup() {
         //Used only to get an instance of CompileResult.
-        String sourceFilePath = "test-src/mime/dummy.bal";
-        result = BCompileUtil.compile(sourceFilePath);
+      /*  String sourceFilePath = "test-src/mime/dummy.bal";
+        result = BCompileUtil.compile(sourceFilePath);*/
         String sourceFilePathForServices = "test-src/mime/multipart-response.bal";
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePathForServices);
     }
