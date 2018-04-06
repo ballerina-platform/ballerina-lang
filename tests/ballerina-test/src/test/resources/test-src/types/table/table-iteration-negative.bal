@@ -2,23 +2,23 @@ type Employee {
     int id;
     string name;
     float salary;
-}
+};
 
 type EmployeeIncompatible {
     float id;
     string name;
     float salary;
-}
+};
 
 type EmployeeSalary {
     int id;
     float salary;
-}
+};
 
 type EmployeeSalaryIncompatible {
     float id;
     float salary;
-}
+};
 
 function getSalaryInCompatibleInput(EmployeeIncompatible e) returns (EmployeeSalary) {
     EmployeeSalary s = {id: e.id, salary: e.salary};

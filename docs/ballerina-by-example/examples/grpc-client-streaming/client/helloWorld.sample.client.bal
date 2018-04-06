@@ -1,20 +1,18 @@
 // This is client implementation for client streaming scenario
-package client;
-
 import ballerina/io;
 import ballerina/log;
 
 int total = 0;
 function main (string[] args) {
     // Client endpoint configuration
-    endpoint helloWorldClient helloWorldEp {
+    endpoint HelloWorldClient helloWorldEp {
         host:"localhost",
         port:9090
     };
 
     endpoint grpc:Client ep;
     // Executing unary non-blocking call registering server message listener.
-    var res = helloWorldEp -> LotsOfGreetings(typeof helloWorldMessageListener);
+    var res = helloWorldEp -> lotsOfGreetings(typeof HelloWorldMessageListener);
     match res {
         grpc:error err => {
             io:print("error");
@@ -31,8 +29,8 @@ function main (string[] args) {
     foreach greet in greets {
         log:printInfo("send greeting: " + greet + " " + name);
         grpc:ConnectorError connErr = ep -> send(greet + " " + name);
-        if (connErr != null) {
-            io:println("Error at LotsOfGreetings : " + connErr.message);
+        if (connErr != ()) {
+            io:println("Error at lotsOfGreetings : " + connErr.message);
         }
     }
     _ = ep -> complete();
@@ -43,7 +41,7 @@ function main (string[] args) {
 }
 
 // Server Message Listener.
-service<grpc:Listener> helloWorldMessageListener {
+service<grpc:Listener> HelloWorldMessageListener {
 
     // Resource registered to receive server messages
     onMessage (string message) {
@@ -53,7 +51,7 @@ service<grpc:Listener> helloWorldMessageListener {
 
     // Resource registered to receive server error messages
     onError (grpc:ServerError err) {
-        if (err != null) {
+        if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }

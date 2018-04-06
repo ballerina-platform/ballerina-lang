@@ -41,99 +41,102 @@ function testUnarySecuredBlocking() returns (string) {
 }
 
 // This is an auto generated client stub which is used to communicate between gRPC client.
-struct helloWorldBlockingStub {
-    grpc:Client clientEndpoint;
-    grpc:ServiceStub serviceStub;
-}
+public type helloWorldBlockingStub object {
+    public {
+        grpc:Client clientEndpoint;
+        grpc:ServiceStub serviceStub;
+    }
 
-function<helloWorldBlockingStub stub> initStub(grpc:Client clientEndpoint) {
-    grpc:ServiceStub navStub = {};
-    navStub.initStub(clientEndpoint, "blocking", descriptorKey, descriptorMap);
-    stub.serviceStub = navStub;
-}
+    function initStub(grpc:Client clientEndpoint) {
+        grpc:ServiceStub navStub = new;
+        navStub.initStub(clientEndpoint, "blocking", descriptorKey, descriptorMap);
+        self.serviceStub = navStub;
+    }
 
-struct helloWorldStub {
-    grpc:Client clientEndpoint;
-    grpc:ServiceStub serviceStub;
-}
-
-function<helloWorldStub stub> initStub(grpc:Client clientEndpoint) {
-    grpc:ServiceStub navStub = {};
-    navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
-    stub.serviceStub = navStub;
-}
-
-function<helloWorldBlockingStub stub> hello(string req) returns (string|error) {
-    any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("helloWorld/hello", req);
-    match unionResp {
-        grpc:ConnectorError payloadError => {
-            error e = {message:payloadError.message};
-            return e;
-        }
-        any|string payload => {
-            match payload {
-                string s => {
-                    return s;
-                }
-                any nonOccurance => {
-                    error e = {message:"Unexpected type."};
-                    return e;
-                }
+    function hello(string req) returns (string|error) {
+        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("helloWorld/hello", req);
+        match unionResp {
+            grpc:ConnectorError payloadError => {
+                error err = {message:payloadError.message};
+                return err;
+            }
+            any payload => {
+                string result = <string> payload;
+                return result;
             }
         }
     }
 }
 
-function<helloWorldStub stub> hello(string req, typedesc listener) returns (error|null) {
-    var err1 = stub.serviceStub.nonBlockingExecute("helloWorld/hello", req, listener);
-    if (err1 != null && err1.message != null) {
-        error e = {message:err1.message};
-        return e;
+public type helloWorldStub object {
+    public {
+        grpc:Client clientEndpoint;
+        grpc:ServiceStub serviceStub;
     }
-    return null;
+
+    function initStub(grpc:Client clientEndpoint) {
+        grpc:ServiceStub navStub = new;
+        navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
+        self.serviceStub = navStub;
+    }
+
+    function<helloWorldStub stub> hello(string req, typedesc listener) returns (error|()) {
+        var err1 = self.serviceStub.nonBlockingExecute("helloWorld/hello", req, listener);
+        if (err1 != ()) {
+            error err = {message:err1.message};
+            return err;
+        }
+        return ();
+    }
 }
 
-public struct helloWorldBlockingClient {
-    grpc:Client client;
-    helloWorldBlockingStub stub;
+
+public type helloWorldBlockingClient object {
+    public {
+        grpc:Client client;
+        helloWorldBlockingStub stub;
+    }
+
+    public function init(grpc:ClientEndpointConfiguration config) {
+        // initialize client endpoint.
+        grpc:Client client = new;
+        client.init(config);
+        self.client = client;
+        // initialize service stub.
+        helloWorldBlockingStub stub = new;
+        stub.initStub(client);
+        self.stub = stub;
+    }
+
+    public function getClient() returns (helloWorldBlockingStub) {
+        return self.stub;
+    }
 }
 
-public function<helloWorldBlockingClient ep> init(grpc:ClientEndpointConfiguration config) {
-    // initialize client endpoint.
-    grpc:Client client = {};
-    client.init(config);
-    ep.client = client;
-    // initialize service stub.
-    helloWorldBlockingStub stub = {};
-    stub.initStub(client);
-    ep.stub = stub;
+public type helloWorldClient object {
+    public {
+        grpc:Client client;
+        helloWorldStub stub;
+    }
+
+    public function init(grpc:ClientEndpointConfiguration config) {
+        // initialize client endpoint.
+        grpc:Client client = new;
+        client.init(config);
+        self.client = client;
+        // initialize service stub.
+        helloWorldStub stub = new;
+        stub.initStub(client);
+        self.stub = stub;
+    }
+
+    public function getClient() returns (helloWorldStub) {
+        return self.stub;
+    }
 }
 
-public function<helloWorldBlockingClient ep> getClient() returns (helloWorldBlockingStub) {
-    return ep.stub;
-}
 
-public struct helloWorldClient {
-    grpc:Client client;
-    helloWorldStub stub;
-}
-
-public function<helloWorldClient ep> init(grpc:ClientEndpointConfiguration config) {
-    // initialize client endpoint.
-    grpc:Client client = {};
-    client.init(config);
-    ep.client = client;
-    // initialize service stub.
-    helloWorldStub stub = {};
-    stub.initStub(client);
-    ep.stub = stub;
-}
-
-public function<helloWorldClient ep> getClient() returns (helloWorldStub) {
-    return ep.stub;
-}
-
-const string descriptorKey = "helloWorld.proto";
+@final string descriptorKey = "helloWorld.proto";
 map descriptorMap =
 {
     "helloWorld.proto":"0A1068656C6C6F576F726C642E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32530A0A68656C6C6F576F726C6412450A0568656C6C6F121B676F6F676C652E70726F746F6275662E537472696E6756616C75651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528003000620670726F746F33",

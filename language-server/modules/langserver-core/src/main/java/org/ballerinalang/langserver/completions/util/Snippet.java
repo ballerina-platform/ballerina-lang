@@ -25,10 +25,7 @@ public enum Snippet {
     ANNOTATION_DEFINITION("annotation<${1:attachmentPoint}> ${2:name};"),
     BIND("bind ${1:__connector} with ${2:__endpoint}"),
     BREAK("break;"),
-    CONNECTOR_ACTION("action ${1:name} (${2}) (${3}) {\n\t${4}\n}"),
-    CONNECTOR_DEFINITION("connector ${1:name} (${2}) {\n\t${3}\n}"),
     ENDPOINT("endpoint ${1:http:ServiceEndpoint} ${2:endpointName} {\n\t${3}\n};"),
-    ENUM("enum ${1:name} {\n\t\n}"),
     FOREACH("foreach ${1:varRefList} in ${2:listReference} {\n\t${3}\n}"),
     FORK("fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}"),
     FUNCTION("function ${1:name} (${2}) {\n\t${3}\n}"),
@@ -41,10 +38,8 @@ public enum Snippet {
     RETURN("return;"),
     SERVICE("service<${1:http:Service}> ${2:serviceName}{\n\t${3:newResource} (endpoint ${4:epReference}, " +
             "${5:http:Request request}) {\n\t}\n}"),
-    STRUCT_DEFINITION("struct ${1:name}{\n\t${2}\n}"),
     TRANSACTION("transaction with retries(${1}), oncommit(${2:foo}), onabort(${3:bar}) " +
             "{\n\t${4}\n} onretry {\n\t${5}\n}"),
-    TRANSFORMER("transformer<${1:Source} ${2:a},${3:Target} ${4:b}>{\n\t${5}\n}"),
     TRIGGER_WORKER("${1} -> ${2};"),
     TRY_CATCH("try {\n\t${1}\n} catch (${2:error} ${3:err}) {\n\t${4}\n}"),
     WHILE("while (${1:true}) {\n\t${2}\n}"),

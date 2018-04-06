@@ -4,27 +4,27 @@ type Person {
     float salary,
     string name,
     boolean married,
-}
+};
 
 type Order {
     int personId,
     int orderId,
     string items,
     float amount,
-}
+};
 
 type OrderDetails {
     int orderId,
     string personName,
     string items,
     float amount,
-}
+};
 
 type Student {
     string name,
     int index,
     int age = -1,
-}
+};
 
 function testSimpleSelectAll () returns (int) {
 

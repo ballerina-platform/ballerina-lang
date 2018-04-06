@@ -17,8 +17,8 @@ import ballerina/io;
 import ballerina/grpc;
 
 endpoint grpc:Service ep {
-  host:"localhost",
-  port:9090
+    host:"localhost",
+    port:9090
 };
 
 @grpc:serviceConfig {generateClientConnector:false}
@@ -28,7 +28,7 @@ service<grpc:Endpoint> helloWorld bind ep {
         string message = "Hello " + name;
         grpc:ConnectorError err = client -> send(message);
         io:println("Server send response : " + message );
-        if (err != null) {
+        if (err != ()) {
             io:println("Error at helloWorld : " + err.message);
         }
         _ = client -> complete();
@@ -39,7 +39,7 @@ service<grpc:Endpoint> helloWorld bind ep {
         int displayAge = age - 2;
         grpc:ConnectorError err = client -> send(displayAge);
         io:println("display age : " + displayAge);
-        if (err != null) {
+        if (err != ()) {
             io:println("Error at test : " + err.message);
         }
         _ = client -> complete();
@@ -50,7 +50,7 @@ service<grpc:Endpoint> helloWorld bind ep {
         float netSalary = salary * 0.88;
         grpc:ConnectorError err = client -> send(netSalary);
         io:println("net salary : " + netSalary);
-        if (err != null) {
+        if (err != ()) {
             io:println("Error at test : " + err.message);
         }
         _ = client -> complete();
@@ -61,7 +61,7 @@ service<grpc:Endpoint> helloWorld bind ep {
         boolean aval = available || true;
         grpc:ConnectorError err = client -> send(aval);
         io:println("avaliability : " + aval);
-        if (err != null) {
+        if (err != ()) {
             io:println("Error at test : " + err.message);
         }
         _ = client -> complete();
@@ -72,7 +72,7 @@ service<grpc:Endpoint> helloWorld bind ep {
         Response response = {resp:"Acknowledge " + msg.name};
         grpc:ConnectorError err = client -> send(response);
         io:println("msg : " + response.resp);
-        if (err != null) {
+        if (err != ()) {
             io:println("Error at test : " + err.message);
         }
         _ = client -> complete();
@@ -82,7 +82,7 @@ service<grpc:Endpoint> helloWorld bind ep {
         string resp = "service invoked with no request";
         grpc:ConnectorError err = client -> send(resp);
         io:println("response : " + resp);
-        if (err != null) {
+        if (err != ()) {
             io:println("Error at test : " + err.message);
         }
         _ = client -> complete();
@@ -93,12 +93,12 @@ service<grpc:Endpoint> helloWorld bind ep {
     }
 }
 
-struct Request {
+type Request {
     string name;
     string message;
     int age;
 }
 
-struct Response {
+type Response {
     string resp;
 }

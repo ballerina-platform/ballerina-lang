@@ -7,28 +7,28 @@ type Person {
     float salary,
     string name,
     boolean married,
-}
+};
 
 type Company {
     int id,
     string name,
-}
+};
 
 type TypeTest {
     int id,
     json jsonData,
     xml xmlData,
-}
+};
 
 type BlobTypeTest {
     int id,
     blob blobData,
-}
+};
 
 type AnyTypeTest {
     int id,
     any anyData,
-}
+};
 
 type ArraTypeTest {
     int id,
@@ -36,11 +36,11 @@ type ArraTypeTest {
     float[] floatArrData,
     string[] stringArrData,
     boolean[] booleanArrData,
-}
+};
 
 type ResultCount {
     int COUNTVAL,
-}
+};
 
 table<Person> dt1 = table{};
 table<Company> dt2 = table{};
@@ -68,13 +68,15 @@ function checkTableCount(string tablePrefix) returns (int) {
         options: {maximumPoolSize:1}
     };
 
-    sql:Parameter  p1 = {value:tablePrefix, sqlType:sql:Type.VARCHAR};
+    sql:Parameter  p1 = {value:tablePrefix, sqlType:sql:TYPE_VARCHAR};
     sql:Parameter[] parameters = [p1];
 
     int count;
     try {
-        table dt = check testDB -> select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like ?",
+        var temp = testDB -> select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like
+         ?",
         parameters, typeof ResultCount);
+        table dt = check temp;
         while (dt.hasNext()) {
             var rs = check <ResultCount> dt.getNext();
             count = rs.COUNTVAL;

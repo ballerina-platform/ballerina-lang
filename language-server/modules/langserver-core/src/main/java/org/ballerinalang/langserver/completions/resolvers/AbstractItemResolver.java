@@ -32,10 +32,12 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -189,19 +191,21 @@ public abstract class AbstractItemResolver {
         for (int itr = 0; itr < parameterDefs.size(); itr++) {
             BType paramType = parameterDefs.get(itr).getType();
             String typeName;
-            BTypeSymbol tSymbol;
-            if (paramType instanceof BArrayType) {
-                tSymbol = ((BArrayType) paramType).eType.tsymbol;
+            if (paramType instanceof BInvokableType) {
+                // Check for the case when we can give a function as a parameter
+                typeName = parameterDefs.get(itr).type.toString();
             } else {
-                tSymbol = paramType.tsymbol;
-            }
-            List<Name> nameComps = tSymbol.pkgID.nameComps;
-            if (tSymbol.pkgID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
-                    || tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
-                typeName = tSymbol.getName().getValue();
-            } else {
-                typeName = nameComps.get(nameComps.size() - 1).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
-                        + tSymbol.getName().getValue();
+                BTypeSymbol tSymbol;
+                tSymbol = (paramType instanceof BArrayType) ?
+                        ((BArrayType) paramType).eType.tsymbol : paramType.tsymbol;
+                List<Name> nameComps = tSymbol.pkgID.nameComps;
+                if (tSymbol.pkgID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
+                        || tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
+                    typeName = tSymbol.getName().getValue();
+                } else {
+                    typeName = nameComps.get(nameComps.size() - 1).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
+                            + tSymbol.getName().getValue();
+                }
             }
 
             signature.append(typeName).append(" ")
@@ -357,5 +361,26 @@ public abstract class AbstractItemResolver {
                 completionItems.add(this.populateBTypeCompletionItem(symbolInfo));
             }
         });
+    }
+
+    /**
+     * Remove the invalid symbols such as anon types, injected packages and invokable symbols without receiver.
+     * @param symbolInfoList    Symbol info list to be filtered
+     * @return {@link List}     List of filtered symbols
+     */
+    protected List<SymbolInfo> removeInvalidStatementScopeSymbols(List<SymbolInfo> symbolInfoList) {
+        // We need to remove the functions having a receiver symbol and the bTypes of the following
+        // ballerina.coordinator, ballerina.runtime, and anonStructs
+        ArrayList<String> invalidPkgs = new ArrayList<>(Arrays.asList("runtime",
+                "transactions"));
+        symbolInfoList.removeIf(symbolInfo -> {
+            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+            String symbolName = bSymbol.getName().getValue();
+            return (bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null)
+                    || (bSymbol instanceof BPackageSymbol && invalidPkgs.contains(symbolName))
+                    || (symbolName.startsWith("$anonStruct"));
+        });
+        
+        return symbolInfoList;
     }
 }

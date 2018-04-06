@@ -15,58 +15,83 @@
 // under the License.
 package ballerina.grpc;
 
-@Description {value:"gRPC Service Stub for outbound gRPC requests"}
-public struct ServiceStub {
-    Client client;
+documentation {
+    gRPC Service Stub for outbound gRPC requests
+}
+public type ServiceStub object {
+    public {
+        Client client;
+    }
+
+    documentation {
+        Init native function for initialize the Stub.
+
+        P{{clientEndpoint}} - client endpoint struct.
+        P{{stubType}} - Service Stub type. possible values: blocking, nonblocking.
+        P{{descriptorKey}} - Proto descriptor key. Key of proto descriptor.
+        P{{descriptorMap}} - Proto descriptor map. descriptor map with all dependent descriptors.
+    }
+    public native function initStub (any clientEndpoint, string stubType, string descriptorKey, map descriptorMap);
+
+    documentation {
+        Blocking execute function implementation of the gRPC client stub.
+
+        P{{methodID}} - remote procedure call id.
+        P{{payload}} - Any type of request payload.
+    }
+    public native function blockingExecute (string methodID, any payload) returns (any | ConnectorError);
+
+    documentation {
+        Non Blocking execute function implementation of the gRPC client stub.
+
+        P{{methodID}} - remote procedure call id.
+        P{{payload}} - Any type of request payload.
+        P{{listenerService}} - call back listener service.
+    }
+    public native function nonBlockingExecute (string methodID, any payload, typedesc listenerService) returns
+    (ConnectorError);
+
+    documentation {
+        Blocking execute function implementation of the gRPC client stub.
+
+        P{{methodID}} - remote procedure call id.
+        P{{listenerService}} - call back listener service.
+    }
+    public native function streamingExecute (string methodID, typedesc listenerService) returns (Client |
+            ConnectorError);
 }
 
-@Description {value:"init native function for initialize the Stub."}
-@Param {value: "Service Stub type. possible values: blocking, nonblocking"}
-@Param {value: "Proto descriptor key. Key of proto descriptor"}
-@Param {value: "Proto descriptor map. descriptor map with all dependent descriptors"}
-public native function<ServiceStub ep> initStub (any clientEndpoint, string stubType, string descriptorKey, map
-                                                                                                            descriptorMap);
 
-@Description {value:"The execute action implementation of the gRPC Connector."}
-@Param {value:"Connection stub."}
-@Param {value:"Any type of request parameters."}
-public native function<ServiceStub ep>  blockingExecute (string methodID, any payload) returns (any | ConnectorError);
+documentation {
+    Represents the gRPC client connector connection.
 
-@Description {value:"The execute action implementation of the gRPC Connector."}
-@Param {value:"Connection stub."}
-@Param {value:"Any type of request parameters."}
-public native function<ServiceStub ep>  nonBlockingExecute (string methodID, any payload, typedesc listenerService)
-returns (ConnectorError);
-
-@Description {value:"The execute action implementation of the gRPC Connector."}
-@Param {value:"Connection stub."}
-@Param {value:"Any type of request parameters."}
-public native function<ServiceStub ep>  streamingExecute (string methodID, typedesc listenerService)
-returns (Client | ConnectorError);
-
-@Description {value:"Represents the gRPC client connector connection"}
-@Field {value:"host: The server host name"}
-@Field {value:"port: The server port"}
-public struct ClientConnection {
-    int port;
-    string host;
+    F{{host}} - The server host name.
+    F{{port}} - The server port.
 }
+public type ClientConnection object {
+    public {
+        int port;
+        string host;
+    }
 
-@Description {value:"Sends outbound response to the caller"}
-@Param {value:"conn: The server connector connection"}
-@Param {value:"res: The outbound response message"}
-@Return {value:"Error occured during HTTP server connector respond"}
-public native function <ClientConnection conn> send (any res) returns (ConnectorError);
+    documentation {
+        Sends request message to the server.
 
-@Description {value:"Informs the caller, server finished sending messages."}
-@Param {value:"conn: The server connector connection"}
-@Return {value:"Error occured during HTTP server connector respond"}
-public native function <ClientConnection conn> complete () returns (ConnectorError);
+        P{{res}} - The inbound request message.
+    }
+    public native function send (any res) returns (ConnectorError);
 
-@Description {value:"Forwards inbound response to the caller"}
-@Param {value:"conn: The server connector connection"}
-@Param {value:"res: The inbound response message"}
-@Return {value:"Error occured during HTTP server connector forward"}
-public native function <ClientConnection conn> errorResponse (ClientError clientError) returns (ConnectorError);
+    documentation {
+        Informs the server, caller finished sending messages.
+    }
+    public native function complete () returns (ConnectorError);
+
+    documentation {
+        Sends error response to the server.
+
+        P{{clientError}} - error message.
+    }
+    public native function errorResponse (ClientError clientError) returns (ConnectorError);
+}
 
 

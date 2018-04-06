@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -314,7 +313,7 @@ public class Desugar extends BLangNodeVisitor {
                     // If the rhs value is not given in-line inside the struct
                     // then get the default value literal for that particular struct.
                     if (field.expr == null) {
-                        field.expr = getInitExpr(field.type);
+                        field.expr = getInitExpr(field);
                     }
                     return field;
                 })
@@ -522,11 +521,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Generate default init expression, if rhs expr is null
         if (varNode.expr == null) {
-            if (varNode.type instanceof BStreamType) {
-                varNode.expr = new BLangStreamLiteral(varNode.type, varNode.name);
-            } else {
-                varNode.expr = getInitExpr(varNode.type);
-            }
+            varNode.expr = getInitExpr(varNode);
         }
 
         if (!varNode.safeAssignment) {
@@ -2246,7 +2241,8 @@ public class Desugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createIsAssignableExpr(pos, varRef, patternType, symTable.booleanType, names);
     }
 
-    private BLangExpression getInitExpr(BType type) {
+    private BLangExpression getInitExpr(BLangVariable varNode) {
+        BType type = varNode.type;
         // Don't need to create an empty init expressions if the type allows null.
         if (type.isNullable()) {
             return null;
@@ -2264,6 +2260,8 @@ public class Desugar extends BLangNodeVisitor {
                 return new BLangXMLSequenceLiteral(type);
             case TypeTags.MAP:
                 return new BLangMapLiteral(new ArrayList<>(), type);
+            case TypeTags.STREAM:
+                return new BLangStreamLiteral(type, varNode.name);
             case TypeTags.STRUCT:
                 if (((BStructSymbol) type.tsymbol).isObject) {
                     return createTypeInitNode(type);

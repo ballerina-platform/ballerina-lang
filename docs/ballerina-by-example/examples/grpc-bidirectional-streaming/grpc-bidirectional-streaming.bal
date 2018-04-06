@@ -13,8 +13,8 @@ endpoint grpc:Service ep {
     clientStreaming:true,
     serverStreaming:true,
     generateClientConnector:false}
-service<grpc:Endpoint> chat bind ep {
-    map consMap = {};
+service<grpc:Endpoint> Chat bind ep {
+    map consMap = new;
     onOpen (endpoint client) {
         consMap[<string>client.getClient().getID()] = client;
     }
@@ -29,7 +29,7 @@ service<grpc:Endpoint> chat bind ep {
         while (i < len) {
             con = check <grpc:Service>consMap[conKeys[i]];
             grpc:ConnectorError err = con -> send(msg);
-            if (err != null) {
+            if (err != ()) {
                 io:println("Error at onMessage : " + err.message);
             }
             i = i + 1;
@@ -37,7 +37,7 @@ service<grpc:Endpoint> chat bind ep {
     }
 
     onError (endpoint client, grpc:ServerError err) {
-        if (err != null) {
+        if (err != ()) {
             io:println("Something unexpected happens at server : " + err.message);
         }
     }
@@ -53,7 +53,7 @@ service<grpc:Endpoint> chat bind ep {
         while (i < len) {
             con = check <grpc:Service>consMap[conKeys[i]];
             grpc:ConnectorError err = con -> send(msg);
-            if (err != null) {
+            if (err != ()) {
                 io:println("Error at onComplete send message : " + err.message);
             }
             i = i + 1;
@@ -61,7 +61,7 @@ service<grpc:Endpoint> chat bind ep {
     }
 }
 
-struct ChatMessage {
+type ChatMessage {
     string name;
     string message;
 }
