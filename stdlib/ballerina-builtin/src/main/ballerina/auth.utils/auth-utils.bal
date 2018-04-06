@@ -131,14 +131,7 @@ public function extractBasicAuthCredentials (string authHeader) returns (string,
     // extract user credentials from basic auth header
     string decodedBasicAuthHeader;
     try {
-        util:Base64DecodeError errorStruct = {};
-        errorStruct.message = "Error in decoder";
-        match util:base64Decode(authHeader.subString(5, authHeader.length()).trim()) {
-            string returnString => {decodedBasicAuthHeader = returnString;}
-            blob returnBlob => return <error>errorStruct;
-            io:ByteChannel returnChannel => return <error>errorStruct;
-            util:Base64DecodeError returnError => return <error>returnError;
-        }
+        decodedBasicAuthHeader =check util:base64DecodeString(authHeader.subString(5, authHeader.length()).trim());
     } catch (error err) {
         return err;
     }
