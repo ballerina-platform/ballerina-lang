@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -122,7 +123,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             this.acceptNode(funcNode.receiver);
         }
 
-        if (!funcNode.requiredParams.isEmpty()) {
+        if (funcNode.requiredParams != null) {
             funcNode.requiredParams.forEach(this::acceptNode);
         }
 
@@ -130,7 +131,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             this.acceptNode(funcNode.returnTypeNode);
         }
 
-        if (funcNode.endpoints != null && !funcNode.endpoints.isEmpty()) {
+        if (funcNode.endpoints != null) {
             funcNode.endpoints.forEach(this::acceptNode);
         }
 
@@ -138,11 +139,11 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             this.acceptNode(funcNode.body);
         }
 
-        if (!funcNode.workers.isEmpty()) {
+        if (funcNode.workers != null) {
             funcNode.workers.forEach(this::acceptNode);
         }
 
-        if (!funcNode.defaultableParams.isEmpty()) {
+        if (funcNode.defaultableParams != null) {
             funcNode.defaultableParams.forEach(this::acceptNode);
         }
     }
@@ -161,19 +162,19 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             this.acceptNode(serviceNode.serviceTypeStruct);
         }
 
-        if (!serviceNode.vars.isEmpty()) {
+        if (serviceNode.vars != null) {
             serviceNode.vars.forEach(this::acceptNode);
         }
 
-        if (!serviceNode.resources.isEmpty()) {
+        if (serviceNode.resources != null) {
             serviceNode.resources.forEach(this::acceptNode);
         }
 
-        if (!serviceNode.endpoints.isEmpty()) {
+        if (serviceNode.endpoints != null) {
             serviceNode.endpoints.forEach(this::acceptNode);
         }
 
-        if (!serviceNode.boundEndpoints.isEmpty()) {
+        if (serviceNode.boundEndpoints != null) {
             serviceNode.boundEndpoints.forEach(this::acceptNode);
         }
 
@@ -192,7 +193,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
                     resourceNode.symbol.pkgID.name.getValue());
         }
 
-        if (!resourceNode.requiredParams.isEmpty()) {
+        if (resourceNode.requiredParams != null) {
             resourceNode.requiredParams.forEach(this::acceptNode);
         }
 
@@ -211,15 +212,15 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
                     connectorNode.symbol.pkgID.name.getValue());
         }
 
-        if (!connectorNode.params.isEmpty()) {
+        if (connectorNode.params != null) {
             connectorNode.params.forEach(this::acceptNode);
         }
 
-        if (!connectorNode.varDefs.isEmpty()) {
+        if (connectorNode.varDefs != null) {
             connectorNode.varDefs.forEach(this::acceptNode);
         }
 
-        if (!connectorNode.actions.isEmpty()) {
+        if (connectorNode.actions != null) {
             connectorNode.actions.forEach(this::acceptNode);
         }
     }
@@ -233,7 +234,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
                     actionNode.symbol.pkgID.name.getValue());
         }
 
-        if (!actionNode.requiredParams.isEmpty()) {
+        if (actionNode.requiredParams != null) {
             actionNode.requiredParams.forEach(this::acceptNode);
         }
 
@@ -241,7 +242,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             acceptNode(actionNode.body);
         }
 
-        if (!actionNode.workers.isEmpty()) {
+        if (actionNode.workers != null) {
             actionNode.workers.forEach(this::acceptNode);
         }
     }
@@ -273,14 +274,14 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             this.acceptNode(workerNode.body);
         }
 
-        if (!workerNode.workers.isEmpty()) {
+        if (workerNode.workers != null) {
             workerNode.workers.forEach(this::acceptNode);
         }
     }
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
-        if (!blockNode.stmts.isEmpty()) {
+        if (blockNode.stmts != null) {
             blockNode.stmts.forEach(this::acceptNode);
         }
     }
@@ -316,7 +317,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
-        if (!foreach.varRefs.isEmpty()) {
+        if (foreach.varRefs != null) {
             foreach.varRefs.forEach(this::acceptNode);
         }
 
@@ -353,7 +354,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             this.acceptNode(tryNode.tryBody);
         }
 
-        if (!tryNode.catchBlocks.isEmpty()) {
+        if (tryNode.catchBlocks != null) {
             tryNode.catchBlocks.forEach(this::acceptNode);
         }
 
@@ -371,7 +372,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        if (!forkJoin.getWorkers().isEmpty()) {
+        if (forkJoin.getWorkers() != null) {
             forkJoin.getWorkers().forEach(this::acceptNode);
         }
 
@@ -431,7 +432,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             this.acceptNode(invocationExpr.expr);
         }
 
-        if (!invocationExpr.argExprs.isEmpty()) {
+        if (invocationExpr.argExprs != null) {
             invocationExpr.argExprs.forEach(this::acceptNode);
         }
     }
@@ -531,7 +532,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             addLocation(structNode, structNode.symbol.owner.pkgID.name.getValue(),
                     structNode.pos.getSource().pkgID.name.getValue());
         }
-        if (!structNode.fields.isEmpty()) {
+        if (structNode.fields != null) {
             structNode.fields.forEach(this::acceptNode);
         }
     }
@@ -551,11 +552,11 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             acceptNode(transformerNode.source);
         }
 
-        if (!transformerNode.requiredParams.isEmpty()) {
+        if (transformerNode.requiredParams != null) {
             transformerNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (!transformerNode.retParams.isEmpty()) {
+        if (transformerNode.retParams != null) {
             transformerNode.retParams.forEach(this::acceptNode);
         }
 
@@ -563,7 +564,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             acceptNode(transformerNode.body);
         }
 
-        if (!transformerNode.workers.isEmpty()) {
+        if (transformerNode.workers != null) {
             transformerNode.workers.forEach(this::acceptNode);
         }
     }
@@ -632,28 +633,28 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangUnionTypeNode unionTypeNode) {
-        if (!unionTypeNode.memberTypeNodes.isEmpty()) {
+        if (unionTypeNode.memberTypeNodes != null) {
             unionTypeNode.memberTypeNodes.forEach(this::acceptNode);
         }
     }
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        if (!tupleTypeNode.memberTypeNodes.isEmpty()) {
+        if (tupleTypeNode.memberTypeNodes != null) {
             tupleTypeNode.memberTypeNodes.forEach(this::acceptNode);
         }
     }
 
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        if (!bracedOrTupleExpr.expressions.isEmpty()) {
+        if (bracedOrTupleExpr.expressions != null) {
             bracedOrTupleExpr.expressions.forEach(this::acceptNode);
         }
     }
 
     @Override
     public void visit(BLangTupleDestructure stmt) {
-        if (!stmt.varRefs.isEmpty()) {
+        if (stmt.varRefs != null) {
             stmt.varRefs.forEach(this::acceptNode);
         }
 
@@ -674,11 +675,11 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
                     objectNode.pos.getSource().pkgID.name.getValue());
         }
 
-        if (!objectNode.fields.isEmpty()) {
+        if (objectNode.fields != null) {
             objectNode.fields.forEach(this::acceptNode);
         }
 
-        if (!objectNode.functions.isEmpty()) {
+        if (objectNode.functions != null) {
             objectNode.functions.forEach(this::acceptNode);
         }
     }
@@ -689,7 +690,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             this.acceptNode(matchNode.expr);
         }
 
-        if (!matchNode.patternClauses.isEmpty()) {
+        if (matchNode.patternClauses != null) {
             matchNode.patternClauses.forEach(this::acceptNode);
         }
     }
@@ -711,7 +712,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             acceptNode(typeInitExpr.userDefinedType);
         }
 
-        if (!typeInitExpr.argsExpr.isEmpty()) {
+        if (typeInitExpr.argsExpr != null) {
             typeInitExpr.argsExpr.forEach(this::acceptNode);
         }
     }
@@ -728,7 +729,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
                     record.pos.getSource().pkgID.name.getValue());
         }
 
-        if (!record.fields.isEmpty()) {
+        if (record.fields != null) {
             record.fields.forEach(this::acceptNode);
         }
 
@@ -750,6 +751,32 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
         if (recordLiteral.impConversionExpr != null) {
             this.acceptNode(recordLiteral.impConversionExpr);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatchExpression bLangMatchExpression) {
+        if (bLangMatchExpression.impConversionExpr != null) {
+            this.acceptNode(bLangMatchExpression.impConversionExpr);
+        }
+
+        if (bLangMatchExpression.expr != null) {
+            this.acceptNode(bLangMatchExpression.expr);
+        }
+
+        if (bLangMatchExpression.patternClauses != null) {
+            bLangMatchExpression.patternClauses.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
+        if (bLangMatchExprPatternClause.variable != null) {
+            this.acceptNode(bLangMatchExprPatternClause.variable);
+        }
+
+        if (bLangMatchExprPatternClause.expr != null) {
+            this.acceptNode(bLangMatchExprPatternClause.expr);
         }
     }
 

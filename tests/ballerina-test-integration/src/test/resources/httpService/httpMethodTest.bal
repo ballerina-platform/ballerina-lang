@@ -22,7 +22,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
     }
     defaultResource (endpoint client, http:Request req) {
         string method = req.method;
-        http:Request clientRequest = {};
+        http:Request clientRequest = new;
 
         var response = endPoint -> execute(method, "/getQuote/stocks", clientRequest);
         match response {
@@ -30,7 +30,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
                 _ = client -> forward(httpResponse);
             }
             http:HttpConnectorError err => {
-                http:Response errorResponse = {};
+                http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while invoking the service"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = client -> respond(errorResponse);
@@ -48,7 +48,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
                 _ = client -> forward(httpResponse);
             }
             http:HttpConnectorError err => {
-                http:Response errorResponse = {};
+                http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while invoking the service"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = client -> respond(errorResponse);
@@ -66,7 +66,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
                 _ = client -> forward(httpResponse);
             }
             http:HttpConnectorError err => {
-                http:Response errorResponse = {};
+                http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while invoking the service"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = client -> respond(errorResponse);
@@ -78,14 +78,14 @@ service<http:Service> headQuoteService bind serviceEndpoint {
         path:"/getStock/{method}"
     }
     commonResource (endpoint client, http:Request req, string method) {
-        http:Request clientRequest = {};
+        http:Request clientRequest = new;
         var response = endPoint -> execute(method, "/getQuote/stocks", clientRequest);
         match response {
             http:Response httpResponse => {
                 _ = client -> forward(httpResponse);
             }
             http:HttpConnectorError err => {
-                http:Response errorResponse = {};
+                http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while invoking the service"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = client -> respond(errorResponse);
@@ -104,14 +104,14 @@ service<http:Service> testClientConHEAD bind serviceEndpoint {
         path:"/"
     }
     passthrough (endpoint client, http:Request req) {
-        http:Request clientRequest = {};
+        http:Request clientRequest = new;
         var response = endPoint -> get("/getQuote/stocks", clientRequest);
         match response {
             http:Response httpResponse => {
                 _ = client -> forward(httpResponse);
             }
             http:HttpConnectorError err => {
-                http:Response errorResponse = {};
+                http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while invoking the service"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = client -> respond(errorResponse);
@@ -130,7 +130,7 @@ service<http:Service> quoteService bind serviceEndpoint {
         path:"/stocks"
     }
     company (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("wso2");
         _ = client -> respond(res);
     }
@@ -140,7 +140,7 @@ service<http:Service> quoteService bind serviceEndpoint {
         path:"/stocks"
     }
     product (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("ballerina");
         _ = client -> respond(res);
     }
@@ -149,7 +149,7 @@ service<http:Service> quoteService bind serviceEndpoint {
         path:"/stocks"
     }
     defaultStock (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setHeader("Method", "any");
         res.setStringPayload("default");
         _ = client -> respond(res);
@@ -160,7 +160,7 @@ service<http:Service> quoteService bind serviceEndpoint {
         body:"person"
     }
     employee (endpoint client, http:Request req, json person) {
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(person);
         _ = client -> respond(res);
     }
