@@ -37,6 +37,7 @@ public class DependsOnTest {
 
     @Test
     public void tesDependsOnFunctions() {
+
         cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("depends-on.bal")}, new
@@ -48,6 +49,7 @@ public class DependsOnTest {
 
     @Test
     public void tesDependsOnFunctionsWithBefore() {
+
         cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("depends-on-with-before.bal")}, new
@@ -57,16 +59,23 @@ public class DependsOnTest {
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "failed"), 0);
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test
     public void tesDependsOnFunctionsMissingFunction() {
 
         cleanup();
         BTestRunner runner = new BTestRunner();
-        runner.runTest(sourceRoot, new Path[]{Paths.get("depends-on-negative.bal")}, new
-            ArrayList<>());
+        try {
+            runner.runTest(sourceRoot, new Path[]{Paths.get("depends-on-negative.bal")}, new
+                ArrayList<>());
+
+        } catch (Throwable e) {
+            Assert.assertTrue(e instanceof BallerinaException);
+            Assert.assertTrue(e.getMessage().contains("Cannot find the specified dependsOn function : non-existing"));
+        }
     }
 
     private void cleanup() {
+
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
     }
