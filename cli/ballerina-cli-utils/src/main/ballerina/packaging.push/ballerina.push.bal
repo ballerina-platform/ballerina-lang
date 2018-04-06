@@ -65,5 +65,8 @@ function pushPackage (string accessToken, string url, string dirPath, string msg
 }
 
 function main (string[] args) {
-    pushPackage(args[0], args[1], args[2], args[3]);
+    // pushPackage(args[0], args[1], args[2], args[3]);
+    pushPackage("", "https://api.staging-central.ballerina.io/packages/natasha/my.app/1.0.0", 
+    "/home/natasha/Documents/workspace/mysimpleproj/.ballerina/repo/$anon/my.app/0.0.0/my.app.zip","Successful");
+
 }

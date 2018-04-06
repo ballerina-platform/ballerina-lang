@@ -20,11 +20,12 @@ function search (string url, string querySearched) {
             }  
         ]
     };
-
+    io:println("11");
     http:Request req = new;
     // http:Response res = new;
     var result = httpEndpoint -> get(querySearched, req);
     http:Response httpResponse = check result;
+    io:println("22");
     // match httpResponse {
     //  http:HttpConnectorError errRes => {
     //      var errorResp = <error> errRes;
@@ -35,6 +36,7 @@ function search (string url, string querySearched) {
     //  http:Response response => res = response;
     // }
     json jsonResponse = check (httpResponse.getJsonPayload());
+    io:println("33");
     // json jsonObj;
     // match jsonResponse {
     //         mime:EntityError errRes => {
@@ -46,11 +48,13 @@ function search (string url, string querySearched) {
     //         json j => jsonObj = j;            
     // }
     if (httpResponse.statusCode != 200) {
+        io:println("44");
         string message = (jsonResponse.msg.toString() but {()=> "error occurred when searching for packages"});
         io:println(message);
         // io:println(jsonResponse.msg.toString()); 
     } else {
-        json artifacts = jsonResponse.artifacts but {()=> {}};
+        json artifacts = jsonResponse.artifacts but {()=> null};
+        io:println("55");
         int artifactsLength = lengthof artifacts;
         if (artifactsLength > 0) {
             io:println("Ballerina Central");
@@ -76,7 +80,7 @@ function search (string url, string querySearched) {
                 string authors = (jsonElement.author.toString() but {()=> ""});
                 printInCLI(authors, 25);
 
-                json createTimeJson = jsonElement.createdDate but {()=> {}};
+                json createTimeJson = jsonElement.createdDate but {()=> null};
                 printInCLI(getDateCreated(createTimeJson), 20);
                 
                 string packageVersion = (jsonElement.packageVersion.toString() but {()=> ""});
@@ -117,5 +121,6 @@ function getDateCreated(json jsonObj) returns string {
 
 function main (string[] args) {
     // search(args[0], args[1]);
+    io:println("00");
      search("https://api.staging-central.ballerina.io/packages/", "?query=natasha");
 }

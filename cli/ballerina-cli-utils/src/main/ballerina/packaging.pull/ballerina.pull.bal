@@ -5,7 +5,7 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 
-function pullPackage (string url, string destDirPath, string fullPkgPath, string fileSeparator) {
+function pullPackage (string url, string dirPath, string pkgPath, string fileSeparator) {
     endpoint http:ClientEndpoint httpEndpoint {
         targets: [
         {
@@ -22,6 +22,8 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
         ],
         followRedirects : { enabled : true, maxCount : 5 }
     };
+    string fullPkgPath = pkgPath;
+    string destDirPath = dirPath;
     http:Request req = new;
     // http:Response res = new;
     req.addHeader("Accept-Encoding", "identity");
@@ -124,19 +126,22 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
         io:ByteChannel destDirChannel = getFileChannel(destArchivePath, "w");
         string toAndFrom = " [central.ballerina.io -> home repo]";
         
-        io:IOError destDirChannelCloseError = new;
-        io:IOError srcCloseError = new;
+        // io:IOError destDirChannelCloseError = new;
+        // io:IOError srcCloseError = new;
 
         copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom);
         // if (destDirChannel != null) {
-        destDirChannelCloseError = destDirChannel.close();
+        _ = destDirChannel.close();
         // }
-        srcCloseError = sourceChannel.close();
+        _ = sourceChannel.close();
     }
 }
 
 public function main(string[] args){
-    pullPackage(args[0], args[1], args[2], args[3]);
+    // pullPackage(args[0], args[1], args[2], args[3]);
+    pullPackage("https://api.staging-central.ballerina.io/packages/natasha/my.app/1.0.0", 
+    "/home/natasha/.ballerina_home/repo/natasha/my.app", "natasha/my.app", "/");
+
 }
 
 
@@ -212,7 +217,9 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
     io:print("\r" + rightPad(fullPkgPath + toAndFrom, (115 + noOfBytesRead.length())) + "\n");
 }
 
-function rightPad (string msg, int length) returns (string) {
+function rightPad (string logMsg, int logMsgLength) returns (string) {
+    string msg = logMsg;
+    int length = logMsgLength;
     int i = -1;
     length = length - msg.length();
     string char = " ";
