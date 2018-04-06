@@ -17,51 +17,56 @@
  *  under the License.
  * /
  */
-package org.ballerinalang.observe.metrics.gauge;
+package org.ballerinalang.nativeimpl.observe.metrics.counter;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.metrics.Gauge;
+import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Decrement the gauge by one.
+ * Return the value of the counter.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
-        functionName = "decrementByOne",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Gauge",
+        functionName = "count",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Counter",
                 structPackage = "ballerina.metrics"),
-        args = {@Argument(name = "gauge", type = TypeKind.STRUCT, structType = "Gauge",
+        args = {@Argument(name = "counter", type = TypeKind.STRUCT, structType = "Counter",
                 structPackage = "ballerina.metrics")},
+        returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )
-public class DecrementGaugeByOne extends BlockingNativeCallableUnit {
+public class CountCounter extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct gaugeStruct = (BStruct) context.getRefArgument(0);
-        String name = gaugeStruct.getStringField(0);
-        String description = gaugeStruct.getStringField(1);
-        BMap tagsMap = (BMap) gaugeStruct.getRefField(0);
+        BStruct counterStruct = (BStruct) context.getRefArgument(0);
+        String name = counterStruct.getStringField(0);
+        String description = counterStruct.getStringField(1);
+        BMap tagsMap = (BMap) counterStruct.getRefField(0);
 
         if (!tagsMap.isEmpty()) {
             List<Tag> tags = new ArrayList<>();
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            Gauge.builder(name).description(description).tags(tags).register().decrement();
+            context.setReturnValues(new BFloat(Counter.builder(name).description(description).tags(tags).register()
+                    .count()));
+
         } else {
-            Gauge.builder(name).description(description).register().decrement();
+            context.setReturnValues(new BFloat(Counter.builder(name).description(description).register().count()));
         }
     }
 }

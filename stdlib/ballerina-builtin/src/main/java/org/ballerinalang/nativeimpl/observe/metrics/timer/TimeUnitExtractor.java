@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.observe.metrics.timer;
+package org.ballerinalang.nativeimpl.observe.metrics.timer;
 
 import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -32,25 +32,25 @@ public class TimeUnitExtractor {
     public static TimeUnit getTimeUnit(BEnumerator timeUnitEnum) {
         switch (timeUnitEnum.getName()) {
             case "NANOSECONDS":
-                timeUnit = timeUnit.NANOSECONDS;
+                timeUnit = TimeUnit.NANOSECONDS;
                 break;
             case "MICROSECONDS":
-                timeUnit = timeUnit.MICROSECONDS;
+                timeUnit = TimeUnit.MICROSECONDS;
                 break;
             case "MILLISECONDS":
-                timeUnit = timeUnit.MILLISECONDS;
+                timeUnit = TimeUnit.MILLISECONDS;
                 break;
             case "SECONDS":
-                timeUnit = timeUnit.SECONDS;
+                timeUnit = TimeUnit.SECONDS;
                 break;
             case "MINUTES":
-                timeUnit = timeUnit.MINUTES;
+                timeUnit = TimeUnit.MINUTES;
                 break;
             case "HOURS":
-                timeUnit = timeUnit.HOURS;
+                timeUnit = TimeUnit.HOURS;
                 break;
             case "DAYS":
-                timeUnit = timeUnit.DAYS;
+                timeUnit = TimeUnit.DAYS;
                 break;
             default:
                 throw new BallerinaException("Unsupported base time unit " + timeUnitEnum + " for timer registration.");

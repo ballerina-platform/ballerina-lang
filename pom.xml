@@ -904,11 +904,6 @@
                 <artifactId>simpleclient_httpserver</artifactId>
                 <version>${prometheus.simple.client.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-metrics</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
 
             <!-- JMS connector dependencies -->
             <dependency>
@@ -1023,7 +1018,6 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
-                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
@@ -1074,7 +1068,6 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
-                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
@@ -1117,7 +1110,6 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
-                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>

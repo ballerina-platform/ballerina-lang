@@ -17,7 +17,7 @@
  *  under the License.
  * /
  */
-package org.ballerinalang.observe.metrics.counter;
+package org.ballerinalang.nativeimpl.observe.metrics.counter;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -34,18 +34,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Increment the counter by the given amount.
+ * Increment the counter by one.
  */
+
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
-        functionName = "increment",
+        functionName = "incrementByOne",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Counter",
                 structPackage = "ballerina.metrics"),
         args = {@Argument(name = "counter", type = TypeKind.STRUCT, structType = "Counter",
-                structPackage = "ballerina.metrics"), @Argument(name = "amount", type = TypeKind.FLOAT)},
+                structPackage = "ballerina.metrics")},
         isPublic = true
 )
-public class IncrementCounter extends BlockingNativeCallableUnit {
+public class IncrementCounterByOne extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
@@ -53,16 +54,15 @@ public class IncrementCounter extends BlockingNativeCallableUnit {
         String name = counterStruct.getStringField(0);
         String description = counterStruct.getStringField(1);
         BMap tagsMap = (BMap) counterStruct.getRefField(0);
-        float amount = (float) context.getFloatArgument(0);
 
         if (!tagsMap.isEmpty()) {
             List<Tag> tags = new ArrayList<>();
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            Counter.builder(name).description(description).tags(tags).register().increment(amount);
+            Counter.builder(name).description(description).tags(tags).register().increment();
         } else {
-            Counter.builder(name).description(description).register().increment(amount);
+            Counter.builder(name).description(description).register().increment();
         }
     }
 }

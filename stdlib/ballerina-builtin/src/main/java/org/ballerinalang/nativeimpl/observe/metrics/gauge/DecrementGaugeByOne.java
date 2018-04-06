@@ -17,7 +17,7 @@
  *  under the License.
  * /
  */
-package org.ballerinalang.observe.metrics.gauge;
+package org.ballerinalang.nativeimpl.observe.metrics.gauge;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -34,34 +34,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Decrement the gauge by the given amount.
+ * Decrement the gauge by one.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
-        functionName = "decrement",
+        functionName = "decrementByOne",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Gauge",
                 structPackage = "ballerina.metrics"),
         args = {@Argument(name = "gauge", type = TypeKind.STRUCT, structType = "Gauge",
-                structPackage = "ballerina.metrics"), @Argument(name = "amount", type = TypeKind.FLOAT)},
+                structPackage = "ballerina.metrics")},
         isPublic = true
 )
-public class DecrementGauge extends BlockingNativeCallableUnit {
+public class DecrementGaugeByOne extends BlockingNativeCallableUnit {
+
     @Override
     public void execute(Context context) {
         BStruct gaugeStruct = (BStruct) context.getRefArgument(0);
         String name = gaugeStruct.getStringField(0);
         String description = gaugeStruct.getStringField(1);
         BMap tagsMap = (BMap) gaugeStruct.getRefField(0);
-        float amount = (float) context.getFloatArgument(0);
 
         if (!tagsMap.isEmpty()) {
             List<Tag> tags = new ArrayList<>();
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            Gauge.builder(name).description(description).tags(tags).register().decrement(amount);
+            Gauge.builder(name).description(description).tags(tags).register().decrement();
         } else {
-            Gauge.builder(name).description(description).register().decrement(amount);
+            Gauge.builder(name).description(description).register().decrement();
         }
     }
 }

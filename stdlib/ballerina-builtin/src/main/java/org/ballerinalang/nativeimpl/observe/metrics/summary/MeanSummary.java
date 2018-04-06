@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.observe.metrics.summary;
+package org.ballerinalang.nativeimpl.observe.metrics.summary;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
@@ -34,19 +34,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Returns the number of times that record has been called since this summary was created.
+ * Returns the distribution average for all recorded events.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
-        functionName = "count",
+        functionName = "mean",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Summary",
                 structPackage = "ballerina.metrics"),
         args = {@Argument(name = "summary", type = TypeKind.STRUCT, structType = "Summary",
                 structPackage = "ballerina.metrics")},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )
-public class CountSummary extends BlockingNativeCallableUnit {
+public class MeanSummary extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct summaryStruct = (BStruct) context.getRefArgument(0);
@@ -59,11 +59,11 @@ public class CountSummary extends BlockingNativeCallableUnit {
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            context.setReturnValues(new BInteger(Summary.builder(name).description(description).tags(tags).register()
-                    .count()));
+            context.setReturnValues(new BFloat(Summary.builder(name).description(description).tags(tags).register()
+                    .mean()));
 
         } else {
-            context.setReturnValues(new BInteger(Summary.builder(name).description(description).register().count()));
+            context.setReturnValues(new BFloat(Summary.builder(name).description(description).register().mean()));
         }
     }
 }

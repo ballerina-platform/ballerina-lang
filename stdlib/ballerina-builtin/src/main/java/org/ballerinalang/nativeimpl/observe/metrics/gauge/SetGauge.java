@@ -17,7 +17,7 @@
  *  under the License.
  * /
  */
-package org.ballerinalang.observe.metrics.gauge;
+package org.ballerinalang.nativeimpl.observe.metrics.gauge;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -34,33 +34,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Increment the gauge by one.
+ * Set the gauge to the given value.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
-        functionName = "incrementByOne",
+        functionName = "setValue",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Gauge",
                 structPackage = "ballerina.metrics"),
         args = {@Argument(name = "gauge", type = TypeKind.STRUCT, structType = "Gauge",
-                structPackage = "ballerina.metrics")},
+                structPackage = "ballerina.metrics"), @Argument(name = "value", type = TypeKind.FLOAT)},
         isPublic = true
 )
-public class IncrementGaugeByOne extends BlockingNativeCallableUnit {
+public class SetGauge extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct gaugeStruct = (BStruct) context.getRefArgument(0);
         String name = gaugeStruct.getStringField(0);
         String description = gaugeStruct.getStringField(1);
         BMap tagsMap = (BMap) gaugeStruct.getRefField(0);
+        float value = (float) context.getFloatArgument(0);
 
         if (!tagsMap.isEmpty()) {
             List<Tag> tags = new ArrayList<>();
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            Gauge.builder(name).description(description).tags(tags).register().increment();
+            Gauge.builder(name).description(description).tags(tags).register().set(value);
         } else {
-            Gauge.builder(name).description(description).register().increment();
+            Gauge.builder(name).description(description).register().set(value);
         }
     }
 }

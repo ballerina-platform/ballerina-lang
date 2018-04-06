@@ -15,12 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.observe.metrics.timer;
+package org.ballerinalang.nativeimpl.observe.metrics.summary;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
@@ -28,47 +27,45 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.metrics.Summary;
 import org.ballerinalang.util.metrics.Tag;
-import org.ballerinalang.util.metrics.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
- * Returns the maximum time of a single event.
+ * Returns the value at a specific percentile.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
-        functionName = "max",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Timer",
+        functionName = "percentile",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Summary",
                 structPackage = "ballerina.metrics"),
-        args = {@Argument(name = "timer", type = TypeKind.STRUCT, structType = "Timer",
-                structPackage = "ballerina.metrics"), @Argument(name = "timeUnit", type = TypeKind.STRING)},
+        args = {@Argument(name = "summary", type = TypeKind.STRUCT, structType = "Summary",
+                structPackage = "ballerina.metrics"), @Argument(name = "percentile", type = TypeKind.FLOAT)},
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )
-public class MaxTimer extends BlockingNativeCallableUnit {
+public class PercentileSummary extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct timerStruct = (BStruct) context.getRefArgument(0);
-        String name = timerStruct.getStringField(0);
-        String description = timerStruct.getStringField(1);
-        BMap tagsMap = (BMap) timerStruct.getRefField(0);
-        BEnumerator timeUnitEnum = (BEnumerator) context.getRefArgument(1);
-
-        TimeUnit timeUnit = TimeUnitExtractor.getTimeUnit(timeUnitEnum);
+        BStruct summaryStruct = (BStruct) context.getRefArgument(0);
+        String name = summaryStruct.getStringField(0);
+        String description = summaryStruct.getStringField(1);
+        float percentile = (float) context.getFloatArgument(0);
+        BMap tagsMap = (BMap) summaryStruct.getRefField(0);
 
         if (!tagsMap.isEmpty()) {
             List<Tag> tags = new ArrayList<>();
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            context.setReturnValues(new BFloat(Timer.builder(name).description(description).tags(tags).register()
-                    .max(timeUnit)));
+            context.setReturnValues(new BFloat(Summary.builder(name).description(description).tags(tags).register()
+                    .percentile(percentile)));
 
         } else {
-            context.setReturnValues(new BFloat(Timer.builder(name).description(description).register().max(timeUnit)));
+            context.setReturnValues(new BFloat(Summary.builder(name).description(description).register()
+                    .percentile(percentile)));
         }
     }
 }

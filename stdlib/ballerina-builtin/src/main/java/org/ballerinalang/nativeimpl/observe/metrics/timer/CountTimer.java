@@ -15,57 +15,56 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.observe.metrics.timer;
+package org.ballerinalang.nativeimpl.observe.metrics.timer;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BEnumerator;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.metrics.Tag;
 import org.ballerinalang.util.metrics.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
- * Updates the statistics kept by the counter with the specified amount.
+ * Returns the number of times that stop has been called on this timer.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "metrics",
-        functionName = "record",
+        functionName = "count",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Timer",
                 structPackage = "ballerina.metrics"),
         args = {@Argument(name = "timer", type = TypeKind.STRUCT, structType = "Timer",
-                structPackage = "ballerina.metrics"), @Argument(name = "amount", type = TypeKind.FLOAT),
-                @Argument(name = "timeUnit", type = TypeKind.STRING)},
+                structPackage = "ballerina.metrics")},
+        returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )
-public class RecordTimer extends BlockingNativeCallableUnit {
+public class CountTimer extends BlockingNativeCallableUnit {
+
     @Override
     public void execute(Context context) {
         BStruct timerStruct = (BStruct) context.getRefArgument(0);
         String name = timerStruct.getStringField(0);
         String description = timerStruct.getStringField(1);
         BMap tagsMap = (BMap) timerStruct.getRefField(0);
-        long amount = context.getIntArgument(0);
-        BEnumerator timeUnitEnum = (BEnumerator) context.getRefArgument(1);
-
-        TimeUnit timeUnit = TimeUnitExtractor.getTimeUnit(timeUnitEnum);
 
         if (!tagsMap.isEmpty()) {
             List<Tag> tags = new ArrayList<>();
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            Timer.builder(name).description(description).tags(tags).register().record(amount, timeUnit);
+            context.setReturnValues(new BInteger(Timer.builder(name).description(description).tags(tags).register()
+                    .count()));
+
         } else {
-            Timer.builder(name).description(description).register().record(amount, timeUnit);
+            context.setReturnValues(new BInteger(Timer.builder(name).description(description).register().count()));
         }
     }
 }
