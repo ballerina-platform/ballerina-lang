@@ -45,7 +45,8 @@ function pushPackage (string accessToken, string url, string dirPath, string msg
     // }
     if (httpResponse.statusCode != 200) {
         json jsonResponse = check httpResponse.getJsonPayload();
-        io:println(jsonResponse.msg.toString());
+        string message = (jsonResponse.msg.toString() but {()=> "error occurred when pushing the package"});
+        io:println(message);
         // match jsonResponse {
         //     mime:EntityError errRes => {
         //         var errorResp = <error> errRes;

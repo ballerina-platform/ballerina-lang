@@ -19,7 +19,8 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
                 sessionCreation: true
              }
         }
-        ]
+        ],
+        followRedirects : { enabled : true, maxCount : 5 }
     };
     http:Request req = new;
     // http:Response res = new;
@@ -36,7 +37,9 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
     // }
     if (httpResponse.statusCode != 200) {
         json jsonResponse = check httpResponse.getJsonPayload();
-        io:println(jsonResponse.msg.toString());
+        string message = (jsonResponse.msg.toString() but {()=> "error occurred when pulling the package"});
+        io:println(message);
+        // io:println(jsonResponse.msg.toString());
         // match jsonResponse {
         //     mime:EntityError errRes => {
         //         var errorResp = <error> errRes;
@@ -73,16 +76,34 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
         // }
 
         // Get the package version from the canonical header of the response
-        string linkHeaderVal;
-        if (httpResponse.hasHeader("Link")) {
-            linkHeaderVal = httpResponse.getHeader("Link");
-        } else {
-            error err = {message:"package version information is missing from the remote repository"};
-            throw err;
-        }
+        // string linkHeaderVal;
+        // if (httpResponse.hasHeader("Link")) {
+        //     linkHeaderVal = httpResponse.getHeader("Link");
+        // } else {
+        //     error err = {message:"package version information is missing from the remote repository"};
+        //     throw err;
+        // }
        
-        string canonicalLinkURL = linkHeaderVal.subString(linkHeaderVal.indexOf("<") + 1, linkHeaderVal.indexOf(">"));
-        string pkgVersion = canonicalLinkURL.subString(canonicalLinkURL.lastIndexOf("/") + 1, canonicalLinkURL.length());
+        // string canonicalLinkURL = linkHeaderVal.subString(linkHeaderVal.indexOf("<") + 1, linkHeaderVal.indexOf(">"));
+        // string pkgVersion = canonicalLinkURL.subString(canonicalLinkURL.lastIndexOf("/") + 1, canonicalLinkURL.length());
+
+        string rawPathVal;
+        if (httpResponse.hasHeader("raw-path")) {
+            rawPathVal = httpResponse.getHeader("raw-path");
+         } else {
+             error err = {message:"package version information is missing from the remote repository"};
+             throw err;
+         }
+        string pkgVersion;
+        string [] pathArray = rawPathVal.split("/");
+        int sizeOfArray = lengthof pathArray;
+        if (sizeOfArray > 3) {
+            pkgVersion = pathArray[sizeOfArray - 3];
+         } else {
+             error err = {message:"package version information is missing from the remote repository"};
+             throw err;
+         }
+        // string pkgVersion = rawPathVal.subString(indexOfVersion + 1, rawPathVal.length()); // 
 
         string pkgName = fullPkgPath.subString(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
         fullPkgPath = fullPkgPath + ":" + pkgVersion;

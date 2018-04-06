@@ -16,8 +16,8 @@ function search (string url, string querySearched) {
                 },
                 hostNameVerification:false,
                 sessionCreation: true
-            }
-        }
+                }
+            }  
         ]
     };
 
@@ -45,9 +45,11 @@ function search (string url, string querySearched) {
     //         json j => jsonObj = j;            
     // }
     if (httpResponse.statusCode != 200) {
-        io:println(jsonResponse.msg.toString()); 
+        string message = (jsonResponse.msg.toString() but {()=> "error occurred when searching for packages"});
+        io:println(message);
+        // io:println(jsonResponse.msg.toString()); 
     } else {
-        json artifacts = jsonResponse.artifacts;
+        json artifacts = jsonResponse.artifacts but {()=> {}};
         int artifactsLength = lengthof artifacts;
         if (artifactsLength > 0) {
             io:println("Ballerina Central");
@@ -61,14 +63,23 @@ function search (string url, string querySearched) {
             int i = 0;
             while (i < artifactsLength) {
                 json jsonElement = artifacts[i];
-                printInCLI(jsonElement.orgName.toString() + "/" + jsonElement.packageName.toString(), 30);
-                printInCLI(jsonElement.description.toString(), 40);
-                printInCLI(jsonElement.author.toString(), 25);
+                
+                string orgName = (jsonElement.orgName.toString() but {()=> ""});
+                string packageName = (jsonElement.packageName.toString() but {()=> ""});
+                printInCLI(orgName + "/" + packageName, 30);
+                
+                string summary = (jsonElement.summary.toString() but {()=> ""});
+                printInCLI(summary, 40);
+                
+                // array
+                string authors = (jsonElement.author.toString() but {()=> ""});
+                printInCLI(authors, 25);
 
-                json createTimeJson = jsonElement.createdDate;
+                json createTimeJson = jsonElement.createdDate but {()=> {}};
                 printInCLI(getDateCreated(createTimeJson), 20);
-
-                printInCLI(jsonElement.packageVersion.toString(), 15);               
+                
+                string packageVersion = (jsonElement.packageVersion.toString() but {()=> ""});
+                printInCLI(packageVersion, 15);               
                 i = i + 1;
                 io:println("");
             }
@@ -94,15 +105,11 @@ function printInCLI(string element, int charactersAllowed) {
     }
 }
 
-function getDateCreated(json createdDate) returns string {
-    int timeInMillis = check <int> createdDate.time.toString();
-    // int timeInMillis;
-    // match timeConversion {
-    //     error errRes => throw errRes;
-    //     int time => timeInMillis = time;
-    // }
-
-    time:Time timeStruct = {time : timeInMillis, zone:{zoneId:"UTC",zoneOffset:0}};
+function getDateCreated(json jsonObj) returns string {
+    int timeInMillis = <int>(jsonObj.createdDate.time but {()=>0});
+    time:Time timeStruct = new;
+    timeStruct.time = timeInMillis;
+    timeStruct.zone = {zoneId:"UTC",zoneOffset:0};
     string customTimeString = timeStruct.format("yyyy-MM-dd-E");
     return customTimeString;
 }
