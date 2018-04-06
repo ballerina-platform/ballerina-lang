@@ -17,43 +17,46 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.connection;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.consumer;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import javax.jms.Connection;
 import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
 
 /**
- * Get the ID of the connection.
- *
- * @since 0.970
+ * Close the message consumer object.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jms",
-        functionName = "stop",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection", structPackage = "ballerina.jms"),
+        orgName = "ballerina",
+        packageName = "jms",
+        functionName = "closeConsumer",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "QueueConsumer", structPackage = "ballerina.jms"),
+        args = {
+                @Argument(name = "connector", type = TypeKind.STRUCT, structType = "QueueConsumerConnector")
+        },
         isPublic = true
 )
-public class Stop implements NativeCallableUnit {
+public class CloseConsumer implements NativeCallableUnit {
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct connectionBObject = BallerinaAdapter.getReceiverStruct(context);
-        Connection connection = BallerinaAdapter.getNativeObject(connectionBObject, Constants.JMS_CONNECTION,
-                                                                 Connection.class, context);
+    public void execute(Context context, CallableUnitCallback callback) {
+        BStruct connectorBObject = (BStruct) context.getRefArgument(1);
+        MessageConsumer consumer = BallerinaAdapter.getNativeObject(connectorBObject, Constants.JMS_CONSUMER_OBJECT,
+                                                                    MessageConsumer.class, context);
         try {
-            connection.stop();
+            consumer.close();
         } catch (JMSException e) {
-            throw new BallerinaException("Error occurred while stopping the connection.");
+            throw new BallerinaException("Error closing message consumer.");
         }
     }
 

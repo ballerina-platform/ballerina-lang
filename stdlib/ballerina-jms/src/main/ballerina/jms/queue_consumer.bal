@@ -37,7 +37,10 @@ public type QueueConsumer object {
     }
 
     public function stop () {
+        closeConsumer(connector);
     }
+
+    native function closeConsumer(QueueConsumerConnector connector);
 };
 
 public type QueueConsumerEndpointConfiguration {
