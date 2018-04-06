@@ -2,19 +2,19 @@ package ballerina.http;
 
 public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 
-@final Chunking CHUNKING_AUTO = "AUTO";
-@final Chunking CHUNKING_ALWAYS = "ALWAYS";
-@final Chunking CHUNKING_NEVER = "NEVER";
+@final public Chunking CHUNKING_AUTO = "AUTO";
+@final public Chunking CHUNKING_ALWAYS = "ALWAYS";
+@final public Chunking CHUNKING_NEVER = "NEVER";
 
 public type Compression "AUTO" | "ALWAYS" | "NEVER";
 
-@final Compression COMPRESSION_AUTO = "AUTO";
-@final Compression COMPRESSION_ALWAYS = "ALWAYS";
-@final Compression COMPRESSION_NEVER = "NEVER";
+@final public Compression COMPRESSION_AUTO = "AUTO";
+@final public Compression COMPRESSION_ALWAYS = "ALWAYS";
+@final public Compression COMPRESSION_NEVER = "NEVER";
 
 public type TransferEncoding "CHUNKING";
 
-@final TransferEncoding TRANSFERENCODE_CHUNKING = "CHUNKING";
+@final public TransferEncoding TRANSFERENCODE_CHUNKING = "CHUNKING";
 
 @Description { value:"TrustStore record represents trust store related options to be used for HTTP client/service invocation"}
 @Field {value:"filePath: File path to trust store file"}
