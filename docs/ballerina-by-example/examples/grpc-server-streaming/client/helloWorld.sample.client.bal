@@ -1,6 +1,4 @@
 // This is client implementation for server streaming scenario
-package client;
-
 import ballerina/io;
 
 int total = 0;

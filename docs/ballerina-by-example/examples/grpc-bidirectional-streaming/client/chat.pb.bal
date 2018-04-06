@@ -1,6 +1,4 @@
 // This is an auto generated client stub which is used to communicate between gRPC client.
-package client;
-
 import ballerina/grpc;
 import ballerina/io;
 

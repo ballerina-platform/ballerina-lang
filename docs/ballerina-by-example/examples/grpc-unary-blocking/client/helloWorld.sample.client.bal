@@ -1,6 +1,4 @@
 // This is client implementation for unary blocking scenario
-package client;
-
 import ballerina/io;
 
 function main (string[] args) {
