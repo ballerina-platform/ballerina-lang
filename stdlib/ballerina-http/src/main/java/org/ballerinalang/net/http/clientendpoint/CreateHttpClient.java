@@ -42,8 +42,10 @@ import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
@@ -159,8 +161,11 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
                     }
                 }
                 if (protocols != null) {
-                    String sslEnabledProtocols = protocols.getStringField(HttpConstants.ENABLED_PROTOCOLS);
-                    if (StringUtils.isNotBlank(sslEnabledProtocols)) {
+                    List<Value> sslEnabledProtocolsValueList = Arrays
+                            .asList(protocols.getArrayField(HttpConstants.ENABLED_PROTOCOLS));
+                    if (sslEnabledProtocolsValueList.size() > 0) {
+                        String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
+                                .collect(Collectors.joining(",", "", ""));
                         Parameter clientProtocols = new Parameter(HttpConstants.SSL_ENABLED_PROTOCOLS,
                                 sslEnabledProtocols);
                         clientParams.add(clientProtocols);
@@ -190,8 +195,11 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
                 senderConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
                 senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
 
-                String ciphers = secureSocket.getStringField(HttpConstants.SSL_CONFIG_CIPHERS);
-                if (StringUtils.isNotBlank(ciphers)) {
+                List<Value> ciphersValueList = Arrays
+                        .asList(secureSocket.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
+                if (ciphersValueList.size() > 0) {
+                    String ciphers = ciphersValueList.stream().map(Value::getStringValue)
+                            .collect(Collectors.joining(",", "", ""));
                     Parameter clientCiphers = new Parameter(HttpConstants.CIPHERS, ciphers);
                     clientParams.add(clientCiphers);
                 }

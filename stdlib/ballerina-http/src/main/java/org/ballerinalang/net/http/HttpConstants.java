@@ -294,15 +294,15 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_OCSP_STAPLING = "ocspStapling";
     public static final String ENDPOINT_CONFIG_KEY_STORE = "keyStore";
     public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocols";
-    public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "validateCert";
+    public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "certValidation";
 
     //SslConfiguration indexes
     public static final String SSL_CONFIG_SSL_VERIFY_CLIENT = "sslVerifyClient";
     public static final String SSL_CONFIG_CIPHERS = "ciphers";
     public static final String SSL_CONFIG_CACHE_SIZE = "cacheSize";
     public static final String SSL_CONFIG_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
-    public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "hostNameVerification";
-    public static final String SSL_CONFIG_ENABLE_SESSION_CREATION = "sessionCreation";
+    public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "verifyHostname";
+    public static final String SSL_CONFIG_ENABLE_SESSION_CREATION = "shareSession";
 
     //Client Endpoint
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
