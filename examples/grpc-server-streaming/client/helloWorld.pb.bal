@@ -15,7 +15,7 @@ public type HelloWorldStub object {
         self.serviceStub = navStub;
     }
 
-    function lotsOfReplies (string req, typedesc listener) returns (error| ()) {
+    function lotsOfReplies (string req, typedesc listener) returns (error?) {
         var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/lotsOfReplies", req, listener);
         if (err1 != ()) {
             error e = {message:err1.message};
