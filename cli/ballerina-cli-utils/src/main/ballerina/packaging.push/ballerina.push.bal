@@ -33,7 +33,10 @@ function pushPackage (string accessToken, string url, string dirPath, string msg
     req.addHeader("Authorization", "Bearer " + accessToken);
     req.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
     
-    http:Response httpResponse = check httpEndpoint -> post("", req);
+    // http:Response httpResponse = check (httpEndpoint -> post("", req));
+    var result = httpEndpoint -> post("", req);
+    http:Response httpResponse = check result;
+
     // match httpResponse {
     //  http:HttpConnectorError errRes => {
     //      var errorResp = <error> errRes;
@@ -44,7 +47,7 @@ function pushPackage (string accessToken, string url, string dirPath, string msg
     //  http:Response response => res = response;
     // }
     if (httpResponse.statusCode != 200) {
-        json jsonResponse = check httpResponse.getJsonPayload();
+        json jsonResponse = check (httpResponse.getJsonPayload());
         string message = (jsonResponse.msg.toString() but {()=> "error occurred when pushing the package"});
         io:println(message);
         // match jsonResponse {

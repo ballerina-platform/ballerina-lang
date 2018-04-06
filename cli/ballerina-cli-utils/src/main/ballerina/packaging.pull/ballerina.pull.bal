@@ -25,7 +25,12 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
     http:Request req = new;
     // http:Response res = new;
     req.addHeader("Accept-Encoding", "identity");
-    http:Response httpResponse = check httpEndpoint -> get("", req);
+    
+    //http:Response httpResponse = check (httpEndpoint -> get("", req));
+
+    var result = httpEndpoint -> get("", req);
+    http:Response httpResponse = check result;
+
     // match httpResponse {
     //  http:HttpConnectorError errRes => {
     //      var errorResp = <error> errRes;
@@ -36,7 +41,7 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
     //  http:Response response => res = response;
     // }
     if (httpResponse.statusCode != 200) {
-        json jsonResponse = check httpResponse.getJsonPayload();
+        json jsonResponse = check (httpResponse.getJsonPayload());
         string message = (jsonResponse.msg.toString() but {()=> "error occurred when pulling the package"});
         io:println(message);
         // io:println(jsonResponse.msg.toString());
@@ -64,7 +69,7 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
         //     int size => pkgSize = size;
         // }
         // io:ByteChannel sourceChannel = {};
-        io:ByteChannel sourceChannel = check httpResponse.getByteChannel();
+        io:ByteChannel sourceChannel = check (httpResponse.getByteChannel());
         // match srcChannel {
         //     mime:EntityError errRes => {
         //         var errorResp = <error> errRes;
@@ -143,7 +148,7 @@ function getFileChannel (string filePath, string permission) returns (io:ByteCha
 function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, int) {
     blob bytes;
     int numberOfBytesRead;
-    (bytes, numberOfBytesRead) = check channel.read(numberOfBytes);
+    (bytes, numberOfBytesRead) = check (channel.read(numberOfBytes));
     // match bytesRead {
     //     (blob, int) byteResponse => {
     //         (bytes, numberOfBytesRead) = byteResponse;
@@ -160,7 +165,7 @@ function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, in
 
 function writeBytes (io:ByteChannel channel, blob content, int startOffset) returns (int) {
     // int numberOfBytesWritten;
-    int numberOfBytesWritten = check channel.write(content, startOffset);
+    int numberOfBytesWritten = check (channel.write(content, startOffset));
     // match bytesWritten {
     //     io:IOError errRes => {
     //             var errorResp = <error> errRes;
@@ -243,7 +248,7 @@ function truncateString (string text) returns (string) {
 function createDirectories(string directoryPath) returns (boolean) {
     file:Path dirPath = file:getPath(directoryPath);
     if (!file:exists(dirPath)){
-        boolean directoryCreationStatus = check file:createDirectory(dirPath);
+        boolean directoryCreationStatus = check (file:createDirectory(dirPath));
         return directoryCreationStatus;
     } else {
         return false;

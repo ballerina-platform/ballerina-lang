@@ -23,7 +23,8 @@ function search (string url, string querySearched) {
 
     http:Request req = new;
     // http:Response res = new;
-    http:Response httpResponse = check httpEndpoint -> get(querySearched, req);
+    var result = httpEndpoint -> get(querySearched, req);
+    http:Response httpResponse = check result;
     // match httpResponse {
     //  http:HttpConnectorError errRes => {
     //      var errorResp = <error> errRes;
@@ -33,7 +34,7 @@ function search (string url, string querySearched) {
     //  }
     //  http:Response response => res = response;
     // }
-    json jsonResponse = check httpResponse.getJsonPayload();
+    json jsonResponse = check (httpResponse.getJsonPayload());
     // json jsonObj;
     // match jsonResponse {
     //         mime:EntityError errRes => {
@@ -115,5 +116,6 @@ function getDateCreated(json jsonObj) returns string {
 }
 
 function main (string[] args) {
-    search(args[0], args[1]);
+    // search(args[0], args[1]);
+     search("https://api.staging-central.ballerina.io/packages/", "?query=natasha");
 }
