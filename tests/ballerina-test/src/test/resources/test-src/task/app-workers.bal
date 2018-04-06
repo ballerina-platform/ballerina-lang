@@ -13,19 +13,19 @@ function scheduleAppointment (string cronExpression, string errMsgW1) returns (s
         return w1TaskId;
     }
     worker w1 {
-        function () returns (error?) onTriggerFunction = onTriggerW1;
+        (function() returns error?) onTriggerFunction = onTriggerW1;
         string w1TaskIdX;
         if (errMsgW1 == "") {
-            w1TaskIdX = check task:scheduleAppointment(onTriggerFunction,(()), cronExpression);
+            w1TaskIdX = task:scheduleAppointment(onTriggerFunction, null, cronExpression);
         } else {
-            function (error) onErrorFunction = onErrorW1;
-            w1TaskIdX = check task:scheduleAppointment(onTriggerFunction, onErrorFunction, cronExpression);
+            function(error) onErrorFunction = onErrorW1;
+            w1TaskIdX = task:scheduleAppointment(onTriggerFunction, onErrorFunction, cronExpression);
         }
         w1TaskIdX -> default;
     }
 }
 
-function onTriggerW1 () returns (error?) {
+function onTriggerW1 () returns error? {
     w1Count = w1Count + 1;
     io:println("w1:onTriggerW1");
     if (errorMsgW1 != "") {
@@ -47,13 +47,13 @@ function getCount () returns (int) {
 
 function getError () returns (string) {
     string w1ErrMsg;
-    if (errorW1 != ()) {
+    if (errorW1 != null) {
         w1ErrMsg = errorW1.message;
     }
     return w1ErrMsg;
 }
 
-function stopTask (string w1TaskId) returns (error?) {
+function stopTask (string w1TaskId) returns error? {
     error? w1StopError = task:stopTask(w1TaskId);
     match w1StopError {
         error => {}

@@ -252,8 +252,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         Arrays.stream(programFile.getEntryPackage().getFunctionInfoEntries()).forEach(functionInfo -> {
             suite.addTestUtilityFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.UTIL));
         });
-        int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         resolveFunctions(suite);
+        int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
         suite.setTests(sortedTests);
         suite.setProgramFile(programFile);
@@ -388,9 +388,11 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 }
             }
             for (String dependsOnFn : test.getDependsOnTestFunctions()) {
-                //TODO handle missing func case
+                if (!functions.stream().parallel().anyMatch(func -> func.getName().equals(dependsOnFn))) {
+                    throw new BallerinaException("Cannot find the specified dependsOn function : " + dependsOnFn);
+                }
                 test.addDependsOnTestFunction(functions.stream().filter(e -> e.getName().equals(dependsOnFn))
-                        .findFirst().get());
+                                                       .findFirst().get());
             }
         }
 
