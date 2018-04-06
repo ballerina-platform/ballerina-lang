@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -73,9 +72,6 @@ public class AnnotationDesugar {
     protected void rewritePackageAnnotations(BLangPackage pkgNode) {
         BLangFunction initFunction = pkgNode.initFunction;
 
-        // Remove last return statement. we will add it later. TODO : Fix this properly.
-        initFunction.body.stmts.remove(initFunction.body.stmts.size() - 1);
-
         // This is the variable which store all package level annotations.
         BLangVariable annotationMap = createGlobalAnnotationMapVar(pkgNode);
 
@@ -112,8 +108,6 @@ public class AnnotationDesugar {
             generateAnnotations(globalEndpoint, globalEndpoint.name.value, initFunction, annotationMap);
         }
 
-        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
-        initFunction.body.addStatement(returnStmt);
     }
 
     private void generateAnnotations(AnnotatableNode node, String key, BLangFunction target, BLangVariable annMapVar) {

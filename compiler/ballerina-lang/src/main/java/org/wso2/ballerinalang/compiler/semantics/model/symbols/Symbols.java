@@ -60,7 +60,6 @@ public class Symbols {
                                                  BSymbol owner) {
         BStructSymbol typeSymbol = new BStructSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.OBJECT;
-        typeSymbol.isObject = true;
         return typeSymbol;
     }
 
