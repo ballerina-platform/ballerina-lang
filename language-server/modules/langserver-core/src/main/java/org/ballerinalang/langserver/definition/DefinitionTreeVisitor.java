@@ -475,7 +475,7 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        if (!recordLiteral.keyValuePairs.isEmpty()) {
+        if (recordLiteral.keyValuePairs != null) {
             recordLiteral.keyValuePairs.forEach((bLangRecordKeyValue -> {
                 if (bLangRecordKeyValue.valueExpr != null) {
                     this.acceptNode(bLangRecordKeyValue.valueExpr);
