@@ -150,3 +150,8 @@ documentation {
 native function abortResourceManagers (string transactionId,
                                        int transactionBlockId) returns boolean;
 
+
+documentation {
+    Get the current transaction id.
+}
+native function GetCurrentTransactionId () returns string;
