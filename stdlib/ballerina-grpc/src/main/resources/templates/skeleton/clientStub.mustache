@@ -8,14 +8,14 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
         grpc:ServiceStub serviceStub;
     }
 
-    function <{{connectorId}}{{stubTypeName}}Stub stub> initStub (grpc:Client clientEndpoint) {
-        grpc:ServiceStub navStub = {};
+    function initStub (grpc:Client clientEndpoint) {
+        grpc:ServiceStub navStub = new;
         navStub.initStub(clientEndpoint, "{{stubType}}", DESCRIPTOR_KEY, descriptorMap);
-        stub.serviceStub = navStub;
+        self.serviceStub = navStub;
     }
     {{/stubs}}{{#blockingFunctions}}
-    function <{{connectorId}}{{stubTypeName}}Stub stub> {{operationId}} ({{inputDataType}} req) returns ({{outputDataType}}|error) {
-        any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("{{methodId}}", req);
+    function {{operationId}} ({{inputDataType}} req) returns ({{outputDataType}}|error) {
+        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("{{methodId}}", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
                 error e = {message:payloadError.message};
@@ -35,8 +35,8 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
         }
     }
     {{/blockingFunctions}}{{#nonBlockingFunctions}}
-    function <{{connectorId}}Stub stub> {{operationId}} ({{inputDataType}} req, typedesc listener) returns (error| null) {
-        var err1 = stub.serviceStub.nonBlockingExecute("{{methodId}}", req, listener);
+    function {{operationId}} ({{inputDataType}} req, typedesc listener) returns (error| null) {
+        var err1 = self.serviceStub.nonBlockingExecute("{{methodId}}", req, listener);
         if (err1 != null && err1.message != null) {
             error e = {message:err1.message};
             return e;
@@ -44,8 +44,8 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
         return null;
     }
     {{/nonBlockingFunctions}}{{#streamingFunctions}}
-    function <{{connectorId}}Stub stub> {{operationId}} (typedesc listener) returns (grpc:Client| error)  {
-        var res = stub.serviceStub.streamingExecute("{{methodId}}", listener);
+    function {{operationId}} (typedesc listener) returns (grpc:Client| error)  {
+        var res = self.serviceStub.streamingExecute("{{methodId}}", listener);
         match res {
             grpc:ConnectorError err => {
                 error e = {message:err.message};
@@ -67,19 +67,19 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Client object {
         {{connectorId}}{{stubTypeName}}Stub stub;
     }
 
-    public function <{{connectorId}}{{stubTypeName}}Client ep> init (grpc:ClientEndpointConfiguration config) {
+    public function init (grpc:ClientEndpointConfiguration config) {
         // initialize client endpoint.
-        grpc:Client client = {};
+        grpc:Client client = new;
         client.init(config);
-        ep.client = client;
+        self.client = client;
         // initialize service stub.
-        {{connectorId}}{{stubTypeName}}Stub stub = {};
+        {{connectorId}}{{stubTypeName}}Stub stub = new;
         stub.initStub(client);
-        ep.stub = stub;
+        self.stub = stub;
     }
 
-    public function <{{connectorId}}{{stubTypeName}}Client ep> getClient () returns ({{connectorId}}{{stubTypeName}}Stub) {
-        return ep.stub;
+    public function getClient () returns ({{connectorId}}{{stubTypeName}}Stub) {
+        return self.stub;
     }{{/stubObjects}}
 }
 {{/client}}
