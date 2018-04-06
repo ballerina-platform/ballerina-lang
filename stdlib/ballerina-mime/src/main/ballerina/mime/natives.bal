@@ -270,7 +270,7 @@ public type Base64DecodeError {
 @Return {value:"If the given input is of type blob return value will be an encoded blob"}
 @Return {value:"If the given input is of type io:ByteChannel return value will be an encoded io:ByteChannel"}
 @Return {value:"Base64EncodeError will get return, in case of errors"}
-public native function base64Encode ((string | blob | io:ByteChannel) contentToBeEncoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64EncodeError);
+native function base64Encode ((string | blob | io:ByteChannel) contentToBeEncoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64EncodeError);
 
 @Description {value:"Decode a given input with MIME specific Base64 encoding scheme."}
 @Param {value:"contentToBeDecoded: Content that needs to be decoded can be of type string, blob or io:ByteChannel"}
@@ -279,7 +279,92 @@ public native function base64Encode ((string | blob | io:ByteChannel) contentToB
 @Return {value:"If the given input is of type blob return value will be a decoded blob"}
 @Return {value:"If the given input is of type io:ByteChannel return value will be a decoded io:ByteChannel"}
 @Return {value:"Base64DecodeError will get return, in case of errors"}
-public native function base64Decode ((string | blob | io:ByteChannel) contentToBeDecoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64DecodeError);
+native function base64Decode ((string | blob | io:ByteChannel) contentToBeDecoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64DecodeError);
+
+@Description {value:"Encode a given blob with Base64 encoding scheme."}
+@Param {value:"valueToBeEncoded: Content that needs to be encoded"}
+@Return {value:"Return an encoded blob"}
+@Return {value:"Base64EncodeError will get return, in case of errors"}
+public function base64EncodeBlob(blob valueToBeEncoded) returns blob | Base64EncodeError {
+    Base64EncodeError customErr = {message : "Error occurred while encoding blob"};
+    match base64Encode(valueToBeEncoded) {
+        string returnString => return customErr;
+        blob returnBlob => return returnBlob;
+        io:ByteChannel returnChannel => return customErr;
+        Base64EncodeError encodeErr => return encodeErr;
+    }
+}
+@Description {value:"Encode a given string with Base64 encoding scheme."}
+@Param {value:"valueToBeEncoded: Content that needs to be encoded"}
+@Param {value:"charset: Charset to be used"}
+@Return {value:"Return an encoded string"}
+@Return {value:"Base64EncodeError will get return, in case of errors"}
+public function base64EncodeString(string valueToBeEncoded, string charset="utf-8") returns string | Base64EncodeError {
+    Base64EncodeError customErr = {message : "Error occurred while encoding string"};
+    match base64Encode(valueToBeEncoded) {
+        string returnString => return returnString;
+        blob returnBlob => return customErr;
+        io:ByteChannel returnChannel => return customErr;
+        Base64EncodeError encodeErr => return encodeErr;
+    }
+}
+
+@Description {value:"Encode a given ByteChannel with Base64 encoding scheme."}
+@Param {value:"valueToBeEncoded: Content that needs to be encoded"}
+@Return {value:"Return an encoded ByteChannel"}
+@Return {value:"Base64EncodeError will get return, in case of errors"}
+public function base64EncodeByteChannel(io:ByteChannel valueToBeEncoded) returns io:ByteChannel | Base64EncodeError {
+    Base64EncodeError customErr = {message : "Error occurred while encoding ByteChannel content"};
+    match base64Encode(valueToBeEncoded) {
+        string returnString => return customErr;
+        blob returnBlob => return customErr;
+        io:ByteChannel returnChannel => return returnChannel;
+        Base64EncodeError encodeErr => return encodeErr;
+    }
+}
+
+@Description {value:"Decode a given blob with Base64 encoding scheme."}
+@Param {value:"valueToBeDecoded: Content that needs to be decoded"}
+@Return {value:"Return a decoded blob"}
+@Return {value:"Base64DecodeError will get return, in case of errors"}
+public function base64DecodeBlob(blob valueToBeDecoded) returns blob | Base64DecodeError {
+    Base64DecodeError customErr = {message : "Error occurred while decoding blob"};
+    match base64Decode(valueToBeDecoded) {
+        string returnString => return customErr;
+        blob returnBlob => return returnBlob;
+        io:ByteChannel returnChannel => return customErr;
+        Base64DecodeError decodeErr => return decodeErr;
+    }
+}
+
+@Description {value:"Decode a given string with Base64 encoding scheme."}
+@Param {value:"valueToBeDecoded: Content that needs to be decoded"}
+@Param {value:"charset: Charset to be used"}
+@Return {value:"Return a decoded string"}
+@Return {value:"Base64DecodeError will get return, in case of errors"}
+public function base64DecodeString(string valueToBeDecoded, string charset="utf-8") returns string | Base64DecodeError {
+    Base64DecodeError customErr = {message : "Error occurred while decoding string"};
+    match base64Decode(valueToBeDecoded) {
+        string returnString => return returnString;
+        blob returnBlob => return customErr;
+        io:ByteChannel returnChannel => return customErr;
+        Base64DecodeError decodeErr => return decodeErr;
+    }
+}
+
+@Description {value:"Decode a given ByteChannel with Base64 encoding scheme."}
+@Param {value:"valueToBeDecoded: Content that needs to be decoded"}
+@Return {value:"Return a decoded ByteChannel"}
+@Return {value:"Base64DecodeError will get return, in case of errors"}
+public function base64DecodeByteChannel(io:ByteChannel valueToBeDecoded) returns io:ByteChannel | Base64DecodeError {
+    Base64DecodeError customErr = {message : "Error occurred while decoding ByteChannel content"};
+    match base64Decode(valueToBeDecoded) {
+        string returnString => return customErr;
+        blob returnBlob => return customErr;
+        io:ByteChannel returnChannel => return returnChannel;
+        Base64DecodeError decodeErr => return decodeErr;
+    }
+}
 
 @Description {value:"Get the encoding value from a given MediaType."}
 @Param {value:"contentType: A MediaType struct"}
