@@ -22,9 +22,9 @@ import ballerina/util;
 
 @Description {value:"Represents JWT validator configurations"}
 public type JWTValidatorConfig {
-    string issuer;
-    string audience;
-    string certificateAlias;
+    string issuer,
+    string audience,
+    string certificateAlias,
 };
 
 @Description {value:"Validity given JWT token"}
@@ -81,8 +81,8 @@ function parseJWT (string[] encodedJWTComponents) returns ((Header, Payload)|err
 }
 
 function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json, json)|error) {
-    string jwtHeader = getDecodedValue(util:base64Decode(urlDecode(encodedJWTComponents[0])));
-    string jwtPayload = getDecodedValue(util:base64Decode(urlDecode(encodedJWTComponents[1])));
+    string jwtHeader = check util:base64DecodeString(urlDecode(encodedJWTComponents[0]));
+    string jwtPayload = check util:base64DecodeString(urlDecode(encodedJWTComponents[1]));
     json jwtHeaderJson = {};
     json jwtPayloadJson = {};
 
@@ -107,18 +107,18 @@ function parseHeader (json jwtHeaderJson) returns (Header) {
     foreach key in keys {
         //TODO get alg from a constant
         if (key == "alg") {
-            jwtHeader.alg = jwtHeaderJson[key].toString();
+            jwtHeader.alg = jwtHeaderJson[key].toString() but {() => ""}; // TODO: Double check if this is right
         } else if (key == TYP) {
-            jwtHeader.typ = jwtHeaderJson[key].toString();
+            jwtHeader.typ = jwtHeaderJson[key].toString() but {() => ""}; // TODO: Double check if this is right
         } else if (key == CTY) {
-            jwtHeader.cty = jwtHeaderJson[key].toString();
+            jwtHeader.cty = jwtHeaderJson[key].toString() but {() => ""}; // TODO: Double check if this is right
         } else if (key == KID) {
-            jwtHeader.kid = jwtHeaderJson[key].toString();
+            jwtHeader.kid = jwtHeaderJson[key].toString() but {() => ""}; // TODO: Double check if this is right
         } else {
             if (lengthof jwtHeaderJson[key] > 0) {
                 customClaims[key] = convertToStringArray(jwtHeaderJson[key]);
             } else {
-                customClaims[key] = jwtHeaderJson[key].toString();
+                customClaims[key] = jwtHeaderJson[key].toString() but {() => ""}; // TODO: Double check if this is right
             }
         }
     }
@@ -133,28 +133,28 @@ function parsePayload (json jwtPayloadJson) returns (Payload) {
     keys = jwtPayloadJson.getKeys() but { () => keys };
     foreach key in keys {
         if (key == ISS) {
-            jwtPayload.iss = jwtPayloadJson[key].toString();
+            jwtPayload.iss = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
         } else if (key == SUB) {
-            jwtPayload.sub = jwtPayloadJson[key].toString();
+            jwtPayload.sub = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
         } else if (key == AUD) {
             jwtPayload.aud = convertToStringArray(jwtPayloadJson[key]);
         } else if (key == JTI) {
-            jwtPayload.jti = jwtPayloadJson[key].toString();
+            jwtPayload.jti = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
         } else if (key == EXP) {
-            var value = jwtPayloadJson[key].toString();
-            jwtPayload.exp = <int>value;
+            var value = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            jwtPayload.exp = <int>value but {error => 0};
         } else if (key == NBF) {
-            var value = jwtPayloadJson[key].toString();
-            jwtPayload.nbf = <int>value;
+            var value = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            jwtPayload.nbf = <int>value but {error => 0};
         } else if (key == IAT) {
-            var value = jwtPayloadJson[key].toString();
-            jwtPayload.iat = <int>value;
+            var value = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            jwtPayload.iat = <int>value but {error => 0};
         }
         else {
             if (lengthof jwtPayloadJson[key] > 0) {
                 customClaims[key] = convertToStringArray(jwtPayloadJson[key]);
             } else {
-                customClaims[key] = jwtPayloadJson[key].toString();
+                customClaims[key] = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
             }
         }
     }
@@ -175,11 +175,11 @@ function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload j
         error err = {message:"No Registered IDP found for the JWT with issuer name : " + jwtPayload.iss};
         return err;
     }
-    if (!validateAudience(jwtPayload, config)) {
-        //TODO need to set expected audience or available audience list
-        error err = {message:"Invalid audience"};
-        return err;
-    }
+    //if (!validateAudience(jwtPayload, config)) {
+    //    //TODO need to set expected audience or available audience list
+    //    error err = {message:"Invalid audience"};
+    //    return err;
+    //}
     if (!validateExpirationTime(jwtPayload)) {
         error err = {message:"JWT token is expired"};
         return err;
@@ -231,11 +231,11 @@ function convertToStringArray (json jsonData) returns (string[]) {
     if (lengthof jsonData > 0) {
         int i = 0;
         while (i < lengthof jsonData) {
-            outData[i] = jsonData[i].toString();
+            outData[i] = jsonData[i].toString() but {() => ""}; // TODO: Double check if this is right
             i = i + 1;
         }
     } else {
-        outData[0] = jsonData.toString();
+        outData[0] = jsonData.toString() but {() => ""}; // TODO: Double check if this is right
     }
     return outData;
 }
@@ -244,14 +244,4 @@ function urlDecode (string encodedString) returns (string) {
     string decodedString = encodedString.replaceAll("-", "+");
     decodedString = decodedString.replaceAll("_", "/");
     return decodedString;
-}
-
-function getDecodedValue ((string  | blob  | io:ByteChannel | util:Base64DecodeError) decodedData) returns (string) {
-    match decodedData {
-        string returnString => return returnString;
-        blob returnBlob => return "error";
-        io:ByteChannel returnChannel => return "error";
-        util:Base64DecodeError returnError => return "error";
-        () => return "error";
-    }
 }

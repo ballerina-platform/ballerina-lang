@@ -17,46 +17,42 @@
 import ballerina/runtime;
 import ballerina/io;
 
-struct Stock {
+type Stock {
     string symbol;
     float price;
     int volume;
-}
+};
 
-struct Twitter {
+type Twitter {
     string user;
     string tweet;
     string company;
-}
+};
 
-struct StockWithPrice {
+type StockWithPrice {
     string symbol;
     string tweet;
     float price;
-}
+};
 
 StockWithPrice[] globalEventsArray = [];
 int index = 0;
-stream<Stock> stockStream = {};
-stream<Twitter> twitterStream = {};
-stream<StockWithPrice> stockWithPriceStream = {};
 
-function testJoinQuery () {
+function startJoinQuery() returns (StockWithPrice[]) {
 
-    forever{
+    stream<Stock> stockStream;
+    stream<Twitter> twitterStream;
+    stream<StockWithPrice> stockWithPriceStream;
+
+    forever {
         from stockStream window time(1000)
         join twitterStream window time(1000)
         on stockStream.symbol == twitterStream.company
         select stockStream.symbol as symbol, twitterStream.tweet as tweet, stockStream.price as price
-        => (StockWithPrice [] emp) {
-                stockWithPriceStream.publish(emp);
+        => (StockWithPrice[] emp) {
+            stockWithPriceStream.publish(emp);
         }
     }
-}
-
-function startJoinQuery( ) returns (StockWithPrice []) {
-
-    testJoinQuery();
 
     Stock s1 = {symbol:"WSO2", price:55.6, volume:100};
     Stock s2 = {symbol:"MBI", price:74.6, volume:100};
@@ -75,12 +71,12 @@ function startJoinQuery( ) returns (StockWithPrice []) {
     return globalEventsArray;
 }
 
-function printCompanyStockPrice (StockWithPrice s) {
-    io:println("printCompanyStock function invoked for company:" + s.symbol +" and price:"+s.price);
+function printCompanyStockPrice(StockWithPrice s) {
+    io:println("printCompanyStock function invoked for company:" + s.symbol + " and price:" + s.price);
     addToGlobalEventsArray(s);
 }
 
-function addToGlobalEventsArray (StockWithPrice s) {
+function addToGlobalEventsArray(StockWithPrice s) {
     globalEventsArray[index] = s;
     index = index + 1;
 }

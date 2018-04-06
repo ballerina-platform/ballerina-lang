@@ -3021,7 +3021,8 @@ public class BLangPackageBuilder {
         ((BLangStreamAction) streamActionNode).pos = pos;
         streamActionNode.addWS(ws);
         this.addLambdaFunctionDef(pos, ws, true, false, false);
-        streamActionNode.setInvokableBody((BLangLambdaFunction) this.exprNodeStack.peek());
+        // we dont pop the exprNodeStack.It will be popped in a later stage after creating streamActionNode
+        streamActionNode.setInvokableBody((BLangLambdaFunction) this.exprNodeStack.pop());
     }
 
     public void startPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -3058,36 +3059,95 @@ public class BLangPackageBuilder {
     }
 
     public void endPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isFollowedBy,
-                                             boolean enclosedInParanthesis) {
+            boolean enclosedInParenthesis, boolean andWithNotAvailable, boolean forWithNotAvailable,
+            boolean onlyAndAvailable, boolean onlyOrAvailable) {
 
-        if (!this.patternStreamingInputStack.empty()) {
-            PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.peek();
+        try {
+            if (!this.patternStreamingInputStack.empty()) {
+                PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.pop();
 
-            ((BLangPatternStreamingInput) patternStreamingInputNode).pos = pos;
-            patternStreamingInputNode.addWS(ws);
+                ((BLangPatternStreamingInput) patternStreamingInputNode).pos = pos;
+                patternStreamingInputNode.addWS(ws);
 
-            if (isFollowedBy) {
-                patternStreamingInputNode.setFollowedBy(true);
-                patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
-                patternStreamingInputNode.setPatternStreamingInput(this.recentStreamingPatternInputNode);
-                this.recentStreamingPatternInputNode = this.patternStreamingInputStack.pop();
+                if (isFollowedBy) {
+                    processFollowedByPattern(patternStreamingInputNode);
+                }
+
+                if (enclosedInParenthesis) {
+                    processEnclosedPattern(patternStreamingInputNode);
+                }
+
+                if (andWithNotAvailable) {
+                    processNegationPattern(patternStreamingInputNode);
+                }
+
+                if (onlyAndAvailable) {
+                    processPatternWithAndCondition(patternStreamingInputNode);
+                }
+
+                if (onlyOrAvailable) {
+                    processPatternWithOrCondition(patternStreamingInputNode);
+                }
+
+                if (forWithNotAvailable) {
+                    processNegationPatternWithTimeDuration(patternStreamingInputNode);
+                }
+
+                if (!(isFollowedBy || enclosedInParenthesis || forWithNotAvailable ||
+                      onlyAndAvailable || onlyOrAvailable || andWithNotAvailable)) {
+                    patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
+                    this.recentStreamingPatternInputNode = patternStreamingInputNode;
+                }
             }
 
-            if (enclosedInParanthesis) {
-                patternStreamingInputNode.setEnclosedInParanthesis(true);
-                patternStreamingInputNode.setPatternStreamingInput(this.recentStreamingPatternInputNode);
-                this.recentStreamingPatternInputNode = this.patternStreamingInputStack.pop();
+            if (this.patternStreamingInputStack.empty()) {
+                this.patternStreamingInputStack.push(this.recentStreamingPatternInputNode);
+                this.recentStreamingPatternInputNode = null;
             }
-
-            if (!isFollowedBy && !enclosedInParanthesis) {
-                patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
-                this.recentStreamingPatternInputNode = this.patternStreamingInputStack.pop();
-            }
+        } catch (Throwable e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
-        if (this.patternStreamingInputStack.empty()) {
-            this.patternStreamingInputStack.push(this.recentStreamingPatternInputNode);
-            this.recentStreamingPatternInputNode = null;
-        }
+    }
+
+    private void processNegationPatternWithTimeDuration(PatternStreamingInputNode patternStreamingInputNode) {
+        patternStreamingInputNode.setForWithNot(true);
+        patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
+        patternStreamingInputNode.setTimeExpr(this.exprNodeStack.pop());
+        this.recentStreamingPatternInputNode = patternStreamingInputNode;
+    }
+
+    private void processPatternWithOrCondition(PatternStreamingInputNode patternStreamingInputNode) {
+        patternStreamingInputNode.setOrOnly(true);
+        patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
+        patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
+        this.recentStreamingPatternInputNode = patternStreamingInputNode;
+    }
+
+    private void processPatternWithAndCondition(PatternStreamingInputNode patternStreamingInputNode) {
+        patternStreamingInputNode.setAndOnly(true);
+        patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
+        patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
+        this.recentStreamingPatternInputNode = patternStreamingInputNode;
+    }
+
+    private void processNegationPattern(PatternStreamingInputNode patternStreamingInputNode) {
+        patternStreamingInputNode.setAndWithNot(true);
+        patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
+        patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
+        this.recentStreamingPatternInputNode = patternStreamingInputNode;
+    }
+
+    private void processEnclosedPattern(PatternStreamingInputNode patternStreamingInputNode) {
+        patternStreamingInputNode.setEnclosedInParenthesis(true);
+        patternStreamingInputNode.setPatternStreamingInput(this.recentStreamingPatternInputNode);
+        this.recentStreamingPatternInputNode = patternStreamingInputNode;
+    }
+
+    private void processFollowedByPattern(PatternStreamingInputNode patternStreamingInputNode) {
+        patternStreamingInputNode.setFollowedBy(true);
+        patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
+        patternStreamingInputNode.setPatternStreamingInput(this.recentStreamingPatternInputNode);
+        this.recentStreamingPatternInputNode = patternStreamingInputNode;
     }
 
     public void startStreamingQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws) {
