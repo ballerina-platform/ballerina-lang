@@ -1,32 +1,32 @@
-import ballerina/io;
+import ballerina/log;
 import ballerina/time;
 
-struct Employee {
+type Employee {
     int id;
     string name;
 }
 
-struct Job {
+type Job {
     string description;
 }
 
-function testInvalidStreamCreation () {
-    stream t1 = {};
+function testInvalidStreamDeclaration () {
+    stream t1;
 }
 
-function testInvalidStructPublishingToStream () {
-    stream<Employee> s1 = {};
+function testInvalidObjectPublishingToStream () {
+    stream<Employee> s1;
     Job j1 = { description:"Dummy Description 1" };
     s1.publish(j1);
 }
 
-function testSubscriptionFunctionWithNonStructParameter () {
-    stream<Employee> s1 = {};
+function testSubscriptionFunctionWithNonObjectParameter () {
+    stream<Employee> s1;
     s1.subscribe(printInteger);
 }
 
-function testSubscriptionFunctionWithIncorrectStructParameter () {
-    stream<Employee> s1 = {};
+function testSubscriptionFunctionWithIncorrectObjectParameter () {
+    stream<Employee> s1;
     s1.subscribe(printJobDescription);
 }
 
@@ -36,12 +36,12 @@ int employeeIndex = 0;
 
 function testStreamPublishingAndSubscription () returns (Employee, Employee, Employee) {
     Employee origEmployee = globalEmployee;
-    stream<Employee> s1 = {};
+    stream<Employee> s1;
     s1.subscribe(assignGlobalEmployee);
     Employee publishedEmployee = { id:1234, name:"Maryam" };
     s1.publish(publishedEmployee);
     int startTime = time:currentTime().time;
-    while (globalEmployee == null && time:currentTime().time - startTime <1000) {
+    while (globalEmployee == null && time:currentTime().time - startTime < 1000) {
         //allow for value update
     }
     Employee newEmployee = globalEmployee;
@@ -49,7 +49,7 @@ function testStreamPublishingAndSubscription () returns (Employee, Employee, Emp
 }
 
 function testStreamPublishingAndSubscriptionForMultipleEvents () returns (Employee[], Employee[]) {
-    stream<Employee> s1 = {};
+    stream<Employee> s1;
     s1.subscribe(addToGlobalEmployeeArray);
     Employee e1 = { id:1234, name:"Maryam" };
     Employee e2 = { id:2345, name:"Aysha" };
@@ -66,11 +66,11 @@ function testStreamPublishingAndSubscriptionForMultipleEvents () returns (Employ
 }
 
 function printInteger (int i) {
-    io:println(i);
+    log:printInfo(<string>i);
 }
 
 function printJobDescription (Job j) {
-    io:println(j.description);
+    log:printInfo(j.description);
 }
 
 function assignGlobalEmployee (Employee e) {
