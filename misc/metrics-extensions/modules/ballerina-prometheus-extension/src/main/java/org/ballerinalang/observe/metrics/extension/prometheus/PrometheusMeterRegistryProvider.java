@@ -32,7 +32,6 @@ import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.time.format.DateTimeParseException;
 
-import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
 
 /**
@@ -48,12 +47,13 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
     private static final PrintStream consoleError = System.err;
 
     @Override
+    public String getName() {
+        return "Prometheus";
+    }
+
+    @Override
     public MeterRegistry get() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        if (Boolean.valueOf(configRegistry.getConfiguration(CONFIG_METRICS_ENABLED))) {
-            // Do not return if Metrics is not enabled
-            return null;
-        }
         PrometheusMeterRegistry registry = new PrometheusMeterRegistry(new BallerinaPrometheusConfig());
         String portConfigValue = configRegistry.getConfigOrDefault(METRICS_PORT, String.valueOf(DEFAULT_PORT));
         int port;

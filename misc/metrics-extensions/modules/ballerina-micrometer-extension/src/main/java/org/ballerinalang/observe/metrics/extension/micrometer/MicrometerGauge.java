@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.observe.metrics.extension.micrometer;
 
-import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import org.ballerinalang.util.metrics.AbstractMetric;
 import org.ballerinalang.util.metrics.Gauge;
@@ -33,12 +33,12 @@ public class MicrometerGauge extends AbstractMetric implements Gauge {
 
     private final DoubleAdder value = new DoubleAdder();
 
-    public MicrometerGauge(MetricId id) {
+    public MicrometerGauge(MeterRegistry meterRegistry, MetricId id) {
         super(id);
         io.micrometer.core.instrument.Gauge.builder(id.getName(), value, DoubleAdder::sum)
                 .description(id.getDescription())
                 .tags(id.getTags().stream().map(tag -> Tag.of(tag.getKey(), tag.getValue()))
-                        .collect(Collectors.toList())).register(Metrics.globalRegistry);
+                        .collect(Collectors.toList())).register(meterRegistry);
     }
 
     @Override

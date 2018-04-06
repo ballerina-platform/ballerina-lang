@@ -18,7 +18,6 @@
 package org.ballerinalang.observe.metrics.extension.micrometer;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
@@ -27,36 +26,33 @@ import io.micrometer.core.instrument.binder.system.FileDescriptorMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.observe.metrics.extension.micrometer.spi.MeterRegistryProvider;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.LaunchListener;
 
-import java.util.ServiceLoader;
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 
 /**
  * Listen to Launcher events and initialize Metrics.
  */
 @JavaSPIService("org.ballerinalang.util.LaunchListener")
-public class MetricsLaunchListener implements LaunchListener {
+public class MicrometerLaunchListener implements LaunchListener {
 
     @Override
     public void beforeRunProgram(boolean service) {
-        // Initialize Metrics
-        ServiceLoader<MeterRegistryProvider> providers = ServiceLoader.load(MeterRegistryProvider.class);
-        providers.forEach(provider -> {
-            MeterRegistry registry = provider.get();
-            // Provider implementation may return null
-            if (registry != null) {
-                Metrics.addRegistry(registry);
-            }
-        });
+        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+        if (Boolean.valueOf(configRegistry.getConfiguration(CONFIG_METRICS_ENABLED))) {
+            return;
+        }
+        // Initialize Metrics at launch
+        MeterRegistry meterRegistry = MicrometerMeterRegistryHolder.getInstance();
 
-        new ClassLoaderMetrics().bindTo(Metrics.globalRegistry);
-        new JvmMemoryMetrics().bindTo(Metrics.globalRegistry);
-        new JvmGcMetrics().bindTo(Metrics.globalRegistry);
-        new ProcessorMetrics().bindTo(Metrics.globalRegistry);
-        new JvmThreadMetrics().bindTo(Metrics.globalRegistry);
-        new FileDescriptorMetrics().bindTo(Metrics.globalRegistry);
-        new UptimeMetrics().bindTo(Metrics.globalRegistry);
+        new ClassLoaderMetrics().bindTo(meterRegistry);
+        new JvmMemoryMetrics().bindTo(meterRegistry);
+        new JvmGcMetrics().bindTo(meterRegistry);
+        new ProcessorMetrics().bindTo(meterRegistry);
+        new JvmThreadMetrics().bindTo(meterRegistry);
+        new FileDescriptorMetrics().bindTo(meterRegistry);
+        new UptimeMetrics().bindTo(meterRegistry);
     }
 
     @Override

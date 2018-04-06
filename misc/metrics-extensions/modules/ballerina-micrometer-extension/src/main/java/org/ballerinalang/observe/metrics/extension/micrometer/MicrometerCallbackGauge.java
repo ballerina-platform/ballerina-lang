@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.observe.metrics.extension.micrometer;
 
-import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import org.ballerinalang.util.metrics.AbstractMetric;
 import org.ballerinalang.util.metrics.CallbackGauge;
@@ -33,12 +33,13 @@ public class MicrometerCallbackGauge extends AbstractMetric implements CallbackG
 
     private final io.micrometer.core.instrument.Gauge gauge;
 
-    public <T> MicrometerCallbackGauge(MetricId id, T obj, ToDoubleFunction<T> toDoubleFunction) {
+    public <T> MicrometerCallbackGauge(MeterRegistry meterRegistry, MetricId id, T obj,
+                                       ToDoubleFunction<T> toDoubleFunction) {
         super(id);
         gauge = io.micrometer.core.instrument.Gauge.builder(id.getName(), obj, toDoubleFunction)
                 .description(id.getDescription())
                 .tags(id.getTags().stream().map(tag -> Tag.of(tag.getKey(), tag.getValue()))
-                        .collect(Collectors.toList())).register(Metrics.globalRegistry);
+                        .collect(Collectors.toList())).register(meterRegistry);
     }
 
 
