@@ -235,7 +235,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
         CircuitBreakerConfig cb => {
             validateCircuitBreakerConfiguration(cb);
             boolean [] statusCodes = populateErrorCodeIndex(cb.statusCodes);
-            HttpClient cbHttpClient = {};
+            HttpClient cbHttpClient = new;
             var retryConfig = configuration.retry;
             match retryConfig {
                 Retry retry => {
@@ -266,16 +266,10 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
                                                                 noOfBuckets:numberOfBuckets,
                                                                 rollingWindow:cb.rollingWindow
                                                             };
-
-            CircuitBreakerClient cbClient = {
-                                                serviceUri:uri,
-                                                config:configuration,
-                                                circuitBreakerInferredConfig:circuitBreakerInferredConfig,
-                                                httpClient:cbHttpClient,
-                                                circuitHealth:{startTime:circuitStartTime, totalBuckets: bucketArray},
-                                                currentCircuitState:CircuitState.CLOSED
-                                            };
-            HttpClient httpClient =  cbClient;
+            CircuitHealth circuitHealth = {startTime:circuitStartTime, totalBuckets: bucketArray};
+            CircuitBreakerClient cbClient = new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig,
+                cbHttpClient, circuitHealth);
+            HttpClient httpClient = check <HttpClient>cbClient;
             return httpClient;
         }
         () => {
@@ -291,14 +285,8 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
 
 function createLoadBalancerClient(ClientEndpointConfiguration config, string lbAlgorithm) returns HttpClient {
     HttpClient[] lbClients = createHttpClientArray(config);
-
-    LoadBalancer lb = {
-                        serviceUri: config.targets[0].url,
-                        config: config,
-                        loadBalanceClientsArray: lbClients,
-                        algorithm: lbAlgorithm
-                      };
-    HttpClient lbClient = lb;
+    LoadBalancer lb = new LoadBalancer(config.targets[0].url, config, lbClients, lbAlgorithm, 0);
+    HttpClient lbClient = check <HttpClient>lb;
     return lbClient;
 }
 
@@ -310,9 +298,8 @@ public function createFailOverClient(ClientEndpointConfiguration config, Failove
                                                             failoverCodesIndex : failoverCodes,
                                                             failoverInterval : foConfig.interval};
 
-        Failover failover = {serviceUri:config.targets[0].url, config:config,
-                                failoverInferredConfig:failoverInferredConfig};
-        HttpClient foClient = failover;
+        Failover failover = new Failover(config.targets[0].url, config, failoverInferredConfig);
+        HttpClient foClient = check <HttpClient>failover;
         return foClient;
 }
 
@@ -320,19 +307,14 @@ function createRetryClient (string uri, ClientEndpointConfiguration configuratio
     var retryConfig = configuration.retry;
     match retryConfig {
         Retry retry => {
-            HttpClient retryHttpClient = {};
+            HttpClient retryHttpClient = new;
             if (configuration.cacheConfig.enabled) {
                 retryHttpClient = createHttpCachingClient(uri, configuration, configuration.cacheConfig);
             } else{
                 retryHttpClient = createHttpClient(uri, configuration);
             }
-            RetryClient retryClient = {
-                serviceUri:uri,
-                config:configuration,
-                retry: retry,
-                httpClient: retryHttpClient
-            };
-            HttpClient httpClient =  retryClient;
+            RetryClient retryClient = new RetryClient(uri, configuration, retry, retryHttpClient);
+            HttpClient httpClient = check <HttpClient>retryClient;
             return httpClient;
         }
         () => {

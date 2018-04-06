@@ -49,7 +49,9 @@ function createHeader (Header header) returns (string) {
     headerJson[ALG] = header.alg;
     headerJson[TYP] = "JWT";
     headerJson = addMapToJson(headerJson, header.customClaims);
-    return urlEncode(util:base64Encode(headerJson.toString()));
+    string headerValInString = headerJson.toString()  but {() => ""};
+    string encodedPayload = check util:base64EncodeString(headerValInString);
+    return encodedPayload;
 }
 
 function createPayload (Payload payload) returns (string|error) {
@@ -67,20 +69,8 @@ function createPayload (Payload payload) returns (string|error) {
     }
     payloadJson[AUD] = convertStringArrayToJson(payload.aud);
     payloadJson = addMapToJson(payloadJson, payload.customClaims);
-    return urlEncode(util:base64Encode(payloadJson.toString()));
-}
-
-function urlEncode ((string  | blob  | io:ByteChannel | util:Base64EncodeError) data) returns (string) {
-    match data {
-        string returnString => {
-            string encodedString = returnString.replaceAll("\\+", "-");
-            encodedString = encodedString.replaceAll("/", "_");
-            return encodedString;
-        }
-        blob returnBlob => return "error";
-        io:ByteChannel returnChannel => return "error";
-        util:Base64EncodeError returnError => return "error";
-    }
+    string payloadInString = payloadJson.toString()  but {() => ""};
+    return util:base64EncodeString(payloadInString);
 }
 
 function addMapToJson (json inJson, map mapToConvert) returns (json) {
