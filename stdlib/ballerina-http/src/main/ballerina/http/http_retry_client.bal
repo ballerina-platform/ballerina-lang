@@ -162,49 +162,51 @@ public type RetryClient object {
 };
 
 public function RetryClient::post (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.POST, client);
+	return performRetryAction(path, request, HTTP_POST, self);
 }
 
 public function RetryClient::head (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.HEAD, client);
+	return performRetryAction(path, request, HTTP_HEAD, self);
 }
 
 public function RetryClient::put (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.PUT, client);
+	return performRetryAction(path, request, HTTP_PUT, self);
 }
 
 public function RetryClient::forward (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.FORWARD, client);
+	return performRetryAction(path, request, HTTP_FORWARD, self);
 }
 
 public function RetryClient::execute (string httpVerb, string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryClientExecuteAction(path, request, httpVerb, client);
+	return performRetryClientExecuteAction(path, request, httpVerb, self);
 }
 
 public function RetryClient::patch (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.PATCH, client);
+	return performRetryAction(path, request, HTTP_PATCH, self);
 }
 
 public function RetryClient::delete (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.DELETE, client);
+	return performRetryAction(path, request, HTTP_DELETE, self);
 }
 
 public function RetryClient::get (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.GET, client);
+	return performRetryAction(path, request, HTTP_GET, self);
 }
 
 public function RetryClient::options (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.OPTIONS, client);
+	return performRetryAction(path, request, HTTP_OPTIONS, self);
 }
 
 public function RetryClient::submit (string httpVerb, string path, Request request) returns (HttpHandle | HttpConnectorError) {
-	HttpConnectorError httpConnectorError;
+    //TODO : Initialize the record type correctly once it is fixed.
+	HttpConnectorError httpConnectorError = {statusCode:501};
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
 
 public function RetryClient::getResponse (HttpHandle handle) returns (Response | HttpConnectorError) {
-	HttpConnectorError httpConnectorError;
+    //TODO : Initialize the record type correctly once it is fixed.
+	HttpConnectorError httpConnectorError = {statusCode:501};
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
@@ -214,13 +216,15 @@ public function RetryClient::hasPromise (HttpHandle handle) returns (boolean) {
 }
 
 public function RetryClient::getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError) {
-	HttpConnectorError httpConnectorError;
+    //TODO : Initialize the record type once it is fixed.
+	HttpConnectorError httpConnectorError = {statusCode:501};
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
 
 public function RetryClient::getPromisedResponse (PushPromise promise) returns (Response | HttpConnectorError) {
-	HttpConnectorError httpConnectorError;
+    //TODO : Initialize this correctly, once it is fixed.
+	HttpConnectorError httpConnectorError = {statusCode:501};
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
@@ -252,14 +256,15 @@ function performRetryAction (string path, Request request, HttpOperation request
         maxWaitInterval = 60000;
     }
     HttpClient httpClient = retryClient.httpClient;
-    Response response;
-    HttpConnectorError httpConnectorError = {};
+    Response response = new;
+    //TODO : Initialize the record type correctly once it is fixed.
+    HttpConnectorError httpConnectorError = {statusCode:501};
     Request inRequest = request;
     // When performing passthrough scenarios using retry client, message needs to be built before sending out the
     // to keep the request message to retry.
     var binaryPayload = check inRequest.getBinaryPayload();
 
-    mime:Entity requestEntity;
+    mime:Entity requestEntity = new;
     var mimeEntity = inRequest.getEntity();
     match mimeEntity {
         mime:Entity entity => requestEntity = entity;

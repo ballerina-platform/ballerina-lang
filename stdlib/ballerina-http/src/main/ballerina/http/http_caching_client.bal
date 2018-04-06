@@ -75,7 +75,7 @@ public type HttpCachingClient object {
         CacheConfig cacheConfig;
     }
 
-    new(serviceUri, config, cacheConfig) {
+    public new(serviceUri, config, cacheConfig) {
         self.httpClient = createHttpClient(serviceUri, config);
         self.cache = createHttpCache("http-cache", cacheConfig);
     }
@@ -370,7 +370,7 @@ function getValidationResponse (HttpClient httpClient, Request req, Response cac
                                 time:Time currentT, string path, string httpMethod, boolean isFreshResponse)
                                 returns (Response|HttpConnectorError) {
     // If the no-cache directive is set, always validate the response before serving
-    Response validationResponse;
+    Response validationResponse = new; // TODO: May have to make this Response?
 
     if (isFreshResponse) {
         log:printDebug("Sending validation request for a fresh response");
@@ -541,7 +541,7 @@ function isStaleResponseAccepted (RequestCacheControl requestCacheControl, Respo
 // Based https://tools.ietf.org/html/rfc7234#section-4.3.1
 function sendValidationRequest (HttpClient httpClient, string path, Response cachedResponse)
                                                                             returns (Response|HttpConnectorError) {
-    Request validationRequest;
+    Request validationRequest = new;
 
     if (cachedResponse.hasHeader(ETAG)) {
         validationRequest.setHeader(IF_NONE_MATCH, cachedResponse.getHeader(ETAG));
@@ -669,7 +669,7 @@ function getDateValue (Response inboundResponse) returns int {
     if (!inboundResponse.hasHeader(DATE)) {
         log:printDebug("Date header not found. Using current time for the Date header.");
         time:Time currentT = time:currentTime();
-        inboundResponse.setHeader(DATE, currentT.formatTo(time:Time_RFC_1123));
+        inboundResponse.setHeader(DATE, currentT.formatTo(time:TIME_RFC_1123));
         return currentT.time;
     }
 

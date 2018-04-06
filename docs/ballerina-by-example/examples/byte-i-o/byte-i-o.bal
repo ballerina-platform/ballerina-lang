@@ -45,15 +45,15 @@ function copy (io:ByteChannel src, io:ByteChannel dst) {
     int readCount = 0;
     int offset = 0;
     blob readContent;
-    boolean done = false;
+    boolean doneCoping = false;
     try {
         // Here is how to specify to read all the content from
         // the source and copy it to the destination.
-        while (!done) {
+        while (!doneCoping) {
         (readContent, readCount) = readBytes(src,1000);
             if (readCount <= 0) {
                 //If no content is read we end the loop
-                done = true;
+                doneCoping = true;
             }
             numberOfBytesWritten = writeBytes(dst, readContent);
         }
