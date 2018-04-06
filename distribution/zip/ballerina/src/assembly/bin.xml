@@ -220,6 +220,7 @@
                 <include>io.dropwizard.metrics:metrics-core:jar</include>
                 <include>io.ballerina.messaging:broker-common:jar</include>
                 <include>io.ballerina.messaging:broker-core:jar</include>
+                <include>org.wso2.transport.file:org.wso2.transport.local-file-system</include>
 
                 <!-- JMS connector dependencies -->
                 <include>javax.jms:javax.jms-api:jar</include>
