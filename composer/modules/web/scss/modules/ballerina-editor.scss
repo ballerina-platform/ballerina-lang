@@ -221,6 +221,10 @@ $white:#fff;
           stroke: #ccc;
           stroke-dasharray: 0, 150, 50;
         }
+
+        .match-expression{
+          dominant-baseline: central;
+        }
         
         .statement-title-text,
         .condition-text {

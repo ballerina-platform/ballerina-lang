@@ -1332,6 +1332,7 @@ class SizingUtil {
      *
      */
     sizeMatchNode(node) {
+        const components = node.viewState.components;
         let height = this.config.statement.height;
         let width = 0;
 
@@ -1347,7 +1348,10 @@ class SizingUtil {
         };
 
         node.viewState.bBox.h = height;
-        node.viewState.bBox.w = width;
+        node.viewState.bBox.w = (this.config.statement.width < width) ? width :
+            this.config.statement.width;
+        components.expression = this.getTextWidth(node.expression.getSource(true), 0,
+                                    this.config.compoundStatement.heading.width);
     }
 
 
