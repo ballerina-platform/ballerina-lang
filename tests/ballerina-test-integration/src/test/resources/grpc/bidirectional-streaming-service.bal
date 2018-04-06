@@ -64,4 +64,4 @@ service<grpc:Endpoint> Chat bind ep {
 type ChatMessage {
     string name;
     string message;
-}
+};

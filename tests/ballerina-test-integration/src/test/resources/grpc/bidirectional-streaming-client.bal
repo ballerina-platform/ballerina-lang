@@ -80,7 +80,7 @@ public type ChatStub object {
             }
         }
     }
-}
+};
 
 
 // Non-blocking client endpoint
@@ -103,12 +103,12 @@ public type ChatClient object {
     public function getClient () returns (ChatStub) {
         return self.stub;
     }
-}
+};
 
 type ChatMessage {
     string name;
     string message;
-}
+};
 
 @final string DESCRIPTOR_KEY = "Chat.proto";
 map descriptorMap =
