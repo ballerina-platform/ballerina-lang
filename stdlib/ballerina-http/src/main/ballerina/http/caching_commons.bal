@@ -194,7 +194,7 @@ public type ResponseCacheControl object {
 };
 
 function Request::parseCacheControlHeader () {
-    self.cacheControl = {};
+    self.cacheControl = new;
 
     // If the request doesn't contain a cache-control header, resort to default cache control settings
     if (!self.hasHeader(CACHE_CONTROL)) {

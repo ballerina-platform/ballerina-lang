@@ -28,7 +28,7 @@ public type FilebasedUserstore object {
     @Return {value:"boolean: true if authentication is a success, else false"}
     public function authenticate (string user, string password) returns (boolean) {
         string passwordHash = readPasswordHash(user);
-        return passwordHash == crypto:getHash(password, crypto:Algorithm.SHA256);
+        return passwordHash == crypto:getHash(password, crypto:SHA256);
     }
 
     @Description {value:"Reads the groups for a user"}
