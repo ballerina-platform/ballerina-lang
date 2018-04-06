@@ -50,8 +50,6 @@ public type SimpleClientEndpoint object {
 
     documentation {
         Returns the backing HTTP client used by the endpoint.
-
-        T{{ep}} - The endpoint of which the backing HTTP client needs to be retrieved
     }
     public function getClient() returns HttpClient {
         return httpEP.httpClient;
@@ -101,7 +99,6 @@ documentation {
     The initialization function for the SimpleClientEndpoint.
 
     P{{simpleConfig}} - The user provided configurations for the endpoint
-    T{{ep}} - The endpoint to be initialized
 }
 public function SimpleClientEndpoint::init(SimpleClientEndpointConfiguration simpleConfig) {
     string url = simpleConfig.url;
@@ -109,7 +106,7 @@ public function SimpleClientEndpoint::init(SimpleClientEndpointConfiguration sim
         int lastIndex = url.length() - 1;
         url = url.subString(0, lastIndex);
     }
-    self.httpEP = {};
+    self.httpEP = new;
     self.httpEP.config = {};
     self.httpEP.config.targets = [];
 

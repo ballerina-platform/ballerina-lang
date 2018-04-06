@@ -293,9 +293,6 @@ public class MimeUtilityFunctionTest {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
             bufferedWriter.write("Hello Ballerina!");
             bufferedWriter.close();
-      /*      BStruct fileStruct = BCompileUtil
-                    .createAndGetStruct(compileResult.getProgFile(), PROTOCOL_PACKAGE_FILE, FILE);
-            fileStruct.setStringField(0, file.getAbsolutePath());*/
             BValue[] args = {new BString(file.getAbsolutePath())};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetFileAsEntityBody", args);
             Assert.assertEquals(returns.length, 1);
