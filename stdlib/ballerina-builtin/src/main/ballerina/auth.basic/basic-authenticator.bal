@@ -46,7 +46,7 @@ public type BasicAuthenticator object {
 @Return {value:"boolean: true if authentication is successful, else false"}
 public function BasicAuthenticator::authenticate (string username, string password) returns (boolean) {
     // check cache first
-    string basicAuthCacheKey = crypto:getHash(username + "-" + password, crypto:Algorithm.SHA256);
+    string basicAuthCacheKey = crypto:getHash(username + "-" + password, crypto:SHA256);
     match authenticateFromCache(basicAuthCacheKey) {
         boolean isAuthenticated => {
             return isAuthenticated;
