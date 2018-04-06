@@ -154,4 +154,4 @@ native function abortResourceManagers (string transactionId,
 documentation {
     Get the current transaction id.
 }
-native function getCurrentTransactionId () returns string;
+public native function getCurrentTransactionId () returns string;
