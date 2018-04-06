@@ -96,6 +96,11 @@ public type Time object {
     @Return { value:"The milli-of-second, from 0 to 999."}
     public native function milliSecond() returns (int);
 
+    @Description {value:"Returns the nanosecond representation of the given time."}
+    @Param {value:"time: The time struct which needs to get the nanosecond representation"}
+    @Return { value:"The nano-of-second, from 0 to 999999999."}
+    public native function nanoSecond() returns (int);
+
     @Description {value:"Returns the date representation of the given time."}
     @Param {value:"time: The time struct which needs to get the date representation"}
     @Return { value:"The year representation."}

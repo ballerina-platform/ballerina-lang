@@ -90,6 +90,11 @@ public native function <Time time> second()(int);
 @Return { value:"The milli-of-second, from 0 to 999."}
 public native function <Time time> milliSecond()(int);
 
+@Description {value:"Returns the nanosecond representation of the given time."}
+@Param {value:"time: The time struct which needs to get the nanosecond representation"}
+@Return { value:"The milli-of-second, from 0 to 999999999."}
+public native function <Time time> nanoSecond()(int);
+
 @Description {value:"Returns the date representation of the given time."}
 @Param {value:"time: The time struct which needs to get the date representation"}
 @Return { value:"The year representation."}
