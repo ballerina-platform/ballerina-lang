@@ -65,7 +65,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 public class BCompileUtil {
 
     //TODO find a way to remove below line.
-    private static Path resourceDir = Paths.get("tests/ballerina-test/src/test/resources").toAbsolutePath();
+    private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
 
 //    Compile and setup methods
     /**
