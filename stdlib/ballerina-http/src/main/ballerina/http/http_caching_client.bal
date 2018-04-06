@@ -370,7 +370,7 @@ function getValidationResponse (HttpClient httpClient, Request req, Response cac
                                 time:Time currentT, string path, string httpMethod, boolean isFreshResponse)
                                 returns (Response|HttpConnectorError) {
     // If the no-cache directive is set, always validate the response before serving
-    Response validationResponse;
+    Response validationResponse = new;
 
     if (isFreshResponse) {
         log:printDebug("Sending validation request for a fresh response");
