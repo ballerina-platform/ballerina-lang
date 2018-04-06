@@ -230,14 +230,10 @@ public function CircuitBreakerClient::post (string path, Request request) return
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = new;
-    //TODO remove this workaround once record init is introduced
-   HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-       httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-       return httpConnectorError;
+       return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
        match httpClient.post(path, request) {
             Response service_response => {
@@ -246,7 +242,7 @@ public function CircuitBreakerClient::post (string path, Request request) return
                                 }
             HttpConnectorError serviceError => {
                                     updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                                    return httpConnectorError;
+                                    return serviceError;
                                 }
         }
     }
@@ -256,14 +252,10 @@ public function CircuitBreakerClient::head (string path, Request request) return
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = new;
-    //TODO remove this workaround once record init is introduced
-   HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-       httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-       return httpConnectorError;
+       return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
        match httpClient.head(path, request) {
             Response service_response => {
@@ -272,7 +264,7 @@ public function CircuitBreakerClient::head (string path, Request request) return
                                 }
             HttpConnectorError serviceError => {
                                     updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                                    return httpConnectorError;
+                                    return serviceError;
                                 }
         }
      }
@@ -282,14 +274,10 @@ public function CircuitBreakerClient::put (string path, Request request) returns
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = new;
-    //TODO remove this workaround once record init is introduced
-   HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-       httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-       return httpConnectorError;
+       return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
        match httpClient.put(path, request) {
             Response service_response => {
@@ -298,7 +286,7 @@ public function CircuitBreakerClient::put (string path, Request request) returns
                                 }
             HttpConnectorError serviceError => {
                                     updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                                    return httpConnectorError;
+                                    return serviceError;
                                 }
         }
      }
@@ -314,14 +302,10 @@ public function CircuitBreakerClient::execute (string httpVerb, string path, Req
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = new;
-    //TODO remove this workaround once record init is introduced
-   HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-       httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-       return httpConnectorError;
+       return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
        match httpClient.execute(httpVerb, path, request) {
             Response service_response => {
@@ -330,7 +314,7 @@ public function CircuitBreakerClient::execute (string httpVerb, string path, Req
                                 }
             HttpConnectorError serviceError => {
                                     updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                                    return httpConnectorError;
+                                    return serviceError;
                                 }
         }
     }
@@ -345,14 +329,10 @@ public function CircuitBreakerClient::patch (string path, Request request) retur
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = new;
-    //TODO remove this workaround once record init is introduced
-   HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-       httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-       return httpConnectorError;
+       return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
        match httpClient.patch(path, request) {
             Response service_response => {
@@ -361,7 +341,7 @@ public function CircuitBreakerClient::patch (string path, Request request) retur
                                 }
             HttpConnectorError serviceError => {
                                     updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                                    return httpConnectorError;
+                                    return serviceError;
                                 }
         }
     }
@@ -376,14 +356,10 @@ public function CircuitBreakerClient::delete (string path, Request request) retu
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = new;
-    //TODO remove this workaround once record init is introduced
-   HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-       httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-       return httpConnectorError;
+       return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
        match httpClient.delete(path, request) {
             Response service_response => {
@@ -392,7 +368,7 @@ public function CircuitBreakerClient::delete (string path, Request request) retu
                                 }
             HttpConnectorError serviceError => {
                                     updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                                    return httpConnectorError;
+                                    return serviceError;
                                 }
         }
     }
@@ -407,14 +383,10 @@ public function CircuitBreakerClient::get (string path, Request request) returns
     HttpClient httpClient = self.httpClient;
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-    Response response = new;
-    //TODO remove this workaround once record init is introduced
-    HttpConnectorError httpConnectorError = {statusCode:501};
 
     if (self.currentCircuitState == CB_OPEN_STATE) {
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-        httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-        return httpConnectorError;
+        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
        match httpClient.get(path, request) {
             Response service_response => {
@@ -423,7 +395,7 @@ public function CircuitBreakerClient::get (string path, Request request) returns
                                 }
             HttpConnectorError serviceError => {
                                     updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                                    return httpConnectorError;
+                                    return serviceError;
                                 }
         }
     }
@@ -438,14 +410,10 @@ public function CircuitBreakerClient::options (string path, Request request) ret
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = new;
-    //TODO remove this workaround once record init is introduced
-   HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-       httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-       return httpConnectorError;
+       return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
        match httpClient.options(path, request) {
             Response service_response => {
@@ -454,7 +422,7 @@ public function CircuitBreakerClient::options (string path, Request request) ret
                                 }
             HttpConnectorError serviceError => {
                                     updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                                    return httpConnectorError;
+                                    return serviceError;
                                 }
         }
     }
@@ -469,14 +437,10 @@ public function CircuitBreakerClient::forward (string path, Request request) ret
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
-   Response response = new;
-    //TODO remove this workaround once record init is introduced
-   HttpConnectorError httpConnectorError = {statusCode:501};
 
    if (self.currentCircuitState == CB_OPEN_STATE) {
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-       httpConnectorError = handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-       return httpConnectorError;
+       return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
        match httpClient.forward(path, request) {
             Response service_response => {
@@ -485,7 +449,7 @@ public function CircuitBreakerClient::forward (string path, Request request) ret
                                 }
             HttpConnectorError serviceError => {
                                     updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                                    return httpConnectorError;
+                                    return serviceError;
                                 }
         }
    }
@@ -498,8 +462,7 @@ public function CircuitBreakerClient::forward (string path, Request request) ret
 @Return { value:"The Handle for further interactions" }
 @Return { value:"The Error occured during HTTP client invocation" }
 public function CircuitBreakerClient::submit (string httpVerb, string path, Request req) returns (HttpHandle | HttpConnectorError) {
-   HttpConnectorError httpConnectorError = {message:""};
-   httpConnectorError.message = "Unsupported action for Circuit breaker";
+   HttpConnectorError httpConnectorError = {message:"Unsupported action for Circuit breaker"};
    return httpConnectorError;
 }
 
@@ -508,8 +471,7 @@ public function CircuitBreakerClient::submit (string httpVerb, string path, Requ
 @Return { value:"The HTTP response message" }
 @Return { value:"The Error occured during HTTP client invocation" }
 public function CircuitBreakerClient::getResponse (HttpHandle handle) returns (Response | HttpConnectorError) {
-   HttpConnectorError httpConnectorError = {message:""};
-   httpConnectorError.message = "Unsupported action for Circuit breaker";
+   HttpConnectorError httpConnectorError = {message:"Unsupported action for Circuit breaker"};
    return httpConnectorError;
 }
 
@@ -525,8 +487,7 @@ public function CircuitBreakerClient::hasPromise (HttpHandle handle) returns (bo
 @Return { value:"The HTTP Push Promise message" }
 @Return { value:"The Error occured during HTTP client invocation" }
 public function CircuitBreakerClient::getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError) {
-   HttpConnectorError httpConnectorError = {message:""};
-   httpConnectorError.message = "Unsupported action for Circuit breaker";
+   HttpConnectorError httpConnectorError = {message:"Unsupported action for Circuit breaker"};
    return httpConnectorError;
 }
 
@@ -535,8 +496,7 @@ public function CircuitBreakerClient::getNextPromise (HttpHandle handle) returns
 @Return { value:"HTTP The Push Response message" }
 @Return { value:"The Error occured during HTTP client invocation" }
 public function CircuitBreakerClient::getPromisedResponse (PushPromise promise) returns (Response | HttpConnectorError) {
-   HttpConnectorError httpConnectorError = {message:""};
-   httpConnectorError.message = "Unsupported action for Circuit breaker";
+   HttpConnectorError httpConnectorError = {message:"Unsupported action for Circuit breaker"};
    return httpConnectorError;
 }
 
@@ -636,9 +596,9 @@ function handleOpenCircuit (CircuitHealth circuitHealth, CircuitBreakerInferredC
    time:Time currentT = time:currentTime();
    int timeDif = currentT.time - circuitHealth.lastErrorTime.time;
    int timeRemaining = circuitBreakerInferredConfig.resetTimeout - timeDif;
-   HttpConnectorError httpConnectorError = {message:""};
-   httpConnectorError.message = "Upstream service unavailable. Requests to upstream service will be suspended for "
+   string errorMessage = "Upstream service unavailable. Requests to upstream service will be suspended for "
              + timeRemaining + " milliseconds.";
+   HttpConnectorError httpConnectorError = {message:errorMessage};
    return httpConnectorError;
 }
 
