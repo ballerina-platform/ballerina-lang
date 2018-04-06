@@ -354,7 +354,6 @@ public class TypeChecker extends BLangNodeVisitor {
                         type.tag == TypeTags.MAP ||
                         type.tag == TypeTags.STRUCT ||
                         type.tag == TypeTags.NONE ||
-                        type.tag == TypeTags.STREAM ||
                         type.tag == TypeTags.ANY)
                 .collect(Collectors.toList());
     }

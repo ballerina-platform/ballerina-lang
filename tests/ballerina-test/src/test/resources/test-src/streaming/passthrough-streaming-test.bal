@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/runtime;
+import ballerina/io;
 
 type Employee {
     string name;
@@ -27,44 +27,33 @@ type Teacher {
     string name;
     int age;
     string status;
-    string batch;
-    string school;
 };
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 
-function startOutputRateLimitQuery() returns (Employee[]) {
+function startPassthroughQuery() returns (Employee[]) {
 
-    stream<Employee> employeeStream1;
-    stream<Teacher> teacherStream2;
+    stream<Employee> employeeStream3;
+    stream<Teacher> teacherStream6;
 
     forever {
-        from teacherStream2
-        select name, age, status
-        output first every 3 events
+        from teacherStream6
+        select *
         => (Employee[] emp) {
-            employeeStream1.publish(emp);
+            employeeStream3.publish(emp);
         }
     }
 
-    Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
-    Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
-    Teacher t3 = {name:"Nimal", age:45, status:"married", batch:"LK1988", school:"Ananda College"};
+    Teacher t1 = {name:"Raja", age:25, status:"single"};
+    Teacher t2 = {name:"Shareek", age:33, status:"single"};
+    Teacher t3 = {name:"Nimal", age:45, status:"married"};
 
-    Teacher t4 = {name:"Praveen", age:29, status:"single", batch:"LK2013", school:"Hindu College"};
-    Teacher t5 = {name:"Azraar", age:30, status:"married", batch:"LK1989", school:"Thomas College"};
-    Teacher t6 = {name:"Kasun", age:30, status:"married", batch:"LK1987", school:"Ananda College"};
+    employeeStream3.subscribe(printEmployeeNumber);
 
-
-    employeeStream1.subscribe(printEmployeeNumber);
-
-    teacherStream2.publish(t1);
-    teacherStream2.publish(t2);
-    teacherStream2.publish(t3);
-    teacherStream2.publish(t4);
-    teacherStream2.publish(t5);
-    teacherStream2.publish(t6);
+    teacherStream6.publish(t1);
+    teacherStream6.publish(t2);
+    teacherStream6.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
 

@@ -30,46 +30,46 @@ import org.testng.annotations.Test;
 import java.util.Objects;
 
 /**
- * Class to test stream literal.
+ * Class to test stream type.
  */
-public class StreamLiteralTest {
+public class BStreamValueTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/stream/stream-literal.bal");
+        result = BCompileUtil.compile("test-src/types/stream/stream-value.bal");
     }
 
-    @Test(description = "Test invalid stream creation",
+    @Test(description = "Test invalid stream declaration",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: a stream cannot be created without a constraint.*")
+          expectedExceptionsMessageRegExp = ".*message: a stream cannot be declared without a constraint.*")
     public void testInvalidStreamCreation() {
-        BRunUtil.invoke(result, "testInvalidStreamCreation");
+        BRunUtil.invoke(result, "testInvalidStreamDeclaration");
     }
 
-    @Test(description = "Test publishing struct of invalid type to a stream",
+    @Test(description = "Test publishing objects of invalid type to a stream",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*message: incompatible types: struct of type:Job cannot be added to "
+            expectedExceptionsMessageRegExp = ".*message: incompatible types: object of type:Job cannot be added to "
                     + "a stream of type:Employee.*")
-    public void testInvalidStructPublishingToStream() {
-        BRunUtil.invoke(result, "testInvalidStructPublishingToStream");
+    public void testInvalidObjectPublishingToStream() {
+        BRunUtil.invoke(result, "testInvalidObjectPublishingToStream");
     }
 
-    @Test(description = "Test subscribing with a function accepting a type other than a struct",
+    @Test(description = "Test subscribing with a function accepting a type other than an object",
             expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*message: incompatible function: subscription function needs to be a"
-                    + " function accepting a struct of type:Employee.*")
-    public void testSubscriptionFunctionWithNonStructParameter() {
-        BRunUtil.invoke(result, "testSubscriptionFunctionWithNonStructParameter");
+                    + " function accepting an object of type:Employee.*")
+    public void testSubscriptionFunctionWithNonObjectParameter() {
+        BRunUtil.invoke(result, "testSubscriptionFunctionWithNonObjectParameter");
     }
 
-    @Test(description = "Test subscribing with a function accepting a different kind of struct",
+    @Test(description = "Test subscribing with a function accepting a different kind of object",
             expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*message: incompatible function: subscription function needs to be a "
-                    + "function accepting a struct of type:Employee.*")
-    public void testSubscriptionFunctionWithIncorrectStructParameter() {
-        BRunUtil.invoke(result, "testSubscriptionFunctionWithIncorrectStructParameter");
+                    + "function accepting an object of type:Employee.*")
+    public void testSubscriptionFunctionWithIncorrectObjectParameter() {
+        BRunUtil.invoke(result, "testSubscriptionFunctionWithIncorrectObjectParameter");
     }
 
     @Test(description = "Test receipt of single event with correct subscription and publishing")
@@ -82,9 +82,9 @@ public class StreamLiteralTest {
         Assert.assertTrue(Objects.equals(publishedEmployee.getType().getName(),
                                          modifiedOrigEmployee.getType().getName()));
         Assert.assertEquals(publishedEmployee.getIntField(0), modifiedOrigEmployee.getIntField(0),
-                            "Struct field \"id\" of received event does not match that of published event");
+                            "Object field \"id\" of received event does not match that of published event");
         Assert.assertEquals(publishedEmployee.getStringField(0), modifiedOrigEmployee.getStringField(0),
-                            "Struct field \"name\" of received event does not match that of published event");
+                            "Object field \"name\" of received event does not match that of published event");
     }
 
     @Test(description = "Test receipt of multiple events with correct subscription and publishing")
@@ -103,9 +103,9 @@ public class StreamLiteralTest {
             Assert.assertTrue(Objects.equals(publishedEmployeeEvent.getType().getName(),
                                              receivedEmployeeEvent.getType().getName()));
             Assert.assertEquals(publishedEmployeeEvent.getIntField(0), receivedEmployeeEvent.getIntField(0),
-                                "Struct field \"id\" of received event does not match that of published event");
+                                "Object field \"id\" of received event does not match that of published event");
             Assert.assertEquals(publishedEmployeeEvent.getStringField(0), receivedEmployeeEvent.getStringField(0),
-                                "Struct field \"name\" of received event does not match that of published event");
+                                "Object field \"name\" of received event does not match that of published event");
         }
     }
 }

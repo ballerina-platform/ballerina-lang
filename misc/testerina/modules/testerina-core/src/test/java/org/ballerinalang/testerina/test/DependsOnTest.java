@@ -59,19 +59,14 @@ public class DependsOnTest {
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "failed"), 0);
     }
 
-    @Test
+    @Test(expectedExceptions = BallerinaException.class,
+        expectedExceptionsMessageRegExp = ".*Cannot find the specified dependsOn function : non-existing")
     public void tesDependsOnFunctionsMissingFunction() {
 
         cleanup();
         BTestRunner runner = new BTestRunner();
-        try {
-            runner.runTest(sourceRoot, new Path[]{Paths.get("depends-on-negative.bal")}, new
-                ArrayList<>());
-
-        } catch (Throwable e) {
-            Assert.assertTrue(e instanceof BallerinaException);
-            Assert.assertTrue(e.getMessage().contains("Cannot find the specified dependsOn function : non-existing"));
-        }
+        runner.runTest(sourceRoot, new Path[]{Paths.get("depends-on-negative.bal")}, new
+            ArrayList<>());
     }
 
     private void cleanup() {
