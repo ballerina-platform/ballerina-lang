@@ -746,7 +746,7 @@ public class HttpUtil {
         if (contentEncoding != null) {
             return;
         }
-        String compressionValue = configAnnot.getValue().getEnumField(ANN_CONFIG_ATTR_COMPRESSION);
+        String compressionValue = configAnnot.getValue().getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
         String acceptEncodingValue = requestMsg.getHeaders().get(HttpHeaderNames.ACCEPT_ENCODING);
         if (ALWAYS.equalsIgnoreCase(compressionValue)) {
             if (acceptEncodingValue == null || HTTP_TRANSFER_ENCODING_IDENTITY.equals(acceptEncodingValue)) {
