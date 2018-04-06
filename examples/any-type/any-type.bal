@@ -12,7 +12,7 @@ function main (string[] args) {
     io:println(a);
 
     //You need to cast an 'any' typed variable to the required type first. You can find more about type casting in the next section.
-    int intVal =? <int> a;
+    int intVal = check <int> a;
     io:println(intVal + 10);
 
     //You can assign a variable of any data type in Ballerina to an 'any' typed variable.

@@ -27,7 +27,7 @@ service<grpc:Endpoint> chat bind ep {
         int len = lengthof conKeys;
         int i = 0;
         while (i < len) {
-            con =? <grpc:Service>consMap[conKeys[i]];
+            con = check <grpc:Service>consMap[conKeys[i]];
             grpc:ConnectorError err = con -> send(msg);
             if (err != null) {
                 io:println("Error at onMessage : " + err.message);
@@ -51,7 +51,7 @@ service<grpc:Endpoint> chat bind ep {
         int len = lengthof conKeys;
         int i = 0;
         while (i < len) {
-            con =? <grpc:Service>consMap[conKeys[i]];
+            con = check <grpc:Service>consMap[conKeys[i]];
             grpc:ConnectorError err = con -> send(msg);
             if (err != null) {
                 io:println("Error at onComplete send message : " + err.message);
