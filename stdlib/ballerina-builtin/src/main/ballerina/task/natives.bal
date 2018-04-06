@@ -20,19 +20,20 @@ package ballerina.task;
 @Param {value:"onTrigger: The function which gets called when the timer goes off"}
 @Param {value:"onError: The function that gets called if the onTrigger function returns an error"}
 @Param {value:"schedule: Specifies the initial delay and interval of the timer task"}
+@Param {value:"isDaemon: Specifies whether the timer should run in daemon mode"}
 @Return {value:"The unique ID of the timer task that was scheduled"}
-public native function scheduleTimer ((function() returns error?) onTrigger,
-                                      (function(error) returns ())? onError,
-                                      {int delay = 0; int interval;} schedule) returns string;
+public native function scheduleTimer ((function() returns error?) onTrigger, (function(error) returns ())? onError,
+                                      {int delay = 0; int interval;} schedule, boolean isDaemon) returns string;
 
 @Description {value:"Schedules an appointment task"}
 @Param {value:"onTrigger: The function which gets called when the appointment falls due"}
 @Param {value:"onError: The function that gets called if the onTrigger function returns an error"}
 @Param {value:"scheduleCronExpression: Specifies the Cron expression of the schedule"}
+@Param {value:"isDaemon: Specifies whether the appointment should be scheduled in daemon mode"}
 @Return {value:"The unique ID of the appointment task that was scheduled"}
 public native function scheduleAppointment ((function () returns error?) onTrigger,
                                             (function(error) returns ())? onError,
-                                            string scheduleCronExpression) returns string;
+                                            string scheduleCronExpression, boolean isDaemon) returns string;
 
 @Description {value:"Stops the timer task with ID taskID"}
 @Param {value:"taskID: The unique ID of the timer task that has to be stopped"}

@@ -2,21 +2,21 @@ import ballerina/task;
 
 int count;
 
-function scheduleTimer (int delay, int interval) returns string {
+function scheduleTimer(int delay, int interval) returns string {
     (function() returns error?) onTriggerFunction = onTrigger;
-    return task:scheduleTimer(onTriggerFunction, (), {delay:delay, interval:interval});
+    return task:scheduleTimer(onTriggerFunction, (), {delay:delay, interval:interval}, true);
 }
 
-function getCount () returns (int) {
+function getCount() returns (int) {
     return count;
 }
 
-function onTrigger () returns error? {
+function onTrigger() returns error? {
     count = count + 1;
     return ();
 }
 
-function stopTask (string taskId) returns error? {
+function stopTask(string taskId) returns error? {
     _ = check task:stopTask(taskId);
     count = -1;
     return ();

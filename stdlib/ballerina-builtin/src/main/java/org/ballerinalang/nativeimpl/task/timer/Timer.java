@@ -49,14 +49,13 @@ public class Timer {
      * @param ctx               The ballerina context.
      * @param delay             The initial delay.
      * @param interval          The interval between two task executions.
-     * @param isDaemon          Whether this timer should run in daemon mode.
      * @param onTriggerFunction The main function which will be triggered by the task.
      * @param onErrorFunction   The function which will be triggered in the error situation.
+     * @param isDaemon          Whether this timer should run in daemon mode.
      * @throws SchedulingException if cannot create the scheduler
      */
-    public Timer(NativeCallableUnit fn, Context ctx, long delay, long interval, boolean isDaemon,
-                 FunctionRefCPEntry onTriggerFunction,
-                 FunctionRefCPEntry onErrorFunction) throws SchedulingException {
+    public Timer(NativeCallableUnit fn, Context ctx, long delay, long interval, FunctionRefCPEntry onTriggerFunction,
+                 FunctionRefCPEntry onErrorFunction, boolean isDaemon) throws SchedulingException {
 
         if (delay < 0 || interval < 0) {
             throw new SchedulingException("Timer scheduling delay and interval should be non-negative values");

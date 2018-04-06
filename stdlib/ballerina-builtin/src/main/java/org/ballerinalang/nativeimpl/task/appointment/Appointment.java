@@ -36,8 +36,8 @@ public class Appointment {
     private String id = TaskIdGenerator.generate();
     private boolean isDaemon;
 
-    Appointment(NativeCallableUnit fn, Context balParentContext, String cronExpression, boolean isDaemon,
-                FunctionRefCPEntry onTriggerFunction, FunctionRefCPEntry onErrorFunction) throws SchedulingException {
+    Appointment(NativeCallableUnit fn, Context balParentContext, String cronExpression, FunctionRefCPEntry
+            onTriggerFunction, FunctionRefCPEntry onErrorFunction, boolean isDaemon) throws SchedulingException {
         TaskRegistry.getInstance().addAppointment(this);
 
         try {

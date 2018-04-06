@@ -63,8 +63,8 @@ public class BalScheduleTimer extends BlockingNativeCallableUnit {
         long interval = scheduler.getIntField(1);
 
         try {
-            Timer timer = new Timer(this, ctx, delay, interval, false, onTriggerFunctionRefCPEntry,
-                    onErrorFunctionRefCPEntry);
+            Timer timer = new Timer(this, ctx, delay, interval, onTriggerFunctionRefCPEntry,
+                    onErrorFunctionRefCPEntry, false);
             ctx.setReturnValues(new BString(timer.getId()));
         } catch (SchedulingException e) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_TASK_CONFIG);

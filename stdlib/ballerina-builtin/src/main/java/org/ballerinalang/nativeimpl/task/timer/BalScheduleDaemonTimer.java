@@ -64,8 +64,8 @@ public class BalScheduleDaemonTimer extends BlockingNativeCallableUnit {
         long interval = scheduler.getIntField(1);
 
         try {
-            Timer timer = new Timer(this, ctx, delay, interval, true, onTriggerFunctionRefCPEntry,
-                    onErrorFunctionRefCPEntry);
+            Timer timer = new Timer(this, ctx, delay, interval, onTriggerFunctionRefCPEntry,
+                    onErrorFunctionRefCPEntry, true);
             ctx.setReturnValues(new BString(timer.getId()));
         } catch (SchedulingException e) {
             ctx.setReturnValues(BLangVMErrors.createError(ctx, 0, e.getMessage()));

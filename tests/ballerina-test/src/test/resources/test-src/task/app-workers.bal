@@ -5,7 +5,7 @@ int w1Count;
 error errorW1;
 string errorMsgW1;
 
-function scheduleAppointment (string cronExpression, string errMsgW1) returns (string) {
+function scheduleAppointment(string cronExpression, string errMsgW1) returns (string) {
     worker default {
         string w1TaskId;
         errorMsgW1 = errMsgW1;
@@ -13,19 +13,19 @@ function scheduleAppointment (string cronExpression, string errMsgW1) returns (s
         return w1TaskId;
     }
     worker w1 {
-        (function() returns error?) onTriggerFunction = onTriggerW1;
+        (function() returns error?)onTriggerFunction = onTriggerW1;
         string w1TaskIdX;
         if (errMsgW1 == "") {
-            w1TaskIdX = task:scheduleAppointment(onTriggerFunction, null, cronExpression);
+            w1TaskIdX = task:scheduleAppointment(onTriggerFunction, null, cronExpression, true);
         } else {
             function(error) onErrorFunction = onErrorW1;
-            w1TaskIdX = task:scheduleAppointment(onTriggerFunction, onErrorFunction, cronExpression);
+            w1TaskIdX = task:scheduleAppointment(onTriggerFunction, onErrorFunction, cronExpression, true);
         }
         w1TaskIdX -> default;
     }
 }
 
-function onTriggerW1 () returns error? {
+function onTriggerW1() returns error? {
     w1Count = w1Count + 1;
     io:println("w1:onTriggerW1");
     if (errorMsgW1 != "") {
@@ -36,16 +36,16 @@ function onTriggerW1 () returns error? {
     return ();
 }
 
-function onErrorW1 (error e) {
+function onErrorW1(error e) {
     io:println("w1:onErrorW1");
     errorW1 = e;
 }
 
-function getCount () returns (int) {
+function getCount() returns (int) {
     return w1Count;
 }
 
-function getError () returns (string) {
+function getError() returns (string) {
     string w1ErrMsg;
     if (errorW1 != null) {
         w1ErrMsg = errorW1.message;
@@ -53,8 +53,8 @@ function getError () returns (string) {
     return w1ErrMsg;
 }
 
-function stopTask (string w1TaskId) returns error? {
-    error? w1StopError = task:stopTask(w1TaskId);
+function stopTask(string w1TaskId) returns error? {
+    error?w1StopError = task:stopTask(w1TaskId);
     match w1StopError {
         error => {}
         () => w1Count = -1;

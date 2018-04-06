@@ -62,8 +62,8 @@ public class BalScheduleAppointment extends BlockingNativeCallableUnit {
         boolean isDaemon = ctx.getBooleanArgument(0);
 
         try {
-            Appointment appointment = new Appointment(this, ctx, schedule, isDaemon, onTriggerFunctionRefCPEntry,
-                    onErrorFunctionRefCPEntry);
+            Appointment appointment = new Appointment(this, ctx, schedule, onTriggerFunctionRefCPEntry,
+                    onErrorFunctionRefCPEntry, isDaemon);
             ctx.setReturnValues(new BString(appointment.getId()));
         } catch (SchedulingException e) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_TASK_CONFIG);
