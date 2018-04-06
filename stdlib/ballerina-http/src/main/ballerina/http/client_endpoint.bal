@@ -269,7 +269,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
             CircuitHealth circuitHealth = {startTime:circuitStartTime, totalBuckets: bucketArray};
             CircuitBreakerClient cbClient = new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig,
                 cbHttpClient, circuitHealth);
-            HttpClient httpClient =check <HttpClient>cbClient;
+            HttpClient httpClient = check <HttpClient>cbClient;
             return httpClient;
         }
         () => {
@@ -286,7 +286,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
 function createLoadBalancerClient(ClientEndpointConfiguration config, string lbAlgorithm) returns HttpClient {
     HttpClient[] lbClients = createHttpClientArray(config);
     LoadBalancer lb = new LoadBalancer(config.targets[0].url, config, lbClients, lbAlgorithm, 0);
-    HttpClient lbClient =check <HttpClient>lb;
+    HttpClient lbClient = check <HttpClient>lb;
     return lbClient;
 }
 
@@ -299,7 +299,7 @@ public function createFailOverClient(ClientEndpointConfiguration config, Failove
                                                             failoverInterval : foConfig.interval};
 
         Failover failover = new Failover(config.targets[0].url, config, failoverInferredConfig);
-        HttpClient foClient =check <HttpClient>failover;
+        HttpClient foClient = check <HttpClient>failover;
         return foClient;
 }
 
@@ -314,7 +314,7 @@ function createRetryClient (string uri, ClientEndpointConfiguration configuratio
                 retryHttpClient = createHttpClient(uri, configuration);
             }
             RetryClient retryClient = new RetryClient(uri, configuration, retry, retryHttpClient);
-            HttpClient httpClient =check <HttpClient>retryClient;
+            HttpClient httpClient = check <HttpClient>retryClient;
             return httpClient;
         }
         () => {

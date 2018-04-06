@@ -50,7 +50,7 @@ function createHeader (Header header) returns (string) {
     headerJson[TYP] = "JWT";
     headerJson = addMapToJson(headerJson, header.customClaims);
     string headerValInString = headerJson.toString()  but { () => ""};
-    string encodedPayload =check util:base64EncodeString(headerValInString);
+    string encodedPayload = check util:base64EncodeString(headerValInString);
     return encodedPayload;
 }
 
@@ -69,7 +69,7 @@ function createPayload (Payload payload) returns (string|error) {
     }
     payloadJson[AUD] = convertStringArrayToJson(payload.aud);
     payloadJson = addMapToJson(payloadJson, payload.customClaims);
-    string payloadInString = payloadJson.toString()  but { () => ""};
+    string payloadInString = payloadJson.toString()  but {() => ""};
     return util:base64EncodeString(payloadInString);
 }
 
