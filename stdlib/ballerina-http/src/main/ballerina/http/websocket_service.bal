@@ -2,7 +2,7 @@ package ballerina.http;
 
 public type WebSocketService object {
     public function getEndpoint() returns WebSocketEndpoint {
-    WebSocketEndpoint ep = {};
-    return ep;
+        WebSocketEndpoint ep = new;
+        return ep;
     }
 };
