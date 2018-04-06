@@ -26,7 +26,7 @@ import ballerina/util;
 @final int CACHE_CLEANUP_INTERVAL = 5000;
 
 @Description {value:"Map which stores all of the caches."}
-map cacheMap = {"_": "_"}; //TODO: temp workaround unti pkg level init is fixed // fixme
+map cacheMap = {"_":"_"}; //TODO: temp workaround unti pkg level init is fixed // fixme
 
 @Description {value:"Cleanup task ID."}
 string cacheCleanupTaskID = createCacheCleanupTask();
@@ -147,7 +147,7 @@ type CacheEntry {
 @Param {value:"capacity: capacitry of the cache which should be greater than 0"}
 @Param {value:"evictionFactor: eviction factor to be used for cache eviction"}
 @Return {value:"cache: a new cache"}
-public function createCache (string name, int expiryTimeMillis, int capacity, float evictionFactor) returns (Cache) {
+public function createCache(string name, int expiryTimeMillis, int capacity, float evictionFactor) returns (Cache) {
     // Cache expiry time must be a positive value.
     if (expiryTimeMillis <= 0) {
         error e = {message:"Expiry time must be greater than 0."};
@@ -181,7 +181,7 @@ function runCacheExpiry() returns error? {
         var value = <Cache>currentCacheValue;
         match (value) {
             Cache currentCache => {
-            // Get the entries in the current cache.
+                // Get the entries in the current cache.
                 map currentCacheEntries = currentCache.entries;
                 // Ge the keys in the current cache.
                 string[] currentCacheEntriesKeys = currentCacheEntries.keys();
@@ -223,7 +223,7 @@ function runCacheExpiry() returns error? {
     return ();
 }
 
-function checkAndAdd (int numberOfKeysToEvict, string[] cacheKeys, int[] timestamps, string key, int lastAccessTime) {
+function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestamps, string key, int lastAccessTime) {
     string myKey = key;
     int myLastAccessTime = lastAccessTime;
 
@@ -256,9 +256,9 @@ function checkAndAdd (int numberOfKeysToEvict, string[] cacheKeys, int[] timesta
 
 @Description {value:"Creates a new cache cleanup task."}
 @Return {value:"string: cache cleanup task ID"}
-function createCacheCleanupTask () returns (string) {
-    (function () returns error?)  onTriggerFunction = runCacheExpiry;
+function createCacheCleanupTask() returns (string) {
+    (function () returns error?) onTriggerFunction = runCacheExpiry;
     cacheCleanupTaskID = task:scheduleTimer(onTriggerFunction, (), {delay:CACHE_CLEANUP_START_DELAY,
-                                                                    interval:CACHE_CLEANUP_INTERVAL});
+            interval:CACHE_CLEANUP_INTERVAL}, true);
     return cacheCleanupTaskID;
 }
