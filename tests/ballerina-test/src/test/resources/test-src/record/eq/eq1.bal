@@ -7,7 +7,7 @@ public type person {
     string zipcode = "95134";
     string ssn;
     int id;
-}
+};
 
 
 public function <person p> getName() returns (string) {
@@ -34,7 +34,7 @@ public type employee {
     string ssn;
     int id;
     int employeeId = 123456;
-}
+};
 
 public function <employee e> employee() {
 }

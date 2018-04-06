@@ -6,7 +6,7 @@ type person {
     int age = 20;
     string name;
     string address;
-}
+};
 
 function <person p> person() {
     p.age = 10;
@@ -32,7 +32,7 @@ function testStructInitializerInAnotherPackage() returns (int, string){
 type employee {
     int age = 20;
     string name = "A";
-}
+};
 
 function <employee p> employee() {
     p.age = 30;

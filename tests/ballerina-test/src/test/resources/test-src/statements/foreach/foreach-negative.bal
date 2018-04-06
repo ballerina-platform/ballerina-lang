@@ -33,7 +33,7 @@ function test4(){
 
 type person {
     int id;
-}
+};
 
 function test5(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];

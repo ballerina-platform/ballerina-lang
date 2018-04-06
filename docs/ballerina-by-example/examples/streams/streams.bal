@@ -1,26 +1,21 @@
 import ballerina/io;
 import ballerina/runtime;
 
-struct StatusCount {
+type StatusCount {
     string status;
     int totalCount;
-}
+};
 
-struct Teacher {
+type Teacher {
     string name;
     int age;
     string status;
     string batch;
     string school;
-}
+};
 
-//Create stream constrained by the StatusCount struct type.
-stream<StatusCount> filteredStatusCountStream = {};
-
-//Create stream constrained by the Teacher struct type.
-stream<Teacher> teacherStream = {};
-
-function testAggregationQuery () {
+function testAggregationQuery (stream<StatusCount> filteredStatusCountStream,
+                                                    stream<Teacher> teacherStream) {
 
     //Create forever statement block with respective streaming query.
     forever{
@@ -36,8 +31,14 @@ function testAggregationQuery () {
 
 function main (string[] args) {
 
+    //Create stream constrained by the StatusCount struct type.
+    stream<StatusCount> filteredStatusCountStream;
+
+    //Create stream constrained by the Teacher struct type.
+    stream<Teacher> teacherStream;
+
     //Invoke the method which contains the forever streaming statement.
-    testAggregationQuery();
+    testAggregationQuery(filteredStatusCountStream, teacherStream);
 
     //Create some events to pump into the input stream 'teacherStream'.
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};

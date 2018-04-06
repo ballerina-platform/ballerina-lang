@@ -43,7 +43,7 @@ type employee object {
         string year = "1970";
         }} dateOfBirth;
     }
-}
+};
 
 function testAnonObjectAsObjectField() returns (string) {
 
@@ -84,7 +84,7 @@ type Person object {
     }
 
     function getKind() returns string;
-}
+};
 
 function Person::getKind() returns string {
     return kind;
@@ -128,7 +128,7 @@ type Foo object {
     function getName () returns string {
         return details.name;
     }
-}
+};
 
 function testObjectWithAnonRecordLiteral() returns (int, string) {
     Foo value = new ({age:8, name:"sanjiva"}, "passed kind");
