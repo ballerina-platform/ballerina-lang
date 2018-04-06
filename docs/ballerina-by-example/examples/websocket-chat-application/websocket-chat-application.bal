@@ -32,7 +32,7 @@ service<http:Service> ChatAppUpgrader bind ep {
 // TODO: This map should go to service level after null pointer issue is fixed.
 map<http:WebSocketEndpoint> consMap;
 
-service<http:WebSocketService> chatApp bind ep {
+service<http:WebSocketService> chatApp {
 
 
     onOpen (endpoint conn) {
