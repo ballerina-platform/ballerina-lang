@@ -43,7 +43,7 @@ function beginTransaction (string? transactionId, int transactionBlockId, string
                 return registerParticipantWithLocalInitiator(txnId, transactionBlockId, registerAtUrl);
             } else {
                 //TODO: set the proper protocol
-                ProtocolName protocolName = PROTOCOL_DURABLE;
+                string protocolName = PROTOCOL_DURABLE;
                 Protocol[] protocols = [{name:protocolName, url:getParticipantProtocolAt(protocolName, transactionBlockId)}];
                 return registerParticipantWithRemoteInitiator(txnId, transactionBlockId, registerAtUrl, protocols);
             }
@@ -150,3 +150,8 @@ documentation {
 native function abortResourceManagers (string transactionId,
                                        int transactionBlockId) returns boolean;
 
+
+documentation {
+    Get the current transaction id.
+}
+native function GetCurrentTransactionId () returns string;

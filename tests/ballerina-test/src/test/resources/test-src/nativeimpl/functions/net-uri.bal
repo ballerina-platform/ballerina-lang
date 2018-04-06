@@ -1,17 +1,17 @@
-import ballerina/net.uri;
+import ballerina/http;
 
 function testEncode (string url) returns (string|error) {
-    return uri:encode(url, "UTF-8");
+    return http:encode(url, "UTF-8");
 }
 
 function testInvalidEncode (string url) returns (string|error) {
-    return uri:encode(url, "abc");
+    return http:encode(url, "abc");
 }
 
 function testDecode (string url) returns (string|error) {
-    return uri:decode(url, "UTF-8");
+    return http:decode(url, "UTF-8");
 }
 
 function testInvalidDecode (string url) returns (string|error) {
-    return uri:decode(url, "abc");
+    return http:decode(url, "abc");
 }

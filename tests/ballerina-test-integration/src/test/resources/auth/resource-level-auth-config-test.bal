@@ -20,7 +20,7 @@ service<http:Service> echo bind ep {
         scopes:["scope2"]
     }
     echo (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         _ = client -> respond(res);
     }
 }

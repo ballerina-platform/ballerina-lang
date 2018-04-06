@@ -17,10 +17,9 @@
 package ballerina.transactions;
 import ballerina/io;
 
-type ProtocolName "completion" | "volatile" | "durable";
-@final ProtocolName PROTOCOL_COMPLETION = "completion";
-@final ProtocolName PROTOCOL_VOLATILE = "volatile";
-@final ProtocolName PROTOCOL_DURABLE = "durable";
+@final string PROTOCOL_COMPLETION = "completion";
+@final string PROTOCOL_VOLATILE = "volatile";
+@final string PROTOCOL_DURABLE = "durable";
 
 type TransactionState "active" | "prepared" | "committed" | "aborted";
 @final TransactionState TXN_STATE_ACTIVE = "active";
@@ -65,7 +64,7 @@ documentation {
     F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
 }
 public type Protocol {
-    @readonly ProtocolName name;
+    @readonly string name;
     @readonly string url;
     @readonly int transactionBlockId;
     @readonly (function (string transactionId,
@@ -85,7 +84,7 @@ public function regRequestToJson (RegistrationRequest req) returns json {
     j.participantId = req.participantId;
     json[] protocols = [];
     foreach proto in req.participantProtocols {
-        json j2 = {name: protocolNameToString(proto.name), url:proto.url};
+        json j2 = {name: proto.name, url:proto.url};
         protocols[lengthof protocols] = j2;
     }
     j.participantProtocols = protocols;
@@ -102,7 +101,7 @@ public function regResponseToJson (RegistrationResponse res) returns json {
     j.transactionId = res.transactionId;
     json[] protocols;
     foreach proto in res.coordinatorProtocols {
-        json j2 = {name: protocolNameToString(proto.name), url:proto.url};
+        json j2 = {name: proto.name, url:proto.url};
         protocols[lengthof protocols] = j2;
     }
     j.coordinatorProtocols = protocols;
@@ -116,41 +115,11 @@ public function jsonToRegResponse (json j) returns RegistrationResponse {
     foreach proto in j.coordinatorProtocols {
         string name = <string>jsonToAny(proto.name);
         string url = <string>jsonToAny(proto.url);
-        Protocol p = {name:stringToProtocolName(name), url:url};
+        Protocol p = {name:name, url:url};
         protocols[lengthof protocols] = p;
     }
     res.coordinatorProtocols = protocols;
     return res;
-}
-
-//TODO: This function is a workaround for type system limitations
-function protocolNameToString(ProtocolName protoName) returns string {
-    if(protoName == PROTOCOL_COMPLETION) {
-        return "completion";
-    }
-    if(protoName == PROTOCOL_DURABLE) {
-        return "durable";
-    }
-    if(protoName == PROTOCOL_VOLATILE) {
-        return "volatile";
-    }
-    error err = {message: "Invalid protocol name"};
-    throw err;
-}
-
-//TODO: This function is a workaround for type system limitations
-function stringToProtocolName(string strName) returns ProtocolName {
-    if (strName == "completion") {
-        return PROTOCOL_COMPLETION;
-    }
-    if(strName == "durable"){
-        return PROTOCOL_DURABLE;
-    }
-    if(strName == "volatile") {
-        return PROTOCOL_VOLATILE;
-    }
-    error err = {message: "Invalid protocol name " + strName};
-    throw err;
 }
 
 // TODO: temp function. Remove when =? is fixed for json

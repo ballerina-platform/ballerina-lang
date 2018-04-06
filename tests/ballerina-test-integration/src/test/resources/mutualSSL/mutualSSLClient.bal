@@ -16,15 +16,15 @@ endpoint http:ClientEndpoint clientEP {
             },
             protocols: {
                 protocolName: "TLSv1.2",
-                versions: "TLSv1.2,TLSv1.1"
+                versions: ["TLSv1.2","TLSv1.1"]
             },
-            ciphers:"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"
+            ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"]
         }
     }]
 };
 
 function main (string[] args) {
-    http:Request req = {};
+    http:Request req = new;
     var resp = clientEP -> get("/echo/", req);
     match resp {
         http:HttpConnectorError err => io:println(err.message);
