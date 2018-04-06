@@ -85,7 +85,7 @@ public function regRequestToJson (RegistrationRequest req) returns json {
     j.participantId = req.participantId;
     json[] protocols = [];
     foreach proto in req.participantProtocols {
-        json j2 = {name:proto.name, url:proto.url};
+        json j2 = {name: protocolNameToString(proto.name), url:proto.url};
         protocols[lengthof protocols] = j2;
     }
     j.participantProtocols = protocols;
@@ -102,7 +102,7 @@ public function regResponseToJson (RegistrationResponse res) returns json {
     j.transactionId = res.transactionId;
     json[] protocols;
     foreach proto in res.coordinatorProtocols {
-        json j2 = {name:proto.name, url:proto.url};
+        json j2 = {name: protocolNameToString(proto.name), url:proto.url};
         protocols[lengthof protocols] = j2;
     }
     j.coordinatorProtocols = protocols;
@@ -110,20 +110,47 @@ public function regResponseToJson (RegistrationResponse res) returns json {
 }
 
 public function jsonToRegResponse (json j) returns RegistrationResponse {
-    //string transactionId =? <string>j.transactionId; //TODO: Fix
     string transactionId = <string>jsonToAny(j.transactionId);
     RegistrationResponse res = {transactionId:transactionId};
     Protocol[] protocols;
     foreach proto in j.coordinatorProtocols {
         string name = <string>jsonToAny(proto.name);
         string url = <string>jsonToAny(proto.url);
-        //string name =? <string>proto.name; //TODO: Fix
-        //string url =? <string>proto.url; //TODO: Fix
-        Protocol p = {name:name, url:url};
+        Protocol p = {name:stringToProtocolName(name), url:url};
         protocols[lengthof protocols] = p;
     }
     res.coordinatorProtocols = protocols;
     return res;
+}
+
+//TODO: This function is a workaround for type system limitations
+function protocolNameToString(ProtocolName protoName) returns string {
+    if(protoName == PROTOCOL_COMPLETION) {
+        return "completion";
+    }
+    if(protoName == PROTOCOL_DURABLE) {
+        return "durable";
+    }
+    if(protoName == PROTOCOL_VOLATILE) {
+        return "volatile";
+    }
+    error err = {message: "Invalid protocol name"};
+    throw err;
+}
+
+//TODO: This function is a workaround for type system limitations
+function stringToProtocolName(string strName) returns ProtocolName {
+    if (strName == "completion") {
+        return PROTOCOL_COMPLETION;
+    }
+    if(strName == "durable"){
+        return PROTOCOL_DURABLE;
+    }
+    if(strName == "volatile") {
+        return PROTOCOL_VOLATILE;
+    }
+    error err = {message: "Invalid protocol name " + strName};
+    throw err;
 }
 
 // TODO: temp function. Remove when =? is fixed for json

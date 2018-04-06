@@ -63,7 +63,7 @@ type InitiatorClient object {
         regReq.participantProtocols = participantProtocols;
 
         json reqPayload = regRequestToJson(regReq);
-        http:Request req = {};
+        http:Request req = new;
         req.setJsonPayload(reqPayload);
         var result = httpClient -> post("", req);
         http:Response res = check result;

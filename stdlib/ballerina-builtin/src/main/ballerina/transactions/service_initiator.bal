@@ -23,10 +23,10 @@ import ballerina/http;
 
 string[] coordinationTypes = [TWO_PHASE_COMMIT];
 
-map<string[]> coordinationTypeToProtocolsMap = getCoordinationTypeToProtocolsMap();
-function getCoordinationTypeToProtocolsMap () returns map<string[]> {
-    string[] twoPhaseCommitProtocols = [PROTOCOL_COMPLETION, PROTOCOL_VOLATILE, PROTOCOL_DURABLE];
-    map<string[]> m;
+map<ProtocolName[]> coordinationTypeToProtocolsMap = getCoordinationTypeToProtocolsMap();
+function getCoordinationTypeToProtocolsMap () returns map<ProtocolName[]> {
+    ProtocolName[] twoPhaseCommitProtocols = [PROTOCOL_COMPLETION, PROTOCOL_VOLATILE, PROTOCOL_DURABLE];
+    map<ProtocolName[]> m;
     m[TWO_PHASE_COMMIT] = twoPhaseCommitProtocols;
     return m;
 }
@@ -104,7 +104,7 @@ service InitiatorService bind coordinatorListener {
                 RegistrationResponse regRes = {transactionId:txnId,
                                                   coordinatorProtocols:coordinatorProtocols};
                 json resPayload = regResponseToJson(regRes);
-                http:Response res = {statusCode:http:OK_200};
+                http:Response res = new; res.statusCode = http:OK_200;
                 res.setJsonPayload(resPayload);
                 var resResult = conn -> respond(res);
                 match resResult {

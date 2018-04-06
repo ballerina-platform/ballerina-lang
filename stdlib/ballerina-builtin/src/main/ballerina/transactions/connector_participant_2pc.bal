@@ -58,12 +58,12 @@ public type Participant2pcClient object {
 
     public function prepare(string transactionId) returns string|error {
         endpoint http:ClientEndpoint httpClient = self.clientEP.httpClient;
-        http:Request req = {};
+        http:Request req = new;
         PrepareRequest prepareReq = {transactionId:transactionId};
         json j = check <json>prepareReq;
         req.setJsonPayload(j);
         var  result = httpClient -> post("/prepare", req);
-        http:Response = check result;
+        http:Response res = check result;
         int statusCode = res.statusCode;
         if (statusCode == http:NOT_FOUND_404) {
             error err = {message:"Transaction-Unknown"};
@@ -80,7 +80,7 @@ public type Participant2pcClient object {
 
     public function notify(string transactionId, string message) returns string|error {
         endpoint http:ClientEndpoint httpClient = self.clientEP.httpClient;
-        http:Request req = {};
+        http:Request req = new;
         NotifyRequest notifyReq = {transactionId:transactionId, message:message};
         json j = check <json>notifyReq;
         req.setJsonPayload(j);

@@ -43,7 +43,7 @@ service Participant2pcService bind coordinatorListener {
                                   of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
     prepare(endpoint conn, http:Request req, int transactionBlockId, PrepareRequest prepareReq) {
-        http:Response res = {};
+        http:Response res = new;
         string transactionId = prepareReq.transactionId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
         log:printInfo("Prepare received for transaction: " + participatedTxnId);
@@ -102,7 +102,7 @@ service Participant2pcService bind coordinatorListener {
                                   of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
     notify(endpoint conn, http:Request req, int transactionBlockId, NotifyRequest notifyReq) {
-        http:Response res = {};
+        http:Response res = new;
         string transactionId = notifyReq.transactionId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
         log:printInfo("Notify(" + notifyReq.message + ") received for transaction: " + participatedTxnId);
