@@ -81,8 +81,8 @@ function parseJWT (string[] encodedJWTComponents) returns ((Header, Payload)|err
 }
 
 function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json, json)|error) {
-    string jwtHeader = getDecodedValue(util:base64Decode(urlDecode(encodedJWTComponents[0])));
-    string jwtPayload = getDecodedValue(util:base64Decode(urlDecode(encodedJWTComponents[1])));
+    string jwtHeader = check util:base64DecodeString(urlDecode(encodedJWTComponents[0]));
+    string jwtPayload = check util:base64DecodeString(urlDecode(encodedJWTComponents[1]));
     json jwtHeaderJson = {};
     json jwtPayloadJson = {};
 
@@ -244,14 +244,4 @@ function urlDecode (string encodedString) returns (string) {
     string decodedString = encodedString.replaceAll("-", "+");
     decodedString = decodedString.replaceAll("_", "/");
     return decodedString;
-}
-
-function getDecodedValue ((string  | blob  | io:ByteChannel | util:Base64DecodeError) decodedData) returns (string) {
-    match decodedData {
-        string returnString => return returnString;
-        blob returnBlob => return "error";
-        io:ByteChannel returnChannel => return "error";
-        util:Base64DecodeError returnError => return "error";
-        () => return "error";
-    }
 }
