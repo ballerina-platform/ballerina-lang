@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,17 +51,16 @@ public class LSParserUtils {
     private static final WorkspaceDocumentManagerImpl documentManager =
             WorkspaceDocumentManagerImpl.getInstance();
 
-    private static Path untitledProject;
+    private static Path untitledProjectPath;
 
     public static final String UNTITLED_BAL = "untitled.bal";
 
     static {
         // Here we will create a tmp directory as the untitled project repo.
         File untitledDir = Files.createTempDir();
-        untitledProject = untitledDir.toPath();
+        untitledProjectPath = untitledDir.toPath();
         // Now lets create a empty untitled.bal to fool compiler.
-        File untitledBal = new File(Paths.get(untitledProject.toString(),
-                                              UNTITLED_BAL).toString());
+        File untitledBal = new File(Paths.get(untitledProjectPath.toString(), UNTITLED_BAL).toString());
         try {
             untitledBal.createNewFile();
         } catch (IOException e) {
@@ -103,10 +103,9 @@ public class LSParserUtils {
      * @param preserveWhiteSpace preserve white-space
      * @return BallerinaFile
      */
-    public static BallerinaFile compile(String content,String tempFileId, CompilerPhase compilerPhase,
+    public static BallerinaFile compile(String content, String tempFileId, CompilerPhase compilerPhase,
                                         boolean preserveWhiteSpace) {
-        createTempFileIfNotExists(untitledProject, tempFileId);
-        Path unsaved = Paths.get(untitledProject.toString(), tempFileId);
+        Path unsaved = createAndGetTempFile(untitledProjectPath, tempFileId);
         synchronized (LSParserUtils.class) {
             // Since we use the same file name for all the fragment passes we need to make sure following -
             // does not run parallelly.
@@ -117,16 +116,18 @@ public class LSParserUtils {
         }
     }
 
-    private static void createTempFileIfNotExists(Path untitledProject, String tempFileId) {
+    private static Path createAndGetTempFile(Path tempFolder, String tempFileId) {
         if (UNTITLED_BAL.equals(tempFileId)) {
-            return;
+            return Paths.get(tempFolder.toString(), tempFileId);
         }
-        File untitledBal = new File(Paths.get(untitledProject.toString(), tempFileId + ".bal").toString());
+        tempFileId += ProjectDirConstants.BLANG_SOURCE_EXT;
+        File untitledBal = new File(Paths.get(tempFolder.toString(), tempFileId).toString());
         try {
             untitledBal.createNewFile();
         } catch (IOException e) {
             logger.error("Unable to create untitled project directory, unsaved files might not work properly.");
         }
+        return Paths.get(tempFolder.toString(), tempFileId);
     }
 
     /**
