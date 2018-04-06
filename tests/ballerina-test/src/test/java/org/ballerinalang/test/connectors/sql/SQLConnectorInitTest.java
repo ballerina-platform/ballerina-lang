@@ -47,81 +47,71 @@ public class SQLConnectorInitTest {
     @Test
     public void testConnectorWithDefaultPropertiesForListedDB() {
          BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDefaultPropertiesForListedDB");
-         BString retValue = (BString) returns[0];
          final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
-         Assert.assertEquals(retValue.stringValue(), expected);
+         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithWorkers() {
          BValue[] returns = BRunUtil.invoke(result, "testConnectorWithWorkers");
-         BString retValue = (BString) returns[0];
          final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
-         Assert.assertEquals(retValue.stringValue(), expected);
+         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithDirectUrl() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDirectUrl");
-        BString retValue = (BString) returns[0];
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
-        Assert.assertEquals(retValue.stringValue(), expected);
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithDataSourceClass() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDataSourceClass");
-        BString retValue = (BString) returns[0];
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
-        Assert.assertEquals(retValue.stringValue(), expected);
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithDataSourceClassAndProps() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDataSourceClassAndProps");
-        BString retValue = (BString) returns[0];
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
-        Assert.assertEquals(retValue.stringValue(), expected);
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithDataSourceClassWithoutURL() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDataSourceClassWithoutURL");
-        BString retValue = (BString) returns[0];
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
-        Assert.assertEquals(retValue.stringValue(), expected);
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithDataSourceClassURLPriority() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDataSourceClassURLPriority");
-        BString retValue = (BString) returns[0];
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
-        Assert.assertEquals(retValue.stringValue(), expected);
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectionPoolProperties1() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectionPoolProperties1");
-        BString retValue = (BString) returns[0];
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
-        Assert.assertEquals(retValue.stringValue(), expected);
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectionPoolProperties2() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectionPoolProperties2");
-        BString retValue = (BString) returns[0];
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
-        Assert.assertEquals(retValue.stringValue(), expected);
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectionPoolProperties3() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectionPoolProperties3");
-        BString retValue = (BString) returns[0];
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
-        Assert.assertEquals(retValue.stringValue(), expected);
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
 
