@@ -131,7 +131,8 @@ public class TimeTest {
         Assert.assertEquals(((BInteger) returns[4]).intValue(), 56);
         Assert.assertEquals(((BInteger) returns[5]).intValue(), 23);
         Assert.assertEquals(((BInteger) returns[6]).intValue(), 555);
-        Assert.assertEquals((returns[7]).stringValue(), "TUESDAY");
+        Assert.assertEquals(((BInteger) returns[7]).intValue(), 555000000);
+        Assert.assertEquals((returns[8]).stringValue(), "TUESDAY");
     }
 
 

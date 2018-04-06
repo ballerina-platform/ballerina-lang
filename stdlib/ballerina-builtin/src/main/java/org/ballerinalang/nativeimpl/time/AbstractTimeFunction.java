@@ -203,6 +203,11 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         return dateTime.getNano() / 1000000;
     }
 
+    int getNanoSecond(BStruct timeStruct) {
+        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+        return dateTime.getNano();
+    }
+
     String getWeekDay(BStruct timeStruct) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
         return dateTime.getDayOfWeek().toString();

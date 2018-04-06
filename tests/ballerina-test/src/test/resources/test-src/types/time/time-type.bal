@@ -75,7 +75,7 @@ function testFormatTimeToRFC1123 () returns (string) {
     return time.formatTo(time:TIME_FORMAT_RFC_1123);
 }
 
-function testGetFunctions () returns (int, int, int, int, int, int, int, string) {
+function testGetFunctions () returns (int, int, int, int, int, int, int,int, string) {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
     time:Time time = new (1456876583555, zoneValue);
     int year = time.year();
@@ -85,8 +85,9 @@ function testGetFunctions () returns (int, int, int, int, int, int, int, string)
     int minute = time.minute();
     int second = time.second();
     int milliSecond = time.milliSecond();
+    int nanoSecond = time.nanoSecond();
     string weekday = time.weekday();
-    return (year, month, day, hour, minute, second, milliSecond, weekday);
+    return (year, month, day, hour, minute, second, milliSecond,nanoSecond, weekday);
 }
 
 function testGetDateFunction () returns (int, int, int) {

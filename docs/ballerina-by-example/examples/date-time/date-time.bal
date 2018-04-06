@@ -44,6 +44,9 @@ function main (string[] args) {
     // Get the millisecond value of a given time.
     int milliSecond = time.milliSecond();
     io:println("Millisecond: " + milliSecond);
+    // Get the nanosecond value of a given time.
+    int nanoSecond = time.nanoSecond();
+    io:println("Nanosecond: " + nanoSecond);
     // Get the weekday value of a given time.
     string weekday = time.weekday();
     io:println("Weekday: " + weekday);
