@@ -880,7 +880,7 @@ outputRateLimit
 patternStreamingInput
     :   patternStreamingEdgeInput FOLLOWED BY patternStreamingInput
     |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
-    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR integerLiteral)
+    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR simpleLiteral)
     |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput
     |   patternStreamingEdgeInput
     ;

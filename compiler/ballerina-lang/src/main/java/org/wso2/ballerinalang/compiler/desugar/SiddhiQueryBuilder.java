@@ -95,6 +95,8 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     private List<BLangExpression> outStreamRefs;
     private List<BLangExpression> outTableRefs;
 
+    private boolean isInPatternForClause = false;
+
     public static SiddhiQueryBuilder getInstance(CompilerContext context) {
         SiddhiQueryBuilder siddhiQueryBuilder = context.get(SIDDHI_QUERY_BUILDER_KEY);
         if (siddhiQueryBuilder == null) {
@@ -449,7 +451,12 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     public void visit(BLangLiteral bLangLiteral) {
         String literal = String.valueOf(bLangLiteral.value);
         if (bLangLiteral.typeTag == TypeTags.STRING) {
-            literal = String.format("'%s'", literal);
+            if (!isInPatternForClause) {
+                literal = String.format("'%s'", literal);
+            } else {
+                literal = String.format("%s", literal);
+                isInPatternForClause = false;
+            }
         }
         exprStack.push(literal);
     }
@@ -461,6 +468,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
                 patternStreamingEdgeInputs.get(0);
         patternStreamingEdgeInput.accept(this);
         patternStreamingClause.append(" for ");
+        isInPatternForClause = true;
         addExprToClause((BLangExpression) patternStreamingInput.getTimeExpr(), patternStreamingClause, null);
     }
 
@@ -497,8 +505,10 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
         addInRefs(streamRef);
 
         String alias = patternStreamingEdgeInput.getAliasIdentifier();
-
-        patternStreamingClause.append(alias).append(" = ").append(patternStreamingEdgeInput.getStreamReference());
+        if (alias != null) {
+            patternStreamingClause.append(alias).append(" = ");
+        }
+        patternStreamingClause.append(patternStreamingEdgeInput.getStreamReference());
         WhereNode whereNode = patternStreamingEdgeInput.getWhereClause();
         if (whereNode != null) {
             ((BLangWhere) whereNode).accept(this);
@@ -578,8 +588,8 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
         } else if (fieldAccessExpr.expr instanceof BLangIndexBasedAccess) {
             sqlExpr = fieldAccessExpr.toString();
             BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) fieldAccessExpr.expr;
-            String exprName = indexBasedAccess.expr.toString() + ".length";
-            if (sqlExpr.contains(exprName)) {
+            String exprName = (indexBasedAccess.expr.toString() + ".length-1").replaceAll("\\s+", "");
+            if (sqlExpr.replaceAll("\\s+", "").contains(exprName)) {
                 sqlExpr = sqlExpr.replaceFirst(exprName, "last");
             }
             exprStack.push(sqlExpr);
