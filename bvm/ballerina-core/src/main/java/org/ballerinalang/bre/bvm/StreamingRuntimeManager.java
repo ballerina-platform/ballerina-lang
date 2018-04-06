@@ -48,7 +48,6 @@ public class StreamingRuntimeManager {
     private static StreamingRuntimeManager streamingRuntimeManager;
     private SiddhiManager siddhiManager = new SiddhiManager();
     private List<SiddhiAppRuntime> siddhiAppRuntimeList = new ArrayList<>();
-    private Map<String, BStream> streamMap = new HashMap<>();
 
     private StreamingRuntimeManager() {
 
@@ -77,6 +76,7 @@ public class StreamingRuntimeManager {
     public void addCallback(String streamId, BFunctionPointer functionPointer, SiddhiAppRuntime siddhiAppRuntime) {
 
         BType[] parameters = functionPointer.value().getFunctionInfo().getParamTypes();
+        // TODO: 4/6/18 extract all parameters from closure and pass them to the callback
         BStream stream = (BStream) (functionPointer.getClosureVars().get(0)).value();
         BStructType structType = (BStructType) ((BArrayType) parameters[parameters.length - 1]).getElementType();
         if (!(parameters[parameters.length - 1] instanceof BArrayType)) {

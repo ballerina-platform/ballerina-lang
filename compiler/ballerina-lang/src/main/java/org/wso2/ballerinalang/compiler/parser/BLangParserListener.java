@@ -2543,7 +2543,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean followedByAvailable = ctx.FOLLOWED() != null && ctx.BY() != null;
         boolean enclosedInParenthesis = ctx.LEFT_PARENTHESIS() != null && ctx.RIGHT_PARENTHESIS() != null;
         boolean andWithNotAvailable = ctx.NOT() != null && ctx.AND() != null;
-        boolean forWithNotAvailable = ctx.integerLiteral() != null;
+        boolean forWithNotAvailable = ctx.simpleLiteral() != null;
         boolean onlyAndAvailable = ctx.AND() != null && ctx.NOT() == null && ctx.FOR() == null;
         boolean onlyOrAvailable = ctx.OR() != null && ctx.NOT() == null && ctx.FOR() == null;
         this.pkgBuilder.endPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx), followedByAvailable,
