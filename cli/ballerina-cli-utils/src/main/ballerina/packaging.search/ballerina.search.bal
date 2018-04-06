@@ -112,9 +112,7 @@ function printInCLI(string element, int charactersAllowed) {
 
 function getDateCreated(json jsonObj) returns string {
     int timeInMillis = <int>(jsonObj.createdDate.time but {()=>0});
-    time:Time timeStruct = new;
-    timeStruct.time = timeInMillis;
-    timeStruct.zone = {zoneId:"UTC",zoneOffset:0};
+    time:Time timeStruct = new(timeInMillis, {zoneId:"UTC",zoneOffset:0});
     string customTimeString = timeStruct.format("yyyy-MM-dd-E");
     return customTimeString;
 }
