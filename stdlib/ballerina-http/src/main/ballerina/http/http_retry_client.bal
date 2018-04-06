@@ -21,12 +21,7 @@ public type RetryClient object {
         HttpClient httpClient;
     }
 
-    new (serviceUri, config, retry, httpClient) {
-        self.serviceUri = serviceUri;
-        self.config = config;
-        self.retry = retry;
-        self.httpClient = httpClient;
-    }
+    public new (serviceUri, config, retry, httpClient) {}
 
     documentation {
         The POST function implementation of the HTTP retry client. Protects the invocation of the POST function attached to the underlying HTTP client.
