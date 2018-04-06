@@ -50,4 +50,5 @@ public type QueueConsumerEndpointConfiguration {
 };
 
 public type QueueConsumerConnector object {
+    public native function receive (int timeInMilliSeconds) returns (Message | ());
 };

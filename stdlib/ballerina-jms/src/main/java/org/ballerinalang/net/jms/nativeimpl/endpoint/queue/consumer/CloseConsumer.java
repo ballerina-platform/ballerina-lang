@@ -51,8 +51,10 @@ public class CloseConsumer implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         BStruct connectorBObject = (BStruct) context.getRefArgument(1);
-        MessageConsumer consumer = BallerinaAdapter.getNativeObject(connectorBObject, Constants.JMS_CONSUMER_OBJECT,
-                                                                    MessageConsumer.class, context);
+        MessageConsumer consumer = BallerinaAdapter.getNativeObject(connectorBObject,
+                                                                    Constants.JMS_QUEUE_CONSUMER_OBJECT,
+                                                                    MessageConsumer.class,
+                                                                    context);
         try {
             consumer.close();
         } catch (JMSException e) {
