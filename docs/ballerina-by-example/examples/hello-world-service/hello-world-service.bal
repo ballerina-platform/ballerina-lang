@@ -9,7 +9,7 @@ endpoint http:ServiceEndpoint helloWorldEP {
 service<http:Service> hello bind helloWorldEP {
     @Description {value:"All resources are invoked with arguments of server connector and request"}
     sayHello (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         // A util method that can be used to set string payload.
         res.setStringPayload("Hello, World!");
         // Sends the response back to the client.

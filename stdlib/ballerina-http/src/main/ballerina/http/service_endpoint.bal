@@ -164,12 +164,11 @@ public function ServiceEndpoint::init (ServiceEndpointConfiguration config) {
 //////////////////////////////////
 public type WebSocketEndpoint object {
     public {
-        map attributes;
         string id;
         string negotiatedSubProtocol;
         boolean isSecure;
         boolean isOpen;
-        map<string> upgradeHeaders; // TODO: Need to remove this since this is a part of Request
+        map attributes;
     }
 
     private {
