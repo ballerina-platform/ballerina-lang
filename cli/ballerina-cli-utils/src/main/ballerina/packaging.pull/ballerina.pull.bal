@@ -98,7 +98,7 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
         string [] pathArray = rawPathVal.split("/");
         int sizeOfArray = lengthof pathArray;
         if (sizeOfArray > 3) {
-            pkgVersion = pathArray[sizeOfArray - 3];
+            pkgVersion = pathArray[sizeOfArray - 2];
          } else {
              error err = {message:"package version information is missing from the remote repository"};
              throw err;
