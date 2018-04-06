@@ -37,6 +37,7 @@ import java.util.Locale;
  *
  * @since 0.961.0
  */
+@Test(groups = {"broken"})
 public class IterableOperationsTests {
 
     private CompileResult basic, negative;
