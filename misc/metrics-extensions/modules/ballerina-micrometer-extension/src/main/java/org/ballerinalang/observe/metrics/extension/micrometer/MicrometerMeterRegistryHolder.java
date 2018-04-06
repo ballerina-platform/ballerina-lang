@@ -18,7 +18,7 @@
 package org.ballerinalang.observe.metrics.extension.micrometer;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.composite.CompositeMeterRegistry;
+import io.micrometer.core.instrument.Metrics;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.observe.metrics.extension.micrometer.spi.MeterRegistryProvider;
 
@@ -61,8 +61,8 @@ public class MicrometerMeterRegistryHolder {
                 meterRegistry = meterRegistryProvider.get();
             }
             if (meterRegistry == null) {
-                // This is like a no-op registry when there are no other registries.
-                meterRegistry = new CompositeMeterRegistry();
+                // This is a CompositeMeterRegistry and it is like a no-op registry when there are no other registries.
+                meterRegistry = Metrics.globalRegistry;
             }
             INSTANCE = meterRegistry;
         }

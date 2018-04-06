@@ -40,7 +40,7 @@ public class MicrometerLaunchListener implements LaunchListener {
     @Override
     public void beforeRunProgram(boolean service) {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        if (Boolean.valueOf(configRegistry.getConfiguration(CONFIG_METRICS_ENABLED))) {
+        if (!Boolean.valueOf(configRegistry.getConfiguration(CONFIG_METRICS_ENABLED))) {
             return;
         }
         // Initialize Metrics at launch
