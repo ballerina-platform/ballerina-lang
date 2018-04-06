@@ -1,11 +1,11 @@
 type Department {
     string dptName;
     boolean y;
-}
+};
 
 type person {
     string a;
-}
+};
 
 function testInvalidFieldNameInit () {
     string name;

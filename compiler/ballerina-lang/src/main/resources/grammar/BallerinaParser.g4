@@ -610,6 +610,7 @@ expression
     |   awaitExpression                                                     # awaitExprExpression
     |	expression matchExpression										    # matchExprExpression
     |	CHECK expression										            # checkedExpression
+    |   expression ELVIS expression                                         # elvisExpression
     ;
 
 awaitExpression
@@ -804,7 +805,7 @@ aggregationQuery
 foreverStatement
     :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
     ;
-    
+
 doneStatement
     :   DONE SEMICOLON
     ;
@@ -879,8 +880,7 @@ outputRateLimit
 patternStreamingInput
     :   patternStreamingEdgeInput FOLLOWED BY patternStreamingInput
     |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
-    |   FOREACH patternStreamingInput
-    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR StringTemplateText)
+    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR integerLiteral)
     |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput
     |   patternStreamingEdgeInput
     ;

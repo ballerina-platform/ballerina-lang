@@ -19,6 +19,7 @@
 package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 import java.util.List;
 
@@ -54,13 +55,9 @@ public interface PatternStreamingInputNode extends Node {
 
     boolean isFollowedBy();
 
-    void setEnclosedInParanthesis(boolean enclosedInParanthesis);
+    void setEnclosedInParenthesis(boolean enclosedInParenthesis);
 
-    boolean enclosedInParanthesis();
-
-    void setForEach(boolean isForEach);
-
-    boolean isForEach();
+    boolean enclosedInParenthesis();
 
     void setAndWithNot(boolean isAndWithNot);
 
@@ -70,7 +67,15 @@ public interface PatternStreamingInputNode extends Node {
 
     boolean isForWithNot();
 
-    void setAndOrOnly(boolean isAndOrOnly);
+    void setAndOnly(boolean isAndOrOnly);
 
-    boolean isAndOrOnly();
+    boolean isAndOnly();
+
+    void setOrOnly(boolean isOrOnly);
+
+    boolean isOrOnly();
+
+    void setTimeExpr(ExpressionNode timeExpr);
+
+    ExpressionNode getTimeExpr();
 }

@@ -2,7 +2,7 @@ type Department {
     string dptName;
     Person[] employees;
     Person manager;
-}
+};
 
 type Person {
     string name = "default first name";
@@ -10,7 +10,7 @@ type Person {
     map adrs;
     int age = 999;
     Person|() child;
-}
+};
 
 function testStructLiteral1 () returns (Department) {
     Department p = {};

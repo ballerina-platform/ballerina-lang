@@ -139,14 +139,14 @@ type Person {
     any a;
     float score;
     boolean alive;
-}
+};
 
 type Student {
     string name;
     int age;
     map address;
     int[] marks;
-}
+};
 
 function testStructToStruct() returns (Student) {
     Person p = { name:"Supun",
@@ -255,7 +255,7 @@ function testIncompatibleJsonToBoolean() returns (boolean) {
 type Address {
     string city;
     string country;
-}
+};
 
 function testNullJsonToString() returns (string) {
     json j;
@@ -371,11 +371,11 @@ function testAnyNullToXml() returns (xml) {
 type A {
     string x;
     int y;
-}
+};
 
 type B {
     string x;
-}
+};
 
 function testCompatibleStructForceCasting() returns (A | error) {
     A a = {x: "x-valueof-a", y:4};
@@ -548,7 +548,7 @@ function testAnyToTableWithErrors() returns (table | error) {
 type Employee {
     int id;
     string name;
-}
+};
 
 
 

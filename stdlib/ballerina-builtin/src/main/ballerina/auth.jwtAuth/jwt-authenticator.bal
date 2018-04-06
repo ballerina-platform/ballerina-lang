@@ -35,6 +35,7 @@ public type JWTAuthenticator object {
     public function authenticate (string jwtToken) returns (boolean|error);
     function authenticateFromCache (string jwtToken)
                                                 returns (boolean, boolean)|(boolean, boolean, jwt:Payload);
+    function addToAuthenticationCache (string jwtToken, int exp, jwt:Payload payload);
 };
 
 @final string AUTHENTICATOR_JWT = "authenticator_jwt";
@@ -71,7 +72,8 @@ public function createAuthenticator () returns (JWTAuthenticator) {
 public function JWTAuthenticator::authenticate (string jwtToken) returns (boolean|error) {
     boolean isCacheHit;
     boolean isAuthenticated;
-    if (self.authCache.capacity > 0) {
+    int size = authCache.capacity ?: 0;
+    if (size > 0) {
         match self.authenticateFromCache(jwtToken) {
             (boolean, boolean) cacheHit => {
                 (isCacheHit, isAuthenticated) = cacheHit;
@@ -86,11 +88,12 @@ public function JWTAuthenticator::authenticate (string jwtToken) returns (boolea
             }
         }
     }
-    match jwt:validate(jwtToken, authenticator.jwtValidatorConfig) {
+    match jwt:validate(jwtToken, jwtValidatorConfig) {
         jwt:Payload authResult => {
             isAuthenticated = true;
             setAuthContext(authResult, jwtToken);
-            if (self.authCache.capacity > 0) {
+            size = authCache.capacity ?: 0;
+            if (size > 0) {
                 self.addToAuthenticationCache(jwtToken, authResult.exp, authResult);
             }
             return isAuthenticated;
@@ -114,12 +117,16 @@ returns (boolean, boolean)|(boolean, boolean, jwt:Payload) {
     boolean isAuthenticated;
     CachedJWTAuthContext cachedAuthContext = {};
     try {
-        match check (<CachedJWTAuthContext> self.authCache.get(jwtToken)) {
-            CachedJWTAuthContext cache => {
-                cachedAuthContext = cache;
-                isCacheHit = true;
+        match authCache {
+            caching:Cache cache => {
+                match <CachedJWTAuthContext> cache.get(jwtToken) {
+                    CachedJWTAuthContext context => cachedAuthContext = context;
+
+                    error => isCacheHit = false;
+                }
             }
-            error err => isCacheHit = false;
+
+            () => log:printWarn("Auth cache not initialized.");
         }
     } catch (error e) {
         isCacheHit = false;
@@ -140,25 +147,43 @@ function JWTAuthenticator::addToAuthenticationCache (string jwtToken, int exp, j
     CachedJWTAuthContext cachedContext = {};
     cachedContext.jwtPayload = payload;
     cachedContext.expiryTime = exp;
-    self.authCache.put(jwtToken, cachedContext);
+    match authCache {
+        caching:Cache cache => cache.put(jwtToken, cachedContext);
+        () => log:printWarn("Auth cache not initialized.");
+    }
     log:printDebug("Add authenticated user :" + payload.sub + " to the cache");
 }
 
 function setAuthContext (jwt:Payload jwtPayload, string jwtToken) {
     runtime:AuthenticationContext authContext = runtime:getInvocationContext().authenticationContext;
     authContext.userId = jwtPayload.sub;
-    string scopeString = jwtPayload.customClaims[SCOPES] but { () => () };
-    authContext.scopes = scopeString.split(" ");
-    _ = jwtPayload.customClaims.remove(SCOPES);
+    match jwtPayload.customClaims[SCOPES] {
+        string scopeString => {
+            authContext.scopes = scopeString.split(" ");
+            _ = jwtPayload.customClaims.remove(SCOPES);
+        }
+        any => {}
+    }
 
-    string[] userGroups = jwtPayload.customClaims[GROUPS] but { () => () };
-    authContext.groups = userGroups;
-    _ = jwtPayload.customClaims.remove(GROUPS);
+    match jwtPayload.customClaims[GROUPS] {
+        string[] userGroups => {
+            authContext.groups = userGroups;
+            _ = jwtPayload.customClaims.remove(GROUPS);
+        }
+        any => {}
+    }
 
-    // By default set sub as username.
-    string name = jwtPayload.customClaims[USERNAME] but { () => jwtPayload.sub };
-    authContext.username = name;
-    _ = jwtPayload.customClaims.remove(USERNAME);
+    match jwtPayload.customClaims[USERNAME] {
+        string name => {
+            authContext.username = name;
+            _ = jwtPayload.customClaims.remove(USERNAME);
+        }
+        () => {
+            // By default set sub as username.
+            authContext.username = jwtPayload.sub;
+        }
+        any => {}
+    }
 
     authContext.authType = AUTH_TYPE_JWT;
     authContext.authToken = jwtToken;

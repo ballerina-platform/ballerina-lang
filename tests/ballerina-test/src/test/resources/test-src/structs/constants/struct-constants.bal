@@ -10,4 +10,4 @@ type Person {
     string name;
     map adrs;
     int age;
-}
+};

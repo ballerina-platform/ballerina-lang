@@ -25,8 +25,9 @@ package ballerina.http;
 @final public HttpOperation HTTP_PUT = "PUT";
 @final public HttpOperation HTTP_PATCH = "PATCH";
 @final public HttpOperation HTTP_HEAD = "HEAD";
+@final public HttpOperation HTTP_NONE = "NONE";
 
-public type HttpOperation "FORWARD" | "GET" | "POST" | "DELETE" | "OPTIONS" | "PUT" | "PATCH" | "HEAD";
+public type HttpOperation "FORWARD" | "GET" | "POST" | "DELETE" | "OPTIONS" | "PUT" | "PATCH" | "HEAD" | "NONE";
 
 // makes the actual endpoints call according to the http operation passed in.
 public function invokeEndpoint (string path, Request outRequest,
@@ -54,7 +55,7 @@ public function invokeEndpoint (string path, Request outRequest,
 
 // Extracts HttpOperation from the Http verb passed in.
 function extractHttpOperation (string httpVerb) returns HttpOperation {
-    HttpOperation inferredConnectorAction;
+    HttpOperation inferredConnectorAction = HTTP_NONE;
     if ("GET" == httpVerb) {
         inferredConnectorAction = HTTP_GET;
     } else if ("POST" == httpVerb) {

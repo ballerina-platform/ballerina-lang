@@ -1,30 +1,30 @@
-struct Person {
-    int id;
-    int age = -1;
-    float salary;
-    string name;
-    boolean married;
-}
+type Person {
+    int id,
+    int age = -1,
+    float salary,
+    string name,
+    boolean married,
+};
 
-struct Order {
-    int personId;
-    int orderId;
-    string items;
-    float amount;
-}
+type Order {
+    int personId,
+    int orderId,
+    string items,
+    float amount,
+};
 
-struct OrderDetails {
-    int orderId;
-    string personName;
-    string items;
-    float amount;
-}
+type OrderDetails {
+    int orderId,
+    string personName,
+    string items,
+    float amount,
+};
 
-struct Student {
-    string name;
-    int index;
-    int age = -1;
-}
+type Student {
+    string name,
+    int index,
+    int age = -1,
+};
 
 function testSimpleSelectAll () returns (int) {
 

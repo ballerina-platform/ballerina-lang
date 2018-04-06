@@ -2,50 +2,46 @@ package ballerina.http;
 
 public type WebSocketClient object {
     public {
-    //ToDo: Make private: note private comes after public
-        WebSocketConnector conn;
-        WebSocketClientEndpointConfig config;
-    //Public attributes
         map attributes;
         string id;
         string negotiatedSubProtocol;
         boolean isSecure;
         boolean isOpen;
     }
-    new () {
 
+    private {
+        WebSocketConnector conn;
+        WebSocketClientEndpointConfig config;
     }
+
     @Description {value:"Gets called when the endpoint is being initialize during package init time"}
-    @Param {value:"epName: The endpoint name"}
     @Param {value:"config: The ServiceEndpointConfiguration of the endpoint"}
     @Return {value:"Error occured during initialization"}
-    public function init(WebSocketClientEndpointConfig config) {
-        ep.config = config;
-        ep.initEndpoint();
+    public function init (WebSocketClientEndpointConfig config) {
+        self.config = config;
+        self.initEndpoint();
     }
+
     public native function initEndpoint();
 
     @Description {value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
-    @Param {value:"conn: The server connector connection"}
     @Param {value:"res: The outbound response message"}
     @Return {value:"Error occured during registration"}
     public native function register(typedesc serviceType);
 
     @Description {value:"Returns the connector that client code uses"}
     @Return {value:"The connector that client code uses"}
-    @Return {value:"Error occured during registration"}
-    public function getClient() returns (WebSocketConnector) {
-        return h.conn;
+    public function getClient () returns (WebSocketConnector)  {
+        return self.conn;
     }
 
     @Description {value:"Starts the registered service"}
-    @Return {value:"Error occured during registration"}
     public native function start();
 
     @Description {value:"Stops the registered service"}
-    @Return {value:"Error occured during registration"}
     public function stop () {
-        _ = h.getClient().close(1001, "The connection has been stopped");
+        WebSocketConnector webSocketConnector = self.getClient();
+        WebSocketConnectorError|() ignoredValue = webSocketConnector.close(1001, "The connection has been stopped");
     }
 };
 

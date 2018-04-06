@@ -1,19 +1,15 @@
-type Person object {
-    public {
-        string name;
-        int age;
-        string address;
-    }
-}
+type Person  {
+    string name;
+    int age;
+    string address;
+};
 
-type Student object {
-    public {
-        string name;
-        int age;
-        string address;
-        string class;
-    }
-}
+type Student {
+    string name;
+    int age;
+    string address;
+    string class;
+};
 
 function testJsonStructConstraint() returns (json, json, json, string|error, int|error, string|error) {
     json<Person> j = {};
@@ -66,30 +62,24 @@ function getStudent() returns (json<Student>){
     return j;
 }
 
-type Employee object {
-    public {
-        string first_name;
-        string last_name;
-        int age;
-        Address address;
-    }
-}
+type Employee {
+    string first_name;
+    string last_name;
+    int age;
+    Address address;
+};
 
-type Address object {
-    public {
-        string number;
-        string street;
-        string city;
-        PhoneNumber phoneNumber;
-    }
-}
+type Address {
+    string number;
+    string street;
+    string city;
+    PhoneNumber phoneNumber;
+};
 
-type PhoneNumber object {
-    public {
-        string areaCode;
-        string number;
-    }
-}
+type PhoneNumber {
+    string areaCode;
+    string number;
+};
 
 function testContrainingWithNestedStructs() returns (json, json, json) {
     json<Employee> e = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};

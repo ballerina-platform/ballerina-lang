@@ -1,7 +1,7 @@
 type Person {
     string name;
     int age;
-}
+};
 
 
 function test() returns string {

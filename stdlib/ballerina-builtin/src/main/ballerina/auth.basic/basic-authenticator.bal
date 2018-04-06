@@ -26,16 +26,89 @@ import ballerina/security.crypto;
 @Field {value:"userStore: UserStore object; ex.: in basic authenticator, the user store"}
 @Field {value:"authCache: Authentication cache object"}
 public type BasicAuthenticator object {
+
     public {
         userstore:UserStore userStore;
         caching:Cache? authCache;
     }
-    public function (string username, string password) returns (boolean);
-    function authenticateFromCache(string basicAuthCacheKey) returns (boolean|());
-    function cacheAuthResult (string basicAuthCacheKey, AuthenticationInfo authInfo)
+
     new (userStore, authCache) {
     }
+    
+    public function authenticate(string username, string password) returns (boolean);
+    function authenticateFromCache(string basicAuthCacheKey) returns (boolean|());
+    function cacheAuthResult (string basicAuthCacheKey, AuthenticationInfo authInfo);
 };
+
+@Description {value:"Performs basic authentication with the given username and password"}
+@Param {value:"username: user name"}
+@Param {value:"password: password"}
+@Return {value:"boolean: true if authentication is successful, else false"}
+public function BasicAuthenticator::authenticate (string username, string password) returns (boolean) {
+    // check cache first
+    string basicAuthCacheKey = crypto:getHash(username + "-" + password, crypto:SHA256);
+    match authenticateFromCache(basicAuthCacheKey) {
+        boolean isAuthenticated => {
+            return isAuthenticated;
+        }
+        () => {
+            AuthenticationInfo authInfo = createAuthenticationInfo(username,
+                userStore.authenticate(username, password));
+            if (authInfo.isAuthenticated) {
+                log:printDebug("Successfully authenticated against the userstore");
+                // populate AuthenticationContext for this request
+                // set the username
+                runtime:getInvocationContext().authenticationContext.username = username;
+                // set the groups if available in userstore
+                string[] groupsOfUser = userStore.readGroupsOfUser(username);
+                runtime:getInvocationContext().authenticationContext.groups = groupsOfUser;
+                authInfo.groups = groupsOfUser;
+            } else {
+                log:printDebug("Authentication failure");
+            }
+            cacheAuthResult(basicAuthCacheKey, authInfo);
+            return authInfo.isAuthenticated;
+        }
+    }
+}
+
+@Description {value:"Retrieves the cached authentication result if any, for the given basic auth header value"}
+@Param {value:"basicAuthCacheKey: basic authentication cache key - sha256(basic auth header)"}
+@Return {value:"boolean|(): cached entry, or nil in a cache miss"}
+function BasicAuthenticator::authenticateFromCache(string basicAuthCacheKey) returns (boolean|()) {
+    try {
+        match authCache {
+            caching:Cache cache => {
+                AuthenticationInfo authInfo = check <AuthenticationInfo> cache.get(basicAuthCacheKey);
+                if (authInfo.isAuthenticated) {
+                    runtime:getInvocationContext().authenticationContext.username = authInfo.username;
+                    runtime:getInvocationContext().authenticationContext.groups = authInfo.groups;
+                }
+                return authInfo.isAuthenticated;
+            }
+            () => {
+                return ();
+            }
+        }
+    } catch (error e) {
+        // nothing to do
+    }
+    return ();
+}
+
+@Description {value:"Caches the authentication result"}
+@Param {value:"basicAuthCacheKey: basic authentication cache key - sha256(basic auth header)"}
+@Param {value:"authInfo: AuthenticationInfo instance containing authentication decision"}
+function BasicAuthenticator::cacheAuthResult (string basicAuthCacheKey, AuthenticationInfo authInfo) {
+    match authCache {
+        caching:Cache cache => {
+            cache.put(basicAuthCacheKey, authInfo);
+        }
+        () => {
+            return;
+        }
+    }
+}
 
 @Description {value:"Represents an authentication decision about a user"}
 @Field {value:"username: user name"}
@@ -53,76 +126,6 @@ public type AuthenticationInfo {
 public function createAuthenticator (userstore:UserStore userStore, caching:Cache? cache) returns (BasicAuthenticator) {
     BasicAuthenticator authenticator = new(userStore, cache);
     return authenticator;
-}
-
-@Description {value:"Performs basic authentication with the given username and password"}
-@Param {value:"username: user name"}
-@Param {value:"password: password"}
-@Return {value:"boolean: true if authentication is successful, else false"}
-public function BasicAuthenticator::authenticate (string username, string password) returns (boolean) {
-    // check cache first
-    string basicAuthCacheKey = crypto:getHash(username + "-" + password, crypto:Algorithm.SHA256);
-    match self.authenticateFromCache(basicAuthCacheKey) {
-        boolean isAuthenticated => {
-            return isAuthenticated;
-        }
-        () => {
-            AuthenticationInfo authInfo = createAuthenticationInfo(username,
-                                                            authenticator.userStore.authenticate(username, password));
-            if (authInfo.isAuthenticated) {
-                log:printDebug("Successfully authenticated against the userstore");
-                // populate AuthenticationContext for this request
-                // set the username
-                runtime:getInvocationContext().authenticationContext.username = username;
-                // set the groups if available in userstore
-                string[] groupsOfUser = self.userStore.readGroupsOfUser(username);
-                runtime:getInvocationContext().authenticationContext.groups = groupsOfUser;
-                authInfo.groups = groupsOfUser;
-            } else {
-                log:printDebug("Authentication failure");
-            }
-            self.cacheAuthResult(basicAuthCacheKey, authInfo);
-            return authInfo.isAuthenticated;
-        }
-    }
-}
-
-@Description {value:"Retrieves the cached authentication result if any, for the given basic auth header value"}
-@Param {value:"basicAuthCacheKey: basic authentication cache key - sha256(basic auth header)"}
-@Return {value:"boolean|(): cached entry, or nil in a cache miss"}
-function BasicAuthenticator::authenticateFromCache(string basicAuthCacheKey) returns (boolean|()) {
-    try {
-        match self.authCache {
-            caching:Cache cache => {
-                AuthenticationInfo authInfo = check <AuthenticationInfo> cache.get(basicAuthCacheKey);
-                if (authInfo.isAuthenticated) {
-                    runtime:getInvocationContext().authenticationContext.username = authInfo.username;
-                    runtime:getInvocationContext().authenticationContext.groups = authInfo.groups;
-                }
-                return authInfo.isAuthenticated;
-            }
-        () => {
-                return ();
-            }
-        }
-    } catch (error e) {
-        // nothing to do
-    }
-    return ();
-}
-
-@Description {value:"Caches the authentication result"}
-@Param {value:"basicAuthCacheKey: basic authentication cache key - sha256(basic auth header)"}
-@Param {value:"authInfo: AuthenticationInfo instance containing authentication decision"}
-function BasicAuthenticator::cacheAuthResult (string basicAuthCacheKey, AuthenticationInfo authInfo) {
-    match self.authCache {
-        caching:Cache cache => {
-            cache.put(basicAuthCacheKey, authInfo);
-        }
-        () => {
-            return;
-        }
-    }
 }
 
 @Description {value:"Creates AuthenticationInfo instance"}
