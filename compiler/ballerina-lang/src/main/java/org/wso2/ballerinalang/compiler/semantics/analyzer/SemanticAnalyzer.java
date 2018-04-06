@@ -533,8 +533,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // If the variable is a package/service/connector level variable, we don't need to check types.
         // It will we done during the init-function of the respective construct is visited.
-        if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE ||
-                (ownerSymTag & SymTag.SERVICE) == SymTag.SERVICE ||
+        if ((ownerSymTag & SymTag.SERVICE) == SymTag.SERVICE ||
                 (ownerSymTag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
             return;
         }
