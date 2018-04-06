@@ -32,6 +32,7 @@ import java.io.IOException;
 /**
  * Test case for HTTP/2.0 server push scenario.
  */
+@Test(groups = {"broken"})
 public class Http2ServerPushTestCase extends IntegrationTestCase {
     private ServerInstance ballerinaServer;
 

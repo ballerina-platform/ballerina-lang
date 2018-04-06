@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for struct initializer feature.
  */
+@Test(groups = {"broken"})
 public class StructInitializerTest {
     private CompileResult compileResult;
 

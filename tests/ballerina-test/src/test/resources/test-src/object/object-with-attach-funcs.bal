@@ -24,6 +24,6 @@ type Person object {
         string val2 = value1 + month;
         return (count, val2);
     }
-}
+};
 
 
