@@ -178,7 +178,7 @@ public type WebSocketEndpoint object {
         ServiceEndpoint httpEndpoint;
     }
 
-    new () {
+    public new () {
         ServiceEndpoint httpEndpoint = new;
         self.httpEndpoint = httpEndpoint;
     }
