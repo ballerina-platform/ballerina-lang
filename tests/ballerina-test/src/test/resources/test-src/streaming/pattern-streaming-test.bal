@@ -102,6 +102,8 @@ type RoomKeyAction {
 
 RoomKeyAction[] roomActions = [];
 RoomKeyAction[] roomActions2 = [];
+RoomKeyAction[] roomActions3 = [];
+RoomKeyAction[] roomActions4 = [];
 
 function runPatternQuery2() returns (RoomKeyAction[]) {
     index = 0;
@@ -194,5 +196,93 @@ function alertRoomAction2(RoomKeyAction action) {
 
 function addToGlobalRoomActions2(RoomKeyAction s) {
     roomActions2[index] = s;
+    index = index + 1;
+}
+
+function runPatternQuery4() returns (RoomKeyAction[]) {
+    index = 0;
+
+    stream<RegulatorState> regulatorStateChangeStream3;
+    stream<RoomKeyAction> roomKeyStream3;
+    stream<RoomKeyAction> regulatorActionStream3;
+
+    forever {
+        from every regulatorStateChangeStream3 where userAction == "on" as e1
+        followed by !roomKeyStream3 where e1.roomNo == roomNo && userAction == "removed"
+        && regulatorStateChangeStream3 where e1.roomNo == roomNo && userAction == "off" as e2
+        select e1.roomNo as roomNo, e2 != null ? "RoomNotClosedWithRegulatorNotOff" : "other" as userAction
+        having userAction != "other"
+        => (RoomKeyAction[] keyAction) {
+            regulatorActionStream3.publish(keyAction);
+        }
+    }
+
+    RegulatorState regulatorState1 = {deviceId:1, roomNo:2, tempSet:23.56, userAction:"on"};
+    RegulatorState regulatorState2 = {deviceId:1, roomNo:2, tempSet:35.56, userAction:"off"};
+
+    RoomKeyAction roomKeyAction1 = {roomNo:2, userAction:"inserted"};
+
+    regulatorActionStream3.subscribe(alertRoomAction3);
+    regulatorStateChangeStream3.publish(regulatorState1);
+    runtime:sleepCurrentWorker(200);
+    roomKeyStream3.publish(roomKeyAction1);
+    regulatorStateChangeStream3.publish(regulatorState2);
+    runtime:sleepCurrentWorker(500);
+
+    return roomActions3;
+}
+
+
+function alertRoomAction3(RoomKeyAction action) {
+    io:println("alertRoomAction function invoked for Room:" + action.roomNo + " and the action :" +
+        action.userAction);
+    addToGlobalRoomActions3(action);
+
+}
+
+function addToGlobalRoomActions3(RoomKeyAction s) {
+    roomActions3[index] = s;
+    index = index + 1;
+}
+
+function runPatternQuery5() returns (RoomKeyAction[]) {
+    index = 0;
+
+    stream<RegulatorState> regulatorStateChangeStream4;
+    stream<RoomKeyAction> roomKeyStream4;
+    stream<RoomKeyAction> regulatorActionStream4;
+
+    forever {
+        from every regulatorStateChangeStream4 where userAction == "on" as e1
+        followed by !roomKeyStream4 where e1.roomNo == roomNo && userAction == "removed" for "2 sec"
+        select e1.roomNo as roomNo, "CloseRoomAfter2Sec" as userAction
+        => (RoomKeyAction[] keyAction) {
+            regulatorActionStream4.publish(keyAction);
+        }
+    }
+
+    RegulatorState regulatorState1 = {deviceId:1, roomNo:2, tempSet:23.56, userAction:"on"};
+
+    RoomKeyAction roomKeyAction1 = {roomNo:2, userAction:"inserted"};
+
+    regulatorActionStream4.subscribe(alertRoomAction4);
+    regulatorStateChangeStream4.publish(regulatorState1);
+    runtime:sleepCurrentWorker(200);
+    roomKeyStream4.publish(roomKeyAction1);
+    runtime:sleepCurrentWorker(2500);
+
+    return roomActions4;
+}
+
+
+function alertRoomAction4(RoomKeyAction action) {
+    io:println("alertRoomAction function invoked for Room:" + action.roomNo + " and the action :" +
+        action.userAction);
+    addToGlobalRoomActions4(action);
+
+}
+
+function addToGlobalRoomActions4(RoomKeyAction s) {
+    roomActions4[index] = s;
     index = index + 1;
 }

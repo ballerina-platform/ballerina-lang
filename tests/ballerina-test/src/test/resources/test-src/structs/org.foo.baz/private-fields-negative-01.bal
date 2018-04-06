@@ -3,16 +3,16 @@ package org.foo.baz;
 public type ParentFoo {
     int i;
     ChildFoo c;
-}
+};
 
 type ChildFoo {
     string name;
-}
+};
 
 type privatePerson {
     int age;
     string name;
-}
+};
 
 public function newPrivatePerson() returns (privatePerson) {
     return {age:12, name:"mad"};

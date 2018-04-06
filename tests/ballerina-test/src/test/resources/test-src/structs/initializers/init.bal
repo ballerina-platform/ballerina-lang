@@ -4,7 +4,7 @@ public type employee{
     int age = 20;
     string name;
     string address;
-}
+};
 
 public function <employee p> employee() {
     p.age = 10;
@@ -20,7 +20,7 @@ public type student{
     int age = 20;
     string name;
     string address;
-}
+};
 
 function <student p> student() {
     p.age = 10;
