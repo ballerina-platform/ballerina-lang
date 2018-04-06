@@ -63,7 +63,7 @@ public class TracingTestCase {
     public void testSpanWithTwoResources() throws IOException {
         HttpClientRequest.doGet("http://localhost:9090/echoService/resourceOne");
         Assert.assertEquals(HttpClientRequest.doGet(
-                "http://localhost:9090/echoService/getFinishedSpansCount").getData(), "5");
+                "http://localhost:9090/echoService/getFinishedSpansCount").getData(), "8");
     }
 
     private static void copyFile(File source, File dest) throws IOException {
