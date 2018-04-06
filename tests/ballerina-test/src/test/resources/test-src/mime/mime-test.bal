@@ -113,7 +113,7 @@ function testGetXmlMultipleTimes (xml xmlContent) returns (xml) {
     return returnContent;
 }
 
-function testSetAndGetText (string textContent) returns string | null | mime:EntityError {
+function testSetAndGetText (string textContent) returns string | mime:EntityError {
     mime:Entity entity = {};
     entity.setText(textContent);
     return entity.getText();
@@ -122,28 +122,25 @@ function testSetAndGetText (string textContent) returns string | null | mime:Ent
 function testGetTextMultipleTimes (string textContent) returns (string) {
     mime:Entity entity = {};
     entity.setText(textContent);
-    string | mime:EntityError | null returnContent1 = entity.getText();
-    string | mime:EntityError | null returnContent2 = entity.getText();
-    string | mime:EntityError | null returnContent3 = entity.getText();
+    string | mime:EntityError returnContent1 = entity.getText();
+    string | mime:EntityError returnContent2 = entity.getText();
+    string | mime:EntityError returnContent3 = entity.getText();
 
     string content1;
     string content2;
     string content3;
 
     match returnContent1 {
-        int | null => {log:printInfo("null");}
         mime:EntityError err => log:printInfo("error in returnContent1");
         string j => { content1 = j;}
     }
 
     match returnContent2 {
-        int | null => {log:printInfo("null");}
         mime:EntityError err => log:printInfo("error in returnContent2");
         string j => { content2 = j;}
     }
 
     match returnContent3 {
-        int | null => {log:printInfo("null");}
         mime:EntityError err => log:printInfo("error in returnContent3");
         string j => { content3 = j;}
     }
@@ -208,7 +205,7 @@ function testGetByteChannel (io:ByteChannel byteChannel) returns io:ByteChannel 
     return entity.getByteChannel();
 }
 
-function testSetEntityBodyMultipleTimes (io:ByteChannel byteChannel, string textdata) returns string | null | mime:EntityError {
+function testSetEntityBodyMultipleTimes (io:ByteChannel byteChannel, string textdata) returns string | mime:EntityError {
     mime:Entity entity = {};
     entity.setText(textdata);
     entity.setByteChannel(byteChannel);
