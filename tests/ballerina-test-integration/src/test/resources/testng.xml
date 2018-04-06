@@ -25,6 +25,12 @@
 
     <!-- Below tests should run sequentially since it will use same port in each test -->
     <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
+
         <packages>
             <package name="org.ballerinalang.test.service.http.sample"/>
             <package name="org.ballerinalang.test.service.http2"/>

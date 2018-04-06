@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for equivalency of user defined struct types with attached functions in ballerina.
  */
+@Test(groups = {"broken"})
 public class StructEquivalencyNegativeTest {
 
     @Test(description = "Test equivalence of structs that are in the same package", enabled = false)
