@@ -17,7 +17,10 @@ public type WebSocketClient object {
     @Description {value:"Gets called when the endpoint is being initialize during package init time"}
     @Param {value:"config: The ServiceEndpointConfiguration of the endpoint"}
     @Return {value:"Error occured during initialization"}
-    public function init(WebSocketClientEndpointConfig config);
+    public function init (WebSocketClientEndpointConfig config) {
+        self.config = config;
+        self.initEndpoint();
+    }
 
     public native function initEndpoint();
 
@@ -28,27 +31,18 @@ public type WebSocketClient object {
 
     @Description {value:"Returns the connector that client code uses"}
     @Return {value:"The connector that client code uses"}
-    public function getClient() returns (WebSocketConnector);
+    public function getClient () returns (WebSocketConnector)  {
+        return self.conn;
+    }
 
     @Description {value:"Starts the registered service"}
     public native function start();
 
     @Description {value:"Stops the registered service"}
-    public function stop ();
+    public function stop () {
+        _ = self.getClient().close(1001, "The connection has been stopped");
+    }
 };
-
-public function WebSocketClient::init (WebSocketClientEndpointConfig config) {
-    self.config = config;
-    self.initConfig();
-}
-
-public function WebSocketClient::getClient () returns (WebSocketConnector)  {
-    return self.conn;
-}
-
-public function WebSocketClient::stop () {
-    _ = self.getClient().close(1001, "The connection has been stopped");
-}
 
 @Description {value:"Configuration struct for WebSocket client connection"}
 @Field {value:"subProtocols: Negotiable sub protocols for the client"}

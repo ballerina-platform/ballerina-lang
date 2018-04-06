@@ -187,45 +187,35 @@ public type WebSocketEndpoint object {
     @Param {value:"epName: The endpoint name"}
     @Param {value:"config: The ServiceEndpointConfiguration of the endpoint"}
     @Return {value:"Error occured during initialization"}
-    public function init(ServiceEndpointConfiguration config);
+    public function init(ServiceEndpointConfiguration config) {
+        self.config = config;
+        httpEndpoint.init(config);
+    }
 
     @Description {value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
     @Param {value:"conn: The server connector connection"}
     @Param {value:"res: The outbound response message"}
     @Return {value:"Error occured during registration"}
-    public function register(typedesc serviceType);
+    public function register(typedesc serviceType) {
+        httpEndpoint.register(serviceType);
+    }
 
     @Description {value:"Starts the registered service"}
     @Return {value:"Error occured during registration"}
-    public function start();
+    public function start() {
+        httpEndpoint.start();
+    }
 
     @Description {value:"Returns the connector that client code uses"}
     @Return {value:"The connector that client code uses"}
     @Return {value:"Error occured during registration"}
-    public function getClient() returns (WebSocketConnector);
+    public function getClient() returns (WebSocketConnector) {
+        return conn;
+    }
 
     @Description {value:"Stops the registered service"}
     @Return {value:"Error occured during registration"}
-    public function stop();
+    public function stop() {
+        httpEndpoint.stop();
+    }
 };
-
-public function WebSocketEndpoint::init(ServiceEndpointConfiguration config) {
-    self.config = config;
-    httpEndpoint.init(config);
-}
-
-public function WebSocketEndpoint::register(typedesc serviceType) {
-    httpEndpoint.register(serviceType);
-}
-
-public function WebSocketEndpoint::start() {
-    httpEndpoint.start();
-}
-
-public function WebSocketEndpoint::getClient() returns (WebSocketConnector) {
-    return conn;
-}
-
-public function WebSocketEndpoint::stop() {
-    httpEndpoint.stop();
-}
