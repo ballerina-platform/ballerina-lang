@@ -49,7 +49,7 @@ function createHeader (Header header) returns (string) {
     headerJson[ALG] = header.alg;
     headerJson[TYP] = "JWT";
     headerJson = addMapToJson(headerJson, header.customClaims);
-    string headerValInString = headerJson.toString()  but { () => ""};
+    string headerValInString = headerJson.toString()  but {() => ""};
     string encodedPayload = check util:base64EncodeString(headerValInString);
     return encodedPayload;
 }
