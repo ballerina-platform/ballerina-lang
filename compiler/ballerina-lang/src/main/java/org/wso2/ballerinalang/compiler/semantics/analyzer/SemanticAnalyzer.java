@@ -40,6 +40,7 @@ import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
@@ -54,8 +55,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -109,6 +112,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
@@ -977,7 +981,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangAbort abortNode) {
         /* ignore */
     }
-    
+
     @Override
     public void visit(BLangDone doneNode) {
         /* ignore */
@@ -1200,7 +1204,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     //Streaming related methods.
 
     public void visit(BLangForever foreverStatement) {
-        for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.gettreamingQueryStatements()) {
+        for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
             analyzeStmt((BLangStatement) streamingQueryStatement, env);
         }
 
@@ -1220,6 +1224,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if ("stream".equals((((varSymbol).type.tsymbol)).name.value)) {
                 foreverStatement.addFunctionVariable(varSymbol);
             }
+        }
+
+        List<Scope.ScopeEntry> localVariableList = new ArrayList<>(this.env.scope.entries.values());
+        for (Scope.ScopeEntry scopeEntry : localVariableList) {
+            if ("stream".equals(((scopeEntry).symbol.type.tsymbol).name.value)) {
+                foreverStatement.addFunctionVariable((BVarSymbol) scopeEntry.symbol);
+            }
+        }
+
+        //Validate output attribute names with stream/struct
+        for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
+            checkOutputAttributes((BLangStatement) streamingQueryStatement);
+            validateOutputAttributeTypes((BLangStatement) streamingQueryStatement);
         }
     }
 
@@ -1412,6 +1429,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangLiteral literalExpr) {
+        //ignore
+    }
+
+    @Override
+    public void visit(BLangTernaryExpr ternaryExpr) {
         //ignore
     }
 
@@ -1713,5 +1735,173 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         checkConstantAssignment(varRefExpr);
         return varRefExpr.type;
+    }
+
+    private void checkOutputAttributes(BLangStatement streamingQueryStatement) {
+
+        List<? extends SelectExpressionNode> selectExpressions =
+                ((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().getSelectExpressions();
+
+        List<String> variableList = new ArrayList<>();
+        if (!((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().isSelectAll()) {
+            for (SelectExpressionNode expressionNode : selectExpressions) {
+                String variableName;
+                if (expressionNode.getIdentifier() != null) {
+                    variableName = expressionNode.getIdentifier();
+                } else {
+                    if (expressionNode.getExpression() instanceof BLangFieldBasedAccess) {
+                        variableName = ((BLangFieldBasedAccess) expressionNode.getExpression()).field.value;
+                    } else {
+                        variableName = ((BLangSimpleVarRef) (expressionNode).getExpression()).variableName.value;
+                    }
+                }
+                variableList.add(variableName);
+            }
+        } else {
+            List<BStructType.BStructField> fields = ((BStructType) ((BStreamType) ((BLangSimpleVarRef)
+                    (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput()).
+                            getStreamReference()).type).constraint).fields;
+
+            for (BStructType.BStructField structField : fields) {
+                variableList.add(structField.name.value);
+            }
+        }
+
+        BType structType = (((BArrayType) ((BInvokableType)
+                ((BLangLambdaFunction) (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingAction()).
+                        getInvokableBody()).type).paramTypes.get(0)).eType);
+
+        List<BStructType.BStructField> structFieldList = ((BStructType) structType).fields;
+
+        List<String> structFieldNameList = new ArrayList<>();
+        for (BStructType.BStructField structField : structFieldList) {
+            structFieldNameList.add(structField.name.value);
+        }
+
+        if (!variableList.equals(structFieldNameList)) {
+            dlog.error(((BLangStreamAction) ((BLangStreamingQueryStatement) streamingQueryStatement).
+                    getStreamingAction()).pos, DiagnosticCode.INCOMPATIBLE_STREAM_ACTION_ARGUMENT, structType);
+        }
+    }
+
+    private void validateOutputAttributeTypes(BLangStatement streamingQueryStatement) {
+        StreamingInput streamingInput = ((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput();
+        JoinStreamingInput joinStreamingInput = ((BLangStreamingQueryStatement) streamingQueryStatement).
+                getJoiningInput();
+
+        if (streamingInput != null) {
+            Map<String, List<BStructType.BStructField>> inputStreamSpecificFieldMap = new HashMap<>();
+            String firstStreamIdentifier = getStreamIdentifier(streamingInput);
+            List<BStructType.BStructField> firstInputStreamFieldList = getFieldListFromStreamInput(streamingInput);
+            inputStreamSpecificFieldMap.put(firstStreamIdentifier, firstInputStreamFieldList);
+
+            if (joinStreamingInput != null) {
+                List<BStructType.BStructField> secondInputStreamFieldList =
+                        getFieldListFromStreamInput(joinStreamingInput.getStreamingInput());
+                String secondStreamIdentifier = getStreamIdentifier(joinStreamingInput.getStreamingInput());
+                inputStreamSpecificFieldMap.put(secondStreamIdentifier, secondInputStreamFieldList);
+            }
+
+            BType structType = (((BArrayType) ((BInvokableType)
+                    ((BLangLambdaFunction) (((BLangStreamingQueryStatement) streamingQueryStatement).
+                            getStreamingAction()).getInvokableBody()).type).paramTypes.get(0)).eType);
+
+            List<BStructType.BStructField> outputStreamFieldList = ((BStructType) structType).fields;
+
+            List<? extends SelectExpressionNode> selectExpressions =
+                    ((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().getSelectExpressions();
+
+            if (!((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().isSelectAll()) {
+                for (int i = 0; i < selectExpressions.size(); i++) {
+                    SelectExpressionNode expressionNode = selectExpressions.get(i);
+                    BStructType.BStructField structField = null;
+                    if (expressionNode.getExpression() instanceof BLangFieldBasedAccess) {
+                        String attributeName = ((BLangFieldBasedAccess) expressionNode.getExpression()).field.value;
+                        String streamIdentifier = ((BLangSimpleVarRef) ((BLangFieldBasedAccess) expressionNode.
+                                getExpression()).expr).variableName.value;
+
+                        List<BStructType.BStructField> streamFieldList = inputStreamSpecificFieldMap.
+                                get(streamIdentifier);
+                        if (streamFieldList == null) {
+                            dlog.error(((BLangSelectClause) ((BLangStreamingQueryStatement) streamingQueryStatement).
+                                            getSelectClause()).pos, DiagnosticCode.UNDEFINED_STREAM_REFERENCE,
+                                    streamIdentifier);
+                        } else {
+                            structField = getStructField(streamFieldList, attributeName);
+                            if (structField == null) {
+                                dlog.error(((BLangSelectClause) ((BLangStreamingQueryStatement)
+                                                streamingQueryStatement).getSelectClause()).pos,
+                                        DiagnosticCode.UNDEFINED_STREAM_ATTRIBUTE, attributeName);
+                            } else {
+                                BStructType.BStructField outputStructField = outputStreamFieldList.get(i);
+                                this.types.checkType(((BLangStreamAction) ((BLangStreamingQueryStatement)
+                                                streamingQueryStatement).getStreamingAction()).pos,
+                                        outputStructField.getType(), structField.getType(),
+                                        DiagnosticCode.INCOMPATIBLE_TYPES);
+                            }
+                        }
+                    } else if (expressionNode.getExpression() instanceof BLangSimpleVarRef) {
+                        String attributeName = ((BLangSimpleVarRef) expressionNode.getExpression()).
+                                variableName.getValue();
+
+                        for (List<BStructType.BStructField> streamFieldList : inputStreamSpecificFieldMap.values()) {
+                            structField = getStructField(streamFieldList, attributeName);
+                            if (structField != null) {
+                                break;
+                            }
+                        }
+                        if (structField == null) {
+                            dlog.error(((BLangSelectClause) ((BLangStreamingQueryStatement) streamingQueryStatement).
+                                    getSelectClause()).pos, DiagnosticCode.UNDEFINED_STREAM_ATTRIBUTE, attributeName);
+                        } else {
+                            BStructType.BStructField outputStructField = outputStreamFieldList.get(i);
+                            this.types.checkType(((BLangStreamAction) ((BLangStreamingQueryStatement)
+                                            streamingQueryStatement).getStreamingAction()).pos,
+                                    outputStructField.getType(), structField.getType(),
+                                    DiagnosticCode.INCOMPATIBLE_TYPES);
+                        }
+                    }
+                }
+            } else {
+                List<BStructType.BStructField> inputStreamFields = ((BStructType) ((BStreamType) ((BLangSimpleVarRef)
+                        (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput()).
+                                getStreamReference()).type).constraint).fields;
+
+                for (int i = 0; i < inputStreamFields.size(); i++) {
+                    BStructType.BStructField inputStructField = inputStreamFields.get(i);
+                    BStructType.BStructField outputStructField = outputStreamFieldList.get(i);
+                    this.types.checkType(((BLangStreamAction) ((BLangStreamingQueryStatement)
+                                    streamingQueryStatement).getStreamingAction()).pos,
+                            outputStructField.getType(), inputStructField.getType(),
+                            DiagnosticCode.INCOMPATIBLE_TYPES);
+                }
+            }
+        }
+    }
+
+    private List<BStructType.BStructField> getFieldListFromStreamInput(StreamingInput streamingInput) {
+
+        return ((BStructType) ((BStreamType) ((BLangSimpleVarRef)
+                streamingInput.getStreamReference()).type).constraint).fields;
+    }
+
+    private String getStreamIdentifier(StreamingInput streamingInput) {
+        String streamIdentifier = streamingInput.getAlias();
+        if (streamIdentifier == null) {
+            streamIdentifier = ((BLangSimpleVarRef) streamingInput.getStreamReference()).variableName.value;
+        }
+
+        return streamIdentifier;
+    }
+
+    private BStructType.BStructField getStructField(List<BStructType.BStructField> fieldList, String fieldName) {
+        for (BStructType.BStructField structField : fieldList) {
+            String structFieldName = structField.name.getValue();
+            if (structFieldName.equalsIgnoreCase(fieldName)) {
+                return structField;
+            }
+        }
+
+        return null;
     }
 }

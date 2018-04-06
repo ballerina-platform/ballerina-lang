@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/runtime;
+import ballerina/io;
 
 type Employee {
     string name;
@@ -34,17 +34,16 @@ type Teacher {
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 
-function startOutputRateLimitQuery() returns (Employee[]) {
+function startProjectionQuery() returns (Employee[]) {
 
-    stream<Employee> employeeStream1;
-    stream<Teacher> teacherStream2;
+    stream<Employee> employeeStream2;
+    stream<Teacher> teacherStream4;
 
     forever {
-        from teacherStream2
-        select name, age, status
-        output first every 3 events
+        from teacherStream4
+        select name, age, address
         => (Employee[] emp) {
-            employeeStream1.publish(emp);
+            employeeStream2.publish(emp);
         }
     }
 
@@ -52,19 +51,11 @@ function startOutputRateLimitQuery() returns (Employee[]) {
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
     Teacher t3 = {name:"Nimal", age:45, status:"married", batch:"LK1988", school:"Ananda College"};
 
-    Teacher t4 = {name:"Praveen", age:29, status:"single", batch:"LK2013", school:"Hindu College"};
-    Teacher t5 = {name:"Azraar", age:30, status:"married", batch:"LK1989", school:"Thomas College"};
-    Teacher t6 = {name:"Kasun", age:30, status:"married", batch:"LK1987", school:"Ananda College"};
+    employeeStream2.subscribe(printEmployeeNumber);
 
-
-    employeeStream1.subscribe(printEmployeeNumber);
-
-    teacherStream2.publish(t1);
-    teacherStream2.publish(t2);
-    teacherStream2.publish(t3);
-    teacherStream2.publish(t4);
-    teacherStream2.publish(t5);
-    teacherStream2.publish(t6);
+    teacherStream4.publish(t1);
+    teacherStream4.publish(t2);
+    teacherStream4.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
 

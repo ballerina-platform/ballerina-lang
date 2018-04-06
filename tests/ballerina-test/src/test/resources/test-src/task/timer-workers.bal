@@ -20,31 +20,33 @@ returns (string, string) {
         return (w1TaskId, w2TaskId);
     }
     worker w1 {
-        (function() returns error?) onTriggerFunction = onTriggerW1;
+        function () returns (error?) onTriggerFunction = onTriggerW1;
         string w1TaskIdX;
         io:println("errMsgW1: " + errMsgW1);
         if (errMsgW1 == "") {
-            w1TaskIdX = task:scheduleTimer(onTriggerFunction, (), {delay:w1Delay, interval:w1Interval});
+            w1TaskIdX = check task:scheduleTimer(onTriggerFunction, (()), {delay:w1Delay, interval:w1Interval});
         } else {
             function (error) onErrorFunction = onErrorW1;
-            w1TaskIdX = task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:w1Delay, interval:w1Interval});
+            w1TaskIdX = check task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:w1Delay,
+                                                                                       interval:w1Interval});
         }
         w1TaskIdX -> default;
     }
     worker w2 {
-        (function() returns error?) onTriggerFunction = onTriggerW2;
+        function () returns (error?) onTriggerFunction = onTriggerW2;
         string w2TaskIdX;
         if (errMsgW2 == "") {
-            w2TaskIdX = task:scheduleTimer(onTriggerFunction, (), {delay:w2Delay, interval:w2Interval});
+            w2TaskIdX = check task:scheduleTimer(onTriggerFunction, (()), {delay:w2Delay, interval:w2Interval});
         } else {
             function (error) onErrorFunction = onErrorW2;
-            w2TaskIdX = task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:w2Delay, interval:w2Interval});
+            w2TaskIdX = check task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:w2Delay,
+                                                                                       interval:w2Interval});
         }
         w2TaskIdX -> default;
     }
 }
 
-function onTriggerW1 () returns error? {
+function onTriggerW1 () returns (error?) {
     w1Count = w1Count + 1;
     io:println("w1:onTriggerW1");
     if (errorMsgW1 != "") {
@@ -60,7 +62,7 @@ function onErrorW1 (error e) {
     errorW1 = e;
 }
 
-function onTriggerW2 () returns error? {
+function onTriggerW2 () returns (error?) {
     w2Count = w2Count + 1;
     io:println("w2:onTriggerW2");
     if (errorMsgW2 != "") {
@@ -83,10 +85,10 @@ function getCounts () returns (int, int) {
 function getErrors () returns (string, string) {
     string w1ErrMsg;
     string w2ErrMsg;
-    if (errorW1 != null) {
+    if (errorW1 != ()) {
         w1ErrMsg = errorW1.message;
     }
-    if (errorW2 != null) {
+    if (errorW2 != ()) {
         w2ErrMsg = errorW2.message;
     }
     return (w1ErrMsg, w2ErrMsg);

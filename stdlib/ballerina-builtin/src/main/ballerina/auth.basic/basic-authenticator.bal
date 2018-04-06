@@ -40,15 +40,6 @@ public type BasicAuthenticator object {
     function cacheAuthResult (string basicAuthCacheKey, AuthenticationInfo authInfo);
 };
 
-@Description {value:"Represents an authentication decision about a user"}
-@Field {value:"username: user name"}
-@Field {value:"isAuthenticated: authentication decision, true if authenticated, else false"}
-public type AuthenticationInfo {
-   string username,
-   boolean isAuthenticated,
-   string[] groups,
-};
-
 @Description {value:"Performs basic authentication with the given username and password"}
 @Param {value:"username: user name"}
 @Param {value:"password: password"}

@@ -242,9 +242,9 @@ public type Entity object {
     public native function hasHeader (string headerName) returns boolean;
 };
 
-public function Entity::setFileAsEntityBody (file:Path fileHandler) {
-    io:ByteChannel byteChannel = fileHandler.openChannel(READ_PERMISSION);
-    self.setByteChannel(byteChannel);
+public function Entity::setFileAsEntityBody (file:Path filePath) {
+    io:ByteChannel channel =check file:newByteChannel(fileHandler, READ_PERMISSION);
+    self.setByteChannel(channel);
 }
 
 @Description {value:"Represent errors related to mime base64 encoder"}

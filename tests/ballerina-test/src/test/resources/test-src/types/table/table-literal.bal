@@ -1,45 +1,45 @@
 import ballerina/io;
 import ballerina/sql;
 
-struct Person {
-    int id;
-    int age;
-    float salary;
-    string name;
-    boolean married;
+type Person {
+    int id,
+    int age,
+    float salary,
+    string name,
+    boolean married,
 }
 
-struct Company {
-    int id;
-    string name;
+type Company {
+    int id,
+    string name,
 }
 
-struct TypeTest {
-    int id;
-    json jsonData;
-    xml xmlData;
+type TypeTest {
+    int id,
+    json jsonData,
+    xml xmlData,
 }
 
-struct BlobTypeTest {
-    int id;
-    blob blobData;
+type BlobTypeTest {
+    int id,
+    blob blobData,
 }
 
-struct AnyTypeTest {
-    int id;
-    any anyData;
+type AnyTypeTest {
+    int id,
+    any anyData,
 }
 
-struct ArraTypeTest {
-    int id;
-    int[] intArrData;
-    float[] floatArrData;
-    string[] stringArrData;
-    boolean[] booleanArrData;
+type ArraTypeTest {
+    int id,
+    int[] intArrData,
+    float[] floatArrData,
+    string[] stringArrData,
+    boolean[] booleanArrData,
 }
 
-struct ResultCount {
-    int COUNTVAL;
+type ResultCount {
+    int COUNTVAL,
 }
 
 table<Person> dt1 = table{};
@@ -59,7 +59,7 @@ function testEmptyTableCreate () returns (int, int) {
 
 function checkTableCount(string tablePrefix) returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.H2_MEM,
+        database: sql:DB_H2_MEM,
         host: "",
         port: 0,
         name: "TABLEDB",
@@ -73,10 +73,10 @@ function checkTableCount(string tablePrefix) returns (int) {
 
     int count;
     try {
-        table dt =? testDB -> select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like ?",
+        table dt = check testDB -> select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like ?",
         parameters, typeof ResultCount);
         while (dt.hasNext()) {
-            var rs =? <ResultCount> dt.getNext();
+            var rs = check <ResultCount> dt.getNext();
             count = rs.COUNTVAL;
         }
     } finally {
@@ -111,7 +111,7 @@ function testAddData () returns (int, int, int, int[], int[], int[]) {
     int[] dt1data;
     int i = 0;
     while (dt1.hasNext()) {
-        var p =? <Person> dt1.getNext();
+        var p = check <Person> dt1.getNext();
         dt1data[i] = p.id;
         i = i + 1;
     }
@@ -120,7 +120,7 @@ function testAddData () returns (int, int, int, int[], int[], int[]) {
     int[] dt2data;
     i = 0;
     while (dt2.hasNext()) {
-        var p =? <Person> dt2.getNext();
+        var p = check <Person> dt2.getNext();
         dt2data[i] = p.id;
         i = i + 1;
     }
@@ -129,7 +129,7 @@ function testAddData () returns (int, int, int, int[], int[], int[]) {
     int[] ct1data;
     i = 0;
     while (ct1.hasNext()) {
-        var p =? <Company> ct1.getNext();
+        var p = check <Company> ct1.getNext();
         ct1data[i] = p.id;
         i = i + 1;
     }
@@ -156,7 +156,7 @@ function testMultipleAccess () returns (int, int, int[], int[]) {
     int[] dtdata1;
     int i = 0;
     while (dt1.hasNext()) {
-        var p =? <Person> dt1.getNext();
+        var p = check <Person> dt1.getNext();
         dtdata1[i] = p.id;
         i = i + 1;
     }
@@ -165,7 +165,7 @@ function testMultipleAccess () returns (int, int, int[], int[]) {
     int[] dtdata2;
     i = 0;
     while (dt1.hasNext()) {
-        var p =? <Person> dt1.getNext();
+        var p = check <Person> dt1.getNext();
         dtdata2[i] = p.id;
         i = i + 1;
     }
@@ -185,7 +185,7 @@ function testLoopingTable () returns (string) {
     string names = "";
 
     while (dt.hasNext()) {
-        var p =? <Person>dt.getNext();
+        var p = check <Person>dt.getNext();
         names = names + p.name + "_";
     }
     return names;
@@ -201,7 +201,7 @@ function testToJson () returns (json) {
     dt.add(p2);
     dt.add(p3);
 
-    var j =? <json>dt;
+    var j = check <json>dt;
     return j;
 }
 
@@ -215,7 +215,7 @@ function testToXML () returns (xml) {
     dt.add(p2);
     dt.add(p3);
 
-    var x =? <xml>dt;
+    var x = check <xml>dt;
     return x;
 }
 
@@ -249,7 +249,7 @@ function testTableWithAllDataToJson () returns (json) {
     dt1.add(t1);
     dt1.add(t2);
 
-    var j =? <json>dt1;
+    var j = check <json>dt1;
     return j;
 }
 
@@ -263,7 +263,7 @@ function testTableWithAllDataToXml () returns (xml) {
     dt1.add(t1);
     dt1.add(t2);
 
-    var x =? <xml>dt1;
+    var x = check <xml>dt1;
     return x;
 }
 
@@ -279,7 +279,7 @@ function testTableWithAllDataToStruct () returns (json, xml) {
     json jData;
     xml xData;
     while (dt1.hasNext()) {
-        var x =? <TypeTest>dt1.getNext();
+        var x = check <TypeTest>dt1.getNext();
         jData = x.jsonData;
         xData = x.xmlData;
     }
@@ -294,7 +294,7 @@ function testTableWithBlobDataToJson () returns (json) {
     table<BlobTypeTest> dt1 = table{};
     dt1.add(t1);
 
-    var j =? <json>dt1;
+    var j = check <json>dt1;
     return j;
 }
 
@@ -306,7 +306,7 @@ function testTableWithBlobDataToXml () returns (xml) {
     table<BlobTypeTest> dt1 = table{};
     dt1.add(t1);
 
-    var x =? <xml>dt1;
+    var x = check <xml>dt1;
     return x;
 }
 
@@ -319,7 +319,7 @@ function testTableWithBlobDataToStruct () returns (blob) {
     dt1.add(t1);
     blob bData;
     while (dt1.hasNext()) {
-        var x =? <BlobTypeTest>dt1.getNext();
+        var x = check <BlobTypeTest>dt1.getNext();
         bData = x.blobData;
     }
     return bData;
@@ -331,7 +331,7 @@ function testTableWithAnyDataToJson () returns (json) {
     table<AnyTypeTest> dt1 = table{};
     dt1.add(t1);
 
-    var j =? <json>dt1;
+    var j = check <json>dt1;
     return j;
 }
 
@@ -340,7 +340,7 @@ function testStructWithDefaultDataToJson () returns (json) {
     table<Person> dt1 = table{};
     dt1.add(p1);
 
-    var j =? <json>dt1;
+    var j = check <json>dt1;
     return j;
 }
 
@@ -349,7 +349,7 @@ function testStructWithDefaultDataToXml () returns (xml) {
     table<Person> dt1 = table{};
     dt1.add(p1);
 
-    var x =? <xml>dt1;
+    var x = check <xml>dt1;
     return x;
 }
 
@@ -365,7 +365,7 @@ function testStructWithDefaultDataToStruct () returns (int, float, string, boole
     boolean bData;
 
     while (dt1.hasNext()) {
-        var x =? <Person>dt1.getNext();
+        var x = check <Person>dt1.getNext();
         iData = x.age;
         fData = x.salary;
         sData = x.name;
@@ -393,7 +393,7 @@ function testTableWithArrayDataToJson () returns (json) {
     dt1.add(t1);
     dt1.add(t2);
 
-    var j =? <json>dt1;
+    var j = check <json>dt1;
     return j;
 }
 
@@ -416,7 +416,7 @@ function testTableWithArrayDataToXml () returns (xml) {
     dt1.add(t1);
     dt1.add(t2);
 
-    var x =? <xml>dt1;
+    var x = check <xml>dt1;
     return x;
 }
 
@@ -437,7 +437,7 @@ function testTableWithArrayDataToStruct () returns (int[], float[], string[], bo
     boolean[] boolArr;
 
     while (dt1.hasNext()) {
-        var x =? <ArraTypeTest>dt1.getNext();
+        var x = check <ArraTypeTest>dt1.getNext();
         intArr = x.intArrData;
         floatArr = x.floatArrData;
         stringArr = x.stringArrData;
@@ -457,7 +457,7 @@ function testTableRemoveSuccess () returns (int, json) {
     dt.add(p3);
 
     int count = dt.remove(isBellow35);
-    var j =? <json>dt;
+    var j = check <json>dt;
     return(count, j);
 }
 
@@ -472,7 +472,7 @@ function testTableRemoveSuccessMultipleMatch () returns (int, json) {
     dt.add(p3);
 
     int count = dt.remove(isJohn);
-    var j =? <json>dt;
+    var j = check <json>dt;
     return (count, j);
 }
 
@@ -487,7 +487,7 @@ function testTableRemoveFailed () returns (int, json) {
     dt.add(p3);
 
     int count = dt.remove(isBellow35);
-    var j =? <json>dt;
+    var j = check <json>dt;
     return (count, j);
 }
 
@@ -500,12 +500,12 @@ function testTableAddAndAccess () returns (string, string) {
     dt.add(p1);
     dt.add(p2);
 
-    var j1 =? <json>dt;
-    string s1 = j1.toString();
+    var j1 = check <json>dt;
+    string s1 = j1.toString() but { () => "" };
 
     dt.add(p3);
-    var j2 =? <json>dt;
-    string s2 = j2.toString();
+    var j2 = check <json>dt;
+    string s2 = j2.toString() but { () => "" };
     return (s1, s2);
 }
 
