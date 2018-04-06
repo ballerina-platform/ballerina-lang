@@ -256,6 +256,3 @@ function test16() returns string {
     string k = "Program !!!";
     return foo("Im", (i, j, k));
 }
-
-
-

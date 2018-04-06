@@ -6,12 +6,12 @@
   "source": "function/source/importPackagesNonEmptyLine.bal",
   "items": [
     {
-      "label": "http",
+      "label": "io",
       "kind": 2,
       "detail": "BType",
       "documentation": null,
       "sortText": 6,
-      "insertText": "http",
+      "insertText": "io",
       "data": null
     }
   ]

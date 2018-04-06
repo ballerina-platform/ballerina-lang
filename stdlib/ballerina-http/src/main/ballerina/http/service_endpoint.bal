@@ -164,30 +164,34 @@ public function ServiceEndpoint::init (ServiceEndpointConfiguration config) {
 //////////////////////////////////
 public type WebSocketEndpoint object {
     public {
-        //ToDo: Make private: note private comes after public
-        WebSocketConnector conn;
-        ServiceEndpointConfiguration config;
-        ServiceEndpoint httpEndpoint;
-        //public attributes
         map attributes;
         string id;
         string negotiatedSubProtocol;
         boolean isSecure;
         boolean isOpen;
-        map<string> upgradeHeaders;
+        map<string> upgradeHeaders; // TODO: Need to remove this since this is a part of Request
     }
-    new () {
-        httpEndpoint = {};
-        attributes = {};
+
+    private {
+        WebSocketConnector conn;
+        ServiceEndpointConfiguration config;
+        ServiceEndpoint httpEndpoint;
     }
+
+    public new () {
+        ServiceEndpoint httpEndpoint = new;
+        self.httpEndpoint = httpEndpoint;
+    }
+
     @Description {value:"Gets called when the endpoint is being initialize during package init time"}
     @Param {value:"epName: The endpoint name"}
     @Param {value:"config: The ServiceEndpointConfiguration of the endpoint"}
     @Return {value:"Error occured during initialization"}
     public function init(ServiceEndpointConfiguration config) {
+        self.config = config;
         httpEndpoint.init(config);
-
     }
+
     @Description {value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
     @Param {value:"conn: The server connector connection"}
     @Param {value:"res: The outbound response message"}
@@ -195,17 +199,20 @@ public type WebSocketEndpoint object {
     public function register(typedesc serviceType) {
         httpEndpoint.register(serviceType);
     }
+
     @Description {value:"Starts the registered service"}
     @Return {value:"Error occured during registration"}
     public function start() {
         httpEndpoint.start();
     }
+
     @Description {value:"Returns the connector that client code uses"}
     @Return {value:"The connector that client code uses"}
     @Return {value:"Error occured during registration"}
     public function getClient() returns (WebSocketConnector) {
         return conn;
     }
+
     @Description {value:"Stops the registered service"}
     @Return {value:"Error occured during registration"}
     public function stop() {
