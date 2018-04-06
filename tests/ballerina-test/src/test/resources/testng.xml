@@ -28,6 +28,12 @@ under the License.
 
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
+
         <packages>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.annotations.*"/>
@@ -56,10 +62,10 @@ under the License.
             <package name="org.ballerinalang.test.endpoint.*"/>
             <package name="org.ballerinalang.test.closures.*"/>
             <!--<package name="org.ballerinalang.test.services.nativeimpl.*"/>-->
-            <!--<package name="org.ballerinalang.test.services.session"/>-->
-            <!--<package name="org.ballerinalang.test.services.basics"/>-->
-            <!--<package name="org.ballerinalang.test.services.cors"/>-->
-            <!--<package name="org.ballerinalang.test.services.configuration"/>-->
+            <package name="org.ballerinalang.test.services.session"/>
+            <package name="org.ballerinalang.test.services.basics"/>
+            <package name="org.ballerinalang.test.services.cors"/>
+            <package name="org.ballerinalang.test.services.configuration"/>
             <package name="org.ballerinalang.test.services.dispatching"/>
             <package name="org.ballerinalang.test.natives.*"/>
             <package name="org.ballerinalang.test.parser.*"/>

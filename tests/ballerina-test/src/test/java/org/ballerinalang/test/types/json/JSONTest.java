@@ -38,6 +38,7 @@ import org.testng.annotations.Test;
  * Test Native functions in ballerina.model.json.
  */
 @SuppressWarnings("javadoc")
+@Test(groups = {"broken"})
 public class JSONTest {
 
     private CompileResult compileResult;
