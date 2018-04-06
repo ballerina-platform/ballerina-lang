@@ -31,6 +31,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+@Test(groups = {"broken"})
 public class AuthnConfigInheritanceTest extends IntegrationTestCase {
     private ServerInstance ballerinaServer;
 
