@@ -87,14 +87,14 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/record-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 8);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 8, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 12, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 16, 20);
-        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 20, 20);
-        BAssertUtil.validateError(result, 4, "tainted value passed to sensitive parameter 'secureIn'", 25, 20);
-        BAssertUtil.validateError(result, 5, "tainted value passed to sensitive parameter 'secureIn'", 30, 20);
-        BAssertUtil.validateError(result, 6, "tainted value passed to sensitive parameter 'secureIn'", 36, 20);
-        BAssertUtil.validateError(result, 7, "tainted value passed to sensitive parameter 'secureIn'", 42, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 9, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 13, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 17, 20);
+        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 21, 20);
+        BAssertUtil.validateError(result, 4, "tainted value passed to sensitive parameter 'secureIn'", 26, 20);
+        BAssertUtil.validateError(result, 5, "tainted value passed to sensitive parameter 'secureIn'", 31, 20);
+        BAssertUtil.validateError(result, 6, "tainted value passed to sensitive parameter 'secureIn'", 37, 20);
+        BAssertUtil.validateError(result, 7, "tainted value passed to sensitive parameter 'secureIn'", 43, 20);
     }
 
     @Test

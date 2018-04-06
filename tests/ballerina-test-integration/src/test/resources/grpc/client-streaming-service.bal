@@ -21,7 +21,7 @@ service<grpc:Endpoint> helloWorld bind ep {
     }
 
     onError (endpoint client, grpc:ServerError err) {
-        if (err != null) {
+        if (err != ()) {
             io:println("Something unexpected happens at server : " + err.message);
         }
     }
@@ -29,7 +29,7 @@ service<grpc:Endpoint> helloWorld bind ep {
     onComplete (endpoint client) {
         io:println("Server Response");
         grpc:ConnectorError err = client -> send("Ack");
-        if (err != null) {
+        if (err != ()) {
             io:println("Error at onComplete send message : " + err.message);
         }
     }

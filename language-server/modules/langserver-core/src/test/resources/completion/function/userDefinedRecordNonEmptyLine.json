@@ -1,25 +1,25 @@
 {
   "position": {
-    "line": 2,
-    "character": 4
+    "line": 1,
+    "character": 5
   },
-  "source": "function/source/userDefinedStructEmptyLine.bal",
+  "source": "function/source/userDefinedRecordNonEmptyLine.bal",
   "items": [
     {
-      "label": "testStruct2",
+      "label": "testRecord2",
       "kind": 2,
       "detail": "BType",
       "documentation": null,
       "sortText": 6,
-      "insertText": "testStruct2",
+      "insertText": "testRecord2",
       "data": null
     }, {
-      "label": "testStruct1",
+      "label": "testRecord1",
       "kind": 2,
       "detail": "BType",
       "documentation": null,
       "sortText": 6,
-      "insertText": "testStruct1",
+      "insertText": "testRecord1",
       "data": null
     }
   ]

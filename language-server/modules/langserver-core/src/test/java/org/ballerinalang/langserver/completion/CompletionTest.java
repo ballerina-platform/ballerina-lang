@@ -60,7 +60,7 @@ public abstract class CompletionTest {
         org.apache.commons.io.FileUtils.copyDirectory(source, destination);
     }
 
-    @Test(dataProvider = "completion-data-provider", enabled = false)
+    @Test(dataProvider = "completion-data-provider")
     public void test(String config, String configPath) {
         String configJsonPath = SAMPLES_COPY_DIR + File.separator + configPath + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);

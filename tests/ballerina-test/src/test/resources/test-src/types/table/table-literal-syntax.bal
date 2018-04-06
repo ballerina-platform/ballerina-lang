@@ -4,7 +4,7 @@ type Person {
     float salary,
     string name,
     boolean married,
-}
+};
 
 function testTableAddOnUnconstrainedTable() returns (int) {
     table<Person> t1 = table {};
@@ -69,18 +69,18 @@ function testTableLiteralDataAndAdd() returns (int) {
     return count;
 }
 
-function testTableLiteralDataWithInit() returns (int) {
-    table<Person> t1 = table {
-        primaryKey : ["id", "salary"],
-        index : ["id", "salary"],
-        data : [{id:1, age:30, salary:300.50, name:"jane", married:true},
-                {id:2, age:30, salary:300.50, name:"jane", married:true}
-               ]
-    };
-
-    int count = t1.count();
-    return count;
-}
+//function testTableLiteralDataWithInit() returns (int) {
+//    table<Person> t1 = table {
+//        primaryKey : ["id", "salary"],
+//        index : ["id", "salary"],
+//        data : [{id:1, age:30, salary:300.50, name:"jane", married:true},
+//                {id:2, age:30, salary:300.50, name:"jane", married:true}
+//               ]
+//    };
+//
+//    int count = t1.count();
+//    return count;
+//}
 
 function testTableAddOnConstrainedTableWithViolation() returns (int) {
     Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
