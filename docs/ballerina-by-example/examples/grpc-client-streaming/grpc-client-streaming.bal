@@ -8,10 +8,10 @@ endpoint grpc:Service ep {
     port:9090
 };
 
-@grpc:serviceConfig {rpcEndpoint:"LotsOfGreetings",
+@grpc:serviceConfig {rpcEndpoint:"lotsOfGreetings",
     clientStreaming:true,
     generateClientConnector:false}
-service<grpc:Endpoint> helloWorld bind ep {
+service<grpc:Endpoint> HelloWorld bind ep {
     onOpen (endpoint client) {
         io:println("connected sucessfully.");
     }
