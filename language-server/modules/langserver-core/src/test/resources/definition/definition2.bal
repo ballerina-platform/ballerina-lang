@@ -1,12 +1,12 @@
-package definition.test;
+
 
 import ballerina/io;
 
-struct Person {
+type Person {
     string name;
     int id;
     int age;
-}
+};
 
 function funcInSeparateFile () {
     io:println(lastName);

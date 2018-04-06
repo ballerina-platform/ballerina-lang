@@ -28,6 +28,7 @@ public class ContextConstants {
     public static final String VARIABLE = "VARIABLE";
     public static final String ENDPOINT = "ENDPOINT";
     public static final String OBJECT = "OBJECT";
+    public static final String RECORD = "RECORD";
     public static final String DESCRIPTION = "Description";
     public static final String PARAM = "Param";
     public static final String RETURN = "Return";
