@@ -52,5 +52,5 @@ public type QueueConsumerEndpointConfiguration {
 public type QueueConsumerConnector object {
     public native function acknowledge (Message message);
 
-    public native function receive (int timeInMilliSeconds) returns (Message | ());
+    public native function receive (int timeoutInMilliSeconds = 0) returns (Message | ());
 };
