@@ -32,17 +32,18 @@ Filter1 filter1 = {filterRequest:interceptRequest1, filterResponse:interceptResp
 
 // Filter2
 
-public struct Filter2 {
-    function (http:Request request, http:FilterContext context) returns (http:FilterResult) filterRequest;
-    function (http:Response response, http:FilterContext context) returns (http:FilterResult) filterResponse;
-}
+public type Filter2 object {
+    public {
+        function (http:Request request, http:FilterContext context) returns (http:FilterResult) filterRequest;
+        function (http:Response response, http:FilterContext context) returns (http:FilterResult) filterResponse;
+    }
+    public function init () {
+        log:printInfo("Initializing filter 2");
+    }
 
-public function <Filter2 filter> init () {
-    log:printInfo("Initializing filter 2");
-}
-
-public function <Filter2 filter> terminate () {
-    log:printInfo("Stopping filter 2");
+    public function terminate () {
+        log:printInfo("Stopping filter 2");
+    }
 }
 
 public function interceptRequest2 (http:Request request, http:FilterContext context) returns (http:FilterResult) {

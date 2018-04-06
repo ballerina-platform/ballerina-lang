@@ -50,13 +50,13 @@ function openFileSuccess(string path) returns (File | error) {
 
 type File {
     string path;
-}
+};
 
 
 type MyFile {
     string path;
     int bytes;
-}
+};
 
 function testMatchStatementBasics4() returns (string) {
     any a = "This is working";
@@ -158,13 +158,13 @@ function testMatchStatementBasics14(json a) returns (string | int | boolean) {
 type Human {
     string name;
     function (int, string) returns string | () foo;
-}
+};
 
 type Man {
     string name;
     function (int, string) returns string | () foo;
     int age;
-}
+};
 
 function testMatchStatementBasics16() returns (string | int | boolean) {
 
@@ -181,7 +181,7 @@ type Woman {
     (function (int, string) returns string) | Human foo;
     int age;
     string color;
-}
+};
 
 function fp_xyz (int a, string k) returns string {
     return "fp call return";

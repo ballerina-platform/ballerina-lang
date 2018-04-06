@@ -26,12 +26,13 @@ public type AuthzHandlerChain object {
     }
     new () {
     }
+    public function handle (Request req, string[] scopes, string resourceName) returns (boolean);
 };
 
 @Description {value:"Creates an Authz handler chain"}
 @Return {value:"AuthzHandlerChain: AuthzHandlerChain instance"}
 public function createAuthzHandlerChain () returns (AuthzHandlerChain) {
-    AuthzHandlerChain authzHandlerChain;
+    AuthzHandlerChain authzHandlerChain = new;
     // TODO: read the authz handlers from a config file and load them dynamically. currently its hardcoded.
     HttpAuthzHandler authzHandler = new;
     authzHandlerChain.authzHandlers[authzHandler.name] = authzHandler;
@@ -47,9 +48,9 @@ public function AuthzHandlerChain::handle (Request req, string[] scopes,
                                                               string resourceName) returns (boolean) {
     foreach currentAuthHandlerType, currentAuthHandler in authzHandlerChain.authzHandlers {
         var authzHandler = check <HttpAuthzHandler> currentAuthHandler;
-        if (self.canHandle(req)) {
+        if (authzHandler.canHandle(req)) {
             log:printDebug("trying to authorize with the authz handler: " + currentAuthHandlerType);
-            return self.handle(req, scopes, resourceName);
+            return authzHandler.handle(req, scopes, resourceName);
         }
     }
     return false;

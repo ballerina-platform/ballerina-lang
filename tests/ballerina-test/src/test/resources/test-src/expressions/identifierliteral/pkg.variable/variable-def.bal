@@ -10,4 +10,4 @@ public type Person {
     string ^"first name";
     string ^"last name";
     int ^"current age";
-}
+};

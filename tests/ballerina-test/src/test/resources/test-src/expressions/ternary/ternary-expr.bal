@@ -33,7 +33,7 @@ function foo (int a, string b, boolean c) returns (string) {
 type Person {
     string name;
     string location;
-}
+};
 
 function test6 (string s) returns (string) {
     Person p = {name : s == "admin" ? "super" : "tom"};

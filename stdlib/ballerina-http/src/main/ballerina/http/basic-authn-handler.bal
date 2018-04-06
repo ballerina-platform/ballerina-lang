@@ -24,8 +24,8 @@ import ballerina/log;
 @Description {value:"Authentication cache name"}
 @final string AUTH_CACHE = "basic_auth_cache";
 
-userstore:FilebasedUserstore fileBasedUserstore = {};
-userstore:UserStore userstore = check (<userstore:UserStore> fileBasedUserstore);
+userstore:FilebasedUserstore fileBasedUserstore = new;
+userstore:UserStore userstore = <userstore:UserStore> fileBasedUserstore;
 @Description {value:"Basic authenticator instance"}
 basic:BasicAuthenticator basicAuthenticator = basic:createAuthenticator(userstore, utils:createCache(AUTH_CACHE));
 

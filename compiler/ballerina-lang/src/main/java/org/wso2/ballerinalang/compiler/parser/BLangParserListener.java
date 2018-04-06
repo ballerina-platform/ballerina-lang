@@ -1678,7 +1678,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.addAbortStatement(getCurrentPos(ctx), getWS(ctx));
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -2541,14 +2541,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean followedByAvailable = ctx.FOLLOWED() != null && ctx.BY() != null;
-        boolean enclosedInParanthesis = ctx.LEFT_PARENTHESIS() != null && ctx.RIGHT_PARENTHESIS() != null;
-        boolean forEachAvailable = ctx.FOREACH() != null;
+        boolean enclosedInParenthesis = ctx.LEFT_PARENTHESIS() != null && ctx.RIGHT_PARENTHESIS() != null;
         boolean andWithNotAvailable = ctx.NOT() != null && ctx.AND() != null;
-        boolean forWithNotAvailable = ctx.NOT() != null && ctx.FOR() != null;
-        boolean onlyAndOrAvailable = (ctx.AND() != null || ctx.OR() != null) && ctx.NOT() == null &&
-                ctx.FOR() == null;
+        boolean forWithNotAvailable = ctx.integerLiteral() != null;
+        boolean onlyAndAvailable = ctx.AND() != null && ctx.NOT() == null && ctx.FOR() == null;
+        boolean onlyOrAvailable = ctx.OR() != null && ctx.NOT() == null && ctx.FOR() == null;
         this.pkgBuilder.endPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx), followedByAvailable,
-                enclosedInParanthesis);
+                enclosedInParenthesis, andWithNotAvailable, forWithNotAvailable, onlyAndAvailable,
+                onlyOrAvailable);
     }
 
     @Override
@@ -2825,8 +2825,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null; 
+        String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
         this.pkgBuilder.addMatchExprPattaern(getCurrentPos(ctx), getWS(ctx), identifier);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitElvisExpression(BallerinaParser.ElvisExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createElvisExpr(getCurrentPos(ctx), getWS(ctx));
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {

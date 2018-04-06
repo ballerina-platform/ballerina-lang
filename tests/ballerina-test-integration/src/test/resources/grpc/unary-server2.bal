@@ -21,7 +21,7 @@ endpoint grpc:Service ep {
     port:9090
 };
 
-@grpc:serviceConfig {generateClientConnector:true}
+@grpc:serviceConfig {generateClientConnector:false}
 service<grpc:Endpoint> helloWorld bind ep {
 
     testInputNestedStruct (endpoint client, Person req) {
@@ -30,7 +30,7 @@ service<grpc:Endpoint> helloWorld bind ep {
         string message = "Submitted name: " + req.name;
         grpc:ConnectorError err = client -> send(message);
         io:println("Server send response : " + message );
-        if (err != null) {
+        if (err != ()) {
             io:println("Error at helloWorld : " + err.message);
         }
         _ = client -> complete();
@@ -41,7 +41,7 @@ service<grpc:Endpoint> helloWorld bind ep {
         Person person = {name: "Sam", address: {postalCode:10300, state:"CA", country:"USA"}};
         io:println(person);
         grpc:ConnectorError err = client -> send(person);
-        if (err != null) {
+        if (err != ()) {
             io:println("Error at helloWorld : " + err.message);
         }
         _ = client -> complete();
@@ -53,7 +53,7 @@ service<grpc:Endpoint> helloWorld bind ep {
         149.18};
         io:println(res);
         grpc:ConnectorError err = client -> send(res);
-        if (err != null) {
+        if (err != ()) {
             io:println("Error at helloWorld : " + err.message);
         }
         _ = client -> complete();
@@ -75,7 +75,7 @@ service<grpc:Endpoint> helloWorld bind ep {
         io:println(quotes);
 
         grpc:ConnectorError err = client -> send(quotes);
-        if (err != null) {
+        if (err != ()) {
             io:println("Error at helloWorld : " + err.message);
         }
         _ = client -> complete();
@@ -86,25 +86,25 @@ service<grpc:Endpoint> helloWorld bind ep {
         io:println(names);
 
         grpc:ConnectorError err = client -> send(names);
-        if (err != null) {
+        if (err != ()) {
             io:println("Error at helloWorld : " + err.message);
         }
         _ = client -> complete();
     }
 }
 
-struct Person {
+type Person {
     string name;
     Address address;
 }
 
-struct Address {
+type Address {
     int postalCode;
     string state;
     string country;
 }
 
-struct StockQuote {
+type StockQuote {
     string symbol;
     string name;
     float last;
@@ -112,14 +112,14 @@ struct StockQuote {
     float high;
 }
 
-struct StockRequest {
+type StockRequest {
     string name;
 }
 
-struct StockQuotes {
+type StockQuotes {
     StockQuote[] stock;
 }
 
-struct StockNames {
+type StockNames {
     string[] names;
 }

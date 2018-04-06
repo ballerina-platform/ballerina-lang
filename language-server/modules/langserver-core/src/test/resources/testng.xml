@@ -22,9 +22,7 @@ under the License.
 <suite name="composer-workspace-service-test-suite">
     <test name="composer-workspace-service-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.langserver.*">
-                <exclude name="org.ballerinalang.langserver.completion.definitions.*"/>
-            </package>
+            <package name="org.ballerinalang.langserver.*"/>
         </packages>
     </test>
 </suite>

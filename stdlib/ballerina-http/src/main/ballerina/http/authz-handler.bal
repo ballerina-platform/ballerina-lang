@@ -25,8 +25,8 @@ import ballerina/runtime;
 @Description {value:"Authorization cache name"}
 @final string AUTHZ_CACHE = "authz_cache";
 
-permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-permissionstore:PermissionStore permissionStore = check (<permissionstore:PermissionStore> fileBasedPermissionstore);
+permissionstore:FileBasedPermissionStore fileBasedPermissionstore = new;
+permissionstore:PermissionStore permissionStore = check <permissionstore:PermissionStore> fileBasedPermissionstore;
 @Description {value:"AuthorizationChecker instance"}
 authz:AuthzChecker authzChecker = authz:createChecker(permissionStore, utils:createCache(AUTHZ_CACHE));
 

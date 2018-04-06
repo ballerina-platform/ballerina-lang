@@ -44,7 +44,7 @@ function basicTupleTest () returns (string) {
 
 type FooStruct {
     string x;
-}
+};
 
 function addValue (string value) {
     exFlow += value;

@@ -7,22 +7,22 @@ package ballerina.test;
 @Field {value:"before: Name of the function to be run before the test is run"}
 @Field {value:"after: Name of the function to be run after the test is run"}
 @Field {value:"dependsOn: A list of function names the test function depends on, and will be run before the test"}
-public struct TestConfig {
+public type TestConfig {
     boolean enable = true;
     string[] groups;
     string dataProvider;
     string before;
     string after;
     string[] dependsOn;
-}
+};
 
 @Description { value:"Configuration of the function to be mocked."}
 @Field {value:"packageName: Name of the package that the function to be mocked resides in"}
 @Field {value:"functionName: Name of the function to be mocked"}
-public struct MockConfig {
+public type MockConfig {
     string packageName = ".";
     string functionName;
-}
+};
 
 public annotation <function> Config TestConfig;
 

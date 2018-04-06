@@ -5,7 +5,7 @@ type SimplePerson {
     string name;
     int age = -1;
     boolean married;
-}
+};
 
 function testPrimitiveTypes() returns (boolean) {
     SimplePerson sp1 = {name: "Nick", age: 25, married: true};
@@ -28,7 +28,7 @@ public type ArrayedPerson {
     int age = -1;
     boolean married;
     string[] address;
-}
+};
 
 function testTypesWithArrays() returns (boolean) {
     ArrayedPerson ap1 = {name: "Nick", married: true, address: ["20", "Palm Grove"]};
@@ -46,18 +46,18 @@ function testTypesWithArrays() returns (boolean) {
 
 public type Wheel {
     int pressure;
-}
+};
 
 public type Engine {
     string model;
     float capacity;
-}
+};
 
 public type Car {
     string name;
     Wheel[] wheels;
     Engine engine;
-}
+};
 
 public function testNestedTypes() returns (boolean) {
     Car c1 = {name: "Charger",
