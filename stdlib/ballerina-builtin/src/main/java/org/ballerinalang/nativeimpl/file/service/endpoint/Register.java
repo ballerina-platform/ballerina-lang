@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.file.service.endpoint;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -76,7 +77,9 @@ public class Register extends BlockingNativeCallableUnit {
                     .createServerConnector(service.getName(), paramMap, new FSListener(resourceRegistry, structInfo));
             serviceEndpoint.addNativeData(DirectoryListenerConstants.FS_SERVER_CONNECTOR, serverConnector);
         } catch (LocalFileSystemServerConnectorException e) {
-            throw new BallerinaConnectorException("Unable to initialize server connector", e);
+            context.setReturnValues(BLangVMErrors.createError(context,
+                    "Unable to initialize server connector: " + e.getMessage()));
+            return;
         }
         context.setReturnValues();
     }
@@ -103,20 +106,20 @@ public class Register extends BlockingNativeCallableUnit {
         Map<String, Resource> registry = new HashMap<>(3);
         for (Resource resource : service.getResources()) {
             switch (resource.getName()) {
-            case DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE:
-                validateParameter(resource);
-                registry.put(DirectoryListenerConstants.EVENT_CREATE, resource);
-                break;
-            case DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE:
-                validateParameter(resource);
-                registry.put(DirectoryListenerConstants.EVENT_DELETE, resource);
-                break;
-            case DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY:
-                validateParameter(resource);
-                registry.put(DirectoryListenerConstants.EVENT_MODIFY, resource);
-                break;
-            default:
-                // Do nothing.
+                case DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE:
+                    validateParameter(resource);
+                    registry.put(DirectoryListenerConstants.EVENT_CREATE, resource);
+                    break;
+                case DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE:
+                    validateParameter(resource);
+                    registry.put(DirectoryListenerConstants.EVENT_DELETE, resource);
+                    break;
+                case DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY:
+                    validateParameter(resource);
+                    registry.put(DirectoryListenerConstants.EVENT_MODIFY, resource);
+                    break;
+                default:
+                    // Do nothing.
             }
         }
         if (registry.size() == 0) {
