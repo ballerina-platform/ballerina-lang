@@ -17,7 +17,6 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.EndpointSPIAnalyzer;
@@ -153,9 +152,7 @@ public class EndpointDesugar {
 
         BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(0, names.fromIdNode(ep.name),
                 env.enclPkg.symbol.pkgID, service.endpointType, env.enclPkg.symbol);
-        if (service.endpointType.tsymbol.kind == SymbolKind.STRUCT) {
-            endpointSPIAnalyzer.populateEndpointSymbol((BStructSymbol) service.endpointType.tsymbol, varSymbol);
-        }
+        endpointSPIAnalyzer.populateEndpointSymbol((BStructSymbol) service.endpointType.tsymbol, varSymbol);
         ep.symbol = varSymbol;
         env.enclPkg.symbol.scope.define(varSymbol.name, varSymbol);
 

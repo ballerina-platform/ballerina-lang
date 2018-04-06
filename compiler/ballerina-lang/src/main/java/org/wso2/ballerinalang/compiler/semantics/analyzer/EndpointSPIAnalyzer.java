@@ -79,9 +79,7 @@ public class EndpointSPIAnalyzer {
         }
         isValidEndpointType(endpoint.pos, endpoint.symbol.type);
         // Update endpoint variable symbol
-        if (endpoint.symbol.type.tsymbol.kind == SymbolKind.STRUCT) {
-            populateEndpointSymbol((BStructSymbol) endpoint.symbol.type.tsymbol, endpoint.symbol);
-        }
+        populateEndpointSymbol((BStructSymbol) endpoint.symbol.type.tsymbol, endpoint.symbol);
     }
 
     public BStructType getEndpointTypeFromServiceType(DiagnosticPos pos, BType type) {
