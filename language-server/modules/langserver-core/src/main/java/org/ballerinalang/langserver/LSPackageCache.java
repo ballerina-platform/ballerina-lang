@@ -95,9 +95,6 @@ public class LSPackageCache {
             //TODO check whether getPackageDeclaration() is needed
             this.packageCache.put(new PackageID(Names.DOT.value), bLangPackage);
         } else {
-            if (bLangPackage != null) {
-                bLangPackage.packageID = packageID;
-            }
             this.packageCache.put(packageID, bLangPackage);
         }
     }
