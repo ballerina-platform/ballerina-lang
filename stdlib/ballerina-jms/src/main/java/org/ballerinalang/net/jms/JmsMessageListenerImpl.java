@@ -40,11 +40,13 @@ import javax.jms.MessageListener;
 public class JmsMessageListenerImpl implements MessageListener {
 
     private Resource resource;
+    private BValue queueConsumerBObject;
 
     private ResponseCallback callback;
 
-    public JmsMessageListenerImpl(Resource resource) {
+    public JmsMessageListenerImpl(Resource resource, BValue queueConsumerBObject) {
         this.resource = resource;
+        this.queueConsumerBObject = queueConsumerBObject;
         this.callback = new ResponseCallback();
     }
 
@@ -56,9 +58,6 @@ public class JmsMessageListenerImpl implements MessageListener {
 
     private BValue[] getSignatureParameters(Message jmsMessage) {
         ProgramFile programFile = resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
-        BStruct consumerEndpoint = BLangConnectorSPIUtil.createBStruct(programFile,
-                                                                       Constants.BALLERINA_PACKAGE_JMS,
-                                                                       Constants.QUEUE_CONSUMER_ENDPOINT);
         BStruct message = BLangConnectorSPIUtil.createBStruct(programFile,
                                                               Constants.BALLERINA_PACKAGE_JMS,
                                                               Constants.JMS_MESSAGE_STRUCT_NAME);
@@ -67,7 +66,7 @@ public class JmsMessageListenerImpl implements MessageListener {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
 
-        bValues[0] = consumerEndpoint;
+        bValues[0] = queueConsumerBObject;
         bValues[1] = message;
 
         return bValues;

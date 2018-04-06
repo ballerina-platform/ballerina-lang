@@ -24,6 +24,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
@@ -33,6 +34,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.JmsMessageListenerImpl;
+import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.JMSException;
@@ -58,6 +60,7 @@ public class RegisterMessageListener implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+        Struct queueConsumerBObject = BallerinaAdapter.getReceiverStruct(context);
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
         BStruct consumerConnector = (BStruct) context.getRefArgument(2);
 
@@ -65,7 +68,7 @@ public class RegisterMessageListener implements NativeCallableUnit {
 
         Object nativeData = consumerConnector.getNativeData(Constants.JMS_QUEUE_CONSUMER_OBJECT);
         if (nativeData instanceof MessageConsumer) {
-            MessageListener listener = new JmsMessageListenerImpl(resource);
+            MessageListener listener = new JmsMessageListenerImpl(resource, queueConsumerBObject.getVMValue());
             try {
                 ((MessageConsumer) nativeData).setMessageListener(listener);
             } catch (JMSException e) {

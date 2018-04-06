@@ -21,8 +21,6 @@ package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.consumer.action;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
@@ -34,24 +32,21 @@ import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.Objects;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageConsumer;
 
 /**
  * {@code Send} is the send action implementation of the JMS Connector.
  */
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "jms",
-                   functionName = "receive",
+                   functionName = "acknowledge",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "QueueConsumerConnector",
                                         structPackage =
                                                 "ballerina.jms"),
                    args = {
-                           @Argument(name = "timeInMilliSeconds",
-                                     type = TypeKind.INT)
+                           @Argument(name = "message", type = TypeKind.STRUCT, structType = "Message")
                    },
                    returnType = {
                            @ReturnType(type = TypeKind.STRUCT,
@@ -60,34 +55,20 @@ import javax.jms.MessageConsumer;
                    },
                    isPublic = true
 )
-public class Receive extends AbstractBlockinAction {
+public class Acknowledge extends AbstractBlockinAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-
-        Struct queueConsumerConnectorBObject = BallerinaAdapter.getReceiverStruct(context);
-        MessageConsumer messageConsumer = BallerinaAdapter.getNativeObject(queueConsumerConnectorBObject,
-                                                                           Constants.JMS_QUEUE_CONSUMER_OBJECT,
-                                                                           MessageConsumer.class,
-                                                                           context
-        );
-
-        long timeInMilliSeconds = context.getIntArgument(0);
+        BStruct messageBObject = (BStruct) context.getRefArgument(1);
+        Message message = BallerinaAdapter.getNativeObject(messageBObject,
+                                                                Constants.JMS_MESSAGE_OBJECT,
+                                                                Message.class,
+                                                                context);
 
         try {
-            Message message = messageConsumer.receive(timeInMilliSeconds);
-            if (Objects.nonNull(message)) {
-                BStruct messageBObject = BLangConnectorSPIUtil.createBStruct(context,
-                                                                             Constants.BALLERINA_PACKAGE_JMS,
-                                                                             Constants
-                                                                                     .JMS_MESSAGE_STRUCT_NAME);
-                messageBObject.addNativeData(Constants.JMS_MESSAGE_OBJECT, message);
-                context.setReturnValues(messageBObject);
-            } else {
-                context.setReturnValues();
-            }
+            message.acknowledge();
         } catch (JMSException e) {
-            throw new BallerinaException("Message receiving failed", e, context);
+            throw new BallerinaException("Message acknowledging failed", e, context);
         }
     }
 }

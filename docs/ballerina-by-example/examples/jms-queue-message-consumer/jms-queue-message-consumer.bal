@@ -13,7 +13,7 @@ jms:Session jmsSession = new (conn, {
 
 endpoint jms:QueueConsumer consumer {
     session: jmsSession,
-    queueName: "requestQueue"
+    queueName: "MyQueue"
 };
 
 service<jms:Consumer> jmsListener bind consumer {
