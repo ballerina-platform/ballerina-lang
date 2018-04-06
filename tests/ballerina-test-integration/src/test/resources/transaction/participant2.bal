@@ -23,10 +23,20 @@ endpoint http:ServiceEndpoint participant2EP {
     port:8890
 };
 
+//endpoint sql:Client testDB {
+//        username: "SA",
+//        password: "",
+//        options: {url:"jdbc:hsqldb:hsql://localhost:9001/TEST_SQL_CONNECTOR"}
+//};
+
 endpoint sql:Client testDB {
-        username: "SA",
-        password: "",
-        options: {url:"jdbc:hsqldb:hsql://localhost:9001/TEST_SQL_CONNECTOR"}
+    database: sql:DB_HSQLDB_SERVER,
+    host: "localhost",
+    port: 9001,
+    name: "TEST_SQL_CONNECTOR",
+    username: "SA",
+    password: "",
+    options: {maximumPoolSize:10}
 };
 
 State state = new;
