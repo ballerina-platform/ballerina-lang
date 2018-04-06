@@ -45,7 +45,7 @@ service<grpc:Listener> chatMessageListener {
     }
 
     onError (grpc:ServerError err) {
-        if (err != null) {
+        if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }
@@ -56,55 +56,61 @@ service<grpc:Listener> chatMessageListener {
 }
 
 // Non-blocking client
-struct chatStub {
-    grpc:Client clientEndpoint;
-    grpc:ServiceStub serviceStub;
-}
+public type chatStub object {
+    public {
+        grpc:Client clientEndpoint;
+        grpc:ServiceStub serviceStub;
+    }
 
-function <chatStub stub> initStub (grpc:Client clientEndpoint) {
-    grpc:ServiceStub navStub = {};
-    navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
-    stub.serviceStub = navStub;
-}
+    function <chatStub stub> initStub (grpc:Client clientEndpoint) {
+        grpc:ServiceStub navStub = new;
+        navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
+        self.serviceStub = navStub;
+    }
 
-function <chatStub stub> chat (typedesc listener) returns (grpc:Client|error) {
-    var res = stub.serviceStub.streamingExecute("chat/chat", listener);
-    match res {
-        grpc:ConnectorError err => {
-            error e = {message:err.message};
-            return e;
-        }
-        grpc:Client con => {
-            return con;
+    function <chatStub stub> chat (typedesc listener) returns (grpc:Client|error) {
+        var res = stub.serviceStub.streamingExecute("chat/chat", listener);
+        match res {
+            grpc:ConnectorError err1 => {
+                error err = {message:err1.message};
+                return err;
+            }
+            grpc:Client con => {
+                return con;
+            }
         }
     }
 }
 
+
 // Non-blocking client endpoint
-public struct chatClient {
-    grpc:Client client;
-    chatStub stub;
-}
-public function <chatClient ep> init (grpc:ClientEndpointConfiguration config) {
-    // initialize client endpoint.
-    grpc:Client client = {};
-    client.init(config);
-    ep.client = client;
-    // initialize service stub.
-    chatStub stub = {};
-    stub.initStub(client);
-    ep.stub = stub;
-}
-public function <chatClient ep> getClient () returns (chatStub) {
-    return ep.stub;
+public type chatClient object {
+    public {
+        grpc:Client client;
+        chatStub stub;
+    }
+
+    public function init (grpc:ClientEndpointConfiguration config) {
+        // initialize client endpoint.
+        grpc:Client client = new;
+        client.init(config);
+        self.client = client;
+        // initialize service stub.
+        chatStub stub = new;
+        stub.initStub(client);
+        self.stub = stub;
+    }
+    public function getClient () returns (chatStub) {
+        return self.stub;
+    }
 }
 
-struct ChatMessage {
+type ChatMessage {
     string name;
     string message;
 }
 
-const string descriptorKey = "chat.proto";
+@final string descriptorKey = "chat.proto";
 map descriptorMap =
 {
     "chat.proto":"0A0A636861742E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F22280A0B436861744D657373616765120A0A046E616D6518012809120D0A076D65737361676518022809323C0A046368617412340A0463686174120B436861744D6573736167651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528013001620670726F746F33",

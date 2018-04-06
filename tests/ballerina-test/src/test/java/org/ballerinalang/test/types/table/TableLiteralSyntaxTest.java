@@ -69,7 +69,7 @@ public class TableLiteralSyntaxTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*initial data should be in struct type.*")
+          expectedExceptionsMessageRegExp = ".*initial data should be in struct type.*", enabled = false)
     public void testTableLiteralDataWithInit() {
         BRunUtil.invoke(result, "testTableLiteralDataWithInit");
     }
