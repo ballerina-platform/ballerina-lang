@@ -26,7 +26,7 @@ import ballerina/util;
 @final int CACHE_CLEANUP_INTERVAL = 5000;
 
 @Description {value:"Map which stores all of the caches."}
-map cacheMap;
+map cacheMap = {"_": "_"}; //TODO: temp workaround unti pkg level init is fixed // fixme
 
 @Description {value:"Cleanup task ID."}
 string cacheCleanupTaskID = createCacheCleanupTask();
@@ -131,17 +131,15 @@ public type Cache object {
         // Return the array.
         return cacheKeysToBeRemoved;
     }
-}
+};
 
 @Description {value:"Represents a cache entry"}
 @Field {value:"value: cache value"}
 @Field {value:"lastAccessedTime: last accessed time in ms of this value which is used to remove LRU cached values"}
-type CacheEntry object {
-    public {
-        any value;
-        int lastAccessedTime;
-    }
-}
+type CacheEntry {
+    any value;
+    int lastAccessedTime;
+};
 
 @Description {value:"Creates a new cache."}
 @Param {value:"name: name of the cache"}
@@ -177,7 +175,7 @@ public function createCache (string name, int expiryTimeMillis, int capacity, fl
 
 @Description {value:"Removes expired cache entries from all caches."}
 @Return {value:"error: Any error which occured during cache expiration"}
-function runCacheExpiry () returns (error|null) {
+function runCacheExpiry() returns error? {
     // Iterate through all caches.
     foreach currentCacheKey, currentCacheValue in cacheMap {
         var value = <Cache>currentCacheValue;
@@ -222,32 +220,35 @@ function runCacheExpiry () returns (error|null) {
             }
         }
     }
-    return null;
+    return ();
 }
 
 function checkAndAdd (int numberOfKeysToEvict, string[] cacheKeys, int[] timestamps, string key, int lastAccessTime) {
+    string myKey = key;
+    int myLastAccessTime = lastAccessTime;
+
     // Iterate while we count all values from 0 to numberOfKeysToEvict exclusive of numberOfKeysToEvict since the
     // array size should be numberOfKeysToEvict.
     foreach index in [0..numberOfKeysToEvict) {
         // If we have encountered the end of the array, that means we can add the new values to the end of the
         // array since we haven’t reached the numberOfKeysToEvict limit.
         if (lengthof cacheKeys == index) {
-            cacheKeys[index] = key;
-            timestamps[index] = lastAccessTime;
+            cacheKeys[index] = myKey;
+            timestamps[index] = myLastAccessTime;
             // Break the loop since we don't have any more elements to compare since we are at the end
             break;
         } else {
             // If the timestamps[index] > lastAccessTime, that means the cache which corresponds to the 'key' is
             // older than the current entry at the array which we are checking.
-            if (timestamps[index] > lastAccessTime) {
+            if (timestamps[index] > myLastAccessTime) {
                 // Swap the values. We use the swapped value to continue to check whether we can find any place to
                 // add it in the array.
                 string tempKey = cacheKeys[index];
                 int tempTimeStamp = timestamps[index];
-                cacheKeys[index] = key;
-                timestamps[index] = lastAccessTime;
-                key = tempKey;
-                lastAccessTime = tempTimeStamp;
+                cacheKeys[index] = myKey;
+                timestamps[index] = myLastAccessTime;
+                myKey = tempKey;
+                myLastAccessTime = tempTimeStamp;
             }
         }
     }
@@ -256,8 +257,8 @@ function checkAndAdd (int numberOfKeysToEvict, string[] cacheKeys, int[] timesta
 @Description {value:"Creates a new cache cleanup task."}
 @Return {value:"string: cache cleanup task ID"}
 function createCacheCleanupTask () returns (string) {
-    function () returns (error|null) onTriggerFunction = runCacheExpiry;
-    function (error)|null onErrorFunction = null;
-    cacheCleanupTaskID =? task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:CACHE_CLEANUP_START_DELAY, interval:CACHE_CLEANUP_INTERVAL});
+    (function () returns error?)  onTriggerFunction = runCacheExpiry;
+    cacheCleanupTaskID = task:scheduleTimer(onTriggerFunction, (), {delay:CACHE_CLEANUP_START_DELAY,
+                                                                    interval:CACHE_CLEANUP_INTERVAL});
     return cacheCleanupTaskID;
 }

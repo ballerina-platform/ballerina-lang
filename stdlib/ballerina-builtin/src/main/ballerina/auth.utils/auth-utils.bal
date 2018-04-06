@@ -45,7 +45,7 @@ import ballerina/io;
 
 @Description {value:"Creates a cache to store authentication results against basic auth headers"}
 @Return {value:"cache: authentication cache instance"}
-public function createCache (string cacheName) returns (caching:Cache|null) {
+public function createCache (string cacheName) returns (caching:Cache|()) {
     if (isCacheEnabled(cacheName)) {
         int expiryTime;
         int capacity;
@@ -53,7 +53,7 @@ public function createCache (string cacheName) returns (caching:Cache|null) {
         (expiryTime, capacity, evictionFactor) = getCacheConfigurations(cacheName);
         return caching:createCache(cacheName, expiryTime, capacity, evictionFactor);
     }
-    return null;
+    return ();
 }
 
 @Description {value:"Checks if the specified cache is enalbed"}
@@ -131,14 +131,7 @@ public function extractBasicAuthCredentials (string authHeader) returns (string,
     // extract user credentials from basic auth header
     string decodedBasicAuthHeader;
     try {
-        util:Base64DecodeError errorStruct = {};
-        errorStruct.message = "Error in decoder";
-        match util:base64Decode(authHeader.subString(5, authHeader.length()).trim()) {
-            string returnString => {decodedBasicAuthHeader = returnString;}
-            blob returnBlob => return <error>errorStruct;
-            io:ByteChannel returnChannel => return <error>errorStruct;
-            util:Base64DecodeError returnError => return <error>returnError;
-        }
+        decodedBasicAuthHeader =check util:base64DecodeString(authHeader.subString(5, authHeader.length()).trim());
     } catch (error err) {
         return err;
     }

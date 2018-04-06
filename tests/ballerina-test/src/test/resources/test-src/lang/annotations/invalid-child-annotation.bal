@@ -6,10 +6,10 @@ function foo (string args) {
 type Arguments {
     string value;
     Property prop;
-}
+};
 
 type Property {
     string name;
-}
+};
 
 annotation Args Arguments;

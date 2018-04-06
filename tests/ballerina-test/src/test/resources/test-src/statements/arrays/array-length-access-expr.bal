@@ -132,4 +132,4 @@ function arrayLengthAccessNullArrayCase(int x, int y) returns (int) {
 type Person {
     string name;
     int[] days;
-}
+};

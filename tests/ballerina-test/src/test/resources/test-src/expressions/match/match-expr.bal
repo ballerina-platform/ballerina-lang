@@ -54,17 +54,17 @@ function bar(string b) returns string {
     return b;
 }
 
-function fooWithNull(string|int|float|error|null a) returns (string|int|float|error|null) {
+function fooWithNull(string|int|float|error|() a) returns (string|int|float|error|()) {
     return a;
 }
 
-function testNestedMatchExpr(string|int|float|error|null a) returns string {
+function testNestedMatchExpr(string|int|float|error|() a) returns string {
     string x = bar(fooWithNull(a) but { 
             int => "value1", 
             float => "value2", 
-            string|null b => b but {
+            string|() b => b but {
                     string => "value is string",
-                    null => "value is null"
+                () => "value is null"
             },
             error => "value3"
     });

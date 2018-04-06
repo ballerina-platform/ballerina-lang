@@ -21,14 +21,14 @@ public type myerror {
     string message;
     error[] cause;
     int code;
-}
+};
 
 public type customError {
     string message;
     error[] cause;
     int code;
     string data;
-}
+};
 
 function readLine() returns myerror | customError {
     myerror e = {message:"io error"};

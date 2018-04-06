@@ -131,7 +131,7 @@ public class ObjectAccessWithIndexTest {
     @Test(description = "Test accessing an undeclared field of a object")
     public void testUndeclaredFieldAccess() {
         // TODO change error msg
-        BAssertUtil.validateError(negativeResult, 1, "undefined field 'id' in struct 'Department'", 9, 5);
+        BAssertUtil.validateError(negativeResult, 2, "undefined field 'id' in struct 'Department'", 9, 5);
     }
 
     @Test(description = "Test accesing a object with a dynamic index")

@@ -1,14 +1,20 @@
 package ballerina.http;
 
-public type AUTO "AUTO"
-public type ALWAYS "ALWAYS"
-public type NEVER "NEVER"
+public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 
-public type Chunking AUTO | ALWAYS | NEVER
+@final Chunking CHUNKING_AUTO = "AUTO";
+@final Chunking CHUNKING_ALWAYS = "ALWAYS";
+@final Chunking CHUNKING_NEVER = "NEVER";
 
-public type Compression AUTO | ALWAYS | NEVER
+public type Compression "AUTO" | "ALWAYS" | "NEVER";
 
-public type TransferEncoding "CHUNKING"
+@final Compression COMPRESSION_AUTO = "AUTO";
+@final Compression COMPRESSION_ALWAYS = "ALWAYS";
+@final Compression COMPRESSION_NEVER = "NEVER";
+
+public type TransferEncoding "CHUNKING";
+
+@final TransferEncoding TRANSFERENCODE_CHUNKING = "CHUNKING";
 
 @Description { value:"TrustStore record represents trust store related options to be used for HTTP client/service invocation"}
 @Field {value:"filePath: File path to trust store file"}
@@ -16,7 +22,7 @@ public type TransferEncoding "CHUNKING"
 public type TrustStore {
     string filePath,
     string password,
-}
+};
 
 @Description { value:"KeyStore record represents key store related options to be used for HTTP client/service invocation"}
 @Field {value:"filePath: File path to key store file"}
@@ -24,7 +30,7 @@ public type TrustStore {
 public type KeyStore {
     string filePath,
     string password,
-}
+};
 
 @Description { value:"Protocols record represents SSL/TLS protocol related options to be used for HTTP client/service invocation"}
 @Field {value:"protocolVersion: SSL Protocol to be used. eg: TLS1.2"}
@@ -32,7 +38,7 @@ public type KeyStore {
 public type Protocols {
     string protocolName,
     string versions,
-}
+};
 
 @Description { value:"ValidateCert record represents options related to check whether a certificate is revoked or not"}
 @Field {value:"enable: The status of validateCertEnabled"}
@@ -42,7 +48,7 @@ public type ValidateCert {
     boolean enable,
     int cacheSize,
     int cacheValidityPeriod,
-}
+};
 
 @Description { value:"OcspStapling record represents options related to check whether a certificate is revoked or not"}
 @Field {value:"enable: The status of OcspStapling"}
@@ -52,7 +58,7 @@ public type ServiceOcspStapling {
     boolean enable,
     int cacheSize,
     int cacheValidityPeriod,
-}
+};
 
 @Description {value:"Represent all http payload related errors"}
 @Field {value:"message: The error message"}
@@ -60,7 +66,7 @@ public type ServiceOcspStapling {
 public type PayloadError {
     string message,
     error[] cause,
-}
+};
 
 //////////////////////////////
 /// Native implementations ///

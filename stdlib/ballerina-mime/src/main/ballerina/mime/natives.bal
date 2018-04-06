@@ -69,7 +69,7 @@ public type ContentDisposition object {
        string name;
        map<string> parameters;
    }
-}
+};
 
 @Description {value:"Describes the nature of the data in the body of a MIME entity."}
 @Field {value:"primaryType: Declares the general type of data"}
@@ -91,7 +91,7 @@ public type MediaType object {
     @Description {value:"Convert the media type to a string suitable for use as the value of a corresponding HTTP header."}
     @Return {value:"Return the Content-Type with parameters as a string"}
     public function toStringWithParameters () returns (string);
-}
+};
 
 public function MediaType::toString () returns (string) {
     return self.primaryType + "/" + self.subType;
@@ -121,8 +121,8 @@ public function MediaType::toStringWithParameters () returns (string) {
 @Field {value:"cause: The error which caused the entity error"}
 public type EntityError  {
     string message,
-    error[] cause
-}
+    error[] cause,
+};
 
 @Description {value:"Represent the headers and body of a message. This can be used to represent both the entity of a top
 level message and an entity(body part) inside of a multipart entity."}
@@ -140,7 +140,7 @@ public type Entity object {
 
     @Description {value:"Set the entity body with a given file handler"}
     @Param {value:"fileHandler: Represent a file"}
-    public function setFileAsEntityBody (file:File fileHandler);
+    public function setFileAsEntityBody (file:Path fileHandler);
 
     @Description {value:"Set the entity body with the given json content"}
     @Param {value:"jsonContent: Json content that needs to be set to entity"}
@@ -194,16 +194,16 @@ public type Entity object {
     @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
     public native function getBodyParts () returns Entity[] | EntityError;
 
-@Description {value:"Given an entity, get the body parts as a byte channel."}
-@Param {value:"entity: Represent a MIME entity"}
-@Return {value:"Return body parts as a byte channel "}
-@Return {value:"EntityError will get thrown in case of errors"}
-public native function getBodyPartsAsChannel () returns io:ByteChannel;
+    @Description {value:"Given an entity, get the body parts as a byte channel."}
+    @Param {value:"entity: Represent a MIME entity"}
+    @Return {value:"Return body parts as a byte channel "}
+    @Return {value:"EntityError will get thrown in case of errors"}
+    public native function getBodyPartsAsChannel () returns io:ByteChannel;
 
-@Description {value:"Set body parts to entity"}
-@Param {value:"entity: Represent a MIME entity"}
-@Param {value:"bodyParts: Represent the body parts that needs to be set to the entity"}
-public native function setBodyParts (Entity[] bodyParts);
+    @Description {value:"Set body parts to entity"}
+    @Param {value:"entity: Represent a MIME entity"}
+    @Param {value:"bodyParts: Represent the body parts that needs to be set to the entity"}
+    public native function setBodyParts (Entity[] bodyParts);
 
     @Description {value:"Get the header value associated with the given header name"}
     @Param {value:"headerName: Represent header name"}
@@ -240,11 +240,11 @@ public native function setBodyParts (Entity[] bodyParts);
 
     @Description {value:"Check the header existence"}
     public native function hasHeader (string headerName) returns boolean;
-}
+};
 
-public function Entity::setFileAsEntityBody (file:File fileHandler) {
-    io:ByteChannel byteChannel = fileHandler.openChannel(READ_PERMISSION);
-    self.setByteChannel(byteChannel);
+public function Entity::setFileAsEntityBody (file:Path filePath) {
+    io:ByteChannel channel =check file:newByteChannel(fileHandler, READ_PERMISSION);
+    self.setByteChannel(channel);
 }
 
 @Description {value:"Represent errors related to mime base64 encoder"}
@@ -252,16 +252,16 @@ public function Entity::setFileAsEntityBody (file:File fileHandler) {
 @Field {value:"cause: The cause of the error"}
 public type Base64EncodeError {
     string message,
-    error[] cause
-}
+    error[] cause,
+};
 
 @Description {value:"Represent errors related to mime base64 decoder"}
 @Field {value:"message: The error message"}
 @Field {value:"cause: The cause of the error"}
 public type Base64DecodeError {
     string message,
-    error[] cause
-}
+    error[] cause,
+};
 
 @Description {value:"Encode a given input with MIME specific Base64 encoding scheme."}
 @Param {value:"contentToBeEncoded: Content that needs to be encoded can be of type string, blob or io:ByteChannel"}
@@ -270,7 +270,7 @@ public type Base64DecodeError {
 @Return {value:"If the given input is of type blob return value will be an encoded blob"}
 @Return {value:"If the given input is of type io:ByteChannel return value will be an encoded io:ByteChannel"}
 @Return {value:"Base64EncodeError will get return, in case of errors"}
-public native function base64Encode ((string | blob | io:ByteChannel) contentToBeEncoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64EncodeError);
+native function base64Encode ((string | blob | io:ByteChannel) contentToBeEncoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64EncodeError);
 
 @Description {value:"Decode a given input with MIME specific Base64 encoding scheme."}
 @Param {value:"contentToBeDecoded: Content that needs to be decoded can be of type string, blob or io:ByteChannel"}
@@ -279,7 +279,92 @@ public native function base64Encode ((string | blob | io:ByteChannel) contentToB
 @Return {value:"If the given input is of type blob return value will be a decoded blob"}
 @Return {value:"If the given input is of type io:ByteChannel return value will be a decoded io:ByteChannel"}
 @Return {value:"Base64DecodeError will get return, in case of errors"}
-public native function base64Decode ((string | blob | io:ByteChannel) contentToBeDecoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64DecodeError);
+native function base64Decode ((string | blob | io:ByteChannel) contentToBeDecoded, string charset="utf-8") returns (string  | blob  | io:ByteChannel | Base64DecodeError);
+
+@Description {value:"Encode a given blob with Base64 encoding scheme."}
+@Param {value:"valueToBeEncoded: Content that needs to be encoded"}
+@Return {value:"Return an encoded blob"}
+@Return {value:"Base64EncodeError will get return, in case of errors"}
+public function base64EncodeBlob(blob valueToBeEncoded) returns blob | Base64EncodeError {
+    Base64EncodeError customErr = {message : "Error occurred while encoding blob"};
+    match base64Encode(valueToBeEncoded) {
+        string returnString => return customErr;
+        blob returnBlob => return returnBlob;
+        io:ByteChannel returnChannel => return customErr;
+        Base64EncodeError encodeErr => return encodeErr;
+    }
+}
+@Description {value:"Encode a given string with Base64 encoding scheme."}
+@Param {value:"valueToBeEncoded: Content that needs to be encoded"}
+@Param {value:"charset: Charset to be used"}
+@Return {value:"Return an encoded string"}
+@Return {value:"Base64EncodeError will get return, in case of errors"}
+public function base64EncodeString(string valueToBeEncoded, string charset="utf-8") returns string | Base64EncodeError {
+    Base64EncodeError customErr = {message : "Error occurred while encoding string"};
+    match base64Encode(valueToBeEncoded) {
+        string returnString => return returnString;
+        blob returnBlob => return customErr;
+        io:ByteChannel returnChannel => return customErr;
+        Base64EncodeError encodeErr => return encodeErr;
+    }
+}
+
+@Description {value:"Encode a given ByteChannel with Base64 encoding scheme."}
+@Param {value:"valueToBeEncoded: Content that needs to be encoded"}
+@Return {value:"Return an encoded ByteChannel"}
+@Return {value:"Base64EncodeError will get return, in case of errors"}
+public function base64EncodeByteChannel(io:ByteChannel valueToBeEncoded) returns io:ByteChannel | Base64EncodeError {
+    Base64EncodeError customErr = {message : "Error occurred while encoding ByteChannel content"};
+    match base64Encode(valueToBeEncoded) {
+        string returnString => return customErr;
+        blob returnBlob => return customErr;
+        io:ByteChannel returnChannel => return returnChannel;
+        Base64EncodeError encodeErr => return encodeErr;
+    }
+}
+
+@Description {value:"Decode a given blob with Base64 encoding scheme."}
+@Param {value:"valueToBeDecoded: Content that needs to be decoded"}
+@Return {value:"Return a decoded blob"}
+@Return {value:"Base64DecodeError will get return, in case of errors"}
+public function base64DecodeBlob(blob valueToBeDecoded) returns blob | Base64DecodeError {
+    Base64DecodeError customErr = {message : "Error occurred while decoding blob"};
+    match base64Decode(valueToBeDecoded) {
+        string returnString => return customErr;
+        blob returnBlob => return returnBlob;
+        io:ByteChannel returnChannel => return customErr;
+        Base64DecodeError decodeErr => return decodeErr;
+    }
+}
+
+@Description {value:"Decode a given string with Base64 encoding scheme."}
+@Param {value:"valueToBeDecoded: Content that needs to be decoded"}
+@Param {value:"charset: Charset to be used"}
+@Return {value:"Return a decoded string"}
+@Return {value:"Base64DecodeError will get return, in case of errors"}
+public function base64DecodeString(string valueToBeDecoded, string charset="utf-8") returns string | Base64DecodeError {
+    Base64DecodeError customErr = {message : "Error occurred while decoding string"};
+    match base64Decode(valueToBeDecoded) {
+        string returnString => return returnString;
+        blob returnBlob => return customErr;
+        io:ByteChannel returnChannel => return customErr;
+        Base64DecodeError decodeErr => return decodeErr;
+    }
+}
+
+@Description {value:"Decode a given ByteChannel with Base64 encoding scheme."}
+@Param {value:"valueToBeDecoded: Content that needs to be decoded"}
+@Return {value:"Return a decoded ByteChannel"}
+@Return {value:"Base64DecodeError will get return, in case of errors"}
+public function base64DecodeByteChannel(io:ByteChannel valueToBeDecoded) returns io:ByteChannel | Base64DecodeError {
+    Base64DecodeError customErr = {message : "Error occurred while decoding ByteChannel content"};
+    match base64Decode(valueToBeDecoded) {
+        string returnString => return customErr;
+        blob returnBlob => return customErr;
+        io:ByteChannel returnChannel => return returnChannel;
+        Base64DecodeError decodeErr => return decodeErr;
+    }
+}
 
 @Description {value:"Get the encoding value from a given MediaType."}
 @Param {value:"contentType: A MediaType struct"}

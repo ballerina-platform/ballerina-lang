@@ -24,10 +24,9 @@ public type AuthnHandlerChain object {
         map authnHandlers;
     }
     new () {
-        authnHandlers = new;
     }
     public function handle (Request req) returns (boolean);
-}
+};
 
 @Description {value:"Creates a Authentication handler chain"}
 @Return {value:"AuthnHandlerChain: AuthnHandlerChain instance"}
@@ -48,9 +47,9 @@ public function createAuthnHandlerChain () returns (AuthnHandlerChain) {
 public function AuthnHandlerChain::handle (Request req) returns (boolean) {
     foreach currentAuthHandlerType, currentAuthHandler in authnHandlerChain.authnHandlers {
         var authnHandler = check <HttpAuthnHandler> currentAuthHandler;
-        if (self.canHandle(req)) {
+        if (authnHandler.canHandle(req)) {
             log:printDebug("trying to authenticate with the authn handler: " + currentAuthHandlerType);
-            return self.handle(req);
+            return authnHandler.handle(req);
         }
     }
     return false;

@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -109,7 +110,8 @@ public class LSPackageCache {
                 // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
                 LSPackageLoader.getPackageById(tempCompilerContext, packageID);
             } catch (Exception e) {
-                logger.error("Error while loading package :" + staticPkgName);
+                PrintStream errPrintStream = System.err;
+                errPrintStream.println("Error while loading package :" + staticPkgName);
             }
         }
     }

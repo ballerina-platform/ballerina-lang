@@ -1,7 +1,7 @@
 type Department {
     string dptName;
     Person[] employees;
-}
+};
 
 type Person {
     string name = "default first name";
@@ -9,14 +9,14 @@ type Person {
     map adrs;
     int age = 999;
     Family family;
-    Person|null parent;
-}
+    Person? parent;
+};
 
 type Family {
     string spouse;
     int noOfChildren;
     string[] children;
-}
+};
 
 function testCreateStruct () returns (string, map, int) {
     map address = {"country":"USA", "state":"CA"};
@@ -100,7 +100,7 @@ type NegativeValTest {
     int negativeSpaceInt = -8;
     float negativeFloat = -88.234;
     float negativeSpaceFloat = -24.99;
-}
+};
 
 function getStructNegativeValues () returns (int, int, float, float) {
     NegativeValTest tmp = {};
