@@ -22,7 +22,7 @@ endpoint grpc:Service ep {
 };
 
 @grpc:serviceConfig {generateClientConnector:false}
-service<grpc:Endpoint> helloWorld bind ep {
+service<grpc:Endpoint> HelloWorld bind ep {
 
     testInputNestedStruct (endpoint client, Person req) {
         io:println("name: " + req.name);
