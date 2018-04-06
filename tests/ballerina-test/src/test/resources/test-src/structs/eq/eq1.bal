@@ -1,6 +1,6 @@
 package eq;
 
-public struct person {
+public type person {
     int age;
     string name;
     string address;
@@ -26,7 +26,7 @@ public function <person p> setSSN(string ssn) {
     p.ssn = ssn;
 }
 
-public struct employee {
+public type employee {
     int age;
     string name;
     string address;

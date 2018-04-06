@@ -343,16 +343,6 @@ class IfStatementDecorator extends React.Component {
                 >
                     false
                 </text>
-                <DropZone
-                    x={p11X}
-                    y={p11Y}
-                    width={statementBBox.w}
-                    height={statementBBox.h}
-                    baseComponent='rect'
-                    dropTarget={this.props.model.body}
-                    enableDragBg
-                    enableCenterOverlayLine={!this.props.disableDropzoneMiddleLineOverlay}
-                />
                 <g>
                     <rect
                         x={p2X}

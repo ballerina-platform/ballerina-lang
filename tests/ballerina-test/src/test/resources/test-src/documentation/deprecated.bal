@@ -81,4 +81,4 @@ connector TestConnector (string url) {
 documentation { Documentation for testConst constant
 V{{testConst}} constant variable `testConst`}
 deprecated {use ```const string testConst = "TestConstantDocumentation";``` instead}
-const string testConst = "TestConstantDocumentation";
+@final string testConst = "TestConstantDocumentation";

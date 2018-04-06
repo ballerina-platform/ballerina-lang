@@ -1,12 +1,12 @@
 import ballerina/sql;
 
-struct ResultCount {
-    int COUNTVAL;
-}
+type ResultCount {
+    int COUNTVAL,
+};
 
 function testXAransactonSuccess () returns (int, int) {
 	endpoint sql:Client testDB1 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_1/",
         port: 0,
         name: "TestDB1",
@@ -16,7 +16,7 @@ function testXAransactonSuccess () returns (int, int) {
     };
 	
 	endpoint sql:Client testDB2 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_2/",
         port: 0,
         name: "TestDB2",
@@ -34,16 +34,18 @@ function testXAransactonSuccess () returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    table dt =? testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 1 ",
+    var temp = testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 1 ",
                                   null, typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    dt =? testDB2 -> select("Select COUNT(*) as countval from Salary where id = 1", null, typeof ResultCount);
+    temp = testDB2 -> select("Select COUNT(*) as countval from Salary where id = 1", null, typeof ResultCount);
+    dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();
@@ -54,7 +56,7 @@ function testXAransactonSuccess () returns (int, int) {
 function testXAransactonFailed1 () returns (int, int) {
 
 	endpoint sql:Client testDB1 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_1/",
         port: 0,
         name: "TestDB1",
@@ -64,7 +66,7 @@ function testXAransactonFailed1 () returns (int, int) {
     };
 	
 	endpoint sql:Client testDB2 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_2/",
         port: 0,
         name: "TestDB2",
@@ -86,16 +88,18 @@ function testXAransactonFailed1 () returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    table dt =? testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 2", null,
+    var temp = testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 2", null,
                                   typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    dt =? testDB2 -> select("Select COUNT(*) as countval from Salary where id = 2 ", null, typeof ResultCount);
+    temp = testDB2 -> select("Select COUNT(*) as countval from Salary where id = 2 ", null, typeof ResultCount);
+    dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();
@@ -106,7 +110,7 @@ function testXAransactonFailed1 () returns (int, int) {
 function testXAransactonFailed2 () returns (int, int) {
 
 	endpoint sql:Client testDB1 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_1/",
         port: 0,
         name: "TestDB1",
@@ -116,7 +120,7 @@ function testXAransactonFailed2 () returns (int, int) {
     };
 	
 	endpoint sql:Client testDB2 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_2/",
         port: 0,
         name: "TestDB2",
@@ -135,18 +139,20 @@ function testXAransactonFailed2 () returns (int, int) {
 
     }
     //check whether update action is performed
-    table dt =? testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 2",
+    var temp = testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 2",
                                   null, typeof ResultCount);
+    table dt = check temp;
     int count1;
     int count2;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    dt =? testDB2 -> select("Select COUNT(*) as countval from Salary where id = 2 ", null, typeof ResultCount);
+    temp = testDB2 -> select("Select COUNT(*) as countval from Salary where id = 2 ", null, typeof ResultCount);
+    dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();
@@ -157,7 +163,7 @@ function testXAransactonFailed2 () returns (int, int) {
 function testXAransactonRetry () returns (int, int) {
 
 	endpoint sql:Client testDB1 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_1/",
         port: 0,
         name: "TestDB1",
@@ -167,7 +173,7 @@ function testXAransactonRetry () returns (int, int) {
     };
 	
 	endpoint sql:Client testDB2 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_2/",
         port: 0,
         name: "TestDB2",
@@ -193,19 +199,21 @@ function testXAransactonRetry () returns (int, int) {
     } catch (error e) {
     }
     //check whether update action is performed
-    table dt =? testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 4",
+    var temp = testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 4",
                                         null, typeof ResultCount);
+    table dt = check temp;
     int count1;
     int count2;
 
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    dt =? testDB2 -> select("Select COUNT(*) as countval from Salary where id = 4", null, typeof ResultCount);
+    temp = testDB2 -> select("Select COUNT(*) as countval from Salary where id = 4", null, typeof ResultCount);
+    dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();

@@ -35,7 +35,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -183,7 +187,24 @@ public abstract class AbstractItemResolver {
         List<BVarSymbol> parameterDefs = bInvokableSymbol.getParameters();
 
         for (int itr = 0; itr < parameterDefs.size(); itr++) {
-            signature.append(parameterDefs.get(itr).getType().toString()).append(" ")
+            BType paramType = parameterDefs.get(itr).getType();
+            String typeName;
+            BTypeSymbol tSymbol;
+            if (paramType instanceof BArrayType) {
+                tSymbol = ((BArrayType) paramType).eType.tsymbol;
+            } else {
+                tSymbol = paramType.tsymbol;
+            }
+            List<Name> nameComps = tSymbol.pkgID.nameComps;
+            if (tSymbol.pkgID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
+                    || tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
+                typeName = tSymbol.getName().getValue();
+            } else {
+                typeName = nameComps.get(nameComps.size() - 1).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
+                        + tSymbol.getName().getValue();
+            }
+
+            signature.append(typeName).append(" ")
                     .append(parameterDefs.get(itr).getName());
             insertText.append("${")
                     .append((itr + 1))
@@ -201,7 +222,7 @@ public abstract class AbstractItemResolver {
         String endString = ")";
 
         BType returnType = bInvokableSymbol.type.getReturnType();
-        if (returnType != null) {
+        if (returnType != null && !(returnType instanceof BNilType)) {
             signature.append(initString).append(returnType.toString());
             signature.append(endString);
         }

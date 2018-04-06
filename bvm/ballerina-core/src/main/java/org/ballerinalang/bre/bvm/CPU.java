@@ -447,12 +447,12 @@ public class CPU {
                         break;
                     case InstructionCodes.WRKSEND:
                         InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
-                        handleWorkerSend(ctx, wrkSendIns.dataChannelInfo, wrkSendIns.types, wrkSendIns.regs);
+                        handleWorkerSend(ctx, wrkSendIns.dataChannelInfo, wrkSendIns.type, wrkSendIns.reg);
                         break;
                     case InstructionCodes.WRKRECEIVE:
                         InstructionWRKSendReceive wrkReceiveIns = (InstructionWRKSendReceive) instruction;
-                        if (!handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.types,
-                                wrkReceiveIns.regs)) {
+                        if (!handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.type,
+                                wrkReceiveIns.reg)) {
                             return;
                         }
                         break;
@@ -2864,10 +2864,10 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
-                                         BType[] types, int[] regs) {
-        BRefType[] vals = extractValues(ctx.workerLocal, types, regs);
+                                         BType type, int reg) {
+        BRefType val = extractValue(ctx.workerLocal, type, reg);
         WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName());
-        dataChannel.putData(vals);
+        dataChannel.putData(val);
     }
 
     private static WorkerDataChannel getWorkerChannel(WorkerExecutionContext ctx, String name) {
@@ -2875,30 +2875,26 @@ public class CPU {
     }
 
     @SuppressWarnings("rawtypes")
-    private static BRefType[] extractValues(WorkerData data, BType[] types, int[] regs) {
-        BRefType[] result = new BRefType[types.length];
-        for (int i = 0; i < regs.length; i++) {
-            BType paramType = types[i];
-            int argReg = regs[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    result[i] = new BInteger(data.longRegs[argReg]);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    result[i] = new BFloat(data.doubleRegs[argReg]);
-                    break;
-                case TypeTags.STRING_TAG:
-                    result[i] = new BString(data.stringRegs[argReg]);
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    result[i] = new BBoolean(data.intRegs[argReg] > 0);
-                    break;
-                case TypeTags.BLOB_TAG:
-                    result[i] = new BBlob(data.byteRegs[argReg]);
-                    break;
-                default:
-                    result[i] = data.refRegs[argReg];
-            }
+    private static BRefType extractValue(WorkerData data, BType type, int reg) {
+        BRefType result;
+        switch (type.getTag()) {
+            case TypeTags.INT_TAG:
+                result = new BInteger(data.longRegs[reg]);
+                break;
+            case TypeTags.FLOAT_TAG:
+                result = new BFloat(data.doubleRegs[reg]);
+                break;
+            case TypeTags.STRING_TAG:
+                result = new BString(data.stringRegs[reg]);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                result = new BBoolean(data.intRegs[reg] > 0);
+                break;
+            case TypeTags.BLOB_TAG:
+                result = new BBlob(data.byteRegs[reg]);
+                break;
+            default:
+                result = data.refRegs[reg];
         }
         return result;
     }
@@ -2911,12 +2907,11 @@ public class CPU {
 
     @SuppressWarnings("rawtypes")
     private static boolean handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
-                                               BType[] types, int[] regs) {
-        BRefType[] passedInValues = getWorkerChannel(
-                ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
-        if (passedInValues != null) {
+                                               BType type, int reg) {
+        BRefType passedInValue = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
+        if (passedInValue != null) {
             WorkerData currentFrame = ctx.workerLocal;
-            copyArgValuesForWorkerReceive(currentFrame, regs, types, passedInValues);
+            copyArgValueForWorkerReceive(currentFrame, reg, type, passedInValue);
             return true;
         } else {
             return false;
@@ -2924,30 +2919,26 @@ public class CPU {
     }
 
     @SuppressWarnings("rawtypes")
-    public static void copyArgValuesForWorkerReceive(WorkerData currentSF, int[] argRegs, BType[] paramTypes,
-                                                     BRefType[] passedInValues) {
-        for (int i = 0; i < argRegs.length; i++) {
-            int regIndex = argRegs[i];
-            BType paramType = paramTypes[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    currentSF.longRegs[regIndex] = ((BInteger) passedInValues[i]).intValue();
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    currentSF.doubleRegs[regIndex] = ((BFloat) passedInValues[i]).floatValue();
-                    break;
-                case TypeTags.STRING_TAG:
-                    currentSF.stringRegs[regIndex] = (passedInValues[i]).stringValue();
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    currentSF.intRegs[regIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
-                    break;
-                case TypeTags.BLOB_TAG:
-                    currentSF.byteRegs[regIndex] = ((BBlob) passedInValues[i]).blobValue();
-                    break;
-                default:
-                    currentSF.refRegs[regIndex] = (BRefType) passedInValues[i];
-            }
+    public static void copyArgValueForWorkerReceive(WorkerData currentSF, int regIndex, BType paramType,
+                                                     BRefType passedInValue) {
+        switch (paramType.getTag()) {
+            case TypeTags.INT_TAG:
+                currentSF.longRegs[regIndex] = ((BInteger) passedInValue).intValue();
+                break;
+            case TypeTags.FLOAT_TAG:
+                currentSF.doubleRegs[regIndex] = ((BFloat) passedInValue).floatValue();
+                break;
+            case TypeTags.STRING_TAG:
+                currentSF.stringRegs[regIndex] = (passedInValue).stringValue();
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                currentSF.intRegs[regIndex] = (((BBoolean) passedInValue).booleanValue()) ? 1 : 0;
+                break;
+            case TypeTags.BLOB_TAG:
+                currentSF.byteRegs[regIndex] = ((BBlob) passedInValue).blobValue();
+                break;
+            default:
+                currentSF.refRegs[regIndex] = (BRefType) passedInValue;
         }
     }
 

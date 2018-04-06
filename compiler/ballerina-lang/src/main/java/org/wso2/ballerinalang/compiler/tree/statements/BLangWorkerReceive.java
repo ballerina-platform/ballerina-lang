@@ -24,10 +24,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * Implementation of {@link BLangWorkerReceive}.
  *
@@ -35,16 +31,12 @@ import java.util.List;
  */
 public class BLangWorkerReceive extends BLangStatement implements WorkerReceiveNode {
 
-    public List<BLangExpression> exprs;
+    public BLangExpression expr;
     public BLangIdentifier workerIdentifier;
 
-    public BLangWorkerReceive() {
-        this.exprs = new ArrayList<>();
-    }
-
     @Override
-    public List<BLangExpression> getExpressions() {
-        return exprs;
+    public BLangExpression getExpression() {
+        return expr;
     }
 
     @Override
@@ -68,7 +60,7 @@ public class BLangWorkerReceive extends BLangStatement implements WorkerReceiveN
     }
     
     public String toActionString() {
-        return Arrays.toString(this.exprs.toArray()) + " <- " + this.workerIdentifier;
+        return this.expr + " <- " + this.workerIdentifier;
     }
 
     @Override

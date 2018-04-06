@@ -22,7 +22,6 @@ NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
-STRUCT      : 'struct' ;
 OBJECT      : 'object' ;
 ANNOTATION  : 'annotation' ;
 PARAMETER   : 'parameter' ;
@@ -89,7 +88,7 @@ TYPE_TABLE      : 'table' ;
 TYPE_STREAM     : 'stream' ;
 TYPE_ANY        : 'any' ;
 TYPE_DESC       : 'typedesc' ;
-TYPE_TYPE       : 'type' ;
+TYPE            : 'type' ;
 TYPE_FUTURE     : 'future' ;
 
 VAR         : 'var' ;
@@ -177,6 +176,7 @@ RANGE       : '..' ;
 ELLIPSIS    : '...' ;
 PIPE        : '|' ;
 EQUAL_GT    : '=>' ;
+ELVIS       : '?:' ;
 
 
 // Compound Assignment operators.
@@ -185,10 +185,6 @@ COMPOUND_ADD   : '+=' ;
 COMPOUND_SUB   : '-=' ;
 COMPOUND_MUL   : '*=' ;
 COMPOUND_DIV   : '/=' ;
-
-// Safe assignment operator
-
-SAFE_ASSIGNMENT   : '=?' ;
 
 // Post Arithmetic operators.
 

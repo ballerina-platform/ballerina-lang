@@ -10,7 +10,7 @@ public type person1 {
     string zipcode = "95134";
     string ssn;
     int id;
-}
+};
 
 public function <person1 p>  person1 () {
 }
@@ -39,7 +39,7 @@ public type employee1 {
     string ssn;
     int id;
     int employeeId = 123456;
-}
+};
 
 public function <employee1 p>  employee1 () {
 }
@@ -81,7 +81,7 @@ public type person2 {
     string zipcode = "95134";
     string ssn;
     int id;
-}
+};
 
 public function <person2 p> getName () returns (string) {
     return p.name;
@@ -107,7 +107,7 @@ public type employee2 {
     string ssn;
     int id;
     int employeeId = 123456;
-}
+};
 
 public function <employee2 e> getName () returns (string) {
     return e.name;
@@ -157,7 +157,7 @@ public type employee3 {
     string ssn;
     int id;
     int employeeId = 123456;
-}
+};
 
 public function <employee3 e> getName () returns (string) {
     return e.name;
@@ -203,7 +203,7 @@ function testEqOfPublicStructs2 () returns (string) {
 type userA {
     int age;
     string name;
-}
+};
 
 function <userA ua> getName () returns (string) {
     return ua.name;
@@ -217,7 +217,7 @@ type userB {
     int age;
     string name;
     string address;
-}
+};
 
 function <userB ub> getName () returns (string) {
     return ub.name;
@@ -232,7 +232,7 @@ type userFoo {
     string name;
     string address;
     string zipcode = "23468";
-}
+};
 
 function <userFoo u> getName () returns (string) {
     return u.name;
@@ -250,7 +250,7 @@ function testRuntimeEqPrivateStructsInSamePackage () returns (string) {
     var uA = <userA>uFoo;
 
     // This is a unsafe cast
-    var uB =? <userB>uA;
+    var uB = check <userB>uA;
     return uB.name;
 }
 
@@ -258,7 +258,7 @@ function testRuntimeEqPrivateStructsInSamePackage () returns (string) {
 public type userPA {
     int age;
     string name;
-}
+};
 
 public function <userPA ua> getName () returns (string) {
     return ua.name;
@@ -272,7 +272,7 @@ public type userPB {
     int age;
     string name;
     string address;
-}
+};
 
 public function <userPB ub> getName () returns (string) {
     return ub.name;
@@ -287,7 +287,7 @@ public type userPFoo {
     string name;
     string address;
     string zipcode = "23468";
-}
+};
 
 public function <userPFoo u> getName () returns (string) {
     return u.name;
@@ -302,7 +302,7 @@ function testRuntimeEqPublicStructsInSamePackage () returns (string) {
     userPFoo uFoo = {age:10, name:"Skyhigh", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
-    var uA =? <userPA>uFoo;
+    var uA = <userPA>uFoo;
 
     // This is a unsafe cast
     var uB = <userPB>uA;
@@ -316,7 +316,7 @@ function testRuntimeEqPublicStructs () returns (string) {
     req:userPFoo uFoo = {age:10, name:"Skytop", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
-    var uA =? <userPA>uFoo;
+    var uA = <userPA>uFoo;
 
     // This is a unsafe cast
     var uB  = <userPB>uA;
@@ -343,7 +343,7 @@ function testRuntimeEqPublicStructs1 () returns (string) {
 type personC {
     string name;
     addressStruct address;
-}
+};
 
 function <personC p> setContact(addressStruct ad){
     p.address = ad;
@@ -356,7 +356,7 @@ function <personC p> getAddress() returns (string){
 type addressStruct {
     int no;
     string city;
-}
+};
 
 function <addressStruct ad> toString() returns (string){
     return ad.no + ad.city;
@@ -366,7 +366,7 @@ type officeAddressStruct {
     int no;
     string city;
     string department;
-}
+};
 
 function <officeAddressStruct ad> toString() returns (string){
     return ad.department + ad.no + ad.city;
@@ -405,11 +405,11 @@ function testStructEquivalencyWithFunctionType () returns (string, string) {
 }
 
 type AnyStruct {
-}
+};
 
 function <AnyStruct a> shout (AnotherAnyStruct aa) returns (string) {
-    var j =? <json>aa;
-    return "anyStruct" + j.toString();
+    var j = check <json>aa;
+    return "anyStruct" + (j.toString() but { () => ""});
 }
 
 function <AnyStruct a> call () returns (AnotherAnyStruct) {
@@ -418,11 +418,11 @@ function <AnyStruct a> call () returns (AnotherAnyStruct) {
 
 type SomeStruct {
     string s;
-}
+};
 
 function <SomeStruct b> shout (SomeOtherStruct aa) returns (string) {
-    var j =? <json>aa;
-    return "someStruct" + j.toString();
+    var j = check <json>aa;
+    return "someStruct" + (j.toString() but { () => ""});
 }
 
 function <SomeStruct b> call () returns (SomeOtherStruct) {
@@ -431,7 +431,7 @@ function <SomeStruct b> call () returns (SomeOtherStruct) {
 
 type SomeOtherStruct {
     string s;
-}
+};
 
 type AnotherAnyStruct {
-}
+};

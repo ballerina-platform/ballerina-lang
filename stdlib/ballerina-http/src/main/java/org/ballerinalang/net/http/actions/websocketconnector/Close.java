@@ -50,10 +50,10 @@ public class Close extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct wsConnection = (BStruct) context.getRefArgument(0);
+        BStruct webSocketConnector = (BStruct) context.getRefArgument(0);
         int statusCode = (int) context.getIntArgument(0);
         String reason = context.getStringArgument(0);
-        Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
+        Session session = (Session) webSocketConnector.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
         try {
             session.close(new CloseReason(() -> statusCode, reason));
         } catch (IOException e) {
@@ -62,7 +62,12 @@ public class Close extends BlockingNativeCallableUnit {
                                                                         "Could not close the connection: " +
                                                                                 e.getMessage()));
         } finally {
-            WebSocketConnectionManager.getInstance().removeConnection(session.getId());
+            WebSocketConnectionManager connectionManager =
+                    (WebSocketConnectionManager) webSocketConnector
+                            .getNativeData(WebSocketConstants.WEBSOCKET_CONNECTION_MANAGER);
+            if (connectionManager != null) {
+                connectionManager.removeConnectionInfo(session.getId());
+            }
         }
         context.setReturnValues();
     }

@@ -1,68 +1,72 @@
 package ballerina.http;
 
-public enum Chunking {
-    AUTO, ALWAYS, NEVER
-}
+public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 
-public enum Compression {
-    AUTO, ALWAYS, NEVER
-}
+@final Chunking CHUNKING_AUTO = "AUTO";
+@final Chunking CHUNKING_ALWAYS = "ALWAYS";
+@final Chunking CHUNKING_NEVER = "NEVER";
 
-public enum TransferEncoding {
-    CHUNKING
-}
+public type Compression "AUTO" | "ALWAYS" | "NEVER";
 
-@Description { value:"TrustStore struct represents trust store related options to be used for HTTP client/service invocation"}
+@final Compression COMPRESSION_AUTO = "AUTO";
+@final Compression COMPRESSION_ALWAYS = "ALWAYS";
+@final Compression COMPRESSION_NEVER = "NEVER";
+
+public type TransferEncoding "CHUNKING";
+
+@final TransferEncoding TRANSFERENCODE_CHUNKING = "CHUNKING";
+
+@Description { value:"TrustStore record represents trust store related options to be used for HTTP client/service invocation"}
 @Field {value:"filePath: File path to trust store file"}
 @Field {value:"password: Trust store password"}
-public struct TrustStore {
-    string filePath;
-    string password;
-}
+public type TrustStore {
+    string filePath,
+    string password,
+};
 
-@Description { value:"KeyStore struct represents key store related options to be used for HTTP client/service invocation"}
+@Description { value:"KeyStore record represents key store related options to be used for HTTP client/service invocation"}
 @Field {value:"filePath: File path to key store file"}
 @Field {value:"password: Key store password"}
-public struct KeyStore {
-    string filePath;
-    string password;
-}
+public type KeyStore {
+    string filePath,
+    string password,
+};
 
-@Description { value:"Protocols struct represents SSL/TLS protocol related options to be used for HTTP client/service invocation"}
+@Description { value:"Protocols record represents SSL/TLS protocol related options to be used for HTTP client/service invocation"}
 @Field {value:"protocolVersion: SSL Protocol to be used. eg: TLS1.2"}
 @Field {value:"enabledProtocols: SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2"}
-public struct Protocols {
-    string protocolName;
-    string versions;
-}
+public type Protocols {
+    string protocolName,
+    string versions,
+};
 
-@Description { value:"ValidateCert struct represents options related to check whether a certificate is revoked or not"}
+@Description { value:"ValidateCert record represents options related to check whether a certificate is revoked or not"}
 @Field {value:"enable: The status of validateCertEnabled"}
 @Field {value:"cacheSize: Maximum size of the cache"}
 @Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
-public struct ValidateCert {
-    boolean enable;
-    int cacheSize;
-    int cacheValidityPeriod;
-}
+public type ValidateCert {
+    boolean enable,
+    int cacheSize,
+    int cacheValidityPeriod,
+};
 
-@Description { value:"OcspStapling struct represents options related to check whether a certificate is revoked or not"}
+@Description { value:"OcspStapling record represents options related to check whether a certificate is revoked or not"}
 @Field {value:"enable: The status of OcspStapling"}
 @Field {value:"cacheSize: Maximum size of the cache"}
 @Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
-public struct ServiceOcspStapling {
-    boolean enable;
-    int cacheSize;
-    int cacheValidityPeriod;
-}
+public type ServiceOcspStapling {
+    boolean enable,
+    int cacheSize,
+    int cacheValidityPeriod,
+};
 
 @Description {value:"Represent all http payload related errors"}
 @Field {value:"message: The error message"}
 @Field {value:"cause: The error which caused the entity error"}
-public struct PayloadError {
-    string message;
-    error[] cause;
-}
+public type PayloadError {
+    string message,
+    error[] cause,
+};
 
 //////////////////////////////
 /// Native implementations ///

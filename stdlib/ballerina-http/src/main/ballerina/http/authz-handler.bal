@@ -23,66 +23,42 @@ import ballerina/log;
 import ballerina/runtime;
 
 @Description {value:"Authorization cache name"}
-const string AUTHZ_CACHE = "authz_cache";
+@final string AUTHZ_CACHE = "authz_cache";
 
-permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-permissionstore:PermissionStore permissionStore =? <permissionstore:PermissionStore> fileBasedPermissionstore;
+permissionstore:FileBasedPermissionStore fileBasedPermissionstore = new;
+permissionstore:PermissionStore permissionStore = check <permissionstore:PermissionStore> fileBasedPermissionstore;
 @Description {value:"AuthorizationChecker instance"}
 authz:AuthzChecker authzChecker = authz:createChecker(permissionStore, utils:createCache(AUTHZ_CACHE));
 
 @Description {value:"Representation of Authorization Handler"}
 @Field {value:"name: Authz handler name"}
-public struct HttpAuthzHandler {
-    string name = "default";
-}
+public type HttpAuthzHandler object {
+    public {
+        string name;
+    }
+    new () {
+        name = "default";
+    }
+    public function canHandle (Request req) returns (boolean);
+
+    public function handle (Request req, string[] scopes, string resourceName) returns (boolean);
+};
 
 @Description {value:"Performs a authorization check, by comparing the groups of the user and the groups of the scope"}
 @Param {value:"req: Request instance"}
 @Param {value:"scopes: names of the scopes"}
 @Param {value:"resourceName: name of the resource which is being accessed"}
 @Return {value:"boolean: true if authorization check is a success, else false"}
-public function <HttpAuthzHandler httpAuthzHandler> handle (Request req,
-                                                            string[] scopes, string resourceName) returns (boolean) {
-
-    string username = runtime:getInvocationContext().authenticationContext.username;
-    // first, check in the cache. cache key is <username>-<resource>-<http method>,
-    // since different resources can have different scopes
-    string authzCacheKey = username + "-" + resourceName + "-" + req.method;
-    match getCachedAuthzValue(authzCacheKey) {
-        boolean cachedAuthzValue => {
-            log:printDebug("Authz cache hit for request URL: " + resourceName);
-            return cachedAuthzValue;
-        }
-        any|null => {
-            log:printDebug("Authz cache miss for request URL: " + resourceName);
-            boolean isAuthorized = authzChecker.authorize(username, scopes);
-            if (isAuthorized) {
-                log:printDebug("Successfully authorized to access resource: " + resourceName);
-            } else {
-                log:printDebug("Insufficient permission to access resource: " + resourceName);
-            }
-            authzChecker.cacheAuthzResult(authzCacheKey, isAuthorized);
-            return isAuthorized;
-        }
-    }
-}
-
-function getCachedAuthzValue (string cacheKey) returns (boolean | null) {
-    match authzChecker.getCachedAuthzResult(cacheKey) {
-        boolean isAuthorized => {
-            return isAuthorized;
-        }
-        any|null => {
-            return null;
-        }
-    }
+public function HttpAuthzHandler::handle (Request req, string[] scopes, string resourceName) returns (boolean) {
+    return authzChecker.authorize(runtime:getInvocationContext().authenticationContext.username, resourceName,
+                                                                                                req.method, scopes);
 }
 
 @Description {value:"Checks if the provided request can be authorized. This method will validate if the username is
 already set in the authentication context. If not, the flow cannot continue."}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if its possible authorize, else false"}
-public function <HttpAuthzHandler httpAuthzHandler> canHandle (Request req) returns (boolean) {
+public function HttpAuthzHandler::canHandle (Request req) returns (boolean) {
     if (runtime:getInvocationContext().authenticationContext.username.length() > 0) {
         log:printError("Username not set in auth context. Unable to authorize");
         return true;

@@ -2,7 +2,7 @@ package init;
 
 import initializers as inp;
 
-struct person {
+type person {
     int age = 20;
     string name;
     string address;
@@ -29,7 +29,7 @@ function testStructInitializerInAnotherPackage() returns (int, string){
 
 // testStructInitializerOrder
 
-struct employee {
+type employee {
     int age = 20;
     string name = "A";
 }

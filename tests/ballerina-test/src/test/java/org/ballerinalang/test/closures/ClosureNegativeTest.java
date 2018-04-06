@@ -31,7 +31,7 @@ public class ClosureNegativeTest {
     public void testPrivateFieldAccess() {
         CompileResult compileResult = BCompileUtil.compile("test-src/closures/closure-negative.bal");
 
-        BAssertUtil.validateError(compileResult, 0, "undefined symbol 'methodInt3'", 17, 44);
-        BAssertUtil.validateError(compileResult, 1, "undefined symbol 'functionR'", 6, 56);
+        BAssertUtil.validateError(compileResult, 0, "undefined symbol 'functionR'", 6, 56);
+        BAssertUtil.validateError(compileResult, 1, "undefined symbol 'methodInt3'", 17, 44);
     }
 }

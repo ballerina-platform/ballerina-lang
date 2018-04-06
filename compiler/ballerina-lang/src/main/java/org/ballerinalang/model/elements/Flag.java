@@ -30,9 +30,9 @@ public enum Flag {
      */
     NATIVE,
     /**
-     * Indicates Flagged node is a constant node.
+     * Indicates Flagged node is a final node.
      */
-    CONST,
+    FINAL,
     /**
      * Indicates Flagged node is a invokable node attached to a {@link org.ballerinalang.model.types.Type}.
      */

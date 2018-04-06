@@ -20,41 +20,55 @@ package ballerina.http;
 dispatched to the relevant resource. Any Filter implementation should be struct-wise similar to the Filter struct."}
 @Field {value:"filterRequest: Request filter function pointer"}
 @Field {value:"filterResponse: Response filter function pointer"}
-public struct Filter {
-    function (Request request, FilterContext context) returns (FilterResult) filterRequest;
-    function (Response response, FilterContext context) returns (FilterResult) filterResponse;
-}
+public type Filter object {
+    public {
+        function (Request request, FilterContext context) returns (FilterResult) filterRequest;
+        function (Response response, FilterContext context) returns (FilterResult) filterResponse;
+    }
+
+    new (function (Request, FilterContext) returns (FilterResult) requestFilter,
+            function (Response, FilterContext) returns (FilterResult) responseFilter) {
+        filterRequest = requestFilter;
+        filterResponse = responseFilter;
+    }
+
+    public function init ();
+    public function terminate ();
+
+};
 
 @Description {value:"Representation of filter Context."}
 @Field {value:"serviceType: Type of the service"}
 @Field {value:"serviceName: Name of the service"}
 @Field {value:"filterResponse: Name of the resource"}
-public struct FilterContext {
+public type FilterContext object {
     // TODO should have a map of properties
-    typedesc serviceType;
-    string serviceName;
-    string resourceName;
-}
+    public {
+        typedesc serviceType;
+        string serviceName;
+        string resourceName;
+    }
+};
 
 @Description {value:"Represents a filter result. This should be populated and returned by each request and response
 filter function"}
 @Field {value:"canProceed: Flag to check if the execution of the request should proceed or stopped"}
 @Field {value:"statusCode: Status code which will be returned to the request sender if the canProceed is set to false"}
 @Field {value:"message: Message which will be returned to the request sender if the canProceed is set to false"}
-public struct FilterResult {
+public type FilterResult {
     boolean canProceed;
     int statusCode;
     string message;
-}
+};
 
 @Description {value:"Initializes the filter"}
-public function <Filter filter> init () {
+public function Filter::init () {
     error e = {message:"Not implemented"};
     throw e;
 }
 
 @Description {value:"Stops the filter"}
-public function <Filter filter> terminate () {
+public function Filter::terminate () {
     error e = {message:"Not implemented"};
     throw e;
 }

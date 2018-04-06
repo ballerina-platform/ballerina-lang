@@ -69,9 +69,9 @@ function arrayTest(int[][] yy) returns (int) {
     return yy[0][1];
 }
 
-struct B {
+type B {
     int x;
-}
+};
 
 function twoDarrayStructTest() returns (int) {
     B b1 = {x:1};

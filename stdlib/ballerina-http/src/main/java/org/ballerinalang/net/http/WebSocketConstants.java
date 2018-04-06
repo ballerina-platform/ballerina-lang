@@ -65,4 +65,5 @@ public class WebSocketConstants {
     public static final String CLIENT_CONNECTOR_CONFIGS = "clientEndpointConfigs";
     public static final String WEBSOCKET_UPGRADE_SERVICE_CONFIG = "upgradeService";
     public static final String WEBSOCKET_SERVICE = "webSocketService";
+    public static final String WEBSOCKET_CONNECTION_MANAGER = "WEBSOCKET_CONNECTION_MANAGER";
 }

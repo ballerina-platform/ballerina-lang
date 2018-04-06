@@ -107,7 +107,7 @@ function simpleWorkerMessagePassingTest() {
 }
 
 function forkJoinWithSomeJoin() returns int | error {
-    map m = {};
+    map m;
     m["x"] = 25;
     int ret;
     fork {
@@ -141,4 +141,3 @@ function workerReturnTest() returns int {
 	    return x + 1;
     }
 }
-

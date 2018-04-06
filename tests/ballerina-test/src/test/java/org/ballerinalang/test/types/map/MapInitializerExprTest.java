@@ -27,7 +27,7 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -39,7 +39,7 @@ public class MapInitializerExprTest {
 
     private CompileResult compileResult;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/types/map/map-initializer-expr.bal");
     }
@@ -71,8 +71,6 @@ public class MapInitializerExprTest {
 
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
         BMap<String, BValue> outerMap = (BMap<String, BValue>) returns[0];
-        Assert.assertEquals(outerMap.get("name"), new BString("Supun"));
-
         BValue info = outerMap.get("info");
         Assert.assertTrue(info instanceof BMap<?, ?>);
         BMap<String, BValue> infoMap = (BMap<String, BValue>) info;

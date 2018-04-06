@@ -41,7 +41,7 @@ public class BLangForkJoin extends BLangStatement implements ForkJoinNode {
 
     public List<BLangWorker> workers;
     public List<BLangIdentifier> joinedWorkers;
-    public JoinType joinType;
+    public JoinType joinType = JoinType.ALL;
     public int joinedWorkerCount;
     public BLangBlockStmt joinedBody;
 

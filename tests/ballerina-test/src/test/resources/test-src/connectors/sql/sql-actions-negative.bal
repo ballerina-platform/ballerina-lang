@@ -2,7 +2,7 @@ import ballerina/sql;
 
 function testSelectData () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -16,7 +16,7 @@ function testSelectData () returns (string) {
 
         match x {
             table dt => {
-                var j =? <json>dt;
+                var j = check <json>dt;
                 firstName = j.toString();
             }
             sql:SQLConnectorError err1 => {
@@ -33,7 +33,7 @@ function testSelectData () returns (string) {
 
 function testGeneratedKeyOnInsert () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -69,7 +69,7 @@ function testGeneratedKeyOnInsert () returns (string) {
 
 function testCallProcedure () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -82,7 +82,7 @@ function testCallProcedure () returns (string) {
         var x = testDB -> call("{call InsertPersonDataInfo(100,'James')}", null, null);
         match x {
             table[] dt  =>{
-                var j =? <json>dt[0];
+                var j = check <json>dt[0];
                 firstName = j.toString();
             }
             sql:SQLConnectorError err1 =>{
@@ -98,7 +98,7 @@ function testCallProcedure () returns (string) {
 
 function testBatchUpdate () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -111,19 +111,19 @@ function testBatchUpdate () returns (string) {
     string returnVal;
     try {
         //Batch 1
-        sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
-        sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
-        sql:Parameter para3 = {sqlType:sql:Type.INTEGER, value:20};
-        sql:Parameter para4 = {sqlType:sql:Type.DOUBLE, value:3400.5};
-        sql:Parameter para5 = {sqlType:sql:Type.VARCHAR, value:"Colombo"};
+        sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
+        sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
+        sql:Parameter para3 = {sqlType:sql:TYPE_INTEGER, value:20};
+        sql:Parameter para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
+        sql:Parameter para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
         sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
 
         //Batch 2
-        para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
-        para2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
-        para3 = {sqlType:sql:Type.INTEGER, value:20};
-        para4 = {sqlType:sql:Type.DOUBLE, value:3400.5};
-        para5 = {sqlType:sql:Type.VARCHAR, value:"Colombo"};
+        para1 = {sqlType:sql:TYPE_VARCHAR, value:"Alex"};
+        para2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
+        para3 = {sqlType:sql:TYPE_INTEGER, value:20};
+        para4 = {sqlType:sql:TYPE_DOUBLE, value:3400.5};
+        para5 = {sqlType:sql:TYPE_VARCHAR, value:"Colombo"};
         sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
         sql:Parameter[][] parameters = [parameters1, parameters2];
 
@@ -146,7 +146,7 @@ function testBatchUpdate () returns (string) {
 
 function testInvalidArrayofQueryParameters () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -159,12 +159,12 @@ function testInvalidArrayofQueryParameters () returns (string) {
         xml x1 = xml `<book>The Lost World</book>`;
         xml x2 = xml `<book>The Lost World2</book>`;
         xml[] xmlDataArray = [x1, x2];
-        sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:xmlDataArray};
+        sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:xmlDataArray};
         sql:Parameter[] parameters = [para0];
         var x = testDB -> select("SELECT FirstName from Customers where registrationID in (?)", parameters, null);
         match x {
             table dt  =>{
-                var j =? <json>dt;
+                var j = check <json>dt;
                 value = j.toString();
             }
             sql:SQLConnectorError err1 =>{

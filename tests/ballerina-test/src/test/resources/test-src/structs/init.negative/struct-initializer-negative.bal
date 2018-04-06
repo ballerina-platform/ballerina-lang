@@ -2,7 +2,7 @@ package init.negative;
 
 import initializers as inp;
 
-struct person {
+type person {
     int age = 20;
     string name;
     string address;

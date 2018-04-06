@@ -116,13 +116,13 @@ type TwoPhaseCommitTransaction object {
     }
     function markForAbortion() returns string|error {
         if (self.isInitiated) {
-            self.state = TransactionState.ABORTED;
+            self.state = TXN_STATE_ABORTED;
             log:printInfo("Marked initiated transaction for abortion");
         } else { // participant
             boolean successful = abortResourceManagers(self.transactionId, self.transactionBlockId);
             string participatedTxnId = getParticipatedTransactionId(self.transactionId, self.transactionBlockId);
             if (successful) {
-                self.state = TransactionState.ABORTED;
+                self.state = TXN_STATE_ABORTED;
                 log:printInfo("Marked participated transaction for abort. Transaction:" + participatedTxnId);
             } else {
                 string msg = "Aborting local resource managers failed for participated transaction:" + participatedTxnId;
@@ -134,7 +134,7 @@ type TwoPhaseCommitTransaction object {
         return ""; //TODO: check what will happen if nothing is returned
     }
 
-    function prepareParticipants(string protocol) returns boolean {
+    function prepareParticipants(ProtocolName protocol) returns boolean {
         boolean successful = true;
         foreach _, participant in self.participants {
             Protocol[] protocols = participant.participantProtocols;
@@ -153,7 +153,7 @@ type TwoPhaseCommitTransaction object {
                                 successful = false;
                             }
                         }
-                        null => {
+                        () => {
                             if (!self.prepareRemoteParticipant(participant, proto.url)) {
                                 successful = false;
                             }
@@ -200,7 +200,7 @@ type TwoPhaseCommitTransaction object {
                             isHazardOutcome = true;
                         }
                     }
-                    null => {
+                    () => {
                         var result = self.notifyRemoteParticipant(participant, COMMAND_ABORT);
                         match result {
                             string status => {
@@ -286,7 +286,7 @@ type TwoPhaseCommitTransaction object {
                             successful = false;
                         }
                     }
-                    null => {
+                    () => {
                         var result = self.notifyRemoteParticipant(participant, message);
                         match result {
                             error err => successful = false;
@@ -333,7 +333,7 @@ type TwoPhaseCommitTransaction object {
         log:printInfo(io:sprintf("Aborting initiated transaction: %s:%d", [self.transactionId, self.transactionBlockId]));
         // return response to the initiator. ( Aborted | Mixed )
         string|error ret = self.notifyAbort();
-        self.state = TransactionState.ABORTED;
+        self.state = TXN_STATE_ABORTED;
         boolean localAbortSuccessful = abortResourceManagers(self.transactionId, self.transactionBlockId);
         if (!localAbortSuccessful) {
             log:printError("Aborting local resource managers failed");
@@ -353,7 +353,7 @@ type TwoPhaseCommitTransaction object {
         boolean successful = abortResourceManagers(self.transactionId, self.transactionBlockId);
         string participatedTxnId = getParticipatedTransactionId(self.transactionId, self.transactionBlockId);
         if (successful) {
-            self.state = TransactionState.ABORTED;
+            self.state = TXN_STATE_ABORTED;
             log:printInfo("Local participant aborted transaction: " + participatedTxnId);
         } else {
             string msg = "Aborting local resource managers failed for transaction:" + participatedTxnId;

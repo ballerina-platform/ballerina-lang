@@ -1,6 +1,6 @@
 package req;
 
-public struct userPFoo {
+public type userPFoo {
     int age;
     string name;
     string address;

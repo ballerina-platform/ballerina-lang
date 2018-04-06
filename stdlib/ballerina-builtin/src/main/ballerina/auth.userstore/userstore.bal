@@ -18,22 +18,22 @@ package ballerina.auth.userstore;
 
 @Description {value:"Represents the user store. Any type of implementation, such as ldap, jdbc, file based,
 etc. should be struct-wise similar"}
-public struct UserStore {
-}
+public type UserStore object {
+    
+    @Description {value:"Attempts to authenticate with username and password"}
+    @Param {value:"username: user name"}
+    @Param {value:"password: password"}
+    @Return {value:"boolean: true if authentication is a success, else false"}
+    public function authenticate (string username, string password) returns (boolean) {
+        error e = {message:"Not implemented"};
+        throw e;
+    }
 
-@Description {value:"Attempts to authenticate with username and password"}
-@Param {value:"username: user name"}
-@Param {value:"password: password"}
-@Return {value:"boolean: true if authentication is a success, else false"}
-public function <UserStore userStore> authenticate (string username, string password) returns (boolean) {
-    error e = {message:"Not implemented"};
-    throw e;
-}
-
-@Description {value:"Reads the group(s) for the user with the given username"}
-@Param {value:"username: user name"}
-@Return {value:"string[]: array of groups for the user denoted by the username"}
-public function <UserStore userstore> readGroupsOfUser (string username) returns (string[]) {
-    error e = {message:"Not implemented"};
-    throw e;
-}
+    @Description {value:"Reads the group(s) for the user with the given username"}
+    @Param {value:"username: user name"}
+    @Return {value:"string[]: array of groups for the user denoted by the username"}
+    public function readGroupsOfUser (string username) returns (string[]) {
+        error e = {message:"Not implemented"};
+        throw e;
+    }
+};

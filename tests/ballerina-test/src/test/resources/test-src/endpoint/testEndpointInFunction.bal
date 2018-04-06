@@ -36,13 +36,13 @@ type DummyEndpoint object {
         exFlow = exFlow + "getClient:DummyEndpoint;";
         return new;
     }
-}
+};
 
 public type DummyEndpointConfig {
     string conf1;
     boolean conf2;
     int conf3;
-}
+};
 
 type DummyClient object {
     public {string conf1; }
@@ -56,7 +56,7 @@ type DummyClient object {
         string result = a + b;
         return result;
     }
-}
+};
 
 function test1 () returns (string) {
     endpoint DummyEndpoint ep { conf1 : "test1"};

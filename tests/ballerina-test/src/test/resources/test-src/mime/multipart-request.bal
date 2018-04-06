@@ -231,7 +231,6 @@ function extractFieldValue(json fieldValue) returns string {
         int i => return "error";
         string s => return s;
         boolean b => return "error";
-        null  => return "error";
         json j => return "error";
     }
 }

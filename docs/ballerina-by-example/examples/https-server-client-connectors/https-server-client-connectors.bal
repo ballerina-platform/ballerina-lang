@@ -33,7 +33,7 @@ service<http:Service> helloWorld bind helloWorldEP {
 
 endpoint http:ClientEndpoint clientEP {
     targets: [{
-        uri: "https://localhost:9095",
+        url: "https://localhost:9095",
         secureSocket: {
             trustStore: {
                 filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

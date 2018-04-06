@@ -37,7 +37,6 @@ class LSAnnotationCache {
     private final HashMap<PackageID, List<BLangAnnotation>> serviceAnnotations = new HashMap<>();
     private HashMap<PackageID, List<BLangAnnotation>> resourceAnnotations = new HashMap<>();
     private HashMap<PackageID, List<BLangAnnotation>> functionAnnotations = new HashMap<>();
-    private HashMap<PackageID, List<BLangAnnotation>> constantAnnotations = new HashMap<>();
 
     LSAnnotationCache(LSPackageCache lsPackageCache) {
         loadAnnotations(lsPackageCache.getPackageMap().values().stream().collect(Collectors.toList()));
@@ -56,9 +55,6 @@ class LSAnnotationCache {
                             break;
                         case FUNCTION:
                             this.addAttachment(bLangAnnotation, functionAnnotations, bLangPackage.packageID);
-                            break;
-                        case CONST:
-                            this.addAttachment(bLangAnnotation, constantAnnotations, bLangPackage.packageID);
                             break;
                         default:
                             break;
@@ -87,9 +83,5 @@ class LSAnnotationCache {
 
     public HashMap<PackageID, List<BLangAnnotation>> getFunctionAnnotations() {
         return functionAnnotations;
-    }
-
-    public HashMap<PackageID, List<BLangAnnotation>> getConstantAnnotations() {
-        return constantAnnotations;
     }
 }

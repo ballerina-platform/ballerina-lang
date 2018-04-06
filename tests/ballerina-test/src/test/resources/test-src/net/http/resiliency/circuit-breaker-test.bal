@@ -17,11 +17,11 @@
 import ballerina/http;
 import ballerina/runtime;
 
-const string TEST_SCENARIO_HEADER = "test-scenario";
+@final string TEST_SCENARIO_HEADER = "test-scenario";
 
-const string SCENARIO_TYPICAL = "typical-scenario";
-const string SCENARIO_TRIAL_RUN_FAILURE = "trial-run-failure";
-const string SCENARIO_HTTP_SC_FAILURE = "http-status-code-failure";
+@final string SCENARIO_TYPICAL = "typical-scenario";
+@final string SCENARIO_TRIAL_RUN_FAILURE = "trial-run-failure";
+@final string SCENARIO_HTTP_SC_FAILURE = "http-status-code-failure";
 
 function testTypicalScenario () returns (http:Response[] , http:HttpConnectorError[]) {
 
@@ -47,7 +47,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
     http:Response[] responses = [];
     http:HttpConnectorError[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient =? <http:CircuitBreakerClient>backendClientEP.httpClient;
+    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.httpClient;
     MockClient mockClient = {serviceUri: "http://localhost:8080", config:{endpointTimeout:1000}};
     cbClient.httpClient = mockClient;
 
@@ -96,7 +96,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
     http:Response[] responses = [];
     http:HttpConnectorError[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient =? <http:CircuitBreakerClient>backendClientEP.httpClient;
+    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.httpClient;
     MockClient mockClient = {serviceUri: "http://localhost:8080", config:{endpointTimeout:1000}};
     cbClient.httpClient = mockClient;
 
@@ -145,7 +145,7 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
     http:Response[] responses = [];
     http:HttpConnectorError[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient =? <http:CircuitBreakerClient>backendClientEP.httpClient;
+    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.httpClient;
     MockClient mockClient = {serviceUri: "http://localhost:8080", config:{endpointTimeout:1000}};
     cbClient.httpClient = mockClient;
 
@@ -168,50 +168,50 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
 
 int actualRequestNumber = 0;
 
-public struct MockClient {
+public type MockClient {
     string serviceUri;
     http:ClientEndpointConfiguration config;
 }
 
 public function <MockClient client> post (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
-    http:HttpConnectorError httpConnectorError = {};
+    http:HttpConnectorError httpConnectorError;
     httpConnectorError.message = "Unsupported fuction for MockClient";
     return httpConnectorError;
 }
 
 public function <MockClient client> head (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
-    http:HttpConnectorError httpConnectorError = {};
+    http:HttpConnectorError httpConnectorError;
     httpConnectorError.message = "Unsupported fuction for MockClient";
     return httpConnectorError;
 }
 
 public function <MockClient client> put (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
-    http:HttpConnectorError httpConnectorError = {};
+    http:HttpConnectorError httpConnectorError;
     httpConnectorError.message = "Unsupported fuction for MockClient";
     return httpConnectorError;
 }
 
 public function <MockClient client> execute (string httpVerb, string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
-    http:HttpConnectorError httpConnectorError = {};
+    http:HttpConnectorError httpConnectorError;
     httpConnectorError.message = "Unsupported fuction for MockClient";
     return httpConnectorError;
 }
 
 public function <MockClient client> patch (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
-    http:HttpConnectorError httpConnectorError = {};
+    http:HttpConnectorError httpConnectorError;
     httpConnectorError.message = "Unsupported fuction for MockClient";
     return httpConnectorError;
 }
 
 public function <MockClient client> delete (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
-    http:HttpConnectorError httpConnectorError = {};
+    http:HttpConnectorError httpConnectorError;
     httpConnectorError.message = "Unsupported fuction for MockClient";
     return httpConnectorError;
 }
 
 public function <MockClient client> get (string path, http:Request req) returns (http:Response | http:HttpConnectorError){
-    http:Response response = {};
-    http:HttpConnectorError err = {};
+    http:Response response;
+    http:HttpConnectorError err;
     actualRequestNumber = actualRequestNumber + 1;
     string scenario = req.getHeader(TEST_SCENARIO_HEADER);
 
@@ -344,14 +344,14 @@ function getResponse () returns (http:Response) {
     return response;
 }
 
-public struct MockInResponse {
+public type MockInResponse {
     int statusCode;
     string reasonPhrase;
     string server;
 }
 
 function getMockErrorStruct () returns (http:HttpConnectorError) {
-    http:HttpConnectorError err = {};
+    http:HttpConnectorError err;
     err.message = "Internal Server Error.";
     err.statusCode = 500;
     return err;

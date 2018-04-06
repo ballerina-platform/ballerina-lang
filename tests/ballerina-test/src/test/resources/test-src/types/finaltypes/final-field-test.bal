@@ -30,8 +30,7 @@ public function testFieldAsFinalParameter() returns (int) {
 
 function foo(int a) returns (int) {
     int i = a;
-    a = 5;
-    return a;
+    return i;
 }
 
 function bar(@final int a) returns (int) {

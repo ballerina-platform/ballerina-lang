@@ -808,24 +808,23 @@ class PositioningUtil {
 
 
     /**
-     * Calculate position of XmlElementLiteral nodes.
+     * Calculate position of MatchExpression nodes.
      *
-     * @param {object} node XmlElementLiteral object
+     * @param {object} node MatchExpression object
      */
-    positionXmlElementLiteralNode(node) {
+    positionMatchExpressionNode(node) {
         // Not implemented.
     }
 
 
     /**
-     * Calculate position of XmlTextLiteral nodes.
+     * Calculate position of MatchExpressionPatternClause nodes.
      *
-     * @param {object} node XmlTextLiteral object
+     * @param {object} node MatchExpressionPatternClause object
      */
-    positionXmlTextLiteralNode(node) {
+    positionMatchExpressionPatternClauseNode(node) {
         // Not implemented.
     }
-
 
     /**
      * Calculate position of XmlCommentLiteral nodes.
@@ -1030,6 +1029,34 @@ class PositioningUtil {
         viewState.components['drop-zone'].y = y;
         viewState.components['statement-box'].x = viewState.bBox.x;
         viewState.components['statement-box'].y = y + viewState.components['drop-zone'].h;
+    }
+
+
+
+    /**
+     * Calculate position of Match nodes.
+     *
+     * @param {object} node Match object
+     */
+    positionMatchNode(node) {
+        let y = node.viewState.bBox.y + this.config.statement.height;
+        const x = node.viewState.bBox.x;
+        node.patternClauses.forEach((element) => {
+            element.viewState.bBox.x = x;
+            element.viewState.bBox.y = y;
+            y += element.viewState.bBox.h;
+        });
+    }
+
+
+    /**
+     * Calculate position of MatchPatternClause nodes.
+     *
+     * @param {object} node MatchPatternClause object
+     */
+    positionMatchPatternClauseNode(node) {
+        node.statement.viewState.bBox.x = node.viewState.bBox.x;
+        node.statement.viewState.bBox.y = node.viewState.bBox.y + this.config.statement.height;
     }
 
     /**

@@ -253,7 +253,6 @@ class InvocationDecorator extends React.Component {
                         designer.config.statement.gutter.h}
                     y={invocationComponent.start.y
                          - (designer.config.actionInvocationStatement.text.height / 2)}
-                    className='action-invocation-text'
                     onClick={e => this.openEditor(e)}
                 >
                     {expression}

@@ -48,7 +48,7 @@ function arrayLengthAccessTestMapInitializerCase(int x, int y) returns (int) {
     arr[2] = arr[0] + arr[1];
     map tempMap = {"length":lengthof arr};
     int length;
-    length =? <int> tempMap["length"];
+    length =check <int> tempMap["length"];
     return length;
 }
 
@@ -129,7 +129,7 @@ function arrayLengthAccessNullArrayCase(int x, int y) returns (int) {
     return length;
 }
 
-struct Person {
+type Person {
     string name;
     int[] days;
-}
+};

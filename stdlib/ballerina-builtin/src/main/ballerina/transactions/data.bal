@@ -17,39 +17,38 @@
 package ballerina.transactions;
 import ballerina/io;
 
-const string PROTOCOL_COMPLETION = "completion";
-const string PROTOCOL_VOLATILE = "volatile";
-const string PROTOCOL_DURABLE = "durable";
+type ProtocolName "completion" | "volatile" | "durable";
+@final ProtocolName PROTOCOL_COMPLETION = "completion";
+@final ProtocolName PROTOCOL_VOLATILE = "volatile";
+@final ProtocolName PROTOCOL_DURABLE = "durable";
 
-enum Protocols {
-    COMPLETION, DURABLE, VOLATILE
-}
+type TransactionState "active" | "prepared" | "committed" | "aborted";
+@final TransactionState TXN_STATE_ACTIVE = "active";
+@final TransactionState TXN_STATE_PREPARED = "prepared";
+@final TransactionState TXN_STATE_COMMITTED = "committed";
+@final TransactionState TXN_STATE_ABORTED = "aborted";
 
-public enum TransactionState {
-    ACTIVE, PREPARED, COMMITTED, ABORTED
-}
+@final string TRANSACTION_CONTEXT_VERSION = "1.0";
 
-const string TRANSACTION_CONTEXT_VERSION = "1.0";
+@final public string COMMAND_PREPARE = "prepare";
+@final public string COMMAND_COMMIT = "commit";
+@final public string COMMAND_ABORT = "abort";
 
-public const string COMMAND_PREPARE = "prepare";
-public const string COMMAND_COMMIT = "commit";
-public const string COMMAND_ABORT = "abort";
-
-public const string OUTCOME_PREPARED = "prepared";
-public const string OUTCOME_NOT_PREPARED = "Not-Prepared";
-public const string OUTCOME_MIXED = "mixed";
-public const string OUTCOME_ABORTED = "aborted";
-public const string OUTCOME_COMMITTED = "committed";
-public const string OUTCOME_HAZARD = "Hazard-Outcome";
-public const string OUTCOME_FAILED_EOT = "Failed-EOT";
-public const string OUTCOME_READ_ONLY = "read-only";
+@final public string OUTCOME_PREPARED = "prepared";
+@final public string OUTCOME_NOT_PREPARED = "Not-Prepared";
+@final public string OUTCOME_MIXED = "mixed";
+@final public string OUTCOME_ABORTED = "aborted";
+@final public string OUTCOME_COMMITTED = "committed";
+@final public string OUTCOME_HAZARD = "Hazard-Outcome";
+@final public string OUTCOME_FAILED_EOT = "Failed-EOT";
+@final public string OUTCOME_READ_ONLY = "read-only";
 
 public type TransactionContext {
-    string contextVersion = "1.0";
-    string transactionId;
-    int transactionBlockId;
-    string coordinationType;
-    string registerAtURL;
+    @readonly string contextVersion = "1.0";
+    @readonly string transactionId;
+    @readonly int transactionBlockId;
+    @readonly string coordinationType;
+    @readonly string registerAtURL;
 }
 
 type Participant {
@@ -66,12 +65,12 @@ documentation {
     F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
 }
 public type Protocol {
-    string name;
-    string url;
-    int transactionBlockId;
-    (function (string transactionId,
-               int transactionBlockId,
-               string protocolAction) returns boolean)|null protocolFn;
+    @readonly ProtocolName name;
+    @readonly string url;
+    @readonly int transactionBlockId;
+    @readonly (function (string transactionId,
+                           int transactionBlockId,
+                           string protocolAction) returns boolean)? protocolFn;
 }
 
 public type RegistrationRequest {

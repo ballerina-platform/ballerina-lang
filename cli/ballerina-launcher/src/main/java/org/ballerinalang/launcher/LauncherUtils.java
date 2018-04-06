@@ -29,6 +29,7 @@ import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -71,7 +72,8 @@ public class LauncherUtils {
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices,
                                   Map<String, String> runtimeParams, String configFilePath, String[] args,
-                                  boolean offline) {
+                                  boolean offline, boolean observeFlag, Map<String, String> metricsParams,
+                                  Map<String, String> tracingParams) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
@@ -97,6 +99,20 @@ public class LauncherUtils {
         try {
             ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, ballerinaConfPath);
             ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
+
+            if (observeFlag) {
+                ConfigRegistry.getInstance()
+                        .addConfiguration(ObservabilityConstants.CONFIG_METRICS_ENABLED, String.valueOf(Boolean.TRUE));
+                ConfigRegistry.getInstance()
+                        .addConfiguration(ObservabilityConstants.CONFIG_TRACING_ENABLED, String.valueOf(Boolean.TRUE));
+                metricsParams.forEach(
+                        (key, value) -> ConfigRegistry.getInstance()
+                                .addConfiguration(ObservabilityConstants.CONFIG_TABLE_METRICS + "." + key, value));
+                tracingParams.forEach(
+                        (key, value) -> ConfigRegistry.getInstance()
+                                .addConfiguration(ObservabilityConstants.CONFIG_TABLE_TRACING + "." + key, value));
+            }
+
         } catch (IOException e) {
             throw new RuntimeException(
                     "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);

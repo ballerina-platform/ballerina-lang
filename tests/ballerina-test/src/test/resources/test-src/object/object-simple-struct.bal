@@ -18,6 +18,6 @@ type Person object {
         int year = 50;
         string month = "february";
     }
-}
+};
 
 

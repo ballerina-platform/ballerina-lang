@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package ballerina.http;
 
 /////////////////////////////
@@ -12,14 +28,37 @@ documentation {
     F{{local}} - The details of local address.
     F{{protocol}}  - The protocol associate with the service endpoint.
 }
-public struct ServiceEndpoint {
-    // TODO : Make all field Read-Only
-    Connection conn;
-    ServiceEndpointConfiguration config;
-    Remote remote;
-    Local local;
-    string protocol;
-}
+public type ServiceEndpoint object {
+    public {
+        @readonly Remote remote;
+        @readonly Local local;
+        @readonly string protocol;
+    }
+    private {
+        Connection conn;
+        ServiceEndpointConfiguration config;
+    }
+    public function init(ServiceEndpointConfiguration config);
+
+    @Description {value:"Gets called when the endpoint is being initialize during package init time"}
+    @Return {value:"Error occured during initialization"}
+    public native function initEndpoint() returns (error);
+
+    @Description {value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
+    @Param {value:"ep: The endpoint to which the service should be registered to"}
+    @Param {value:"serviceType: The type of the service to be registered"}
+    public native function register(typedesc serviceType);
+
+    @Description {value:"Starts the registered service"}
+    public native function start();
+
+    @Description {value:"Returns the connector that client code uses"}
+    @Return {value:"The connector that client code uses"}
+    public native function getClient() returns (Connection);
+
+    @Description {value:"Stops the registered service"}
+    public native function stop();
+};
 
 documentation {
     Represents the details of remote address.
@@ -27,10 +66,10 @@ documentation {
     F{{host}}  - The remote server host.
     F{{port}} - The remote server port.
 }
-public struct Remote {
-    string host;
-    int port;
-}
+public type Remote {
+    @readonly string host;
+    @readonly int port;
+};
 
 documentation {
     Represents the details of local address.
@@ -38,28 +77,20 @@ documentation {
     F{{host}}  - The local server host.
     F{{port}} - The local server port.
 }
-public struct Local {
-    string host;
-    int port;
-}
+public type Local {
+    @readonly string host;
+    @readonly int port;
+};
 
 @Description {value:"Request validation limits configuration for HTTP service endpoint"}
 @Field {value:"maxUriLength: Maximum length allowed in the URL"}
 @Field {value:"maxHeaderSize: Maximum size allowed in the headers"}
 @Field {value:"maxEntityBodySize: Maximum size allowed in the entity body"}
-public struct RequestLimits {
-    int maxUriLength;
-    int maxHeaderSize;
-    int maxEntityBodySize;
-}
-
-@Description {value:"Initializes the RequestLimits struct with default values."}
-@Param {value:"config: The RequestLimits struct to be initialized"}
-public function <RequestLimits config> RequestLimits() {
-    config.maxUriLength = -1;
-    config.maxHeaderSize = -1;
-    config.maxEntityBodySize = -1;
-}
+public type RequestLimits {
+    int maxUriLength = -1;
+    int maxHeaderSize = -1;
+    int maxEntityBodySize = -1;
+};
 
 @Description {value:"Configuration for HTTP service endpoint"}
 @Field {value:"host: Host of the service"}
@@ -68,151 +99,123 @@ public function <RequestLimits config> RequestLimits() {
 @Field {value:"keepAlive: The keepAlive behaviour of the connection for a particular port"}
 @Field {value:"transferEncoding: The types of encoding applied to the response"}
 @Field {value:"chunking: The chunking behaviour of the response"}
-@Field {value:"ssl: The SSL configurations for the service endpoint"}
+@Field {value:"secureSocket: The SSL configurations for the service endpoint"}
 @Field {value:"httpVersion: Highest HTTP version supported"}
 @Field {value:"requestLimits: Request validation limits configuration"}
 @Field {value:"filters: Filters to be applied to the request before dispatched to the actual resource"}
-public struct ServiceEndpointConfiguration {
-    string host;
-    int port;
-    KeepAlive keepAlive;
-    TransferEncoding|null transferEncoding;
-    Chunking chunking;
-    ServiceSecureSocket|null secureSocket;
-    string httpVersion;
-    RequestLimits|null requestLimits;
-    Filter[] filters;
-}
+public type ServiceEndpointConfiguration {
+    string host,
+    int port = 9090,
+    KeepAlive keepAlive = KEEPALIVE_AUTO,
+    TransferEncoding transferEncoding = TRANSFERENCODE_CHUNKING,
+    Chunking chunking = CHUNKING_AUTO,
+    ServiceSecureSocket? secureSocket,
+    string httpVersion = "1.1",
+    RequestLimits? requestLimits,
+    Filter[] filters,
+};
 
-@Description {value:"Initializes a ServiceEndpointConfiguration struct"}
-@Param {value:"config: The ServiceEndpointConfiguration struct to be initialized"}
-public function <ServiceEndpointConfiguration config> ServiceEndpointConfiguration() {
-    config.keepAlive = KeepAlive.AUTO;
-    config.chunking = Chunking.AUTO;
-    config.transferEncoding = TransferEncoding.CHUNKING;
-    config.httpVersion = "1.1";
-    config.port = 9090;
-}
-
-@Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP service" }
-@Field {value: "trustStore: TrustStore related options"}
-@Field {value: "keyStore: KeyStore related options"}
-@Field {value: "protocols: SSL/TLS protocol related options"}
-@Field {value: "validateCert: Certificate validation against CRL or OCSP related options"}
+@Description {value:"SecureSocket struct represents SSL/TLS options to be used for HTTP service"}
+@Field {value:"trustStore: TrustStore related options"}
+@Field {value:"keyStore: KeyStore related options"}
+@Field {value:"protocols: SSL/TLS protocol related options"}
+@Field {value:"validateCert: Certificate validation against CRL or OCSP related options"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
 @Field {value:"sslVerifyClient: The type of client certificate verification"}
 @Field {value:"sessionCreation: Enable/disable new ssl session creation"}
 @Field {value:"ocspStapling: Enable/disable ocsp stapling"}
-public struct ServiceSecureSocket {
-    TrustStore|null trustStore;
-    KeyStore|null keyStore;
-    Protocols|null protocols;
-    ValidateCert|null validateCert;
-    string ciphers;
-    string sslVerifyClient;
-    boolean sessionCreation;
-    ServiceOcspStapling|null ocspStapling;
-}
+public type ServiceSecureSocket {
+    TrustStore? trustStore,
+    KeyStore? keyStore,
+    Protocols? protocols,
+    ValidateCert? validateCert,
+    string ciphers,
+    string sslVerifyClient,
+    boolean sessionCreation = true,
+    ServiceOcspStapling? ocspStapling,
+};
 
-@Description {value:"Initializes the ServiceSecureSocket struct with default values."}
-@Param {value:"config: The ServiceSecureSocket struct to be initialized"}
-public function <ServiceSecureSocket config> ServiceSecureSocket() {
-    config.sessionCreation = true;
-}
+public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
 
-public enum KeepAlive {
-    AUTO, ALWAYS, NEVER
-}
+@final KeepAlive KEEPALIVE_AUTO = "AUTO";
+@final KeepAlive KEEPALIVE_ALWAYS = "ALWAYS";
+@final KeepAlive KEEPALIVE_NEVER = "NEVER";
 
 @Description { value:"Gets called when the endpoint is being initialized during the package initialization."}
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public function <ServiceEndpoint ep> init(ServiceEndpointConfiguration config) {
-    ep.config = config;
-    var err = ep.initEndpoint();
+public function ServiceEndpoint::init (ServiceEndpointConfiguration config) {
+    self.config = config;
+    var err = self.initEndpoint();
     if (err != null) {
         throw err;
     }
     // if filters are defined, call init on them
     if (config.filters != null) {
-        foreach filter in config.filters  {
+        foreach filter in config.filters {
             filter.init();
         }
     }
 }
 
-public native function<ServiceEndpoint ep> initEndpoint() returns (error);
-
-@Description { value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
-@Param { value:"ep: The endpoint to which the service should be registered to" }
-@Param { value:"serviceType: The type of the service to be registered" }
-public native function <ServiceEndpoint ep> register(typedesc serviceType);
-
-@Description { value:"Starts the registered service"}
-public native function <ServiceEndpoint ep> start();
-
-@Description { value:"Returns the connector that client code uses"}
-@Return { value:"The connector that client code uses" }
-public native function <ServiceEndpoint ep> getClient() returns (Connection);
-
-@Description { value:"Stops the registered service"}
-public native function <ServiceEndpoint ep> stop();
-
 //////////////////////////////////
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
-public struct WebSocketEndpoint{
-    //TODO: Make these readonly
-    WebSocketConnector conn;
-    ServiceEndpointConfiguration config;
-    ServiceEndpoint httpEndpoint;
-    //Public attributes
-    map attributes;
-    string id;
-    string negotiatedSubProtocol;
-    boolean isSecure;
-    boolean isOpen;
-    map<string> upgradeHeaders;
-}
+public type WebSocketEndpoint object {
+    public {
+        map attributes;
+        string id;
+        string negotiatedSubProtocol;
+        boolean isSecure;
+        boolean isOpen;
+        map<string> upgradeHeaders; // TODO: Need to remove this since this is a part of Request
+    }
 
-public function <WebSocketEndpoint ep> WebSocketService() {
-    ep.httpEndpoint = {};
-}
+    private {
+        WebSocketConnector conn;
+        ServiceEndpointConfiguration config;
+        ServiceEndpoint httpEndpoint;
+    }
 
-@Description { value:"Gets called when the endpoint is being initialize during package init time"}
-@Param { value:"epName: The endpoint name" }
-@Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
-@Return { value:"Error occured during initialization" }
-public function <WebSocketEndpoint ep> init(ServiceEndpointConfiguration config) {
-    ep.attributes = {};
-    ep.httpEndpoint = {};
-    ep.httpEndpoint.init(config);
-}
+    public new () {
+        ServiceEndpoint httpEndpoint = new;
+        self.httpEndpoint = httpEndpoint;
+    }
 
-@Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
-@Param { value:"conn: The server connector connection" }
-@Param { value:"res: The outbound response message" }
-@Return { value:"Error occured during registration" }
-public function <WebSocketEndpoint ep> register(typedesc serviceType) {
-    ep.httpEndpoint.register(serviceType);
-}
+    @Description {value:"Gets called when the endpoint is being initialize during package init time"}
+    @Param {value:"epName: The endpoint name"}
+    @Param {value:"config: The ServiceEndpointConfiguration of the endpoint"}
+    @Return {value:"Error occured during initialization"}
+    public function init(ServiceEndpointConfiguration config) {
+        self.config = config;
+        httpEndpoint.init(config);
+    }
 
-@Description { value:"Starts the registered service"}
-@Return { value:"Error occured during registration" }
-public function <WebSocketEndpoint ep> start() {
-    ep.httpEndpoint.start();
-}
+    @Description {value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
+    @Param {value:"conn: The server connector connection"}
+    @Param {value:"res: The outbound response message"}
+    @Return {value:"Error occured during registration"}
+    public function register(typedesc serviceType) {
+        httpEndpoint.register(serviceType);
+    }
 
-@Description { value:"Returns the connector that client code uses"}
-@Return { value:"The connector that client code uses" }
-@Return { value:"Error occured during registration" }
-public function <WebSocketEndpoint ep> getClient() returns (WebSocketConnector) {
-    return ep.conn;
-}
+    @Description {value:"Starts the registered service"}
+    @Return {value:"Error occured during registration"}
+    public function start() {
+        httpEndpoint.start();
+    }
 
-@Description { value:"Stops the registered service"}
-@Return { value:"Error occured during registration" }
-public function <WebSocketEndpoint ep> stop() {
-    ep.httpEndpoint.stop();
-}
+    @Description {value:"Returns the connector that client code uses"}
+    @Return {value:"The connector that client code uses"}
+    @Return {value:"Error occured during registration"}
+    public function getClient() returns (WebSocketConnector) {
+        return conn;
+    }
+
+    @Description {value:"Stops the registered service"}
+    @Return {value:"Error occured during registration"}
+    public function stop() {
+        httpEndpoint.stop();
+    }
+};

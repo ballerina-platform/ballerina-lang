@@ -67,7 +67,6 @@ public class BinaryFileWriter {
 
     private BinaryFileWriter(CompilerContext context) {
         context.put(BINARY_FILE_WRITER_KEY, this);
-
         this.codeGenerator = CodeGenerator.getInstance(context);
         this.sourceDirectory = context.get(SourceDirectory.class);
         if (this.sourceDirectory == null) {

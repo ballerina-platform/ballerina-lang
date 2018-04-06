@@ -51,7 +51,7 @@ function main (string[] args) {
 
         // Getting the 0th index of array returned from worker W1.
         int p;
-        p =? <int>r1[0];
+        p = check <int>r1[0];
         // Getting the 1th index of array returned from worker W1.
         string l;
         var indexL = <string>r1[1];

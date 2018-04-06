@@ -1,5 +1,3 @@
-import ballerina/io;
-
 int globalA = 5;
 
 function basicTest() returns (function (int) returns (int)) {
@@ -258,6 +256,3 @@ function test16() returns string {
     string k = "Program !!!";
     return foo("Im", (i, j, k));
 }
-
-
-

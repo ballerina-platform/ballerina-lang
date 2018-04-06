@@ -51,7 +51,7 @@ public abstract class CompletionTest {
 
     private static final String ROOT_DIR = Paths.get("").toAbsolutePath().toString() + File.separator;
 
-    private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "completion";
+    protected static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "completion";
 
     @BeforeMethod
     public void loadTestCases() throws IOException {
@@ -63,22 +63,28 @@ public abstract class CompletionTest {
     @Test(dataProvider = "completion-data-provider", enabled = false)
     public void test(String config, String configPath) {
         String configJsonPath = SAMPLES_COPY_DIR + File.separator + configPath + File.separator + config;
-        JsonObject jsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        JsonArray expectedItems = jsonObject.get("items").getAsJsonArray();
-        JsonObject positionObj = jsonObject.get("position").getAsJsonObject();
-        String balPath = SAMPLES_COPY_DIR + File.separator + jsonObject.get("source").getAsString();
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        List<CompletionItem> responseItemList = getResponseItemList(configJsonObject);
+        List<CompletionItem> expectedList = getExpectedList(configJsonObject);
+        Assert.assertEquals(true, CompletionTestUtil.isSubList(expectedList, responseItemList));
+    }
+
+    protected List<CompletionItem> getResponseItemList(JsonObject configJsonObject) {
+        JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
+        String balPath = SAMPLES_COPY_DIR + File.separator + configJsonObject.get("source").getAsString();
         Position position = new Position();
         String content = FileUtils.fileContent(balPath);
-
         position.setLine(positionObj.get("line").getAsInt());
         position.setCharacter(positionObj.get("character").getAsInt());
         TextDocumentPositionParams positionParams =
                 CompletionTestUtil.getPositionParams(position, balPath);
         WorkspaceDocumentManagerImpl documentManager = CompletionTestUtil.prepareDocumentManager(balPath, content);
-        List<CompletionItem> responseItemList = CompletionTestUtil.getCompletions(documentManager, positionParams);
-        List<CompletionItem> expectedList = CompletionTestUtil.getExpectedItemList(expectedItems);
+        return CompletionTestUtil.getCompletions(documentManager, positionParams);
+    }
 
-        Assert.assertEquals(true, CompletionTestUtil.isSubList(expectedList, responseItemList));
+    protected List<CompletionItem> getExpectedList(JsonObject configJsonObject) {
+        JsonArray expectedItems = configJsonObject.get("items").getAsJsonArray();
+        return CompletionTestUtil.getExpectedItemList(expectedItems);
     }
 
     @DataProvider(name = "completion-data-provider")

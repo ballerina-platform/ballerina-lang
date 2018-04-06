@@ -1,0 +1,95 @@
+#logs-console {
+    overflow: hidden;
+    .logs-console-toolbar {
+        height: 25px;
+        border-bottom: 1px solid #555;
+        border-top: 1px solid #555;
+        .dropdown {
+            margin: 0 10px;
+            line-height: 24px;
+        }
+    }
+    label {
+        margin-right: 5px;
+    }
+    select {
+        color: #050505;
+        margin-right: 10px;
+    }
+    .row {
+        padding: 3px;
+        border-bottom: 1px #5a5a5a solid;
+    }
+    .table-heading.row {
+        width: 100%;
+        margin: 0;
+        border-bottom: 2px solid #717171;
+        padding: 5px;
+    }
+    .table-content {
+        width: 100%;
+        overflow: auto;
+        margin: 0;
+        .wrap-text{
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow:ellipsis;
+        }
+        .icon.fw.fw-down-arrow, .icon.fw.fw-right-arrow{
+            color: #3bff00;
+        }
+        .icon.fw.fw-up-arrow, .icon.fw.fw-left-arrow{
+            color: #ff7a00;
+        }
+        .row:nth-child(odd) {
+            background-color: #444;
+        }
+        .row.active{
+            background-color: #364b6b;
+        }
+    }
+    .detail-view {
+        background-color: inherit;
+        .close {
+            cursor: pointer;
+        }
+        .close:hover{
+            color: #FFF;
+        }
+        .accordion {
+            .title {
+                padding: 0;
+                color: white;
+                background: #333;
+                font-size: 12px;
+                border-bottom: 1px solid #797979;
+            }
+            .content {
+                background: #333;
+            }
+        }
+        .accordion .content{
+            padding: 10px;
+        }
+        code{
+            background-color: inherit;
+            border: none;
+        }
+    }
+    .clickable{
+        cursor: pointer;
+    }
+    .summary {
+        width: 70px;
+    }
+    .activity {
+        width: 110px;
+    }
+    .time {
+        width: 110px;
+    }
+    .path {
+        width: calc( 100% - 290px );
+    }
+
+}

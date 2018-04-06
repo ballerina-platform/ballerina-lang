@@ -60,11 +60,9 @@ public class PackageInfoWriter {
     public static void writeCP(DataOutputStream dataOutStream,
                                 ConstantPoolEntry[] constPool) throws IOException {
         dataOutStream.writeInt(constPool.length);
-
         for (ConstantPoolEntry cpEntry : constPool) {
             // Emitting the kind of the constant pool entry.
             dataOutStream.writeByte(cpEntry.getEntryType().getValue());
-
             int nameCPIndex;
             switch (cpEntry.getEntryType()) {
                 case CP_ENTRY_UTF8:

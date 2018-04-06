@@ -13,180 +13,218 @@ documentation {
     F{{retry}} - Retry related configuration.
     F{{httpClient}}  - HTTP client for outbound HTTP requests.
 }
-public struct RetryClient {
-   string serviceUri;
-   ClientEndpointConfiguration config;
-   Retry retry;
-   HttpClient httpClient;
+public type RetryClient object {
+    public {
+        string serviceUri;
+        ClientEndpointConfiguration config;
+        Retry retry;
+        HttpClient httpClient;
+    }
+
+    public new (serviceUri, config, retry, httpClient) {}
+
+    documentation {
+        The POST function implementation of the HTTP retry client. Protects the invocation of the POST function attached to the underlying HTTP client.
+
+        T{{client}} - RetryClient struct that the post function should be attached to.
+        P{{path}} - Target service url.
+        P{{request}}  - A request message.
+    }
+    public function post (string path, Request request) returns (Response | HttpConnectorError);
+
+    documentation {
+        The HEAD function implementation of the HTTP retry client. Protects the invocation of the HEAD function attached to the underlying HTTP client.
+
+        T{{client}} - RetryClient struct that the head function should be attached to.
+        P{{path}} - Target service url.
+        P{{request}}  - A request message.
+    }
+    public function head (string path, Request request) returns (Response | HttpConnectorError);
+
+    documentation {
+        The PUT function implementation of the HTTP retry client. Protects the invocation of the PUT function attached to the underlying HTTP client.
+
+        T{{client}} - RetryClient struct that the put function should be attached to.
+        P{{path}} - Target service url.
+        P{{request}}  - A request message.
+    }
+    public function put (string path, Request request) returns (Response | HttpConnectorError);
+
+    documentation {
+        The FORWARD function implementation of the HTTP retry client. Protects the invocation of the FORWARD function attached to the underlying HTTP client.
+
+        T{{client}} - RetryClient struct that the forward function should be attached to.
+        P{{path}} - Target service url.
+        P{{request}}  - A request message.
+    }
+    public function forward (string path, Request request) returns (Response | HttpConnectorError);
+
+    documentation {
+        The EXECUTE function implementation of the HTTP retry client. Protects the invocation of the EXECUTE function attached to the underlying HTTP client.
+
+        T{{client}} - RetryClient struct that the forward function should be attached to.
+        P{{httpVerb}} - HTTP verb to be used for the request.
+        P{{path}} - Target service url.
+        P{{request}}  - A request message.
+    }
+    public function execute (string httpVerb, string path, Request request) returns (Response | HttpConnectorError);
+
+    documentation {
+        The PATCH function implementation of the HTTP retry client. Protects the invocation of the PATCH function attached to the underlying HTTP client.
+
+        T{{client}} - RetryClient struct that the patch function should be attached to.
+        P{{path}} - Target service url.
+        P{{request}}  - A request message.
+    }
+    public function patch (string path, Request request) returns (Response | HttpConnectorError);
+
+    documentation {
+        The DELETE function implementation of the HTTP retry client. Protects the invocation of the DELETE function attached to the underlying HTTP client.
+
+        T{{client}} - RetryClient struct that the delete function should be attached to.
+        P{{path}} - Target service url.
+        P{{request}}  - A request message.
+    }
+    public function delete (string path, Request request) returns (Response | HttpConnectorError);
+
+    documentation {
+        The GET function implementation of the HTTP retry client. Protects the invocation of the GET function attached to the underlying HTTP client.
+
+        T{{client}} - RetryClient struct that the get function should be attached to.
+        P{{path}} - Target service url.
+        P{{request}}  - A request message.
+    }
+    public function get (string path, Request request) returns (Response | HttpConnectorError);
+
+    documentation {
+        The OPTIONS function implementation of the HTTP retry client. Protects the invocation of the OPTIONS function attached to the underlying HTTP client.
+
+        T{{client}} - RetryClient struct that the options function should be attached to.
+        P{{path}} - Target service url.
+        P{{request}}  - A request message.
+    }
+    public function options (string path, Request request) returns (Response | HttpConnectorError);
+
+    documentation {
+        The SUBMIT function implementation of the HTTP retry client.
+
+        T{{client}} - RetryClient struct that the delete function should be attached to.
+        P{{httpVerb}} - HTTP verb to be used for the request.
+        P{{path}} - Target service url.
+        P{{request}}  - A request message.
+    }
+    public function submit (string httpVerb, string path, Request request) returns (HttpHandle | HttpConnectorError);
+
+    documentation {
+        The getResponse function implementation of the HTTP retry client.
+
+        T{{client}} - RetryClient struct that the delete function should be attached to.
+        P{{handle}} -The Handle which relates to previous async invocation.
+    }
+    public function getResponse (HttpHandle handle) returns (Response | HttpConnectorError);
+
+    documentation {
+        The hasPromise function implementation of the HTTP retry client.
+
+        T{{client}} - RetryClient struct that the delete function should be attached to.
+        P{{handle}} -The Handle which relates to previous async invocation.
+    }
+    public function hasPromise (HttpHandle handle) returns (boolean);
+
+    documentation {
+        The getNextPromise function implementation of the HTTP retry client.
+
+        T{{client}} - RetryClient struct that the getNextPromise function should be attached to.
+        P{{handle}} -The Handle which relates to previous async invocation.
+    }
+    public function getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError);
+
+    documentation {
+        The getPromisedResponse function implementation of the HTTP retry client.
+
+        T{{client}} - RetryClient struct that the getNextPromise function should be attached to.
+        P{{promise}} - The related Push Promise message.
+    }
+    public function getPromisedResponse (PushPromise promise) returns (Response | HttpConnectorError);
+
+    documentation {
+        The rejectPromise function implementation of the HTTP retry client.
+
+        T{{client}} - RetryClient struct that the getNextPromise function should be attached to.
+        P{{promise}} - The Push Promise need to be rejected.
+    }
+    public function rejectPromise (PushPromise promise) returns (boolean);
+};
+
+public function RetryClient::post (string path, Request request) returns (Response | HttpConnectorError) {
+	return performRetryAction(path, request, HTTP_POST, self);
 }
 
-documentation {
-    The POST function implementation of the HTTP retry client. Protects the invocation of the POST function attached to the underlying HTTP client.
-
-    T{{client}} - RetryClient struct that the post function should be attached to.
-    P{{path}} - Target service url.
-    P{{request}}  - A request message.
-}
-public function <RetryClient client> post (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.POST, client);
+public function RetryClient::head (string path, Request request) returns (Response | HttpConnectorError) {
+	return performRetryAction(path, request, HTTP_HEAD, self);
 }
 
-documentation {
-    The HEAD function implementation of the HTTP retry client. Protects the invocation of the HEAD function attached to the underlying HTTP client.
-
-    T{{client}} - RetryClient struct that the head function should be attached to.
-    P{{path}} - Target service url.
-    P{{request}}  - A request message.
-}
-public function <RetryClient client> head (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.HEAD, client);
+public function RetryClient::put (string path, Request request) returns (Response | HttpConnectorError) {
+	return performRetryAction(path, request, HTTP_PUT, self);
 }
 
-documentation {
-    The PUT function implementation of the HTTP retry client. Protects the invocation of the PUT function attached to the underlying HTTP client.
-
-    T{{client}} - RetryClient struct that the put function should be attached to.
-    P{{path}} - Target service url.
-    P{{request}}  - A request message.
-}
-public function <RetryClient client> put (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.PUT, client);
+public function RetryClient::forward (string path, Request request) returns (Response | HttpConnectorError) {
+	return performRetryAction(path, request, HTTP_FORWARD, self);
 }
 
-documentation {
-    The FORWARD function implementation of the HTTP retry client. Protects the invocation of the FORWARD function attached to the underlying HTTP client.
-
-    T{{client}} - RetryClient struct that the forward function should be attached to.
-    P{{path}} - Target service url.
-    P{{request}}  - A request message.
-}
-public function <RetryClient client> forward (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.FORWARD, client);
+public function RetryClient::execute (string httpVerb, string path, Request request) returns (Response | HttpConnectorError) {
+	return performRetryClientExecuteAction(path, request, httpVerb, self);
 }
 
-documentation {
-    The EXECUTE function implementation of the HTTP retry client. Protects the invocation of the EXECUTE function attached to the underlying HTTP client.
-
-    T{{client}} - RetryClient struct that the forward function should be attached to.
-    P{{httpVerb}} - HTTP verb to be used for the request.
-    P{{path}} - Target service url.
-    P{{request}}  - A request message.
-}
-public function <RetryClient client> execute (string httpVerb, string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryClientExecuteAction(path, request, httpVerb, client);
+public function RetryClient::patch (string path, Request request) returns (Response | HttpConnectorError) {
+	return performRetryAction(path, request, HTTP_PATCH, self);
 }
 
-documentation {
-    The PATCH function implementation of the HTTP retry client. Protects the invocation of the PATCH function attached to the underlying HTTP client.
-
-    T{{client}} - RetryClient struct that the patch function should be attached to.
-    P{{path}} - Target service url.
-    P{{request}}  - A request message.
-}
-public function <RetryClient client> patch (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.PATCH, client);
+public function RetryClient::delete (string path, Request request) returns (Response | HttpConnectorError) {
+	return performRetryAction(path, request, HTTP_DELETE, self);
 }
 
-documentation {
-    The DELETE function implementation of the HTTP retry client. Protects the invocation of the DELETE function attached to the underlying HTTP client.
-
-    T{{client}} - RetryClient struct that the delete function should be attached to.
-    P{{path}} - Target service url.
-    P{{request}}  - A request message.
-}
-public function <RetryClient client> delete (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.DELETE, client);
+public function RetryClient::get (string path, Request request) returns (Response | HttpConnectorError) {
+	return performRetryAction(path, request, HTTP_GET, self);
 }
 
-documentation {
-    The GET function implementation of the HTTP retry client. Protects the invocation of the GET function attached to the underlying HTTP client.
-
-    T{{client}} - RetryClient struct that the get function should be attached to.
-    P{{path}} - Target service url.
-    P{{request}}  - A request message.
-}
-public function <RetryClient client> get (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.GET, client);
+public function RetryClient::options (string path, Request request) returns (Response | HttpConnectorError) {
+	return performRetryAction(path, request, HTTP_OPTIONS, self);
 }
 
-documentation {
-    The OPTIONS function implementation of the HTTP retry client. Protects the invocation of the OPTIONS function attached to the underlying HTTP client.
-
-    T{{client}} - RetryClient struct that the options function should be attached to.
-    P{{path}} - Target service url.
-    P{{request}}  - A request message.
-}
-public function <RetryClient client> options (string path, Request request) returns (Response | HttpConnectorError) {
-	return performRetryAction(path, request, HttpOperation.OPTIONS, client);
-}
-
-documentation {
-    The SUBMIT function implementation of the HTTP retry client.
-
-    T{{client}} - RetryClient struct that the delete function should be attached to.
-    P{{httpVerb}} - HTTP verb to be used for the request.
-    P{{path}} - Target service url.
-    P{{request}}  - A request message.
-}
-public function <RetryClient client> submit (string httpVerb, string path, Request request) returns (HttpHandle | HttpConnectorError) {
-	HttpConnectorError httpConnectorError = {};
+public function RetryClient::submit (string httpVerb, string path, Request request) returns (HttpHandle | HttpConnectorError) {
+    //TODO : Initialize the record type correctly once it is fixed.
+	HttpConnectorError httpConnectorError = {statusCode:501};
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
 
-documentation {
-    The getResponse function implementation of the HTTP retry client.
-
-    T{{client}} - RetryClient struct that the delete function should be attached to.
-    P{{handle}} -The Handle which relates to previous async invocation.
-}
-public function <RetryClient client> getResponse (HttpHandle handle) returns (Response | HttpConnectorError) {
-	HttpConnectorError httpConnectorError = {};
+public function RetryClient::getResponse (HttpHandle handle) returns (Response | HttpConnectorError) {
+    //TODO : Initialize the record type correctly once it is fixed.
+	HttpConnectorError httpConnectorError = {statusCode:501};
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
 
-documentation {
-    The hasPromise function implementation of the HTTP retry client.
-
-    T{{client}} - RetryClient struct that the delete function should be attached to.
-    P{{handle}} -The Handle which relates to previous async invocation.
-}
-public function <RetryClient client> hasPromise (HttpHandle handle) returns (boolean) {
+public function RetryClient::hasPromise (HttpHandle handle) returns (boolean) {
 	return false;
 }
 
-documentation {
-    The getNextPromise function implementation of the HTTP retry client.
-
-    T{{client}} - RetryClient struct that the getNextPromise function should be attached to.
-    P{{handle}} -The Handle which relates to previous async invocation.
-}
-public function <RetryClient client> getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError) {
-	HttpConnectorError httpConnectorError = {};
+public function RetryClient::getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError) {
+    //TODO : Initialize the record type once it is fixed.
+	HttpConnectorError httpConnectorError = {statusCode:501};
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
 
-documentation {
-    The getPromisedResponse function implementation of the HTTP retry client.
-
-    T{{client}} - RetryClient struct that the getNextPromise function should be attached to.
-    P{{promise}} - The related Push Promise message.
-}
-public function <RetryClient client> getPromisedResponse (PushPromise promise) returns (Response | HttpConnectorError) {
-	HttpConnectorError httpConnectorError = {};
+public function RetryClient::getPromisedResponse (PushPromise promise) returns (Response | HttpConnectorError) {
+    //TODO : Initialize this correctly, once it is fixed.
+	HttpConnectorError httpConnectorError = {statusCode:501};
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
 
-documentation {
-    The rejectPromise function implementation of the HTTP retry client.
-
-    T{{client}} - RetryClient struct that the getNextPromise function should be attached to.
-    P{{promise}} - The Push Promise need to be rejected.
-}
-public function <RetryClient client> rejectPromise (PushPromise promise) returns (boolean) {
+public function RetryClient::rejectPromise (PushPromise promise) returns (boolean) {
 	return false;
 }
 
@@ -213,14 +251,15 @@ function performRetryAction (string path, Request request, HttpOperation request
         maxWaitInterval = 60000;
     }
     HttpClient httpClient = retryClient.httpClient;
-    Response response = {};
-    HttpConnectorError httpConnectorError = {};
+    Response response = new;
+    //TODO : Initialize the record type correctly once it is fixed.
+    HttpConnectorError httpConnectorError = {statusCode:501};
     Request inRequest = request;
     // When performing passthrough scenarios using retry client, message needs to be built before sending out the
     // to keep the request message to retry.
-    var binaryPayload =? inRequest.getBinaryPayload();
+    var binaryPayload = check inRequest.getBinaryPayload();
 
-    mime:Entity requestEntity = {};
+    mime:Entity requestEntity = new;
     var mimeEntity = inRequest.getEntity();
     match mimeEntity {
         mime:Entity entity => requestEntity = entity;

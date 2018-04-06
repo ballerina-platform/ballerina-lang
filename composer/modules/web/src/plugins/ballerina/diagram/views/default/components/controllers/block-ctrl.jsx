@@ -75,6 +75,8 @@ class BlockCtrl extends React.Component {
             }
         } else if (TreeUtil.isTry(node.parent)) {
             // do nothing
+        } else if (TreeUtil.isMatchPatternClause(node.parent)) {
+            // do nothing
         } else if (TreeUtil.isCatch(node.parent)) {
             // do nothing
         } else if (TreeUtil.isFinally(node)) {

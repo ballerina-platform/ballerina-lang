@@ -77,10 +77,11 @@ public class StreamingRuntimeManager {
     public void addCallback(String streamId, BFunctionPointer functionPointer, SiddhiAppRuntime siddhiAppRuntime) {
 
         BType[] parameters = functionPointer.value().getFunctionInfo().getParamTypes();
-        BStructType structType = (BStructType) ((BArrayType) parameters[0]).getElementType();
-        if (!(parameters[0] instanceof BArrayType)) {
+        BStream stream = (BStream) (functionPointer.getClosureVars().get(0)).value();
+        BStructType structType = (BStructType) ((BArrayType) parameters[parameters.length - 1]).getElementType();
+        if (!(parameters[parameters.length - 1] instanceof BArrayType)) {
             throw new BallerinaException("incompatible function: inline function needs to be a function accepting"
-                    + " a struct array");
+                    + " an object array");
         }
 
         siddhiAppRuntime.addCallback(streamId, new StreamCallback() {
@@ -103,7 +104,7 @@ public class StreamingRuntimeManager {
                             output.setStringField(stringVarIndex.incrementAndGet(), (String) field);
                         }
                     }
-                    BValue[] args = {output};
+                    BValue[] args = {stream, output};
                     BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(), args);
                 }
             }

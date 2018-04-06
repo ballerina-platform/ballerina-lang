@@ -964,8 +964,30 @@ public class Types {
         }
 
         @Override
-        public Boolean visit(BUnionType t, BType s) {
-            return t == s;
+        public Boolean visit(BUnionType tUnionType, BType s) {
+            if (s.tag != TypeTags.UNION) {
+                return false;
+            }
+
+            BUnionType sUnionType = (BUnionType) s;
+
+            if (sUnionType.memberTypes.size()
+                    != tUnionType.memberTypes.size()) {
+                return false;
+            }
+
+            Set<BType> sourceTypes = new HashSet<>();
+            Set<BType> targetTypes = new HashSet<>();
+            sourceTypes.addAll(sUnionType.memberTypes);
+            targetTypes.addAll(tUnionType.memberTypes);
+
+            boolean notSameType = sourceTypes
+                    .stream()
+                    .map(sT -> targetTypes
+                            .stream()
+                            .anyMatch(it -> isSameType(it, sT)))
+                    .anyMatch(foundSameType -> !foundSameType);
+            return !notSameType;
         }
 
         @Override

@@ -2,8 +2,6 @@ package functionmocktest.pkg;
 
 import ballerina/test;
 import ballerina/io;
-import ballerina/mime;
-import ballerina/file;
 
 @test:Mock {
     packageName : "functionmocktest2.pkg" ,

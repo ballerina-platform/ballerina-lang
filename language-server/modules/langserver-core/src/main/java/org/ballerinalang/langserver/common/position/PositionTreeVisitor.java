@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbo
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -149,12 +150,16 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             funcNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (funcNode.body != null) {
-            this.acceptNode(funcNode.body);
+        if (funcNode.returnTypeNode != null && !(funcNode.returnTypeNode.type instanceof BNilType)) {
+            this.acceptNode(funcNode.returnTypeNode);
         }
 
         if (funcNode.endpoints != null && !funcNode.endpoints.isEmpty()) {
             funcNode.endpoints.forEach(this::acceptNode);
+        }
+
+        if (funcNode.body != null) {
+            this.acceptNode(funcNode.body);
         }
 
         // Process workers
@@ -169,46 +174,49 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        userDefinedType.getPosition().sCol += (previousNode instanceof BLangEndpointTypeNode
-                ? "endpoint<".length()
-                : 0);
-        CommonUtil.calculateEndColumnOfGivenName(userDefinedType.getPosition(), userDefinedType.typeName.value,
-                userDefinedType.pkgAlias.value);
-        if (userDefinedType.type instanceof BUnionType &&
-                HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
-            try {
-                BUnionType bUnionType = (BUnionType) userDefinedType.type;
-                for (BType type : bUnionType.memberTypes) {
-                    if (type.tsymbol != null && type.tsymbol.getName().getValue().equals(userDefinedType
-                            .typeName.getValue())) {
-                        this.context.put(NodeContextKeys.NODE_KEY, userDefinedType);
-                        this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-                        this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
-                        this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, type.tsymbol.pkgID);
-                        this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, type.tsymbol.kind.name());
-                        this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, type.tsymbol.kind.name());
-                        this.context.put(NodeContextKeys.NODE_OWNER_KEY, type.tsymbol.owner.name.getValue());
-                        this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, type.tsymbol.owner.pkgID);
-                        this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
-                        setTerminateVisitor(true);
-                        break;
+        if (userDefinedType.getPosition() != null) {
+            userDefinedType.getPosition().sCol += (previousNode instanceof BLangEndpointTypeNode
+                    ? "endpoint<".length()
+                    : 0);
+            CommonUtil.calculateEndColumnOfGivenName(userDefinedType.getPosition(), userDefinedType.typeName.value,
+                    userDefinedType.pkgAlias.value);
+            if (userDefinedType.type instanceof BUnionType &&
+                    HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
+                try {
+                    BUnionType bUnionType = (BUnionType) userDefinedType.type;
+                    for (BType type : bUnionType.memberTypes) {
+                        if (type.tsymbol != null && type.tsymbol.getName().getValue().equals(userDefinedType
+                                .typeName.getValue())) {
+                            this.context.put(NodeContextKeys.NODE_KEY, userDefinedType);
+                            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+                            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
+                            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, type.tsymbol.pkgID);
+                            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, type.tsymbol.kind.name());
+                            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, type.tsymbol.kind.name());
+                            this.context.put(NodeContextKeys.NODE_OWNER_KEY, type.tsymbol.owner.name.getValue());
+                            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, type.tsymbol.owner.pkgID);
+                            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
+                            setTerminateVisitor(true);
+                            break;
+                        }
                     }
+                } catch (ClassCastException e) {
+                    // Ignores
                 }
-            } catch (ClassCastException e) {
-                // Ignores
+            } else if (userDefinedType.type.tsymbol != null &&
+                    HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
+                this.context.put(NodeContextKeys.NODE_KEY, userDefinedType);
+                this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+                this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
+                this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, userDefinedType.type.tsymbol.pkgID);
+                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY,
+                        userDefinedType.type.tsymbol.kind.name());
+                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, userDefinedType.type.tsymbol.kind.name());
+                this.context.put(NodeContextKeys.NODE_OWNER_KEY, userDefinedType.type.tsymbol.owner.name.getValue());
+                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, userDefinedType.type.tsymbol.owner.pkgID);
+                this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
+                setTerminateVisitor(true);
             }
-        } else if (userDefinedType.type.tsymbol != null &&
-                HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
-            this.context.put(NodeContextKeys.NODE_KEY, userDefinedType);
-            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
-            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, userDefinedType.type.tsymbol.pkgID);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, userDefinedType.type.tsymbol.kind.name());
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, userDefinedType.type.tsymbol.kind.name());
-            this.context.put(NodeContextKeys.NODE_OWNER_KEY, userDefinedType.type.tsymbol.owner.name.getValue());
-            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, userDefinedType.type.tsymbol.owner.pkgID);
-            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
-            setTerminateVisitor(true);
         }
     }
 
@@ -244,8 +252,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
             setTerminateVisitor(true);
         } else if (varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
-                && (varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.ENUM)
-                || varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.STRUCT))
+                && varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.OBJECT)
                 && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
             this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
             this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
@@ -599,22 +606,26 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         setPreviousNode(workerSendNode);
-        if (!workerSendNode.exprs.isEmpty()) {
-            workerSendNode.exprs.forEach(this::acceptNode);
+        if (workerSendNode.expr != null) {
+            this.acceptNode(workerSendNode.expr);
         }
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         setPreviousNode(workerReceiveNode);
-        if (!workerReceiveNode.exprs.isEmpty()) {
-            workerReceiveNode.exprs.forEach(this::acceptNode);
+        if (workerReceiveNode.expr != null) {
+            this.acceptNode(workerReceiveNode.expr);
         }
     }
 
     @Override
     public void visit(BLangReturn returnNode) {
         setPreviousNode(returnNode);
+
+        if (returnNode.expr != null) {
+            this.acceptNode(returnNode.expr);
+        }
     }
 
     public void visit(BLangInvocation invocationExpr) {
@@ -666,7 +677,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     public void visit(BLangTypeInit connectorInitExpr) {
         setPreviousNode(connectorInitExpr);
         if (connectorInitExpr.userDefinedType != null) {
-            connectorInitExpr.userDefinedType.type = connectorInitExpr.type;
             acceptNode(connectorInitExpr.userDefinedType);
         }
 
@@ -794,6 +804,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangObject objectNode) {
         setPreviousNode(objectNode);
+
         if (!objectNode.fields.isEmpty()) {
             objectNode.fields.forEach(this::acceptNode);
         }

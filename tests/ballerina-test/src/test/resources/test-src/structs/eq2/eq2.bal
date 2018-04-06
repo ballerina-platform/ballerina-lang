@@ -1,6 +1,6 @@
 package eq2;
 
-public struct employee {
+public type employee {
     int age;
     string name;
     string address;

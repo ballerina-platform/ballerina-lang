@@ -1,15 +1,15 @@
 package org.foo.baz;
 
-public struct ParentFoo {
+public type ParentFoo {
     int i;
     ChildFoo c;
 }
 
-struct ChildFoo {
+type ChildFoo {
     string name;
 }
 
-struct privatePerson {
+type privatePerson {
     int age;
     string name;
 }

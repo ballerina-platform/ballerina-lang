@@ -13,7 +13,7 @@ public type Person object {
         int id = 50;
         string ssn = "aaa";
     }
-}
+};
 
 public function createPerson() returns (Person) {
     return new Person();

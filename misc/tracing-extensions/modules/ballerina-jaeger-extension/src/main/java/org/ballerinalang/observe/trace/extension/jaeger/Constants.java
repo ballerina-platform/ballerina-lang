@@ -39,7 +39,7 @@ public class Constants {
     static final String REPORTER_MAX_BUFFER_SPANS_CONFIG = "reporter.max.buffer.spans";
 
     static final String DEFAULT_SAMPLER_TYPE = "const";
-    static final Number DEFAULT_SAMPLER_PARAM = 1;
+    static final int DEFAULT_SAMPLER_PARAM = 1;
     static final boolean DEFAULT_REPORTER_LOG_SPANS = true;
     static final String DEFAULT_REPORTER_HOSTNAME = "localhost";
     static final int DEFAULT_REPORTER_PORT = 5775;

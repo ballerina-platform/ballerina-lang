@@ -8,10 +8,9 @@ function testCreateAuthnHandlerChain () returns (http:AuthnHandlerChain) {
 
 function testAuthFailure () returns (boolean) {
     http:AuthnHandlerChain authnHandlerChain = http:createAuthnHandlerChain();
-    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
-                                   userAgent:"curl/7.35.0", extraPathInfo:"null"};
+    http:Request inRequest = createRequest();
     string basicAutheaderValue = "123Basic xxxxx";
-    mime:Entity requestEntity = {};
+    mime:Entity requestEntity = new;
     requestEntity.setHeader("123Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
     return authnHandlerChain.handle(inRequest);
@@ -19,11 +18,18 @@ function testAuthFailure () returns (boolean) {
 
 function testAuthSuccess () returns (boolean) {
     http:AuthnHandlerChain authnHandlerChain = http:createAuthnHandlerChain();
-    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
-                                   userAgent:"curl/7.35.0", extraPathInfo:"null"};
+    http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
-    mime:Entity requestEntity = {};
+    mime:Entity requestEntity = new;
     requestEntity.setHeader("Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
     return authnHandlerChain.handle(inRequest);
+}
+
+function createRequest () returns (http:Request) {
+    http:Request inRequest = new;
+    inRequest.rawPath = "/helloWorld/sayHello";
+    inRequest.method = "GET";
+    inRequest.httpVersion = "1.1";
+    return inRequest;
 }

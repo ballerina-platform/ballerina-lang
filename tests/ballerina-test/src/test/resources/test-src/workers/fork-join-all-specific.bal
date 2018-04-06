@@ -16,8 +16,8 @@ function testForkJoinAllOfSpecific() returns string[] {
         } join (all ABC_Airline, XYZ_Airline) (map airlineResponses) {
             any[] abc;
             any[] xyz;
-            abc=? <any[]> airlineResponses["ABC_Airline"];
-            xyz=? <any[]> airlineResponses["XYZ_Airline"];
+            abc=check <any[]> airlineResponses["ABC_Airline"];
+            xyz=check <any[]> airlineResponses["XYZ_Airline"];
             results[0] = <string> abc[0];
             results[1] = <string> xyz[0];
             return results;

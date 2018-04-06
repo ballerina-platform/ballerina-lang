@@ -74,7 +74,6 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -757,31 +756,6 @@ public class HttpUtil {
             outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING,
                     HTTP_TRANSFER_ENCODING_IDENTITY);
         }
-    }
-
-    /**
-     * Extract the listener configurations from the config annotation.
-     *
-     * @param annotationInfo configuration annotation info.
-     * @return the set of {@link ListenerConfiguration} which were extracted from config annotation.
-     */
-    public static Set<ListenerConfiguration> getDefaultOrDynamicListenerConfig(Annotation annotationInfo) {
-
-        if (annotationInfo == null) {
-            return HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
-        }
-
-        //key - listenerId, value - listener config property map
-        Set<ListenerConfiguration> listenerConfSet = new HashSet<>();
-
-        extractBasicConfig(annotationInfo, listenerConfSet);
-        extractHttpsConfig(annotationInfo, listenerConfSet);
-
-        if (listenerConfSet.isEmpty()) {
-            listenerConfSet = HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
-        }
-
-        return listenerConfSet;
     }
 
     public static String getListenerInterface(String host, int port) {

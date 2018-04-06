@@ -20,34 +20,37 @@ import ballerina/config;
 import ballerina/log;
 
 @Description {value:"Configuration key for groups in userstore"}
-const string PERMISSIONSTORE_GROUPS_ENTRY = "groups";
+@final string PERMISSIONSTORE_GROUPS_ENTRY = "groups";
 
-const string EMPTY_STRING = "";
+@final string EMPTY_STRING = "";
 
 @Description {value:"Represents the permission store"}
-public struct FileBasedPermissionStore {
-}
+public type FileBasedPermissionStore object {
+    new () {}
+    public function isAuthorized (string username, string[] scopes) returns (boolean);
+    public function isAuthorizedByGroups (string[] groups, string[] scopes) returns (boolean);
+    public function readGroupsOfScope (string scopeName) returns (string[]);
+    public function readGroupsOfUser (string username) returns (string[]);
+};
 
 @Description {value:"Checks if the the user has sufficient permission to access a resource with the specified scope"}
 @Param {value:"username: user name"}
 @Param {value:"scopes: array of scope names"}
 @Return {value:"boolean: true if authorized, else false"}
-public function <FileBasedPermissionStore permissionStore> isAuthorized (string username,
-                                                                         string[] scopes) returns (boolean) {
-    string[] groupsForUser = permissionStore.readGroupsOfUser(username);
+public function FileBasedPermissionStore::isAuthorized (string username, string[] scopes) returns (boolean) {
+    string[] groupsForUser = self.readGroupsOfUser(username);
     if (lengthof groupsForUser == 0) {
         // no groups for user
         return false;
     }
-    return permissionStore.isAuthorizedByGroups(groupsForUser, scopes);
+    return self.isAuthorizedByGroups(groupsForUser, scopes);
 }
 
 @Description {value:"Checks whether the groups provided can access a resource with the specified scopes"}
 @Param {value:"groups: array of group names"}
 @Param {value:"scopes: array of scope names"}
 @Return {value:"boolean: true if authorized, else false"}
-public function <FileBasedPermissionStore permissionStore> isAuthorizedByGroups (string[] groups,
-                                                                                 string[] scopes) returns (boolean) {
+public function FileBasedPermissionStore::isAuthorizedByGroups (string[] groups, string[] scopes) returns (boolean) {
     if (lengthof groups == 0) {
         // no groups for user
         return false;
@@ -58,7 +61,7 @@ public function <FileBasedPermissionStore permissionStore> isAuthorizedByGroups 
         // read groups for each scope and see if there is a match between user's groups
         // and the groups of the scope. There is no need to read groups for all scopes
         // and do the comparison.
-        groupsForScope = permissionStore.readGroupsOfScope(scopeName);
+        groupsForScope = self.readGroupsOfScope(scopeName);
         if (lengthof groupsForScope > 0) {
             // check if there is a match
             if (matchGroups(groupsForScope, groups)) {
@@ -73,7 +76,7 @@ public function <FileBasedPermissionStore permissionStore> isAuthorizedByGroups 
 @Description {value:"Reads groups for the given scopes"}
 @Param {value:"scopeName: name of the scope"}
 @Return {value:"string[]: array of groups corresponding to the given scope name"}
-public function <FileBasedPermissionStore permissionStore> readGroupsOfScope (string scopeName) returns (string[]) {
+public function FileBasedPermissionStore::readGroupsOfScope (string scopeName) returns (string[]) {
     return getGroupsArray(getPermissionStoreConfigValue(scopeName, PERMISSIONSTORE_GROUPS_ENTRY));
 }
 
@@ -95,7 +98,7 @@ function matchGroups (string[] groupsOfScope, string[] groupsOfUser) returns (bo
 
 @Description {value:"Construct an array of groups from the comma separed group string passed"}
 @Param {value:"groupString: comma separated string of groups"}
-@Return {value:"string[]: array of groups, null if the groups string is empty/null"}
+@Return {value:"string[]: array of groups, nil if the groups string is empty/nil"}
 function getGroupsArray (string groupString) returns (string[]) {
     string[] groupsArr = [];
     if (lengthof groupString == 0) {
@@ -107,7 +110,7 @@ function getGroupsArray (string groupString) returns (string[]) {
 @Description {value:"Reads the groups for a user"}
 @Param {value:"string: username"}
 @Return {value:"string[]: array of groups, for the user denoted by the username"}
-public function <FileBasedPermissionStore permissionStore> readGroupsOfUser (string username) returns (string[]) {
+public function FileBasedPermissionStore::readGroupsOfUser (string username) returns (string[]) {
     string userId = getPermissionStoreConfigValue(username, "userid");
     string[] groupsArr = [];
     if (userId == EMPTY_STRING) {
@@ -119,8 +122,8 @@ public function <FileBasedPermissionStore permissionStore> readGroupsOfUser (str
 function getPermissionStoreConfigValue (string instanceId, string property) returns (string) {
     match config:getAsString(instanceId + "." + property) {
         string value => {
-            return value == null ? "" : value;
+            return value == () ? "" : value;
         }
-        any|null => return "";
+        () => return "";
     }
 }

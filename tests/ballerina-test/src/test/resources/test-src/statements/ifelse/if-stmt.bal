@@ -3,22 +3,23 @@ function testIfStmt(int a, int b, int c) returns (int, int) {
     int x;
     x = 10;
 
+    int a1;
     if ( a == b) {
-        a = 100;
+        a1 = 100;
 
     } else if (a == b + 1){
-        a = 200;
+        a1 = 200;
 
     } else  if (a == b + 2){
-        a = 300;
+        a1 = 300;
 
     }  else {
-        a = 400;
+        a1 = 400;
     }
 
-    b = c;
+    int b1 = c;
 
-    return (a + x, b + 1);
+    return (a1 + x, b1 + 1);
 }
 
 function testAgeGroup(int age) returns (string) {
@@ -88,7 +89,7 @@ function nestedIfElseScope(int number1, int number2) returns (int) {
     return i;
 }
 
-const int a = 6;
+@final int a = 6;
 
 function testConditionScope(int b) returns (int) {
     int output = 0;

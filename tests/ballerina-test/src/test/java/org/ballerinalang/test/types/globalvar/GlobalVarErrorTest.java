@@ -32,6 +32,6 @@ public class GlobalVarErrorTest {
     public void testStructFieldWithChildPackagePaths() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/statements/variabledef/global-var-function-negative.bal");
-        BAssertUtil.validateError(resultNegative, 0, "extraneous input ':'", 7, 20);
+        BAssertUtil.validateError(resultNegative, 6, "extraneous input ':'", 7, 20);
     }
 }

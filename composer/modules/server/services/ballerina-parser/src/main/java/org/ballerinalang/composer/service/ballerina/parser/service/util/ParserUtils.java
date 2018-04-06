@@ -890,8 +890,14 @@ public class ParserUtils {
         sourceDocument.setSourceRoot(sourceRoot);
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceDocument,
-                true, documentManager, CompilerPhase.DEFINE);
+        if ("".equals(pkgName)) {
+            Path filePath = path.getFileName();
+            if (filePath != null) {
+                pkgName = filePath.toString();
+            }
+        }
+        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
+                                         sourceDocument, true, documentManager, CompilerPhase.DEFINE);
 
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
@@ -900,14 +906,7 @@ public class ParserUtils {
         BLangPackage bLangPackage = null;
         try {
             Compiler compiler = Compiler.getInstance(context);
-            if ("".equals(pkgName)) {
-                Path filePath = path.getFileName();
-                if (filePath != null) {
-                    bLangPackage = compiler.compile(filePath.toString());
-                }
-            } else {
-                bLangPackage = compiler.compile(pkgName);
-            }
+            bLangPackage = compiler.compile(pkgName);
         } catch (Exception e) {
             // Ignore.
         }

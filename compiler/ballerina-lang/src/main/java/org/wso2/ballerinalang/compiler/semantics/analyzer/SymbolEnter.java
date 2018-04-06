@@ -212,11 +212,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
 
-        // Define struct field nodes.
-        defineRecordFields(pkgNode.records, pkgEnv);
-
         // Define type definitions.
         pkgNode.typeDefinitions.forEach(typeDefinition -> defineNode(typeDefinition, pkgEnv));
+
+        // Define struct field nodes.
+        defineRecordFields(pkgNode.records, pkgEnv);
 
         // Define struct field nodes.
         defineStructFields(pkgNode.structs, pkgEnv);
@@ -664,10 +664,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         //Check annotations attached to the variable
         if (varNode.annAttachments.size() > 0) {
             if (hasAnnotation(varNode.annAttachments, Names.ANNOTATION_FINAL.getValue())) {
-                varNode.flagSet.add(Flag.READONLY);
+                varNode.flagSet.add(Flag.FINAL);
             }
             if (hasAnnotation(varNode.annAttachments, Names.ANNOTATION_READONLY.getValue())) {
-                varNode.flagSet.add(Flag.CONST);
+                varNode.flagSet.add(Flag.READONLY);
             }
         }
 
