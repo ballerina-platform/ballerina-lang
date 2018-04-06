@@ -256,7 +256,6 @@ public class Desugar extends BLangNodeVisitor {
         }
         SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
-        annotationDesugar.rewritePackageAnnotations(pkgNode);
 
         pkgNode.globalVars.forEach(v -> {
             BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v);
@@ -267,8 +266,7 @@ public class Desugar extends BLangNodeVisitor {
                 pkgNode.initFunction.body.stmts.add(assignment);
             }
         });
-        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
-        pkgNode.initFunction.body.stmts.add(returnStmt);
+        annotationDesugar.rewritePackageAnnotations(pkgNode);
 
         //Adding object functions to package level.
         pkgNode.objects.forEach(o -> o.functions.forEach(f -> {
