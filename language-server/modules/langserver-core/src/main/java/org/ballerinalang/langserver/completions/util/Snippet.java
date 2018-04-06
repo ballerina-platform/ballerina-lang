@@ -29,6 +29,7 @@ public enum Snippet {
     FOREACH("foreach ${1:varRefList} in ${2:listReference} {\n\t${3}\n}"),
     FORK("fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}"),
     FUNCTION("function ${1:name} (${2}) {\n\t${3}\n}"),
+    FUNCTION_SIGNATURE("function ${1:name} (${2});"),
     IF("if (${1:true}) {\n\t${2}\n}"),
     LOCK("lock {\n\t${1}\n}"),
     MAIN_FUNCTION("function main (string[] args) {\n\t${1}\n}"),
