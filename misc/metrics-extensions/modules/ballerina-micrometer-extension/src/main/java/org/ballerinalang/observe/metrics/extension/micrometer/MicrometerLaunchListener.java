@@ -15,15 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.util.metrics;
+package org.ballerinalang.observe.metrics.extension.micrometer;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.micrometer.core.instrument.binder.system.FileDescriptorMetrics;
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
+import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.LaunchListener;
-import org.ballerinalang.util.observability.ObservabilityUtils;
-
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 
@@ -31,23 +35,27 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG
  * Listen to Launcher events and initialize Metrics.
  */
 @JavaSPIService("org.ballerinalang.util.LaunchListener")
-public class MetricsLaunchListener implements LaunchListener {
+public class MicrometerLaunchListener implements LaunchListener {
 
     @Override
     public void beforeRunProgram(boolean service) {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        if (Boolean.valueOf(configRegistry.getConfigOrDefault(CONFIG_METRICS_ENABLED, String.valueOf(Boolean.FALSE)))) {
-            ObservabilityUtils.addObserver(new BallerinaMetricsObserver());
+        if (!Boolean.valueOf(configRegistry.getConfiguration(CONFIG_METRICS_ENABLED))) {
+            return;
         }
+        // Initialize Metrics at launch
+        MeterRegistry meterRegistry = MicrometerMeterRegistryHolder.getInstance();
+
+        new ClassLoaderMetrics().bindTo(meterRegistry);
+        new JvmMemoryMetrics().bindTo(meterRegistry);
+        new JvmGcMetrics().bindTo(meterRegistry);
+        new ProcessorMetrics().bindTo(meterRegistry);
+        new JvmThreadMetrics().bindTo(meterRegistry);
+        new FileDescriptorMetrics().bindTo(meterRegistry);
+        new UptimeMetrics().bindTo(meterRegistry);
     }
 
     @Override
     public void afterRunProgram(boolean service) {
-        if (service) {
-            Gauge gauge = Gauge.builder("startup_time_milliseconds")
-                    .description("Startup time in milliseconds").register();
-            RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-            gauge.set(System.currentTimeMillis() - runtimeMXBean.getStartTime());
-        }
     }
 }
