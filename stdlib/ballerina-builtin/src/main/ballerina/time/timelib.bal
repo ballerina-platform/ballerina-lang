@@ -16,7 +16,7 @@
 
 package ballerina.time;
 
-@final TimeFormat TIME_RFC_1123 = "RFC_1123";
+@final public TimeFormat TIME_RFC_1123 = "RFC_1123";
 
 public type TimeFormat "RFC_1123";
 
