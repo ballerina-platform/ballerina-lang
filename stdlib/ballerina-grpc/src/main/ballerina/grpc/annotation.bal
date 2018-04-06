@@ -32,7 +32,7 @@ public type ServiceConfig {
     boolean clientStreaming;
     boolean serverStreaming;
     boolean generateClientConnector;
-}
+};
 
 documentation {
     gRPC service configuration annotation.
@@ -47,7 +47,7 @@ documentation {
 }
 public type ResourceConfig {
     boolean streaming;
-}
+};
 
 documentation {
     gRPC service resource configuration annotation.
@@ -58,7 +58,7 @@ documentation {
     Identify the service as server message listener.
 }
 public type MessageListener object {
-}
+};
 
 documentation {
     gRPC service listener annotation.

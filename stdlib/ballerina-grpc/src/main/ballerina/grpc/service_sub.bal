@@ -59,7 +59,7 @@ public type ServiceStub object {
     }
     public native function streamingExecute (string methodID, typedesc listenerService) returns (Client |
             ConnectorError);
-}
+};
 
 
 documentation {
@@ -92,6 +92,4 @@ public type ClientConnection object {
         P{{clientError}} - error message.
     }
     public native function errorResponse (ClientError clientError) returns (ConnectorError);
-}
-
-
+};

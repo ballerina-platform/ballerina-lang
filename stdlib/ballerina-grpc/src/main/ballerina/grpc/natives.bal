@@ -28,7 +28,7 @@ public type ConnectorError object {
         error cause;
         int statusCode;
     }
-}
+};
 
 documentation {
     ServerError struct represents an error occured during gRPC server excution
@@ -44,7 +44,7 @@ public type ServerError object {
         error cause;
         int statusCode;
     }
-}
+};
 
 documentation {
     ClientError struct represents an error occured during gRPC client connector
@@ -60,4 +60,4 @@ public type ClientError object {
         error cause;
         int statusCode;
     }
-}
+};

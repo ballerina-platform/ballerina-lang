@@ -197,7 +197,7 @@ public class GrpcServicesBuilder {
             try {
                 server.start();
             } catch (IOException e) {
-                throw new GrpcServerException("Error while starting gRPC server", e);
+                throw new GrpcServerException(e);
             }
         } else {
             throw new GrpcServerException("No gRPC service is registered to Start" +

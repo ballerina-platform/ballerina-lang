@@ -59,7 +59,7 @@ public type Client object {
         Returns the client connection that servicestub code uses
     }
     public native function getClient() returns (ClientConnection);
-}
+};
 
 documentation {
     Represents the gRPC client endpoint configuration
@@ -73,7 +73,7 @@ public type ClientEndpointConfiguration {
     string host;
     int port;
     SSL ssl;
-}
+};
 
 documentation {
     SSL struct represents SSL/TLS options to be used for client invocation
@@ -107,10 +107,10 @@ public type SSL {
     int cacheSize;
     int cacheValidityPeriod;
     boolean hostNameVerificationEnabled;
-}
+};
 
 public type Listener object {
     function getEndpoint() returns (Client) {
         return new;
     }
-}
+};
