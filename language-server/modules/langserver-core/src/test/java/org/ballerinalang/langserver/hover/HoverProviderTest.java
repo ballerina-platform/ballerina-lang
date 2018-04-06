@@ -36,9 +36,9 @@ import java.nio.file.Paths;
  */
 public class HoverProviderTest {
     private static final String TESTS_SAMPLES = "src" + File.separator + "test" + File.separator + "resources"
-            + File.separator + "hover.test";
+            + File.separator + "hover";
     private static final String ROOT_DIR = Paths.get("").toAbsolutePath().toString() + File.separator;
-    private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "hover.test";
+    private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "hover";
     private static final String METHOD = "textDocument/hover";
     private String balPath = SAMPLES_COPY_DIR + File.separator + "hover.bal";
     private String balFileContent;
