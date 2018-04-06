@@ -2,19 +2,24 @@ import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
-struct ClientRequest {
+type ClientRequest {
     string host;
-}
+};
 
-struct RequestCount {
+type RequestCount {
     string host;
     int count;
-}
+};
 
-stream<RequestCount> requestCountStream = {};
-stream<ClientRequest> requestStream = {};
+stream<ClientRequest> requestStream;
 
 function initRealtimeRequestCounter () {
+
+    stream<RequestCount> requestCountStream;
+
+    //Whenever requestCountStream receives an event from the streaming rules defined in the forever block,
+    //'printRequestCount' function will be invoked.
+    requestCountStream.subscribe(printRequestCount);
 
     //Gather all the events which are coming to requestStream for 5 sec, then group by host and the count the number
     //of requests per host, then check if the count is more than 6. If so, publish the output (host and the count) to
@@ -30,10 +35,6 @@ function initRealtimeRequestCounter () {
                 requestCountStream.publish(counts);
         }
     }
-
-    //Whenever requestCountStream receives an event from the streaming rules defined in the forever block,
-    //'printRequestCount' function will be invoked.
-    requestCountStream.subscribe(printRequestCount);
 }
 
 function printRequestCount (RequestCount reqCount) {
@@ -47,7 +48,8 @@ endpoint http:ServiceEndpoint storeServiceEndpoint {
 @http:ServiceConfig {
     basePath:"/"
 }
-service<http:Service> StoreService bind storeServiceEndpoint {
+service StoreService bind storeServiceEndpoint {
+
     future ftr = async initRealtimeRequestCounter();
 
     @http:ResourceConfig {
@@ -59,7 +61,7 @@ service<http:Service> StoreService bind storeServiceEndpoint {
         ClientRequest clientRequest = {host : hostName};
         requestStream.publish(clientRequest);
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload("{'message' : 'request successfully received'}");
         _ = conn -> respond(res);
     }
