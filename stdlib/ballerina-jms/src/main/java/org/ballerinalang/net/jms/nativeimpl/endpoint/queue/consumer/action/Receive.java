@@ -47,8 +47,7 @@ import javax.jms.MessageConsumer;
                    functionName = "receive",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "QueueConsumerConnector",
-                                        structPackage =
-                                                "ballerina.jms"),
+                                        structPackage = "ballerina.jms"),
                    args = {
                            @Argument(name = "timeInMilliSeconds",
                                      type = TypeKind.INT)
@@ -79,15 +78,14 @@ public class Receive extends AbstractBlockinAction {
             if (Objects.nonNull(message)) {
                 BStruct messageBObject = BLangConnectorSPIUtil.createBStruct(context,
                                                                              Constants.BALLERINA_PACKAGE_JMS,
-                                                                             Constants
-                                                                                     .JMS_MESSAGE_STRUCT_NAME);
+                                                                             Constants.JMS_MESSAGE_STRUCT_NAME);
                 messageBObject.addNativeData(Constants.JMS_MESSAGE_OBJECT, message);
                 context.setReturnValues(messageBObject);
             } else {
                 context.setReturnValues();
             }
         } catch (JMSException e) {
-            throw new BallerinaException("Message sending failed", e, context);
+            throw new BallerinaException("Message receiving failed", e, context);
         }
     }
 }
