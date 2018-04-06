@@ -123,7 +123,7 @@ function isValidCoordinationType (string coordinationType) returns boolean {
 function protocolCompatible (string coordinationType,
                              Protocol[] participantProtocols) returns boolean {
     boolean participantProtocolIsValid = false;
-    string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType];
+    ProtocolName[] validProtocols = coordinationTypeToProtocolsMap[coordinationType];
     foreach participantProtocol in participantProtocols {
         foreach validProtocol in validProtocols {
             if (participantProtocol.name == validProtocol) {
@@ -143,7 +143,7 @@ function protocolCompatible (string coordinationType,
 function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
     endpoint http:ServiceEndpoint ep = conn;
     log:printError(msg);
-    http:Response res = {statusCode:http:BAD_REQUEST_400};
+    http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
     RequestError err = {errorMessage:msg};
     json resPayload = check <json>err;
     res.setJsonPayload(resPayload);
@@ -315,7 +315,7 @@ function getParticipant2pcClientEP (string participantURL) returns Participant2p
         Participant2pcClientEP participantEP = check <Participant2pcClientEP>httpClientCache.get(participantURL);
         return participantEP;
     } else {
-        Participant2pcClientEP participantEP = {};
+        Participant2pcClientEP participantEP = new;
         Participant2pcClientConfig config = {participantURL:participantURL,
                                                 endpointTimeout:120000, retryConfig:{count:5, interval:5000}};
         participantEP.init(config);

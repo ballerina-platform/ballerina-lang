@@ -38,6 +38,7 @@ public enum DiagnosticCode {
     UNDEFINED_FUNCTION_IN_STRUCT("undefined.function.in.struct"),
     UNDEFINED_CONNECTOR("undefined.connector"),
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
+    UNDEFINED_OBJECT_FIELD("undefined.field.in.object"),
     ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
     UNDEFINED_PARAMETER("undefined.parameter"),
     CANNOT_FIND_MATCHING_FUNCTION("cannot.find.function.sig.for.function.in.object"),

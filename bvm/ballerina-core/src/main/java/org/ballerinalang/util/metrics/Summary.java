@@ -18,7 +18,6 @@
 package org.ballerinalang.util.metrics;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,10 +38,11 @@ public interface Summary extends Metric {
     /**
      * Builder for {@link Summary}s.
      */
-    class Builder extends Metric.Builder<Builder, Summary> {
+    class Builder implements Metric.Builder<Builder, Summary> {
 
         private final String name;
-        private final List<Tag> tags = new ArrayList<>();
+        // Expecting at least 10 tags
+        private final ArrayList<Tag> tags = new ArrayList<>(10);
         private String description;
 
         private Builder(String name) {
@@ -57,26 +57,31 @@ public interface Summary extends Metric {
 
         @Override
         public Builder tags(String... keyValues) {
-            this.tags.addAll(Tags.tags(keyValues));
+            Tags.tags(this.tags, keyValues);
             return this;
         }
 
         @Override
         public Builder tags(Iterable<Tag> tags) {
-            this.tags.addAll(Tags.tags(tags));
+            Tags.tags(this.tags, tags);
             return this;
         }
 
         @Override
         public Builder tag(String key, String value) {
-            this.tags.addAll(Tags.tags(key, value));
+            Tags.tags(this.tags, key, value);
             return this;
         }
 
         @Override
         public Builder tags(Map<String, String> tags) {
-            this.tags.addAll(Tags.tags(tags));
+            Tags.tags(this.tags, tags);
             return this;
+        }
+
+        @Override
+        public Summary register() {
+            return register(MetricRegistry.getDefaultRegistry());
         }
 
         @Override
