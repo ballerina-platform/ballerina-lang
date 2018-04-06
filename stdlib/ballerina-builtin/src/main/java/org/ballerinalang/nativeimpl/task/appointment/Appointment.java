@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.task.appointment;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.nativeimpl.task.TaskException;
@@ -31,18 +32,22 @@ import org.quartz.SchedulerException;
  * Represents an appointment.
  */
 public class Appointment {
-    private String id = TaskIdGenerator.generate();
 
-    Appointment(NativeCallableUnit fn, Context balParentContext,
-                String cronExpression, FunctionRefCPEntry onTriggerFunction,
-                FunctionRefCPEntry onErrorFunction) throws SchedulingException {
+    private String id = TaskIdGenerator.generate();
+    private boolean isDaemon;
+
+    Appointment(NativeCallableUnit fn, Context balParentContext, String cronExpression, FunctionRefCPEntry
+            onTriggerFunction, FunctionRefCPEntry onErrorFunction, boolean isDaemon) throws SchedulingException {
         TaskRegistry.getInstance().addAppointment(this);
 
         try {
             AppointmentManager.getInstance().
                     schedule(id, fn, AppointmentJob.class,
                             balParentContext, onTriggerFunction, onErrorFunction, cronExpression);
-            //BLangScheduler.workerCountUp();
+            this.isDaemon = isDaemon;
+            if (isDaemon) {
+                BLangScheduler.workerCountUp();
+            }
         } catch (SchedulerException e) {
             throw new SchedulingException(e);
         }
@@ -53,7 +58,9 @@ public class Appointment {
     }
 
     public void stop() throws TaskException {
-        //BLangScheduler.workerCountDown();
+        if (isDaemon) {
+            BLangScheduler.workerCountDown();
+        }
         AppointmentManager.getInstance().stop(id);
         TaskRegistry.getInstance().remove(id);
     }

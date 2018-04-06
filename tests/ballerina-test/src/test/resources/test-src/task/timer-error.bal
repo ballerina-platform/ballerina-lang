@@ -8,7 +8,7 @@ function scheduleTimerWithError(int delay, int interval, string errMsg) returns 
     (function() returns error?) onTriggerFunction = triggerWithError;
     (function(error)) onErrorFunction = onError;
     //(function(error)) onErrorFunction = ();
-    return task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:delay, interval:interval});
+    return task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:delay, interval:interval}, true);
 }
 
 function triggerWithError() returns error? {
@@ -20,7 +20,7 @@ function onError(error e) {
     err = e;
 }
 
-function getError () returns (string) {
+function getError() returns (string) {
     string msg;
     if (err != null) {
         msg = err.message;
