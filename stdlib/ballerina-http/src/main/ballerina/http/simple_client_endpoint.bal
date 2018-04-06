@@ -109,7 +109,7 @@ public function SimpleClientEndpoint::init(SimpleClientEndpointConfiguration sim
         int lastIndex = url.length() - 1;
         url = url.subString(0, lastIndex);
     }
-    self.httpEP = {};
+    self.httpEP = new;
     self.httpEP.config = {};
     self.httpEP.config.targets = [];
 

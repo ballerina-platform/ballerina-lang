@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
@@ -27,7 +29,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Package context to keep the builtin and the current package.
@@ -125,9 +126,13 @@ public class LSPackageCache {
     }
 
     static class ExtendedPackageCache extends PackageCache {
+
+        private static final long MAX_CACHE_COUNT = 100L;
+
         private ExtendedPackageCache(CompilerContext context) {
             super(context);
-            this.packageMap = new ConcurrentHashMap<>();
+            Cache<String, BLangPackage> cache = CacheBuilder.newBuilder().maximumSize(MAX_CACHE_COUNT).build();
+            this.packageMap = cache.asMap();
         }
 
         public Map<String, BLangPackage> getMap() {
