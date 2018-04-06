@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
@@ -315,7 +316,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         if (expTypeTag == TypeTags.ANY
                 || (expTypeTag == TypeTags.MAP && recordLiteral.keyValuePairs.isEmpty())
-                || (expTypeTag == TypeTags.STRUCT && ((BStructSymbol) originalExpType.tsymbol).isObject)) {
+                || (expTypeTag == TypeTags.STRUCT && originalExpType.tsymbol.kind == SymbolKind.OBJECT)) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, originalExpType);
             resultType = symTable.errType;
             return;
@@ -526,7 +527,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangTypeInit cIExpr) {
         if ((expType.tag == TypeTags.ANY && cIExpr.userDefinedType == null)
-                || (expType.tag == TypeTags.STRUCT && !((BStructSymbol) expType.tsymbol).isObject)) {
+                || (expType.tag == TypeTags.STRUCT && expType.tsymbol.kind != SymbolKind.OBJECT)) {
             dlog.error(cIExpr.pos, DiagnosticCode.INVALID_TYPE_NEW_LITERAL, expType);
             resultType = symTable.errType;
             return;
