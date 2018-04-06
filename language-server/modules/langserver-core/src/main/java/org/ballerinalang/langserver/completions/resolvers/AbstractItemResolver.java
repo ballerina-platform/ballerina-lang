@@ -196,11 +196,8 @@ public abstract class AbstractItemResolver {
                 typeName = parameterDefs.get(itr).type.toString();
             } else {
                 BTypeSymbol tSymbol;
-                if (paramType instanceof BArrayType) {
-                    tSymbol = ((BArrayType) paramType).eType.tsymbol;
-                } else {
-                    tSymbol = paramType.tsymbol;
-                }
+                tSymbol = (paramType instanceof BArrayType) ?
+                        ((BArrayType) paramType).eType.tsymbol : paramType.tsymbol;
                 List<Name> nameComps = tSymbol.pkgID.nameComps;
                 if (tSymbol.pkgID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
                         || tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
@@ -374,8 +371,8 @@ public abstract class AbstractItemResolver {
     protected List<SymbolInfo> removeInvalidStatementScopeSymbols(List<SymbolInfo> symbolInfoList) {
         // We need to remove the functions having a receiver symbol and the bTypes of the following
         // ballerina.coordinator, ballerina.runtime, and anonStructs
-        ArrayList<String> invalidPkgs = new ArrayList<>(Arrays.asList("ballerina.runtime",
-                "ballerina.transactions"));
+        ArrayList<String> invalidPkgs = new ArrayList<>(Arrays.asList("runtime",
+                "transactions"));
         symbolInfoList.removeIf(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             String symbolName = bSymbol.getName().getValue();
