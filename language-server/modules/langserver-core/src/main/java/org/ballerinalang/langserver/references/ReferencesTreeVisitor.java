@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -778,6 +779,28 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (bLangMatchExprPatternClause.expr != null) {
             this.acceptNode(bLangMatchExprPatternClause.expr);
         }
+    }
+
+    @Override
+    public void visit(BLangTypeDefinition typeDefinition) {
+        if (typeDefinition.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
+                typeDefinition.symbol.owner.pkgID.name.getValue()
+                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
+                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
+                        .equals(typeDefinition.symbol.pkgID.name.getValue()) &&
+                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(typeDefinition.name.getValue())) {
+            addLocation(typeDefinition, typeDefinition.symbol.owner.pkgID.name.getValue(),
+                    typeDefinition.pos.getSource().pkgID.name.getValue());
+        }
+
+        if (typeDefinition.typeNode != null) {
+            this.acceptNode(typeDefinition.typeNode);
+        }
+
+        if (typeDefinition.valueSpace != null) {
+            typeDefinition.valueSpace.forEach(this::acceptNode);
+        }
+
     }
 
     /**

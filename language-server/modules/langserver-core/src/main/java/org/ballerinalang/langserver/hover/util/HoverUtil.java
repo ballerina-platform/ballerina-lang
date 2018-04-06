@@ -30,13 +30,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -105,13 +105,15 @@ public class HoverUtil {
                         getHoverResultForGivenDocs(bLangRecord.docAttachments, bLangRecord.annAttachments)
                         : getDefaultHoverObject();
                 break;
-            case ContextConstants.ENUM:
-                BLangEnum bLangEnum = bLangPackage.enums.stream()
-                        .filter(bEnum -> bEnum.name.getValue()
+            case ContextConstants.TYPE_DEF:
+                BLangTypeDefinition bLangTypeDefinition = bLangPackage.typeDefinitions.stream()
+                        .filter(typeDef -> typeDef.name.getValue()
                                 .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .findAny().orElse(null);
-                hover = bLangEnum != null
-                        ? getHoverResultForGivenDocs(bLangEnum.docAttachments, bLangEnum.annAttachments)
+                        .findAny()
+                        .orElse(null);
+                hover = bLangTypeDefinition != null ?
+                        getHoverResultForGivenDocs(bLangTypeDefinition.docAttachments,
+                                bLangTypeDefinition.annAttachments)
                         : getDefaultHoverObject();
                 break;
             case ContextConstants.TRANSFORMER:
