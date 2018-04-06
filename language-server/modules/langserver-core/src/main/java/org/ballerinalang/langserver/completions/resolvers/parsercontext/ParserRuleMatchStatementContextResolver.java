@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.InsertTextFormat;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -81,8 +82,16 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
         } else if (identifierSymbol.getScopeEntry().symbol.type instanceof BUnionType) {
             Set<BType> memberTypes = ((BUnionType) identifierSymbol.getScopeEntry().symbol.type).getMemberTypes();
             memberTypes.forEach(bType -> {
-                completionItems.add(this.populateCompletionItem(bType.toString(), ItemResolverConstants.B_TYPE,
-                        bType.toString()));
+                BTypeSymbol bTypeSymbol = bType.tsymbol;
+                String insertTextSnippet = bTypeSymbol.pkgID.getName().getValue()
+                        + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + bTypeSymbol.getName().getValue()
+                        + " => {" + System.lineSeparator() + "\t${1}" +System.lineSeparator() + "}";
+                String label = bTypeSymbol.pkgID.getName().getValue()
+                        + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + bTypeSymbol.getName().getValue();
+                CompletionItem completionItem = this.populateCompletionItem(insertTextSnippet,
+                        ItemResolverConstants.B_TYPE, label);
+                completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
+                completionItems.add(completionItem);
             });
         } else if (identifierSymbol.getScopeEntry().symbol.type instanceof BJSONType) {
             ArrayList<Integer> typeTagsList = new ArrayList<>(Arrays.asList(TypeTags.INT, TypeTags.FLOAT,
