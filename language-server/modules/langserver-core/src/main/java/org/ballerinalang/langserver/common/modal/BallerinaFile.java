@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.composer.service.ballerina.parser.service.model;
+package org.ballerinalang.langserver.common.modal;
 
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -25,14 +25,15 @@ import java.util.List;
 /**
  * Class which contains Ballerina model and Diagnostic information.
  */
-@Deprecated
 public class BallerinaFile {
 
-    private BLangPackage bLangPackage;
-    private List<Diagnostic> diagnostics;
+    private BLangPackage bLangPackage = null;
+    private List<Diagnostic> diagnostics = null;
 
     public List<Diagnostic> getDiagnostics() {
-        diagnostics.sort(Comparator.comparingInt(a -> a.getPosition().getStartLine()));
+        if (diagnostics != null) {
+            diagnostics.sort(Comparator.comparingInt(a -> a.getPosition().getStartLine()));
+        }
         return diagnostics;
     }
 
