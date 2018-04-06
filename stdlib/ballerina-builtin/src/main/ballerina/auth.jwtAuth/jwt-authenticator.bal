@@ -115,12 +115,16 @@ returns (boolean, boolean)|(boolean, boolean, jwt:Payload) {
     boolean isAuthenticated;
     CachedJWTAuthContext cachedAuthContext = {};
     try {
-        match <CachedJWTAuthContext> self.authCache.get(jwtToken) {
-            CachedJWTAuthContext cache => {
-                cachedAuthContext = cache;
-                isCacheHit = true;
+        match authCache {
+            caching:Cache cache => {
+                match <CachedJWTAuthContext> cache.get(jwtToken) {
+                    CachedJWTAuthContext context => cachedAuthContext = context;
+
+                    error => isCacheHit = false;
+                }
             }
-            error err => isCacheHit = false;
+
+            () => log:printWarn("Auth cache not initialized.");
         }
     } catch (error e) {
         isCacheHit = false;
@@ -141,7 +145,10 @@ function JWTAuthenticator::addToAuthenticationCache (string jwtToken, int exp, j
     CachedJWTAuthContext cachedContext = {};
     cachedContext.jwtPayload = payload;
     cachedContext.expiryTime = exp;
-    self.authCache.put(jwtToken, cachedContext);
+    match authCache {
+        caching:Cache cache => cache.put(jwtToken, cachedContext);
+        () => log:printWarn("Auth cache not initialized.");
+    }
     log:printDebug("Add authenticated user :" + payload.sub + " to the cache");
 }
 
