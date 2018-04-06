@@ -17,16 +17,16 @@ import ballerina/io;
 import ballerina/grpc;
 import ballerina/runtime;
 
-string[] responses = new;
+string[] responses;
 int total = 0;
 function testUnaryNonBlockingClient () returns (string []) {
     // Client endpoint configuration
-    endpoint helloWorldClient helloWorldEp {
+    endpoint HelloWorldClient helloWorldEp {
         host:"localhost",
         port:9090
     };
     // Executing unary non-blocking call registering server message listener.
-    error| () result = helloWorldEp -> hello("WSO2", typeof helloWorldMessageListener);
+    error? result = helloWorldEp -> hello("WSO2", typeof HelloWorldMessageListener);
     match result {
         error payloadError => {
             io:println("Error occured while sending event " + payloadError.message);
@@ -52,7 +52,7 @@ function testUnaryNonBlockingClient () returns (string []) {
 }
 
 // Server Message Listener.
-service<grpc:Listener> helloWorldMessageListener {
+service<grpc:Listener> HelloWorldMessageListener {
 
     // Resource registered to receive server messages
     onMessage (string message) {
@@ -76,7 +76,7 @@ service<grpc:Listener> helloWorldMessageListener {
     }
 }
 
-public type helloWorldBlockingStub object {
+public type HelloWorldBlockingStub object {
     public {
         grpc:Client clientEndpoint;
         grpc:ServiceStub serviceStub;
@@ -84,12 +84,12 @@ public type helloWorldBlockingStub object {
 
     function initStub (grpc:Client clientEndpoint) {
         grpc:ServiceStub navStub = new;
-        navStub.initStub(clientEndpoint, "blocking", descriptorKey, descriptorMap);
+        navStub.initStub(clientEndpoint, "blocking", DESCRIPTOR_KEY, descriptorMap);
         self.serviceStub = navStub;
     }
 
     function hello (string req) returns (string|error) {
-        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("helloWorld/hello", req);
+        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/hello", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
                 error err = {message:payloadError.message};
@@ -103,7 +103,7 @@ public type helloWorldBlockingStub object {
     }
 
     function testInt (int req) returns (int|error) {
-        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("helloWorld/testInt", req);
+        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/testInt", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
                 error err = {message:payloadError.message};
@@ -117,7 +117,7 @@ public type helloWorldBlockingStub object {
     }
 
     function testFloat (float req) returns (float|error) {
-        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("helloWorld/testFloat", req);
+        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/testFloat", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
                 error err = {message:payloadError.message};
@@ -131,7 +131,7 @@ public type helloWorldBlockingStub object {
     }
 
     function testBoolean (boolean req) returns (boolean|error) {
-        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("helloWorld/testBoolean", req);
+        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/testBoolean", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
                 error err = {message:payloadError.message};
@@ -145,7 +145,7 @@ public type helloWorldBlockingStub object {
     }
 
     function testStruct (Request req) returns (Response|error) {
-        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("helloWorld/testStruct", req);
+        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/testStruct", req);
         match unionResp {
             grpc:ConnectorError payloadError => {
                 error err = {message:payloadError.message};
@@ -160,7 +160,7 @@ public type helloWorldBlockingStub object {
 }
 
 
-public type helloWorldStub object {
+public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;
         grpc:ServiceStub serviceStub;
@@ -168,12 +168,12 @@ public type helloWorldStub object {
 
     function initStub (grpc:Client clientEndpoint) {
         grpc:ServiceStub navStub = new;
-        navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
+        navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
         self.serviceStub = navStub;
     }
 
-    function hello (string req, typedesc listener) returns (error| ()) {
-        var err1 = self.serviceStub.nonBlockingExecute("helloWorld/hello", req, listener);
+    function hello (string req, typedesc listener) returns (error?) {
+        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/hello", req, listener);
         if (err1 != ()) {
             error err = {message:err1.message};
             return err;
@@ -181,8 +181,8 @@ public type helloWorldStub object {
         return ();
     }
 
-    function testInt (int req, typedesc listener) returns (error| ()) {
-        var err1 = self.serviceStub.nonBlockingExecute("helloWorld/testInt", req, listener);
+    function testInt (int req, typedesc listener) returns (error?) {
+        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/testInt", req, listener);
         if (err1 != ()) {
             error err = {message:err1.message};
             return err;
@@ -190,8 +190,8 @@ public type helloWorldStub object {
         return ();
     }
 
-    function testFloat (float req, typedesc listener) returns (error| ()) {
-        var err1 = self.serviceStub.nonBlockingExecute("helloWorld/testFloat", req, listener);
+    function testFloat (float req, typedesc listener) returns (error?) {
+        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/testFloat", req, listener);
         if (err1 != ()) {
             error err = {message:err1.message};
             return err;
@@ -199,8 +199,8 @@ public type helloWorldStub object {
         return ();
     }
 
-    function testBoolean (boolean req, typedesc listener) returns (error| ()) {
-        var err1 = self.serviceStub.nonBlockingExecute("helloWorld/testBoolean", req, listener);
+    function testBoolean (boolean req, typedesc listener) returns (error?) {
+        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/testBoolean", req, listener);
         if (err1 != ()) {
             error err = {message:err1.message};
             return err;
@@ -208,8 +208,8 @@ public type helloWorldStub object {
         return ();
     }
 
-    function testStruct (Request req, typedesc listener) returns (error| ()) {
-        var err1 = self.serviceStub.nonBlockingExecute("helloWorld/testStruct", req, listener);
+    function testStruct (Request req, typedesc listener) returns (error?) {
+        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/testStruct", req, listener);
         if (err1 != ()) {
             error err = {message:err1.message};
             return err;
@@ -219,10 +219,10 @@ public type helloWorldStub object {
 }
 
 
-public type helloWorldBlockingClient object {
+public type HelloWorldBlockingClient object {
     public {
         grpc:Client client;
-        helloWorldBlockingStub stub;
+        HelloWorldBlockingStub stub;
     }
 
     public function init (grpc:ClientEndpointConfiguration config) {
@@ -231,21 +231,21 @@ public type helloWorldBlockingClient object {
         client.init(config);
         self.client = client;
         // initialize service stub.
-        helloWorldBlockingStub stub = new;
+        HelloWorldBlockingStub stub = new;
         stub.initStub(client);
         self.stub = stub;
     }
 
-    public function getClient () returns (helloWorldBlockingStub) {
+    public function getClient () returns (HelloWorldBlockingStub) {
         return self.stub;
     }
 }
 
 
-public type helloWorldClient object {
+public type HelloWorldClient object {
     public {
         grpc:Client client;
-        helloWorldStub stub;
+        HelloWorldStub stub;
     }
 
     public function init (grpc:ClientEndpointConfiguration config) {
@@ -254,22 +254,25 @@ public type helloWorldClient object {
         client.init(config);
         self.client = client;
         // initialize service stub.
-        helloWorldStub stub = new;
+        HelloWorldStub stub = new;
         stub.initStub(client);
         self.stub = stub;
     }
 
-    public function getClient () returns (helloWorldStub) {
+    public function getClient () returns (HelloWorldStub) {
         return self.stub;
     }
 }
 
-@final string descriptorKey = "helloWorld.proto";
+@final string DESCRIPTOR_KEY = "HelloWorld.proto";
 map descriptorMap =
 {
-    "helloWorld.proto":"0A1068656C6C6F576F726C642E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F22490A075265717565737412120A046E616D6518012001280952046E616D6512180A076D65737361676518022001280952076D65737361676512100A036167651803200128035203616765221E0A08526573706F6E736512120A047265737018012001280952047265737032C7020A0A68656C6C6F576F726C6412430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C756512430A0774657374496E74121B2E676F6F676C652E70726F746F6275662E496E74363456616C75651A1B2E676F6F676C652E70726F746F6275662E496E74363456616C756512450A0974657374466C6F6174121B2E676F6F676C652E70726F746F6275662E466C6F617456616C75651A1B2E676F6F676C652E70726F746F6275662E466C6F617456616C756512450A0B74657374426F6F6C65616E121A2E676F6F676C652E70726F746F6275662E426F6F6C56616C75651A1A2E676F6F676C652E70726F746F6275662E426F6F6C56616C756512210A0A7465737453747275637412082E526571756573741A092E526573706F6E7365620670726F746F33",
+    "HelloWorld.proto":"0A1048656C6C6F576F726C642E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F1A1B676F6F676C652F70726F746F6275662F656D7074792E70726F746F222F0A0752657175657374120A0A046E616D6518012809120D0A076D6573736167651802280912090A036167651803280322160A08526573706F6E7365120A0A04726573701801280932E4030A0A48656C6C6F576F726C6412450A0568656C6C6F121B676F6F676C652E70726F746F6275662E537472696E6756616C75651A1B676F6F676C652E70726F746F6275662E537472696E6756616C75652800300012450A0774657374496E74121A676F6F676C652E70726F746F6275662E496E74363456616C75651A1A676F6F676C652E70726F746F6275662E496E74363456616C75652800300012470A0974657374466C6F6174121A676F6F676C652E70726F746F6275662E466C6F617456616C75651A1A676F6F676C652E70726F746F6275662E466C6F617456616C75652800300012470A0B74657374426F6F6C65616E1219676F6F676C652E70726F746F6275662E426F6F6C56616C75651A19676F6F676C652E70726F746F6275662E426F6F6C56616C75652800300012230A0A746573745374727563741207526571756573741A08526573706F6E73652800300012470A0D746573744E6F526571756573741215676F6F676C652E70726F746F6275662E456D7074791A1B676F6F676C652E70726F746F6275662E537472696E6756616C75652800300012480A0E746573744E6F526573706F6E7365121B676F6F676C652E70726F746F6275662E537472696E6756616C75651A15676F6F676C652E70726F746F6275662E456D70747928003000620670726F746F33",
 
-    "google.protobuf.wrappers.proto":"0A0E77726170706572732E70726F746F120F676F6F676C652E70726F746F62756622230A0B446F75626C6556616C756512140A0576616C7565180120012801520576616C756522220A0A466C6F617456616C756512140A0576616C7565180120012802520576616C756522220A0A496E74363456616C756512140A0576616C7565180120012803520576616C756522230A0B55496E74363456616C756512140A0576616C7565180120012804520576616C756522220A0A496E74333256616C756512140A0576616C7565180120012805520576616C756522230A0B55496E74333256616C756512140A0576616C756518012001280D520576616C756522210A09426F6F6C56616C756512140A0576616C7565180120012808520576616C756522230A0B537472696E6756616C756512140A0576616C7565180120012809520576616C756522220A0A427974657356616C756512140A0576616C756518012001280C520576616C756542570A13636F6D2E676F6F676C652E70726F746F627566420D577261707065727350726F746F50015A057479706573F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33"
+    "google.protobuf.google/protobuf/wrappers.proto":"0A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F120F676F6F676C652E70726F746F627566221C0A0B446F75626C6556616C7565120D0A0576616C7565180120012801221B0A0A466C6F617456616C7565120D0A0576616C7565180120012802221B0A0A496E74363456616C7565120D0A0576616C7565180120012803221C0A0B55496E74363456616C7565120D0A0576616C7565180120012804221B0A0A496E74333256616C7565120D0A0576616C7565180120012805221C0A0B55496E74333256616C7565120D0A0576616C756518012001280D221A0A09426F6F6C56616C7565120D0A0576616C7565180120012808221C0A0B537472696E6756616C7565120D0A0576616C7565180120012809221B0A0A427974657356616C7565120D0A0576616C756518012001280C427C0A13636F6D2E676F6F676C652E70726F746F627566420D577261707065727350726F746F50015A2A6769746875622E636F6D2F676F6C616E672F70726F746F6275662F7074797065732F7772617070657273F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33",
+
+    "google.protobuf.google/protobuf/empty.proto":"0A1B676F6F676C652F70726F746F6275662F656D7074792E70726F746F120F676F6F676C652E70726F746F62756622070A05456D70747942760A13636F6D2E676F6F676C652E70726F746F627566420A456D70747950726F746F50015A276769746875622E636F6D2F676F6C616E672F70726F746F6275662F7074797065732F656D707479F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33"
+
 };
 
 type Request {
