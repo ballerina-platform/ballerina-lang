@@ -32,6 +32,7 @@ import java.util.Objects;
 /**
  * Class to test stream type.
  */
+@Test(groups = {"broken"})
 public class BStreamValueTest {
 
     private CompileResult result;

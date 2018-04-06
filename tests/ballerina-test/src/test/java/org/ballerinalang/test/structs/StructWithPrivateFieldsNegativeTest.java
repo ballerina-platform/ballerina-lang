@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 /**
  * Negative Test cases for user defined struct types with private fields in ballerina.
  */
+@Test(groups = {"broken"})
 public class StructWithPrivateFieldsNegativeTest {
 
     @Test(description = "Test private field access")

@@ -103,8 +103,8 @@ public abstract class WebSocketUtil {
                     wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                     PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
 
-                webSocketEndpoint.setRefField(0, webSocketConnector);
-                webSocketEndpoint.setRefField(3, new BMap()); // Set Attribute map
+                webSocketEndpoint.setRefField(0, new BMap()); // Set Attribute map
+                webSocketEndpoint.setRefField(1, webSocketConnector);
                 populateEndpoint(session, webSocketEndpoint);
                 webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
                 WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,

@@ -41,6 +41,7 @@ import org.testng.annotations.Test;
 /**
  * Test Cases for type casting.
  */
+@Test(groups = {"broken"})
 public class TypeCastExprTest {
     private static final double DELTA = 0.01;
     private CompileResult result;
