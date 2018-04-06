@@ -32,7 +32,6 @@ import java.util.Objects;
 /**
  * Class to test stream type.
  */
-@Test(groups = {"broken"})
 public class BStreamValueTest {
 
     private CompileResult result;
@@ -79,7 +78,8 @@ public class BStreamValueTest {
         BStruct origEmployee = (BStruct) returns[0];
         BStruct publishedEmployee = (BStruct) returns[1];
         BStruct modifiedOrigEmployee = (BStruct) returns[2];
-        Assert.assertNull(origEmployee);
+        Assert.assertEquals(origEmployee.getIntField(0), 0);
+        Assert.assertTrue(origEmployee.getStringField(0).isEmpty());
         Assert.assertTrue(Objects.equals(publishedEmployee.getType().getName(),
                                          modifiedOrigEmployee.getType().getName()));
         Assert.assertEquals(publishedEmployee.getIntField(0), modifiedOrigEmployee.getIntField(0),
