@@ -36,4 +36,4 @@ public native function scheduleAppointment (function () returns (error?) onTrigg
 @Description {value:"Stops the timer task with ID taskID"}
 @Param {value:"taskID: The unique ID of the timer task that has to be stopped"}
 @Return {value:"This error will be returned if an error occurs while stopping the task"}
-public native function stopTask (string taskID) returns (error);
+public native function stopTask (string taskID) returns (error?);

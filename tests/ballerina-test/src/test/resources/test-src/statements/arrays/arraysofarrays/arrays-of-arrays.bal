@@ -71,7 +71,7 @@ function arrayTest(int[][] yy) returns (int) {
 
 type B {
     int x;
-}
+};
 
 function twoDarrayStructTest() returns (int) {
     B b1 = {x:1};

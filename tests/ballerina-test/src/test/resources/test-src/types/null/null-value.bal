@@ -34,7 +34,7 @@ function testStructNull () returns (Person|(), Person|(), int) {
 
 type Person {
     string name;
-}
+};
 
 function testArrayNull () returns (string[], Person[], int) {
     string[] s;

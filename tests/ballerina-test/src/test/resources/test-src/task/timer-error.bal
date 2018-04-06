@@ -27,6 +27,6 @@ function getError () returns (string) {
     return msg;
 }
 
-function stopTask (string taskId) returns (error) {
+function stopTask (string taskId) returns (error?) {
     return task:stopTask(taskId);
 }

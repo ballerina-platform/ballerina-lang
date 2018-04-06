@@ -54,7 +54,7 @@ function onTriggerW1 () returns (error?) {
         error e = {message:errorMsgW1};
         return e;
     }
-    return ();
+    return;
 }
 
 function onErrorW1 (error e) {
@@ -70,7 +70,7 @@ function onTriggerW2 () returns (error?) {
         error e = {message:errorMsgW2};
         return e;
     }
-    return ();
+    return;
 }
 
 function onErrorW2 (error e) {
@@ -94,14 +94,16 @@ function getErrors () returns (string, string) {
     return (w1ErrMsg, w2ErrMsg);
 }
 
-function stopTasks (string w1TaskId, string w2TaskId) returns (error, error) {
-    error w1StopError = task:stopTask(w1TaskId);
-    if (w1StopError == ()) {
-        w1Count = -1;
+function stopTasks (string w1TaskId, string w2TaskId) returns (error?, error?) {
+    error? w1StopError = task:stopTask(w1TaskId);
+    match w1StopError {
+        error err => {}
+        () => w1Count = -1;
     }
-    error w2StopError = task:stopTask(w2TaskId);
-    if (w2StopError == ()) {
-        w2Count = -1;
+    error? w2StopError = task:stopTask(w2TaskId);
+    match w2StopError {
+        error err => {}
+        () => w2Count = -1;
     }
     return (w1StopError, w2StopError);
 }

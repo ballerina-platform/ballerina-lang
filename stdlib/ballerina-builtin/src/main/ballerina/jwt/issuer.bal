@@ -24,7 +24,7 @@ import ballerina/io;
 public type JWTIssuerConfig {
     string certificateAlias;
     string keyPassword;
-}
+};
 
 @Description {value:"Issue a JWT token"}
 @Param {value:"header: Header object"}

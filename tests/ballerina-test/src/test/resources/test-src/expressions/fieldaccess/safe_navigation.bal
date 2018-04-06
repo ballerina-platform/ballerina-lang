@@ -4,18 +4,18 @@ type Person {
     string lname;
     Info|error info1;
     Info|() info2;
-}
+};
 
 type Info {
     Address|error address1;
     Address|() address2;
-}
+};
 
 type Address {
     string street;
     string city;
     string country = "Sri Lanka";
-}
+};
 
 function testNonErrorPath () returns any {
     Address adrs = {city:"Colombo"};

@@ -5,33 +5,33 @@ type Person {
     int age;
     float salary;
     string name;
-}
+};
 
 type ResultCount {
     int COUNTVAL;
-}
+};
 
 type Employee {
     int id;
     string name;
     float salary;
-}
+};
 
 type EmployeeCompatible {
     int id;
     string name;
     float salary;
-}
+};
 
 type EmployeeSalary {
     int id;
     float salary;
-}
+};
 
 type EmployeeSalaryCompatible {
     int id;
     float salary;
-}
+};
 
 int idValue = -1;
 int ageValue = -1;

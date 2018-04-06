@@ -11,16 +11,13 @@ function getCount () returns (int) {
     return count;
 }
 
-function onTrigger () returns (error) {
-    error e = {};
+function onTrigger () returns (error?) {
     count = count + 1;
-    return e;
+    return ();
 }
 
-function stopTask (string taskId) returns (error) {
-    error stopError = task:stopTask(taskId);
-    if (stopError == ()) {
-        count = -1;
-    }
-    return stopError;
+function stopTask (string taskId) returns (error?) {
+    _ = check task:stopTask(taskId);
+    count = -1;
+    return ();
 }

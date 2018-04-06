@@ -53,10 +53,11 @@ function getError () returns (string) {
     return w1ErrMsg;
 }
 
-function stopTask (string w1TaskId) returns (error) {
-    error w1StopError = task:stopTask(w1TaskId);
-    if (w1StopError == ()) {
-        w1Count = -1;
+function stopTask (string w1TaskId) returns (error?) {
+    error? w1StopError = task:stopTask(w1TaskId);
+    match w1StopError {
+        error => {}
+        () => w1Count = -1;
     }
     return w1StopError;
 }

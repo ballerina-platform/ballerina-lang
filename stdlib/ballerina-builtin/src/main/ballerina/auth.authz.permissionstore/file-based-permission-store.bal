@@ -26,11 +26,11 @@ import ballerina/log;
 
 @Description {value:"Represents the permission store"}
 public type FileBasedPermissionStore object {
+    new () {}
     public function isAuthorized (string username, string[] scopes) returns (boolean);
     public function isAuthorizedByGroups (string[] groups, string[] scopes) returns (boolean);
     public function readGroupsOfScope (string scopeName) returns (string[]);
     public function readGroupsOfUser (string username) returns (string[]);
-    new () {}
 };
 
 @Description {value:"Checks if the the user has sufficient permission to access a resource with the specified scope"}

@@ -541,7 +541,7 @@ public function CircuitBreakerClient::rejectPromise (PushPromise promise) return
 public function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentState,
                                     CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (CircuitState) {
     lock {
-       if (currentState == "OPEN") {
+       if (currentState == CB_OPEN_STATE) {
            time:Time currentT = time:currentTime();
            int elapsedTime = currentT.time - circuitHealth.lastErrorTime.time;
 

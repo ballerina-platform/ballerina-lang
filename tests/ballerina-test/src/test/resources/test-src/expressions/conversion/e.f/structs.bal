@@ -4,4 +4,4 @@ public type Address {
     string street;
     string city;
     string country;
-}
+};

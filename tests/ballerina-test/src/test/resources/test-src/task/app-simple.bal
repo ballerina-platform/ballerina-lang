@@ -22,9 +22,10 @@ function cleanupError (error e) {
 }
 
 function stopTask (string taskId) returns (error?) {
-    error stopError = task:stopTask(taskId);
-    if (stopError == ()) {
-        count = -1;
+    error? stopError = task:stopTask(taskId);
+    match stopError {
+        error => {}
+        () => count = -1;
     }
-    return ();
+    return stopError;
 }
