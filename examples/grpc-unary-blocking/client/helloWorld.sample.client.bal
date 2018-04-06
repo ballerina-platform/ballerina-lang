@@ -1,11 +1,9 @@
 // This is client implementation for unary blocking scenario
-package client;
-
 import ballerina/io;
 
 function main (string[] args) {
     // Client endpoint configuration
-    endpoint helloWorldBlockingClient helloWorldBlockingEp {
+    endpoint HelloWorldBlockingClient helloWorldBlockingEp {
         host:"localhost",
         port:9090
     };
@@ -22,5 +20,3 @@ function main (string[] args) {
         }
     }
 }
-
-
