@@ -1,4 +1,4 @@
 $ ballerina run try-catch-finally.bal
-start Accessing texts
-NullReferenceError error occurred
+Start dividing numbers
+error occured: call failed
 finally Block executed
