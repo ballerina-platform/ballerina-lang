@@ -124,7 +124,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 /**
@@ -1153,13 +1152,19 @@ public class TypeChecker extends BLangNodeVisitor {
                 uniqueFuncName, SymTag.FUNCTION);
         if (funcSymbol == symTable.notFoundSymbol) {
             // Check functions defined within the struct.
-            Name functionName = names.fromString(Symbols.getAttachedFuncSymbolName(iExpr.expr.symbol.type
+            BSymbol symbol;
+            if (iExpr.expr.getKind() == NodeKind.INVOCATION) {
+                symbol = ((BLangInvocation) iExpr.expr).symbol;
+            } else {
+                symbol = iExpr.expr.symbol;
+            }
+            Name functionName = names.fromString(Symbols.getAttachedFuncSymbolName(symbol.type
                     .tsymbol.name.value, iExpr.name.value));
-            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, functionName, iExpr.expr.symbol.type.tsymbol);
+            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, functionName, symbol.type.tsymbol);
             if (funcSymbol == symTable.notFoundSymbol) {
                 // Check, any function pointer in struct field with given name.
                 funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
-                        iExpr.expr.symbol.type.tsymbol);
+                        symbol.type.tsymbol);
                 if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
                     dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_STRUCT, funcName, structType);
                     resultType = symTable.errType;

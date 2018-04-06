@@ -267,10 +267,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
                                                                 rollingWindow:cb.rollingWindow
                                                             };
             CircuitHealth circuitHealth = {startTime:circuitStartTime, totalBuckets: bucketArray};
-            CircuitBreakerClient cbClient = new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig,
-                cbHttpClient, circuitHealth);
-            HttpClient httpClient = check <HttpClient>cbClient;
-            return httpClient;
+            return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
         }
         () => {
             //remove following once we can ignore
@@ -285,9 +282,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
 
 function createLoadBalancerClient(ClientEndpointConfiguration config, string lbAlgorithm) returns HttpClient {
     HttpClient[] lbClients = createHttpClientArray(config);
-    LoadBalancer lb = new LoadBalancer(config.targets[0].url, config, lbClients, lbAlgorithm, 0);
-    HttpClient lbClient = check <HttpClient>lb;
-    return lbClient;
+    return new LoadBalancer(config.targets[0].url, config, lbClients, lbAlgorithm, 0);
 }
 
 public function createFailOverClient(ClientEndpointConfiguration config, FailoverConfig foConfig) returns HttpClient {
@@ -298,31 +293,25 @@ public function createFailOverClient(ClientEndpointConfiguration config, Failove
                                                             failoverCodesIndex : failoverCodes,
                                                             failoverInterval : foConfig.interval};
 
-        Failover failover = new Failover(config.targets[0].url, config, failoverInferredConfig);
-        HttpClient foClient = check <HttpClient>failover;
-        return foClient;
+        return new Failover(config.targets[0].url, config, failoverInferredConfig);
 }
 
-function createRetryClient (string uri, ClientEndpointConfiguration configuration) returns HttpClient {
+function createRetryClient (string url, ClientEndpointConfiguration configuration) returns HttpClient {
     var retryConfig = configuration.retry;
     match retryConfig {
         Retry retry => {
-            HttpClient retryHttpClient = new;
             if (configuration.cacheConfig.enabled) {
-                retryHttpClient = createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+                return new RetryClient(url, configuration, retry, createHttpCachingClient(url, configuration, configuration.cacheConfig));
             } else{
-                retryHttpClient = createHttpClient(uri, configuration);
+                return new RetryClient(url, configuration, retry, createHttpClient(url, configuration));
             }
-            RetryClient retryClient = new RetryClient(uri, configuration, retry, retryHttpClient);
-            HttpClient httpClient = check <HttpClient>retryClient;
-            return httpClient;
         }
         () => {
             //remove following once we can ignore
             if (configuration.cacheConfig.enabled) {
-                return createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+                return createHttpCachingClient(url, configuration, configuration.cacheConfig);
             } else {
-                return createHttpClient(uri, configuration);
+                return createHttpClient(url, configuration);
             }
         }
     }
