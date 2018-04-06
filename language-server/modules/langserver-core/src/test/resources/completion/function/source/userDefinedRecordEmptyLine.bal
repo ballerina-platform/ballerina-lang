@@ -1,11 +1,11 @@
 function testFunction() {
-    f
+    
 }
 
-struct testStruct1 {
+type testRecord1 {
     int test1A = 12;
-}
+};
 
-struct testStruct2 {
+type testRecord2 {
     int test2A = 12;
-}
+};
