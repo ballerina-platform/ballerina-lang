@@ -37,12 +37,12 @@ import java.util.List;
  * Set the gauge to the given value.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "metrics",
+        orgName = "ballerina", packageName = "observe",
         functionName = "setValue",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Gauge",
-                structPackage = "ballerina.metrics"),
+                structPackage = "ballerina.observe"),
         args = {@Argument(name = "gauge", type = TypeKind.STRUCT, structType = "Gauge",
-                structPackage = "ballerina.metrics"), @Argument(name = "value", type = TypeKind.FLOAT)},
+                structPackage = "ballerina.observe"), @Argument(name = "value", type = TypeKind.FLOAT)},
         isPublic = true
 )
 public class SetGauge extends BlockingNativeCallableUnit {

@@ -37,12 +37,12 @@ import java.util.List;
  * Decrement the gauge by one.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "metrics",
+        orgName = "ballerina", packageName = "observe",
         functionName = "decrementByOne",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Gauge",
-                structPackage = "ballerina.metrics"),
+                structPackage = "ballerina.observe"),
         args = {@Argument(name = "gauge", type = TypeKind.STRUCT, structType = "Gauge",
-                structPackage = "ballerina.metrics")},
+                structPackage = "ballerina.observe")},
         isPublic = true
 )
 public class DecrementGaugeByOne extends BlockingNativeCallableUnit {

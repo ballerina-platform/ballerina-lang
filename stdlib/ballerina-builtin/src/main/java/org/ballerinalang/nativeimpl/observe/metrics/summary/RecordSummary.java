@@ -35,12 +35,12 @@ import java.util.List;
  * Updates the statistics kept by the summary with the specified amount.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "metrics",
+        orgName = "ballerina", packageName = "observe",
         functionName = "record",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Summary",
-                structPackage = "ballerina.metrics"),
+                structPackage = "ballerina.observe"),
         args = {@Argument(name = "summary", type = TypeKind.STRUCT, structType = "Summary",
-                structPackage = "ballerina.metrics"), @Argument(name = "amount", type = TypeKind.FLOAT)},
+                structPackage = "ballerina.observe"), @Argument(name = "amount", type = TypeKind.FLOAT)},
         isPublic = true
 )
 public class RecordSummary extends BlockingNativeCallableUnit {

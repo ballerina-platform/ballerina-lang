@@ -37,12 +37,12 @@ import java.util.List;
  * Returns the number of times that record has been called since this summary was created.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "metrics",
+        orgName = "ballerina", packageName = "observe",
         functionName = "count",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Summary",
-                structPackage = "ballerina.metrics"),
+                structPackage = "ballerina.observe"),
         args = {@Argument(name = "summary", type = TypeKind.STRUCT, structType = "Summary",
-                structPackage = "ballerina.metrics")},
+                structPackage = "ballerina.observe")},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )

@@ -1,9 +1,9 @@
-import ballerina/metrics;
+import ballerina/observe;
 
 map tags1 = {"method":"GET"};
 map tags2 = {"method":"POST"};
-metrics:Counter counter1 = {name:"requests_total", description:"Total requests.", tags:tags1};
-metrics:Counter counter2 = {name:"requests_total", description:"Total requests.", tags:tags2};
+observe:Counter counter1 = new("requests_total", "Total requests.", tags1);
+observe:Counter counter2 = new("requests_total", "Total requests.", tags2);
 
 function testCounterIncrementByOne() returns (float) {
     counter1.incrementByOne();

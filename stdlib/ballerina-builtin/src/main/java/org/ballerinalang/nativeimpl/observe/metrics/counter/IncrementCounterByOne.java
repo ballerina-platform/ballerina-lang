@@ -38,12 +38,12 @@ import java.util.List;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "metrics",
+        orgName = "ballerina", packageName = "observe",
         functionName = "incrementByOne",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Counter",
-                structPackage = "ballerina.metrics"),
+                structPackage = "ballerina.observe"),
         args = {@Argument(name = "counter", type = TypeKind.STRUCT, structType = "Counter",
-                structPackage = "ballerina.metrics")},
+                structPackage = "ballerina.observe")},
         isPublic = true
 )
 public class IncrementCounterByOne extends BlockingNativeCallableUnit {

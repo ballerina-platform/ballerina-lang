@@ -37,12 +37,12 @@ import java.util.List;
  * Increment the counter by the given amount.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "metrics",
+        orgName = "ballerina", packageName = "observe",
         functionName = "increment",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Counter",
-                structPackage = "ballerina.metrics"),
+                structPackage = "ballerina.observe"),
         args = {@Argument(name = "counter", type = TypeKind.STRUCT, structType = "Counter",
-                structPackage = "ballerina.metrics"), @Argument(name = "amount", type = TypeKind.FLOAT)},
+                structPackage = "ballerina.observe"), @Argument(name = "amount", type = TypeKind.FLOAT)},
         isPublic = true
 )
 public class IncrementCounter extends BlockingNativeCallableUnit {

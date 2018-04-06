@@ -37,12 +37,12 @@ import java.util.List;
  * Increment the gauge by the given amount.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "metrics",
+        orgName = "ballerina", packageName = "observe",
         functionName = "increment",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Gauge",
-                structPackage = "ballerina.metrics"),
+                structPackage = "ballerina.observe"),
         args = {@Argument(name = "gauge", type = TypeKind.STRUCT, structType = "Gauge",
-                structPackage = "ballerina.metrics"), @Argument(name = "amount", type = TypeKind.FLOAT)},
+                structPackage = "ballerina.observe"), @Argument(name = "amount", type = TypeKind.FLOAT)},
         isPublic = true
 )
 public class IncrementGauge extends BlockingNativeCallableUnit {

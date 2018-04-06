@@ -37,12 +37,12 @@ import java.util.List;
  * Returns the distribution average for all recorded events.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "metrics",
+        orgName = "ballerina", packageName = "observe",
         functionName = "mean",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Summary",
-                structPackage = "ballerina.metrics"),
+                structPackage = "ballerina.observe"),
         args = {@Argument(name = "summary", type = TypeKind.STRUCT, structType = "Summary",
-                structPackage = "ballerina.metrics")},
+                structPackage = "ballerina.observe")},
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )

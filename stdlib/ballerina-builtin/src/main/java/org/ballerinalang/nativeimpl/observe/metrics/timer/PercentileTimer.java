@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -39,12 +40,12 @@ import java.util.concurrent.TimeUnit;
  * Returns the latency at a specific percentile. This value is non-aggregable across dimensions.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "metrics",
+        orgName = "ballerina", packageName = "observe",
         functionName = "percentile",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Timer",
-                structPackage = "ballerina.metrics"),
+                structPackage = "ballerina.observe"),
         args = {@Argument(name = "timer", type = TypeKind.STRUCT, structType = "Timer",
-                structPackage = "ballerina.metrics"), @Argument(name = "percentile", type = TypeKind.FLOAT),
+                structPackage = "ballerina.observe"), @Argument(name = "percentile", type = TypeKind.FLOAT),
                 @Argument(name = "timeUnit", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
@@ -57,9 +58,9 @@ public class PercentileTimer extends BlockingNativeCallableUnit {
         String description = timerStruct.getStringField(1);
         BMap tagsMap = (BMap) timerStruct.getRefField(0);
         float percentile = (float) context.getFloatArgument(0);
-        BEnumerator timeUnitEnum = (BEnumerator) context.getRefArgument(1);
+        BString timeUnitType = (BString) context.getRefArgument(1);
 
-        TimeUnit timeUnit = TimeUnitExtractor.getTimeUnit(timeUnitEnum);
+        TimeUnit timeUnit = TimeUnit.valueOf(timeUnitType.stringValue());
 
         if (!tagsMap.isEmpty()) {
             List<Tag> tags = new ArrayList<>();

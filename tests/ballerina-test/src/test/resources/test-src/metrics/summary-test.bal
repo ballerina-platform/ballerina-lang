@@ -1,13 +1,13 @@
-import ballerina/metrics;
+import ballerina/observe;
 
 map tags1 = {"method":"GET"};
 map tags2 = {"method":"POST"};
 map tags3 = {"method":"UPDATE"};
 map tags4 = {"method":"DELETE"};
-metrics:Summary summary1 = {name:"response_size", description:"Size of a response.", tags:tags1};
-metrics:Summary summary2 = {name:"response_size", description:"Size of a response.", tags:tags2};
-metrics:Summary summary3 = {name:"response_size", description:"Size of a response.", tags:tags3};
-metrics:Summary summary4 = {name:"response_size", description:"Size of a response.", tags:tags4};
+observe:Summary summary1 = new("response_size", "Size of a response.", tags1);
+observe:Summary summary2 = new("response_size", "Size of a response.", tags2);
+observe:Summary summary3 = new("response_size", "Size of a response.", tags3);
+observe:Summary summary4 = new("response_size", "Size of a response.", tags4);
 
 function testCountSummary() returns (int) {
     summary1.record(1);

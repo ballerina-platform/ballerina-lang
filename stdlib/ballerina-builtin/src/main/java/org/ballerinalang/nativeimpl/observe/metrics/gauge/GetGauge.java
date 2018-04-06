@@ -39,12 +39,12 @@ import java.util.List;
  * Return the value of the gauge.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "metrics",
+        orgName = "ballerina", packageName = "observe",
         functionName = "value",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Gauge",
-                structPackage = "ballerina.metrics"),
+                structPackage = "ballerina.observe"),
         args = {@Argument(name = "gauge", type = TypeKind.STRUCT, structType = "Gauge",
-                structPackage = "ballerina.metrics")},
+                structPackage = "ballerina.observe")},
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )

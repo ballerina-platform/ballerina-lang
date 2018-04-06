@@ -37,12 +37,12 @@ import java.util.List;
  * Returns the value at a specific percentile.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "metrics",
+        orgName = "ballerina", packageName = "observe",
         functionName = "percentile",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Summary",
-                structPackage = "ballerina.metrics"),
+                structPackage = "ballerina.observe"),
         args = {@Argument(name = "summary", type = TypeKind.STRUCT, structType = "Summary",
-                structPackage = "ballerina.metrics"), @Argument(name = "percentile", type = TypeKind.FLOAT)},
+                structPackage = "ballerina.observe"), @Argument(name = "percentile", type = TypeKind.FLOAT)},
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )

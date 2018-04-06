@@ -14,160 +14,149 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.metrics;
+package ballerina.observe;
 
 @Description {value:"Counter metric, to track counts of events or running totals."}
 @Field {value:"name: The name of the counter. Required."}
 @Field {value:"description: The description string of the metric. Required."}
 @Field {value:"tags: Key/value pairs used to classify counter. Optional."}
-public struct Counter {
-    string name;
-    string description;
-    map tags;
-}
+public type Counter object {
+    public {
+        string name;
+        string description;
+        map tags;
+    }
 
-@Description {value:"Increment the counter by one."}
-@Param {value:"counter: The counter instance to be incremented by one."}
-public native function <Counter counter> incrementByOne();
+    public new(name, description, tags) {}
 
-@Description {value:"Increment the counter by the given amount."}
-@Param {value:"counter: The counter instance to be incremented by 'amount'."}
-@Param {value:"amount: float to be added with the counter value."}
-public native function <Counter counter> increment(float amount);
+    @Description {value:"Increment the counter by one."}
+    public native function incrementByOne();
 
-@Description {value:"Return the value of the counter."}
-@Param {value:"counter: The counter instance to be returned."}
-@Return {value:"The value of a counter"}
-public native function <Counter counter> count() returns (float);
+    @Description {value:"Increment the counter by the given amount."}
+    @Param {value:"amount: float to be added with the counter value."}
+    public native function increment(float amount);
+
+    @Description {value:"Return the value of the counter."}
+    @Return {value:"The value of a counter"}
+    public native function count() returns (float);
+};
 
 @Description {value:"Gauge metric, to report instantaneous values. Gauges can go both up and down."}
 @Field {value:"name: The name of the gauge. Required."}
 @Field {value:"description: The description string of the metric. Required."}
 @Field {value:"tags: Key/value pairs used to classify gauge. Optional."}
-public struct Gauge {
-    string name;
-    string description;
-    map tags;
-}
+public type Gauge object {
+    public {
+        string name;
+        string description;
+        map tags;
+    }
 
-@Description {value:"Increment the gauge by one."}
-@Param {value:"gauge: The gauge instance to be incremented by one."}
-public native function <Gauge gauge> incrementByOne();
+    public new(name, description, tags) {}
 
-@Description {value:"Increment the gauge by the given amount."}
-@Param {value:"gauge: The gauge instance to be incremented by 'amount'."}
-@Param {value:"amount: float to be added with the gauge value."}
-public native function <Gauge gauge> increment(float amount);
+    @Description {value:"Increment the gauge by one."}
+    public native function incrementByOne();
 
-@Description {value:"Decrement the gauge by one."}
-@Param {value:"gauge: The gauge instance to be decremented by one."}
-public native function <Gauge gauge> decrementByOne();
+    @Description {value:"Increment the gauge by the given amount."}
+    @Param {value:"amount: float to be added with the gauge value."}
+    public native function increment(float amount);
 
-@Description {value:"Decrement the gauge by the given amount."}
-@Param {value:"gauge: The gauge instance to be decremented by 'amount'."}
-@Param {value:"amount: float to be added with the gauge value."}
-public native function <Gauge gauge> decrement(float amount);
+    @Description {value:"Decrement the gauge by one."}
+    public native function decrementByOne();
 
-@Description {value:"Set the gauge to the given value."}
-@Param {value:"gauge: The gauge instance to be set."}
-@Param {value:"value: value to be set to the gauge."}
-public native function <Gauge gauge> setValue(float value);
+    @Description {value:"Decrement the gauge by the given amount."}
+    @Param {value:"amount: float to be added with the gauge value."}
+    public native function decrement(float amount);
 
-@Description {value:"Return the value of the gauge."}
-@Param {value:"gauge: The gauge instance to be returned."}
-@Return {value:"The value of a gauge"}
-public native function <Gauge gauge> value() returns (float);
+    @Description {value:"Set the gauge to the given value."}
+    @Param {value:"value: value to be set to the gauge."}
+    public native function setValue(float value);
+
+    @Description {value:"Return the value of the gauge."}
+    @Return {value:"The value of a gauge"}
+    public native function value() returns (float);
+};
 
 @Description {value:"Summary metric, to track the size of events."}
 @Field {value:"name: The name of the summary. Required."}
 @Field {value:"description: The description string of the metric. Required."}
 @Field {value:"tags: Key/value pairs used to classify summary. Optional."}
-public struct Summary {
-    string name;
-    string description;
-    map tags;
-}
+public type Summary object {
+    public {
+        string name;
+        string description;
+        map tags;
+    }
 
-@Description {value: "Record the specific amount and update the summary."}
-@Param {value: "summary: The summary instance."}
-@Param {value: "amount: Amount for an event being measured."}
-public native function <Summary summary> record(float amount);
+    public new(name, description, tags) {}
 
-@Description {value:"Return the maximum value of an event."}
-@Param {value:"summary: The summary instance."}
-@Return {value: "The maximum time of a single event."}
-public native function <Summary summary> max() returns (float);
+    @Description {value: "Record the specific amount and update the summary."}
+    @Param {value: "amount: Amount for an event being measured."}
+    public native function record(float amount);
 
-@Description {value: "Return the mean value of all recorded events."}
-@Param {value: "summary: The summary instance."}
-@Return {value: "The distribution average for all recorded events."}
-public native function <Summary summary> mean() returns (float);
+    @Description {value:"Return the maximum value of an event."}
+    @Return {value: "The maximum time of a single event."}
+    public native function max() returns (float);
 
-@Description {value: "Return the value at a specific percentile."}
-@Param {value: "summary: The summary instance."}
-@Param {value: "percentile: A percentile in the domain."}
-@Return {value: "The value at a specific percentile."}
-public native function <Summary summary> percentile(float percentile) returns (float);
+    @Description {value: "Return the mean value of all recorded events."}
+    @Return {value: "The distribution average for all recorded events."}
+    public native function mean() returns (float);
 
-@Description {value: "Return the number of values recorded in the summary."}
-@Param {value: "summary: The summary instance."}
-@Return {value: "The number of times that record has been called since this timer was created."}
-public native function <Summary summary> count() returns (int);
+    @Description {value: "Return the value at a specific percentile."}
+    @Param {value: "percentile: A percentile in the domain."}
+    @Return {value: "The value at a specific percentile."}
+    public native function percentile(float percentile) returns (float);
 
-@Description {value: ""}
-@Field {value: "NANOSECONDS: "}
-@Field {value: "MICROSECONDS: "}
-@Field {value: "MILLISECONDS: "}
-@Field {value: "SECONDS: "}
-@Field {value: "MINUTES: "}
-@Field {value: "HOURS: "}
-@Field {value: "DAYS: "}
-public enum TimeUnit {
-    NANOSECONDS,
-    MICROSECONDS,
-    MILLISECONDS,
-    SECONDS,
-    MINUTES,
-    HOURS,
-    DAYS
-}
+    @Description {value: "Return the number of values recorded in the summary."}
+    @Return {value: "The number of times that record has been called since this timer was created."}
+    public native function count() returns (int);
+};
+
+public type TimeUnit "NANOSECONDS" | "MICROSECONDS" | "MILLISECONDS" | "SECONDS" | "MINUTES" | "HOURS" | "DAYS";
+
+@final public TimeUnit TIME_UNIT_NANOSECONDS = "NANOSECONDS";
+@final public TimeUnit TIME_UNIT_MICROSECONDS = "MICROSECONDS";
+@final public TimeUnit TIME_UNIT_MILLISECONDS = "MILLISECONDS";
+@final public TimeUnit TIME_UNIT_SECONDS = "SECONDS";
+@final public TimeUnit TIME_UNIT_MINUTES = "MINUTES";
+@final public TimeUnit TIME_UNIT_HOURS = "HOURS";
+@final public TimeUnit TIME_UNIT_DAYS = "DAYS";
 
 @Description {value: "Timer metric, to track events."}
 @Field {value: "name: The name of the timer. Required."}
 @Field {value: "description: The description string of the metric. Required."}
 @Field {value:"tags: Key/value pairs used to classify timer. Optional."}
-public struct Timer {
-    string name;
-    string description;
-    map tags;
-}
+public type Timer object {
+    public {
+        string name;
+        string description;
+        map tags;
+    }
 
-@Description {value: "Record the specific amount with the time unit and update the timer."}
-@Param {value: "timer: The timer instance."}
-@Param {value: "amount: Duration of a single event being measured by this timer."}
-@Param {value: "timeUnit: Time unit for the amount being recorded."}
-public native function <Timer timer> record(int amount, TimeUnit timeUnit);
+    public new(name, description, tags) {}
 
-@Description {value: "Return the maximum time of an event."}
-@Param {value: "timer: The timer instance."}
-@Param {value: "timeUnit: The base unit of time to scale the max to."}
-@Return {value: "The maximum time of a single event."}
-public native function <Timer timer> max(TimeUnit timeUnit) returns (float);
+    @Description {value: "Record the specific amount with the time unit and update the timer."}
+    @Param {value: "amount: Duration of a single event being measured by this timer."}
+    @Param {value: "timeUnit: Time unit for the amount being recorded."}
+    public native function record(int amount, TimeUnit timeUnit);
 
-@Description {value: "Return the mean time of all recorded events."}
-@Param {value: "timer: The timer instance."}
-@Param {value: "timeUnit: The base unit of time to scale the mean to."}
-@Return {value: "The distribution average for all recorded events."}
-public native function <Timer timer> mean(TimeUnit timeUnit) returns (float);
+    @Description {value: "Return the maximum time of an event."}
+    @Param {value: "timeUnit: The base unit of time to scale the max to."}
+    @Return {value: "The maximum time of a single event."}
+    public native function max(TimeUnit timeUnit) returns (float);
 
-@Description {value: "Return the latency at a specific percentile."}
-@Param {value: "timer: The timer instance."}
-@Param {value: "percentiles: A percentile in the domain."}
-@Param {value: "timeUnit: The base unit of time to scale the percentile value to."}
-@Return {value: "The latency at a specific percentile."}
-public native function <Timer timer> percentile(float percentiles, TimeUnit timeUnit) returns (float);
+    @Description {value: "Return the mean time of all recorded events."}
+    @Param {value: "timeUnit: The base unit of time to scale the mean to."}
+    @Return {value: "The distribution average for all recorded events."}
+    public native function mean(TimeUnit timeUnit) returns (float);
 
-@Description {value: "Returns the number of times recorded in the timer."}
-@Param {value: "timer: The timer instance."}
-@Return {value: "The number of times that stop has been called on this timer."}
-public native function <Timer timer> count() returns (int);
+    @Description {value: "Return the latency at a specific percentile."}
+    @Param {value: "percentiles: A percentile in the domain."}
+    @Param {value: "timeUnit: The base unit of time to scale the percentile value to."}
+    @Return {value: "The latency at a specific percentile."}
+    public native function percentile(float percentiles, TimeUnit timeUnit) returns (float);
+
+    @Description {value: "Returns the number of times recorded in the timer."}
+    @Return {value: "The number of times that stop has been called on this timer."}
+    public native function count() returns (int);
+};

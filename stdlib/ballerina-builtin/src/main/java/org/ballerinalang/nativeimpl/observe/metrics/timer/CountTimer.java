@@ -37,12 +37,12 @@ import java.util.List;
  * Returns the number of times that stop has been called on this timer.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "metrics",
+        orgName = "ballerina", packageName = "observe",
         functionName = "count",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Timer",
-                structPackage = "ballerina.metrics"),
+                structPackage = "ballerina.observe"),
         args = {@Argument(name = "timer", type = TypeKind.STRUCT, structType = "Timer",
-                structPackage = "ballerina.metrics")},
+                structPackage = "ballerina.observe")},
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )

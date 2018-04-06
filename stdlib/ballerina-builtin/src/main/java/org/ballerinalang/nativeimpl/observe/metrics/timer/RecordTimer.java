@@ -20,8 +20,8 @@ package org.ballerinalang.nativeimpl.observe.metrics.timer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -37,12 +37,12 @@ import java.util.concurrent.TimeUnit;
  * Updates the statistics kept by the counter with the specified amount.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "metrics",
+        orgName = "ballerina", packageName = "observe",
         functionName = "record",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Timer",
-                structPackage = "ballerina.metrics"),
+                structPackage = "ballerina.observe"),
         args = {@Argument(name = "timer", type = TypeKind.STRUCT, structType = "Timer",
-                structPackage = "ballerina.metrics"), @Argument(name = "amount", type = TypeKind.FLOAT),
+                structPackage = "ballerina.observe"), @Argument(name = "amount", type = TypeKind.FLOAT),
                 @Argument(name = "timeUnit", type = TypeKind.STRING)},
         isPublic = true
 )
@@ -54,9 +54,9 @@ public class RecordTimer extends BlockingNativeCallableUnit {
         String description = timerStruct.getStringField(1);
         BMap tagsMap = (BMap) timerStruct.getRefField(0);
         long amount = context.getIntArgument(0);
-        BEnumerator timeUnitEnum = (BEnumerator) context.getRefArgument(1);
+        BString timeUnitType = (BString) context.getRefArgument(1);
 
-        TimeUnit timeUnit = TimeUnitExtractor.getTimeUnit(timeUnitEnum);
+        TimeUnit timeUnit = TimeUnit.valueOf(timeUnitType.stringValue());
 
         if (!tagsMap.isEmpty()) {
             List<Tag> tags = new ArrayList<>();
