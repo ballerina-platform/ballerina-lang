@@ -16,7 +16,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
@@ -79,9 +78,7 @@ public class EndpointSPIAnalyzer {
         }
         isValidEndpointType(endpoint.pos, endpoint.symbol.type);
         // Update endpoint variable symbol
-        if (endpoint.symbol.type.tsymbol.kind == SymbolKind.STRUCT) {
-            populateEndpointSymbol((BStructSymbol) endpoint.symbol.type.tsymbol, endpoint.symbol);
-        }
+        populateEndpointSymbol((BStructSymbol) endpoint.symbol.type.tsymbol, endpoint.symbol);
     }
 
     public BStructType getEndpointTypeFromServiceType(DiagnosticPos pos, BType type) {
