@@ -16,7 +16,7 @@ public type ChatStub object {
     }
 
     function chat (typedesc listener) returns (grpc:Client|error) {
-        var res = stub.serviceStub.streamingExecute("Chat/chat", listener);
+        var res = self.serviceStub.streamingExecute("Chat/chat", listener);
         match res {
             grpc:ConnectorError err => {
                 error e = {message:err.message};
@@ -27,7 +27,7 @@ public type ChatStub object {
             }
         }
     }
-}
+};
 
 // Non-blocking client endpoint
 public type ChatClient object {
@@ -49,12 +49,12 @@ public type ChatClient object {
     public function getClient () returns (ChatStub) {
         return self.stub;
     }
-}
+};
 
 type ChatMessage {
     string name;
     string message;
-}
+};
 
 @final string DESCRIPTOR_KEY = "Chat.proto";
 map descriptorMap =
