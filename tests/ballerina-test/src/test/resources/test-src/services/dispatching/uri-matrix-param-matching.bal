@@ -15,7 +15,7 @@ service<http:Service> testService bind testEP {
         path:"/t1/{person}/bar/{yearParam}/foo"
     }
      test1 (endpoint client, http:Request req, string person, string yearParam) {
-        http:Response res = {};
+        http:Response res = new;
         json outJson = {};
         outJson.pathParams = string `{{person}}, {{yearParam}}`;
 
@@ -48,7 +48,7 @@ service<http:Service> testService bind testEP {
         path:"/t2/{person}/foo;a=5;b=10"
     }
      testEncoded (endpoint client, http:Request req, string person) {
-        http:Response res = {};
+        http:Response res = new;
         json outJson = {};
         outJson.person = person;
 

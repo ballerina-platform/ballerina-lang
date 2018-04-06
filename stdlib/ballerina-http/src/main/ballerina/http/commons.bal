@@ -17,37 +17,36 @@
 package ballerina.http;
 
 // TODO: Document these. Should we make FORWARD a private constant?
-public const string FORWARD = "FORWARD";
-public const string GET = "GET";
-public const string POST = "POST";
-public const string DELETE = "DELETE";
-public const string OPTIONS = "OPTIONS";
-public const string PUT = "PUT";
-public const string PATCH = "PATCH";
-public const string HEAD = "HEAD";
+@final public HttpOperation HTTP_FORWARD = "FORWARD";
+@final public HttpOperation HTTP_GET = "GET";
+@final public HttpOperation HTTP_POST = "POST";
+@final public HttpOperation HTTP_DELETE = "DELETE";
+@final public HttpOperation HTTP_OPTIONS = "OPTIONS";
+@final public HttpOperation HTTP_PUT = "PUT";
+@final public HttpOperation HTTP_PATCH = "PATCH";
+@final public HttpOperation HTTP_HEAD = "HEAD";
+@final public HttpOperation HTTP_NONE = "NONE";
 
-enum HttpOperation {
-    GET, POST, DELETE, OPTIONS, PUT, PATCH, HEAD, FORWARD
-}
+public type HttpOperation "FORWARD" | "GET" | "POST" | "DELETE" | "OPTIONS" | "PUT" | "PATCH" | "HEAD" | "NONE";
 
 // makes the actual endpoints call according to the http operation passed in.
 public function invokeEndpoint (string path, Request outRequest,
                                 HttpOperation requestAction, HttpClient httpClient) returns Response|HttpConnectorError {
-    if (HttpOperation.GET == requestAction) {
+    if (HTTP_GET == requestAction) {
         return httpClient.get(path, outRequest);
-    } else if (HttpOperation.POST == requestAction) {
+    } else if (HTTP_POST == requestAction) {
         return httpClient.post(path, outRequest);
-    } else if (HttpOperation.OPTIONS == requestAction) {
+    } else if (HTTP_OPTIONS == requestAction) {
         return httpClient.options(path, outRequest);
-    } else if (HttpOperation.PUT == requestAction) {
+    } else if (HTTP_PUT == requestAction) {
         return httpClient.put(path, outRequest);
-    } else if (HttpOperation.DELETE == requestAction) {
+    } else if (HTTP_DELETE == requestAction) {
         return httpClient.delete(path, outRequest);
-    } else if (HttpOperation.PATCH == requestAction) {
+    } else if (HTTP_PATCH == requestAction) {
         return httpClient.patch(path, outRequest);
-    } else if (HttpOperation.FORWARD == requestAction) {
+    } else if (HTTP_FORWARD == requestAction) {
         return httpClient.forward(path, outRequest);
-    } else if (HttpOperation.HEAD == requestAction) {
+    } else if (HTTP_HEAD == requestAction) {
         return httpClient.head(path, outRequest);
     } else {
         return getError();
@@ -56,23 +55,23 @@ public function invokeEndpoint (string path, Request outRequest,
 
 // Extracts HttpOperation from the Http verb passed in.
 function extractHttpOperation (string httpVerb) returns HttpOperation {
-    HttpOperation inferredConnectorAction;
-    if (GET == httpVerb) {
-        inferredConnectorAction = HttpOperation.GET;
-    } else if (POST == httpVerb) {
-        inferredConnectorAction = HttpOperation.POST;
-    } else if (OPTIONS == httpVerb) {
-        inferredConnectorAction = HttpOperation.OPTIONS;
-    } else if (PUT == httpVerb) {
-        inferredConnectorAction = HttpOperation.PUT;
-    } else if (DELETE == httpVerb) {
-        inferredConnectorAction = HttpOperation.DELETE;
-    } else if (PATCH == httpVerb) {
-        inferredConnectorAction = HttpOperation.PATCH;
-    } else if (FORWARD == httpVerb) {
-        inferredConnectorAction = HttpOperation.FORWARD;
-    } else if (HEAD == httpVerb) {
-        inferredConnectorAction = HttpOperation.HEAD;
+    HttpOperation inferredConnectorAction = HTTP_NONE;
+    if ("GET" == httpVerb) {
+        inferredConnectorAction = HTTP_GET;
+    } else if ("POST" == httpVerb) {
+        inferredConnectorAction = HTTP_POST;
+    } else if ("OPTIONS" == httpVerb) {
+        inferredConnectorAction = HTTP_OPTIONS;
+    } else if ("PUT" == httpVerb) {
+        inferredConnectorAction = HTTP_PUT;
+    } else if ("DELETE" == httpVerb) {
+        inferredConnectorAction = HTTP_DELETE;
+    } else if ("PATCH" == httpVerb) {
+        inferredConnectorAction = HTTP_PATCH;
+    } else if ("FORWARD" == httpVerb) {
+        inferredConnectorAction = HTTP_FORWARD;
+    } else if ("HEAD" == httpVerb) {
+        inferredConnectorAction = HTTP_HEAD;
     }
     return inferredConnectorAction;
 }
@@ -101,7 +100,7 @@ function createHttpClientArray (ClientEndpointConfiguration config) returns Http
             }
             httpClientRequired = false;
         }
-        int | null => {
+        () => {
             httpClientRequired = true;
         }
     }
@@ -115,10 +114,18 @@ function createHttpClientArray (ClientEndpointConfiguration config) returns Http
         if (!httpClientRequired) {
             httpClients[i] = createCircuitBreakerClient(uri, config);
         } else {
-            if (config.cacheConfig.enabled) {
-                httpClients[i] = createHttpCachingClient(uri, config, config.cacheConfig);
-            } else {
-                httpClients[i] = createHttpClient(uri, config);
+            var retryConfig = config.retry;
+            match retryConfig {
+                Retry retry => {
+                    httpClients[i] = createRetryClient(uri, config);
+                }
+                () => {
+                    if (config.cacheConfig.enabled) {
+                        httpClients[i] = createHttpCachingClient(uri, config, config.cacheConfig);
+                    } else {
+                        httpClients[i] = createHttpClient(uri, config);
+                    }
+                }
             }
         }
         httpClients[i].config = config;
@@ -127,7 +134,7 @@ function createHttpClientArray (ClientEndpointConfiguration config) returns Http
     return httpClients;
 }
 
-function getError() returns HttpConnectorError{
+function getError() returns HttpConnectorError {
     HttpConnectorError httpConnectorError = {};
     httpConnectorError.statusCode = 400;
     httpConnectorError.message = "Unsupported connector action received.";

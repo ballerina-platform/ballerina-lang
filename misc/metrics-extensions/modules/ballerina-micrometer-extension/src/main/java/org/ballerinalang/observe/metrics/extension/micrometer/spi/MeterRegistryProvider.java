@@ -24,6 +24,18 @@ import io.micrometer.core.instrument.MeterRegistry;
  */
 public interface MeterRegistryProvider {
 
+    /**
+     * Returns a unique name of the {@link MeterRegistry} Provider.
+     *
+     * @return the Meter Registry name.
+     */
+    String getName();
+
+    /**
+     * Returns a new {@link MeterRegistry} to be used with Micrometer Metrics.
+     *
+     * @return A new {@link MeterRegistry}.
+     */
     MeterRegistry get();
 
 }

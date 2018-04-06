@@ -1,16 +1,16 @@
-struct A {
+type A {
     string x;
     int y;
-}
+};
 
-struct B {
+type B {
     string x;
-}
+};
 
 function testCastingWithTooManyReturns() {
     B b = {x: "x-valueof-b"};
     A a = {};
     int i;
     error err = {};
-    a, err, i =? <A> b;
+    a, err, i = check <A> b;
 }

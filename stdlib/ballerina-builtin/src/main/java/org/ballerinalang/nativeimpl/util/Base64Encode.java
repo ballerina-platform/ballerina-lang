@@ -19,13 +19,11 @@ package org.ballerinalang.nativeimpl.util;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-
-import java.nio.charset.Charset;
-import java.util.Base64;
 
 /**
  * Native function ballerina.util:base64Encode.
@@ -35,16 +33,17 @@ import java.util.Base64;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "util",
         functionName = "base64Encode",
-        args = {@Argument(name = "s", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        args = {@Argument(name = "contentToBeEncoded", type = TypeKind.UNION), @Argument(name = "charset",
+                type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true
 )
 public class Base64Encode extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String value = context.getStringArgument(0);
-        byte[] encodedValue = Base64.getEncoder().encode(value.getBytes(Charset.defaultCharset()));
-        context.setReturnValues(new BString(new String(encodedValue, Charset.defaultCharset())));
+        BValue result = context.getRefArgument(0);
+        String charset = context.getStringArgument(0);
+        Utils.encode(context, result, charset, false);
     }
 }

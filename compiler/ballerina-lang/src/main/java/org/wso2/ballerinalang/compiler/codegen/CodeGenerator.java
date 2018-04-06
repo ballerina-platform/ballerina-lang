@@ -41,10 +41,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -66,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -78,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJ
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
@@ -129,6 +133,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -149,7 +154,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.FieldType;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -180,6 +185,8 @@ import org.wso2.ballerinalang.programfile.ServiceInfo;
 import org.wso2.ballerinalang.programfile.StructFieldInfo;
 import org.wso2.ballerinalang.programfile.StructInfo;
 import org.wso2.ballerinalang.programfile.TransformerInfo;
+import org.wso2.ballerinalang.programfile.TypeDefinitionInfo;
+import org.wso2.ballerinalang.programfile.ValueSpaceItemInfo;
 import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 import org.wso2.ballerinalang.programfile.WorkerInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
@@ -207,6 +214,7 @@ import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -286,6 +294,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
 
+    // Disable register index reset behaviour.
+    // By default register indexes get reset for every statement.
+    // We need to disable this behaviour for desugared expressions.
+    private boolean regIndexResetDisabled = false;
+
     private int transactionIndex = 0;
 
     private Stack<Instruction> loopResetInstructionStack = new Stack<>();
@@ -295,6 +308,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private int workerChannelCount = 0;
     private int forkJoinCount = 0;
+
 
     private static final String MAIN_FUNCTION_NAME = "main";
 
@@ -434,6 +448,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         pkgNode.globalVars.forEach(this::createPackageVarInfo);
         pkgNode.structs.forEach(this::createStructInfoEntry);
         pkgNode.enums.forEach(this::createEnumInfoEntry);
+        pkgNode.typeDefinitions.forEach(this::createTypeDefinitionInfoEntry);
         pkgNode.connectors.forEach(this::createConnectorInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
         pkgNode.services.forEach(this::createServiceInfoEntry);
@@ -501,6 +516,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
 
             genNode(stmt, blockEnv);
+            if (regIndexResetDisabled) {
+                // This block node is possibly be part of a desugered expression
+                continue;
+            }
 
             // Update the maxRegIndexes structure
             setMaxRegIndexes(regIndexes, maxRegIndexes);
@@ -945,7 +964,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex indexRegIndex = xmlIndexAccessExpr.indexExpr.regIndex;
 
         RegIndex elementRegIndex = calcAndGetExprRegIndex(xmlIndexAccessExpr);
-        if (xmlIndexAccessExpr.fieldType == FieldType.ALL) {
+        if (xmlIndexAccessExpr.fieldType == FieldKind.ALL) {
             emit(InstructionCodes.XMLLOADALL, varRefRegIndex, elementRegIndex);
         } else if (xmlIndexAccessExpr.indexExpr.type.tag == TypeTags.STRING) {
             emit(InstructionCodes.XMLLOAD, varRefRegIndex, indexRegIndex, elementRegIndex);
@@ -1007,6 +1026,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             RegIndex regIndex = calcAndGetExprRegIndex(binaryExpr);
             emit(binaryExpr.opSymbol.opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
         }
+    }
+
+    public void visit(BLangElvisExpr elvisExpr) {
     }
 
     @Override
@@ -1277,7 +1299,12 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangStatementExpression bLangStatementExpression) {
         bLangStatementExpression.regIndex = calcAndGetExprRegIndex(bLangStatementExpression);
+
+        boolean prevRegIndexResetDisabledState = this.regIndexResetDisabled;
+        this.regIndexResetDisabled = true;
         genNode(bLangStatementExpression.stmt, this.env);
+        this.regIndexResetDisabled = prevRegIndexResetDisabledState;
+
         genNode(bLangStatementExpression.expr, this.env);
         emit(getOpcode(bLangStatementExpression.expr.type.tag, InstructionCodes.IMOVE),
                 bLangStatementExpression.expr.regIndex, bLangStatementExpression.regIndex);
@@ -1887,6 +1914,37 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
+    public void visit(BLangTypeDefinition typeDefinition) {
+        //TODO
+    }
+
+    private void createTypeDefinitionInfoEntry(BLangTypeDefinition typeDefinition) {
+        BTypeSymbol typeDefSymbol = (BTypeSymbol) typeDefinition.symbol;
+
+        int typeDefNameCPIndex = addUTF8CPEntry(currentPkgInfo, typeDefSymbol.name.value);
+        TypeDefinitionInfo typeDefInfo = new TypeDefinitionInfo(currentPackageRefCPIndex,
+                typeDefNameCPIndex, typeDefSymbol.flags);
+        currentPkgInfo.addTypeDefinitionInfo(typeDefSymbol.name.value, typeDefInfo);
+        typeDefInfo.finiteType = (BFiniteType) typeDefSymbol.type;
+
+        for (BType bType : typeDefInfo.finiteType.memberTypes) {
+            if (bType.tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) bType;
+                unionType.memberTypes.forEach(t -> {
+                    typeDefInfo.typeDescCPIndexes.add(getTypeCPIndex(t).value);
+                });
+            } else {
+                typeDefInfo.typeDescCPIndexes.add(getTypeCPIndex(bType).value);
+            }
+        }
+
+        Iterator<BLangExpression> valueSpaceIterator = typeDefInfo.finiteType.valueSpace.iterator();
+        while (valueSpaceIterator.hasNext()) {
+            BLangExpression literal = valueSpaceIterator.next();
+            typeDefInfo.valueSpaceItemInfos.add(new ValueSpaceItemInfo(getDefaultValue((BLangLiteral) literal)));
+        }
+    }
+
     private void createEnumInfoEntry(BLangEnum enumNode) {
         BTypeSymbol enumSymbol = (BTypeSymbol) enumNode.symbol;
         // Add Enum name as an UTFCPEntry to the constant pool
@@ -2365,24 +2423,17 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         workerDataChannelInfo.setDataChannelRefIndex(wrkrInvRefCPIndex.value);
 
-        int nArgExprs = workerSendStmt.exprs.size();
-        RegIndex[] argRegs = new RegIndex[nArgExprs];
-        BType[] bTypes = new BType[nArgExprs];
-        for (int i = 0; i < nArgExprs; i++) {
-            BLangExpression argExpr = workerSendStmt.exprs.get(i);
-            genNode(argExpr, this.env);
-            argRegs[i] = argExpr.regIndex;
-            bTypes[i] = argExpr.type;
-        }
-        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(bTypes));
+        genNode(workerSendStmt.expr, this.env);
+        RegIndex argReg = workerSendStmt.expr.regIndex;
+        BType bType = workerSendStmt.expr.type;
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { bType }));
         Operand sigCPIndex = getOperand(this.currentPkgInfo.addCPEntry(sigCPEntry));
 
-        // WRKSEND wrkrInvRefCPIndex typesCPIndex nRegIndexes, regIndexes[nRegIndexes]
-        Operand[] wrkSendArgRegs = new Operand[nArgExprs + 3];
+        // WRKSEND wrkrInvRefCPIndex typesCPIndex regIndex
+        Operand[] wrkSendArgRegs = new Operand[3];
         wrkSendArgRegs[0] = wrkrInvRefCPIndex;
         wrkSendArgRegs[1] = sigCPIndex;
-        wrkSendArgRegs[2] = getOperand(nArgExprs);
-        System.arraycopy(argRegs, 0, wrkSendArgRegs, 3, argRegs.length);
+        wrkSendArgRegs[2] = argReg;
         this.emit(InstructionCodes.WRKSEND, wrkSendArgRegs);
     }
 
@@ -2395,46 +2446,35 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand wrkrRplyRefCPIndex = getOperand(currentPkgInfo.addCPEntry(wrkrChnlRefCPEntry));
         workerDataChannelInfo.setDataChannelRefIndex(wrkrRplyRefCPIndex.value);
 
-        List<BLangExpression> lhsExprs = workerReceiveStmt.exprs;
-        int nLHSExprs = lhsExprs.size();
-        RegIndex[] regIndexes = new RegIndex[nLHSExprs];
-        BType[] bTypes = new BType[nLHSExprs];
-        for (int i = 0; i < nLHSExprs; i++) {
-            BLangExpression lExpr = lhsExprs.get(i);
-            if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && lExpr instanceof BLangLocalVarRef) {
-                lExpr.regIndex = ((BLangLocalVarRef) lExpr).symbol.varIndex;
-                regIndexes[i] = lExpr.regIndex;
-            } else {
-                lExpr.regIndex = getRegIndex(lExpr.type.tag);
-                lExpr.regIndex.isLHSIndex = true;
-                regIndexes[i] = lExpr.regIndex;
-            }
-
-            bTypes[i] = lExpr.type;
+        BLangExpression lExpr = workerReceiveStmt.expr;
+        RegIndex regIndex;
+        BType bType;
+        if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && lExpr instanceof BLangLocalVarRef) {
+            lExpr.regIndex = ((BLangLocalVarRef) lExpr).symbol.varIndex;
+            regIndex = lExpr.regIndex;
+        } else {
+            lExpr.regIndex = getRegIndex(lExpr.type.tag);
+            lExpr.regIndex.isLHSIndex = true;
+            regIndex = lExpr.regIndex;
         }
+        bType = lExpr.type;
 
-        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(bTypes));
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { bType }));
         Operand sigCPIndex = getOperand(currentPkgInfo.addCPEntry(sigCPEntry));
 
-        // WRKRECEIVE wrkrRplyRefCPIndex typesCPIndex nRegIndexes, regIndexes[nRegIndexes]
-        Operand[] wrkReceiveArgRegs = new Operand[nLHSExprs + 3];
+        // WRKRECEIVE wrkrRplyRefCPIndex typesCPIndex regIndex
+        Operand[] wrkReceiveArgRegs = new Operand[3];
         wrkReceiveArgRegs[0] = wrkrRplyRefCPIndex;
         wrkReceiveArgRegs[1] = sigCPIndex;
-        wrkReceiveArgRegs[2] = getOperand(nLHSExprs);
-        System.arraycopy(regIndexes, 0, wrkReceiveArgRegs, 3, regIndexes.length);
+        wrkReceiveArgRegs[2] = regIndex;
         emit(InstructionCodes.WRKRECEIVE, wrkReceiveArgRegs);
 
-        for (BLangExpression lExpr : lhsExprs) {
-            if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                    lExpr instanceof BLangLocalVarRef) {
-                continue;
-            }
-
+        if (!(lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                lExpr instanceof BLangLocalVarRef)) {
             this.varAssignment = true;
             this.genNode(lExpr, this.env);
             this.varAssignment = false;
         }
-
     }
 
     public void visit(BLangConnector connectorNode) {
@@ -2734,6 +2774,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangAbort abortNode) {
         generateFinallyInstructions(abortNode, NodeKind.TRANSACTION);
         this.emit(abortInstructions.peek());
+    }
+    
+    public void visit(BLangDone doneNode) {
+        generateFinallyInstructions(doneNode, NodeKind.DONE);
+        this.emit(InstructionCodes.HALT);
     }
 
     public void visit(BLangFail failNode) {
@@ -3074,7 +3119,40 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
         RegIndex nextIndex = calcAndGetExprRegIndex(fpExpr);
-        emit(InstructionCodes.FPLOAD, getOperand(funcRefCPIndex), nextIndex);
+        Operand[] operands;
+        if (!(fpExpr instanceof BLangLambdaFunction)) {
+            operands = new Operand[3];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = nextIndex;
+            operands[2] = new Operand(0);
+        } else {
+            Operand[] closureIndexes = calcAndGetClosureIndexes(((BLangLambdaFunction) fpExpr).function);
+            operands = new Operand[2 + closureIndexes.length];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = nextIndex;
+            System.arraycopy(closureIndexes, 0, operands, 2, closureIndexes.length);
+        }
+        emit(InstructionCodes.FPLOAD, operands);
+    }
+
+    private Operand[] calcAndGetClosureIndexes(BLangFunction function) {
+        List<Operand> operands = new ArrayList<>();
+
+        int closureOperandPairs = 0;
+
+        for (BVarSymbol symbol : function.symbol.params) {
+            if (!symbol.closure || function.requiredParams.stream().anyMatch(var -> var.symbol.equals(symbol))) {
+                continue;
+            }
+            Operand type = new Operand(symbol.type.tag);
+            Operand index = new Operand(symbol.varIndex.value);
+            operands.add(type);
+            operands.add(index);
+            closureOperandPairs++;
+        }
+
+        operands.add(0, new Operand(closureOperandPairs));
+        return operands.toArray(new Operand[]{});
     }
 
     private void generateFinallyInstructions(BLangStatement statement) {

@@ -17,17 +17,17 @@ function testForkJoinAnyOfSpecific () returns string[] {
     } join (some 1 ABC_Airline, XYZ_Airline) (map airlineResponses) {
         if (airlineResponses["ABC_Airline"] != null) {
             any[] abc;
-            abc =? <any[]> airlineResponses["ABC_Airline"];
+            abc =check <any[]> airlineResponses["ABC_Airline"];
             results[0] = <string>abc[0];
         }
         if (airlineResponses["XYZ_Airline"] != null) {
             any[] xyz;
-            xyz =? <any[]> airlineResponses["XYZ_Airline"];
+            xyz =check <any[]> airlineResponses["XYZ_Airline"];
             results[0] = <string> xyz[0];
         }
         if (airlineResponses["PQR_Airline"] != null) {
             any[] pqr;
-            pqr =? <any[]> airlineResponses["PQR_Airline"];
+            pqr =check <any[]> airlineResponses["PQR_Airline"];
             results[0] = <string> pqr[0];
         }
         return results;

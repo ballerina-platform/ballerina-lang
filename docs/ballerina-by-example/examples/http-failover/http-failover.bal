@@ -16,9 +16,9 @@ endpoint http:ClientEndpoint backendClientEP {
         interval : 0
     },
     targets: [
-             {uri: "http://localhost:300000/mock"},
-             {uri: "http://localhost:8080/echo"},
-             {uri: "http://localhost:8080/mock"}],
+             {url: "http://localhost:300000/mock"},
+             {url: "http://localhost:8080/echo"},
+             {url: "http://localhost:8080/mock"}],
     endpointTimeout:5000
 };
 

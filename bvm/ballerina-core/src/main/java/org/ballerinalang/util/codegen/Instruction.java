@@ -181,17 +181,17 @@ public class Instruction {
         public int channelRefCPIndex;
         public WorkerDataChannelInfo dataChannelInfo;
         public int sigCPIndex;
-        public BType[] types;
-        public int[] regs;
+        public BType type;
+        public int reg;
 
         InstructionWRKSendReceive(int opcode, int channelRefCPIndex, WorkerDataChannelInfo dataChannelInfo,
-                                  int sigCPIndex, BType[] types, int[] regs) {
+                                  int sigCPIndex, BType type, int reg) {
             super(opcode);
             this.channelRefCPIndex = channelRefCPIndex;
             this.dataChannelInfo = dataChannelInfo;
             this.sigCPIndex = sigCPIndex;
-            this.types = types;
-            this.regs = regs;
+            this.type = type;
+            this.reg = reg;
         }
 
         @Override
@@ -199,8 +199,7 @@ public class Instruction {
             StringJoiner sj = new StringJoiner(" ");
             sj.add(String.valueOf(channelRefCPIndex));
             sj.add(String.valueOf(sigCPIndex));
-            sj.add(String.valueOf(regs.length));
-            Arrays.stream(regs).forEach(i -> sj.add(String.valueOf(i)));
+            sj.add(String.valueOf(reg));
             return Mnemonics.getMnem(opcode) + " " + sj.toString();
         }
     }

@@ -5,25 +5,25 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/security.crypto;
 
-public const string HUB_CHALLENGE = "hub.challenge";
-public const string HUB_MODE = "hub.mode";
-public const string HUB_TOPIC = "hub.topic";
-public const string HUB_CALLBACK = "hub.callback";
-public const string HUB_LEASE_SECONDS = "hub.lease_seconds";
-public const string HUB_SECRET = "hub.secret";
+@final public string HUB_CHALLENGE = "hub.challenge";
+@final public string HUB_MODE = "hub.mode";
+@final public string HUB_TOPIC = "hub.topic";
+@final public string HUB_CALLBACK = "hub.callback";
+@final public string HUB_LEASE_SECONDS = "hub.lease_seconds";
+@final public string HUB_SECRET = "hub.secret";
 
-public const string MODE_SUBSCRIBE = "subscribe";
-public const string MODE_UNSUBSCRIBE = "unsubscribe";
-public const string MODE_PUBLISH = "publish";
+@final public string MODE_SUBSCRIBE = "subscribe";
+@final public string MODE_UNSUBSCRIBE = "unsubscribe";
+@final public string MODE_PUBLISH = "publish";
 
-public const string X_HUB_UUID = "X-Hub-Uuid";
-public const string X_HUB_TOPIC = "X-Hub-Topic";
-public const string X_HUB_SIGNATURE = "X-Hub-Signature";
+@final public string X_HUB_UUID = "X-Hub-Uuid";
+@final public string X_HUB_TOPIC = "X-Hub-Topic";
+@final public string X_HUB_SIGNATURE = "X-Hub-Signature";
 
-public const string CONTENT_TYPE = "Content-Type";
-public const string SHA1 = "SHA1";
-public const string SHA256 = "SHA256";
-public const string MD5 = "MD5";
+@final public string CONTENT_TYPE = "Content-Type";
+@final public string SHA1 = "SHA1";
+@final public string SHA256 = "SHA256";
+@final public string MD5 = "MD5";
 
 @Description {value:"Struct to represent WebSub related errors"}
 @Field {value:"errorMessage: Error message indicating an issue"}

@@ -44,7 +44,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -70,6 +76,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -202,6 +209,15 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (lhsType.tag == TypeTags.ENUM && rhsType.tag == TypeTags.ENUM && lhsType == rhsType) {
             opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ : InstructionCodes.RNE;
             BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
+            return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
+        }
+
+        if (lhsType.tag == TypeTags.FINITE
+                && rhsType.tag == TypeTags.FINITE && lhsType == rhsType) {
+            opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.TEQ : InstructionCodes.TNE;
+            List<BType> paramTypes = Lists.of(lhsType, rhsType);
+            BType retType = symTable.booleanType;
+            BInvokableType opType = new BInvokableType(paramTypes, retType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
         }
 
@@ -350,6 +366,43 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
+    /**
+     * Recursively analyse the symbol env to find the closure variable that is being resolved.
+     *
+     * @param env symbol env to analyse and find the closure variable.
+     * @param bSymbol symbol to resolve and find the associated closure variable.
+     * @return resolved closure variable for the given symbol.
+     */
+    public BLangVariable findClosureVar(SymbolEnv env, BSymbol bSymbol) {
+        BLangNode enclEnvNode = env.enclEnv.node;
+        if (enclEnvNode instanceof BLangBlockStmt) {
+            Optional<BLangStatement> statement = ((BLangBlockStmt) enclEnvNode).stmts.stream()
+                    .filter(stmt -> (stmt instanceof BLangVariableDef) &&
+                            bSymbol.equals(((BLangVariableDef) stmt).getVariable().symbol))
+                    .findFirst();
+            if (statement.isPresent()) {
+                ((BLangFunction) env.enclInvokable).closureVarList.add(((BLangVariableDef) statement.get()).
+                        getVariable());
+                return  ((BLangVariableDef) statement.get()).getVariable();
+            }
+        } else if (enclEnvNode instanceof BLangFunction) {
+            Optional<BLangVariable> var = ((BLangFunction) enclEnvNode).requiredParams.stream()
+                    .filter(param -> bSymbol.equals(param.symbol))
+                    .findFirst();
+            if (var.isPresent()) {
+                return var.get();
+            }
+        }
+
+        if (env.enclEnv != null && env.enclInvokable != null) {
+            BLangVariable closureVar = findClosureVar(env.enclEnv, bSymbol);
+            if (closureVar != symTable.notFoundVariable) {
+                ((BLangFunction) env.enclInvokable).closureVarList.add(closureVar);
+            }
+            return closureVar;
+        }
+        return symTable.notFoundVariable;
+    }
 
     /**
      * Return the symbol associated with the given name in the give package.
@@ -590,7 +643,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return true, if given symbol is handled
      */
     private boolean handleSpecialBuiltinStructTypes(BSymbol symbol) {
-        if (symbol.kind != SymbolKind.STRUCT) {
+        if (symbol.kind != SymbolKind.RECORD) {
             return false;
         }
         if (Names.ERROR.equals(symbol.name)) {

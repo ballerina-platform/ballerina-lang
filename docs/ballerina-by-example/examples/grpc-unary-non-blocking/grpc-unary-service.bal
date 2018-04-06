@@ -9,12 +9,12 @@ endpoint grpc:Service ep {
 };
 
 @grpc:serviceConfig {generateClientConnector:false}
-service<grpc:Endpoint> helloWorld bind ep {
+service<grpc:Endpoint> HelloWorld bind ep {
     hello (endpoint client, string name) {
         io:println("Received message from : " + name);
         string message = "Hello " + name; // response message
         grpc:ConnectorError err = client -> send(message);
-        if (err != null) {
+        if (err != ()) {
             io:println("Error at helloWorld : " + err.message);
         }
         _ = client -> complete();

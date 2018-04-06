@@ -48,12 +48,12 @@ service<DummyService> myService {
     }
 }
 
-struct DummyEndpoint {}
+type DummyEndpoint {};
 
-function <DummyEndpoint s> init (struct {} conf)  {
+function <DummyEndpoint s> init ({} conf)  {
 }
 
-struct DummyService {}
+type DummyService {};
 
 function <DummyService s> getEndpoint() returns (DummyEndpoint) {
     return null;

@@ -28,13 +28,15 @@ under the License.
             <class name="org.ballerinalang.testerina.test.ConfigAnnotationTest"/>
             <class name="org.ballerinalang.testerina.test.DataProviderTest"/>
             <class name="org.ballerinalang.testerina.test.FunctionMockTest"/>
-            <class name="org.ballerinalang.testerina.test.ServiceTest"/>
+            <!--<class name="org.ballerinalang.testerina.test.ServiceTest"/>-->
             <class name="org.ballerinalang.testerina.test.GroupFilterTest"/>
             <class name="org.ballerinalang.testerina.test.DisableFunctionsTest"/>
             <class name="org.ballerinalang.testerina.test.TesterinaSamplesTest"/>
-            <class name="org.ballerinalang.testerina.test.ServiceSkeletonTest"/>
+            <!--<class name="org.ballerinalang.testerina.test.ServiceSkeletonTest"/>-->
             <class name="org.ballerinalang.testerina.test.ListGroupsTest"/>
+            <class name="org.ballerinalang.testerina.test.DependsOnTest"/>
+            <class name="org.ballerinalang.testerina.test.SkipTest"/>
+            <class name="org.ballerinalang.testerina.test.BeforeAfterTest"/>
         </classes>
     </test>
-
 </suite>

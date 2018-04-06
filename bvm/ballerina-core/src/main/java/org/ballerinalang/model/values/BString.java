@@ -77,13 +77,23 @@ public final class BString extends BValueType implements BRefType<String> {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return ((BString) obj).stringValue().equals(value);
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        BString bString = (BString) o;
+
+        return value != null ? value.equals(bString.value) : bString.value == null;
+
     }
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return value != null ? value.hashCode() : 0;
     }
 
     @Override

@@ -79,7 +79,13 @@ public final class ClientConnectorFactory {
             MessageRegistry messageRegistry = MessageRegistry.getInstance();
             messageRegistry.addMethodDescriptor(fullMethodName, methodDescriptor);
             messageRegistry.addMessageDescriptor(reqMessage.getName(), reqMessage);
+            for (Descriptors.Descriptor nestedType : reqMessage.getNestedTypes()) {
+                messageRegistry.addMessageDescriptor(nestedType.getName(), nestedType);
+            }
             messageRegistry.addMessageDescriptor(resMessage.getName(), resMessage);
+            for (Descriptors.Descriptor nestedType : resMessage.getNestedTypes()) {
+                messageRegistry.addMessageDescriptor(nestedType.getName(), nestedType);
+            }
         }
         methodDescriptorMap = Collections.unmodifiableMap(descriptorMap);
     }

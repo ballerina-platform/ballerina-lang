@@ -1,10 +1,12 @@
 package org.foo;
 
-public struct userFoo {
-    int age;
-    string name;
-    string address;
-    string zipcode = "23468";
+public type userFoo object {
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "23468";
+    }
 }
 
 public function <userFoo u> getName() returns (string) {
@@ -15,34 +17,50 @@ public function <userFoo u> getAge() returns (int) {
     return u.age;
 }
 
-public struct user {
-    int age;
-    string name;
-    string address;
-    string zipcode = "23468";
+public type user object {
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "23468";
+    }
 }
 
-public struct person {
-    int age;
-    string name;
-    private:
+public type person object {
+    public {
+        int age;
+        string name;
+    }
+    private {
         string ssn;
         int id;
+    }
 }
 
-struct student {
-    int age;
-    string name;
-    private:
+type student object {
+    public {
+        int age;
+        string name;
+    }
+    private {
         string ssn;
         int id;
         int schoolId;
+    }
 }
 
 public function newPerson() returns (person) {
-    return {age:12, name:"mad", ssn:"234-90-8887"};
+    person p = new;
+    p.age = 12;
+    p.name = "mad";
+    p.ssn = "234-90-8887";
+    return p;
 }
 
 public function newUser() returns (user) {
-    return {age:56, name:"mal", zipcode:"23126"};
+    user u = new;
+    u.age = 56;
+    u.name = "mal";
+    u.zipcode = "23126";
+    return u;
 }

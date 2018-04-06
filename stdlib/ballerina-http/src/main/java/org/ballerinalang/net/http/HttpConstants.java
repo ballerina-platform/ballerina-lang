@@ -52,6 +52,7 @@ public class HttpConstants {
     public static final String HTTP_VERSION = "HTTP_VERSION";
     public static final String LISTENER_PORT = "LISTENER_PORT";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
+    public static final int HTTP_DEFAULT_PORT = 9090;
     public static final String TLS_STORE_TYPE = "tlsStoreType";
     public static final String PKCS_STORE_TYPE = "PKCS12";
     public static final String AUTO = "AUTO";
@@ -108,6 +109,10 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
     public static final String ANN_CONFIG_ATTR_CHUNKING = "chunking";
+    public static final String ANN_CONFIG_ATTR_PATTERN = "pattern";
+    public static final String ANN_CONFIG_ATTR_ALLOW_NO_VERSION = "allowNoVersion";
+    public static final String ANN_CONFIG_ATTR_MATCH_MAJOR_VERSION = "matchMajorVersion";
+    public static final String ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE = "webSocketUpgrade";
     public static final String ANN_WEBSOCKET_ATTR_UPGRADE_PATH = "upgradePath";;
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
@@ -116,7 +121,6 @@ public class HttpConstants {
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
 
-    public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
     public static final String VALUE_ATTRIBUTE = "value";
 
     public static final String COOKIE_HEADER = "Cookie";
@@ -138,13 +142,17 @@ public class HttpConstants {
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
 
     public static final String HTTP_CLIENT = "HttpClient";
-    public static final String B_CONNECTOR = "BConnector";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
     public static final String REMOTE_ADDRESS = "REMOTE_ADDRESS";
     public static final String ORIGIN_HOST = "ORIGIN_HOST";
+    public static final String POOLED_BYTE_BUFFER_FACTORY = "POOLED_BYTE_BUFFER_FACTORY";
     public static final String HTTP_SERVICE = "HTTP_SERVICE";
+    public static final String VERSION = "{version}";
+    public static final String DEFAULT_VERSION = "v.{major}.{minor}";
+    public static final String MAJOR_VERSION = "{major}";
+    public static final String MINOR_VERSION = "{minor}";
 
     /* Annotations */
     public static final String ANNOTATION_NAME_SOURCE = "Source";
@@ -286,15 +294,15 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_OCSP_STAPLING = "ocspStapling";
     public static final String ENDPOINT_CONFIG_KEY_STORE = "keyStore";
     public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocols";
-    public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "validateCert";
+    public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "certValidation";
 
     //SslConfiguration indexes
     public static final String SSL_CONFIG_SSL_VERIFY_CLIENT = "sslVerifyClient";
     public static final String SSL_CONFIG_CIPHERS = "ciphers";
     public static final String SSL_CONFIG_CACHE_SIZE = "cacheSize";
     public static final String SSL_CONFIG_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
-    public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "hostNameVerification";
-    public static final String SSL_CONFIG_ENABLE_SESSION_CREATION = "sessionCreation";
+    public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "verifyHostname";
+    public static final String SSL_CONFIG_ENABLE_SESSION_CREATION = "shareSession";
 
     //Client Endpoint
     public static final String CLIENT_ENDPOINT_CONFIG = "config";

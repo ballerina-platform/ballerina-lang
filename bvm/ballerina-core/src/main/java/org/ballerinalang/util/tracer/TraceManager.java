@@ -23,16 +23,15 @@ import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.util.tracer.config.ConfigLoader;
-import org.ballerinalang.util.tracer.config.OpenTracingConfig;
+import org.ballerinalang.config.ConfigRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
 import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
-import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX_LENGTH;
 
 /**
  * {@link TraceManager} loads {@link TraceManager} implementation
@@ -46,8 +45,8 @@ public class TraceManager {
     private Stack<BSpan> bSpanStack;
 
     private TraceManager() {
-        OpenTracingConfig openTracingConfig = ConfigLoader.load();
-        tracerStore = new TracersStore(openTracingConfig);
+        Map<String, String> configurations = ConfigRegistry.getInstance().getConfigTable(CONFIG_TABLE_TRACING);
+        tracerStore = new TracersStore(configurations);
         bSpanStack = new Stack<>();
     }
 
@@ -71,7 +70,7 @@ public class TraceManager {
                         .entrySet().stream().collect(
                                 Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))
                         );
-                spanList = startSpan(resource, extractSpanContext(removeTracePrefix(spanHeaders), service),
+                spanList = startSpan(resource, extractSpanContext(spanHeaders, service),
                         activeBSpan.getTags(), service, true);
             }
 
@@ -151,13 +150,6 @@ public class TraceManager {
                     .extract(Format.Builtin.HTTP_HEADERS, new RequestExtractor(headers)));
         }
         return spanContext;
-    }
-
-    private static Map<String, String> removeTracePrefix(Map<String, String> map) {
-        return map.entrySet().stream()
-                .collect(Collectors.toMap(
-                        e -> e.getKey().substring(TRACE_PREFIX_LENGTH),
-                        Map.Entry::getValue));
     }
 
 }

@@ -63,6 +63,7 @@ public class PackageID {
             this.nameComps = Arrays.stream(name.value.split("\\."))
                     .map(Name::new).collect(Collectors.toList());
         }
+        this.version = version;
     }
 
     /**

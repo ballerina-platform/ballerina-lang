@@ -2,3 +2,8 @@ pom.xml
 .idea/
 *.iml
 target
+.settings
+.project
+.gitignore
+ballerina-grammar/*
+!ballerina-grammar/syntaxes

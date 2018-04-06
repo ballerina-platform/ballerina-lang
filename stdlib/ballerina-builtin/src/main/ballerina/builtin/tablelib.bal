@@ -25,14 +25,14 @@ public native function <table dt> close ();
 @Return {value:"True if there is a new row; false otherwise"}
 public native function <table dt> hasNext () returns (boolean);
 
-@Description {value:"Retrives the current row and return a struct with the data in the columns"}
+@Description {value:"Retrives the current row and return a record with the data in the columns"}
 @Param {value:"dt: The table object"}
-@Return {value:"The resulting row as a struct"}
+@Return {value:"The resulting row as a record"}
 public native function <table dt> getNext () returns (any);
 
-@Description {value:"Add struct to the table."}
+@Description {value:"Add record to the table."}
 @Param {value:"dt: The table object"}
-@Param {value:"data: A struct with data"}
+@Param {value:"data: A record with data"}
 public native function <table dt> add (any data);
 
 @Description {value:"Remove data from the table."}
@@ -53,7 +53,7 @@ public function <table dt> remove (function (any) returns (boolean) func) return
 
 @Description {value:"Utility function to delete data from table."}
 @Param {value:"dt: The table object"}
-@Param {value:"data: A struct with data"}
+@Param {value:"data: A record with data"}
 native function <table dt> delete (any data);
 
 @Description {value:"Execute the given sql query to fetch the records and return as a new in memory table"}
@@ -76,9 +76,9 @@ native function queryTableWithoutJoinClause (string sqlQuery, table fromTable, a
 @Description { value:"TableConfig represents properties used during table initialization" }
 @Field {value:"primaryKey:  An array of primary key columns"}
 @Field {value:"index: An array of index columns"}
-@Field {value:"data: An array of struct data"}
-public struct TableConfig {
+@Field {value:"data: An array of record data"}
+type TableConfig {
     string[] primaryKey;
     string[] index;
     any[] data;
-}
+};

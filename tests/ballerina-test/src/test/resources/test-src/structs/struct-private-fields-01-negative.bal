@@ -1,12 +1,12 @@
 
 import org.foo;
 
-public struct userA {
+public type userA {
     int age;
     string name;
 }
 
-public struct userB {
+public type userB {
     int age;
     string name;
     string address;

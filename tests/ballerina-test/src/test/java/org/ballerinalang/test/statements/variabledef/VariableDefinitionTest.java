@@ -163,7 +163,7 @@ public class VariableDefinitionTest {
         resultNegative = BCompileUtil
                 .compile("test-src/statements/variabledef/variable-def-duplicate-constant-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BAssertUtil.validateError(resultNegative, 0, "redeclared symbol 'b'", 2, 1);
+        BAssertUtil.validateError(resultNegative, 0, "redeclared symbol 'b'", 2, 8);
     }
 
     @Test(description = "Test variable definition negative test cases with errors")

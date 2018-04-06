@@ -22,8 +22,9 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.exceptions.TraceLogConfigurationException;
 import org.ballerinalang.logging.util.BLogLevel;
-import org.wso2.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
+import org.wso2.transport.http.netty.config.TransportProperty;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
@@ -32,8 +33,8 @@ import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -58,10 +59,7 @@ public class HttpConnectionManager {
     private HttpWsConnectorFactory httpConnectorFactory = HttpUtil.createHttpWsConnectionFactory();
 
     private HttpConnectionManager() {
-        String nettyConfigFile = System.getProperty(HttpConstants.HTTP_TRANSPORT_CONF,
-                                                    "conf" + File.separator + "transports" +
-                        File.separator + "netty-transports.yml");
-        trpConfig = ConfigurationBuilder.getInstance().getConfiguration(nettyConfigFile);
+        trpConfig = buildDefaultTransportConfig();
         serverBootstrapConfiguration = HTTPConnectorUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
 
@@ -78,16 +76,6 @@ public class HttpConnectionManager {
 
     public static HttpConnectionManager getInstance() {
         return instance;
-    }
-
-    public Set<ListenerConfiguration> getDefaultListenerConfiugrationSet() {
-        Set<ListenerConfiguration> listenerConfigurationSet = new HashSet<>();
-        for (ListenerConfiguration listenerConfiguration : trpConfig.getListenerConfigurations()) {
-            listenerConfiguration.setId(listenerConfiguration.getHost() == null ?
-                    "0.0.0.0" : listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort());
-            listenerConfigurationSet.add(listenerConfiguration);
-        }
-        return listenerConfigurationSet;
     }
 
     public ServerConnector createHttpServerConnector(ListenerConfiguration listenerConfig) {
@@ -159,8 +147,7 @@ public class HttpConnectionManager {
         }
     }
 
-    private boolean checkForConflicts(ListenerConfiguration listenerConfiguration,
-            HttpServerConnectorContext context) {
+    private boolean checkForConflicts(ListenerConfiguration listenerConfiguration, HttpServerConnectorContext context) {
         if (context == null) {
             return false;
         }
@@ -195,6 +182,42 @@ public class HttpConnectionManager {
      */
     public String getHttpAccessLoggerConfig() {
         return ConfigRegistry.getInstance().getConfiguration(HTTP_ACCESS_LOG, LOG_TO);
+    }
+
+    private TransportsConfiguration buildDefaultTransportConfig() {
+        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
+        SenderConfiguration httpSender = new SenderConfiguration("http-sender");
+
+        SenderConfiguration httpsSender = new SenderConfiguration("https-sender");
+        httpsSender.setScheme("https");
+        httpsSender.setTrustStoreFile(String.valueOf(
+                Paths.get(System.getProperty("ballerina.home"), "bre", "security", "ballerinaTruststore.p12")));
+        httpsSender.setTrustStorePass("ballerina");
+
+        TransportProperty latencyMetrics = new TransportProperty();
+        latencyMetrics.setName("latency.metrics.enabled");
+        latencyMetrics.setValue(true);
+
+        TransportProperty serverSocketTimeout = new TransportProperty();
+        serverSocketTimeout.setName("server.bootstrap.socket.timeout");
+        serverSocketTimeout.setValue(60);
+
+        TransportProperty clientSocketTimeout = new TransportProperty();
+        clientSocketTimeout.setName("client.bootstrap.socket.timeout");
+        clientSocketTimeout.setValue(60);
+
+        Set<SenderConfiguration> senderConfigurationSet = new HashSet<>();
+        senderConfigurationSet.add(httpSender);
+        senderConfigurationSet.add(httpsSender);
+        transportsConfiguration.setSenderConfigurations(senderConfigurationSet);
+
+        Set<TransportProperty> transportPropertySet = new HashSet<>();
+        transportPropertySet.add(latencyMetrics);
+        transportPropertySet.add(serverSocketTimeout);
+        transportPropertySet.add(clientSocketTimeout);
+        transportsConfiguration.setTransportProperties(transportPropertySet);
+
+        return transportsConfiguration;
     }
 
     private String makeFirstLetterLowerCase(String str) {

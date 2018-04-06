@@ -42,7 +42,6 @@ import java.util.Set;
  */
 public class Symbols {
 
-    public static final String ANON_STRUCT = "$anonStruct$";
 
     public static BTypeSymbol createStructSymbol(int flags,
                                                  Name name,
@@ -61,7 +60,6 @@ public class Symbols {
                                                  BSymbol owner) {
         BStructSymbol typeSymbol = new BStructSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.OBJECT;
-        typeSymbol.isObject = true;
         return typeSymbol;
     }
 
@@ -82,6 +80,16 @@ public class Symbols {
                                                BSymbol owner) {
         BTypeSymbol typeSymbol = createTypeSymbol(SymTag.ENUM, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.ENUM;
+        return typeSymbol;
+    }
+
+    public static BTypeSymbol createTypeDefinitionSymbol(int flags,
+                                                         Name name,
+                                                         PackageID pkgID,
+                                                         BType type,
+                                                         BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE_DEF, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.TYPE_DEF;
         return typeSymbol;
     }
 

@@ -57,7 +57,7 @@ public class BStream implements BRefType<Object> {
 
     public BStream(BType type, String name) {
         if (((BStreamType) type).getConstrainedType() == null) {
-            throw new BallerinaException("a stream cannot be created without a constraint");
+            throw new BallerinaException("a stream cannot be declared without a constraint");
         }
         this.constraintType = (BStructType) ((BStreamType) type).getConstrainedType();
         this.topicName = TOPIC_NAME_PREFIX + ((BStreamType) type).getConstrainedType().getName().toUpperCase() + "_"
@@ -96,7 +96,7 @@ public class BStream implements BRefType<Object> {
      */
     public void publish(BStruct data) {
         if (data.getType() != this.constraintType) {
-            throw new BallerinaException("incompatible types: struct of type:" + data.getType().getName()
+            throw new BallerinaException("incompatible types: object of type:" + data.getType().getName()
                     + " cannot be added to a stream of type:" + this.constraintType.getName());
         }
         BrokerUtils.publish(topicName, JSONUtils.convertStructToJSON(data).stringValue().getBytes());
@@ -114,7 +114,7 @@ public class BStream implements BRefType<Object> {
         if (!(parameters[0] instanceof BStructType)
                 || ((BStructType) parameters[0]).structInfo.getType() != constraintType) {
             throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
-                    + " a struct of type:" + this.constraintType.getName());
+                    + " an object of type:" + this.constraintType.getName());
         }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
         BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));

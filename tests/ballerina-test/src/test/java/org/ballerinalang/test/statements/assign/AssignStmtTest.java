@@ -182,9 +182,9 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, 9, "redeclared symbol 'name'", 53, 19);
         BAssertUtil.validateError(resultNegative, 10, "undefined symbol 'b'", 54, 22);
 
-        BAssertUtil.validateError(resultNegative, 11, "cannot assign a value to constant 'i'",
+        BAssertUtil.validateError(resultNegative, 11, "cannot assign a value to final 'i'",
                 65, 5);
-        BAssertUtil.validateError(resultNegative, 12, "cannot assign a value to constant 'aa'",
+        BAssertUtil.validateError(resultNegative, 12, "cannot assign a value to final 'aa'",
                 71, 5);
     }
 

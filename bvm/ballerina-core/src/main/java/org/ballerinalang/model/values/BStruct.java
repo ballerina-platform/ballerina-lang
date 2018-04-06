@@ -396,4 +396,10 @@ public final class BStruct implements BRefType, LockableStructureType {
     public Object getNativeData(String key) {
         return nativeData.get(key);
     }
+    
+    @Override
+    public String toString() {
+        return this.stringValue();
+    }
+    
 }

@@ -78,6 +78,11 @@ public class Field {
         }
 
         public Builder setLabel(String label) {
+            // ignore the label when label is null.
+            if (label == null) {
+                return this;
+            }
+
             fieldLabel = label;
             DescriptorProtos.FieldDescriptorProto.Label protoLabel = STRING_LABEL_MAP.get(label);
             if (protoLabel == null) {

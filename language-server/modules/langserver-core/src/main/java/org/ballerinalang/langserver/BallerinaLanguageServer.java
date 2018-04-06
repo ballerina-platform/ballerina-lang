@@ -46,11 +46,10 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
 
     public BallerinaLanguageServer() {
         LSGlobalContext lsGlobalContext = new LSGlobalContext();
-        LSPackageCache packageCache = new LSPackageCache();
-        LSAnnotationCache annotationCache = new LSAnnotationCache(packageCache);
+        LSPackageCache lsPackageCache = LSPackageCache.getInstance();
+        LSAnnotationCache annotationCache = new LSAnnotationCache(lsPackageCache);
         
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
-        lsGlobalContext.put(LSGlobalContextKeys.PKG_CACHE_KEY, packageCache);
         lsGlobalContext.put(LSGlobalContextKeys.ANNOTATION_CACHE_KEY, annotationCache);
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, WorkspaceDocumentManagerImpl.getInstance());
         

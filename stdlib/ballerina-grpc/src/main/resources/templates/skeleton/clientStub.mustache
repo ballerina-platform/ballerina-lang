@@ -77,12 +77,12 @@ public function <{{connectorId}}{{stubTypeName}}Client ep> init (grpc:ClientEndp
 public function <{{connectorId}}{{stubTypeName}}Client ep> getClient () returns ({{connectorId}}{{stubTypeName}}Stub) {
     return ep.stub;
 }{{/stubObjects}}{{/client}}
-{{#struct}}
+{{#structs}}
 struct {{structId}} {
 {{#attribute}}{{type}} {{name}};
 {{/attribute}}
 }
-{{/struct}}
+{{/structs}}
 {{#enums}}
 enum {{enumId}} {
 {{#enumAttribute}}{{name}}{{eoe}}

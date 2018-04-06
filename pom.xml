@@ -176,11 +176,6 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-trace</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-builtin</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -212,6 +207,11 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-websub</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jms</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -904,10 +904,33 @@
                 <artifactId>simpleclient_httpserver</artifactId>
                 <version>${prometheus.simple.client.version}</version>
             </dependency>
+
+            <!-- JMS connector dependencies -->
             <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-metrics</artifactId>
-                <version>${ballerina.version}</version>
+                <groupId>org.wso2.transport.jms</groupId>
+                <artifactId>transport-jms</artifactId>
+                <version>${wso2.transport.jms.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.jms</groupId>
+                <artifactId>javax.jms-api</artifactId>
+                <version>${javax.jms.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.andes.wso2</groupId>
+                <artifactId>andes-client</artifactId>
+                <version>${andes.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.securevault</groupId>
+                <artifactId>org.wso2.securevault</artifactId>
+                <version>${wso2.securevault.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.transport.file</groupId>
+                <artifactId>org.wso2.transport.local-file-system</artifactId>
+                <version>${file.transport.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -1001,10 +1024,9 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
-                <module>stdlib/observability/ballerina-trace</module>
-                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
+                <module>stdlib/ballerina-jms</module>
                 <module>stdlib/strip-bouncycastle</module>
 
                 <module>bvm/ballerina-core</module>
@@ -1012,13 +1034,13 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>cli/ballerina-cli-utils</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
 
                 <module>tests/ballerina-test</module>
 
+                <module>cli/ballerina-cli-utils</module>
                 <module>docs/ballerina-by-example</module>
 
                 <module>language-server</module>
@@ -1052,10 +1074,9 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
-                <module>stdlib/observability/ballerina-trace</module>
-                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
+                <module>stdlib/ballerina-jms</module>
                 <module>stdlib/strip-bouncycastle</module>
 
                 <module>bvm/ballerina-core</module>
@@ -1063,13 +1084,13 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>cli/ballerina-cli-utils</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
                 <module>docs/ballerina-by-example</module>
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
+                <module>cli/ballerina-cli-utils</module>
 
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
@@ -1095,10 +1116,9 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
-                <module>stdlib/observability/ballerina-trace</module>
-                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
+                <module>stdlib/ballerina-jms</module>
                 <module>stdlib/strip-bouncycastle</module>
 
                 <module>bvm/ballerina-core</module>
@@ -1106,7 +1126,6 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>cli/ballerina-cli-utils</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -1114,6 +1133,7 @@
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
 
+                <module>cli/ballerina-cli-utils</module>
                 <module>docs/ballerina-by-example</module>
 
                 <module>language-server</module>
@@ -1474,7 +1494,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.121</transport.http.version>
+        <transport.http.version>6.0.123</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -1589,10 +1609,18 @@
         <libthrift.version>0.10.0</libthrift.version>
         <okhttp.version>3.9.1</okhttp.version>
         <okio.version>1.13.0</okio.version>
-        <micrometer.version>1.0.2</micrometer.version>
+        <micrometer.version>1.0.3</micrometer.version>
         <hdrhistogram.version>2.1.10</hdrhistogram.version>
         <latencyutils.version>2.0.3</latencyutils.version>
         <prometheus.simple.client.version>0.3.0</prometheus.simple.client.version>
+
+        <!-- JMS Connector -->
+        <wso2.transport.jms.version>6.0.50</wso2.transport.jms.version>
+        <javax.jms.version>2.0.1</javax.jms.version>
+        <andes.client.version>3.2.49</andes.client.version>
+        <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
+
+        <file.transport.version>6.0.53</file.transport.version>
 
     </properties>
 

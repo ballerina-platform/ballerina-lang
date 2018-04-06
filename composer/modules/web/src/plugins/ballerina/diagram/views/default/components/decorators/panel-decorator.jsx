@@ -388,6 +388,7 @@ class PanelDecorator extends React.Component {
                         y={bBox.y + 22}
                         width={iconSize}
                         height={iconSize}
+                        className='title-icon'
                         fontFamily='font-ballerina'
                         fontSize={iconSize}
                     >{ImageUtil.getCodePoint(this.props.icon)}</text>

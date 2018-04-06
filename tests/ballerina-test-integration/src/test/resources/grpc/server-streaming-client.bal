@@ -1,8 +1,9 @@
 // This is client implementation for server streaming scenario
 import ballerina/grpc;
 import ballerina/io;
+import ballerina/runtime;
 
-string[] responses = [];
+string[] responses = new;
 int total = 0;
 function testServerStreaming (string name) returns (string[]) {
     // Client endpoint configuration
@@ -18,16 +19,16 @@ function testServerStreaming (string name) returns (string[]) {
             responses[total] = "Error occured while sending event " + payloadError.message;
             return responses;
         }
-        any| null => {
+        () => {
             io:println("Connected successfully");
         }
     }
 
     int wait = 0;
-    while(total < 2) {
+    while(total < 4) {
         runtime:sleepCurrentWorker(1000);
         io:println("msg count: " + total);
-        if (wait > 5) {
+        if (wait > 10) {
             break;
         }
         wait++;
@@ -48,7 +49,7 @@ service<grpc:Listener> helloWorldMessageListener {
 
     // Resource registered to receive server error messages
     onError (grpc:ServerError err) {
-        if (err != null) {
+        if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }
@@ -62,48 +63,52 @@ service<grpc:Listener> helloWorldMessageListener {
 }
 
 // Non-blocking client
-struct helloWorldStub {
-    grpc:Client clientEndpoint;
-    grpc:ServiceStub serviceStub;
-}
-
-function <helloWorldStub stub> initStub (grpc:Client clientEndpoint) {
-    grpc:ServiceStub navStub = {};
-    navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
-    stub.serviceStub = navStub;
-}
-
-function <helloWorldStub stub> lotsOfReplies (string req, typedesc listener) returns (error| null) {
-    var err1 = stub.serviceStub.nonBlockingExecute("helloWorld/lotsOfReplies", req, listener);
-    if (err1 != null && err1.message != null) {
-        error e = {message:err1.message};
-        return e;
+public type helloWorldStub object {
+    public {
+        grpc:Client clientEndpoint;
+        grpc:ServiceStub serviceStub;
     }
-    return null;
+    function initStub (grpc:Client clientEndpoint) {
+        grpc:ServiceStub navStub = new;
+        navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
+        self.serviceStub = navStub;
+    }
+
+    function lotsOfReplies (string req, typedesc listener) returns (error| ()) {
+        var err1 = self.serviceStub.nonBlockingExecute("helloWorld/lotsOfReplies", req, listener);
+        if (err1 != ()) {
+            error err = {message:err1.message};
+            return err;
+        }
+        return ();
+    }
 }
+
 
 // Non-blocking client endpoint
-public struct helloWorldClient {
-    grpc:Client client;
-    helloWorldStub stub;
+public type helloWorldClient object {
+    public {
+        grpc:Client client;
+        helloWorldStub stub;
+    }
+
+    public function init (grpc:ClientEndpointConfiguration config) {
+        // initialize client endpoint.
+        grpc:Client client = new;
+        client.init(config);
+        self.client = client;
+        // initialize service stub.
+        helloWorldStub stub = new;
+        stub.initStub(client);
+        self.stub = stub;
+    }
+
+    public function getClient () returns (helloWorldStub) {
+        return self.stub;
+    }
 }
 
-public function <helloWorldClient ep> init (grpc:ClientEndpointConfiguration config) {
-    // initialize client endpoint.
-    grpc:Client client = {};
-    client.init(config);
-    ep.client = client;
-    // initialize service stub.
-    helloWorldStub stub = {};
-    stub.initStub(client);
-    ep.stub = stub;
-}
-
-public function <helloWorldClient ep> getClient () returns (helloWorldStub) {
-    return ep.stub;
-}
-
-const string descriptorKey = "helloWorld.proto";
+@final string descriptorKey = "helloWorld.proto";
 map descriptorMap =
 {
     "helloWorld.proto":"0A1068656C6C6F576F726C642E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32A7010A0A68656C6C6F576F726C64124D0A0D6C6F74734F665265706C696573121B676F6F676C652E70726F746F6275662E537472696E6756616C75651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528003001124A0A0A6C6F74734F6642796573121B676F6F676C652E70726F746F6275662E537472696E6756616C75651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528003001620670726F746F33",

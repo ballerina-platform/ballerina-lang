@@ -35,6 +35,7 @@ public class TypeDescriptor {
     public static final String SIG_SERVICE = "X";
     public static final String SIG_STRUCT = "T";
     public static final String SIG_ENUM = "E";
+    public static final String SIG_FINITE = "G";
     public static final String SIG_FUNCTION = "U";
     public static final String SIG_ARRAY = "[";
     public static final String SIG_ANY = "A";

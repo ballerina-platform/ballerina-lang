@@ -1,6 +1,6 @@
 package org.foo.bar;
 
-public struct officer {
+public type officer {
     int age;
     string name = "hidden, private";
     string address;
@@ -9,7 +9,7 @@ public struct officer {
         int ssn;
 }
 
-public struct userBar {
+public type userBar {
     int age;
     string name = "hidden, private";
     string address;

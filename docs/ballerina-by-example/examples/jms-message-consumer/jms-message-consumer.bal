@@ -1,17 +1,26 @@
-import ballerina/net.jms;
-import ballerina/io;
+import ballerina/jms;
+import ballerina/log;
 
-endpoint jms:ConsumerEndpoint ep1 {
+jms:Connection conn = new ({
     initialContextFactory: "wso2mbInitialContextFactory",
-    providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
+    providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
+    connectionFactoryName: "ConnectionFactory"
+});
+
+jms:Session jmsSession = new (conn, {
+    acknowledgementMode: "CLIENT_ACKNOWLEDGE"
+});
+
+endpoint jms:QueueConsumer consumer {
+    session: jmsSession,
+    queueName: "requestQueue"
 };
 
-service<jms:Service> jmsService bind ep1 {
+service<jms:Consumer> jmsListener bind consumer {
 
-    onMessage (endpoint client, jms:Message message) {
-        // Retrieve content of the text message.
+    onMessage(endpoint consumer, jms:Message message) {
         string messageText = message.getTextMessageContent();
-        // Print the retrieved message.
-        io:println("Message: " + messageText);
-    }
+        log:printInfo("Message : " + messageText);
+        // consumer -> acknowledge (message);
+  }
 }

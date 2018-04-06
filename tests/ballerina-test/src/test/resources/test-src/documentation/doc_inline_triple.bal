@@ -5,4 +5,4 @@ documentation {
   Example for an xml literal:
     ```xml x = xml `<{{tagName}}>hello</{{tagName}}>`;```
 }
-const string testConst = "TestConstantDocumentation";
+@final string testConst = "TestConstantDocumentation";

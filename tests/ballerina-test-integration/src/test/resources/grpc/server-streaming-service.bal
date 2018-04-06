@@ -19,7 +19,7 @@ service<grpc:Endpoint> helloWorld bind ep {
         foreach greet in greets {
             log:printInfo("send reply: " + greet + " " + name);
             grpc:ConnectorError err = client -> send(greet + " " + name);
-            if (err != null) {
+            if (err != ()) {
                 io:println("Error at lotsOfReplies : " + err.message);
             }
         }

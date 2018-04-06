@@ -7,57 +7,61 @@ endpoint http:WebSocketEndpoint ep {
     port:9090
 };
 
-@http:WebSocketServiceConfig {
-    basePath:"/chat/{name}"
+
+@http:ServiceConfig {
+    basePath: "/chat"
 }
-service<http:WebSocketService> ChatApp bind ep {
-    string msg;
-    map<http:WebSocketEndpoint> consMap = {};
-    onUpgrade (endpoint conn, http:Request req, string name) {
-        var params = req.getQueryParams();
-        conn.attributes[NAME] = name;
-        msg = string `{{untaint name}} connected to chat`;
-        string age = untaint <string>params.age;
+service<http:Service> ChatAppUpgrader bind ep {
 
-        if (age != null) {
-            conn.attributes[AGE] = age;
-            msg = string `{{untaint name}} with age {{age}} connected to chat`;
+    @http:ResourceConfig {
+        webSocketUpgrade: {
+            upgradePath: "/{name}",
+            upgradeService: typeof chatApp
         }
-
     }
+    upgrader(endpoint ep, http:Request req, string name) {
+        endpoint http:WebSocketEndpoint wsEp;
+        wsEp = ep -> upgradeToWebSocket({});
+        wsEp.attributes[NAME] = name;
+        wsEp.attributes[AGE] = req.getQueryParams()["age"];
+    }
+
+}
+
+// TODO: This map should go to service level after null pointer issue is fixed.
+map<http:WebSocketEndpoint> consMap = {};
+
+service<http:WebSocketService> chatApp {
+
+
     onOpen (endpoint conn) {
-        io:println(msg);
+        string msg = string `{{getAttributeStr(conn, NAME)}} with age {{getAttributeStr(conn, AGE)}} connected to chat`;
+        broadcast(consMap, msg);
         consMap[conn.id] = conn;
-        broadcast(consMap, msg);
     }
 
-    onTextMessage (endpoint conn, http:TextFrame frame) {
-        msg = untaint string `{{untaint <string>conn.attributes[NAME]}}: {{frame.text}}`;
+    onText (endpoint conn, string text) {
+        string msg = string `{{getAttributeStr(conn, NAME)}}: {{text}}`;
         io:println(msg);
         broadcast(consMap, msg);
     }
 
-    onClose (endpoint conn, http:CloseFrame frame) {
-        msg = string `{{untaint <string>conn.attributes[NAME]}} left the chat`;
+    onClose (endpoint conn, int statusCode, string reason) {
         _ = consMap.remove(conn.id);
+        string msg = string `{{getAttributeStr(conn, NAME)}} left the chat`;
         broadcast(consMap, msg);
     }
 }
 
 function broadcast (map<http:WebSocketEndpoint> consMap, string text) {
-    endpoint http:WebSocketEndpoint con;
-    string[] conKeys = consMap.keys();
-    int len = lengthof conKeys;
-    int i = 0;
-    while (i < len) {
-        con = consMap[conKeys[i]];
-        var val = con -> pushText(text);
-        match val {
-            http:WebSocketConnectorError err => {io:println("Error: " + err.message);}
-            any|null err => {//ignore x
-                var x = err;
-            }
-        }
-        i = i + 1;
+    endpoint http:WebSocketEndpoint ep;
+    foreach id, con in consMap {
+        ep = con;
+        _ = ep -> pushText(text);
     }
+}
+
+function getAttributeStr(http:WebSocketEndpoint ep, string key) returns (string) {
+    var name = <string> ep.attributes[key];
+    return name;
 }

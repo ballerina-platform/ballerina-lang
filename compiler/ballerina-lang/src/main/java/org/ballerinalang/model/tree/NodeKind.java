@@ -43,6 +43,7 @@ public enum NodeKind {
     RESOURCE,
     SERVICE,
     STRUCT,
+    TYPE_DEFINITION,
     RECORD,
     OBJECT,
     TABLE,
@@ -57,6 +58,7 @@ public enum NodeKind {
     ANNOTATION_ATTACHMENT_ATTRIBUTE_VALUE,
     ARRAY_LITERAL_EXPR,
     BINARY_EXPR,
+    ELVIS_EXPR,
     BRACED_TUPLE_EXPR,
     Type_INIT_EXPR,
     FIELD_BASED_ACCESS_EXPR,
@@ -98,6 +100,7 @@ public enum NodeKind {
 
     /* Statements */
     ABORT,
+    DONE,
     FAIL,
     ASSIGNMENT,
     COMPOUND_ASSIGNMENT,

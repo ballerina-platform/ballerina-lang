@@ -36,6 +36,10 @@ public enum CompilerOptionName {
 
     BUILD_COMPILED_PACKAGE("buildCompiledPackage"),
 
+    LIST_PKG("listPkg"),
+
+    DRY_RUN("dryRun"),
+
     TARGET_BINARY_PATH("targetBinaryPath");
 
     public final String name;

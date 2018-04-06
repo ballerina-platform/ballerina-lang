@@ -9,9 +9,9 @@ public function <File file> open (string accessMode) returns (boolean) {
     return true;
 }
 
-documentation { Documentation for File struct
-F{{path}} struct `field path` documentation
+documentation { Documentation for File type
+F{{path}} type `field path` documentation
 }
-public struct File {
+public type File {
     string path;
 }

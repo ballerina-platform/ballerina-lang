@@ -27,12 +27,9 @@ import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFi
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * Statement context resolver for resolving the items of the statement context.
@@ -68,18 +65,9 @@ public class StatementContextResolver extends AbstractItemResolver {
             StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
             // Add the statement templates
             completionItems.addAll(statementTemplateFilter.filterItems(completionContext));
-            // We need to remove the functions having a receiver symbol and the bTypes of the following
-            // ballerina.coordinator, ballerina.runtime, and anonStructs
-            ArrayList<String> invalidPkgs = new ArrayList<>(Arrays.asList("ballerina.runtime",
-                    "ballerina.transactions"));
-            completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).removeIf(symbolInfo -> {
-                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                String symbolName = bSymbol.getName().getValue();
-                return (bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null)
-                        || (bSymbol instanceof BPackageSymbol && invalidPkgs.contains(symbolName))
-                        || (symbolName.startsWith("$anonStruct"));
-            });
-            populateCompletionItemList(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY), completionItems);
+            List<SymbolInfo> filteredList =
+                    this.removeInvalidStatementScopeSymbols(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+            populateCompletionItemList(filteredList, completionItems);
             // Now we need to sort the completion items and populate the completion items specific to the scope owner
             // as an example, resource, action, function scopes are different from the if-else, while, and etc
             Class itemSorter = completionContext.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();

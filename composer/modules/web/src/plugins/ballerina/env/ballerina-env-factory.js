@@ -30,6 +30,9 @@ import Enumerator from './enumerator';
 import AnnotationDefinition from './annotation-definition';
 import AnnotationAttributeDefinition from './annotation-attribute-definition';
 import AnnotationAttachment from './annotation-attachment';
+import ObjectModel from "./object";
+import ObjectField from "./object-field";
+import Endpoint from "./endpoint";
 
 /**
  * @class BallerinaEnvFactory
@@ -134,6 +137,35 @@ BallerinaEnvFactory.createAnnotationAttachment = function (args) {
     return annotationAttachment;
 };
 
+/**
+ * Creates endpoint.
+ *
+ * @param args arguments to be added
+ * @returns {Endpoint} new endpoint
+ */
+BallerinaEnvFactory.createEndpoint = function(args) {
+    return new Endpoint(args);
+};
+
+/**
+ * Creates object model.
+ *
+ * @param args arguments to be added
+ * @returns {ObjectModel} new ObjectModel
+ */
+BallerinaEnvFactory.createObject = function(args) {
+    return new ObjectModel(args);
+};
+
+/**
+ * Creates object field.
+ *
+ * @param args arguments to be added
+ * @returns {ObjectField} new object field
+ */
+BallerinaEnvFactory.createObjectField = function (args) {
+    return new ObjectField(args);
+};
 
 BallerinaEnvFactory.isPackage = function (pkg) {
     return (pkg instanceof Package);
@@ -165,6 +197,18 @@ BallerinaEnvFactory.isEnumerator = function (enumerator) {
 
 BallerinaEnvFactory.isConnectorAction = function (connectorAction) {
     return (connectorAction instanceof ConnectorAction);
+};
+
+BallerinaEnvFactory.isEndpoint = function (endpoint) {
+    return (endpoint instanceof Endpoint);
+};
+
+BallerinaEnvFactory.isObject = function(object) {
+    return (object instanceof ObjectModel);
+};
+
+BallerinaEnvFactory.isObjectField = function (objectField) {
+    return (objectField instanceof ObjectField);
 };
 
 /**

@@ -24,24 +24,30 @@ AuthzHandlerChain authzHandlerChain;
 @Description {value:"Representation of the Authorization filter"}
 @Field {value:"filterRequest: request filter method which attempts to authorize the request"}
 @Field {value:"filterRequest: response filter method (not used this scenario)"}
-public struct AuthzFilter {
-    function (Request request, FilterContext context) returns (FilterResult) filterRequest;
-    function (Response response, FilterContext context) returns (FilterResult) filterResponse;
-}
+public type AuthzFilter object {
+    public {
+        function (Request request, FilterContext context) returns (FilterResult) filterRequest;
+        function (Response response, FilterContext context) returns (FilterResult) filterResponse;
+    }
 
-@Description {value:"Initializer for AuthzFilter"}
-public function <AuthzFilter filter> AuthzFilter () {
-    filter.filterRequest = authzRequestFilterFunc;
-    filter.filterResponse = responseFilterFunc;
-}
+    new (function (Request, FilterContext) returns (FilterResult) requestFilter,
+        function (Response, FilterContext) returns (FilterResult) responseFilter) {
+        filterRequest = requestFilter;
+        filterResponse = responseFilter;
+    }
+
+    public function init ();
+
+    public function terminate ();
+};
 
 @Description {value:"Initializes the AuthzFilter"}
-public function <AuthzFilter filter> init () {
+public function AuthzFilter::init () {
     authzHandlerChain = createAuthzHandlerChain();
 }
 
 @Description {value:"Stops the AuthzFilter"}
-public function <AuthzFilter filter> terminate () {
+public function AuthzFilter::terminate () {
 }
 
 @Description {value:"Filter function implementation which tries to authorize the request"}
@@ -56,13 +62,13 @@ public function authzRequestFilterFunc (Request request, FilterContext context) 
         return createAuthzResult(true);
     }
     // check if this resource is protected
-    string[]|null scopes = getScopesForResource(context);
+    string[]? scopes = getScopesForResource(context);
     boolean authorized;
     match scopes {
         string[] scopeNames => {
             authorized = authzHandlerChain.handle(request, scopeNames, context.resourceName);
         }
-        null => {
+        () => {
             // scopes are not defined, no need to authorize
             authorized = true;
         }
@@ -85,15 +91,15 @@ function createAuthzResult (boolean authorized) returns (FilterResult) {
 
 @Description {value:"Retrieves the scope for the resource, if any"}
 @Param {value:"context: FilterContext object"}
-@Return {value:"string: Scope name if defined, else null"}
-function getScopesForResource (FilterContext context) returns (string[]|null) {
-    string[]|null scope = getAuthzAnnotation(internal:getResourceAnnotations(context.serviceType,
+@Return {value:"string: Scope name if defined, else nil"}
+function getScopesForResource (FilterContext context) returns (string[]|()) {
+    string[]|() scope = getAuthzAnnotation(internal:getResourceAnnotations(context.serviceType,
                                                                       context.resourceName));
     match scope {
         string[] scopeVal => {
             return scopeVal;
         }
-        any => {
+        () => {
             // if not found in resource level, check in service level
             return getAuthzAnnotation(internal:getServiceAnnotations(context.serviceType));
         }
@@ -103,12 +109,12 @@ function getScopesForResource (FilterContext context) returns (string[]|null) {
 @Description {value:"Tries to retrieve the annotation value for scope hierarchically - first from the resource level
 and then from the service level, if its not there in the resource level"}
 @Param {value:"annData: array of annotationData instances"}
-@Return {value:"string[]: array of scope name if defined, else null"}
-function getAuthzAnnotation (internal:annotationData[] annData) returns (string[]|null) {
+@Return {value:"string[]: array of scope name if defined, else nil"}
+function getAuthzAnnotation (internal:annotationData[] annData) returns (string[]|()) {
     if (lengthof annData == 0) {
-        return null;
+        return ();
     }
-    internal:annotationData|null authAnn;
+    internal:annotationData|() authAnn;
     foreach ann in annData {
         if (ann.name == AUTH_ANN_NAME && ann.pkgName == AUTH_ANN_PACKAGE) {
             authAnn = ann;
@@ -117,11 +123,11 @@ function getAuthzAnnotation (internal:annotationData[] annData) returns (string[
     }
     match authAnn {
         internal:annotationData annData1 => {
-            var authConfig =? <auth:AuthConfig> annData1.value;
+            var authConfig = check <auth:AuthConfig> annData1.value;
             return authConfig.scopes;
         }
-        any|null => {
-            return null;
+        () => {
+            return ();
         }
     }
 }

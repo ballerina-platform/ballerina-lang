@@ -54,8 +54,8 @@ public class ReturnStmtNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-3.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
         BAssertUtil.validateError(result, 0,
-                "mismatched input ','. expecting {'but', ';', '.', '[', '?', '+', '-', '*', '/', '^', '%', '==', " +
-                "'!=', '>', '<', '>=', '<=', '&&', '||', '@'}", 2, 20);
+                "mismatched input ','. expecting {'but', ';', '.', '[', '?', '+', '-', '*', '/', '^', '%', '!', " +
+                "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '@'}", 2, 20);
     }
 
     @Test(description = "Test too many arguments to return")
@@ -63,8 +63,8 @@ public class ReturnStmtNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/too-many-args-to-return-1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
         BAssertUtil.validateError(result, 0,
-                "mismatched input ','. expecting {'but', ';', '.', '[', '?', '+', '-', '*', '/', '^', " +
-                        "'%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '@'}", 2, 20);
+                "mismatched input ','. expecting {'but', ';', '.', '[', '?', '+', '-', '*', '/', '^', '%', '!', " +
+                "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '@'}", 2, 20);
     }
 
     @Test(description = "Test too many arguments to return")

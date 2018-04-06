@@ -19,6 +19,7 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -27,9 +28,12 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.WebSocketConnectionManager;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
 import java.util.Set;
 
@@ -39,7 +43,7 @@ import java.util.Set;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "upgradeToWebSocket",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CONNECTION,
                              structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "headers", type = TypeKind.MAP)
@@ -50,9 +54,23 @@ public class UpgradeToWebSocket implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BStruct serverConnector = (BStruct) context.getRefArgument(0);
-        WebSocketService webSocketService = (WebSocketService) serverConnector.getNativeData(
+        BStruct httpConnection = (BStruct) context.getRefArgument(0);
+
+        WebSocketInitMessage initMessage =
+                (WebSocketInitMessage) httpConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
+        WebSocketConnectionManager connectionManager = (WebSocketConnectionManager) httpConnection
+                .getNativeData(WebSocketConstants.WEBSOCKET_CONNECTION_MANAGER);
+        if (initMessage == null) {
+            throw new BallerinaConnectorException("Not a WebSocket upgrade request. Cannot upgrade from HTTP to WS");
+        }
+        if (connectionManager == null) {
+            throw new BallerinaConnectorException("Cannot accept a WebSocket upgrade without WebSocket " +
+                                                          "connection manager");
+        }
+
+        WebSocketService webSocketService = (WebSocketService) httpConnection.getNativeData(
                 WebSocketConstants.WEBSOCKET_SERVICE);
+
         BMap<String, BString> headers = (BMap<String, BString>) context.getRefArgument(1);
         DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
         Set<String> keys = headers.keySet();
@@ -60,7 +78,7 @@ public class UpgradeToWebSocket implements NativeCallableUnit {
             httpHeaders.add(key, headers.get(key));
         }
 
-        WebSocketUtil.handleHandshake(webSocketService, httpHeaders, serverConnector, context, callback);
+        WebSocketUtil.handleHandshake(webSocketService, connectionManager, httpHeaders, initMessage, context, callback);
     }
 
     @Override

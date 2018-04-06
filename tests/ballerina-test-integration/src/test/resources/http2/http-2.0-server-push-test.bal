@@ -37,7 +37,6 @@ service<http:Service> frontendHttpService bind frontendEP {
                 json errMsg = {"error":"error occurred while submitting a request"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = client -> respond(errorResponse);
-                return;
             }
             http:HttpHandle resultantHandle => {
                 handle = resultantHandle;
@@ -62,7 +61,6 @@ service<http:Service> frontendHttpService bind frontendEP {
                     json errMsg = {"error":"error occurred while fetching a push promise"};
                     errorResponse.setJsonPayload(errMsg);
                     _ = client -> respond(errorResponse);
-                    return;
                 }
             }
 
@@ -78,7 +76,6 @@ service<http:Service> frontendHttpService bind frontendEP {
             json errMsg = {"error":"expected number of promises not received"};
             errorResponse.setJsonPayload(errMsg);
             _ = client -> respond(errorResponse);
-            return;
         }
         io:println("Number of promises received : " + promiseCount);
 
@@ -95,7 +92,6 @@ service<http:Service> frontendHttpService bind frontendEP {
                 json errMsg = {"error":"error occurred while fetching response"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = client -> respond(errorResponse);
-                return;
             }
         }
 
@@ -110,7 +106,6 @@ service<http:Service> frontendHttpService bind frontendEP {
                 json errMsg = {"error":"expected response message not received"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = client -> respond(errorResponse);
-                return;
             }
         }
         // Check whether correct response received
@@ -119,7 +114,6 @@ service<http:Service> frontendHttpService bind frontendEP {
             json errMsg = {"error":"expected response message not received"};
             errorResponse.setJsonPayload(errMsg);
             _ = client -> respond(errorResponse);
-            return;
         }
         io:println("Response : " + responseJsonPayload.toString());
 
@@ -137,7 +131,6 @@ service<http:Service> frontendHttpService bind frontendEP {
                     json errMsg = {"error":"error occurred while fetching promised response"};
                     errorResponse.setJsonPayload(errMsg);
                     _ = client -> respond(errorResponse);
-                    return;
                 }
             }
 
@@ -152,7 +145,6 @@ service<http:Service> frontendHttpService bind frontendEP {
                     json errMsg = {"error":"expected promised response not received"};
                     errorResponse.setJsonPayload(errMsg);
                     _ = client -> respond(errorResponse);
-                    return;
                 }
             }
 
@@ -163,7 +155,6 @@ service<http:Service> frontendHttpService bind frontendEP {
                 json errMsg = {"error":"expected promised response not received"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = client -> respond(errorResponse);
-                return;
             }
             io:println("Promised resource : " + promisedJsonPayload.toString());
         }

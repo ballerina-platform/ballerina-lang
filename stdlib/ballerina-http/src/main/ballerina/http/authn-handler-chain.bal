@@ -19,17 +19,22 @@ package ballerina.http;
 import ballerina/log;
 
 @Description {value:"Representation of Authentication handler chain"}
-public struct AuthnHandlerChain {
-    map authnHandlers;
-}
+public type AuthnHandlerChain object {
+    public {
+        map authnHandlers;
+    }
+    new () {
+    }
+    public function handle (Request req) returns (boolean);
+};
 
 @Description {value:"Creates a Authentication handler chain"}
 @Return {value:"AuthnHandlerChain: AuthnHandlerChain instance"}
 public function createAuthnHandlerChain () returns (AuthnHandlerChain) {
-    AuthnHandlerChain authnHandlerChain = {authnHandlers:{}};
+    AuthnHandlerChain authnHandlerChain = new;
     // TODO: read the authn handlers from a config file and load them dynamically. currently its hardcoded.
-    HttpBasicAuthnHandler httpAuthnHandler = {};
-    HttpJwtAuthnHandler jwtAuthnHandler = {};
+    HttpBasicAuthnHandler httpAuthnHandler = new;
+    HttpJwtAuthnHandler jwtAuthnHandler = new;
     // add to map
     authnHandlerChain.authnHandlers[httpAuthnHandler.name] = httpAuthnHandler;
     authnHandlerChain.authnHandlers[jwtAuthnHandler.name] = jwtAuthnHandler;
@@ -39,9 +44,9 @@ public function createAuthnHandlerChain () returns (AuthnHandlerChain) {
 @Description {value:"Tries to authenticate against any one of the available authentication handlers"}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if authenticated successfully, else false"}
-public function <AuthnHandlerChain authnHandlerChain> handle (Request req) returns (boolean) {
-    foreach currentAuthHandlerType, currentAuthHandler in authnHandlerChain.authnHandlers {
-        var authnHandler =? <HttpAuthnHandler> currentAuthHandler;
+public function AuthnHandlerChain::handle (Request req) returns (boolean) {
+    foreach currentAuthHandlerType, currentAuthHandler in self.authnHandlers {
+        var authnHandler = check <HttpAuthnHandler> currentAuthHandler;
         if (authnHandler.canHandle(req)) {
             log:printDebug("trying to authenticate with the authn handler: " + currentAuthHandlerType);
             return authnHandler.handle(req);

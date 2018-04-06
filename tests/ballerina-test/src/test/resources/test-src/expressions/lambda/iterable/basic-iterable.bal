@@ -127,25 +127,25 @@ json j1 = {name:"bob", age:10, pass:true, subjects:[{subject:"maths", marks:75},
 function jsonTest () returns (string, string[], int, int, string[]) {
     output = "";
     j1.foreach((json j) => {
-                   output = output + j.toString();
+                   output = output + (j.toString() but { () => "" });
                });
 
     string[] sa = j1.map((json j) => (string) {
-                             return j.toString();
+                             return (j.toString() but { () => "" });
                          })
                   .filter((string s) => (boolean) {
                               return s == "bob";
                           });
 
-    int i = j1.count();
+    int i1 = j1.count();
 
-    var ja =? <json[]>j1.subjects;
+    var ja = check <json[]>j1.subjects;
     string[] result = ja.map(((int, json) tuple) => (string) {
                                  var (i, j) = tuple;
-                                 return i + "->" + j.toString();
+                                 return  i + "->" + (j.toString() but { () => "" });
                              });
 
-    return (output, sa, i, j1.count(), result);
+    return (output, sa, i1, j1.count(), result);
 }
 
 xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
@@ -168,10 +168,10 @@ function xmlTest () returns (int, int, map) {
     return (nodeCount, elementCount, m);
 }
 
-struct person {
+type person {
     string name;
     int age;
-}
+};
 
 function structTest () returns (int, string[]) {
     person bob = {name:"bob", age:30};

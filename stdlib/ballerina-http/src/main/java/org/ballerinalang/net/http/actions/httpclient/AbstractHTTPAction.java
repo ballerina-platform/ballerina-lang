@@ -37,7 +37,6 @@ import org.ballerinalang.net.http.AcceptEncodingConfig;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.RetryConfig;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -54,6 +53,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
 import java.io.IOException;
@@ -64,12 +64,8 @@ import java.net.URL;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG;
-import static org.ballerinalang.net.http.HttpConstants.CLIENT_EP_RETRY;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
-import static org.ballerinalang.net.http.HttpConstants.RETRY_COUNT;
-import static org.ballerinalang.net.http.HttpConstants.RETRY_INTERVAL;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
@@ -246,6 +242,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER,
                                            dataContext.context.getProperty(HttpConstants.SRC_HANDLER));
         }
+        Object poolableByteBufferFactory = outboundRequestMsg.getProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY);
+        if (poolableByteBufferFactory == null) {
+            outboundRequestMsg.setProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY,
+                    dataContext.context.getProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY));
+        }
         Object remoteAddress = outboundRequestMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteAddress == null) {
             outboundRequestMsg.setProperty(HttpConstants.REMOTE_ADDRESS,
@@ -291,12 +292,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             boundaryString = HttpUtil.addBoundaryIfNotExist(outboundRequestMsg, contentType);
         }
 
-        HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundRequestMsg);
-        OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-        RetryConfig retryConfig = getRetryConfiguration(httpClient);
-        HTTPClientConnectorListener httpClientConnectorLister =
-                new HTTPClientConnectorListener(dataContext, retryConfig, outboundRequestMsg, outboundMsgDataStreamer);
+        final HttpMessageDataStreamer outboundMsgDataStreamer = getHttpMessageDataStreamer(outboundRequestMsg);
 
+        final HTTPClientConnectorListener httpClientConnectorLister =
+                new HTTPClientConnectorListener(dataContext, outboundMsgDataStreamer);
+        final OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         if (async) {
             future.setResponseHandleListener(httpClientConnectorLister);
@@ -314,6 +314,18 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             // the error though the listener
             logger.warn("couldn't serialize the message", serializerException);
         }
+    }
+
+    private HttpMessageDataStreamer getHttpMessageDataStreamer(HTTPCarbonMessage outboundRequestMsg) {
+        final HttpMessageDataStreamer outboundMsgDataStreamer;
+        final PooledDataStreamerFactory pooledDataStreamerFactory = (PooledDataStreamerFactory)
+                outboundRequestMsg.getProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY);
+        if (pooledDataStreamerFactory != null) {
+            outboundMsgDataStreamer = pooledDataStreamerFactory.createHttpDataStreamer(outboundRequestMsg);
+        } else {
+            outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundRequestMsg);
+        }
+        return outboundMsgDataStreamer;
     }
 
     /**
@@ -376,22 +388,6 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
     }
 
-    private RetryConfig getRetryConfiguration(Struct httpClient) {
-        Struct clientEndpointConfigs = httpClient.getStructField(CLIENT_ENDPOINT_CONFIG);
-        if (clientEndpointConfigs == null) {
-            return new RetryConfig();
-        }
-
-        Struct retryConfig = clientEndpointConfigs.getStructField(CLIENT_EP_RETRY);
-
-        if (retryConfig == null) {
-            return new RetryConfig();
-        }
-        long retryCount = retryConfig.getIntField(RETRY_COUNT);
-        long interval = retryConfig.getIntField(RETRY_INTERVAL);
-        return new RetryConfig(retryCount, interval);
-    }
-
     @Override
     public boolean isBlocking() {
         return false;
@@ -400,17 +396,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     private class HTTPClientConnectorListener implements HttpClientConnectorListener {
 
         private DataContext dataContext;
-        private RetryConfig retryConfig;
-        private HTTPCarbonMessage outboundReqMsg;
         private HttpMessageDataStreamer outboundMsgDataStreamer;
         // Reference for post validation.
 
-        private HTTPClientConnectorListener(DataContext dataContext, RetryConfig retryConfig,
-                                            HTTPCarbonMessage outboundReqMsg,
-                                            HttpMessageDataStreamer outboundMsgDataStreamer) {
+        private HTTPClientConnectorListener(DataContext dataContext, HttpMessageDataStreamer outboundMsgDataStreamer) {
             this.dataContext = dataContext;
-            this.retryConfig = retryConfig;
-            this.outboundReqMsg = outboundReqMsg;
             this.outboundMsgDataStreamer = outboundMsgDataStreamer;
         }
 
@@ -430,39 +420,18 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         @Override
         public void onError(Throwable throwable) {
-            if (throwable instanceof IOException) {
-                this.outboundMsgDataStreamer.setIoException((IOException) throwable);
-            } else {
-                this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
-            }
-            if (checkRetryState(throwable)) {
-                return;
-            }
-            sendOutboundRequest(dataContext, outboundReqMsg, false);
-        }
-
-        private boolean checkRetryState(Throwable throwable) {
-            if (!retryConfig.shouldRetry()) {
-                notifyError(throwable);
-                return true;
-            }
-            if (logger.isDebugEnabled()) {
-                logger.debug("action invocation failed, retrying action, count - "
-                                     + retryConfig.getCurrentCount() + " limit - " + retryConfig.getRetryCount());
-            }
-            retryConfig.incrementCountAndWait();
-            return false;
-        }
-
-        private void notifyError(Throwable throwable) {
             BStruct httpConnectorError;
-
             if (throwable instanceof EndpointTimeOutException) {
                 httpConnectorError = createStruct(this.dataContext.context, HttpConstants.HTTP_TIMEOUT_ERROR,
-                                                  HttpConstants.PROTOCOL_PACKAGE_HTTP);
-            } else {
+                        HttpConstants.PROTOCOL_PACKAGE_HTTP);
+            } else if (throwable instanceof IOException) {
+                this.outboundMsgDataStreamer.setIoException((IOException) throwable);
                 httpConnectorError = createStruct(this.dataContext.context, HttpConstants.HTTP_CONNECTOR_ERROR,
-                                                  HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                        HttpConstants.PROTOCOL_PACKAGE_HTTP);
+            } else {
+                this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
+                httpConnectorError = createStruct(this.dataContext.context, HttpConstants.HTTP_CONNECTOR_ERROR,
+                        HttpConstants.PROTOCOL_PACKAGE_HTTP);
             }
 
             httpConnectorError.setStringField(0, throwable.getMessage());

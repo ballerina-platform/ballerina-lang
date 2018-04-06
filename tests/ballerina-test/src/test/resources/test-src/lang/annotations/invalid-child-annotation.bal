@@ -3,13 +3,13 @@ function foo (string args) {
     // do nothing
 }
 
-struct Arguments {
+type Arguments {
     string value;
     Property prop;
-}
+};
 
-struct Property {
+type Property {
     string name;
-}
+};
 
 annotation Args Arguments;

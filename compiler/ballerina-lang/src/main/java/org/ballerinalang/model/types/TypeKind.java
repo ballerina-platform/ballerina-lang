@@ -58,7 +58,6 @@ public enum TypeKind {
     FUTURE("future"),
     PACKAGE("package"),
     STRUCT("struct"),
-    OBJECT("object"),
     ENUM("enum"),
     SERVICE("service"),
     CONNECTOR("connector"),
@@ -76,6 +75,7 @@ public enum TypeKind {
     INTERMEDIATE_COLLECTION("intermediate_collection"),
     TUPLE("tuple"),
     RECORD("record"),
+    FINITE("finite"),
     ;
 
     private String name;

@@ -1,18 +1,19 @@
 import ballerina/http;
 import ballerina/log;
 
-public struct Filter1 {
-    function (http:Request request, http:FilterContext context) returns (http:FilterResult) filterRequest;
-    function (http:Response response, http:FilterContext context) returns (http:FilterResult) filterResponse;
-}
+public type Filter1 object {
+    public {
+        function (http:Request request, http:FilterContext context) returns (http:FilterResult) filterRequest;
+        function (http:Response response, http:FilterContext context) returns (http:FilterResult) filterResponse;
+    }
+    public function init () {
+        log:printInfo("Initializing filter 1");
+    }
 
-public function <Filter1 filter> init () {
-    log:printInfo("Initializing filter 1");
-}
-
-public function <Filter1 filter> terminate () {
-    log:printInfo("Stopping filter 1");
-}
+    public function terminate () {
+        log:printInfo("Stopping filter 1");
+    }
+};
 
 public function interceptRequest1 (http:Request request, http:FilterContext context) returns (http:FilterResult) {
     log:printInfo("Intercepting request for filter 1");

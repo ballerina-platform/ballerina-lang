@@ -11,10 +11,10 @@ function testForkJoinWithoutTimeoutExpression() returns (int, float) {
     } join (all) (map results) {
         any[] w1;
         any[] w2;
-        w1 =? <any[]> results["W1"];
-        w2 =? <any[]> results["W2"];
-        x =? <int> w1[0];
-        y =? <float> w2[0];
+        w1 =check <any[]> results["W1"];
+        w2 =check <any[]> results["W2"];
+        x =check <int> w1[0];
+        y =check <float> w2[0];
     }
     return (x, y);
 }

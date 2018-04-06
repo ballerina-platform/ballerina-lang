@@ -187,7 +187,7 @@ public class NotSoBasicWorkerTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/void-function-workers.bal");
         BValue[] vals = BRunUtil.invoke(result, "testVoidFunction", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(((BInteger) vals[0]).intValue(), 5);
+        Assert.assertEquals(((BInteger) vals[0]).intValue(), 10);
         Assert.assertEquals(result.getProgFile().getGlobalMemoryBlock().getIntField(0), 10);
     }
 }
