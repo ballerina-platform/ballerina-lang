@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
+import org.ballerinalang.net.grpc.exception.GrpcServerValidationException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,46 +26,28 @@ import java.util.List;
  * This class is responsible for generating client components.
  */
 public class ClientBuilder {
-    private String packageName;
+    
     private String rootDescriptorKey;
     private List<Struct> structs = new ArrayList<>();
     private List<Enum> enums = new ArrayList<>();
-    private List<Stub> stubs = new ArrayList<>();
+    private List<StubObject> stubObject = new ArrayList<>();
+    private StubObject stubObjectBlocking;
+    private StubObject stubObjectNonBlocking;
     private List<Descriptor> descriptors = new ArrayList<>();
-    private List<BlockingFunction> blockingFunctions = new ArrayList<>();
-    private List<NonBlockingFunction> nonBlockingFunctions = new ArrayList<>();
-    private List<StreamingFunction> streamingFunctions = new ArrayList<>();
     private List<StubFunctionBuilder> stubFunctions = new ArrayList<>();
-    private Client client;
+    private List<ClientObject> client = new ArrayList<>();
+    private ClientObject clientBlocking;
+    private ClientObject clientNonBlocking;
+    
     private String connectorId;
     
-    public ClientBuilder(String packageName, String connectorId) {
-        this.packageName = packageName;
+    public ClientBuilder(String connectorId) {
         this.connectorId = connectorId;
-        this.client = new Client(connectorId);
-    }
-    
-    public void addBlockingFunction(String operationId, String inputDataType, String outputDataType, String methodId) {
-        BlockingFunction blockingFunctionsObj = new BlockingFunction
-                ("Blocking", connectorId, operationId, inputDataType, outputDataType, methodId);
-        blockingFunctions.add(blockingFunctionsObj);
     }
     
     public void addStubFunctionBuilder(String stubTypeName) {
         StubFunctionBuilder stubFunctionsObj = new StubFunctionBuilder(connectorId, stubTypeName);
         stubFunctions.add(stubFunctionsObj);
-    }
-    
-    public void addNonBlockingFunction(String operationId, String inputDataType, String methodId) {
-        NonBlockingFunction nonBlockingFunctionsObj = new NonBlockingFunction(
-                null, connectorId, operationId, inputDataType, methodId);
-        nonBlockingFunctions.add(nonBlockingFunctionsObj);
-    }
-    
-    public void addStreamingFunction(String operationId, String inputDataType, String methodId) {
-        StreamingFunction streamingFunctionsObj = new StreamingFunction("NonBlocking", connectorId,
-                operationId, inputDataType, methodId);
-        streamingFunctions.add(streamingFunctionsObj);
     }
     
     public void addStruct(String structId, String[] attributesNameArr, String[] attributesTypeArr) {
@@ -96,14 +80,66 @@ public class ClientBuilder {
         enums.add(enumObj);
     }
     
-    public void addStub(String stubTypeName, String stubType) {
-        Stub stub = new Stub(connectorId, stubTypeName, stubType);
-        stubs.add(stub);
-    }
-    
     public void addStubObjects(String stubTypeName, String stubType) {
         Stub stubObject = new Stub(connectorId, stubTypeName, stubType);
-        client.addStubObjects(stubObject);
+        if ("blocking".equals(stubType)) {
+            if (clientBlocking == null) {
+                this.clientBlocking = new ClientObject(connectorId);
+                this.clientBlocking.setStubType(stubType);
+                this.client.add(clientBlocking);
+            }
+            clientBlocking.addStubObjects(stubObject);
+        } else {
+            if (clientNonBlocking == null) {
+                this.clientNonBlocking = new ClientObject(connectorId);
+                this.client.add(clientNonBlocking);
+            }
+            clientNonBlocking.addStubObjects(stubObject);
+        }
+    }
+    
+    public void addStub(String stubTypeName, String stubType) {
+        if ("blocking".equals(stubType)) {
+            if (stubObjectBlocking == null) {
+                this.stubObjectBlocking = new StubObject(connectorId);
+                this.stubObjectBlocking.setStubType("Blocking");
+                this.stubObject.add(this.stubObjectBlocking);
+            }
+            stubObjectBlocking.addStub(stubTypeName, stubType);
+        } else if ("non-blocking".equals(stubType)) {
+            if (stubObjectNonBlocking == null) {
+                this.stubObjectNonBlocking = new StubObject(connectorId);
+                this.stubObject.add(this.stubObjectNonBlocking);
+            }
+            stubObjectNonBlocking.addStub(stubTypeName, stubType);
+        } else {
+            throw new GrpcServerValidationException("invalid stub type '" + stubType + "'.");
+        }
+    }
+    
+    public void addBlockingFunction(String operationId, String inputDataType, String outputDataType, String methodId) {
+        if (stubObjectBlocking != null) {
+            stubObjectBlocking.addBlockingFunction(operationId, inputDataType, outputDataType, methodId);
+        }
+        if (stubObjectNonBlocking != null) {
+            stubObjectNonBlocking.addNonBlockingFunction(operationId, inputDataType, methodId);
+        }
+    }
+    
+    public void addNonBlockingFunction(String operationId, String inputDataType, String methodId) {
+        if (stubObjectNonBlocking != null) {
+            stubObjectNonBlocking.addNonBlockingFunction(operationId, inputDataType, methodId);
+        }
+    }
+    
+    public void addStreamingFunction(String operationId, String inputDataType, String methodId) {
+        if (stubObjectNonBlocking != null) {
+            stubObjectNonBlocking.addStreamingFunction(operationId, inputDataType, methodId);
+        }
+    }
+    
+    public boolean isFunctionsStreamingNotEmpty() {
+        return stubObjectNonBlocking != null && stubObjectNonBlocking.isFunctionsStreamingNotEmpty();
     }
     
     public void addDescriptor(Descriptor descriptor) {
@@ -116,14 +152,6 @@ public class ClientBuilder {
     
     public void setStructs(List<Struct> structs) {
         this.structs = structs;
-    }
-    
-    public String getPackageName() {
-        return packageName;
-    }
-    
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
     }
     
     public String getRootDescriptorKey() {
@@ -142,38 +170,6 @@ public class ClientBuilder {
         this.descriptors = descriptors;
     }
     
-    public List<Stub> getStubs() {
-        return stubs;
-    }
-    
-    public void setStubs(List<Stub> stubs) {
-        this.stubs = stubs;
-    }
-    
-    public List getBlockingFunction() {
-        return blockingFunctions;
-    }
-    
-    public void setBlockingFunction(List<BlockingFunction> blockingFunctions) {
-        this.blockingFunctions = blockingFunctions;
-    }
-    
-    public List getNonBlockingFunction() {
-        return nonBlockingFunctions;
-    }
-    
-    public void setNonBlockingFunction(List<NonBlockingFunction> nonBlockingFunctions) {
-        this.nonBlockingFunctions = nonBlockingFunctions;
-    }
-    
-    public List getStreamingFunction() {
-        return streamingFunctions;
-    }
-    
-    public void setStreamingFunction(List<StreamingFunction> streamingFunctions) {
-        this.streamingFunctions = streamingFunctions;
-    }
-    
     public List<StubFunctionBuilder> getStubFunctionBuilder() {
         return stubFunctions;
     }
@@ -181,14 +177,5 @@ public class ClientBuilder {
     public void setStubFunctionBuilder(List<StubFunctionBuilder> stubFunctions) {
         this.stubFunctions = stubFunctions;
     }
-    
-    public boolean isFunctionsStreamingNotEmpty() {
-        return (!nonBlockingFunctions.isEmpty() || !streamingFunctions.isEmpty());
-    }
-    
-    public boolean isFunctionsUnaryNotEmpty() {
-        return (!blockingFunctions.isEmpty());
-    }
-    
     
 }

@@ -1,84 +1,90 @@
-package {{packageName}};
-
 import ballerina/grpc;
 import ballerina/io;
-{{#stubs}}
-struct {{connectorId}}{{stubTypeName}}Stub {
-    grpc:Client clientEndpoint;
-    grpc:ServiceStub serviceStub;
-}
+{{#stubObject}}
+public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
+    {{#stubs}}
+    public {
+        grpc:Client clientEndpoint;
+        grpc:ServiceStub serviceStub;
+    }
 
-function <{{connectorId}}{{stubTypeName}}Stub stub> initStub (grpc:Client clientEndpoint) {
-    grpc:ServiceStub navStub = {};
-    navStub.initStub(clientEndpoint, "{{stubType}}", descriptorKey, descriptorMap);
-    stub.serviceStub = navStub;
-}
-{{/stubs}}{{#blockingFunctions}}
-function <{{connectorId}}{{stubTypeName}}Stub stub> {{operationId}} ({{inputDataType}} req) returns ({{outputDataType}}|error) {
-    any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("{{methodId}}", req);
-    match unionResp {
-        grpc:ConnectorError payloadError => {
-            error e = {message:payloadError.message};
-            return e;
-        }
-        any|{{outputDataType}} payload => {
-            match payload {
-                {{outputDataType}} s => {
-                    return s;
-                }
-                any nonOccurrence => {
-                    error e = {message:"Unexpected type."};
-                    return e;
+    function <{{connectorId}}{{stubTypeName}}Stub stub> initStub (grpc:Client clientEndpoint) {
+        grpc:ServiceStub navStub = {};
+        navStub.initStub(clientEndpoint, "{{stubType}}", DESCRIPTOR_KEY, descriptorMap);
+        stub.serviceStub = navStub;
+    }
+    {{/stubs}}{{#blockingFunctions}}
+    function <{{connectorId}}{{stubTypeName}}Stub stub> {{operationId}} ({{inputDataType}} req) returns ({{outputDataType}}|error) {
+        any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("{{methodId}}", req);
+        match unionResp {
+            grpc:ConnectorError payloadError => {
+                error e = {message:payloadError.message};
+                return e;
+            }
+            any|{{outputDataType}} payload => {
+                match payload {
+                    {{outputDataType}} s => {
+                        return s;
+                    }
+                    any nonOccurrence => {
+                        error e = {message:"Unexpected type."};
+                        return e;
+                    }
                 }
             }
         }
     }
-}
-{{/blockingFunctions}}{{#nonBlockingFunctions}}
-function <{{connectorId}}Stub stub> {{operationId}} ({{inputDataType}} req, typedesc listener) returns (error| null) {
-    var err1 = stub.serviceStub.nonBlockingExecute("{{methodId}}", req, listener);
-    if (err1 != null && err1.message != null) {
-        error e = {message:err1.message};
-        return e;
-    }
-    return null;
-}
-{{/nonBlockingFunctions}}{{#streamingFunctions}}
-function <{{connectorId}}Stub stub> {{operationId}} (typedesc listener) returns (grpc:Client| error)  {
-    var res = stub.serviceStub.streamingExecute("{{methodId}}", listener);
-    match res {
-        grpc:ConnectorError err => {
-            error e = {message:err.message};
+    {{/blockingFunctions}}{{#nonBlockingFunctions}}
+    function <{{connectorId}}Stub stub> {{operationId}} ({{inputDataType}} req, typedesc listener) returns (error| null) {
+        var err1 = stub.serviceStub.nonBlockingExecute("{{methodId}}", req, listener);
+        if (err1 != null && err1.message != null) {
+            error e = {message:err1.message};
             return e;
         }
-        grpc:Client con => {
-            return con;
+        return null;
+    }
+    {{/nonBlockingFunctions}}{{#streamingFunctions}}
+    function <{{connectorId}}Stub stub> {{operationId}} (typedesc listener) returns (grpc:Client| error)  {
+        var res = stub.serviceStub.streamingExecute("{{methodId}}", listener);
+        match res {
+            grpc:ConnectorError err => {
+                error e = {message:err.message};
+                return e;
+            }
+            grpc:Client con => {
+                return con;
+            }
         }
     }
+    {{/streamingFunctions}}
 }
-{{/streamingFunctions}}{{#client}}
-{{#stubObjects}}
-public struct {{connectorId}}{{stubTypeName}}Client {
-    grpc:Client client;
-    {{connectorId}}{{stubTypeName}}Stub stub;
-}
+{{/stubObject}}
+{{#client}}
+public type {{connectorId}}{{stubTypeName}}{{stubType}}Client object {
+    {{#stubObjects}}
+    public {
+        grpc:Client client;
+        {{connectorId}}{{stubTypeName}}Stub stub;
+    }
 
-public function <{{connectorId}}{{stubTypeName}}Client ep> init (grpc:ClientEndpointConfiguration config) {
-    // initialize client endpoint.
-    grpc:Client client = {};
-    client.init(config);
-    ep.client = client;
-    // initialize service stub.
-    {{connectorId}}{{stubTypeName}}Stub stub = {};
-    stub.initStub(client);
-    ep.stub = stub;
-}
+    public function <{{connectorId}}{{stubTypeName}}Client ep> init (grpc:ClientEndpointConfiguration config) {
+        // initialize client endpoint.
+        grpc:Client client = {};
+        client.init(config);
+        ep.client = client;
+        // initialize service stub.
+        {{connectorId}}{{stubTypeName}}Stub stub = {};
+        stub.initStub(client);
+        ep.stub = stub;
+    }
 
-public function <{{connectorId}}{{stubTypeName}}Client ep> getClient () returns ({{connectorId}}{{stubTypeName}}Stub) {
-    return ep.stub;
-}{{/stubObjects}}{{/client}}
+    public function <{{connectorId}}{{stubTypeName}}Client ep> getClient () returns ({{connectorId}}{{stubTypeName}}Stub) {
+        return ep.stub;
+    }{{/stubObjects}}
+}
+{{/client}}
 {{#structs}}
-struct {{structId}} {
+type {{structId}} {
 {{#attribute}}{{type}} {{name}};
 {{/attribute}}
 }
@@ -89,7 +95,7 @@ enum {{enumId}} {
 {{/enumAttribute}}
 }
 {{/enums}}
-const string descriptorKey = "{{rootDescriptorKey}}";
+@final string DESCRIPTOR_KEY = "{{rootDescriptorKey}}";
 map descriptorMap =
 { {{#descriptors}}
     "{{descriptorKey}}":"{{descriptorData}}"{{eoe}}
