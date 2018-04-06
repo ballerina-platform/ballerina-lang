@@ -13,7 +13,7 @@ public type userPFoo object {
     public function getName () returns (string);
 
     public function getAge () returns (int);
-}
+};
 
 public function userPFoo::getName () returns (string) {
     return name + ":userPFoo";

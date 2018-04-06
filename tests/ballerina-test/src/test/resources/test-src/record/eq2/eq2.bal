@@ -8,7 +8,7 @@ public type employee {
     string ssn;
     int id;
     int employeeId = 123456;
-}
+};
 
 public function <employee e> getName() returns (string) {
     return e.name;

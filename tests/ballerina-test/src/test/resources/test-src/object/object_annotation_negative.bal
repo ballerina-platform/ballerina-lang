@@ -9,7 +9,7 @@ type Tst object {
     public {string a;
     string b;
     string cd;}
-}
+};
 
 annotation Test Tst;
 
@@ -35,7 +35,7 @@ type Test object {
     public {int a;
     int b;
     int cdd;}
-}
+};
 
 documentation {
 Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
@@ -56,7 +56,7 @@ F{{path}} struct `field path` documentation
 }
 public type File object {
     public {string path;}
-}
+};
 
 //documentation {
 // Transformer Foo Person -> Employee
@@ -74,14 +74,14 @@ type Person object {
     string lastName;
     int age;
     string city;}
-}
+};
 
 type Employee object {
     public {string name;
     int age;
     string address;
     any ageAny;}
-}
+};
 
 documentation {
 Test Connector
@@ -90,7 +90,7 @@ F{{url}} url for endpoint
 P{{urls}} urls for endpoint}
 type TestConnector object {
   public {string url;}
-}
+};
 
 //documentation {Test Connector action testAction
 //    R{{s}} which represent successful or not

@@ -29,7 +29,7 @@ type person {
         string name;
         int age;
         state st;
-}
+};
 
 function testEnumInStruct() returns (int) {
     person p = {name:"test", st: resolvedState};

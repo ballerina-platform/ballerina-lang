@@ -6,7 +6,7 @@ type person {
     int age = 20;
     string name;
     string address;
-}
+};
 
 function <person p> person() {
     p.age = 10;

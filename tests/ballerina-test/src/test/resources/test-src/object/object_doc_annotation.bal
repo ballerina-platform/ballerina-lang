@@ -6,4 +6,4 @@ type Test object {
     public {int a;
     int b;
     int c;}
-}
+};

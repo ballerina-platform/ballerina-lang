@@ -6,7 +6,7 @@ type Tst {
     string a;
     string b;
     string c;
-}
+};
 
 documentation { Documentation for Test annotation
 }

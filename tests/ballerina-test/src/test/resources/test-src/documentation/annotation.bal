@@ -8,7 +8,7 @@ type Tst object {
         string b;
         string c;
     }
-}
+};
 
 documentation { Documentation for Test annotation
 }

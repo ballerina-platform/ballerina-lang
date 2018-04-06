@@ -7,7 +7,7 @@ public type userFoo object {
         string address;
         string zipcode = "23468";
     }
-}
+};
 
 public function <userFoo u> getName() returns (string) {
     return u.name;
@@ -24,7 +24,7 @@ public type user object {
         string address;
         string zipcode = "23468";
     }
-}
+};
 
 public type person object {
     public {
@@ -35,7 +35,7 @@ public type person object {
         string ssn;
         int id;
     }
-}
+};
 
 type student object {
     public {
@@ -47,7 +47,7 @@ type student object {
         int id;
         int schoolId;
     }
-}
+};
 
 public function newPerson() returns (person) {
     person p = new;

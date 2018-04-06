@@ -13,7 +13,7 @@ public type employee01 object {
         int id;
         int employeeId = 123456;
     }
-}
+};
 
 public type person object {
     public {
@@ -24,7 +24,7 @@ public type person object {
         string ssn;
         int id;
     }
-}
+};
 
 public type employee object {
     public {
@@ -36,14 +36,14 @@ public type employee object {
         int id;
         int employeeId = 123456;
     }
-}
+};
 
 public type userA object {
     public {
         int age;
         string name;
     }
-}
+};
 
 public type userB object {
     public {
@@ -51,7 +51,7 @@ public type userB object {
         string name;
         string address;
     }
-}
+};
 
 public function textPrivateFieldAccess1 () returns (string, string, string, int, int) {
     employee01 e = new;

@@ -4,11 +4,11 @@ documentation { Documentation for Tst struct
 F{{a}} annotation `field a` documentation
 F{{b}} annotation `field b` documentation
 F{{c}} annotation `field c` documentation}
-struct Tst {
+type Tst {
     string a;
     string b;
     string c;
-}
+};
 
 documentation { Documentation for Test annotation
 }
@@ -26,25 +26,25 @@ documentation { Documentation for Test struct
 F{{a}} struct `field a` documentation
 F{{b}} struct `field b` documentation
 F{{c}} struct `field c` documentation}
-struct Test {
+type Test {
     int a;
     int b;
     int c;
-}
+};
 
-struct Person {
+type Person {
     string firstName;
     string lastName;
     int age;
     string city;
-}
+};
 
-struct Employee {
+type Employee {
     string name;
     int age;
     string address;
     any ageAny;
-}
+};
 
 //documentation {
 // Transformer Foo Person -> Employee
