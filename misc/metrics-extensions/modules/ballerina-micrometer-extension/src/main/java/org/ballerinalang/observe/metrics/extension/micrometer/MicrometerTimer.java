@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.observe.metrics.extension.micrometer;
 
-import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import org.ballerinalang.util.metrics.AbstractMetric;
 import org.ballerinalang.util.metrics.MetricId;
@@ -33,14 +33,14 @@ public class MicrometerTimer extends AbstractMetric implements Timer {
 
     private final io.micrometer.core.instrument.Timer timer;
 
-    public MicrometerTimer(MetricId id) {
+    public MicrometerTimer(MeterRegistry meterRegistry, MetricId id) {
         super(id);
         timer = io.micrometer.core.instrument.Timer.builder(id.getName())
                 .description(id.getDescription())
                 .tags(id.getTags().stream().map(tag -> Tag.of(tag.getKey(), tag.getValue()))
                         .collect(Collectors.toList()))
                 .publishPercentiles(0.5, 0.75, 0.98, 0.99, 0.999)
-                .register(Metrics.globalRegistry);
+                .register(meterRegistry);
     }
 
     @Override
