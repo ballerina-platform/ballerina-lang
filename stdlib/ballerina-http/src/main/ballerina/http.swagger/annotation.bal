@@ -15,7 +15,7 @@ public type ServiceInformation {
     License license,
     DocumentationInformation externalDocs,
     Tag[] tags,
-    SecurityRequirement[] security;
+    SecurityRequirement[] security,
 };
 
 @Description {value: "Model for Swagger contact information"}
@@ -25,7 +25,7 @@ public type ServiceInformation {
 public type Contact {
     string name,
     string email,
-    string url;
+    string url,
 };
 
 @Description {value: "Model for service licence information"}
@@ -33,7 +33,7 @@ public type Contact {
 @Field {value: "url: License url"}
 public type License {
     string name,
-    string url;
+    string url,
 };
 
 @Description {value: "Model for service documentation definition"}
@@ -41,7 +41,7 @@ public type License {
 @Field {value: "url: Documentation url"}
 public type DocumentationInformation {
     string description,
-    string url;
+    string url,
 };
 
 @Description {value: "Model for swagger service tag definition"}
@@ -51,7 +51,7 @@ public type DocumentationInformation {
 public type Tag {
     string name,
     string description,
-    DocumentationInformation externalDocs;
+    DocumentationInformation externalDocs,
 };
 
 @Description {value: "Model for security requirement definition. This is most likely the oauth scopes"}
@@ -59,7 +59,7 @@ public type Tag {
 @Field {value: "requirements: Array of security requirements"}
 public type SecurityRequirement {
     string name,
-    string[] requirements;
+    string[] requirements,
 };
 
 @Description {value: "Model for keeping swagger parameter information"}
@@ -77,7 +77,7 @@ public type ParameterInformation {
     boolean required,
     boolean discontinued,
     string allowEmptyValue,
-    Schema schema;
+    Schema schema,
 };
 
 public type Schema {
@@ -85,7 +85,7 @@ public type Schema {
     string format,
     boolean isArray,
     string ref,
-    string items;
+    string items,
 };
 
 @Description {value: "Model for additional swagger resource definition"}
@@ -99,7 +99,7 @@ public type ResourceInformation {
     string summary,
     string description,
     DocumentationInformation externalDocs,
-    ParameterInformation[] parameters;
+    ParameterInformation[] parameters,
 };
 
 public type Response {
@@ -107,18 +107,18 @@ public type Response {
     string description,
     string response,
     Header[] headers,
-    Example[] examples;
+    Example[] examples,
 };
 
 public type Header {
     string name,
     string description,
-    string headerType;
+    string headerType,
 };
 
 public type Example {
     string exampleType,
-    string value;
+    string value,
 };
 
 @Description {value: "Model for additional swagger request body details"}
@@ -134,7 +134,7 @@ public type requestBody {
     string example,
     Example[] examples,
     Schema schema,
-    Encoding[] encoding;
+    Encoding[] encoding,
 };
 
 @Description {value: "Model for additional swagger content type definition"}
@@ -147,13 +147,13 @@ public type Encoding {
     string contentType,
     string style,
     boolean explode,
-    boolean allowReserved;
+    boolean allowReserved,
 };
 
 @Description {value: "Configuration elements for client code generation"}
 @Field {value: "generate: generates client code if set to true"}
 public type ClientInformation {
-    boolean generate = true;
+    boolean generate = true,
 };
 
 @Description {value: "Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation"}
