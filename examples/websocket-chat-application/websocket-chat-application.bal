@@ -1,8 +1,8 @@
 import ballerina/io;
 import ballerina/http;
 
-const string NAME = "NAME";
-const string AGE = "AGE";
+@final string NAME = "NAME";
+@final string AGE = "AGE";
 endpoint http:WebSocketEndpoint ep {
     port:9090
 };
@@ -21,7 +21,8 @@ service<http:Service> ChatAppUpgrader bind ep {
     }
     upgrader(endpoint ep, http:Request req, string name) {
         endpoint http:WebSocketEndpoint wsEp;
-        wsEp = ep -> upgradeToWebSocket({});
+        map<string> headers;
+        wsEp = ep -> upgradeToWebSocket(headers);
         wsEp.attributes[NAME] = name;
         wsEp.attributes[AGE] = req.getQueryParams()["age"];
     }
@@ -29,9 +30,9 @@ service<http:Service> ChatAppUpgrader bind ep {
 }
 
 // TODO: This map should go to service level after null pointer issue is fixed.
-map<http:WebSocketEndpoint> consMap = {};
+map<http:WebSocketEndpoint> consMap;
 
-service<http:WebSocketService> chatApp {
+service<http:WebSocketService> chatApp bind ep {
 
 
     onOpen (endpoint conn) {
