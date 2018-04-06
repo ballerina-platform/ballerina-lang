@@ -22,7 +22,7 @@ import org.ballerinalang.langserver.completions.resolvers.AnnotationAttachmentCo
 import org.ballerinalang.langserver.completions.resolvers.AnnotationAttachmentResolver;
 import org.ballerinalang.langserver.completions.resolvers.BLangEndpointContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.BLangMatchContextResolver;
-import org.ballerinalang.langserver.completions.resolvers.BLangStructContextResolver;
+import org.ballerinalang.langserver.completions.resolvers.BLangRecordContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.BlockStatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.ConnectorActionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.ConnectorDefinitionContextResolver;
@@ -54,9 +54,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 
@@ -89,8 +89,8 @@ public enum CompletionItemResolver {
             new BlockStatementContextResolver()),
     ANNOTATION_ATTACHMENT(AnnotationAttachment.class,
             new AnnotationAttachmentResolver()),
-    STRUCT_CONTEXT(BLangStruct.class,
-            new BLangStructContextResolver()),
+    RECORD_CONTEXT(BLangRecord.class,
+            new BLangRecordContextResolver()),
     SERVICE_CONTEXT(BLangService.class,
             new ServiceContextResolver()),
     RESOURCE_CONTEXT(BLangResource.class,

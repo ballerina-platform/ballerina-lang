@@ -72,7 +72,8 @@ public function createAuthenticator () returns (JWTAuthenticator) {
 public function JWTAuthenticator::authenticate (string jwtToken) returns (boolean|error) {
     boolean isCacheHit;
     boolean isAuthenticated;
-    if (self.authCache.capacity > 0) {
+    int size = authCache.capacity ?: 0;
+    if (size > 0) {
         match self.authenticateFromCache(jwtToken) {
             (boolean, boolean) cacheHit => {
                 (isCacheHit, isAuthenticated) = cacheHit;
@@ -91,7 +92,8 @@ public function JWTAuthenticator::authenticate (string jwtToken) returns (boolea
         jwt:Payload authResult => {
             isAuthenticated = true;
             setAuthContext(authResult, jwtToken);
-            if (self.authCache.capacity > 0) {
+            size = authCache.capacity ?: 0;
+            if (size > 0) {
                 self.addToAuthenticationCache(jwtToken, authResult.exp, authResult);
             }
             return isAuthenticated;
@@ -160,7 +162,7 @@ function setAuthContext (jwt:Payload jwtPayload, string jwtToken) {
             authContext.scopes = scopeString.split(" ");
             _ = jwtPayload.customClaims.remove(SCOPES);
         }
-        () => {}
+        any => {}
     }
 
     match jwtPayload.customClaims[GROUPS] {
@@ -168,7 +170,7 @@ function setAuthContext (jwt:Payload jwtPayload, string jwtToken) {
             authContext.groups = userGroups;
             _ = jwtPayload.customClaims.remove(GROUPS);
         }
-        () => {}
+        any => {}
     }
 
     match jwtPayload.customClaims[USERNAME] {
@@ -180,6 +182,7 @@ function setAuthContext (jwt:Payload jwtPayload, string jwtToken) {
             // By default set sub as username.
             authContext.username = jwtPayload.sub;
         }
+        any => {}
     }
 
     authContext.authType = AUTH_TYPE_JWT;

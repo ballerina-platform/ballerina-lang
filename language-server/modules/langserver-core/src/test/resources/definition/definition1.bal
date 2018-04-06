@@ -1,14 +1,14 @@
-package definition.test;
+
 
 import ballerina/io;
 
-string lastName;
+@readonly string lastName;
 
-struct Employee {
+type Employee {
     string name;
     int age;
     string address;
-}
+};
 
 function func1 () {
     Person person = {
