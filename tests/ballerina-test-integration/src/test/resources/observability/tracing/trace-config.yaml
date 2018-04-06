@@ -1,5 +1,0 @@
-tracers:
-  - name: BMockTracer
-    enabled: true
-    className: org.ballerina.testing.extension.BMockTracer
-    configuration:
