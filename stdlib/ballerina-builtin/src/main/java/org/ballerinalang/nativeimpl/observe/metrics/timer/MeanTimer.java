@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.observe.metrics.timer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
