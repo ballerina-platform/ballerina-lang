@@ -41,22 +41,23 @@ public class Utils {
 
     static Map<String, String> toStringMap(BMap map) {
         Map<String, String> returnMap = new HashMap<>();
-        Set bIterator = map.keySet();
-        for (Object aKey : bIterator) {
-            if (map.get(aKey) instanceof BStringArray) {
-                returnMap.put(aKey.toString(), (((BStringArray) map.get(aKey)).get(0)));
-            } else {
-                returnMap.put(aKey.toString(), map.get(aKey).stringValue());
+        if (map != null) {
+            Set bIterator = map.keySet();
+            for (Object aKey : bIterator) {
+                if (map.get(aKey) instanceof BStringArray) {
+                    returnMap.put(aKey.toString(), (((BStringArray) map.get(aKey)).get(0)));
+                } else {
+                    returnMap.put(aKey.toString(), map.get(aKey).stringValue());
+                }
             }
         }
         return returnMap;
     }
 
-    public static BStruct createSpanStruct(Context context, String spanId, String serviceName,
-                                    String spanName) {
+    public static BStruct createSpanStruct(Context context, String serviceName, String spanName, String spanId) {
         PackageInfo observePackage = context.getProgramFile().getPackageInfo("ballerina.observe");
         StructInfo spanStructInfo = observePackage.getStructInfo("Span");
-        return BLangVMStructs.createBStruct(spanStructInfo, spanId, serviceName, spanName);
+        return BLangVMStructs.createBStruct(spanStructInfo, serviceName, spanName, spanId);
     }
 
     public static BStruct createSpanContextStruct(Context context, BMap spanContext) {
