@@ -18,8 +18,6 @@
 package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -33,19 +31,15 @@ import java.util.Map;
  * Item sorters to be used on sorting completion items, based on the scope.
  */
 public enum ItemSorters {
-    ACTION_BODY_ITEM_SORTER(BLangResource.class,
-            new CallableUnitBodyItemSorter()),
     ASSIGNMENT_STMT_ITEM_SORTER(BallerinaParser.AssignmentStatementContext.class,
             new AssignmentStmtContextSorter()),
-    CONNECTOR_BODY_ITEM_SORTER(BLangConnector.class,
-            new ConnectorContextItemSorter()),
     FUNCTION_BODY_ITEM_SORTER(BLangFunction.class,
             new CallableUnitBodyItemSorter()),
     DEFAULT_ITEM_SORTER(DefaultItemSorter.class,
             new DefaultItemSorter()),
     ENDPOINT_DEF_ITEM_SORTER(EndpointDefContextItemSorter.class,
             new EndpointDefContextItemSorter()),
-    RESOURCE_BODY_ITEM_SORTER(BLangAction.class,
+    RESOURCE_BODY_ITEM_SORTER(BLangResource.class,
             new CallableUnitBodyItemSorter()),
     SERVICE_BODY_ITEM_SORTER(BLangService.class,
             new ServiceContextItemSorter()),

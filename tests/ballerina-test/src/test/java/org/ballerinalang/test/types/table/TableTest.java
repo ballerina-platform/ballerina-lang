@@ -531,8 +531,7 @@ public class TableTest {
         Assert.assertEquals((returns[4]).stringValue(), "100|Sample Text|Sample Text|200||null|");
     }
 
-    @Test(groups = "TableTest", description = "Check result sets with same column name or complex name.",
-          enabled = false)
+    @Test(groups = "TableTest", description = "Check result sets with same column name or complex name.")
     public void testJsonXMLConversionwithDuplicateColumnNames() {
         BValue[] returns = BRunUtil.invoke(result, "testJsonXMLConversionwithDuplicateColumnNames");
         Assert.assertEquals(returns.length, 2);
