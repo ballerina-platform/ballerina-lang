@@ -40,7 +40,7 @@ public class FinishSpan extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct span = (BStruct) context.getRefArgument(0);
-        String spanId = span.getStringField(0);
+        String spanId = span.getStringField(2);
         OpenTracerBallerinaWrapper.getInstance().finishSpan(spanId);
     }
 }

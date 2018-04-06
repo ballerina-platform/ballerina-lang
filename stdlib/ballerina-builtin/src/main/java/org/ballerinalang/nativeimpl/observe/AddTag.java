@@ -47,7 +47,7 @@ public class AddTag extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct span = (BStruct) context.getRefArgument(0);
-        String spanId = span.getStringField(0);
+        String spanId = span.getStringField(2);
         String tagKey = context.getStringArgument(0);
         String tagValue = context.getStringArgument(1);
         OpenTracerBallerinaWrapper.getInstance().addTags(spanId, tagKey, tagValue);

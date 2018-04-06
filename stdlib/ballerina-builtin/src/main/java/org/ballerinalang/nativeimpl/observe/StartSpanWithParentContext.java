@@ -79,7 +79,7 @@ public class StartSpanWithParentContext extends BlockingNativeCallableUnit {
                 Utils.toStringMap(tags), ReferenceType.valueOf(reference), extractedSpanContextMap);
 
         if (spanId != null) {
-            context.setReturnValues(Utils.createSpanStruct(context, spanId, serviceName, spanName));
+            context.setReturnValues(Utils.createSpanStruct(context, serviceName, spanName, spanId));
         } else {
             context.setReturnValues(Utils.createSpanStruct(context, null, null, null));
             err.println("ballerina: Can not use tracing API when tracing is disabled");

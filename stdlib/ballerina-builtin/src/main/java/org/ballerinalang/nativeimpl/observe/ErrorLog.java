@@ -57,7 +57,7 @@ public class ErrorLog extends AbstractLogFunction {
     @Override
     public void execute(Context context) {
         BStruct span = (BStruct) context.getRefArgument(0);
-        String spanId = span.getStringField(0);
+        String spanId = span.getStringField(2);
         String errorKind = context.getStringArgument(0);
         String message = context.getStringArgument(1);
 
@@ -65,7 +65,7 @@ public class ErrorLog extends AbstractLogFunction {
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.ERROR.value()) {
             String logMessage = String.format("[Tracing] Service: %s, Span: %s, ErrorKind: %s, Message: %s",
-                    span.getStringField(1), span.getStringField(2), errorKind, message);
+                    span.getStringField(0), span.getStringField(1), errorKind, message);
             getLogger(pkg).error(logMessage);
         }
 

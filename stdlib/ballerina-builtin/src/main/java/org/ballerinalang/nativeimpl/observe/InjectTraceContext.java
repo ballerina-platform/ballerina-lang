@@ -51,7 +51,7 @@ public class InjectTraceContext extends BlockingNativeCallableUnit {
         BStruct span = (BStruct) context.getRefArgument(0);
         String group = context.getStringArgument(0) == null ? TraceConstants.DEFAULT_USER_API_GROUP
                 : context.getStringArgument(0);
-        String spanId = span.getStringField(0);
+        String spanId = span.getStringField(2);
 
         Map<String, String> propertiesToInject = OpenTracerBallerinaWrapper.getInstance().inject(group, spanId);
 
