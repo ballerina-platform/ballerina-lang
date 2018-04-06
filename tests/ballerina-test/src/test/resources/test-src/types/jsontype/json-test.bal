@@ -3,7 +3,7 @@ import ballerina/util;
 
 function remove () returns (json) {
     json j = {"name":{"fname":"Jack", "lname":"Taylor"}, "state":"CA", "age":20};
-    j.remove("name");
+    _ = j.remove("name");
     return j;
 }
 

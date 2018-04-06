@@ -4,19 +4,19 @@ public type testError {
     string message;
     error[] cause;
     string code;
-}
+};
 
 public type testDataError {
     string message;
     error[] cause;
     string data;
-}
+};
 
 public type testInputError {
     string message;
     error[] cause;
     string input;
-}
+};
 
 function testTryCatch (int value) returns (string) {
     string path = "start ";

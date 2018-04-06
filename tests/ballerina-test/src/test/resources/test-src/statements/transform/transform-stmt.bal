@@ -1,15 +1,15 @@
-struct Person {
+type Person {
     string firstName;
     string lastName;
     int age;
     string city;
-}
+};
 
-struct Employee {
+type Employee {
     string name;
     int age;
     string address;
-}
+};
 
 function unnamedTransform() returns (string){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};
@@ -84,12 +84,12 @@ transformer <Person p, Employee e> transformerWithVarDef() {
 }
 
 
-struct Employee_1 {
+type Employee_1 {
     string name;
     int age;
     any anyAge;
     string address;
-}
+};
 
 function castAndConversionInTransform() returns (string, int, string, any){
     Person p = {firstName:"John", lastName:"Doe", age:30, city:"London"};

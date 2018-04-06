@@ -4,8 +4,8 @@ import ballerina/auth.utils;
 import ballerina/runtime;
 
 function testAuthorizationSuccessWithScopesFromAuthContext () returns (boolean) {
-    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-    permissionstore:PermissionStore permissionStore = check (<permissionstore:PermissionStore>fileBasedPermissionstore);
+    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = new;
+    permissionstore:PermissionStore permissionStore = check <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
     string[] scopes = ["scope2"];
     runtime:getInvocationContext().authenticationContext.scopes = ["scope2"];
@@ -13,8 +13,8 @@ function testAuthorizationSuccessWithScopesFromAuthContext () returns (boolean) 
 }
 
 function testAuthorizationFailureWithScopesFromAuthContext () returns (boolean) {
-    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-    permissionstore:PermissionStore permissionStore = check (<permissionstore:PermissionStore>fileBasedPermissionstore);
+    permissionstore:FileBasedPermissionStore fileBasedPermissionstore = new;
+    permissionstore:PermissionStore permissionStore = check <permissionstore:PermissionStore>fileBasedPermissionstore;
     authz:AuthzChecker checker = authz:createChecker(permissionStore, utils:createCache("authz_cache"));
     string[] scopes = ["scope2"];
     runtime:getInvocationContext().authenticationContext.scopes = ["scope3"];

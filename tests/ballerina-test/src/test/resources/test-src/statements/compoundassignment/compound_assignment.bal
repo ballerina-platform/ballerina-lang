@@ -67,7 +67,7 @@ function testCompoundAssignmentDivisionArrayElement() returns (int){
 type Company {
    int count;
    int count2;
-}
+};
 
 function testCompoundAssignmentAdditionStructElement() returns (int){
     Company ibm = {};

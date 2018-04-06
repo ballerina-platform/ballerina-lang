@@ -154,6 +154,16 @@ public class StructImpl extends AnnotatableNode implements Struct {
         return ValueImpl.createValue(refField);
     }
 
+    @Override
+    public Value getRefField(String fieldName) {
+        final BValue refField = value.getRefField(getFieldIndex(fieldName));
+
+        if (refField == null) {
+            return null;
+        }
+        return ValueImpl.createValue(refField);
+    }
+
     private int getFieldIndex(String fieldName) {
         final StructFieldImpl structField = structFields.get(fieldName);
         if (structField == null) {

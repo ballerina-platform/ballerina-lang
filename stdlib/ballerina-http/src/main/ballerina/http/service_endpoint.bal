@@ -58,7 +58,7 @@ public type ServiceEndpoint object {
 
     @Description {value:"Stops the registered service"}
     public native function stop();
-}
+};
 
 documentation {
     Represents the details of remote address.
@@ -69,7 +69,7 @@ documentation {
 public type Remote {
     @readonly string host;
     @readonly int port;
-}
+};
 
 documentation {
     Represents the details of local address.
@@ -80,7 +80,7 @@ documentation {
 public type Local {
     @readonly string host;
     @readonly int port;
-}
+};
 
 @Description {value:"Request validation limits configuration for HTTP service endpoint"}
 @Field {value:"maxUriLength: Maximum length allowed in the URL"}
@@ -90,7 +90,7 @@ public type RequestLimits {
     int maxUriLength = -1;
     int maxHeaderSize = -1;
     int maxEntityBodySize = -1;
-}
+};
 
 @Description {value:"Configuration for HTTP service endpoint"}
 @Field {value:"host: Host of the service"}
@@ -113,7 +113,7 @@ public type ServiceEndpointConfiguration {
     string httpVersion = "1.1",
     RequestLimits? requestLimits,
     Filter[] filters,
-}
+};
 
 @Description {value:"SecureSocket struct represents SSL/TLS options to be used for HTTP service"}
 @Field {value:"trustStore: TrustStore related options"}
@@ -133,7 +133,7 @@ public type ServiceSecureSocket {
     string sslVerifyClient,
     boolean sessionCreation = true,
     ServiceOcspStapling? ocspStapling,
-}
+};
 
 public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
 
@@ -211,4 +211,4 @@ public type WebSocketEndpoint object {
     public function stop() {
         httpEndpoint.stop();
     }
-}
+};

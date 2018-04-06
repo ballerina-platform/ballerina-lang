@@ -25,8 +25,8 @@ import ballerina/runtime;
 @Description {value:"Authorization cache name"}
 @final string AUTHZ_CACHE = "authz_cache";
 
-permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-permissionstore:PermissionStore permissionStore = check (<permissionstore:PermissionStore> fileBasedPermissionstore);
+permissionstore:FileBasedPermissionStore fileBasedPermissionstore = new;
+permissionstore:PermissionStore permissionStore = check <permissionstore:PermissionStore> fileBasedPermissionstore;
 @Description {value:"AuthorizationChecker instance"}
 authz:AuthzChecker authzChecker = authz:createChecker(permissionStore, utils:createCache(AUTHZ_CACHE));
 
@@ -39,9 +39,10 @@ public type HttpAuthzHandler object {
     new () {
         name = "default";
     }
-    public function canHandle (Request req) returns (boolean)
+    public function canHandle (Request req) returns (boolean);
+
     public function handle (Request req, string[] scopes, string resourceName) returns (boolean);
-}
+};
 
 @Description {value:"Performs a authorization check, by comparing the groups of the user and the groups of the scope"}
 @Param {value:"req: Request instance"}

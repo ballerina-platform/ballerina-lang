@@ -114,7 +114,7 @@ public type RequestCacheControl object {
 
         return buildCommaSeparatedString(directives);
     }
-}
+};
 
 @Description {value:"Cache control directives configuration for responses"}
 @Field {value:"mustRevalidate: Represents the must-revalidate directive"}
@@ -127,7 +127,7 @@ public type RequestCacheControl object {
 @Field {value:"sMaxAge: Represents the s-maxage directive"}
 @Field {value:"noCacheFields: Optional fields for no-cache directive. If sending any of the listed fields in a response, they must validated with the origin server."}
 @Field {value:"privateFields: Optional fields for private directive. A cache can omit the fields specified and store the rest of the response."}
-public struct ResponseCacheControl {
+public type ResponseCacheControl object {
     public {
         boolean mustRevalidate = false;
         boolean noCache = false;
@@ -147,51 +147,51 @@ public struct ResponseCacheControl {
         string[] directives = [];
         int i = 0;
 
-        if (cacheControl.mustRevalidate) {
+        if (self.mustRevalidate) {
             directives[i] = MUST_REVALIDATE;
             i = i + 1;
         }
 
-        if (cacheControl.noCache) {
-            directives[i] = NO_CACHE + appendFields(cacheControl.noCacheFields);
+        if (self.noCache) {
+            directives[i] = NO_CACHE + appendFields(self.noCacheFields);
             i = i + 1;
         }
 
-        if (cacheControl.noStore) {
+        if (self.noStore) {
             directives[i] = NO_STORE;
             i = i + 1;
         }
 
-        if (cacheControl.noTransform) {
+        if (self.noTransform) {
             directives[i] = NO_TRANSFORM;
             i = i + 1;
         }
 
-        if (cacheControl.isPrivate) {
-            directives[i] = PRIVATE + appendFields(cacheControl.privateFields);
+        if (self.isPrivate) {
+            directives[i] = PRIVATE + appendFields(self.privateFields);
         } else {
             directives[i] = PUBLIC;
         }
         i = i + 1;
 
-        if (cacheControl.proxyRevalidate) {
+        if (self.proxyRevalidate) {
             directives[i] = PROXY_REVALIDATE;
             i = i + 1;
         }
 
-        if (cacheControl.maxAge >= 0) {
-            directives[i] = MAX_AGE + "=" + cacheControl.maxAge;
+        if (self.maxAge >= 0) {
+            directives[i] = MAX_AGE + "=" + self.maxAge;
             i = i + 1;
         }
 
-        if (cacheControl.sMaxAge >= 0) {
-            directives[i] = S_MAX_AGE + "=" + cacheControl.sMaxAge;
+        if (self.sMaxAge >= 0) {
+            directives[i] = S_MAX_AGE + "=" + self.sMaxAge;
             i = i + 1;
         }
 
         return buildCommaSeparatedString(directives);
     }
-}
+};
 
 function Request::parseCacheControlHeader () {
     self.cacheControl = {};

@@ -21,18 +21,26 @@ import ballerina/security.crypto;
 
 @Description {value:"Represents the file-based user store"}
 public type FilebasedUserstore object {
-    public function authenticate (string username, string password) returns (boolean);
-    public function readGroupsOfUser (string username) returns (string[]);
-}
+    
+    @Description {value:"Attempts to authenticate with username and password"}
+    @Param {value:"username: user name"}
+    @Param {value:"password: password"}
+    @Return {value:"boolean: true if authentication is a success, else false"}
+    public function authenticate (string user, string password) returns (boolean) {
+        string passwordHash = readPasswordHash(user);
+        return passwordHash == crypto:getHash(password, crypto:Algorithm.SHA256);
+    }
 
-@Description {value:"Attempts to authenticate with username and password"}
-@Param {value:"username: user name"}
-@Param {value:"password: password"}
-@Return {value:"boolean: true if authentication is a success, else false"}
-public function FilebasedUserstore::authenticate (string user, string password) returns (boolean) {
-    string passwordHash = readPasswordHash(user);
-    return passwordHash == crypto:getHash(password, crypto:Algorithm.SHA256);
-}
+    @Description {value:"Reads the groups for a user"}
+    @Param {value:"string: username"}
+    @Return {value:"string[]: array of groups for the user denoted by the username"}
+    public function readGroupsOfUser (string username) returns (string[]) {
+        // first read the user id from user->id mapping
+        // reads the groups for the userid
+        return getGroupsArray(getUserstoreConfigValue(readUserId(username), "groups"));
+    }
+};
+
 
 @Description {value:"Reads the password hash for a user"}
 @Param {value:"string: username"}
@@ -50,23 +58,13 @@ public function readUserId (string username) returns (string) {
     return getUserstoreConfigValue(username, "userid");
 }
 
-@Description {value:"Reads the groups for a user"}
-@Param {value:"string: username"}
-@Return {value:"string[]: array of groups for the user denoted by the username"}
-public function FilebasedUserstore::readGroupsOfUser (string username) returns (string[]) {
-    // first read the user id from user->id mapping
-    // reads the groups for the userid
-    return getGroupsArray(getUserstoreConfigValue(readUserId(username), "groups"));
-}
-
 function getUserstoreConfigValue (string instanceId, string property) returns (string) {
     match config:getAsString(instanceId + "." + property) {
         string value => {
             return value == () ? "" : value;
         }
-        () => return "";
+        () => { return ""; }
     }
-    return "";
 }
 
 @Description {value:"Construct an array of groups from the comma separed group string passed"}

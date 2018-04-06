@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
@@ -179,6 +180,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
+import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
 
 /**
  * @since 0.94
@@ -1214,6 +1216,15 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
+    public void visit(BLangElvisExpr elvisExpr) {
+        BLangMatchExpression matchExpr = ASTBuilderUtil.createMatchExpression(elvisExpr.lhsExpr);
+        matchExpr.patternClauses.add(getMatchNullPatternGivenExpression(elvisExpr.pos,
+                rewriteExpr(elvisExpr.rhsExpr)));
+        matchExpr.type = elvisExpr.type;
+        matchExpr.pos = elvisExpr.pos;
+        result = rewriteExpr(matchExpr);
+    }
+
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         if (bracedOrTupleExpr.isBracedExpr) {
@@ -1350,13 +1361,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.exprs = rewriteExprs(workerSendNode.exprs);
+        workerSendNode.expr = rewriteExpr(workerSendNode.expr);
         result = workerSendNode;
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.exprs = rewriteExprs(workerReceiveNode.exprs);
+        workerReceiveNode.expr = rewriteExpr(workerReceiveNode.expr);
         result = workerReceiveNode;
     }
 
@@ -2444,6 +2455,21 @@ public class Desugar extends BLangNodeVisitor {
         errorPattern.expr = ASTBuilderUtil.createVariableRef(pos, errorPatternVar.symbol);
         errorPattern.pos = pos;
         return errorPattern;
+    }
+
+    private BLangMatchExprPatternClause getMatchNullPatternGivenExpression(DiagnosticPos pos,
+                                                                           BLangExpression expr) {
+        String nullPatternVarName = IGNORE.toString();
+        BLangVariable errorPatternVar = ASTBuilderUtil.createVariable(pos, nullPatternVarName, symTable.nilType, null,
+                new BVarSymbol(0, names.fromString(nullPatternVarName), this.env.scope.owner.pkgID, symTable.nilType,
+                        this.env.scope.owner));
+
+        BLangMatchExprPatternClause nullPattern =
+                (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
+        nullPattern.variable = errorPatternVar;
+        nullPattern.expr = expr;
+        nullPattern.pos = pos;
+        return nullPattern;
     }
 
     private BLangMatchExprPatternClause getMatchNullPattern(DiagnosticPos pos) {

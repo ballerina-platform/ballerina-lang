@@ -20,31 +20,31 @@ returns (string, string) {
         return (w1TaskId, w2TaskId);
     }
     worker w1 {
-        function () returns (error|null) onTriggerFunction = onTriggerW1;
+        (function() returns error?) onTriggerFunction = onTriggerW1;
         string w1TaskIdX;
         io:println("errMsgW1: " + errMsgW1);
         if (errMsgW1 == "") {
-            w1TaskIdX =? task:scheduleTimer(onTriggerFunction, null, {delay:w1Delay, interval:w1Interval});
+            w1TaskIdX = task:scheduleTimer(onTriggerFunction, (), {delay:w1Delay, interval:w1Interval});
         } else {
             function (error) onErrorFunction = onErrorW1;
-            w1TaskIdX =? task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:w1Delay, interval:w1Interval});
+            w1TaskIdX = task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:w1Delay, interval:w1Interval});
         }
         w1TaskIdX -> default;
     }
     worker w2 {
-        function () returns (error|null) onTriggerFunction = onTriggerW2;
+        (function() returns error?) onTriggerFunction = onTriggerW2;
         string w2TaskIdX;
         if (errMsgW2 == "") {
-            w2TaskIdX =? task:scheduleTimer(onTriggerFunction, null, {delay:w2Delay, interval:w2Interval});
+            w2TaskIdX = task:scheduleTimer(onTriggerFunction, (), {delay:w2Delay, interval:w2Interval});
         } else {
             function (error) onErrorFunction = onErrorW2;
-            w2TaskIdX =? task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:w2Delay, interval:w2Interval});
+            w2TaskIdX = task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:w2Delay, interval:w2Interval});
         }
         w2TaskIdX -> default;
     }
 }
 
-function onTriggerW1 () returns (error|null) {
+function onTriggerW1 () returns error? {
     w1Count = w1Count + 1;
     io:println("w1:onTriggerW1");
     if (errorMsgW1 != "") {
@@ -52,7 +52,7 @@ function onTriggerW1 () returns (error|null) {
         error e = {message:errorMsgW1};
         return e;
     }
-    return null;
+    return;
 }
 
 function onErrorW1 (error e) {
@@ -60,7 +60,7 @@ function onErrorW1 (error e) {
     errorW1 = e;
 }
 
-function onTriggerW2 () returns (error|null) {
+function onTriggerW2 () returns error? {
     w2Count = w2Count + 1;
     io:println("w2:onTriggerW2");
     if (errorMsgW2 != "") {
@@ -68,7 +68,7 @@ function onTriggerW2 () returns (error|null) {
         error e = {message:errorMsgW2};
         return e;
     }
-    return null;
+    return;
 }
 
 function onErrorW2 (error e) {
@@ -92,14 +92,16 @@ function getErrors () returns (string, string) {
     return (w1ErrMsg, w2ErrMsg);
 }
 
-function stopTasks (string w1TaskId, string w2TaskId) returns (error, error) {
-    error w1StopError = task:stopTask(w1TaskId);
-    if (w1StopError == null) {
-        w1Count = -1;
+function stopTasks (string w1TaskId, string w2TaskId) returns (error?, error?) {
+    error? w1StopError = task:stopTask(w1TaskId);
+    match w1StopError {
+        error err => {}
+        () => w1Count = -1;
     }
-    error w2StopError = task:stopTask(w2TaskId);
-    if (w2StopError == null) {
-        w2Count = -1;
+    error? w2StopError = task:stopTask(w2TaskId);
+    match w2StopError {
+        error err => {}
+        () => w2Count = -1;
     }
     return (w1StopError, w2StopError);
 }

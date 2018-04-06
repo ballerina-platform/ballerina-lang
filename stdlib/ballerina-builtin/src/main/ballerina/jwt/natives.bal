@@ -32,16 +32,16 @@ package ballerina.jwt;
 @final string IAT = "iat";
 
 @Description {value:"Represents a JWT header"}
-public struct Header {
+public type Header {
     string alg;
     string typ;
     string cty;
     string kid;
     map customClaims;
-}
+};
 
 @Description {value:"Represents a JWT payload"}
-public struct Payload {
+public type Payload {
     string iss;
     string sub;
     string[] aud;
@@ -50,4 +50,4 @@ public struct Payload {
     int nbf;
     int iat;
     map customClaims;
-}
+};

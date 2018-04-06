@@ -32,7 +32,6 @@ import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -220,7 +219,7 @@ public class TextDocumentServiceUtil {
         }
         LSPackageCache globalPackageCache = LSPackageCache.getInstance();
         globalPackageCache.removePackage(new PackageID(packageName));
-        PackageCache.setInstance(globalPackageCache.getPackageCache(), context);
+//        PackageCache.setInstance(globalPackageCache.getPackageCache(), context);
         return context;
     }
 

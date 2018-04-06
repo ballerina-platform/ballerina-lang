@@ -55,7 +55,7 @@ function testNullableTypeBasics2() returns (int | boolean | ()) {
   match i {
           int => io:println("int");
           boolean => io:println("boolean");
-          any | null a => io:println(a);
+          any | () a => io:println(a);
   }
 
   return i;
