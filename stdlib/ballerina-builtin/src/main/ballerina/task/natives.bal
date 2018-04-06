@@ -22,9 +22,8 @@ package ballerina.task;
 @Param {value:"schedule: Specifies the initial delay and interval of the timer task"}
 @Return {value:"The unique ID of the timer task that was scheduled"}
 @Return {value:"This error will be returned if an occurs while scheduling the timer task"}
-public native function scheduleTimer ((function() returns error?) onTrigger,
-                                      (function(error) returns ())? onError,
-                                      {int delay = 0; int interval;} schedule) returns string;
+public native function scheduleTimer (function () returns (error?) onTrigger, function (error?) onError,
+                                      {int delay = 0; int interval;} schedule) returns (string|error);
 
 @Description {value:"Schedules an appointment task"}
 @Param {value:"onTrigger: The function which gets called when the appointment falls due"}
@@ -32,11 +31,9 @@ public native function scheduleTimer ((function() returns error?) onTrigger,
 @Param {value:"scheduleCronExpression: Specifies the Cron expression of the schedule"}
 @Return {value:"The unique ID of the appointment task that was scheduled"}
 @Return {value:"This error will be returned if an occurs while scheduling the appointment task"}
-public native function scheduleAppointment ((function () returns error?) onTrigger,
-                                            (function(error) returns ())? onError,
-                                            string scheduleCronExpression) returns string;
-
+public native function scheduleAppointment (function () returns (error?) onTrigger, function (error?) onError,
+                                            string scheduleCronExpression) returns (string|error);
 @Description {value:"Stops the timer task with ID taskID"}
 @Param {value:"taskID: The unique ID of the timer task that has to be stopped"}
 @Return {value:"This error will be returned if an error occurs while stopping the task"}
-public native function stopTask (string taskID) returns error?;
+public native function stopTask (string taskID) returns (error?);
