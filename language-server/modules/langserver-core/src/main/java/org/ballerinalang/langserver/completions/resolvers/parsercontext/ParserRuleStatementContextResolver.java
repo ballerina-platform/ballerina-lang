@@ -49,7 +49,8 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
         } else {
             filteredSymbols.addAll(SymbolFilters.getFilterByClass(ConnectorInitExpressionItemFilter.class)
                     .filterItems(completionContext));
-            filteredSymbols.addAll(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+            filteredSymbols.addAll(this.removeInvalidStatementScopeSymbols(completionContext
+                    .get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
             completionItems.addAll(SymbolFilters.getFilterByClass(StatementTemplateFilter.class)
                     .filterItems(completionContext));
 

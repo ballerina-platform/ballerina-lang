@@ -90,7 +90,7 @@ public type RedirectCode 300 | 301 | 302 | 303 | 304 | 305 | 307;
 @Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
 @Return {value:"Returns null if any error does not exist."}
 public function Connection::respondContinue () returns (HttpConnectorError | ()) {
-    Response res;
+    Response res = new;
     res.statusCode = CONTINUE_100;
     return self.respond(res);
 }
