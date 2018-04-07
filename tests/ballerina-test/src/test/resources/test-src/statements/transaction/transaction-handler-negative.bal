@@ -1,4 +1,4 @@
-function testTransactionCommitAfterFailureWithAllHandlers () {
+function testTransactionHandlers () {
     int i = 0;
     try {
         transaction with retries=4, oncommit=commitFunction, onabort=abortFunction {
@@ -23,7 +23,7 @@ function abortFunction(int transactionid) {
 }
 
 
-function testTransactionCommitAfterFailureWithAllHandlers2 () {
+function testTransactionHandlers2 () {
     int i = 0;
     try {
         transaction with retries=4, oncommit=commitFunction2, onabort=abortFunction2 {
@@ -48,7 +48,7 @@ function abortFunction2(string transactionid, string x) {
 }
 
 
-function testTransactionCommitAfterFailureWithAllHandlers3 () {
+function testTransactionHandlers3 () {
     int i = 0;
     try {
         transaction with retries=4, oncommit=commitFunction3, onabort=abortFunction3 {
@@ -65,7 +65,7 @@ function testTransactionCommitAfterFailureWithAllHandlers3 () {
 
 int a = 10;
 string x = "hello";
-function testTransactionCommitAfterFailureWithAllHandlers4 () {
+function testTransactionHandlers4 () {
     int i = 0;
     try {
         transaction with retries=4, oncommit=a, onabort=x {

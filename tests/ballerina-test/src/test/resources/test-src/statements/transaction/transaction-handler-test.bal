@@ -1,5 +1,4 @@
 import ballerina/transactions;
-import ballerina/io;
 
 public type TrxError {
     string message;
@@ -36,7 +35,6 @@ function testTransactionStmtCommitWithCommitHandler () returns (string) {
     try {
         transaction with oncommit=commitFunction{
             string id = transactions:getCurrentTransactionId();
-            io:println("ssssssssssssssssssssssss:" +  id);
             a = a + " inTrx";
             int i = 0;
             a = a + " endTrx";
