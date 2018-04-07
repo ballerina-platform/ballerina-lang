@@ -26,9 +26,9 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.sorters.DefaultItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
-import org.ballerinalang.model.AnnotationAttachment;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,23 +46,29 @@ public class TopLevelResolver extends AbstractItemResolver {
         AbstractItemResolver errorContextResolver = parserRuleContext == null ? null :
                 CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
 
-        boolean noAt = findPreviousToken(completionContext, "@", 5) < 0;
-        if (noAt && (errorContextResolver == null || errorContextResolver == this)) {
-            addTopLevelItems(completionItems);
+        if (parserRuleContext instanceof BallerinaParser.ServiceBodyContext) {
+            // NOTE: This is a special case for annotations in resource only
+            completionItems.addAll(errorContextResolver.resolveItems(completionContext));
+            return completionItems;
         }
-        if (errorContextResolver instanceof PackageNameContextResolver) {
-            completionItems.addAll(errorContextResolver.resolveItems(completionContext));
-        } else if (errorContextResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
-            addTopLevelItems(completionItems);
-            completionItems.addAll(errorContextResolver.resolveItems(completionContext));
-        } else if (errorContextResolver instanceof ParserRuleTypeNameContextResolver) {
-            addTopLevelItems(completionItems);
-            completionItems.addAll(errorContextResolver.resolveItems(completionContext));
+
+        boolean isAnnotation = this.isAnnotationContext(completionContext);
+        if (isAnnotation) {
+            completionItems.addAll(CompletionItemResolver
+                    .getResolverByClass(AnnotationAttachmentResolver.class).resolveItems(completionContext));
         } else {
-            completionItems.addAll(
-                    CompletionItemResolver
-                            .getResolverByClass(AnnotationAttachment.class).resolveItems(completionContext)
-            );
+            if (errorContextResolver == null || errorContextResolver == this) {
+                addTopLevelItems(completionItems);
+            }
+            if (errorContextResolver instanceof PackageNameContextResolver) {
+                completionItems.addAll(errorContextResolver.resolveItems(completionContext));
+            } else if (errorContextResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
+                addTopLevelItems(completionItems);
+                completionItems.addAll(errorContextResolver.resolveItems(completionContext));
+            } else if (errorContextResolver instanceof ParserRuleTypeNameContextResolver) {
+                addTopLevelItems(completionItems);
+                completionItems.addAll(errorContextResolver.resolveItems(completionContext));
+            }
         }
 
         ItemSorters.getSorterByClass(DefaultItemSorter.class).sortItems(completionContext, completionItems);

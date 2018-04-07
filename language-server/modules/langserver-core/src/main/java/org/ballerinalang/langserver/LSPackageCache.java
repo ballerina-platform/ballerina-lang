@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -91,10 +90,8 @@ public class LSPackageCache {
      * @param bLangPackage ballerina package to be added.
      */
     void addPackage(PackageID packageID, BLangPackage bLangPackage) {
-        if (bLangPackage != null && bLangPackage.getPackageDeclaration() == null) {
-            //TODO check whether getPackageDeclaration() is needed
-            this.packageCache.put(new PackageID(Names.DOT.value), bLangPackage);
-        } else {
+        if (bLangPackage != null) {
+            bLangPackage.packageID = packageID;
             this.packageCache.put(packageID, bLangPackage);
         }
     }
