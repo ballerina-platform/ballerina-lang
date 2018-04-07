@@ -521,6 +521,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     private String getTempFileIdOrNull(String filePath) {
         Matcher pkgMatcher = untitledFilePattern.matcher(filePath);
-        return (pkgMatcher.find()) ? pkgMatcher.group(1): null;
+        return (pkgMatcher.find()) ? pkgMatcher.group(1) : null;
     }
 }
