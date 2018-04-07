@@ -973,10 +973,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (transactionNode.onCommitFunction != null) {
             typeChecker.checkExpr(transactionNode.onCommitFunction, env, symTable.noType);
+            checkTransactionHandlerValidity(transactionNode.onCommitFunction);
         }
 
         if (transactionNode.onAbortFunction != null) {
             typeChecker.checkExpr(transactionNode.onAbortFunction, env, symTable.noType);
+            checkTransactionHandlerValidity(transactionNode.onAbortFunction);
         }
     }
 
@@ -1607,6 +1609,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         if (error) {
             this.dlog.error(retryCountExpr.pos, DiagnosticCode.INVALID_RETRY_COUNT);
+        }
+    }
+
+    private void checkTransactionHandlerValidity(BLangExpression transactionHanlder) {
+        if (transactionHanlder != null) {
+            if (transactionHanlder.type.tag == TypeTags.INVOKABLE) {
+                BInvokableType handlerType = (BInvokableType) transactionHanlder.type;
+                int parameterCount = handlerType.paramTypes.size();
+                if (parameterCount != 1) {
+                    dlog.error(transactionHanlder.pos, DiagnosticCode.INVALID_TRANSACTION_HANDLER_ARGS);
+                }
+                if (handlerType.paramTypes.get(0).tag != TypeTags.STRING) {
+                    dlog.error(transactionHanlder.pos, DiagnosticCode.INVALID_TRANSACTION_HANDLER_ARGS);
+                }
+            } else {
+                dlog.error(transactionHanlder.pos, DiagnosticCode.LAMBDA_REQUIRED_FOR_TRANSACTION_HANDLER);
+            }
         }
     }
 
