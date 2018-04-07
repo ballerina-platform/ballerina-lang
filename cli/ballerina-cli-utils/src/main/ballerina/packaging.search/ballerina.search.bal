@@ -14,7 +14,8 @@ function search (string url, string querySearched) {
                     filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 },
-                hostNameVerification:false
+                verifyHostname:false,
+                shareSession: true
                 }
             }  
         ]
@@ -35,7 +36,7 @@ function search (string url, string querySearched) {
             io:println("Ballerina Central");
             printInCLI("NAME", 30);
             printInCLI("DESCRIPTION", 40);
-            printInCLI("AUTHOR", 25);
+            printInCLI("AUTHOR", 40);
             printInCLI("DATE", 20);
             printInCLI("VERSION", 15);
             io:println("");
@@ -53,7 +54,7 @@ function search (string url, string querySearched) {
                 string authors = (jsonElement.authors.toString() but {()=> ""});
                 printInCLI(authors, 40);
 
-                json createTimeJson = jsonElement.createdDate but {()=> null};
+                json createTimeJson = <json>jsonElement.createdDate;
                 printInCLI(getDateCreated(createTimeJson), 20);
                 
                 string packageVersion = (jsonElement.packageVersion.toString() but {()=> ""});
@@ -84,7 +85,7 @@ function printInCLI(string element, int charactersAllowed) {
 }
 
 function getDateCreated(json jsonObj) returns string {
-    int timeInMillis = <int>(jsonObj.createdDate.time but {()=>0});
+    int timeInMillis = <int>(jsonObj.time but {()=>0});
     time:Time timeStruct = new(timeInMillis, {zoneId:"UTC",zoneOffset:0});
     string customTimeString = timeStruct.format("yyyy-MM-dd-E");
     return customTimeString;

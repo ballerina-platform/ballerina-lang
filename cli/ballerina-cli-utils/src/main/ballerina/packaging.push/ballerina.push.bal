@@ -5,7 +5,8 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 
-function pushPackage (string accessToken, string url, string dirPath, string msg) {
+function pushPackage (string accessToken, string mdFileContent, string summary, string homePageURL, string repositoryURL,
+    string apiDocURL, string authors, string keywords, string license, string url, string dirPath, string msg) {
     endpoint http:ClientEndpoint httpEndpoint {
         targets: [
         {
@@ -15,63 +16,63 @@ function pushPackage (string accessToken, string url, string dirPath, string msg
                     filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 },
-                hostNameVerification:false,
-                sessionCreation: true
+                verifyHostname:false,
+                shareSession: true
             }
         }
         ]
     };
-    io:println("11");
+
+    mime:Entity mdFileContentBodyPart = addStringBodyParts("description", mdFileContent);
+    mime:Entity summaryBodyPart = addStringBodyParts("summary", summary);
+    mime:Entity homePageURLBodyPart = addStringBodyParts("websiteURL", homePageURL);
+    mime:Entity repositoryURLBodyPart = addStringBodyParts("repositoryURL", repositoryURL);
+    mime:Entity apiDocURLBodyPart = addStringBodyParts("apiDocURL", apiDocURL);
+    mime:Entity authorsBodyPart = addStringBodyParts("authors", authors);
+    mime:Entity keywordsBodyPart = addStringBodyParts("keywords", keywords);
+    mime:Entity licenseBodyPart = addStringBodyParts("license", license);
+
+    // Artifact
     mime:Entity filePart = new;
     mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     filePart.contentType = contentTypeOfFilePart;
+    filePart.contentDisposition = getContentDispositionForFormData("artifact");
     file:Path filePath = file:getPath(dirPath);
     filePart.setFileAsEntityBody(filePath);
-    mime:Entity[] bodyParts = [filePart];
-    io:println("22");
+
+    mime:Entity[] bodyParts = [filePart, mdFileContentBodyPart, summaryBodyPart, homePageURLBodyPart, repositoryURLBodyPart,
+                                           apiDocURLBodyPart, authorsBodyPart, keywordsBodyPart, licenseBodyPart];
     http:Request req = new;
-    // http:Response res = new;
     req.addHeader("Authorization", "Bearer " + accessToken);
     req.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
-    io:println("33");
-    // http:Response httpResponse = check (httpEndpoint -> post("", req));
+    
     var result = httpEndpoint -> post("", req);
-    io:println("44");
     http:Response httpResponse = check result;
-
-    // match httpResponse {
-    //  http:HttpConnectorError errRes => {
-    //      var errorResp = <error> errRes;
-    //      match errorResp {
-    //          error err =>  throw err;
-    //      }
-    //  }
-    //  http:Response response => res = response;
-    // }
-    io:println(httpResponse);
     if (httpResponse.statusCode != 200) {
-        io:println("55");
-        // io:println(httpResponse.getJsonPayload());
         json jsonResponse = check (httpResponse.getJsonPayload());
         string message = (jsonResponse.message.toString() but {()=> "error occurred when pushing the package"});
         io:println(message);
-        // match jsonResponse {
-        //     mime:EntityError errRes => {
-        //         var errorResp = <error> errRes;
-        //         match errorResp {
-        //             error err =>  throw err;
-        //         }
-        //     }  
-        //     json jsonObj => io:println(jsonObj.msg.toString());            
-        // }
     } else {
         io:println(msg);
     }
 }
 
 function main (string[] args) {
-    // pushPackage(args[0], args[1], args[2], args[3]);
-    pushPackage("", "https://api.staging-central.ballerina.io/packages/natasha/hello/3.0.0", 
-    "/home/natasha/Documents/workspace/mysimpleproj/.ballerina/repo/$anon/hello/3.0.0/hello.zip","Successful");
+    pushPackage(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
+}
 
+function getContentDispositionForFormData(string partName) returns (mime:ContentDisposition){
+    mime:ContentDisposition contentDisposition = new;
+    contentDisposition.name =  partName;
+    contentDisposition.disposition = "form-data";
+    return contentDisposition;
+}
+
+function addStringBodyParts (string key, string value) returns (mime:Entity) {
+    mime:Entity stringBodyPart = new;
+    mime:MediaType contentTypeOfStringPart = mime:getMediaType(mime:TEXT_PLAIN);
+    stringBodyPart.contentType = contentTypeOfStringPart;
+    stringBodyPart.contentDisposition = getContentDispositionForFormData(key);
+    stringBodyPart.setText(value);
+    return stringBodyPart;
 }

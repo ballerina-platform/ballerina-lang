@@ -15,95 +15,55 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
                     filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 },
-                hostNameVerification:false,
-                sessionCreation: true
+                verifyHostname:false,
+                shareSession: true
              }
         }
-        ],
-        followRedirects : { enabled : true, maxCount : 5 }
+        ]
+        // followRedirects : { enabled : true, maxCount : 5 }
     };
-    io:println("11");
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
     http:Request req = new;
-    // http:Response res = new;
     req.addHeader("Accept-Encoding", "identity");
-
-    io:println("22");
     
-    //http:Response httpResponse = check (httpEndpoint -> get("", req));
-
     var result = httpEndpoint -> get("", req);
-     io:println("33");
     http:Response httpResponse = check result;
 
-     io:println(httpResponse);
-
-    // match httpResponse {
-    //  http:HttpConnectorError errRes => {
-    //      var errorResp = <error> errRes;
-    //      match errorResp {
-    //          error err =>  throw err;
-    //      }
-    //  }
-    //  http:Response response => res = response;
-    // }
-    if (httpResponse.statusCode != 200) {
-        json jsonResponse = check (httpResponse.getJsonPayload());
-        string message = (jsonResponse.msg.toString() but {()=> "error occurred when pulling the package"});
+    http:Response res = new;   
+    // To be fixed with redirect
+    if (httpResponse.statusCode == 302){ 
+        string locationHeader;
+        if (httpResponse.hasHeader("Location")) {
+            locationHeader = httpResponse.getHeader("Location");
+        } else {
+            error err = {message:"package location information is missing from the remote repository"};
+            throw err;
+        }
+        res = callFileServer(locationHeader);
+    } else {
+       error err = {message:"error occurred when pulling the package"};
+       throw err;     
+    }    
+    if (res.statusCode != 200) {
+        json jsonResponse = check (res.getJsonPayload());
+        string message = (jsonResponse.message.toString() but {()=> "error occurred when pulling the package"});
         io:println(message);
-        // io:println(jsonResponse.msg.toString());
-        // match jsonResponse {
-        //     mime:EntityError errRes => {
-        //         var errorResp = <error> errRes;
-        //         match errorResp {
-        //             error err =>  throw err;
-        //         }
-        //     }
-        //     json jsonObj => io:println(jsonObj.msg.toString());
-        // }
     } else {
         string contentLengthHeader;
-        if (httpResponse.hasHeader("content-length")) {
-            contentLengthHeader = httpResponse.getHeader("content-length");
+        if (res.hasHeader("content-length")) {
+            contentLengthHeader = res.getHeader("content-length");
         } else {
             error err = {message:"package size information is missing from the remote repository"};
             throw err;
         }
-        // int pkgSize;
         int pkgSize = check <int> contentLengthHeader;
-        // match conversion{
-        //     error conversionErr => throw conversionErr;
-        //     int size => pkgSize = size;
-        // }
-        // io:ByteChannel sourceChannel = {};
-        io:ByteChannel sourceChannel = check (httpResponse.getByteChannel());
-        io:println("44");
-        // match srcChannel {
-        //     mime:EntityError errRes => {
-        //         var errorResp = <error> errRes;
-        //         match errorResp {
-        //             error err =>  throw err;
-        //         }
-        //     }
-        //     io:ByteChannel channel => sourceChannel = channel;
-        // }
-
-        // Get the package version from the canonical header of the response
-        // string linkHeaderVal;
-        // if (httpResponse.hasHeader("Link")) {
-        //     linkHeaderVal = httpResponse.getHeader("Link");
-        // } else {
-        //     error err = {message:"package version information is missing from the remote repository"};
-        //     throw err;
-        // }
-       
-        // string canonicalLinkURL = linkHeaderVal.subString(linkHeaderVal.indexOf("<") + 1, linkHeaderVal.indexOf(">"));
-        // string pkgVersion = canonicalLinkURL.subString(canonicalLinkURL.lastIndexOf("/") + 1, canonicalLinkURL.length());
-
+    
+        io:ByteChannel sourceChannel = check (res.getByteChannel());
+    
         string rawPathVal;
-        if (httpResponse.hasHeader("raw-path")) {
-            rawPathVal = httpResponse.getHeader("raw-path");
+        if (res.hasHeader("raw-path")) {
+            rawPathVal = res.getHeader("raw-path");
          } else {
              error err = {message:"package version information is missing from the remote repository"};
              throw err;
@@ -117,7 +77,6 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
              error err = {message:"package version information is missing from the remote repository"};
              throw err;
          }
-        // string pkgVersion = rawPathVal.subString(indexOfVersion + 1, rawPathVal.length()); // 
 
         string pkgName = fullPkgPath.subString(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
         fullPkgPath = fullPkgPath + ":" + pkgVersion;
@@ -133,24 +92,14 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
         io:ByteChannel destDirChannel = getFileChannel(destArchivePath, "w");
         string toAndFrom = " [central.ballerina.io -> home repo]";
 
-        io:println("55");
-        
-        // io:IOError destDirChannelCloseError = new;
-        // io:IOError srcCloseError = new;
-
         copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom);
-        // if (destDirChannel != null) {
         _ = destDirChannel.close();
-        // }
         _ = sourceChannel.close();
     }
 }
 
 public function main(string[] args){
-    // pullPackage(args[0], args[1], args[2], args[3]);
-    pullPackage("https://api.staging-central.ballerina.io/packages/natasha/hello/3.0.0", 
-    "/home/natasha/Desktop/package/hello", "natasha/hello", "/");
-
+    pullPackage(args[0], args[1], args[2], args[3]);
 }
 
 
@@ -163,32 +112,11 @@ function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, in
     blob bytes;
     int numberOfBytesRead;
     (bytes, numberOfBytesRead) = check (channel.read(numberOfBytes));
-    // match bytesRead {
-    //     (blob, int) byteResponse => {
-    //         (bytes, numberOfBytesRead) = byteResponse;
-    //     }
-    //     io:IOError errRes => {
-    //             var errorResp = <error> errRes;
-    //             match errorResp {
-    //                 error err =>  throw err;
-    //             }
-    //     }
-    // }
     return (bytes, numberOfBytesRead);
 }
 
 function writeBytes (io:ByteChannel channel, blob content, int startOffset) returns (int) {
-    // int numberOfBytesWritten;
     int numberOfBytesWritten = check (channel.write(content, startOffset));
-    // match bytesWritten {
-    //     io:IOError errRes => {
-    //             var errorResp = <error> errRes;
-    //             match errorResp {
-    //                 error err =>  throw err;
-    //             }
-    //     }
-    //     int noOfBytes => numberOfBytesWritten = noOfBytes;
-    // }
     return numberOfBytesWritten;
 }
 
@@ -269,4 +197,26 @@ function createDirectories(string directoryPath) returns (boolean) {
     } else {
         return false;
     }
+}
+
+function callFileServer(string url) returns http:Response {
+    endpoint http:ClientEndpoint httpEndpoint {
+        targets: [
+        {
+            url: url,
+            secureSocket: {
+                trustStore: {
+                    filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                    password: "ballerina"
+                },
+                verifyHostname:false,
+                shareSession: true
+             }
+        }
+        ]    
+    };
+    http:Request req = new;
+    var result = httpEndpoint -> get("", req);
+    http:Response httpResponse = check result;
+    return httpResponse;
 }
