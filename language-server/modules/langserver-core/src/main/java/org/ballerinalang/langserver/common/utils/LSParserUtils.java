@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -120,14 +119,17 @@ public class LSParserUtils {
         if (UNTITLED_BAL.equals(tempFileId)) {
             return Paths.get(tempFolder.toString(), tempFileId);
         }
-        tempFileId += ProjectDirConstants.BLANG_SOURCE_EXT;
-        File untitledBal = new File(Paths.get(tempFolder.toString(), tempFileId).toString());
-        try {
-            untitledBal.createNewFile();
-        } catch (IOException e) {
-            logger.error("Unable to create untitled project directory, unsaved files might not work properly.");
+        File tempInnerFolder = new File(Paths.get(tempFolder.toString(), tempFileId).toString());
+        File untitledBal = new File(Paths.get(tempInnerFolder.toString(), UNTITLED_BAL).toString());
+        if (!untitledBal.exists()) {
+            try {
+                tempInnerFolder.mkdir();
+                untitledBal.createNewFile();
+            } catch (IOException e) {
+                logger.error("Unable to create untitled project directory, unsaved files might not work properly.");
+            }
         }
-        return Paths.get(tempFolder.toString(), tempFileId);
+        return Paths.get(tempInnerFolder.toString(), UNTITLED_BAL);
     }
 
     /**
