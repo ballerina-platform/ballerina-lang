@@ -95,7 +95,8 @@ import java.util.regex.Pattern;
 class BallerinaTextDocumentService implements TextDocumentService {
     // indicates the frequency to send diagnostics to server upon document did change
     private static final int DIAG_PUSH_DEBOUNCE_DELAY = 500;
-    private static final Pattern tempUntitledFilePattern = Pattern.compile("\\/temp\\/(.*)\\/untitled.bal");
+    private static final Pattern untitledFilePattern =
+            Pattern.compile("^(?:file:\\/\\/)?\\/temp\\/(.*)\\/untitled.bal");
 
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
@@ -519,7 +520,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     private String getTempFileIdOrNull(String filePath) {
-        Matcher pkgMatcher = tempUntitledFilePattern.matcher(filePath);
+        Matcher pkgMatcher = untitledFilePattern.matcher(filePath);
 
         if (!pkgMatcher.find()) {
             return null;
