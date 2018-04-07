@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.96.0
  */
-@Test(groups = {"broken"})
 public class ForeachNegativeTests {
 
     @Test
