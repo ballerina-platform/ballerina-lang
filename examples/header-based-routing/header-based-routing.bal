@@ -8,7 +8,7 @@ endpoint http:ServiceEndpoint hbrEP {
 endpoint http:ClientEndpoint locationEP {
     targets: [
         {
-            uri: "http://www.mocky.io"
+            url: "http://www.mocky.io"
         }
     ]
 };
@@ -16,7 +16,7 @@ endpoint http:ClientEndpoint locationEP {
 endpoint http:ClientEndpoint weatherEP {
     targets: [
         {
-            uri: "http://samples.openweathermap.org"
+            url: "http://samples.openweathermap.org"
         }
     ]
 };
@@ -33,20 +33,20 @@ service<http:Service> headerBasedRouting bind hbrEP {
     }
     hbrResource (endpoint conn, http:Request req) {
         //Create new outbound request to handle client call.
-        http:Request newRequest = {};
+        http:Request newRequest = new;
         // Checks whether 'type' header exists in the request.
         if (!req.hasHeader("type")) {
-            http:Response errorResponse = {};
+            http:Response errorResponse = new;
             errorResponse.statusCode = 500;
             json errMsg = {"error":"'type' header not found"};
             errorResponse.setJsonPayload(errMsg);
             _ = conn -> respond(errorResponse);
-            return;
+            done;
         }
         //Native function getHeader() returns header value of a specified header name.
         string nameString = req.getHeader("type");
 
-        (http:Response|http:HttpConnectorError|null) response;
+        (http:Response|http:HttpConnectorError|()) response;
         if (nameString == "location") {
             //"post" represent the POST action of HTTP connector. Route payload to relevant service.
             response = locationEP -> post("/v2/594e12271100001f13d6d3a6", newRequest);
@@ -61,13 +61,13 @@ service<http:Service> headerBasedRouting bind hbrEP {
                 _ = conn -> forward(clientResponse);
             }
             http:HttpConnectorError err => {
-                http:Response errorResponse = {};
+                http:Response errorResponse = new;
                 errorResponse.statusCode = 500;
                 errorResponse.setStringPayload(err.message);
                 _ = conn -> respond(errorResponse);
             }
             any => {
-                http:Response errorResponse = {};
+                http:Response errorResponse = new;
                 errorResponse.statusCode = 500;
                 json errMsg = {"error":"unexpected response received"};
                 errorResponse.setJsonPayload(errMsg);
