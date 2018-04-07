@@ -168,6 +168,33 @@ class AbstractPatternStreamingInputNode extends Node {
     }
 
 
+    setTimeExpr(newValue, silent, title) {
+        const oldValue = this.timeExpr;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.timeExpr = newValue;
+
+        this.timeExpr.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'timeExpr',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getTimeExpr() {
+        return this.timeExpr;
+    }
+
+
+
 
     isFollowedBy() {
         return this.followedBy;
@@ -184,29 +211,6 @@ class AbstractPatternStreamingInputNode extends Node {
                 title,
                 data: {
                     attributeName: 'followedBy',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-
-    isForEach() {
-        return this.forEach;
-    }
-
-    setForEach(newValue, silent, title) {
-        const oldValue = this.forEach;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.forEach = newValue;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'forEach',
                     newValue,
                     oldValue,
                 },
@@ -261,21 +265,44 @@ class AbstractPatternStreamingInputNode extends Node {
     }
 
 
-    isAndOrOnly() {
-        return this.andOrOnly;
+    isAndOnly() {
+        return this.andOnly;
     }
 
-    setAndOrOnly(newValue, silent, title) {
-        const oldValue = this.andOrOnly;
+    setAndOnly(newValue, silent, title) {
+        const oldValue = this.andOnly;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.andOrOnly = newValue;
+        this.andOnly = newValue;
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'andOrOnly',
+                    attributeName: 'andOnly',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+
+    isOrOnly() {
+        return this.orOnly;
+    }
+
+    setOrOnly(newValue, silent, title) {
+        const oldValue = this.orOnly;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.orOnly = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'orOnly',
                     newValue,
                     oldValue,
                 },
