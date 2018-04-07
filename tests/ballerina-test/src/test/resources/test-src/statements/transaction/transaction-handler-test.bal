@@ -1,8 +1,8 @@
-public struct TrxError {
+public type TrxError {
     string message;
     error[] cause;
     string data;
-}
+};
 
 string a = "";
 

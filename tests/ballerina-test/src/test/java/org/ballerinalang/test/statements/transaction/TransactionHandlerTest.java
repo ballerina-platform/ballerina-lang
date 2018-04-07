@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 /**
  * Test cases for committed aborted handlers TransactionStatement.
  */
-@Test(groups = {"broken"})
 public class TransactionHandlerTest {
 
     private CompileResult programFile;
