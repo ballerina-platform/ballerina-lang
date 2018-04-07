@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.NonWritableChannelException;
 
 /**
  * Writes bytes to a given channel asynchronously.
@@ -44,7 +45,7 @@ public class AsyncWriter implements Writer {
             if (log.isTraceEnabled()) {
                 log.trace("Number of bytes " + numberOfBytesWritten + " written to channel " + channel.hashCode());
             }
-        } catch (IOException e) {
+        } catch (IOException | NonWritableChannelException e) {
             String message = "Error occurred while writing to channel ";
             throw new BallerinaIOException(message, e);
         }

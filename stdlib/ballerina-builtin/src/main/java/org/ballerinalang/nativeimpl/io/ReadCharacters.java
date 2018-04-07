@@ -65,16 +65,15 @@ public class ReadCharacters implements NativeCallableUnit {
      * @return the processed event result.
      */
     private static EventResult readCharactersResponse(EventResult<String, EventContext> result) {
-        BStruct errorStruct = null;
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
         CallableUnitCallback callback = eventContext.getCallback();
-        String readChars = result.getResponse();
         Throwable error = eventContext.getError();
         if (null != error) {
-            errorStruct = IOUtils.createError(context, error.getMessage());
+            BStruct errorStruct = IOUtils.createError(context, error.getMessage());
             context.setReturnValues(errorStruct);
         } else {
+            String readChars = result.getResponse();
             context.setReturnValues(new BString(readChars));
         }
         callback.notifySuccess();
