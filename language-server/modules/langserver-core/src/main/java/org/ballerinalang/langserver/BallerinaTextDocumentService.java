@@ -86,8 +86,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Text document service implementation for ballerina.
@@ -95,9 +93,6 @@ import java.util.regex.Pattern;
 class BallerinaTextDocumentService implements TextDocumentService {
     // indicates the frequency to send diagnostics to server upon document did change
     private static final int DIAG_PUSH_DEBOUNCE_DELAY = 500;
-    private static final Pattern untitledFilePattern =
-            Pattern.compile("^(?:file:\\/\\/)?\\/temp\\/(.*)\\/untitled.bal");
-
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
@@ -429,7 +424,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     private void compileAndSendDiagnostics(String content, LSDocument document, Path path) {
         BallerinaFile balFile;
-        String tempFileId = getTempFileIdOrNull(path.toString());
+        String tempFileId = LSParserUtils.getUnsavedFileIdOrNull(path.toString());
         if (tempFileId == null) {
             balFile = LSParserUtils.compile(content, path, CompilerPhase.CODE_ANALYZE, false);
         } else {
@@ -517,10 +512,5 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didSave(DidSaveTextDocumentParams params) {
-    }
-
-    private String getTempFileIdOrNull(String filePath) {
-        Matcher pkgMatcher = untitledFilePattern.matcher(filePath);
-        return (pkgMatcher.find()) ? pkgMatcher.group(1) : null;
     }
 }

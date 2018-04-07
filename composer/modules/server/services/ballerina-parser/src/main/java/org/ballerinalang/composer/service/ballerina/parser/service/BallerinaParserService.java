@@ -422,7 +422,7 @@ public class BallerinaParserService implements ComposerService {
         BallerinaFile bFile;
         String programDir = "";
         if (UNTITLED_BAL.equals(fileName)) {
-            bFile = LSParserUtils.compile(content, CompilerPhase.CODE_ANALYZE, true);
+            bFile = LSParserUtils.compile(content, CompilerPhase.CODE_ANALYZE);
         } else {
             java.nio.file.Path filePath = Paths.get(bFileRequest.getFilePath(), bFileRequest.getFileName());
             bFile = LSParserUtils.compile(content, filePath, CompilerPhase.CODE_ANALYZE);
