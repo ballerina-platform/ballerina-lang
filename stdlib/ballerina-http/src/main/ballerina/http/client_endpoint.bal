@@ -126,7 +126,7 @@ public type Retry {
 public type SecureSocket {
     TrustStore? trustStore,
     KeyStore? keyStore,
-    Protocols? protocols,
+    Protocols? protocol,
     ValidateCert? certValidation,
     string[] ciphers,
     boolean verifyHostname = true,
