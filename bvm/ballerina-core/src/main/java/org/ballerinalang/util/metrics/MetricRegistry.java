@@ -32,6 +32,7 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
 
 /**
@@ -62,6 +63,10 @@ public class MetricRegistry {
     public MetricRegistry() {
         this(() -> {
             ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+            if (!Boolean.valueOf(configRegistry.getConfiguration(CONFIG_METRICS_ENABLED))) {
+                // The enabled flag must be checked here as all Metric APIs use the default registry.
+                return new NoOpMetricProvider();
+            }
             String providerName = configRegistry.getConfiguration(METRIC_PROVIDER_NAME);
             // Look for MetricProvider implementations
             Iterator<MetricProvider> metricProviders = ServiceLoader.load(MetricProvider.class).iterator();
