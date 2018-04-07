@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,27 +15,30 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
- * Expression Variable Definition Context resolver for the completion items. This is mainly supposed to be used when
- * there is a variable definition inside a transaction statement.
+ * Completion Item resolver for the resource definition context.
  */
-public class ParserRuleExpressionVariableDefStatementContextResolver extends AbstractItemResolver {
+public class ParserRuleResourceDefinitionContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-
-        // Here we are using the existing variable statement itm resolver
-        Class parserRuleContextResolver = BallerinaParser.VariableDefinitionStatementContext.class;
-        return CompletionItemResolver.getResolverByClass(parserRuleContextResolver).resolveItems(completionContext);
+        CompletionItem resource = new CompletionItem();
+        resource.setLabel(ItemResolverConstants.RESOURCE_TYPE);
+        resource.setInsertText(Snippet.RESOURCE.toString());
+        resource.setInsertTextFormat(InsertTextFormat.Snippet);
+        resource.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+        
+        return new ArrayList<>(Collections.singletonList(resource));
     }
 }
