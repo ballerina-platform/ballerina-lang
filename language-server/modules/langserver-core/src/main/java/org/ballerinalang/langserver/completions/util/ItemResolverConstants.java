@@ -60,6 +60,7 @@ public class ItemResolverConstants {
     // End of Package Name Context Constants
 
     // Symbol Types Constants
+    public static final String ANNOTATION_TYPE = "Annotation";
     public static final String PACKAGE_TYPE = "Package";
     public static final String FUNCTION_TYPE = "Function";
     public static final String RESOURCE_TYPE = "Resource";

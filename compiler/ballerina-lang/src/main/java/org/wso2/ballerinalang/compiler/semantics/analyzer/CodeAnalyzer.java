@@ -1030,6 +1030,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateWorkerInteractions(WorkerActionSystem workerActionSystem) {
+        this.validateForkJoinSendsToFork(workerActionSystem);
         BLangStatement currentAction;
         WorkerActionStateMachine currentSM;
         String currentWorkerId;
@@ -1062,6 +1063,25 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         } while (systemRunning);
         if (!workerActionSystem.everyoneDone()) {
             this.reportInvalidWorkerInteractionDiagnostics(workerActionSystem);
+        }
+    }
+    
+    private void validateForkJoinSendsToFork(WorkerActionSystem workerActionSystem) {
+        for (Map.Entry<String, WorkerActionStateMachine> entry : workerActionSystem.entrySet()) {
+            this.validateForkJoinSendsToFork(entry.getValue());
+        }
+    }
+    
+    private void validateForkJoinSendsToFork(WorkerActionStateMachine sm) {
+        boolean sentToFork = false;
+        for (BLangStatement action : sm.actions) {
+            if (isWorkerSend(action) && isWorkerForkSend(action)) {
+                if (sentToFork) {
+                    this.dlog.error(action.pos, DiagnosticCode.INVALID_MULTIPLE_FORK_JOIN_SEND);
+                } else {
+                    sentToFork = true;
+                }
+            }
         }
     }
 

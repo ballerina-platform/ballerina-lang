@@ -127,7 +127,7 @@ public type ServiceEndpointConfiguration {
 public type ServiceSecureSocket {
     TrustStore? trustStore,
     KeyStore? keyStore,
-    Protocols? protocols,
+    Protocols? protocol,
     ValidateCert? certValidation,
     string[] ciphers,
     string sslVerifyClient,

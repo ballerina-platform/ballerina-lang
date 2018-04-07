@@ -14,8 +14,8 @@ endpoint http:ClientEndpoint clientEP {
                 filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password: "ballerina"
             },
-            protocols: {
-                protocolName: "TLSv1.2",
+            protocol: {
+                name: "TLSv1.2",
                 versions: ["TLSv1.2","TLSv1.1"]
             },
             ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"]
