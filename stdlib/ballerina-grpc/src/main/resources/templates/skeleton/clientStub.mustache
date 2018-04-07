@@ -21,27 +21,19 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
                 error e = {message:payloadError.message};
                 return e;
             }
-            any|{{outputDataType}} payload => {
-                match payload {
-                    {{outputDataType}} s => {
-                        return s;
-                    }
-                    any nonOccurrence => {
-                        error e = {message:"Unexpected type."};
-                        return e;
-                    }
-                }
+            any payload => {
+                return <{{outputDataType}}> payload;
             }
         }
     }
     {{/blockingFunctions}}{{#nonBlockingFunctions}}
-    function {{operationId}} ({{inputDataType}} req, typedesc listener) returns (error| null) {
+    function {{operationId}} ({{inputDataType}} req, typedesc listener) returns (error?) {
         var err1 = self.serviceStub.nonBlockingExecute("{{methodId}}", req, listener);
-        if (err1 != null && err1.message != null) {
+        if (err1 != ()) {
             error e = {message:err1.message};
             return e;
         }
-        return null;
+        return ();
     }
     {{/nonBlockingFunctions}}{{#streamingFunctions}}
     function {{operationId}} (typedesc listener) returns (grpc:Client| error)  {
@@ -57,7 +49,7 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
         }
     }
     {{/streamingFunctions}}
-}
+};
 {{/stubObject}}
 {{#client}}
 public type {{connectorId}}{{stubTypeName}}{{stubType}}Client object {
@@ -81,13 +73,13 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Client object {
     public function getClient () returns ({{connectorId}}{{stubTypeName}}Stub) {
         return self.stub;
     }{{/stubObjects}}
-}
+};
 {{/client}}
 {{#structs}}
 type {{structId}} {
-{{#attribute}}{{type}} {{name}};
-{{/attribute}}
-}
+    {{#attribute}}{{type}} {{name}};
+    {{/attribute}}
+};
 {{/structs}}
 {{#enums}}
 enum {{enumId}} {

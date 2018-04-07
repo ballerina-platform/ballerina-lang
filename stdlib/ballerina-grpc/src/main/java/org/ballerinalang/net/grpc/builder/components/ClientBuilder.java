@@ -85,7 +85,7 @@ public class ClientBuilder {
         if ("blocking".equals(stubType)) {
             if (clientBlocking == null) {
                 this.clientBlocking = new ClientObject(connectorId);
-                this.clientBlocking.setStubType(stubType);
+                this.clientBlocking.setStubType("Blocking");
                 this.client.add(clientBlocking);
             }
             clientBlocking.addStubObjects(stubObject);
@@ -120,9 +120,6 @@ public class ClientBuilder {
     public void addBlockingFunction(String operationId, String inputDataType, String outputDataType, String methodId) {
         if (stubObjectBlocking != null) {
             stubObjectBlocking.addBlockingFunction(operationId, inputDataType, outputDataType, methodId);
-        }
-        if (stubObjectNonBlocking != null) {
-            stubObjectNonBlocking.addNonBlockingFunction(operationId, inputDataType, methodId);
         }
     }
     
