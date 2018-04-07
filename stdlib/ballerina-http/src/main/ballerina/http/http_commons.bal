@@ -33,10 +33,10 @@ public type KeyStore {
 };
 
 @Description { value:"Protocols record represents SSL/TLS protocol related options to be used for HTTP client/service invocation"}
-@Field {value:"protocolName: SSL Protocol to be used. eg: TLS1.2"}
+@Field {value:"name: SSL Protocol to be used. eg: TLS1.2"}
 @Field {value:"versions: SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2"}
 public type Protocols {
-    string protocolName,
+    string name,
     string[] versions,
 };
 

@@ -92,7 +92,7 @@ public type ClientEndpointConfiguration {
     string forwarded = "disable",
     FollowRedirects? followRedirects,
     Retry? retry,
-    Proxy? proxy,
+    Proxy? proxyConfig,
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
     string|FailoverConfig lbMode = ROUND_ROBIN,
@@ -126,7 +126,7 @@ public type Retry {
 public type SecureSocket {
     TrustStore? trustStore,
     KeyStore? keyStore,
-    Protocols? protocols,
+    Protocols? protocol,
     ValidateCert? certValidation,
     string[] ciphers,
     boolean verifyHostname = true,
