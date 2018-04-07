@@ -148,8 +148,9 @@ public class LSParserUtils {
     }
 
     /**
-     * Create and returns temp file
-     * @param tempFileId
+     * Create and returns temp file.
+     *
+     * @param tempFileId temp file id
      * @return Path
      */
     public static Path createAndGetTempFile(String tempFileId) {
@@ -252,7 +253,8 @@ public class LSParserUtils {
     }
 
     /**
-     * Returns unsaved file id or null
+     * Returns unsaved file id or null.
+     *
      * @param filePath file path
      * @return file id
      */
