@@ -34,43 +34,39 @@ type Teacher {
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 
-stream<Employee> employeeStream4;
-stream<Teacher> teacherStream7;
+stream<Employee> employeeStream2;
+stream<Teacher> teacherStream4;
 
-function testFilterQuery() {
-
-    int i = 1;
+function testProjectionQuery() {
 
     forever {
-        from teacherStream7
-        where age > 30
+        from teacherStream4
         select name, age, status
-        => (Employee[] emp) {
-            io:println("Filterted event received #: "+ i);
-            employeeStream4.publish(emp);
+        => (int[] i) {
+            employeeStream2.publish(emp);
         }
     }
 }
 
+function startProjectionQuery() returns (Employee[]) {
 
-function startInlineOperationQuery() returns (Employee[]) {
-
-    testFilterQuery();
+    testProjectionQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
     Teacher t3 = {name:"Nimal", age:45, status:"married", batch:"LK1988", school:"Ananda College"};
 
-    employeeStream4.subscribe(printEmployeeNumber);
+    employeeStream2.subscribe(printEmployeeNumber);
 
-    teacherStream7.publish(t1);
-    teacherStream7.publish(t2);
-    teacherStream7.publish(t3);
+    teacherStream4.publish(t1);
+    teacherStream4.publish(t2);
+    teacherStream4.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
 
     return globalEmployeeArray;
 }
+
 
 function printEmployeeNumber(Employee e) {
     io:println("printEmployeeName function invoked for Employee event for Employee employee name:" + e.name);

@@ -42,8 +42,8 @@ function testPipelineQuery() {
     forever {
         from teacherStream6 where age > 18
         select *
-        => (Teacher[] emp) {
-            preProcessedStatusCountStream.publish(emp);
+        => (Teacher[] teacher) {
+            preProcessedStatusCountStream.publish(teacher);
         }
 
         from preProcessedStatusCountStream window lengthBatch(3)
