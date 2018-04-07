@@ -1,8 +1,8 @@
-public struct TrxError {
+public type TrxError {
     string message;
     error[] cause;
     string data;
-}
+};
 
 @final int RETRYCOUNT = 4;
 @final int RETRYCOUNT_2 = -4;
