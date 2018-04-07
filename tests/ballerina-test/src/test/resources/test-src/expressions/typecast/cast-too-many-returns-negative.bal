@@ -1,10 +1,10 @@
 type A {
-    string x;
-    int y;
+    string x,
+    int y,
 };
 
 type B {
-    string x;
+    string x,
 };
 
 function testCastingWithTooManyReturns() {
