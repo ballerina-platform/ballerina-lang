@@ -288,12 +288,12 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_TRUST_STORE = "trustStore";
     public static final String FILE_PATH = "filePath";
     public static final String PASSWORD = "password";
-    public static final String PROTOCOL_VERSION = "protocolName";
+    public static final String PROTOCOL_VERSION = "name";
     public static final String ENABLED_PROTOCOLS = "versions";
     public static final String ENABLE = "enable";
     public static final String ENDPOINT_CONFIG_OCSP_STAPLING = "ocspStapling";
     public static final String ENDPOINT_CONFIG_KEY_STORE = "keyStore";
-    public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocols";
+    public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocol";
     public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "certValidation";
 
     //SslConfiguration indexes

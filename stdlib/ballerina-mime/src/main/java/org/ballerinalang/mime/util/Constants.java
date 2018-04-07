@@ -76,6 +76,7 @@ public class Constants {
 
     public static final String MULTIPART_AS_PRIMARY_TYPE = "multipart/";
     public static final String BOUNDARY = "boundary";
+    public static final String FORM_DATA_PARAM = "form-data";
 
     public static final String DEFAULT_PRIMARY_TYPE = "application";
     public static final String DEFAULT_SUB_TYPE = "octet-stream";
@@ -137,6 +138,7 @@ public class Constants {
     public static final String SEMICOLON = ";";
     public static final String COMMA = ",";
     public static final String ASSIGNMENT = "=";
+    public static final String DOUBLE_QUOTE = "\"";
     public static final String PARSER_ERROR = "failed to parse: ";
     public static final String BUILTIN_PACKAGE = "ballerina.builtin";
     public static final String STRUCT_GENERIC_ERROR = "error";
