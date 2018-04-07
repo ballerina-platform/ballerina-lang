@@ -606,6 +606,31 @@ class AbstractServiceNode extends Node {
     }
 
 
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
+
+
     setAnnotationAttachments(newValue, silent, title) {
         const oldValue = this.annotationAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -725,10 +750,10 @@ class AbstractServiceNode extends Node {
     }
 
 
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
+    setDeprecatedAttachments(newValue, silent, title) {
+        const oldValue = this.deprecatedAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
+        this.deprecatedAttachments = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -736,7 +761,7 @@ class AbstractServiceNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'flags',
+                    attributeName: 'deprecatedAttachments',
                     newValue,
                     oldValue,
                 },
@@ -744,10 +769,104 @@ class AbstractServiceNode extends Node {
         }
     }
 
-    getFlags() {
-        return this.flags;
+    getDeprecatedAttachments() {
+        return this.deprecatedAttachments;
     }
 
+
+    addDeprecatedAttachments(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.deprecatedAttachments.push(node);
+            index = this.deprecatedAttachments.length;
+        } else {
+            this.deprecatedAttachments.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeDeprecatedAttachments(node, silent) {
+        const index = this.getIndexOfDeprecatedAttachments(node);
+        this.removeDeprecatedAttachmentsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeDeprecatedAttachmentsByIndex(index, silent) {
+        this.deprecatedAttachments.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceDeprecatedAttachments(oldChild, newChild, silent) {
+        const index = this.getIndexOfDeprecatedAttachments(oldChild);
+        this.deprecatedAttachments[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceDeprecatedAttachmentsByIndex(index, newChild, silent) {
+        this.deprecatedAttachments[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfDeprecatedAttachments(child) {
+        return _.findIndex(this.deprecatedAttachments, ['id', child.id]);
+    }
+
+    filterDeprecatedAttachments(predicateFunction) {
+        return _.filter(this.deprecatedAttachments, predicateFunction);
+    }
 
 
     setDocumentationAttachments(newValue, silent, title) {
@@ -866,125 +985,6 @@ class AbstractServiceNode extends Node {
 
     filterDocumentationAttachments(predicateFunction) {
         return _.filter(this.documentationAttachments, predicateFunction);
-    }
-
-
-    setDeprecatedAttachments(newValue, silent, title) {
-        const oldValue = this.deprecatedAttachments;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.deprecatedAttachments = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'deprecatedAttachments',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getDeprecatedAttachments() {
-        return this.deprecatedAttachments;
-    }
-
-
-    addDeprecatedAttachments(node, i = -1, silent) {
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.deprecatedAttachments.push(node);
-            index = this.deprecatedAttachments.length;
-        } else {
-            this.deprecatedAttachments.splice(i, 0, node);
-        }
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeDeprecatedAttachments(node, silent) {
-        const index = this.getIndexOfDeprecatedAttachments(node);
-        this.removeDeprecatedAttachmentsByIndex(index, silent);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeDeprecatedAttachmentsByIndex(index, silent) {
-        this.deprecatedAttachments.splice(index, 1);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceDeprecatedAttachments(oldChild, newChild, silent) {
-        const index = this.getIndexOfDeprecatedAttachments(oldChild);
-        this.deprecatedAttachments[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceDeprecatedAttachmentsByIndex(index, newChild, silent) {
-        this.deprecatedAttachments[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    getIndexOfDeprecatedAttachments(child) {
-        return _.findIndex(this.deprecatedAttachments, ['id', child.id]);
-    }
-
-    filterDeprecatedAttachments(predicateFunction) {
-        return _.filter(this.deprecatedAttachments, predicateFunction);
     }
 
 

@@ -1239,6 +1239,125 @@ class AbstractPackageNode extends Node {
     }
 
 
+    setTypeDefinitions(newValue, silent, title) {
+        const oldValue = this.typeDefinitions;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.typeDefinitions = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'typeDefinitions',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getTypeDefinitions() {
+        return this.typeDefinitions;
+    }
+
+
+    addTypeDefinitions(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.typeDefinitions.push(node);
+            index = this.typeDefinitions.length;
+        } else {
+            this.typeDefinitions.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeTypeDefinitions(node, silent) {
+        const index = this.getIndexOfTypeDefinitions(node);
+        this.removeTypeDefinitionsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeTypeDefinitionsByIndex(index, silent) {
+        this.typeDefinitions.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceTypeDefinitions(oldChild, newChild, silent) {
+        const index = this.getIndexOfTypeDefinitions(oldChild);
+        this.typeDefinitions[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceTypeDefinitionsByIndex(index, newChild, silent) {
+        this.typeDefinitions[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfTypeDefinitions(child) {
+        return _.findIndex(this.typeDefinitions, ['id', child.id]);
+    }
+
+    filterTypeDefinitions(predicateFunction) {
+        return _.filter(this.typeDefinitions, predicateFunction);
+    }
+
+
     setEnums(newValue, silent, title) {
         const oldValue = this.enums;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
