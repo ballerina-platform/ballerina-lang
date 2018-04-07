@@ -29,6 +29,7 @@ import java.util.List;
 /**
  * Class to test comments.
  */
+@Test(groups = {"broken"})
 public class CommentStmtTest {
 
     CompileResult result;

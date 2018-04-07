@@ -23,9 +23,7 @@ function main (string[] args) {
             ep = con;
         }
     }
-    ChatMessage mes = new;
-    mes.name = "Sam";
-    mes.message = "Hi ";
+    ChatMessage mes = {name:"Sam", message:"Hi "};
     grpc:ConnectorError connErr = ep -> send(mes);
     if (connErr != ()) {
         io:println("Error at LotsOfGreetings : " + connErr.message);

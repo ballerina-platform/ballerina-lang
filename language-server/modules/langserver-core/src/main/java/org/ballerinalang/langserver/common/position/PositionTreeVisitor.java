@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -256,7 +257,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             setTerminateVisitor(true);
         } else if (varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
                 && (varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.OBJECT) ||
-                varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.RECORD))
+                varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.RECORD) ||
+                varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.TYPE_DEF))
                 && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
             this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
             this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
@@ -911,6 +913,23 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (bLangMatchExprPatternClause.expr != null) {
             this.acceptNode(bLangMatchExprPatternClause.expr);
         }
+    }
+
+    @Override
+    public void visit(BLangTypeDefinition typeDefinition) {
+        addTopLevelNodeToContext(typeDefinition, typeDefinition.name.getValue(), typeDefinition.symbol.pkgID,
+                typeDefinition.symbol.kind.name(), typeDefinition.symbol.kind.name(),
+                typeDefinition.symbol.owner.name.getValue(), typeDefinition.symbol.owner.pkgID);
+        setPreviousNode(typeDefinition);
+
+        if (typeDefinition.typeNode != null) {
+            this.acceptNode(typeDefinition.typeNode);
+        }
+
+        if (typeDefinition.valueSpace != null) {
+            typeDefinition.valueSpace.forEach(this::acceptNode);
+        }
+
     }
 
     /**

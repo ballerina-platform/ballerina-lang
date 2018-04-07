@@ -123,7 +123,7 @@ function isValidCoordinationType (string coordinationType) returns boolean {
 function protocolCompatible (string coordinationType,
                              Protocol[] participantProtocols) returns boolean {
     boolean participantProtocolIsValid = false;
-    ProtocolName[] validProtocols = coordinationTypeToProtocolsMap[coordinationType];
+    string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType];
     foreach participantProtocol in participantProtocols {
         foreach validProtocol in validProtocols {
             if (participantProtocol.name == validProtocol) {
@@ -166,13 +166,13 @@ function createNewTransaction (string coordinationType, int transactionBlockId) 
     }
 }
 
-function getCoordinatorProtocolAt (ProtocolName protocolName, int transactionBlockId) returns string {
+function getCoordinatorProtocolAt (string protocolName, int transactionBlockId) returns string {
     //TODO: protocolName is unused for the moment
     return "http://" + coordinatorHost + ":" + coordinatorPort + initiator2pcCoordinatorBasePath + "/" +
            transactionBlockId;
 }
 
-function getParticipantProtocolAt (ProtocolName protocolName, int transactionBlockId) returns string {
+function getParticipantProtocolAt (string protocolName, int transactionBlockId) returns string {
     //TODO: protocolName is unused for the moment
     return "http://" + coordinatorHost + ":" + coordinatorPort + participant2pcCoordinatorBasePath + "/" +
            transactionBlockId;
