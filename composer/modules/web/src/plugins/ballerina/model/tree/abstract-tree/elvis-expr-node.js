@@ -17,17 +17,17 @@
  */
 
 import _ from 'lodash';
-import StatementNode from '../statement-node';
+import Node from '../node';
 
-class AbstractWorkerReceiveNode extends StatementNode {
+class AbstractElvisExprNode extends Node {
 
 
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
+    setLeftExpression(newValue, silent, title) {
+        const oldValue = this.leftExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
+        this.leftExpression = newValue;
 
-        this.expression.parent = this;
+        this.leftExpression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractWorkerReceiveNode extends StatementNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'expression',
+                    attributeName: 'leftExpression',
                     newValue,
                     oldValue,
                 },
@@ -43,18 +43,18 @@ class AbstractWorkerReceiveNode extends StatementNode {
         }
     }
 
-    getExpression() {
-        return this.expression;
+    getLeftExpression() {
+        return this.leftExpression;
     }
 
 
 
-    setWorkerName(newValue, silent, title) {
-        const oldValue = this.workerName;
+    setRightExpression(newValue, silent, title) {
+        const oldValue = this.rightExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.workerName = newValue;
+        this.rightExpression = newValue;
 
-        this.workerName.parent = this;
+        this.rightExpression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -62,7 +62,7 @@ class AbstractWorkerReceiveNode extends StatementNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'workerName',
+                    attributeName: 'rightExpression',
                     newValue,
                     oldValue,
                 },
@@ -70,12 +70,12 @@ class AbstractWorkerReceiveNode extends StatementNode {
         }
     }
 
-    getWorkerName() {
-        return this.workerName;
+    getRightExpression() {
+        return this.rightExpression;
     }
 
 
 
 }
 
-export default AbstractWorkerReceiveNode;
+export default AbstractElvisExprNode;

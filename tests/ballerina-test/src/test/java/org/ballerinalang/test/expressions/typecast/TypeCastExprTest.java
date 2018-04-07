@@ -576,7 +576,7 @@ public class TypeCastExprTest {
         Assert.assertEquals(map.get("name").stringValue(), "supun");
     }
 
-    @Test(description = "Test casting a struct to another struct in a different package", enabled = false)
+    @Test(description = "Test casting a struct to another struct in a different package")
     public void testCastToStructInDifferentPkg() {
         CompileResult res = BCompileUtil.compile(this, "test-src", "expressions.typecast.foo");
         BValue[] returns = BRunUtil.invoke(res, "testCastToStructInDifferentPkg");
@@ -602,6 +602,13 @@ public class TypeCastExprTest {
         BStruct error = (BStruct) returns[0];
         String errorMsg = error.getStringField(0);
         Assert.assertEquals(errorMsg, "'B' cannot be cast to 'A'");
+    }
+
+    @Test(description = "Test casting with too many returns")
+    public void testCastingWithTooManyReturns() {
+        CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/cast-too-many-returns-negative.bal");
+        Assert.assertEquals(res.getErrorCount(), 1);
+        BAssertUtil.validateError(res, 0, "invalid token ','", 15, 6);
     }
 
     @Test (description = "Test any to int casting happens without errors, error struct should be null")
@@ -650,7 +657,7 @@ public class TypeCastExprTest {
         Assert.assertEquals(errorMsg, "'int' cannot be cast to 'boolean'");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testAnyNullToBooleanWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToBooleanWithErrors");
 
@@ -672,7 +679,7 @@ public class TypeCastExprTest {
         Assert.assertEquals(errorMsg, "'string' cannot be cast to 'int'");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testAnyNullToIntWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToIntWithErrors");
 
@@ -694,7 +701,7 @@ public class TypeCastExprTest {
         Assert.assertEquals(errorMsg, "'string' cannot be cast to 'float'");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testAnyNullToFloatWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToFloatWithErrors");
 
