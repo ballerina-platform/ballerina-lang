@@ -4,7 +4,7 @@ import org.foo;
 public type userA {
     int age;
     string name;
-}
+};
 
 public type userB {
     int age;
@@ -12,7 +12,7 @@ public type userB {
     string address;
     private:
         string zipcode;
-}
+};
 
 public function testRuntimeStructEqNegative() returns (string) {
     foo:user u = foo:newUser();

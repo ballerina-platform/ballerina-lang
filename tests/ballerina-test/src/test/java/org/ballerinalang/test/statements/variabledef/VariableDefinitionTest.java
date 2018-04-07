@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 /**
  * Test Cases for defining variable.
  */
+@Test(groups = {"broken"})
 public class VariableDefinitionTest {
     private static final double DELTA = 0.01;
     CompileResult result;

@@ -7,6 +7,6 @@ public function testSimpleRecord () returns (int, string) {
 type Person {
     int age,
     string name;
-}
+};
 
 

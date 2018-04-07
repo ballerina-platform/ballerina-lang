@@ -17,6 +17,6 @@ type Person object {
     new (age = 10, name = "sample name") {
 
     }
-}
+};
 
 

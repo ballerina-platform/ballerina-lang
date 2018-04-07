@@ -50,7 +50,7 @@ public class PatternTest {
         Assert.assertEquals(tempDifference.getFloatField(0), 7.0);
     }
 
-    @Test(description = "Test pattern streaming query with Or")
+    @Test(description = "Test pattern streaming query with 'Or'")
     public void testPatternQuery2() {
         BValue[] roomActions = BRunUtil.invoke(result, "runPatternQuery2");
 
@@ -60,7 +60,7 @@ public class PatternTest {
         Assert.assertEquals(tempDifference.getStringField(0), "stop");
     }
 
-    @Test(description = "Test pattern streaming query with And")
+    @Test(description = "Test pattern streaming query with 'And'")
     public void testPatternQuery3() {
         BValue[] roomActions = BRunUtil.invoke(result, "runPatternQuery3");
 
@@ -70,4 +70,24 @@ public class PatternTest {
         Assert.assertEquals(tempDifference.getStringField(0), "RoomClosedWithRegulatorOff");
     }
 
+    @Test(description = "Test pattern streaming query with 'Not' and 'And'")
+    public void testPatternQuery4() {
+        BValue[] roomActions = BRunUtil.invoke(result, "runPatternQuery4");
+
+        Assert.assertNotNull(roomActions);
+
+        BStruct tempDifference = (BStruct) roomActions[0];
+        Assert.assertEquals(tempDifference.getStringField(0), "RoomNotClosedWithRegulatorNotOff");
+    }
+
+    @Test(description = "Test pattern streaming query with 'Not' and 'For'")
+    public void testPatternQuery5() {
+        BValue[] roomActions = BRunUtil.invoke(result, "runPatternQuery5");
+
+        Assert.assertNotNull(roomActions);
+
+        BStruct tempDifference = (BStruct) roomActions[0];
+        Assert.assertEquals(tempDifference.getStringField(0), "CloseRoomAfter2Sec");
+    }
 }
+
