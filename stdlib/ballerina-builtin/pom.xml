@@ -129,7 +129,7 @@
 
     <properties>
         <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
-        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
+        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
     </properties>
     

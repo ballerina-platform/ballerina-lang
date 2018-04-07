@@ -40,7 +40,7 @@
     </dependencyManagement>
 
     <properties>
-        <maven.spotbugsplugin.version>3.1.1</maven.spotbugsplugin.version>
+        <maven.findbugsplugin.version>3.0.3</maven.findbugsplugin.version>
         <lsp4j.version>0.3.0</lsp4j.version>
         <apache.commons.io.version>2.6</apache.commons.io.version>
         <google.guava.version>21.0</google.guava.version>

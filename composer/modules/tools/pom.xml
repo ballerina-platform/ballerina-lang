@@ -160,7 +160,7 @@
 
     <properties>
         <microservice.mainClass>org.ballerinalang.composer.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
-        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
+        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
         <project.build.sourceEncoding>${file.encoding}</project.build.sourceEncoding>
         <org.wso2.transport.http.version>6.0.63</org.wso2.transport.http.version>
         <jackson.core.version>2.4.5</jackson.core.version>

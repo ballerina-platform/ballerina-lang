@@ -154,7 +154,9 @@
             <artifactId>opentracing-util</artifactId>
         </dependency>
     </dependencies>
-
+    <properties>
+        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+    </properties>
     <build>
         <plugins>
             <!-- For ballerina annotation processing -->
@@ -179,9 +181,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
-        <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
-    </properties>
 </project>

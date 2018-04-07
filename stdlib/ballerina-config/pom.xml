@@ -46,14 +46,13 @@
             <artifactId>toml-parser</artifactId>
         </dependency>
     </dependencies>
-
+    
     <properties>
+        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>
             **/antlr4/**,
             **/generated/**
         </maven.checkstyleplugin.excludes>
-        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
-        <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
     </properties>
 
 </project>
