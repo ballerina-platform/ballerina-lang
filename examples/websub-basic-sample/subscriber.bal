@@ -1,4 +1,4 @@
-//Ballerina Websub Subscriber service which subscribes to notifications at a Hub.
+//Ballerina WebSub Subscriber service which subscribes to notifications at a Hub.
 import ballerina/log;
 import ballerina/mime;
 import ballerina/http;
@@ -24,15 +24,15 @@ service<websub:SubscriberService> websubSubscriber bind websubEP {
     //Resource accepting intent verification requests
     onIntentVerification (endpoint client, websub:IntentVerificationRequest request) {
         //Build the response for the subscription intent verification request received
-        http:Response response = {};
+        http:Response response = new;
         match (request.buildSubscriptionVerificationResponse()) {
             http:Response httpResponse => {
                 log:printInfo("Intent verified for subscription request");
                 response = httpResponse;
             }
-            null => {
+            () => {
                 log:printWarn("Intent verification for subscription request denied");
-                response = { statusCode:404 };
+                response.statusCode = 404;
             }
         }
         _ = client -> respond(response);
