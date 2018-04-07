@@ -13,8 +13,8 @@ endpoint http:ServiceEndpoint helloWorldEP {
             filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         },
-        protocols: {
-            protocolName: "TLS",
+        protocol: {
+            name: "TLS",
             versions: ["TLSv1.2","TLSv1.1"]
         },
         ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
@@ -54,8 +54,8 @@ endpoint http:ClientEndpoint clientEP {
                 filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password: "ballerina"
             },
-            protocols: {
-                protocolName: "TLS"
+            protocol: {
+                name: "TLS"
             },
             ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"]
         }
