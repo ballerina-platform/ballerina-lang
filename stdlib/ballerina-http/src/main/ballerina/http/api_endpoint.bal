@@ -62,10 +62,10 @@ function createAuthFilters () returns (Filter[]) {
     // TODO: currently hard coded. fix it.
     Filter[] authFilters = [];
     //TODO fix this object instantiation properly
-    //AuthnFilter authnFilter = {};
-    //AuthzFilter authzFilter = {};
-    //authFilters[0] = authnFilter;
-    //authFilters[1] = authzFilter;
+    AuthnFilter authnFilter = new (authnRequestFilterFunc, responseFilterFunc);
+    AuthzFilter authzFilter = new (authzRequestFilterFunc, responseFilterFunc);
+    authFilters[0] = authnFilter;
+    authFilters[1] = authzFilter;
     return authFilters;
 }
 
