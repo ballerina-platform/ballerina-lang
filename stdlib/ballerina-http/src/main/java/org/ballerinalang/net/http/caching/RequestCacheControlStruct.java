@@ -129,8 +129,6 @@ public class RequestCacheControlStruct {
                 case MIN_FRESH:
                     requestCacheControl.setIntField(REQ_CACHE_CONTROL_MIN_FRESH_INDEX, Long.parseLong(value));
                     break;
-                default:
-                    break;
             }
         });
     }

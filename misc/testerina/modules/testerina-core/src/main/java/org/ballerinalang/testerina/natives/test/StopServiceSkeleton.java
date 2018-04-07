@@ -29,13 +29,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.util.program.BLangFunctions;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-    /**
+/**
  * Native function ballerina.test:stopServiceSkeleton.
  * Stop a service skeleton and cleanup the directories that got created.
  *
@@ -64,9 +63,7 @@ public class StopServiceSkeleton extends BlockingNativeCallableUnit {
 
                 try {
                     // cleanup .ballerina folder
-                     File file = projectRoot.toFile();
-                     String[] fileList = file.list() != null ? file.list() : new String[]{};
-                    if ((fileList != null) && (fileList.length == 0)) {
+                    if (projectRoot.toFile().list().length == 0) {
                         // delete iff empty
                         Files.delete(projectRoot);
                     }
@@ -82,6 +79,7 @@ public class StopServiceSkeleton extends BlockingNativeCallableUnit {
                     throw new BallerinaIOException(String.format("Service skeleton cleanup failed. Failed to " +
                             "delete [package] %s [cause] %s", projectDir.toString(), e.getMessage()), e);
                 }
+                return;
             }
         });
     }

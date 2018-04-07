@@ -234,9 +234,9 @@
     </build>
 
     <properties>
-        <maven.spotbugsplugin.version.exclude>spotbugs-exclude.xml</maven.spotbugsplugin.version.exclude>
+        <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
         <surefireArgLine>-Dfile.encoding=UTF-8</surefireArgLine>
         <jackson.version>2.6.1</jackson.version>
-        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
+        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
     </properties>
 </project>
