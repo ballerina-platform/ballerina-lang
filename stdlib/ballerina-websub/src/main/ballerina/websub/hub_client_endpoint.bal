@@ -28,12 +28,11 @@ public type HubClientEndpoint object {
 
     public {
         HubClientEndpointConfiguration config;
-        http:ClientEndpoint httpClientEndpoint;
     }
 
-    //private { TODO:check and remove from public field
-    //    http:ClientEndpoint httpClientEndpoint;
-    //}
+    private {
+        http:ClientEndpoint httpClientEndpoint;
+    }
 
     @Description {value:"Gets called when the endpoint is being initialized during package init"}
     @Param {value:"ep: The endpoint to be initialized"}

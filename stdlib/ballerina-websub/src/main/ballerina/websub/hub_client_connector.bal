@@ -25,12 +25,11 @@ public type HubClientConnector object {
 
     public {
         string hubUrl;
-        http:ClientEndpoint httpClientEndpoint;
     }
 
-    //private {
-    //    http:ClientEndpoint httpClientEndpoint;
-    //}
+    private {
+        http:ClientEndpoint httpClientEndpoint;
+    }
 
     new (hubUrl, httpClientEndpoint) {}
 

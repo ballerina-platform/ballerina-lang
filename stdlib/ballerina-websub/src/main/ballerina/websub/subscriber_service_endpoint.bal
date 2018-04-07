@@ -27,6 +27,9 @@ public type SubscriberServiceEndpoint object {
 
     public {
         SubscriberServiceEndpointConfiguration config;
+    }
+
+    private {
         http:ServiceEndpoint serviceEndpoint;
     }
 
