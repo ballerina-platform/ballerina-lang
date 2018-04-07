@@ -45,7 +45,6 @@ public class TypeCastExprTest {
     private static final double DELTA = 0.01;
     private CompileResult result;
 
-
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/typecast/type-casting.bal");
@@ -603,13 +602,6 @@ public class TypeCastExprTest {
         BStruct error = (BStruct) returns[0];
         String errorMsg = error.getStringField(0);
         Assert.assertEquals(errorMsg, "'B' cannot be cast to 'A'");
-    }
-
-    @Test(description = "Test casting with too many returns")
-    public void testCastingWithTooManyReturns() {
-        CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/cast-too-many-returns-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "invalid token ','", 15, 6);
     }
 
     @Test (description = "Test any to int casting happens without errors, error struct should be null")
