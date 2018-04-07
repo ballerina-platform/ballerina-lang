@@ -164,6 +164,8 @@ public class ResponseCacheControlStruct {
                 case S_MAXAGE:
                     responseCacheControl.setIntField(RES_CACHE_CONTROL_S_MAXAGE_INDEX, Long.parseLong(value));
                     break;
+                default:
+                    break;
             }
         });
     }

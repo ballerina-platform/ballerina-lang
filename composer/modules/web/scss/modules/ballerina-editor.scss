@@ -221,6 +221,13 @@ $white:#fff;
           stroke: #ccc;
           stroke-dasharray: 0, 150, 50;
         }
+
+        .match-expression{
+          dominant-baseline: central;
+        }
+        .match-pattern-clause{
+          font-style: italic;
+        }
         
         .statement-title-text,
         .condition-text {

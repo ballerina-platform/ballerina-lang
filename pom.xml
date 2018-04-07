@@ -1389,16 +1389,16 @@
                     <version>${clirr.maven.plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>findbugs-maven-plugin</artifactId>
-                    <version>${maven.findbugsplugin.version}</version>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>${maven.spotbugsplugin.version}</version>
                     <configuration>
                         <effort>Max</effort>
                         <threshold>Low</threshold>
                         <xmlOutput>true</xmlOutput>
-                        <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
+                        <spotbugsXmlOutputDirectory>${project.build.directory}/spotbugs</spotbugsXmlOutputDirectory>
                         <!--Exclude sources-->
-                        <excludeFilterFile>${mavan.findbugsplugin.exclude.file}</excludeFilterFile>
+                        <excludeFilterFile>${maven.spotbugsplugin.exclude.file}</excludeFilterFile>
                     </configuration>
                     <executions>
                         <execution>
@@ -1428,8 +1428,8 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
             </plugin>
             <!-- We want to package up license resources in the JARs produced -->
             <plugin>
@@ -1568,7 +1568,7 @@
         <maven.docck.plugin.version>1.1</maven.docck.plugin.version>
         <maven.enforcer.plugin.version>1.4.1</maven.enforcer.plugin.version>
         <maven.failsafe.plugin.version>2.19.1</maven.failsafe.plugin.version>
-        <maven.findbugsplugin.version>3.0.3</maven.findbugsplugin.version>
+        <maven.spotbugsplugin.version>3.1.1</maven.spotbugsplugin.version>
         <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
         <maven.install.plugin.version>2.5.2</maven.install.plugin.version>
         <maven.invoker.plugin.version>2.0.0</maven.invoker.plugin.version>
@@ -1621,6 +1621,8 @@
         <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
 
         <file.transport.version>6.0.53</file.transport.version>
+
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
 
     </properties>
 

@@ -64,6 +64,13 @@ class MatchNode extends React.Component {
                 >
                     match
                 </text>
+                <text
+                    x={bBox.x + designer.config.compoundStatement.text.padding}
+                    y={bBox.y + designer.config.compoundStatement.padding.top}
+                    className='match-expression'
+                >
+                    {model.viewState.components.expression.text}
+                </text>
                 {patternClauses}
             </g>
         );
