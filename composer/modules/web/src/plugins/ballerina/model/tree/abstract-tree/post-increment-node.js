@@ -22,6 +22,31 @@ import StatementNode from '../statement-node';
 class AbstractPostIncrementNode extends StatementNode {
 
 
+    setOperatorKind(newValue, silent, title) {
+        const oldValue = this.operatorKind;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.operatorKind = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'operatorKind',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getOperatorKind() {
+        return this.operatorKind;
+    }
+
+
+
     setVariable(newValue, silent, title) {
         const oldValue = this.variable;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -45,31 +70,6 @@ class AbstractPostIncrementNode extends StatementNode {
 
     getVariable() {
         return this.variable;
-    }
-
-
-
-    setOperatorKind(newValue, silent, title) {
-        const oldValue = this.operatorKind;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.operatorKind = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'operatorKind',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getOperatorKind() {
-        return this.operatorKind;
     }
 
 

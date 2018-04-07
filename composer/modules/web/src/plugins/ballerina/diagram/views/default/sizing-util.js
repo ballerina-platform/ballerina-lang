@@ -1332,6 +1332,7 @@ class SizingUtil {
      *
      */
     sizeMatchNode(node) {
+        const components = node.viewState.components;
         let height = this.config.statement.height;
         let width = 0;
 
@@ -1347,7 +1348,10 @@ class SizingUtil {
         };
 
         node.viewState.bBox.h = height;
-        node.viewState.bBox.w = width;
+        node.viewState.bBox.w = (this.config.statement.width < width) ? width :
+            this.config.statement.width;
+        components.expression = this.getTextWidth(node.expression.getSource(true), 0,
+            node.viewState.bBox.w / 2);
     }
 
 
@@ -1358,8 +1362,11 @@ class SizingUtil {
      *
      */
     sizeMatchPatternClauseNode(node) {
+        const components = node.viewState.components;
         node.viewState.bBox.h = node.statement.viewState.bBox.h + this.config.statement.height;
         node.viewState.bBox.w = node.statement.viewState.bBox.w;
+        components.expression = this.getTextWidth(node.variableNode.getSource(true), 0,
+            node.viewState.bBox.w / 2);
     }
 
 

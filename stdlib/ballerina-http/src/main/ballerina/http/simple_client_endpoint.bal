@@ -75,7 +75,7 @@ documentation {
     F{{chunking}} - The chunking behaviour of the request
     F{{followRedirects}} - Redirect related options
     F{{retry}} - Retry related options
-    F{{proxy}} - Proxy related options
+    F{{proxyConfig}} - Proxy related options
     F{{connectionThrottling}} - The configurations for controlling the number of connections allowed concurrently
     F{{cacheConfig}} - The configurations for controlling the caching behaviour
 }
@@ -90,7 +90,7 @@ public type SimpleClientEndpointConfiguration {
     Chunking chunking = "AUTO",
     FollowRedirects? followRedirects,
     Retry? retry,
-    Proxy? proxy,
+    Proxy? proxyConfig,
     ConnectionThrottling? connectionThrottling,
     CacheConfig cacheConfig = {},
 };
@@ -119,7 +119,7 @@ public function SimpleClientEndpoint::init(SimpleClientEndpointConfiguration sim
     self.httpEP.config.chunking = simpleConfig.chunking;
     self.httpEP.config.followRedirects = simpleConfig.followRedirects;
     self.httpEP.config.retry = simpleConfig.retry;
-    self.httpEP.config.proxy = simpleConfig.proxy;
+    self.httpEP.config.proxyConfig = simpleConfig.proxyConfig;
     self.httpEP.config.connectionThrottling = simpleConfig.connectionThrottling;
 
     if (simpleConfig.cacheConfig.enabled) {

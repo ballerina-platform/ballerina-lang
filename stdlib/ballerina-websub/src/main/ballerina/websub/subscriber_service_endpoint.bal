@@ -226,10 +226,7 @@ public type SignatureValidationFilter object {
         function (http:Response response, http:FilterContext context) returns (http:FilterResult) filterResponse;
     }
 
-    public new (function (http:Request, http:FilterContext) returns (http:FilterResult) requestFilter,
-                            function (http:Response, http:FilterContext) returns (http:FilterResult) responseFilter) {
-        filterRequest = requestFilter;
-        filterResponse = responseFilter;
+    public new (filterRequest, filterResponse) {
     }
 
     public function init ();
