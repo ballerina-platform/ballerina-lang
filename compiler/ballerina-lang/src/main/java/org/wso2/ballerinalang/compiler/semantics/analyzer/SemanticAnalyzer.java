@@ -1779,7 +1779,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             if (structType.tag == TypeTags.STRUCT) {
                 List<BStructType.BStructField> structFieldList = ((BStructType) structType).fields;
-
                 List<String> structFieldNameList = new ArrayList<>();
                 for (BStructType.BStructField structField : structFieldList) {
                     structFieldNameList.add(structField.name.value);

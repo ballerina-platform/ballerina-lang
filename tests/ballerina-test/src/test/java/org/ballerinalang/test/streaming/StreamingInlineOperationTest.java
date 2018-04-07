@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 /**
  * This contains methods to test inline operations within streaming Action behaviour of Ballerina Streaming.
  *
- * @since 0.965.0
+ * @since 0.970.0
  */
 public class StreamingInlineOperationTest {
 

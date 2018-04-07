@@ -46,10 +46,9 @@ public class StreamingActionTest {
         Assert.assertEquals(resultNegativeInvalidType.getErrorCount(), 2);
         BAssertUtil.validateError(resultNegativeInvalidType, 0,
                 "Invalid stream action argument type found. it should be a struct array type argument",
-                45, 9);
-        BAssertUtil.validateError(resultNegativeInvalidType, 1,
-                "undefined symbol 'emp'",
-                46, 37);
+                44, 9);
+        BAssertUtil.validateError(resultNegativeInvalidType, 1, "undefined symbol 'emp'",
+                45, 37);
     }
 
     @Test(description = "Test streaming action query with errors")
@@ -57,8 +56,7 @@ public class StreamingActionTest {
         Assert.assertEquals(resultNegativeInvalidArgumentCount.getErrorCount(), 1);
         BAssertUtil.validateError(resultNegativeInvalidArgumentCount, 0,
                 "Invalid number of arguments found for stream action function. " +
-                        "found '2' argument but required exactly 1 argument",
-                45, 9);
+                        "found '2' argument but required exactly 1 argument", 44, 9);
     }
 
 }

@@ -33,7 +33,6 @@ type Teacher {
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-
 stream<Employee> employeeStream4;
 stream<Teacher> teacherStream7;
 
@@ -52,11 +51,9 @@ function testFilterQuery() {
     }
 }
 
-
 function startInlineOperationQuery() returns (Employee[]) {
 
     testFilterQuery();
-
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
     Teacher t3 = {name:"Nimal", age:45, status:"married", batch:"LK1988", school:"Ananda College"};
