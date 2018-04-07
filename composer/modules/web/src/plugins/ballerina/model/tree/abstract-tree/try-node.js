@@ -49,6 +49,33 @@ class AbstractTryNode extends StatementNode {
 
 
 
+    setFinallyBody(newValue, silent, title) {
+        const oldValue = this.finallyBody;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.finallyBody = newValue;
+
+        this.finallyBody.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'finallyBody',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFinallyBody() {
+        return this.finallyBody;
+    }
+
+
+
     setCatchBlocks(newValue, silent, title) {
         const oldValue = this.catchBlocks;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -166,33 +193,6 @@ class AbstractTryNode extends StatementNode {
     filterCatchBlocks(predicateFunction) {
         return _.filter(this.catchBlocks, predicateFunction);
     }
-
-
-    setFinallyBody(newValue, silent, title) {
-        const oldValue = this.finallyBody;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.finallyBody = newValue;
-
-        this.finallyBody.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'finallyBody',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFinallyBody() {
-        return this.finallyBody;
-    }
-
 
 
 }

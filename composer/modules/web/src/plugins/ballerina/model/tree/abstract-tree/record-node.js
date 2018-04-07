@@ -19,13 +19,15 @@
 import _ from 'lodash';
 import Node from '../node';
 
-class AbstractForeverNode extends Node {
+class AbstractRecordNode extends Node {
 
 
-    setGlobalVariables(newValue, silent, title) {
-        const oldValue = this.globalVariables;
+    setName(newValue, silent, title) {
+        const oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.globalVariables = newValue;
+        this.name = newValue;
+
+        this.name.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class AbstractForeverNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'globalVariables',
+                    attributeName: 'name',
                     newValue,
                     oldValue,
                 },
@@ -41,19 +43,44 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    getGlobalVariables() {
-        return this.globalVariables;
+    getName() {
+        return this.name;
     }
 
 
-    addGlobalVariables(node, i = -1, silent) {
+
+    setFields(newValue, silent, title) {
+        const oldValue = this.fields;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.fields = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'fields',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFields() {
+        return this.fields;
+    }
+
+
+    addFields(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.globalVariables.push(node);
-            index = this.globalVariables.length;
+            this.fields.push(node);
+            index = this.fields.length;
         } else {
-            this.globalVariables.splice(i, 0, node);
+            this.fields.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -68,9 +95,9 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    removeGlobalVariables(node, silent) {
-        const index = this.getIndexOfGlobalVariables(node);
-        this.removeGlobalVariablesByIndex(index, silent);
+    removeFields(node, silent) {
+        const index = this.getIndexOfFields(node);
+        this.removeFieldsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -84,8 +111,8 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    removeGlobalVariablesByIndex(index, silent) {
-        this.globalVariables.splice(index, 1);
+    removeFieldsByIndex(index, silent) {
+        this.fields.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -99,9 +126,9 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    replaceGlobalVariables(oldChild, newChild, silent) {
-        const index = this.getIndexOfGlobalVariables(oldChild);
-        this.globalVariables[index] = newChild;
+    replaceFields(oldChild, newChild, silent) {
+        const index = this.getIndexOfFields(oldChild);
+        this.fields[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -116,8 +143,8 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    replaceGlobalVariablesByIndex(index, newChild, silent) {
-        this.globalVariables[index] = newChild;
+    replaceFieldsByIndex(index, newChild, silent) {
+        this.fields[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -132,19 +159,19 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    getIndexOfGlobalVariables(child) {
-        return _.findIndex(this.globalVariables, ['id', child.id]);
+    getIndexOfFields(child) {
+        return _.findIndex(this.fields, ['id', child.id]);
     }
 
-    filterGlobalVariables(predicateFunction) {
-        return _.filter(this.globalVariables, predicateFunction);
+    filterFields(predicateFunction) {
+        return _.filter(this.fields, predicateFunction);
     }
 
 
-    setStreamingQueryStatements(newValue, silent, title) {
-        const oldValue = this.streamingQueryStatements;
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.streamingQueryStatements = newValue;
+        this.flags = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -152,7 +179,7 @@ class AbstractForeverNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'streamingQueryStatements',
+                    attributeName: 'flags',
                     newValue,
                     oldValue,
                 },
@@ -160,19 +187,44 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    getStreamingQueryStatements() {
-        return this.streamingQueryStatements;
+    getFlags() {
+        return this.flags;
     }
 
 
-    addStreamingQueryStatements(node, i = -1, silent) {
+
+    setAnnotationAttachments(newValue, silent, title) {
+        const oldValue = this.annotationAttachments;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.annotationAttachments = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'annotationAttachments',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getAnnotationAttachments() {
+        return this.annotationAttachments;
+    }
+
+
+    addAnnotationAttachments(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.streamingQueryStatements.push(node);
-            index = this.streamingQueryStatements.length;
+            this.annotationAttachments.push(node);
+            index = this.annotationAttachments.length;
         } else {
-            this.streamingQueryStatements.splice(i, 0, node);
+            this.annotationAttachments.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -187,9 +239,9 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    removeStreamingQueryStatements(node, silent) {
-        const index = this.getIndexOfStreamingQueryStatements(node);
-        this.removeStreamingQueryStatementsByIndex(index, silent);
+    removeAnnotationAttachments(node, silent) {
+        const index = this.getIndexOfAnnotationAttachments(node);
+        this.removeAnnotationAttachmentsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -203,8 +255,8 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    removeStreamingQueryStatementsByIndex(index, silent) {
-        this.streamingQueryStatements.splice(index, 1);
+    removeAnnotationAttachmentsByIndex(index, silent) {
+        this.annotationAttachments.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -218,9 +270,9 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    replaceStreamingQueryStatements(oldChild, newChild, silent) {
-        const index = this.getIndexOfStreamingQueryStatements(oldChild);
-        this.streamingQueryStatements[index] = newChild;
+    replaceAnnotationAttachments(oldChild, newChild, silent) {
+        const index = this.getIndexOfAnnotationAttachments(oldChild);
+        this.annotationAttachments[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -235,8 +287,8 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    replaceStreamingQueryStatementsByIndex(index, newChild, silent) {
-        this.streamingQueryStatements[index] = newChild;
+    replaceAnnotationAttachmentsByIndex(index, newChild, silent) {
+        this.annotationAttachments[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -251,19 +303,19 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    getIndexOfStreamingQueryStatements(child) {
-        return _.findIndex(this.streamingQueryStatements, ['id', child.id]);
+    getIndexOfAnnotationAttachments(child) {
+        return _.findIndex(this.annotationAttachments, ['id', child.id]);
     }
 
-    filterStreamingQueryStatements(predicateFunction) {
-        return _.filter(this.streamingQueryStatements, predicateFunction);
+    filterAnnotationAttachments(predicateFunction) {
+        return _.filter(this.annotationAttachments, predicateFunction);
     }
 
 
-    setFunctionVariables(newValue, silent, title) {
-        const oldValue = this.functionVariables;
+    setDeprecatedAttachments(newValue, silent, title) {
+        const oldValue = this.deprecatedAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.functionVariables = newValue;
+        this.deprecatedAttachments = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -271,7 +323,7 @@ class AbstractForeverNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'functionVariables',
+                    attributeName: 'deprecatedAttachments',
                     newValue,
                     oldValue,
                 },
@@ -279,19 +331,19 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    getFunctionVariables() {
-        return this.functionVariables;
+    getDeprecatedAttachments() {
+        return this.deprecatedAttachments;
     }
 
 
-    addFunctionVariables(node, i = -1, silent) {
+    addDeprecatedAttachments(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.functionVariables.push(node);
-            index = this.functionVariables.length;
+            this.deprecatedAttachments.push(node);
+            index = this.deprecatedAttachments.length;
         } else {
-            this.functionVariables.splice(i, 0, node);
+            this.deprecatedAttachments.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -306,9 +358,9 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    removeFunctionVariables(node, silent) {
-        const index = this.getIndexOfFunctionVariables(node);
-        this.removeFunctionVariablesByIndex(index, silent);
+    removeDeprecatedAttachments(node, silent) {
+        const index = this.getIndexOfDeprecatedAttachments(node);
+        this.removeDeprecatedAttachmentsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -322,8 +374,8 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    removeFunctionVariablesByIndex(index, silent) {
-        this.functionVariables.splice(index, 1);
+    removeDeprecatedAttachmentsByIndex(index, silent) {
+        this.deprecatedAttachments.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -337,9 +389,9 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    replaceFunctionVariables(oldChild, newChild, silent) {
-        const index = this.getIndexOfFunctionVariables(oldChild);
-        this.functionVariables[index] = newChild;
+    replaceDeprecatedAttachments(oldChild, newChild, silent) {
+        const index = this.getIndexOfDeprecatedAttachments(oldChild);
+        this.deprecatedAttachments[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -354,8 +406,8 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    replaceFunctionVariablesByIndex(index, newChild, silent) {
-        this.functionVariables[index] = newChild;
+    replaceDeprecatedAttachmentsByIndex(index, newChild, silent) {
+        this.deprecatedAttachments[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -370,19 +422,19 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    getIndexOfFunctionVariables(child) {
-        return _.findIndex(this.functionVariables, ['id', child.id]);
+    getIndexOfDeprecatedAttachments(child) {
+        return _.findIndex(this.deprecatedAttachments, ['id', child.id]);
     }
 
-    filterFunctionVariables(predicateFunction) {
-        return _.filter(this.functionVariables, predicateFunction);
+    filterDeprecatedAttachments(predicateFunction) {
+        return _.filter(this.deprecatedAttachments, predicateFunction);
     }
 
 
-    setParameters(newValue, silent, title) {
-        const oldValue = this.parameters;
+    setDocumentationAttachments(newValue, silent, title) {
+        const oldValue = this.documentationAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.parameters = newValue;
+        this.documentationAttachments = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -390,7 +442,7 @@ class AbstractForeverNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'parameters',
+                    attributeName: 'documentationAttachments',
                     newValue,
                     oldValue,
                 },
@@ -398,19 +450,19 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    getParameters() {
-        return this.parameters;
+    getDocumentationAttachments() {
+        return this.documentationAttachments;
     }
 
 
-    addParameters(node, i = -1, silent) {
+    addDocumentationAttachments(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.parameters.push(node);
-            index = this.parameters.length;
+            this.documentationAttachments.push(node);
+            index = this.documentationAttachments.length;
         } else {
-            this.parameters.splice(i, 0, node);
+            this.documentationAttachments.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -425,9 +477,9 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    removeParameters(node, silent) {
-        const index = this.getIndexOfParameters(node);
-        this.removeParametersByIndex(index, silent);
+    removeDocumentationAttachments(node, silent) {
+        const index = this.getIndexOfDocumentationAttachments(node);
+        this.removeDocumentationAttachmentsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -441,8 +493,8 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    removeParametersByIndex(index, silent) {
-        this.parameters.splice(index, 1);
+    removeDocumentationAttachmentsByIndex(index, silent) {
+        this.documentationAttachments.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -456,9 +508,9 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    replaceParameters(oldChild, newChild, silent) {
-        const index = this.getIndexOfParameters(oldChild);
-        this.parameters[index] = newChild;
+    replaceDocumentationAttachments(oldChild, newChild, silent) {
+        const index = this.getIndexOfDocumentationAttachments(oldChild);
+        this.documentationAttachments[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -473,8 +525,8 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    replaceParametersByIndex(index, newChild, silent) {
-        this.parameters[index] = newChild;
+    replaceDocumentationAttachmentsByIndex(index, newChild, silent) {
+        this.documentationAttachments[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -489,42 +541,15 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    getIndexOfParameters(child) {
-        return _.findIndex(this.parameters, ['id', child.id]);
+    getIndexOfDocumentationAttachments(child) {
+        return _.findIndex(this.documentationAttachments, ['id', child.id]);
     }
 
-    filterParameters(predicateFunction) {
-        return _.filter(this.parameters, predicateFunction);
+    filterDocumentationAttachments(predicateFunction) {
+        return _.filter(this.documentationAttachments, predicateFunction);
     }
-
-
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
-
-        this.expression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'expression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getExpression() {
-        return this.expression;
-    }
-
 
 
 }
 
-export default AbstractForeverNode;
+export default AbstractRecordNode;
