@@ -2,13 +2,13 @@ import ballerina/log;
 import ballerina/time;
 
 type Employee {
-    int id;
-    string name;
-}
+    int id,
+    string name,
+};
 
 type Job {
-    string description;
-}
+    string description,
+};
 
 function testInvalidStreamDeclaration () {
     stream t1;
@@ -41,7 +41,7 @@ function testStreamPublishingAndSubscription () returns (Employee, Employee, Emp
     Employee publishedEmployee = { id:1234, name:"Maryam" };
     s1.publish(publishedEmployee);
     int startTime = time:currentTime().time;
-    while (globalEmployee == null && time:currentTime().time - startTime < 1000) {
+    while (globalEmployee.id == 0 && time:currentTime().time - startTime < 1000) {
         //allow for value update
     }
     Employee newEmployee = globalEmployee;
@@ -59,7 +59,7 @@ function testStreamPublishingAndSubscriptionForMultipleEvents () returns (Employ
     s1.publish(e2);
     s1.publish(e3);
     int startTime = time:currentTime().time;
-    while (lengthof globalEmployeeArray < 3 && time:currentTime().time - startTime < 2000) {
+    while (lengthof globalEmployeeArray < 3 && time:currentTime().time - startTime < 3000) {
         //allow for value update
     }
     return (publishedEmployees, globalEmployeeArray);
