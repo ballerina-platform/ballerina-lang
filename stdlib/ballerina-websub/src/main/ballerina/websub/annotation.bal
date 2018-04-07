@@ -30,17 +30,17 @@ specified."}
 @Field {value:"leaseSeconds: The period for which the subscription is expected to be active."}
 @Field {value:"secret: The secret to be used for authenticated content distribution."}
 @Field {value:"callback: The callback to use when registering, if unspecified host:port/path will be used."}
-public struct SubscriberServiceConfiguration {
-    SubscriberServiceEndpoint[] endpoints;
-    string basePath;
-    boolean subscribeOnStartUp;
-    string resourceUrl;
-    string hub;
-    string topic;
-    int leaseSeconds;
-    string secret;
-    string callback;
-}
+public type SubscriberServiceConfiguration {
+    SubscriberServiceEndpoint[] endpoints,
+    string basePath,
+    boolean subscribeOnStartUp,
+    string resourceUrl,
+    string hub,
+    string topic,
+    int leaseSeconds,
+    string secret,
+    string callback,
+};
 
 @Description {value:"WebebSubSubscriber Configuration for service"}
 public annotation <service> SubscriberServiceConfig SubscriberServiceConfiguration;

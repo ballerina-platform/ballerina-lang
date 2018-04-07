@@ -15,10 +15,11 @@
 // under the License.
 package ballerina.websub;
 
-public struct SubscriberService {
-}
+public type SubscriberService object {
 
-function <SubscriberService s> getEndpoint () returns (SubscriberServiceEndpoint) {
-    SubscriberServiceEndpoint ep = {};
-    return ep;
-}
+    public function getEndpoint () returns (SubscriberServiceEndpoint) {
+        SubscriberServiceEndpoint ep = new;
+        return ep;
+    }
+
+};

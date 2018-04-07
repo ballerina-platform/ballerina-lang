@@ -20,51 +20,61 @@ import ballerina/http;
 //////////////////////////////////////////
 /////// WebSub Hub Client Endpoint ///////
 //////////////////////////////////////////
-@Description {value:"Struct representing the WebSub Hub Client Endpoint"}
+
+@Description {value:"Object representing the WebSub Hub Client Endpoint"}
 @Field {value:"config: The configuration for the endpoint"}
 @Field {value:"httpClientEndpoint: The underlying HTTP client endpoint"}
-public struct HubClientEndpoint {
-    HubClientEndpointConfiguration config;
-    http:ClientEndpoint httpClientEndpoint;
-}
+public type HubClientEndpoint object {
 
-@Description {value:"Struct representing the WebSub Hub Client Endpoint configuration"}
+    public {
+        HubClientEndpointConfiguration config;
+        http:ClientEndpoint httpClientEndpoint;
+    }
+
+    //private { TODO:check and remove from public field
+    //    http:ClientEndpoint httpClientEndpoint;
+    //}
+
+    @Description {value:"Gets called when the endpoint is being initialized during package init"}
+    @Param {value:"ep: The endpoint to be initialized"}
+    @Param {value:"config: The configuration for the endpoint"}
+    public function init (HubClientEndpointConfiguration config) {
+        endpoint http:ClientEndpoint httpClientEndpoint {targets:[{url:config.url, secureSocket:config.secureSocket}]};
+        self.httpClientEndpoint = httpClientEndpoint;
+        self.config = config;
+    }
+
+    @Description {value:"Gets called whenever a service attaches itself to this endpoint and during package init"}
+    @Param {value:"serviceType: The service attached"}
+    public function register (typedesc serviceType) {
+        httpClientEndpoint.register(serviceType);
+    }
+
+    @Description {value:"Starts the registered service"}
+    public function start () {
+        httpClientEndpoint.start();
+    }
+
+    @Description {value:"Returns the connector that client code uses"}
+    @Return {value:"The connector that client code uses"}
+    public function getClient () returns (HubClientConnector) {
+        //TODO: create a single object - move to init
+        HubClientConnector webSubHubClientConn = new HubClientConnector(config.url, httpClientEndpoint);
+        return webSubHubClientConn;
+    }
+
+    @Description {value:"Stops the registered service"}
+    @Return {value:"Error occured during registration"}
+    public function stop () {
+        httpClientEndpoint.stop();
+    }
+
+};
+
+@Description {value:"Object representing the WebSub Hub Client Endpoint configuration"}
 @Field {value:"url: The URL of the target Hub"}
-public struct HubClientEndpointConfiguration {
-    string url;
-    http:SecureSocket|null secureSocket;
+public type HubClientEndpointConfiguration {
+    string url,
+    http:SecureSocket? secureSocket,
     //TODO: include header, topic-resource map
-}
-
-@Description {value:"Gets called when the endpoint is being initialized during package init"}
-@Param {value:"ep: The endpoint to be initialized"}
-@Param {value:"config: The configuration for the endpoint"}
-public function <HubClientEndpoint ep> init (HubClientEndpointConfiguration config) {
-    endpoint http:ClientEndpoint httpClientEndpoint {targets:[{url:config.url, secureSocket:config.secureSocket}]};
-    ep.httpClientEndpoint = httpClientEndpoint;
-    ep.config = config;
-}
-
-@Description {value:"Gets called whenever a service attaches itself to this endpoint and during package init"}
-@Param {value:"serviceType: The service attached"}
-public function <HubClientEndpoint ep> register (typedesc serviceType) {
-    ep.httpClientEndpoint.register(serviceType);
-}
-
-@Description {value:"Starts the registered service"}
-public function <HubClientEndpoint ep> start () {
-    ep.httpClientEndpoint.start();
-}
-
-@Description {value:"Returns the connector that client code uses"}
-@Return {value:"The connector that client code uses"}
-public function <HubClientEndpoint ep> getClient () returns (HubClientConnector) {
-    HubClientConnector webSubHubClientConn = { hubUrl:ep.config.url, httpClientEndpoint:ep.httpClientEndpoint };
-    return webSubHubClientConn;
-}
-
-@Description {value:"Stops the registered service"}
-@Return {value:"Error occured during registration"}
-public function <HubClientEndpoint ep> stop () {
-    ep.httpClientEndpoint.stop();
-}
+};

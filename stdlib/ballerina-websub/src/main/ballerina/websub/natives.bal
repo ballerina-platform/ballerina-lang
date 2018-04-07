@@ -60,13 +60,14 @@ public native function removeSubscription (string topic, string callback);
 @Param {value:"secret: The secret to use to identify the registration"}
 @Param {value:"loadingOnStartUp: Whether registration is being called on loading from the database at start up"}
 @Return {value:"Error Message if an error occurred with registration"}
-public native function registerTopic (string topic, string secret, boolean loadingOnStartUp = false) returns (string);
+public native function registerTopicAtHub (string topic, string secret, boolean loadingOnStartUp = false) returns
+(string);
 
 @Description {value:"Unregisters a topic in the Ballerina Hub"}
 @Param {value:"topic: The topic to unregister"}
 @Param {value:"secret: The secret specified at registration"}
 @Return {value:"Error Message if an error occurred with unregistration"}
-public native function unregisterTopic (string topic, string secret) returns (string);
+public native function unregisterTopicAtHub (string topic, string secret) returns (string);
 
 @Description {value:"Retrieves whether a topic is registered with the Ballerina Hub"}
 @Param {value:"topic: The topic to check"}

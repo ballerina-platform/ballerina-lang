@@ -23,62 +23,85 @@ import ballerina/http;
 @Description {value:"Struct representing the WebSubSubscriber Service Endpoint"}
 @Field {value:"config: The configuration for the endpoint"}
 @Field {value:"serviceEndpoint: The underlying HTTP service endpoint"}
-public struct SubscriberServiceEndpoint {
-    SubscriberServiceEndpointConfiguration config;
-    http:ServiceEndpoint serviceEndpoint;
-}
+public type SubscriberServiceEndpoint object {
 
-public struct SubscriberServiceEndpointConfiguration {
-    string host;
-    int port;
-    http:Filter[] filters;
-    http:ServiceSecureSocket|null secureSocket;
-    //TODO: include header, topic-resource map
-}
+    public {
+        SubscriberServiceEndpointConfiguration config;
+        http:ServiceEndpoint serviceEndpoint;
+    }
 
-public function <SubscriberServiceEndpointConfiguration config> SubscriberServiceEndpointConfiguration() {
-    SignatureValidationFilter webSubRequestValidationFilter = { filterRequest:interceptWebSubRequest };
-    http:Filter wsrHttpFilter = <http:Filter> webSubRequestValidationFilter;
-    config.filters = [wsrHttpFilter];
-}
+    public new () {
+        http:ServiceEndpoint httpEndpoint = new;
+        self.serviceEndpoint = httpEndpoint;
+    }
 
-public function <SubscriberServiceEndpoint ep> SubscriberServiceEndpoint() {
-    ep.serviceEndpoint = {};
-}
+    @Description {value:"Gets called when the endpoint is being initialized during package init"}
+    @Param {value:"config: The HTTP ServiceEndpointConfiguration of the endpoint"}
+    public function init(SubscriberServiceEndpointConfiguration config);
 
-@Description {value:"Gets called when the endpoint is being initialized during package init"}
-@Param {value:"config: The HTTP ServiceEndpointConfiguration of the endpoint"}
-public function <SubscriberServiceEndpoint ep> init (SubscriberServiceEndpointConfiguration config) {
+    @Description {value:"Gets called whenever a service attaches itself to this endpoint and during package init"}
+    @Param {value:"serviceType: The service attached"}
+    public function register(typedesc serviceType);
+
+    @Description {value:"Starts the registered service"}
+    public function start();
+
+    @Description {value:"Returns the connector that client code uses"}
+    @Return {value:"The connector that client code uses"}
+    public function getClient() returns (http:Connection);
+
+    @Description {value:"Stops the registered service"}
+    public function stop();
+
+    public native function initWebSubSubscriberServiceEndpoint();
+
+    public native function registerWebSubSubscriberServiceEndpoint(typedesc serviceType);
+
+    @Description {value:"Sends a subscription request to the specified hub if specified to subscribe on startup"}
+    function sendSubscriptionRequest();
+
+    @Description {value:"Native function to start the registered WebSub Subscriber service"}
+    native function startWebSubSubscriberServiceEndpoint();
+
+    @Description {value:"Sets the topic to which this service is subscribing, for auto intent verification"}
+    native function setTopic (string topic);
+
+    @Description {value:"Retrieves the parameters specified for subscription as annotations and the callback URL to
+    which notification should happen"}
+    native function retrieveSubscriptionParameters () returns (map);
+
+};
+
+public function SubscriberServiceEndpoint::init(SubscriberServiceEndpointConfiguration config) {
+    SignatureValidationFilter sigValFilter = new(interceptWebSubRequest, interceptionPlaceholder);//TODO:rem placeholder
+    http:Filter[] filters = [<http:Filter> sigValFilter];
     http:ServiceEndpointConfiguration serviceConfig = { host:config.host, port:config.port,
-                                                          secureSocket:config.secureSocket, filters:config.filters };
-    ep.serviceEndpoint.init(serviceConfig);
-    ep.initWebSubSubscriberServiceEndpoint();
+                                                          secureSocket:config.secureSocket, filters:filters };
+    serviceEndpoint.init(serviceConfig);
+    initWebSubSubscriberServiceEndpoint();
 }
 
-public native function <SubscriberServiceEndpoint ep> initWebSubSubscriberServiceEndpoint();
-
-@Description {value:"Gets called whenever a service attaches itself to this endpoint and during package init"}
-@Param {value:"serviceType: The service attached"}
-public function <SubscriberServiceEndpoint ep> register (typedesc serviceType) {
-    ep.serviceEndpoint.register(serviceType);
-    ep.registerWebSubSubscriberServiceEndpoint(serviceType);
+public function SubscriberServiceEndpoint::register(typedesc serviceType) {
+    serviceEndpoint.register(serviceType);
+    registerWebSubSubscriberServiceEndpoint(serviceType);
 }
 
-public native function <SubscriberServiceEndpoint ep> registerWebSubSubscriberServiceEndpoint(typedesc serviceType);
-
-@Description {value:"Starts the registered service"}
-public function <SubscriberServiceEndpoint ep> start () {
-    ep.serviceEndpoint.start();//TODO:not needed?
-    ep.startWebSubSubscriberServiceEndpoint();
-    ep.sendSubscriptionRequest();
+public function SubscriberServiceEndpoint::start() {
+    serviceEndpoint.start();//TODO:not needed?
+    startWebSubSubscriberServiceEndpoint();
+    sendSubscriptionRequest();
 }
 
-@Description {value:"Native function to start the registered WebSub Subscriber service"}
-native function <SubscriberServiceEndpoint ep> startWebSubSubscriberServiceEndpoint();
+public function SubscriberServiceEndpoint::getClient() returns (http:Connection) {
+    return serviceEndpoint.getClient();
+}
 
-@Description {value:"Sends a subscription request to the specified hub if specified to subscribe on startup"}
-function <SubscriberServiceEndpoint ep> sendSubscriptionRequest () {
-    map subscriptionDetails = ep.retrieveSubscriptionParameters();
+public function SubscriberServiceEndpoint::stop () {
+    serviceEndpoint.stop();
+}
+
+function SubscriberServiceEndpoint::sendSubscriptionRequest() {
+    map subscriptionDetails = retrieveSubscriptionParameters();
     if (lengthof subscriptionDetails.keys() == 0) {
         return;
     }
@@ -98,12 +121,18 @@ function <SubscriberServiceEndpoint ep> sendSubscriptionRequest () {
             match (retrieveHubAndTopicUrl(resourceUrl)) {
                 (string, string) discoveredDetails => {
                     var (retHub, retTopic) = discoveredDetails;
-                    retHub =? http:decode(retHub, "UTF-8");
-                    retTopic =? http:decode(retTopic, "UTF-8");
+                    match (http:decode(retHub, "UTF-8")) {
+                        string decodedHub => retHub = decodedHub;
+                        error => {}
+                    }
+                    match (http:decode(retTopic, "UTF-8")) {
+                        string decodedTopic => retTopic = decodedTopic;
+                        error => {}
+                    }
                     subscriptionDetails["hub"] = retHub;
                     hub = retHub;
                     subscriptionDetails["topic"] = retTopic;
-                    ep.setTopic(retTopic);
+                    setTopic(retTopic);
                 }
                 WebSubError websubError => {
                     log:printError("Error sending out subscription request on start up: " + websubError.errorMessage);
@@ -115,18 +144,25 @@ function <SubscriberServiceEndpoint ep> sendSubscriptionRequest () {
     }
 }
 
+public type SubscriberServiceEndpointConfiguration {
+    string host;
+    int port;
+    http:ServiceSecureSocket? secureSocket;
+    //TODO: include header, topic-resource map
+};
+
 @Description {value:"The function called to discover hub and topic URLs defined by a resource URL"}
 @Param {value:"resourceUrl: The resource URL advertising hub and topic URLs"}
 @Return {value:"The (hub, topic) URLs if successful, WebSubError if not"}
-function retrieveHubAndTopicUrl (string resourceUrl) returns @tainted (string, string)|WebSubError {
+function retrieveHubAndTopicUrl (string resourceUrl) returns @tainted ((string, string) | WebSubError) {
     endpoint http:ClientEndpoint resourceEP {targets:[{url:resourceUrl}]};
-    http:Request request = {};
+    http:Request request = new;
     var discoveryResponse = resourceEP -> get("", request);
     WebSubError websubError = {};
     match (discoveryResponse) {
         http:Response response => {
             int responseStatusCode = response.statusCode;
-            if (responseStatusCode == 301 || responseStatusCode == 302) {
+            if (responseStatusCode == http:MOVED_PERMANENTLY_301 || responseStatusCode == http:FOUND_302) {
                 return retrieveHubAndTopicUrl(response.getHeader("Location"));
             }
             string[] linkHeaders;
@@ -179,37 +215,31 @@ function retrieveHubAndTopicUrl (string resourceUrl) returns @tainted (string, s
     return websubError;
 }
 
-@Description {value:"Sets the topic to which this service is subscribing, for auto intent verification"}
-native function <SubscriberServiceEndpoint ep> setTopic (string topic);
-
-@Description {value:"Retrieves the parameters specified for subscription as annotations and the callback URL to which
-notification should happen"}
-native function <SubscriberServiceEndpoint ep> retrieveSubscriptionParameters () returns (map);
-
-@Description {value:"Returns the connector that client code uses"}
-@Return {value:"The connector that client code uses"}
-public function <SubscriberServiceEndpoint ep> getClient () returns (http:Connection) {
-    return ep.serviceEndpoint.getClient();
-}
-
-@Description {value:"Stops the registered service"}
-public function <SubscriberServiceEndpoint ep> stop () {
-    ep.serviceEndpoint.stop();
-}
-
 @Description {value:"Signature validation filter for WebSub services"}
-public struct SignatureValidationFilter {
-    function (http:Request request, http:FilterContext context) returns (http:FilterResult) filterRequest;
-    function (http:Response response, http:FilterContext context) returns (http:FilterResult) filterResponse;
-}
+public type SignatureValidationFilter object {
 
-@Description {value:"Initializes the signature validation filter for WebSub services"}
-public function <SignatureValidationFilter filter> init () {
+    public {
+        function (http:Request request, http:FilterContext context) returns (http:FilterResult) filterRequest;
+        function (http:Response response, http:FilterContext context) returns (http:FilterResult) filterResponse;
+    }
+
+    public new (function (http:Request, http:FilterContext) returns (http:FilterResult) requestFilter,
+                            function (http:Response, http:FilterContext) returns (http:FilterResult) responseFilter) {
+        filterRequest = requestFilter;
+        filterResponse = responseFilter;
+    }
+
+    public function init ();
+    public function terminate ();
+
+};
+
+
+public function SignatureValidationFilter::init () {
     log:printInfo("Initializing WebSub signature validation filter");
 }
 
-@Description {value:"Terminates the signature validation filter for WebSub services"}
-public function <SignatureValidationFilter filter> terminate () {
+public function SignatureValidationFilter::terminate () {
     log:printInfo("Terminating WebSub signature validation filter");
 }
 
@@ -218,21 +248,29 @@ public function <SignatureValidationFilter filter> terminate () {
 @Param {value:"context: The filter context"}
 @Return {value:"The result of the filter indicating whether or not proceeding can be allowed"}
 public function interceptWebSubRequest (http:Request request, http:FilterContext context) returns (http:FilterResult) {
-    http:FilterResult filterResult = {};
     if (request.method == "POST") {
         var processedNotification = processWebSubNotification(request, context.serviceType);
         match (processedNotification) {
-            WebSubError webSubError => { filterResult =
-                             {canProceed:false, statusCode:200, message:"validation failed for notification"};
+            WebSubError webSubError => {
+                http:FilterResult filterResult =
+                                {canProceed:false, statusCode:200, message:"validation failed for notification"};
+                return filterResult;
             }
-            //temp --> becomes null
-            int | null => { filterResult =
+            () => {
+                http:FilterResult filterResult =
                             {canProceed:true, statusCode:200, message:"validation successful for notification"};
+                return filterResult;
             }
         }
     } else {
-        filterResult = {canProceed:true, statusCode:200, message:"allow intent verification"};
+        http:FilterResult filterResult = {canProceed:true, statusCode:200, message:"allow intent verification"};
+        return filterResult;
     }
+}
+
+public function interceptionPlaceholder (http:Response response, http:FilterContext context)
+returns (http:FilterResult) {
+    http:FilterResult filterResult = {canProceed:true, statusCode:200, message:"Allowed Proceeding"};
     return filterResult;
 }
 

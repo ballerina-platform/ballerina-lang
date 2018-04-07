@@ -28,25 +28,27 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * Native function to unregister a topic in the Ballerina Hub.
+ * Native function to register a topic in the Ballerina Hub, to accept subscription requests against.
  *
  * @since 0.965.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
-        functionName = "unregisterTopic",
+        functionName = "registerTopicAtHub",
         args = {@Argument(name = "topic", type = TypeKind.STRING),
-                @Argument(name = "secret", type = TypeKind.STRING)},
+                @Argument(name = "secret", type = TypeKind.STRING),
+                @Argument(name = "loadingOnStartUp", type = TypeKind.BOOLEAN)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class UnregisterTopic extends BlockingNativeCallableUnit {
+public class RegisterTopicAtHub extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         String topic = context.getStringArgument(0);
         String secret = context.getStringArgument(1);
-        context.setReturnValues(new BString(Hub.getInstance().unregisterTopic(topic, secret)));
+        Boolean loadingOnStartUp = context.getBooleanArgument(0);
+        context.setReturnValues(new BString(Hub.getInstance().registerTopic(topic, secret, loadingOnStartUp)));
     }
 
 }
