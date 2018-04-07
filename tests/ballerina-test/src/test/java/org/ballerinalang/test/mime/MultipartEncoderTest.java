@@ -189,9 +189,9 @@ public class MultipartEncoderTest {
                 "form-data; name=\"filepart\"; filename=\"file-01.txt\"");
         BStruct contentDisposition = (BStruct) bodyPart.getRefField(CONTENT_DISPOSITION_INDEX);
         Assert.assertEquals(contentDisposition.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX),
-                "\"file-01.txt\"");
+                "file-01.txt");
         Assert.assertEquals(contentDisposition.getStringField(CONTENT_DISPOSITION_NAME_INDEX),
-                "\"filepart\"");
+                "filepart");
         Assert.assertEquals(contentDisposition.getStringField(DISPOSITION_INDEX),
                 "form-data");
     }
