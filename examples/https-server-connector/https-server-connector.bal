@@ -22,7 +22,7 @@ service<http:Service> helloWorld bind helloWorldEP {
     }
 
     sayHello (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("Successful");
         _ = conn -> respond(res);
     }
