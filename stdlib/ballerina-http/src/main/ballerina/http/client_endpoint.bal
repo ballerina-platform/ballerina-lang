@@ -92,7 +92,7 @@ public type ClientEndpointConfiguration {
     string forwarded = "disable",
     FollowRedirects? followRedirects,
     Retry? retry,
-    Proxy? proxy,
+    Proxy? proxyConfig,
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
     string|FailoverConfig lbMode = ROUND_ROBIN,
