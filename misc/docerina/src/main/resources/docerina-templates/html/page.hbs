@@ -90,7 +90,7 @@
                                                     <span class="{{icon}}"> </span>
                                                 </div>
                                                 <div class="construct-name">
-                                                    {{name}} {{#if isFunction}} ( {{join parameters " , "}} ) {{#if returnParams}} ( {{join returnParams " , "}} ) {{/if}} {{/if}}
+                                                    {{name}} 
                                                     {{#if isConnector}} ({{#each parameters}}{{dataType}} {{name}}{{#unless
                                                     @last}} ,{{/unless}}{{/each}}) {{/if}}
                                                 </div>
@@ -104,7 +104,7 @@
                                                         <span class="{{icon}}"> </span>
                                                     </div>
                                                     <div class="construct-name">
-                                                        {{name}} ( {{join parameters " , "}} ) {{#if returnParams}} ( {{join returnParams " , "}} ) {{/if}}
+                                                        {{name}}
                                                     </div>
                                                 </a>
                                             </li>
@@ -140,7 +140,7 @@
                                     </li>
                                     <li>»</li>
                                     <li>
-                                        <a href="/learn">Lean</a>
+                                        <a href="/learn">Learn</a>
                                     </li>
                                     <li>»</li>
                                     <li>{{name}}</li>
@@ -181,7 +181,7 @@
                                                             <h2 id="{{../name}}-{{name}}">
                                                                 <span class={{icon}}></span>
                                                                 <span class="thin-text light-gray">&lt; {{../name}} &gt;</span>
-                                                                {{name}} ( {{join parameters " , "}} ) {{#if returnParams}} ( {{join returnParams " , "}} ) {{/if}}
+                                                                {{name}}({{join parameters ", "}}) {{#if returnParams}}({{join returnParams ", "}}) {{/if}}
                                                             </h2>
                                                             {{#if description}}
                                                             <p>
@@ -233,7 +233,7 @@
                                                 {{#if isFunction}}
                                                 <h2 id="{{name}}">
                                                     <span class="{{icon}} sm-icon"> </span>
-                                                    public function {{name}} ( {{join parameters " , "}} ) {{#if returnParams}} ( {{join returnParams " , "}} ) {{/if}}
+                                                    public function {{name}}({{join parameters ", "}}) {{#if returnParams}}({{join returnParams ", "}}) {{/if}}
                                                 </h2>
                                                 {{#if description}}
                                                 <p>
@@ -314,7 +314,7 @@
                                                             <h2 id="{{../name}}-{{name}}">
                                                                 <span class={{icon}}></span>
                                                                 <span class="thin-text light-gray">&lt; {{../name}} &gt;</span>
-                                                                {{name}} ( {{join parameters " , "}} ) {{#if returnParams}} ( {{join returnParams " , "}} ) {{/if}}
+                                                                {{name}}({{join parameters ", "}}) {{#if returnParams}}({{join returnParams ", "}}) {{/if}}
                                                             </h2>
                                                             {{#if description}}
                                                             <p>
@@ -366,7 +366,7 @@
                                                 {{#if isConnector}}
                                                 <h2 id="{{name}}">
                                                     <span class="{{icon}} sm-icon"></span>
-                                                    public connector {{name}} ( {{join parameters " , "}} )
+                                                    public connector {{name}}({{join parameters ", "}})
                                                 </h2>
                                                 {{#if description}}
                                                 <p>
@@ -401,7 +401,7 @@
                                                                 <span class="thin-text light-gray">
                                                                     < {{../name}}>
                                                                 </span>
-                                                                {{name}} ( {{join parameters " , "}} ) {{#if returnParams}} ( {{join returnParams " , "}} ) {{/if}}
+                                                                {{name}}({{join parameters ", "}}) {{#if returnParams}} ({{join returnParams ", "}}) {{/if}}
                                                             </h2>
                                                             {{#if description}}
                                                             <p>
@@ -565,7 +565,7 @@
                                                     <span class="{{icon}}"> </span>
                                                 </div>
                                                 <div class="construct-name">
-                                                    {{name}} {{#if isFunction}} ( {{join parameters " , "}} ) {{#if returnParams}} ( {{join returnParams " , "}} ) {{/if}} {{/if}}
+                                                    {{name}} {{#if isFunction}}({{join parameters ", "}}) {{#if returnParams}} ({{join returnParams ", "}}) {{/if}} {{/if}}
                                                     {{#if isConnector}} ({{#each parameters}}{{dataType}} {{name}}{{#unless
                                                     @last}} ,{{/unless}}{{/each}}) {{/if}}
                                                 </div>
@@ -578,7 +578,7 @@
                                                         <span class="{{icon}}"> </span>
                                                     </div>
                                                     <div class="construct-name">
-                                                        {{name}} ( {{join parameters " , "}} ) {{#if returnParams}} ( {{join returnParams " , "}} ) {{/if}}
+                                                        {{name}}({{join parameters ", "}}) {{#if returnParams}} ({{join returnParams ", "}}) {{/if}}
                                                     </div>
                                                 </a>
                                             </li>
