@@ -16,12 +16,15 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.LSParserUtils;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
@@ -37,9 +40,6 @@ import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
-import org.ballerinalang.repository.PackageRepository;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CodeLensParams;
@@ -72,11 +72,9 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
-import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -95,7 +93,6 @@ import java.util.concurrent.CompletableFuture;
 class BallerinaTextDocumentService implements TextDocumentService {
     // indicates the frequency to send diagnostics to server upon document did change
     private static final int DIAG_PUSH_DEBOUNCE_DELAY = 500;
-
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
@@ -426,29 +423,19 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     private void compileAndSendDiagnostics(String content, LSDocument document, Path path) {
-        String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path);
-        String pkgName = TextDocumentServiceUtil.getPackageNameForGivenFile(sourceRoot, path.toString());
-        LSDocument sourceDocument = new LSDocument();
-        sourceDocument.setUri(document.getURIString());
-        sourceDocument.setSourceRoot(sourceRoot);
-
-        PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-        if ("".equals(pkgName)) {
-            Path filePath = path.getFileName();
-            if (filePath != null) {
-                pkgName = filePath.toString();
-            }
+        BallerinaFile balFile;
+        String tempFileId = LSParserUtils.getUnsavedFileIdOrNull(path.toString());
+        if (tempFileId == null) {
+            balFile = LSParserUtils.compile(content, path, CompilerPhase.CODE_ANALYZE, false);
+        } else {
+            balFile = LSParserUtils.compile(content, tempFileId, CompilerPhase.CODE_ANALYZE, false);
         }
-        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
-                                                             sourceDocument, false, documentManager);
-
-        List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
-        CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
-        context.put(DiagnosticListener.class, diagnosticListener);
-
-        Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(pkgName);
-
+        List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics;
+        if (balFile.getDiagnostics() != null) {
+            balDiagnostics = balFile.getDiagnostics();
+        } else {
+            balDiagnostics = new ArrayList<>();
+        }
         publishDiagnostics(balDiagnostics, path);
     }
 

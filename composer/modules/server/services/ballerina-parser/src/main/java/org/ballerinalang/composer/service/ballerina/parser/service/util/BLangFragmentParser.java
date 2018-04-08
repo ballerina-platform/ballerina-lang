@@ -22,6 +22,7 @@ import org.ballerinalang.composer.service.ballerina.parser.service.BLangFragment
 import org.ballerinalang.composer.service.ballerina.parser.service.BLangJSONModelConstants;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BLangSourceFragment;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.LSParserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -122,7 +123,7 @@ public class BLangFragmentParser {
     }
 
     protected static JsonElement getJsonModel(String source) throws IOException {
-        BLangCompilationUnit compilationUnit = ParserUtils.compileFragment(source);
+        BLangCompilationUnit compilationUnit = LSParserUtils.compileFragment(source);
         return CommonUtil.generateJSON(compilationUnit, new HashMap<>());
     }
 

@@ -33,7 +33,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-@Test(groups = {"broken"})
 public class ServiceLevelAuthnTest extends IntegrationTestCase {
     private ServerInstance ballerinaServer;
 

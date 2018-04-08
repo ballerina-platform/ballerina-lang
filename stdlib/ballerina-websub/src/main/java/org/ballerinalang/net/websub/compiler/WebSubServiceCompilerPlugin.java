@@ -36,7 +36,7 @@ import java.util.List;
  * @since 0.965.0
  */
 @SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.net.websub",
+        value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.websub",
                         name = "SubscriberServiceEndpoint")
         }
 )

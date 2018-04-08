@@ -165,7 +165,7 @@ public class HttpConstants {
     public static final String LOCAL = "Local";
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
-    public static final String HTTP_HANDLE = "HttpHandle";
+    public static final String HTTP_FUTURE = "HttpFuture";
     public static final String PUSH_PROMISE = "PushPromise";
     public static final String ENTITY = "Entity";
     public static final String RESPONSE_CACHE_CONTROL = "ResponseCacheControl";

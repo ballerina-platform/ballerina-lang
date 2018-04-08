@@ -17,7 +17,6 @@ package org.ballerinalang.composer.service.ballerina.parser.service.util;
 
 import com.google.common.io.Files;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.composer.service.ballerina.parser.service.model.BallerinaFile;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BuiltInType;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.SymbolInformation;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Action;
@@ -38,6 +37,7 @@ import org.ballerinalang.langserver.CollectDiagnosticListener;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.LSDocument;
+import org.ballerinalang.langserver.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
@@ -841,6 +841,7 @@ public class ParserUtils {
      * @param content
      * @return
      */
+    @Deprecated
     public static BLangCompilationUnit compileFragment(String content) {
         Path unsaved = Paths.get(untitledProject.toString(), UNTITLED_BAL);
         synchronized (ParserUtils.class) {
@@ -864,6 +865,7 @@ public class ParserUtils {
      * @param path    file path
      * @return
      */
+    @Deprecated
     public static BallerinaFile compile(String content, Path path) {
         return compile(content, path, CompilerPhase.CODE_ANALYZE);
     }
@@ -876,6 +878,7 @@ public class ParserUtils {
      * @param compilerPhase {CompilerPhase} set phase for the compiler.
      * @return
      */
+    @Deprecated
     public static BallerinaFile compile(String content, Path path, CompilerPhase compilerPhase) {
         if (documentManager.isFileOpen(path)) {
             documentManager.updateFile(path, content);

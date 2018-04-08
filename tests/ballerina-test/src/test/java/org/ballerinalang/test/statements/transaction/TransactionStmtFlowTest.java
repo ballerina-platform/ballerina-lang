@@ -325,9 +325,17 @@ public class TransactionStmtFlowTest {
                 "start  inOuterTxstart  inInnerTxstart  foo endInnerTx foo endOuterTx");
     }
 
+    @Test()
+    public void testValidDoneWithinTransaction() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testValidDoneWithinTransaction");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "start  withinTx withinworker beforeDone endTx afterTx");
+    }
+
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 7);
+        Assert.assertEquals(resultNegative.getErrorCount(), 8);
         BAssertUtil.validateError(resultNegative, 0, "abort cannot be used outside of a transaction block", 3, 5);
         BAssertUtil.validateError(resultNegative, 1, "unreachable code", 12, 9);
         BAssertUtil.validateError(resultNegative, 2, "unreachable code", 27, 17);
@@ -338,6 +346,8 @@ public class TransactionStmtFlowTest {
                 .validateError(resultNegative, 5, "next statement cannot be used to exit from a transaction", 54, 17);
         BAssertUtil
                 .validateError(resultNegative, 6, "return statement cannot be used to exit from a transaction", 67, 17);
+        BAssertUtil
+                .validateError(resultNegative, 7, "done statement cannot be used to exit from a transaction", 82, 13);
     }
 
     @Test(description = "Test transaction statement with errors")

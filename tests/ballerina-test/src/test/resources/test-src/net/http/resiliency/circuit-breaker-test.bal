@@ -253,21 +253,21 @@ public type MockClient object {
         return httpConnectorError;
     }
 
-    public function submit (string httpVerb, string path, http:Request req) returns (http:HttpHandle | http:HttpConnectorError) {
+    public function submit (string httpVerb, string path, http:Request req) returns (http:HttpFuture | http:HttpConnectorError) {
         http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function getResponse (http:HttpHandle handle)  returns (http:Response | http:HttpConnectorError) {
+    public function getResponse (http:HttpFuture httpFuture)  returns (http:Response | http:HttpConnectorError) {
         http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function hasPromise (http:HttpHandle handle) returns (boolean) {
+    public function hasPromise (http:HttpFuture httpFuture) returns (boolean) {
         return false;
     }
 
-    public function getNextPromise (http:HttpHandle handle) returns (http:PushPromise | http:HttpConnectorError) {
+    public function getNextPromise (http:HttpFuture httpFuture) returns (http:PushPromise | http:HttpConnectorError) {
         http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }

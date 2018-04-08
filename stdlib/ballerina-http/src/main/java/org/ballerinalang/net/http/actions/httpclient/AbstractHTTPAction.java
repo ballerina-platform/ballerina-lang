@@ -412,10 +412,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         @Override
         public void onResponseHandle(ResponseHandle responseHandle) {
-            BStruct httpHandle = createStruct(this.dataContext.context, HttpConstants.HTTP_HANDLE,
+            BStruct httpFuture = createStruct(this.dataContext.context, HttpConstants.HTTP_FUTURE,
                                               HttpConstants.PROTOCOL_PACKAGE_HTTP);
-            httpHandle.addNativeData(HttpConstants.TRANSPORT_HANDLE, responseHandle);
-            this.dataContext.notifyReply(httpHandle, null);
+            httpFuture.addNativeData(HttpConstants.TRANSPORT_HANDLE, responseHandle);
+            this.dataContext.notifyReply(httpFuture, null);
         }
 
         @Override
