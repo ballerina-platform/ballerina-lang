@@ -28,10 +28,13 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
+import org.ballerinalang.net.grpc.MessageContext;
 import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
 import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
@@ -39,6 +42,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX;
+import static org.ballerinalang.net.grpc.MessageContext.MESSAGE_CONTEXT_KEY;
 
 /**
  * {@code BlockingExecute} is the BlockingExecute action implementation of the gRPC Connector.
@@ -64,6 +68,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX
         isPublic = true
 )
 public class BlockingExecute extends AbstractExecute {
+    private static final Logger LOG = LoggerFactory.getLogger(BlockingExecute.class);
 
     @Override
     public void execute(Context context) {
@@ -91,6 +96,14 @@ public class BlockingExecute extends AbstractExecute {
             notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
             return;
         }
+
+        // Set request headers.
+        io.grpc.Context msgContext = io.grpc.Context.current().withValue(MessageContext.DATA_KEY, (MessageContext)
+                context.getProperty(MESSAGE_CONTEXT_KEY)).attach();
+        if (msgContext == null) {
+            LOG.error("Error while setting request headers. gRPC context is null");
+        }
+
         if (connectionStub instanceof GrpcBlockingStub) {
             BValue payloadBValue = context.getRefArgument(1);
             Message requestMsg = MessageUtils.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
@@ -103,6 +116,8 @@ public class BlockingExecute extends AbstractExecute {
                     Descriptors.Descriptor outputDescriptor = methodDescriptor.getOutputType();
                     BValue responseBValue = MessageUtils.generateRequestStruct(responseMsg, context.getProgramFile(),
                             outputDescriptor.getName(), getBalType(outputDescriptor.getName(), context));
+                    // Set response headers.
+                    context.setProperty(MESSAGE_CONTEXT_KEY, new MessageContext(MessageContext.current()));
                     context.setReturnValues(responseBValue);
                     return;
                 } else {

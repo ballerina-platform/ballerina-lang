@@ -56,7 +56,7 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(onOpen, responseObserver);
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
-        Executor.submit(onOpen, callback, null, null, signatureParams);
+        Executor.submit(onOpen, callback,  updateContextProperties(null), null, signatureParams);
         
         return new StreamObserver<Message>() {
             @Override
@@ -70,7 +70,7 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
                     signatureParams[1] = requestParam;
                 }
                 CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
-                Executor.submit(onMessage, callback, null, null, signatureParams);
+                Executor.submit(onMessage, callback,  updateContextProperties(null), null, signatureParams);
             }
             
             @Override
@@ -91,7 +91,7 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
                 BValue[] signatureParams = new BValue[paramDetails.size()];
                 signatureParams[0] = getConnectionParameter(onCompleted, responseObserver);
                 CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
-                Executor.submit(onCompleted, callback, null, null, signatureParams);
+                Executor.submit(onCompleted, callback,  updateContextProperties(null), null, signatureParams);
             }
         };
     }

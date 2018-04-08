@@ -32,10 +32,13 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
+import org.ballerinalang.net.grpc.MessageContext;
 import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT;
@@ -48,6 +51,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_MESSAGE_DEFINI
 import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX;
+import static org.ballerinalang.net.grpc.MessageContext.MESSAGE_CONTEXT_KEY;
 
 /**
  * {@code StreamingExecute} is the StreamingExecute action implementation of the gRPC Connector.
@@ -73,6 +77,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX
         isPublic = true
 )
 public class StreamingExecute extends AbstractExecute {
+    private static final Logger LOG = LoggerFactory.getLogger(StreamingExecute.class);
     @Override
     public void execute(Context context) {
         BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
@@ -100,6 +105,14 @@ public class StreamingExecute extends AbstractExecute {
             notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
             return;
         }
+
+        // Set request headers.
+        io.grpc.Context msgContext = io.grpc.Context.current().withValue(MessageContext.DATA_KEY, (MessageContext)
+                context.getProperty(MESSAGE_CONTEXT_KEY)).attach();
+        if (msgContext == null) {
+            LOG.error("Error while setting request headers. gRPC context is null");
+        }
+
         if (connectionStub instanceof GrpcNonBlockingStub) {
             GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
             BTypeDescValue serviceType = (BTypeDescValue) context.getRefArgument(1);

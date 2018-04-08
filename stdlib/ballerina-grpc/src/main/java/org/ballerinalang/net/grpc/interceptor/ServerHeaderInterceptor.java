@@ -31,43 +31,14 @@ import org.ballerinalang.net.grpc.MessageContext;
  *
  * @since 1.0.0
  */
-public class ServerHeaderInterceptor implements ServerInterceptor {
-    
+public class ServerHeaderInterceptor extends AbstractHeaderInterceptor implements ServerInterceptor {
+
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
                                                                  ServerCallHandler<ReqT, RespT> next) {
-        MessageContext ctx = MessageContext.DATA_KEY.get();
-        // Only initialize ctx if not yet initialized
-        ctx = ctx != null ? ctx : new MessageContext();
-        
-        boolean found = false;
-        for (String keyName : headers.keys()) {
-            if (keyName.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
-                Metadata.Key<byte[]> key = Metadata.Key.of(keyName, Metadata.BINARY_BYTE_MARSHALLER);
-                Iterable<byte[]> values = headers.getAll(key);
-                if (values == null) {
-                    continue;
-                }
-                
-                for (byte[] value : values) {
-                    ctx.put(key, value);
-                }
-            } else {
-                Metadata.Key<String> key = Metadata.Key.of(keyName, Metadata.ASCII_STRING_MARSHALLER);
-                Iterable<String> values = headers.getAll(key);
-                if (values == null) {
-                    continue;
-                }
-                
-                for (String value : values) {
-                    ctx.put(key, value);
-                }
-            }
-            
-            found = true;
-        }
-        
-        if (found) {
+
+        MessageContext ctx = readIncomingHeaders(headers);
+        if (ctx != null) {
             return Contexts.interceptCall(Context.current().withValue(MessageContext.DATA_KEY, ctx), new
                     HeaderForwardingServerCall<>(call), headers, next);
         } else {
@@ -75,31 +46,19 @@ public class ServerHeaderInterceptor implements ServerInterceptor {
             return next.startCall(new HeaderForwardingServerCall<>(call), headers);
         }
     }
-    
+
     private class HeaderForwardingServerCall<ReqT, RespT> extends ForwardingServerCall
             .SimpleForwardingServerCall<ReqT, RespT> {
-        
+
         HeaderForwardingServerCall(ServerCall<ReqT, RespT> delegate) {
+
             super(delegate);
         }
-        
+
         @Override
         public void sendHeaders(Metadata headers) {
-            // Only set headers if message context is exist.
-            if (MessageContext.isPresent()) {
-                MessageContext messageContext = MessageContext.DATA_KEY.get();
-                for (String headerKey : messageContext.keys()) {
-                    if (headerKey.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
-                        Metadata.Key<byte[]> key = Metadata.Key.of(headerKey, Metadata.BINARY_BYTE_MARSHALLER);
-                        byte[] byteValues = messageContext.get(key);
-                        headers.put(key, byteValues);
-                    } else {
-                        Metadata.Key<String> key = Metadata.Key.of(headerKey, Metadata.ASCII_STRING_MARSHALLER);
-                        String headerValue = messageContext.get(key);
-                        headers.put(key, headerValue);
-                    }
-                }
-            }
+            Metadata responseHeaders = new Metadata();
+            headers.merge(assignMessageHeaders(responseHeaders));
             super.sendHeaders(headers);
         }
     }
