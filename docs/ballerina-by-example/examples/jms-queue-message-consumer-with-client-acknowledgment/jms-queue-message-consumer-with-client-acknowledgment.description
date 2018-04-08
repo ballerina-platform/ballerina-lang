@@ -1,1 +1,1 @@
-// Ballerina natively supports JMS. Here is an example where we create a simple JMS queue consumer.
+// Ballerina natively supports JMS. Here is an example where we create a simple JMS queue consumer with client acknowledgment.
