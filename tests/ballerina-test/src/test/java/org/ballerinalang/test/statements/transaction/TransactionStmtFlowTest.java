@@ -333,15 +333,6 @@ public class TransactionStmtFlowTest {
                 "start  withinTx withinworker beforeDone endTx afterTx");
     }
 
-    @Test()
-    public void testInvalidDoneWithinTransaction() {
-        BValue[] returns = BRunUtil.invoke(programFile, "testInvalidDoneWithinTransaction");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(),
-                "start  withinTx withinworker beforeDone endTx afterTx");
-    }
-
-
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 8);
