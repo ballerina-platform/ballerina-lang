@@ -17,7 +17,9 @@ public type SimpleQueueSender object {
         self.config = config;
         Connection conn = new ({
                 initialContextFactory: config.initialContextFactory,
-                providerUrl: config.providerUrl
+                providerUrl: config.providerUrl,
+                connectionFactoryName: config.connectionFactoryName,
+                properties: config.properties
             });
         connection = conn;
 

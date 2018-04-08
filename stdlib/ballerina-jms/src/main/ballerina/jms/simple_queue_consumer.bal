@@ -2,18 +2,18 @@ package ballerina.jms;
 
 import ballerina/log;
 
-public type SimpleTopicProducer object {
+public type SimpleQueueConsumer object {
     public {
-        SimpleTopicProducerEndpointConfiguration config;
+        SimpleQueueConsumerEndpointConfiguration config;
     }
 
     private {
         Connection? connection;
         Session? session;
-        TopicProducer? producer;
+        QueueConsumer? consumer;
     }
 
-    public function init(SimpleTopicProducerEndpointConfiguration config) {
+    public function init(SimpleQueueConsumerEndpointConfiguration config) {
         self.config = config;
         Connection conn = new ({
                 initialContextFactory: config.initialContextFactory,
@@ -28,26 +28,35 @@ public type SimpleTopicProducer object {
             });
         session = newSession;
 
-        TopicProducer topicProducer = new;
-        TopicProducerEndpointConfiguration producerConfig = {
+        QueueConsumer queueConsumer = new;
+        QueueConsumerEndpointConfiguration consumerConfig = {
             session: newSession,
-            topicPattern: config.topicPattern
+            queueName: config.queueName
         };
-        topicProducer.init(producerConfig);
-        producer = topicProducer;
+        queueConsumer.init(consumerConfig);
+        consumer = queueConsumer;
     }
 
     public function register (typedesc serviceType) {
+        match (consumer) {
+            QueueConsumer c => {
+                c.register(serviceType);
+            }
+            () => {
+                error e = {message: "Queue consumer cannot be null"};
+                throw e;
+            }
+        }
     }
 
     public function start () {
     }
 
-    public function getClient () returns (TopicProducerConnector) {
-        match (producer) {
-            TopicProducer s => return s.getClient();
+    public function getClient () returns (QueueConsumerConnector) {
+        match (consumer) {
+            QueueConsumer c => return c.getClient();
             () => {
-                error e = {message: "Topic producer cannot be null"};
+                error e = {message: "Queue consumer cannot be null"};
                 throw e;
             }
         }
@@ -68,12 +77,12 @@ public type SimpleTopicProducer object {
     }
 };
 
-public type SimpleTopicProducerEndpointConfiguration {
+public type SimpleQueueConsumerEndpointConfiguration {
     string initialContextFactory = "wso2mbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     map properties;
-    string topicPattern;
+    string queueName;
 };
 
