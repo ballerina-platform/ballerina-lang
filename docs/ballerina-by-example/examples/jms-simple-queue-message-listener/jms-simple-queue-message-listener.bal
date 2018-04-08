@@ -2,7 +2,7 @@ import ballerina/jms;
 import ballerina/log;
 
 // Create a simple queue consumer
-endpoint jms:SimpleQueueConsumer consumer {
+endpoint jms:SimpleQueueListener consumer {
     initialContextFactory: "wso2mbInitialContextFactory",
     providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
     acknowledgementMode: "AUTO_ACKNOWLEDGE",

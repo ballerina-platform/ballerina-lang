@@ -2,9 +2,9 @@ package ballerina.jms;
 
 import ballerina/log;
 
-public type SimpleQueueConsumer object {
+public type SimpleQueueListener object {
     public {
-        SimpleQueueConsumerEndpointConfiguration config;
+        SimpleQueueListenerEndpointConfiguration config;
     }
 
     private {
@@ -13,7 +13,7 @@ public type SimpleQueueConsumer object {
         QueueConsumer? consumer;
     }
 
-    public function init(SimpleQueueConsumerEndpointConfiguration config) {
+    public function init(SimpleQueueListenerEndpointConfiguration config) {
         self.config = config;
         Connection conn = new ({
                 initialContextFactory: config.initialContextFactory,
@@ -77,7 +77,7 @@ public type SimpleQueueConsumer object {
     }
 };
 
-public type SimpleQueueConsumerEndpointConfiguration {
+public type SimpleQueueListenerEndpointConfiguration {
     string initialContextFactory = "wso2mbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
