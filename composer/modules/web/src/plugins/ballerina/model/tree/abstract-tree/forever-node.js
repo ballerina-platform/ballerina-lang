@@ -141,10 +141,10 @@ class AbstractForeverNode extends Node {
     }
 
 
-    settreamingQueryStatements(newValue, silent, title) {
-        const oldValue = this.treamingQueryStatements;
+    setStreamingQueryStatements(newValue, silent, title) {
+        const oldValue = this.streamingQueryStatements;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.treamingQueryStatements = newValue;
+        this.streamingQueryStatements = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -152,7 +152,7 @@ class AbstractForeverNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'treamingQueryStatements',
+                    attributeName: 'streamingQueryStatements',
                     newValue,
                     oldValue,
                 },
@@ -160,19 +160,19 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    gettreamingQueryStatements() {
-        return this.treamingQueryStatements;
+    getStreamingQueryStatements() {
+        return this.streamingQueryStatements;
     }
 
 
-    addtreamingQueryStatements(node, i = -1, silent) {
+    addStreamingQueryStatements(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.treamingQueryStatements.push(node);
-            index = this.treamingQueryStatements.length;
+            this.streamingQueryStatements.push(node);
+            index = this.streamingQueryStatements.length;
         } else {
-            this.treamingQueryStatements.splice(i, 0, node);
+            this.streamingQueryStatements.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -187,9 +187,9 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    removetreamingQueryStatements(node, silent) {
-        const index = this.getIndexOftreamingQueryStatements(node);
-        this.removetreamingQueryStatementsByIndex(index, silent);
+    removeStreamingQueryStatements(node, silent) {
+        const index = this.getIndexOfStreamingQueryStatements(node);
+        this.removeStreamingQueryStatementsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -203,8 +203,8 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    removetreamingQueryStatementsByIndex(index, silent) {
-        this.treamingQueryStatements.splice(index, 1);
+    removeStreamingQueryStatementsByIndex(index, silent) {
+        this.streamingQueryStatements.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -218,9 +218,9 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    replacetreamingQueryStatements(oldChild, newChild, silent) {
-        const index = this.getIndexOftreamingQueryStatements(oldChild);
-        this.treamingQueryStatements[index] = newChild;
+    replaceStreamingQueryStatements(oldChild, newChild, silent) {
+        const index = this.getIndexOfStreamingQueryStatements(oldChild);
+        this.streamingQueryStatements[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -235,8 +235,8 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    replacetreamingQueryStatementsByIndex(index, newChild, silent) {
-        this.treamingQueryStatements[index] = newChild;
+    replaceStreamingQueryStatementsByIndex(index, newChild, silent) {
+        this.streamingQueryStatements[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -251,12 +251,12 @@ class AbstractForeverNode extends Node {
         }
     }
 
-    getIndexOftreamingQueryStatements(child) {
-        return _.findIndex(this.treamingQueryStatements, ['id', child.id]);
+    getIndexOfStreamingQueryStatements(child) {
+        return _.findIndex(this.streamingQueryStatements, ['id', child.id]);
     }
 
-    filtertreamingQueryStatements(predicateFunction) {
-        return _.filter(this.treamingQueryStatements, predicateFunction);
+    filterStreamingQueryStatements(predicateFunction) {
+        return _.filter(this.streamingQueryStatements, predicateFunction);
     }
 
 

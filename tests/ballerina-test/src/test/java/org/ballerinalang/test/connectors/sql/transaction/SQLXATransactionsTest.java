@@ -33,7 +33,6 @@ import java.io.File;
 /**
  * Class to test functionality of distributed transactions in SQL.
  */
-@Test(groups = {"broken"})
 public class SQLXATransactionsTest {
     private CompileResult result;
     private static final String DB_NAME1 = "TestDB1";

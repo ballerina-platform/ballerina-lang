@@ -60,13 +60,14 @@ const tools = [
         description: 'Single operation that is intended to be a unit of reusable functionality',
     },
     {
-        id: 'struct',
-        name: 'Struct',
+        id: 'object',
+        name: 'Object',
         icon: 'struct',
-        title: 'Struct',
+        title: 'Object',
         nodeFactoryMethod: DefaultNodeFactory.createStruct,
         description: 'User-defined record type',
     },
+    /* Disable transformer for now
     {
         id: 'transformer',
         name: 'Transformer',
@@ -75,6 +76,7 @@ const tools = [
         nodeFactoryMethod: DefaultNodeFactory.createTransformer,
         description: 'Custom type conversion for transforming data',
     },
+    */
 ];
 
 export default tools;

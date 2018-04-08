@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 /**
  * Basic worker related tests.
  */
-@Test(groups = {"broken"})
 public class BasicWorkerTest {
 
     private CompileResult result;

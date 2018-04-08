@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 /**
  * Test cases for finally block.
  */
-@Test(groups = {"broken"})
 public class TestFinallyBlock {
 
     CompileResult compileResult;
