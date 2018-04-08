@@ -16,6 +16,8 @@
 
 package org.ballerinalang.composer.service.ballerina.launcher.service.util;
 
+import java.util.List;
+
 /**
  * {@link LogDTO} Parsed log message sent to client.
  *
@@ -26,6 +28,7 @@ public class LogDTO {
     private String headers;
     private String httpMethod;
     private String path;
+    private List<String> parsedHeader;
 
     public void setId(String id) {
         this.id = id;
@@ -65,5 +68,14 @@ public class LogDTO {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public void setParsedHeader(List<String> parsedHeader) {
+        this.parsedHeader = parsedHeader;
+    }
+
+
+    public List<String> getParsedHeader() {
+        return parsedHeader;
     }
 }

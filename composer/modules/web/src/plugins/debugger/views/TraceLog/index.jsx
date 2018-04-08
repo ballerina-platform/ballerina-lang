@@ -116,9 +116,14 @@ class LogsConsole extends React.Component {
                                 'message.meta.httpMethod': 'Method',
                             }}
                             onFilteredMessages={this.onFilteredMessages}
+                            clearLogs={() => {
+                                this.setState({
+                                    messages: [],
+                                    filteredMessages: [],
+                                });
+                            }}
                         />
                         <div >
-                            {/* allowResize={details ? true : false} */}
                             <SplitPane
                                 split='vertical'
                                 size={details ? 450 : '100%'}
@@ -181,9 +186,9 @@ class LogsConsole extends React.Component {
                                 {details &&
                                     <div width={12} style={{ height, overflow: 'auto' }}>
                                         <DetailView
-                                            details={details.message.meta.headers}
+                                            parsedHeader={details.message.meta.parsedHeader}
                                             rawLog={details.message.record}
-                                            hideDetailView={() => { this.setState({ details: null }) }}
+                                            hideDetailView={() => { this.setState({ details: null }); }}
                                         />
                                     </div>
                                 }

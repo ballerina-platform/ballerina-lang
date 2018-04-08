@@ -18,7 +18,7 @@
 
 import React from 'react';
 import _ from 'lodash';
-import { Dropdown, Menu, Button } from 'semantic-ui-react';
+import { Dropdown, Button } from 'semantic-ui-react';
 /**
  *
  * @extends React.Component
@@ -58,9 +58,7 @@ class ToolBar extends React.Component {
 
             this.props.onFilteredMessages(filtered);
         }, 0);
-
     }
-
     /**
      * @inheritdoc
      */
@@ -79,6 +77,13 @@ class ToolBar extends React.Component {
 
         return (
             <div className='logs-console-toolbar'>
+                <div>
+                    <Button
+                        icon='fw fw-clear'
+                        className='pull-left clear-button'
+                        onClick={() => this.props.clearLogs()}
+                    />
+                </div>
                 {
                     keys.map((key) => {
                         const options = groupedMessages[key].map((option) => {
