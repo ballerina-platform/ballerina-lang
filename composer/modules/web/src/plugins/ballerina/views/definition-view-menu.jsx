@@ -72,28 +72,38 @@ class DefinitionViewMenu extends React.Component {
         return (
             <Popup 
                 trigger={ 
-                    <Button as='div' labelPosition='right' className='top-bar'>
-                        <Grid divided columns={2}>
-                            <Grid.Column>
-                                <Button icon>
-                                    <Icon name={'fw fw-struct'} />
-                                </Button>
-                                <Label>Structs</Label>
-                                <Label as='a' basic pointing='left'>{structs.length}</Label>
-                            </Grid.Column>
-                            <Grid.Column>
-                                <Button icon>
-                                    <Icon name={'fw fw-endpoint'} />
-                                </Button>
-                                <Label>Endpoints</Label>
-                                <Label as='a' basic pointing='left'>{endpoints.length}</Label>
-                            </Grid.Column>
+                    <Button as='div' labelPosition='right'>
+                        <Grid divided className='top-bar' columns={2}>
+                            <Grid.Row>
+                                <Grid.Column width={8}>
+                                    <Grid.Row className='top-bar-row'>
+                                        <Label> 
+                                            <Icon name={'fw fw-struct'} />
+                                        </Label>
+                                        <Label >Objects</Label>
+                                        <Label >{structs.length}</Label>
+                                    </Grid.Row>
+                                </Grid.Column>
+                                <Grid.Column width={8}>
+                                    {/* <Button icon>
+                                        <Icon name={'fw fw-endpoint'} />
+                                    </Button> */}
+                                    <Grid.Row>
+                                        <Label> 
+                                            <Icon name={'fw fw-endpoint'} />
+                                        </Label>
+                                        <Label left >Endpoints</Label>
+                                        <Label >{endpoints.length}</Label>
+                                    </Grid.Row>
+                                </Grid.Column>
+                            </Grid.Row>
                         </Grid>
                     </Button>
                     }
                 flowing
-                hoverable
+                // hoverable
                 wide
+                on='click'
                 position='bottom center'
                 open={this.state.isOpen}
                 onClose={this.handleClose}
@@ -104,8 +114,8 @@ class DefinitionViewMenu extends React.Component {
                         <Grid.Row>
                             <Grid.Column>
                                 <Header as='h5'>
-                                    <Icon size='mini' name={'fw fw-struct'} />
-                                    <Header.Content>Structs</Header.Content>
+                                    <Icon name={'fw fw-struct'} />
+                                    <Header.Content>Objects</Header.Content>
                                 </Header>
                                 {
                                     structs.map((element) => {
