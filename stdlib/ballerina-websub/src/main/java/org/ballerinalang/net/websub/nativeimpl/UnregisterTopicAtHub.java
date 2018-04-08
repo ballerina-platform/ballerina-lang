@@ -21,33 +21,32 @@ package org.ballerinalang.net.websub.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * Native function to stop the default Ballerina WebSub Hub, if started.
+ * Native function to unregister a topic in the Ballerina Hub.
  *
  * @since 0.965.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
-        functionName = "stopHubService",
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        functionName = "unregisterTopicAtHub",
+        args = {@Argument(name = "topic", type = TypeKind.STRING),
+                @Argument(name = "secret", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class StopHubService extends BlockingNativeCallableUnit {
+public class UnregisterTopicAtHub extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        Hub hubInstance = Hub.getInstance();
-        if (hubInstance.isStarted()) {
-            //TODO: Implement stopping - need to identify the server connector and stop, broker also should be stopped
-            context.setReturnValues(new BBoolean(true));
-        } else {
-            context.setReturnValues(new BBoolean(false));
-        }
+        String topic = context.getStringArgument(0);
+        String secret = context.getStringArgument(1);
+        context.setReturnValues(new BString(Hub.getInstance().unregisterTopic(topic, secret)));
     }
 
 }

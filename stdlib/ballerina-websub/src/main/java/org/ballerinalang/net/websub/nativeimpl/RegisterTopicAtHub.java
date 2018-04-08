@@ -21,33 +21,34 @@ package org.ballerinalang.net.websub.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * Native function to stop the default Ballerina WebSub Hub, if started.
+ * Native function to register a topic in the Ballerina Hub, to accept subscription requests against.
  *
  * @since 0.965.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
-        functionName = "stopHubService",
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        functionName = "registerTopicAtHub",
+        args = {@Argument(name = "topic", type = TypeKind.STRING),
+                @Argument(name = "secret", type = TypeKind.STRING),
+                @Argument(name = "loadingOnStartUp", type = TypeKind.BOOLEAN)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class StopHubService extends BlockingNativeCallableUnit {
+public class RegisterTopicAtHub extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        Hub hubInstance = Hub.getInstance();
-        if (hubInstance.isStarted()) {
-            //TODO: Implement stopping - need to identify the server connector and stop, broker also should be stopped
-            context.setReturnValues(new BBoolean(true));
-        } else {
-            context.setReturnValues(new BBoolean(false));
-        }
+        String topic = context.getStringArgument(0);
+        String secret = context.getStringArgument(1);
+        Boolean loadingOnStartUp = context.getBooleanArgument(0);
+        context.setReturnValues(new BString(Hub.getInstance().registerTopic(topic, secret, loadingOnStartUp)));
     }
 
 }
