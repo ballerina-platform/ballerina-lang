@@ -1388,6 +1388,9 @@ class SizingUtil {
         this.sizeStatement(node.getSource(true), viewState);
         this.adjustToLambdaSize(node, viewState);
         this.sizeClientResponderStatement(node);
+        if (viewState.displayText === '()') {
+            viewState.displayText = '';
+        }
     }
 
 
