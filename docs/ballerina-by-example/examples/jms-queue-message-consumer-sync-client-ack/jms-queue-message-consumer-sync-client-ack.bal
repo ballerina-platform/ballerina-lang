@@ -25,7 +25,7 @@ public function main (string[] args) {
     match result {
         jms:Message msg => {
             log:printInfo("Message received " + msg.getTextMessageContent());
-	    queueConsumer -> acknowledge(msg);
+            queueConsumer -> acknowledge(msg);
         }
         () => {
             log:printInfo("Message not received");
