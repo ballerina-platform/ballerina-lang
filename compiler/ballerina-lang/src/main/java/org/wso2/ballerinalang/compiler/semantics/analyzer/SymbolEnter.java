@@ -1024,8 +1024,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                       Name varName, SymbolEnv env) {
         // Create variable symbol
         Scope enclScope = env.scope;
-        BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(Flags.asMask(flagSet), varName,
-                env.enclPkg.symbol.pkgID, varType, enclScope.owner);
+        BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(Flags.asMask(flagSet), varName, env.enclPkg.symbol
+                .pkgID, varType, enclScope.owner);
+        Scope.ScopeEntry scopeEntry = enclScope.entries.get(names.fromString("$" + varName.value));
+        if (scopeEntry != null && scopeEntry.symbol != null && scopeEntry.symbol instanceof BVarSymbol) {
+            varSymbol.docTag = ((BVarSymbol) scopeEntry.symbol).docTag;
+        }
 
         // Add it to the enclosing scope
         // Find duplicates

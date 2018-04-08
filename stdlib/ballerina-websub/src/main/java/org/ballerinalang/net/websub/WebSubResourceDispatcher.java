@@ -45,7 +45,7 @@ class WebSubResourceDispatcher {
                 resourceName = WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
                 break;
             case HttpConstants.HTTP_METHOD_GET:
-                resourceName = WebSubSubscriberConstants.RESOURCE_NAME_VERIFY_INTENT;
+                resourceName = WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
                 break;
             default:
                 throw new BallerinaConnectorException("method not allowed for WebSub Subscriber Services : " + method);
@@ -59,13 +59,16 @@ class WebSubResourceDispatcher {
         }
 
         if (httpResource == null) {
-            if (WebSubSubscriberConstants.RESOURCE_NAME_VERIFY_INTENT.equals(resourceName)) {
+            if (WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION.equals(resourceName)) {
                 //if the request is a GET request indicating an intent verification request, and the user has not
-                //specified an onVerifyIntent resource, assume auto intent verification and respond
+                //specified an onIntentVerification resource, assume auto intent verification and respond
                 String annotatedTopic = (service.getBalService())
                         .getAnnotationList(WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
                                            WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG)
                         .get(0).getValue().getStringField(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TOPIC);
+                if (annotatedTopic.isEmpty() && service instanceof WebSubHttpService) {
+                    annotatedTopic = ((WebSubHttpService) service).getTopic();
+                }
                 inboundRequest.setProperty(WebSubSubscriberConstants.ANNOTATED_TOPIC, annotatedTopic);
                 inboundRequest.setProperty(Constants.HTTP_RESOURCE, WebSubSubscriberConstants.ANNOTATED_TOPIC);
             } else {

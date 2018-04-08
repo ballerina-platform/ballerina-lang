@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -411,6 +412,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangDocumentation docNode) {
         Set<BLangIdentifier> visitedAttributes = new HashSet<>();
         for (BLangDocumentationAttribute attribute : docNode.attributes) {
+            if (attribute.docTag == DocTag.RETURN) {
+                // return params can't have names, hence can't validate
+                continue;
+            }
             if (!visitedAttributes.add(attribute.documentationField)) {
                 this.dlog.warning(attribute.pos, DiagnosticCode.DUPLICATE_DOCUMENTED_ATTRIBUTE,
                         attribute.documentationField);
@@ -432,10 +437,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
             } else {
-                if (attributeSymbol.tag != SymTag.VARIABLE
-                        || ((BVarSymbol) attributeSymbol).docTag != attribute.docTag) {
-                    this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
-                            attribute.documentationField, attribute.docTag.getValue());
+                if (!(attributeSymbol.tag == SymTag.VARIABLE || attributeSymbol.tag == SymTag.ENDPOINT) || (
+                        (BVarSymbol) attributeSymbol).docTag != attribute.docTag) {
+                    this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE, attribute
+                            .documentationField, attribute.docTag.getValue());
                     continue;
                 }
             }
@@ -973,10 +978,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (transactionNode.onCommitFunction != null) {
             typeChecker.checkExpr(transactionNode.onCommitFunction, env, symTable.noType);
+            checkTransactionHandlerValidity(transactionNode.onCommitFunction);
         }
 
         if (transactionNode.onAbortFunction != null) {
             typeChecker.checkExpr(transactionNode.onAbortFunction, env, symTable.noType);
+            checkTransactionHandlerValidity(transactionNode.onAbortFunction);
         }
     }
 
@@ -1607,6 +1614,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         if (error) {
             this.dlog.error(retryCountExpr.pos, DiagnosticCode.INVALID_RETRY_COUNT);
+        }
+    }
+
+    private void checkTransactionHandlerValidity(BLangExpression transactionHanlder) {
+        if (transactionHanlder != null) {
+            if (transactionHanlder.type.tag == TypeTags.INVOKABLE) {
+                BInvokableType handlerType = (BInvokableType) transactionHanlder.type;
+                int parameterCount = handlerType.paramTypes.size();
+                if (parameterCount != 1) {
+                    dlog.error(transactionHanlder.pos, DiagnosticCode.INVALID_TRANSACTION_HANDLER_ARGS);
+                }
+                if (handlerType.paramTypes.get(0).tag != TypeTags.STRING) {
+                    dlog.error(transactionHanlder.pos, DiagnosticCode.INVALID_TRANSACTION_HANDLER_ARGS);
+                }
+            } else {
+                dlog.error(transactionHanlder.pos, DiagnosticCode.LAMBDA_REQUIRED_FOR_TRANSACTION_HANDLER);
+            }
         }
     }
 

@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.LSContext;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +37,10 @@ import java.util.List;
  * Capture possible errors from source.
  */
 public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
+
     private LSContext context;
+
+    private boolean overriddenTokenIndex = false;
 
     public CompletionCustomErrorStrategy(LSContext context) {
         super(context);
@@ -65,6 +69,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     private void fillContext(Parser parser, Token currentToken) {
         ParserRuleContext currentContext = parser.getContext();
+        overriddenTokenIndex = false;
         /*
         TODO: Specific check  is added in order to handle the completion inside an 
         endpoint context. This particular case need to remove after introducing a proper handling mechanism or with
@@ -79,7 +84,9 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, currentContext);
             this.context.put(DocumentServiceKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
             this.context.put(DocumentServiceKeys.VOCABULARY_KEY, parser.getVocabulary());
-            this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, parser.getCurrentToken().getTokenIndex());
+            if (!overriddenTokenIndex) {
+                this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, parser.getCurrentToken().getTokenIndex());
+            }
         }
     }
 
@@ -105,6 +112,14 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             }
         }
         if (lastNonHiddenToken != null) {
+            Token tokenBefore = CommonUtil.getPreviousDefaultToken(parser.getTokenStream(),
+                    lastNonHiddenToken.getTokenIndex());
+            if (tokenBefore != null && UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY.equals(tokenBefore.getText())
+                    && parser.getContext() instanceof BallerinaParser.ServiceBodyContext) {
+                overriddenTokenIndex = true;
+                this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, tokenBefore.getTokenIndex());
+                return true;
+            }
 
             // Convert the token lines and char positions to zero based indexing
             int lastNonHiddenTokenLine = lastNonHiddenToken.getLine() - 1;

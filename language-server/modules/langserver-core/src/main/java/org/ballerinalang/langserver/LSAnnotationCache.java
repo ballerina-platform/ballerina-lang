@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -32,14 +33,29 @@ import java.util.stream.Collectors;
  * 
  * @since 0.970.0
  */
-class LSAnnotationCache {
+public class LSAnnotationCache {
     
     private final HashMap<PackageID, List<BLangAnnotation>> serviceAnnotations = new HashMap<>();
     private HashMap<PackageID, List<BLangAnnotation>> resourceAnnotations = new HashMap<>();
     private HashMap<PackageID, List<BLangAnnotation>> functionAnnotations = new HashMap<>();
-
-    LSAnnotationCache(LSPackageCache lsPackageCache) {
-        loadAnnotations(lsPackageCache.getPackageMap().values().stream().collect(Collectors.toList()));
+    private static LSAnnotationCache lsAnnotationCache = null;
+    
+    private LSAnnotationCache() {
+    }
+    
+    public static LSAnnotationCache getInstance() {
+        if (lsAnnotationCache == null) {
+            initiate();
+        }
+        return lsAnnotationCache;
+    }
+    
+    static synchronized void initiate() {
+        if (lsAnnotationCache == null) {
+            lsAnnotationCache = new LSAnnotationCache();
+            lsAnnotationCache.loadAnnotations(LSPackageCache.getInstance().getPackageMap().values()
+                    .stream().collect(Collectors.toList()));
+        }
     }
     
     private void loadAnnotations(List<BLangPackage> packageList) {
@@ -83,5 +99,35 @@ class LSAnnotationCache {
 
     public HashMap<PackageID, List<BLangAnnotation>> getFunctionAnnotations() {
         return functionAnnotations;
+    }
+
+    /**
+     * Get the annotation map for the given type.
+     * @param attachmentPoint   Attachment point
+     * @return {@link HashMap}  Map of annotation lists
+     */
+    public HashMap<PackageID, List<BLangAnnotation>> getAnnotationMapForType(AttachmentPoint attachmentPoint) {
+        HashMap<PackageID, List<BLangAnnotation>> annotationMap;
+        if (attachmentPoint == null) {
+            // TODO: Here return the common annotations
+            annotationMap = new HashMap<>();
+        } else {
+            switch (attachmentPoint) {
+                case SERVICE:
+                    annotationMap = serviceAnnotations;
+                    break;
+                case RESOURCE:
+                    annotationMap = resourceAnnotations;
+                    break;
+                case FUNCTION:
+                    annotationMap = functionAnnotations;
+                    break;
+                default:
+                    annotationMap = new HashMap<>();
+                    break;
+            }
+        }
+
+        return annotationMap;
     }
 }

@@ -1,10 +1,15 @@
-public struct TrxError {
+import ballerina/transactions;
+
+public type TrxError {
     string message;
     error[] cause;
     string data;
-}
+};
 
 string a = "";
+string id1WithinTx = "";
+string id2WithinTx = "";
+string idWithinHandler = "";
 
 function testTransactionStmtWithNoHandlers () returns (string) {
     a = "";
@@ -29,6 +34,7 @@ function testTransactionStmtCommitWithCommitHandler () returns (string) {
     a = a +  "start";
     try {
         transaction with oncommit=commitFunction{
+            string id = transactions:getCurrentTransactionId();
             a = a + " inTrx";
             int i = 0;
             a = a + " endTrx";
@@ -246,19 +252,87 @@ function testMultipleTransactionsFailedWithAllHandlers () returns (string) {
     return a;
 }
 
-function commitFunction() {
+
+function testMultipleTransactionsWithAllHandlersWithID () returns (string, string, string, string, string) {
+    a = "";
+    a = a +  "start";
+    transaction with retries=4, oncommit=commitFunction, onabort=abortFunction{
+        id1WithinTx = transactions:getCurrentTransactionId();
+        a = a + " inFirstTrx";
+
+        a = a + " endFirstTrx";
+    } onretry {
+        a = a + " beforeRetry-First";
+    }
+    string idAfterHandler = idWithinHandler;
+
+    transaction with retries=4, oncommit=commitFunctionSecond, onabort=abortFunctionSecond {
+        id2WithinTx = transactions:getCurrentTransactionId();
+        a = a + " inSecondTrx";
+        int i = 0;
+        a = a + " endSecondTrx";
+    } onretry {
+        a = a + " beforeRetry-second";
+    }
+
+    a = a + " end";
+    return (a, id1WithinTx, idAfterHandler, id2WithinTx, idWithinHandler);
+}
+
+function testMultipleTransactionsFailedWithAllHandlersWithID () returns (string, string ,string, string, string) {
+    a = "";
+    a = a +  "start";
+    int i = 0;
+    try {
+        transaction with retries=0, oncommit=commitFunction, onabort=abortFunction {
+            id1WithinTx = transactions:getCurrentTransactionId();
+            a = a + " inFirstTrx";
+            if (i == 0) {
+                TrxError err = {message:" trxErr", data:"test"};
+                throw err;
+            }
+            a = a + " endFirstTrx";
+        } onretry {
+            a = a + " beforeRetry-First";
+        }
+    } catch (error err) {
+        a = a + err.message;
+    }
+    string idAfterHandler = idWithinHandler;
+
+    transaction with retries=4, oncommit=commitFunctionSecond, onabort=abortFunctionSecond {
+        id2WithinTx = transactions:getCurrentTransactionId();
+        a = a + " inSecondTrx";
+        if (i == 0) {
+            abort;
+        }
+        a = a + " endSecondTrx";
+    } onretry {
+        a = a + " beforeRetry-second";
+    }
+
+    a = a + " end";
+    return (a, id1WithinTx, idAfterHandler, id2WithinTx, idWithinHandler);
+}
+
+
+function commitFunction(string transactionid) {
+    idWithinHandler = transactionid;
     a = a + " incommitFunction";
 }
 
-function abortFunction() {
+function abortFunction(string transactionid) {
+    idWithinHandler = transactionid;
     a = a + " inAbortFunction";
 }
 
-function commitFunctionSecond() {
+function commitFunctionSecond(string transactionid) {
+    idWithinHandler = transactionid;
     a = a + " incommitFunctionSecond";
 }
 
 
-function abortFunctionSecond() {
+function abortFunctionSecond(string transactionid) {
+    idWithinHandler = transactionid;
     a = a + " inAbortFunctionSecond";
 }
