@@ -1,21 +1,21 @@
-struct Department {
+type Department {
     string dptName;
     Person[] employees;
-}
+};
 
-struct Person {
+type Person {
     string name = "default first name";
     string lname;
     map adrs;
     int age = 999;
     Family family;
-}
+};
 
-struct Family {
+type Family {
     string spouse;
     int noOfChildren;
     string[] children;
-}
+};
 
 function testCreateStruct () returns (string, map, int) {
     map address1;

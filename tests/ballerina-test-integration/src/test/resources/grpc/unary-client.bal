@@ -17,7 +17,7 @@ import ballerina/io;
 import ballerina/grpc;
 
 function main (string[] args) {
-    endpoint helloWorldBlockingClient helloWorldBlockingEp {
+    endpoint HelloWorldBlockingClient helloWorldBlockingEp {
         host:"localhost",
         port:9098
     };
@@ -34,100 +34,101 @@ function main (string[] args) {
     }
 }
 
-struct helloWorldBlockingStub {
-    grpc:Client clientEndpoint;
-    grpc:ServiceStub serviceStub;
-}
+public type HelloWorldBlockingStub object {
+    public {
+        grpc:Client clientEndpoint;
+        grpc:ServiceStub serviceStub;
+    }
 
-function <helloWorldBlockingStub stub> initStub (grpc:Client clientEndpoint) {
-    grpc:ServiceStub navStub = {};
-    navStub.initStub(clientEndpoint, "blocking", descriptorKey, descriptorMap);
-    stub.serviceStub = navStub;
-}
+    function initStub (grpc:Client clientEndpoint) {
+        grpc:ServiceStub navStub = new;
+        navStub.initStub(clientEndpoint, "blocking", DESCRIPTOR_KEY, descriptorMap);
+        self.serviceStub = navStub;
+    }
 
-struct helloWorldStub {
-    grpc:Client clientEndpoint;
-    grpc:ServiceStub serviceStub;
-}
+    function hello (string req) returns (string|error) {
+        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/hello", req);
+        match unionResp {
+            grpc:ConnectorError payloadError => {
+                error e = {message:payloadError.message};
+                return e;
+            }
 
-function <helloWorldStub stub> initStub (grpc:Client clientEndpoint) {
-    grpc:ServiceStub navStub = {};
-    navStub.initStub(clientEndpoint, "non-blocking", descriptorKey, descriptorMap);
-    stub.serviceStub = navStub;
-}
-
-function <helloWorldBlockingStub stub> hello (string req) returns (string|error) {
-    any|grpc:ConnectorError unionResp = stub.serviceStub.blockingExecute("helloWorld/hello", req);
-    match unionResp {
-        grpc:ConnectorError payloadError => {
-            error e = {message:payloadError.message};
-            return e;
-        }
-    //Below code snippet will change after the pending match fix.
-        any|string payload => {
-            match payload {
-                string s => {
-                    return s;
-                }
-                any nonOccurrence => {
-                    error e = {message:"Unexpected type."};
-                    return e;
-                }
+            any payload => {
+                string result = <string> payload;
+                return result;
             }
         }
     }
 }
 
-function <helloWorldStub stub> hello (string req, typedesc listener) returns (error|null) {
-    var err1 = stub.serviceStub.nonBlockingExecute("helloWorld/hello", req, listener);
-    if (err1 != null && err1.message != null) {
-        error e = {message:err1.message};
-        return e;
+public type HelloWorldStub object {
+    public {
+        grpc:Client clientEndpoint;
+        grpc:ServiceStub serviceStub;
     }
-    return null;
+
+    function initStub (grpc:Client clientEndpoint) {
+        grpc:ServiceStub navStub = new;
+        navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+        self.serviceStub = navStub;
+    }
+
+    function hello (string req, typedesc listener) returns (error|()) {
+        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/hello", req, listener);
+        if (err1 != ()) {
+            error e = {message:err1.message};
+            return e;
+        }
+        return ();
+    }
 }
 
-public struct helloWorldBlockingClient {
-    grpc:Client client;
-    helloWorldBlockingStub stub;
+public type HelloWorldBlockingClient object {
+    public {
+        grpc:Client client;
+        HelloWorldBlockingStub stub;
+    }
+
+    public function init (grpc:ClientEndpointConfiguration config) {
+        // initialize client endpoint.
+        grpc:Client client = new;
+        client.init(config);
+        self.client = client;
+        // initialize service stub.
+        HelloWorldBlockingStub stub = new;
+        stub.initStub(client);
+        self.stub = stub;
+    }
+
+    public function getClient () returns (HelloWorldBlockingStub) {
+        return self.stub;
+    }
 }
 
-public function <helloWorldBlockingClient ep> init (grpc:ClientEndpointConfiguration config) {
-    // initialize client endpoint.
-    grpc:Client client = {};
-    client.init(config);
-    ep.client = client;
-    // initialize service stub.
-    helloWorldBlockingStub stub = {};
-    stub.initStub(client);
-    ep.stub = stub;
+public type HelloWorldClient object {
+    public {
+        grpc:Client client;
+        HelloWorldStub stub;
+    }
+
+    public function init (grpc:ClientEndpointConfiguration config) {
+        // initialize client endpoint.
+        grpc:Client client = new;
+        client.init(config);
+        self.client = client;
+        // initialize service stub.
+        HelloWorldStub stub = new;
+        stub.initStub(client);
+        self.stub = stub;
+    }
+
+    public function getClient () returns (HelloWorldStub) {
+        return self.stub;
+    }
 }
 
-public function <helloWorldBlockingClient ep> getClient () returns (helloWorldBlockingStub) {
-    return ep.stub;
-}
-
-public struct helloWorldClient {
-    grpc:Client client;
-    helloWorldStub stub;
-}
-
-public function <helloWorldClient ep> init (grpc:ClientEndpointConfiguration config) {
-    // initialize client endpoint.
-    grpc:Client client = {};
-    client.init(config);
-    ep.client = client;
-    // initialize service stub.
-    helloWorldStub stub = {};
-    stub.initStub(client);
-    ep.stub = stub;
-}
-
-public function <helloWorldClient ep> getClient () returns (helloWorldStub) {
-    return ep.stub;
-}
-
-const string descriptorKey = "helloWorld.proto";
+@final string DESCRIPTOR_KEY = "helloWorld.proto";
 map descriptorMap =
 {
     "helloWorld.proto":"0A1068656C6C6F576F726C642E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32530A0A68656C6C6F576F726C6412450A0568656C6C6F121B676F6F676C652E70726F746F6275662E537472696E6756616C75651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528003000620670726F746F33",

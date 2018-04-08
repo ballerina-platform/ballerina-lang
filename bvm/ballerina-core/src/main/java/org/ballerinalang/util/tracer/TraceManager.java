@@ -23,14 +23,14 @@ import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.util.tracer.config.ConfigLoader;
-import org.ballerinalang.util.tracer.config.OpenTracingConfig;
+import org.ballerinalang.config.ConfigRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
 import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
 
 /**
@@ -45,8 +45,8 @@ public class TraceManager {
     private Stack<BSpan> bSpanStack;
 
     private TraceManager() {
-        OpenTracingConfig openTracingConfig = ConfigLoader.load();
-        tracerStore = new TracersStore(openTracingConfig);
+        Map<String, String> configurations = ConfigRegistry.getInstance().getConfigTable(CONFIG_TABLE_TRACING);
+        tracerStore = new TracersStore(configurations);
         bSpanStack = new Stack<>();
     }
 

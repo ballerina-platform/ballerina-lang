@@ -27,17 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WebSocketConnectionManager {
 
-    private static final WebSocketConnectionManager CONNECTION_MANAGER = new WebSocketConnectionManager();
-
     // Map <sessionId, WebSocketConnectionStruct>
     private final Map<String, WebSocketOpenConnectionInfo> wsConnectionsMap = new ConcurrentHashMap<>();
-
-    private WebSocketConnectionManager() {
-    }
-
-    public static WebSocketConnectionManager getInstance() {
-        return CONNECTION_MANAGER;
-    }
 
     public WebSocketOpenConnectionInfo getConnectionInfo(String connectionID) {
         return wsConnectionsMap.get(connectionID);
@@ -47,7 +38,7 @@ public class WebSocketConnectionManager {
         wsConnectionsMap.put(connectionID, wsConnection);
     }
 
-    public WebSocketOpenConnectionInfo removeConnection(String connectionID) {
+    public WebSocketOpenConnectionInfo removeConnectionInfo(String connectionID) {
         return wsConnectionsMap.remove(connectionID);
     }
 }

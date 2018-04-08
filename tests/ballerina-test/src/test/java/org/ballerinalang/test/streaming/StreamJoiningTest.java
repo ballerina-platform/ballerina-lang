@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.streaming;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -33,10 +34,12 @@ import org.testng.annotations.Test;
 public class StreamJoiningTest {
 
     private CompileResult result;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/streaming/join-streaming-test.bal");
+        resultNegative = BCompileUtil.compile("test-src/streaming/join-streaming-negative-test.bal");
     }
 
     @Test(description = "Test streaming join query.")
@@ -46,7 +49,18 @@ public class StreamJoiningTest {
         Assert.assertNotNull(outputStatusCountArray);
 
         Assert.assertEquals(outputStatusCountArray.length, 2, "Expected events are not received");
-
     }
+
+    @Test(description = "Test streaming join query with errors")
+    public void testJoinNegativeCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        BAssertUtil.validateError(resultNegative, 0,
+                "undefined stream name (or alias) 'stockStream' found in select clause",
+                51, 9);
+        BAssertUtil.validateError(resultNegative, 1,
+                "undefined stream name (or alias) 'stockStream' found in select clause",
+                51, 9);
+    }
+
 
 }

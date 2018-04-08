@@ -51,7 +51,7 @@ public class Log extends AbstractLogFunction {
     @Override
     public void execute(Context context) {
         BStruct span = (BStruct) context.getRefArgument(0);
-        String spanId = span.getStringField(0);
+        String spanId = span.getStringField(2);
         String event = context.getStringArgument(0);
         String message = context.getStringArgument(1);
 
@@ -59,7 +59,7 @@ public class Log extends AbstractLogFunction {
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.INFO.value()) {
             String logMessage = String.format("[Tracing] Service: %s, Span: %s, Event: %s, Message: %s",
-                    span.getStringField(1), span.getStringField(2), event, message);
+                    span.getStringField(0), span.getStringField(1), event, message);
             getLogger(pkg).info(logMessage);
         }
 

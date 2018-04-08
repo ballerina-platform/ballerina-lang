@@ -51,4 +51,9 @@ public class TraceConstants {
 
     public static final String BALLERINA_TRACE_CONFIG_KEY = "trace.config";
     public static final String DEFAULT_USER_API_GROUP = "user_trace_";
+
+    public static final String JAEGER = "jaeger";
+    public static final String ENABLED_CONFIG = "enabled";
+    public static final String TRACER_NAME_CONFIG = "name";
+
 }

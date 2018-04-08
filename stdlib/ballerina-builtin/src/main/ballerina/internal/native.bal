@@ -5,13 +5,13 @@
 //
 package ballerina.internal;
 
-public struct anyStruct {}
+public type anyStruct {};
 
-public struct annotationData {
-    string name;
-    string pkgName;
-    anyStruct value;
-}
+public type annotationData {
+    string name,
+    string pkgName,
+    anyStruct value,
+};
 
 public native function getServiceAnnotations (typedesc serviceType) returns (annotationData[]);
 

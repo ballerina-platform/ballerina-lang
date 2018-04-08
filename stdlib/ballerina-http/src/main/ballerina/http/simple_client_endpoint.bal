@@ -23,13 +23,44 @@ documentation {
     F{{simpleConfig}} - The configurations for the endpoint to connect to. This contains all the configurations as the
                         ClientEndpointConfiguration, except for the resiliency related configurations.
 }
-public struct SimpleClientEndpoint {
-    string epName;
-    SimpleClientEndpointConfiguration simpleConfig;
-
-    private:
+public type SimpleClientEndpoint object {
+    public {
+        string epName;
+        SimpleClientEndpointConfiguration simpleConfig;
+    }
+    private {
         ClientEndpoint httpEP;
-}
+    }
+
+    public function init(SimpleClientEndpointConfiguration simpleConfig);
+
+    documentation {
+        The register() function is not implemented for the SimpleClientEndpoint.
+    }
+    public function register(typedesc serviceType) {
+
+    }
+
+    documentation {
+        The start() function is not implemented for the SimpleClientEndpoint.
+    }
+    public function start() {
+
+    }
+
+    documentation {
+        Returns the backing HTTP client used by the endpoint.
+    }
+    public function getClient() returns HttpClient {
+        return httpEP.httpClient;
+    }
+
+    documentation {
+        The stop() function is not implemented for the SimpleClientEndpoint.
+    }
+    public function stop() {
+    }
+};
 
 documentation {
     The configurations possible with the SimpleClientEndpoint. This endpoint excludes the resiliency related configurations.
@@ -44,103 +75,57 @@ documentation {
     F{{chunking}} - The chunking behaviour of the request
     F{{followRedirects}} - Redirect related options
     F{{retry}} - Retry related options
-    F{{proxy}} - Proxy related options
+    F{{proxyConfig}} - Proxy related options
     F{{connectionThrottling}} - The configurations for controlling the number of connections allowed concurrently
     F{{cacheConfig}} - The configurations for controlling the caching behaviour
 }
-public struct SimpleClientEndpointConfiguration {
-    string url;
-    SecureSocket|null secureSocket;
-    int endpointTimeout;
-    string httpVersion;
-    string forwarded;
-    boolean keepAlive;
-    TransferEncoding transferEncoding;
-    Chunking chunking;
-    FollowRedirects|null followRedirects;
-    Retry|null retry;
-    Proxy|null proxy;
-    ConnectionThrottling|null connectionThrottling;
-    CacheConfig cacheConfig;
-}
-
-documentation {
-    The initializer for the SimpleClientEndpointConfiguration for initializing the configs to their default values.
-
-    T{{config}} - The SimpleClientEndpoint struct to be initialized
-}
-public function <SimpleClientEndpointConfiguration config> SimpleClientEndpointConfiguration() {
-    config.chunking = Chunking.AUTO;
-    config.transferEncoding = TransferEncoding.CHUNKING;
-    config.httpVersion = "1.1";
-    config.forwarded = "disable";
-    config.endpointTimeout = 60000;
-    config.keepAlive = true;
-    config.cacheConfig = {};
-}
+public type SimpleClientEndpointConfiguration {
+    string url,
+    SecureSocket? secureSocket,
+    int endpointTimeout = 60000,
+    string httpVersion = "1.1",
+    string forwarded = "disable",
+    boolean keepAlive = true,
+    TransferEncoding transferEncoding = "CHUNKING",
+    Chunking chunking = "AUTO",
+    FollowRedirects? followRedirects,
+    Retry? retry,
+    Proxy? proxyConfig,
+    ConnectionThrottling? connectionThrottling,
+    CacheConfig cacheConfig = {},
+};
 
 documentation {
     The initialization function for the SimpleClientEndpoint.
 
     P{{simpleConfig}} - The user provided configurations for the endpoint
-    T{{ep}} - The endpoint to be initialized
 }
-public function <SimpleClientEndpoint ep> init(SimpleClientEndpointConfiguration simpleConfig) {
+public function SimpleClientEndpoint::init(SimpleClientEndpointConfiguration simpleConfig) {
     string url = simpleConfig.url;
     if (url.hasSuffix("/")) {
         int lastIndex = url.length() - 1;
         url = url.subString(0, lastIndex);
     }
-    ep.httpEP = {};
-    ep.httpEP.config = {};
-    ep.httpEP.config.targets = [];
+    self.httpEP = new;
+    self.httpEP.config = {};
+    self.httpEP.config.targets = [];
 
-    ep.httpEP.config.targets[0] = {url: simpleConfig.url, secureSocket: simpleConfig.secureSocket};
-    ep.httpEP.config.endpointTimeout = simpleConfig.endpointTimeout;
-    ep.httpEP.config.httpVersion = simpleConfig.httpVersion;
-    ep.httpEP.config.forwarded = simpleConfig.forwarded;
-    ep.httpEP.config.keepAlive = simpleConfig.keepAlive;
-    ep.httpEP.config.transferEncoding = simpleConfig.transferEncoding;
-    ep.httpEP.config.chunking = simpleConfig.chunking;
-    ep.httpEP.config.followRedirects = simpleConfig.followRedirects;
-    ep.httpEP.config.retry = simpleConfig.retry;
-    ep.httpEP.config.proxy = simpleConfig.proxy;
-    ep.httpEP.config.connectionThrottling = simpleConfig.connectionThrottling;
+    self.httpEP.config.targets[0] = {url: simpleConfig.url, secureSocket: simpleConfig.secureSocket};
+    self.httpEP.config.endpointTimeout = simpleConfig.endpointTimeout;
+    self.httpEP.config.httpVersion = simpleConfig.httpVersion;
+    self.httpEP.config.forwarded = simpleConfig.forwarded;
+    self.httpEP.config.keepAlive = simpleConfig.keepAlive;
+    self.httpEP.config.transferEncoding = simpleConfig.transferEncoding;
+    self.httpEP.config.chunking = simpleConfig.chunking;
+    self.httpEP.config.followRedirects = simpleConfig.followRedirects;
+    self.httpEP.config.retry = simpleConfig.retry;
+    self.httpEP.config.proxyConfig = simpleConfig.proxyConfig;
+    self.httpEP.config.connectionThrottling = simpleConfig.connectionThrottling;
 
     if (simpleConfig.cacheConfig.enabled) {
-        ep.httpEP.config.cacheConfig = simpleConfig.cacheConfig;
-        ep.httpEP.httpClient = createHttpCachingClient(url, ep.httpEP.config, ep.httpEP.config.cacheConfig);
+        self.httpEP.config.cacheConfig = simpleConfig.cacheConfig;
+        self.httpEP.httpClient = createHttpCachingClient(url, self.httpEP.config, self.httpEP.config.cacheConfig);
     } else {
-        ep.httpEP.httpClient = createHttpClient(url, ep.httpEP.config);
+        self.httpEP.httpClient = createHttpClient(url, self.httpEP.config);
     }
-}
-
-documentation {
-    The register() function is not implemented for the SimpleClientEndpoint.
-}
-public function <SimpleClientEndpoint ep> register(typedesc serviceType) {
-
-}
-
-documentation {
-    The start() function is not implemented for the SimpleClientEndpoint.
-}
-public function <SimpleClientEndpoint ep> start() {
-
-}
-
-documentation {
-    Returns the backing HTTP client used by the endpoint.
-
-    T{{ep}} - The endpoint of which the backing HTTP client needs to be retrieved
-}
-public function <SimpleClientEndpoint ep> getClient() returns HttpClient {
-    return ep.httpEP.httpClient;
-}
-
-documentation {
-    The stop() function is not implemented for the SimpleClientEndpoint.
-}
-public function <SimpleClientEndpoint ep> stop() {
-
 }

@@ -35,7 +35,6 @@ public class BStructSymbol extends BTypeSymbol {
     public List<BAttachedFunction> attachedFuncs;
     public BAttachedFunction initializerFunc;
     public BAttachedFunction defaultsValuesInitFunc;
-    public boolean isObject = false;
 
     public BStructSymbol(int kind, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(kind, flags, name, pkgID, type, owner);

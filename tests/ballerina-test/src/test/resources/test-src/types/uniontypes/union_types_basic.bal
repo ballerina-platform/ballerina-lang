@@ -21,8 +21,8 @@ function getUnion (string | int | float si) returns (int | float | string) {
 }
 
 
-function testNullableTypeBasics1() returns (int | json | string | float | map | boolean | null) {
-    int | string | float | json| map | boolean | null  k = 5;
+function testNullableTypeBasics1() returns (int | json | string | float | map | boolean | ()) {
+    int | string | float | json| map | boolean | ()  k = 5;
 
     k = "sss";
     k = 1.0;
@@ -35,27 +35,27 @@ function testNullableTypeBasics1() returns (int | json | string | float | map | 
 
     k = true;
 
-    k = null;
+    k = ();
     return k;
 
 }
 
 
-function testNullableTypeBasics2() returns (int | boolean | null) {
+function testNullableTypeBasics2() returns (int | boolean | ()) {
 
-   int | float | null x;
+   int | float | () x;
 
   match x {
       float | int s => io:println("int");
-      int | null s => io:println("null");
+      int | () s => io:println("null");
   }
 
-  int | boolean | null i;
+  int | boolean | () i;
 
   match i {
           int => io:println("int");
           boolean => io:println("boolean");
-          any | null a => io:println(a);
+          any | () a => io:println(a);
   }
 
   return i;

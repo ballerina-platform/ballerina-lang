@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.completions.util.positioning.resolvers.Conne
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ObjectTypeScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.PackageNodeScopeResolver;
+import org.ballerinalang.langserver.completions.util.positioning.resolvers.RecordScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ResourceParamScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ServiceScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.TopLevelNodeScopeResolver;
@@ -49,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
@@ -57,9 +59,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -124,6 +126,7 @@ public class TreeVisitor extends LSNodeVisitor {
     private Class cursorPositionResolver;
     private LSServiceOperationContext documentServiceContext;
     private BLangNode previousNode = null;
+    private BLangNode nextNode = null;
 
     public TreeVisitor(LSServiceOperationContext documentServiceContext) {
         this.documentServiceContext = documentServiceContext;
@@ -210,25 +213,23 @@ public class TreeVisitor extends LSNodeVisitor {
         }
     }
 
-    public void visit(BLangStruct structNode) {
+    @Override
+    public void visit(BLangRecord bLangRecord) {
         if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(structNode.getPosition(), structNode, this, this.documentServiceContext)) {
-            BSymbol structSymbol = structNode.symbol;
-            SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, symbolEnv);
-
-            if (structNode.fields.isEmpty() && isCursorWithinBlock(structNode.getPosition(), structEnv)) {
-                symbolEnv = structEnv;
+                .isCursorBeforeNode(bLangRecord.getPosition(), bLangRecord, this, this.documentServiceContext)) {
+            BSymbol structSymbol = bLangRecord.symbol;
+            SymbolEnv recordEnv = SymbolEnv.createPkgLevelSymbolEnv(bLangRecord, structSymbol.scope, symbolEnv);
+            if (bLangRecord.fields.isEmpty() && isCursorWithinBlock(bLangRecord.getPosition(), recordEnv)) {
+                symbolEnv = recordEnv;
                 Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
                 this.populateSymbols(visibleSymbolEntries, null);
                 this.setTerminateVisitor(true);
-            } else if (!structNode.fields.isEmpty()) {
-                // Since the struct definition do not have a block statement within, we push null
-                this.blockStmtStack.push(null);
-                this.blockOwnerStack.push(structNode);
-                // Cursor position is calculated against the Block statement scope resolver
-                this.cursorPositionResolver = BlockStatementScopeResolver.class;
-                structNode.fields.forEach(field -> acceptNode(field, structEnv));
-                this.blockStmtStack.pop();
+            } else if (!bLangRecord.fields.isEmpty()) {
+                // Since the record definition do not have a block statement within, we push null
+                cursorPositionResolver = RecordScopeResolver.class;
+                this.blockOwnerStack.push(bLangRecord);
+                bLangRecord.fields.forEach(field -> acceptNode(field, recordEnv));
+                cursorPositionResolver = TopLevelNodeScopeResolver.class;
                 this.blockOwnerStack.pop();
             }
         }
@@ -413,10 +414,13 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
+        BSymbol serviceSymbol = serviceNode.symbol;
+        SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, symbolEnv);
+        
+        serviceNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, serviceEnv));
+        
         if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(serviceNode.getPosition(), serviceNode, this, this.documentServiceContext)) {
-            BSymbol serviceSymbol = serviceNode.symbol;
-            SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, symbolEnv);
             
             // Reset the previous node
             this.setPreviousNode(null);
@@ -450,6 +454,8 @@ public class TreeVisitor extends LSNodeVisitor {
         BSymbol resourceSymbol = resourceNode.symbol;
         SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, symbolEnv);
 
+        resourceNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, resourceEnv));
+        
         if (isWithinParameterContext(resourceName, NODE_TYPE_RESOURCE)) {
             this.populateSymbols(this.resolveAllVisibleSymbols(resourceEnv), resourceEnv);
             setTerminateVisitor(true);
@@ -529,21 +535,6 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangAbort abortNode) {
         ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(abortNode.getPosition(), abortNode, this, this.documentServiceContext);
-    }
-
-    private BLangVariableDef createVarDef(BLangVariable var) {
-        BLangVariableDef varDefNode = new BLangVariableDef();
-        varDefNode.var = var;
-        varDefNode.pos = var.pos;
-        return varDefNode;
-    }
-
-    private BLangBlockStmt generateCodeBlock(StatementNode... statements) {
-        BLangBlockStmt block = new BLangBlockStmt();
-        for (StatementNode stmt : statements) {
-            block.addStatement(stmt);
-        }
-        return block;
     }
 
     @Override
@@ -661,7 +652,7 @@ public class TreeVisitor extends LSNodeVisitor {
         if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(endpointNode.getPosition(), endpointNode, this, this.documentServiceContext)) {
             SymbolEnv endpointEnv = SymbolEnv
-                    .createPkgLevelSymbolEnv(endpointNode, endpointNode.symbol.scope, symbolEnv);
+                    .createPkgLevelSymbolEnv(endpointNode, symbolEnv.scope, symbolEnv);
             this.isWithinEndpointContext(endpointNode.getPosition(), endpointEnv, endpointNode.getName().getValue());
         }
     }
@@ -671,10 +662,15 @@ public class TreeVisitor extends LSNodeVisitor {
         BSymbol objectSymbol = objectNode.symbol;
         SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(objectNode, objectSymbol.scope, symbolEnv);
         blockOwnerStack.push(objectNode);
-        this.cursorPositionResolver = ObjectTypeScopeResolver.class;
-        objectNode.fields.forEach(field -> acceptNode(field, objectEnv));
+        objectNode.fields.forEach(field -> {
+            this.cursorPositionResolver = ObjectTypeScopeResolver.class;
+            acceptNode(field, objectEnv);
+        });
         // TODO: visit annotation and doc attachments
-        objectNode.functions.forEach(f -> acceptNode(f, objectEnv));
+        objectNode.functions.forEach(f -> {
+            this.cursorPositionResolver = ObjectTypeScopeResolver.class;
+            acceptNode(f, objectEnv);
+        });
         blockOwnerStack.pop();
         this.cursorPositionResolver = TopLevelNodeScopeResolver.class;
     }
@@ -709,6 +705,20 @@ public class TreeVisitor extends LSNodeVisitor {
             acceptNode(patternClause.body, symbolEnv);
             blockOwnerStack.pop();
         }
+    }
+
+    @Override
+    public void visit(BLangAnnotationAttachment annAttachmentNode) {
+        SymbolEnv annotationAttachmentEnv = new SymbolEnv(annAttachmentNode, symbolEnv.scope);
+        this.isCursorWithinBlock(annAttachmentNode.getPosition(), annotationAttachmentEnv);
+    }
+
+    public void setPreviousNode(BLangNode previousNode) {
+        this.previousNode = previousNode;
+    }
+
+    public void setNextNode(BLangNode nextNode) {
+        this.nextNode = nextNode;
     }
 
     /**
@@ -770,6 +780,7 @@ public class TreeVisitor extends LSNodeVisitor {
     // Private Methods
     private void acceptNode(BLangNode node, SymbolEnv env) {
         if (this.terminateVisitor) {
+            documentServiceContext.put(CompletionKeys.NEXT_NODE_KEY, nextNode);
             return;
         }
 
@@ -939,7 +950,18 @@ public class TreeVisitor extends LSNodeVisitor {
         return isWithinParams;
     }
 
-    public void setPreviousNode(BLangNode previousNode) {
-        this.previousNode = previousNode;
+    private BLangVariableDef createVarDef(BLangVariable var) {
+        BLangVariableDef varDefNode = new BLangVariableDef();
+        varDefNode.var = var;
+        varDefNode.pos = var.pos;
+        return varDefNode;
+    }
+
+    private BLangBlockStmt generateCodeBlock(StatementNode... statements) {
+        BLangBlockStmt block = new BLangBlockStmt();
+        for (StatementNode stmt : statements) {
+            block.addStatement(stmt);
+        }
+        return block;
     }
 }

@@ -16,28 +16,28 @@
 
 package ballerina.runtime;
 
-public struct NullReferenceException {
+public type NullReferenceException {
     string message;
     error[] cause;
-}
+};
 
-public struct IllegalStateException {
+public type IllegalStateException {
     string message;
     error[] cause;
-}
+};
 
-public struct CallStackElement {
+public type CallStackElement {
     string callableName;
     string packageName;
     string fileName;
     int lineNumber;
-}
+};
 
 public native function getCallStack () returns (CallStackElement[]);
 
 public native function getErrorCallStackFrame (error e) returns (CallStackElement);
 
-public struct CallFailedException {
+public type CallFailedException {
     string message;
     error[] cause;
-}
+};

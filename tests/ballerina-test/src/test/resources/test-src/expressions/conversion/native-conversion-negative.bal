@@ -1,4 +1,4 @@
-struct Person {
+type Person {
     string name;
     int age;
     Person parent;
@@ -8,12 +8,12 @@ struct Person {
     any a;
     float score;
     boolean alive;
-}
+};
 
-struct Student {
+type Student {
     string name;
     int age;
-}
+};
 
 function testStructToStruct () returns (Student) {
     Person p = {name:"Supun",
@@ -38,14 +38,14 @@ function testComplexMapToJson () returns (json) {
 }
 
 
-struct Info {
+type Info {
     blob infoBlob;
-}
+};
 
 function testStructWithIncompatibleTypeMapToJson () returns (json) {
     Info info = {};
     json j;
-    j =? <json>info;
+    j = check <json>info;
     return j;
 
 }

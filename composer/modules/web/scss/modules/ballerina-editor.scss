@@ -30,6 +30,15 @@ $white:#fff;
   }
 }
 
+.client-line-header, .client-life-line,
+.worker-life-line, .client-invocation-arrow,
+.action-arrow .statement-title-rect, .statement-title-rect, .action-arrow,
+.action-arrow-head, .action-dash-line, .flowchart-action-arrow,
+.default-worker-life-line, .worker-life-line, .action-invocation-statement-rect
+.flowchart-background-empty-rect, .connector-life-line {
+  stroke-width: 0.75;
+}
+
 /*---------------------------
       Default lines
 ---------------------------*/
@@ -40,18 +49,15 @@ $white:#fff;
 .client-invocation-arrow,
 .action-arrow .statement-title-rect {
   stroke: $primary-line-bgcolor;
-  stroke-width: 0.75;
 }
 
 .statement-title-rect {
   fill: $white;
   stroke:$primary-line-bgcolor;
-  stroke-width: 0.75;
 }
 
 .flowchart-true-text,
-.flowchart-false-text,
-.action-invocation-text {
+.flowchart-false-text {
   fill: $primary-line-bgcolor;
   font-weight: 300;
 }
@@ -71,7 +77,6 @@ $white:#fff;
 .action-dash-line {
   stroke: $primary-line-bgcolor;
   fill: $primary-line-bgcolor;
-  stroke-width: 0.75;
 }
 
 /*---------------------------
@@ -89,7 +94,6 @@ $white:#fff;
 .worker-life-line,
 .flowchart-background-empty-rect {
   stroke: $worker-color;
-  stroke-width: 0.75;
 }
 
 .flowchart-action-arrow-head {
@@ -108,12 +112,10 @@ $white:#fff;
 
 .connector-life-line {
   stroke: $connector-color;
-  stroke-width: 0.5;
 }
 
 .action-invocation-statement-rect {
   fill: $connector-color;
-  stroke-width: 1;
 }
 
 
@@ -126,23 +128,32 @@ $white:#fff;
     .panel {
       /* -- Service herder Styles -- */
       .panel-header {
-        fill: $white;
         .text-placeholder {
           shape-rendering: crispEdges;
           stroke: #a5a5a5;
           stroke-width: 1;
           stroke-dasharray: 4, 2;
         }
+        .headingRect, .panel-body-rect{
+          fill: $white;
+        }
         .editable-text-label {
           fill: #333;
-          stroke-width: 0.5px;
-          stroke: #333;
+          stroke: #2b2b2b;
+          font-weight: 300;
+          stroke-width: 0;
         }
+        
         .panel-header-controls-wrapper {
           fill: rgba(255, 255, 255, 0.1);
         }
-        text, .title-text {
-          fill: #333 !important;
+        .control-icons {
+          fill: #636363;
+          font-size: 11px;
+        }
+
+        .title-icon{
+          fill: #636363;        
         }
 
         .parameter-text,
@@ -154,19 +165,24 @@ $white:#fff;
           cursor: default;
         }
         .editor-area {
-          color: #333 !important;
+          color: #333;
           border: 1px solid #333;
         }
       }
       .panel-body {
-        fill: #fff;
+        .panel-body-rect{
+          fill:$white;
+        }
         .client-line-group {
           .client-line-text {
             text-anchor: middle;
             dominant-baseline: central;
-            text-transform: lowercase;
             fill: $primary-line-bgcolor;
             font-weight: 300;
+          }
+          text, .title-text {
+            fill: #333;
+            font-weight: 300px;
           }
         }
         .action-dash-line {
@@ -203,6 +219,13 @@ $white:#fff;
           fill: #dcdcdc;
           stroke: #ccc;
           stroke-dasharray: 0, 150, 50;
+        }
+
+        .match-expression{
+          dominant-baseline: central;
+        }
+        .match-pattern-clause{
+          font-style: italic;
         }
         
         .statement-title-text,
@@ -274,7 +297,7 @@ $white:#fff;
       }
     }
     .title-text, .condition-text{
-      fill: #555 !important;
+      fill: #555;
     }
   }
   .bottom-right-controls-container {
@@ -484,6 +507,10 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   fill: #f8f8f8;
 }
 
+.title-icon{
+  fill: #636363;
+}
+
 .top-menu {
   position: fixed;
   padding: 3px 26px 6px !important;
@@ -535,7 +562,7 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 }
 
 .title-text {
-  fill: #333 !important;
+  fill: #333;
 }
 
 .menu-pop-content{

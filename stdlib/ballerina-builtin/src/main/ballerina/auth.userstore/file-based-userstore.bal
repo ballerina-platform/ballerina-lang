@@ -20,21 +20,31 @@ import ballerina/config;
 import ballerina/security.crypto;
 
 @Description {value:"Represents the file-based user store"}
-public struct FilebasedUserstore {
-}
+public type FilebasedUserstore object {
+    
+    @Description {value:"Attempts to authenticate with username and password"}
+    @Param {value:"username: user name"}
+    @Param {value:"password: password"}
+    @Return {value:"boolean: true if authentication is a success, else false"}
+    public function authenticate (string user, string password) returns (boolean) {
+        string passwordHash = readPasswordHash(user);
+        return passwordHash == crypto:getHash(password, crypto:SHA256);
+    }
 
-@Description {value:"Attempts to authenticate with username and password"}
-@Param {value:"username: user name"}
-@Param {value:"password: password"}
-@Return {value:"boolean: true if authentication is a success, else false"}
-public function <FilebasedUserstore userstore> authenticate (string user, string password) returns (boolean) {
-    string passwordHash = readPasswordHash(user);
-    return passwordHash == crypto:getHash(password, crypto:Algorithm.SHA256);
-}
+    @Description {value:"Reads the groups for a user"}
+    @Param {value:"string: username"}
+    @Return {value:"string[]: array of groups for the user denoted by the username"}
+    public function readGroupsOfUser (string username) returns (string[]) {
+        // first read the user id from user->id mapping
+        // reads the groups for the userid
+        return getGroupsArray(getUserstoreConfigValue(readUserId(username), "groups"));
+    }
+};
+
 
 @Description {value:"Reads the password hash for a user"}
 @Param {value:"string: username"}
-@Return {value:"string: password hash read from userstore, or null if not found"}
+@Return {value:"string: password hash read from userstore, or nil if not found"}
 function readPasswordHash (string username) returns (string) {
     // first read the user id from user->id mapping
     // read the hashed password from the userstore file, using the user id
@@ -43,25 +53,27 @@ function readPasswordHash (string username) returns (string) {
 
 @Description {value:"Reads the user id for the given username"}
 @Param {value:"string: username"}
-@Return {value:"string: user id read from the userstore, or null if not found"}
+@Return {value:"string: user id read from the userstore, or nil if not found"}
 public function readUserId (string username) returns (string) {
     return getUserstoreConfigValue(username, "userid");
-}
-
-@Description {value:"Reads the groups for a user"}
-@Param {value:"string: username"}
-@Return {value:"string: comma separeted groups list, as specified in the userstore file or null if not found"}
-public function <FilebasedUserstore userstore> readGroupsOfUser (string username) returns (string) {
-    // first read the user id from user->id mapping
-    // reads the groups for the userid
-    return getUserstoreConfigValue(readUserId(username), "groups");
 }
 
 function getUserstoreConfigValue (string instanceId, string property) returns (string) {
     match config:getAsString(instanceId + "." + property) {
         string value => {
-            return value == null ? "" : value;
+            return value == () ? "" : value;
         }
-        any|null => return "";
+        () => { return ""; }
     }
+}
+
+@Description {value:"Construct an array of groups from the comma separed group string passed"}
+@Param {value:"groupString: comma separated string of groups"}
+@Return {value:"string[]: array of groups, nil if the groups string is empty/nil"}
+function getGroupsArray (string groupString) returns (string[]) {
+    string[] groupsArr = [];
+    if (lengthof groupString == 0) {
+        return groupsArr;
+    }
+    return groupString.split(",");
 }

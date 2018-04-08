@@ -150,13 +150,12 @@ public class MessageUtils {
      * @param error          error message struct
      */
     static void handleFailure(StreamObserver<Message> streamObserver, BStruct error) {
-        int statusCode = Integer.parseInt(String.valueOf(error.getIntField(0)));
         String errorMsg = error.getStringField(0);
         LOG.error(errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         if (streamObserver != null) {
-            streamObserver.onError(new StatusRuntimeException(Status.fromCodeValue(statusCode).withDescription
-                    (errorMsg)));
+            streamObserver.onError(new StatusRuntimeException(Status.fromCodeValue(Status.Code.INTERNAL.value())
+                    .withDescription(errorMsg)));
         }
     }
     
@@ -326,9 +325,9 @@ public class MessageUtils {
                     structType.getPackagePath(), structType.getName());
             for (BStructType.StructField structField : ((BStructType) structType).getStructFields()) {
                 String structFieldName = structField.getFieldName();
-                if (structField.getFieldType() instanceof BRefType) {
-                    BType bType = structField.getFieldType();
-                    if (MessageRegistry.getInstance().getMessageDescriptorMap().containsKey(bType.getName())) {
+                if (structField.getFieldType() instanceof BStructType) {
+                    BStructType bStructType = (BStructType) structField.getFieldType();
+                    if (MessageRegistry.getInstance().getMessageDescriptorMap().containsKey(bStructType.getName())) {
                         Message message = (Message) request.getFields().get(structFieldName);
                         requestStruct.setRefField(refIndex++, (BRefType) generateRequestStruct(message, programFile,
                                 structFieldName, structField.getFieldType()));

@@ -1,11 +1,12 @@
 function calculateExp1 (int x, int y) returns (int) {
     int z;
-    while (x >= y) {
-        y = y + 1;
-        if (y == 10) {
+    int yCopy = y;
+    while (x >= yCopy) {
+        yCopy = yCopy + 1;
+        if (yCopy == 10) {
             z = 100;
             break;
-        } else if (y > 20) {
+        } else if (yCopy > 20) {
             z = 1000;
             break;
         }
@@ -16,16 +17,17 @@ function calculateExp1 (int x, int y) returns (int) {
 
 function nestedBreakStmt (int x, int y) returns (int) {
     int z = 10;
-    while (x >= y) {
-        y = y + 1;
-        if (y >= 10) {
+    int yCopy = y;
+    while (x >= yCopy) {
+        yCopy = yCopy + 1;
+        if (yCopy >= 10) {
             z = z + 100;
             break;
         }
         z = z + 10;
-        while (y < x) {
+        while (yCopy < x) {
             z = z + 10;
-            y = y + 1;
+            yCopy = yCopy + 1;
             if (z >= 40) {
                 break;
             }

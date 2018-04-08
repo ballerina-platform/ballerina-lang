@@ -1,6 +1,5 @@
 package org.ballerinalang.observe.metrics.extension.micrometer;
 
-import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.ballerinalang.util.metrics.CallbackGauge;
 import org.ballerinalang.util.metrics.Counter;
@@ -23,8 +22,7 @@ public class MicrometerMetricProviderTest {
 
     @BeforeClass
     public void init() {
-        metricRegistry = new MetricRegistry(new MicrometerMetricProvider());
-        Metrics.globalRegistry.add(new SimpleMeterRegistry());
+        metricRegistry = new MetricRegistry(new MicrometerMetricProvider(new SimpleMeterRegistry()));
     }
 
     @Test

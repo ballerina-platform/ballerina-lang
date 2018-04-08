@@ -19,10 +19,22 @@ package ballerina.http;
 @Description {value:"Representation of an API Endpoint"}
 @Field {value:"config: ServiceEndpointConfiguration instance"}
 @Field {value:"httpEndpoint: ServiceEndpoint instance"}
-public struct ApiEndpoint {
-    ServiceEndpointConfiguration config;
-    ServiceEndpoint httpEndpoint;
-}
+public type ApiEndpoint object {
+    public {
+        ServiceEndpointConfiguration config;
+        ServiceEndpoint httpEndpoint;
+    }
+
+    new () {
+        httpEndpoint = new;
+    }
+
+    public function init (ServiceEndpointConfiguration config);
+    public function register (typedesc serviceType);
+    public function start ();
+    public function getClient () returns (Connection);
+    public function stop ();
+};
 
 @Description {value:"Add authn and authz filters"}
 @Param {value:"config: ServiceEndpointConfiguration instance"}
@@ -49,34 +61,31 @@ function addAuthFilters (ServiceEndpointConfiguration config) {
 function createAuthFilters () returns (Filter[]) {
     // TODO: currently hard coded. fix it.
     Filter[] authFilters = [];
-    AuthnFilter authnFilter = {};
-    AuthzFilter authzFilter = {};
+    //TODO fix this object instantiation properly
+    AuthnFilter authnFilter = new (authnRequestFilterFunc, responseFilterFunc);
+    AuthzFilter authzFilter = new (authzRequestFilterFunc, responseFilterFunc);
     authFilters[0] = authnFilter;
     authFilters[1] = authzFilter;
     return authFilters;
 }
 
-public function <ApiEndpoint ep> ApiEndpoint () {
-    ep.httpEndpoint = {};
-}
-
-public function <ApiEndpoint ep> init (ServiceEndpointConfiguration config) {
+public function ApiEndpoint::init (ServiceEndpointConfiguration config) {
     addAuthFilters(config);
-    ep.httpEndpoint.init(config);
+    self.httpEndpoint.init(config);
 }
 
-public function <ApiEndpoint ep> register (typedesc serviceType) {
-    ep.httpEndpoint.register(serviceType);
+public function ApiEndpoint::register (typedesc serviceType) {
+    self.httpEndpoint.register(serviceType);
 }
 
-public function <ApiEndpoint ep> start () {
-    ep.httpEndpoint.start();
+public function ApiEndpoint::start () {
+    self.httpEndpoint.start();
 }
 
-public function <ApiEndpoint ep> getClient () returns (Connection) {
-    return ep.httpEndpoint.getClient();
+public function ApiEndpoint::getClient () returns (Connection) {
+    return self.httpEndpoint.getClient();
 }
 
-public function <ApiEndpoint ep> stop () {
-    ep.httpEndpoint.stop();
+public function ApiEndpoint::stop () {
+    self.httpEndpoint.stop();
 }

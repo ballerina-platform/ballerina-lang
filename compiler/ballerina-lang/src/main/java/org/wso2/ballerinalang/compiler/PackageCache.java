@@ -34,7 +34,7 @@ public class PackageCache {
     private static final CompilerContext.Key<PackageCache> PACKAGE_CACHE_KEY =
             new CompilerContext.Key<>();
 
-    private Map<String, BLangPackage> packageMap;
+    protected Map<String, BLangPackage> packageMap;
 
     public static PackageCache getInstance(CompilerContext context) {
         PackageCache packageCache = context.get(PACKAGE_CACHE_KEY);
@@ -44,7 +44,11 @@ public class PackageCache {
         return packageCache;
     }
 
-    private PackageCache(CompilerContext context) {
+    public static void setInstance(PackageCache packageCache, CompilerContext context) {
+        context.put(PACKAGE_CACHE_KEY, packageCache);
+    }
+
+    protected PackageCache(CompilerContext context) {
         context.put(PACKAGE_CACHE_KEY, this);
         this.packageMap = new HashMap<>();
     }
@@ -58,7 +62,9 @@ public class PackageCache {
     }
 
     public void put(PackageID packageID, BLangPackage bLangPackage) {
-        bLangPackage.packageID = packageID;
+        if (bLangPackage != null) {
+            bLangPackage.packageID = packageID;
+        }
         packageMap.put(packageID.bvmAlias(), bLangPackage);
     }
 }

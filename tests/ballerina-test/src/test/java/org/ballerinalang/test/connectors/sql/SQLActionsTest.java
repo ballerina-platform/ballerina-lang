@@ -236,13 +236,6 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest", enabled = false)
-    public void testNullINParameters() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullINParameters");
-        BInteger retValue = (BInteger) returns[0];
-        Assert.assertEquals(retValue.intValue(), 1);
-    }
-
     @Test(groups = "ConnectorTest")
     public void testINOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testINOutParameters");
@@ -489,36 +482,31 @@ public class SQLActionsTest {
                 + "\"TIMESTAMP_TYPE\":\"2017-02-03 11:53:00.000000\"}]");
     }
 
-    @Test(groups = "ConnectorTest",
-          description = "Test failed select query")
+    @Test(groups = "ConnectorTest", description = "Test failed select query")
     public void testFailedSelect() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testSelectData");
         Assert.assertTrue(returns[0].stringValue().contains("execute query failed:"));
     }
 
-    @Test(groups = "ConnectorTest",
-          description = "Test failed update with generated id action")
+    @Test(groups = "ConnectorTest", description = "Test failed update with generated id action")
     public void testFailedGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsert");
         Assert.assertTrue(returns[0].stringValue().contains("execute update with generated keys failed:"));
     }
 
-    @Test(groups = "ConnectorTest",
-          description = "Test failed call procedure")
+    @Test(groups = "ConnectorTest", description = "Test failed call procedure")
     public void testFailedCallProcedure() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testCallProcedure");
         Assert.assertTrue(returns[0].stringValue().contains("execute stored procedure failed:"));
     }
 
-    @Test(groups = "ConnectorTest",
-          description = "Test failed batch update")
+    @Test(groups = "ConnectorTest", description = "Test failed batch update")
     public void testFailedBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testBatchUpdate");
         Assert.assertTrue(returns[0].stringValue().contains("execute batch update failed:"));
     }
 
-    @Test(groups = "ConnectorTest",
-          description = "Test failed parameter array update")
+    @Test(groups = "ConnectorTest", description = "Test failed parameter array update")
     public void testInvalidArrayofQueryParameters() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testInvalidArrayofQueryParameters");
         Assert.assertTrue(returns[0].stringValue()

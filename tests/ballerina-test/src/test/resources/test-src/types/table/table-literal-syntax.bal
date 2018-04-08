@@ -1,10 +1,10 @@
-struct Person {
-    int id;
-    int age;
-    float salary;
-    string name;
-    boolean married;
-}
+type Person {
+    int id,
+    int age,
+    float salary,
+    string name,
+    boolean married,
+};
 
 function testTableAddOnUnconstrainedTable() returns (int) {
     table<Person> t1 = table {};
@@ -73,9 +73,7 @@ function testTableLiteralDataWithInit() returns (int) {
     table<Person> t1 = table {
         primaryKey : ["id", "salary"],
         index : ["id", "salary"],
-        data : [{id:1, age:30, salary:300.50, name:"jane", married:true},
-                {id:2, age:30, salary:300.50, name:"jane", married:true}
-               ]
+        data : [1,1]
     };
 
     int count = t1.count();

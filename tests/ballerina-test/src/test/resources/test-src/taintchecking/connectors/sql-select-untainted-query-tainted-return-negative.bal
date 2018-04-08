@@ -1,9 +1,9 @@
 import ballerina/sql;
 
-struct Employee {
+type Employee {
     int id;
     string name;
-}
+};
 
 public function main (string[] args) {
     testSelectWithUntaintedQueryProducingTaintedReturnNegative(args);
@@ -11,7 +11,7 @@ public function main (string[] args) {
 
 public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(string[] args) {
     endpoint sql:Client testDB {
-        database: sql:DB.MYSQL,
+        database: sql:DB_MYSQL,
         host: "localhost",
         port: 3306,
         name: "testdb",

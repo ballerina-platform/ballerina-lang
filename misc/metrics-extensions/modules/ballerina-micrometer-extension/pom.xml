@@ -117,7 +117,7 @@
                     <descriptors>
                         <descriptor>src/main/assembly/dist.xml</descriptor>
                     </descriptors>
-                    <finalName>prometheus-extension</finalName>
+                    <finalName>micrometer-extension</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>

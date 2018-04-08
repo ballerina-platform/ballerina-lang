@@ -37,12 +37,11 @@ import java.util.List;
  *
  * @since 0.94
  */
-public class BLangInvocation extends BLangVariableReference implements InvocationNode {
+public class BLangInvocation extends BLangAccessExpression implements InvocationNode {
 
     public BLangIdentifier pkgAlias;
     public BLangIdentifier name;
     public List<BLangExpression> argExprs = new ArrayList<>();
-    public BLangVariableReference expr;
     //caching since at desugar level we need to identify whether this is actually attached function or not
     public BSymbol exprSymbol;
     public BSymbol symbol;

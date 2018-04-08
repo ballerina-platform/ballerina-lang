@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 /**
  * Test case for fork join.
  */
+@Test(groups = {"broken"})
 public class ForkJoinReturnAnyTest {
     private CompileResult result;
 

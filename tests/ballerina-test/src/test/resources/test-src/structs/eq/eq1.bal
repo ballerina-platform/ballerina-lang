@@ -1,13 +1,13 @@
 package eq;
 
-public struct person {
+public type person {
     int age;
     string name;
     string address;
     string zipcode = "95134";
     string ssn;
     int id;
-}
+};
 
 
 public function <person p> getName() returns (string) {
@@ -26,7 +26,7 @@ public function <person p> setSSN(string ssn) {
     p.ssn = ssn;
 }
 
-public struct employee {
+public type employee {
     int age;
     string name;
     string address;
@@ -34,7 +34,7 @@ public struct employee {
     string ssn;
     int id;
     int employeeId = 123456;
-}
+};
 
 public function <employee e> employee() {
 }

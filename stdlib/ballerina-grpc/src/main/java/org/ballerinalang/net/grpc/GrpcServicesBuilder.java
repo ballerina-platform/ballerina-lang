@@ -127,7 +127,13 @@ public class GrpcServicesBuilder {
             Descriptors.Descriptor responseDescriptor = serviceDescriptor.findMethodByName(methodDescriptor.getName())
                     .getOutputType();
             MessageRegistry.getInstance().addMessageDescriptor(requestDescriptor.getName(), requestDescriptor);
+            for (Descriptors.Descriptor nestedType : requestDescriptor.getNestedTypes()) {
+                MessageRegistry.getInstance().addMessageDescriptor(nestedType.getName(), nestedType);
+            }
             MessageRegistry.getInstance().addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
+            for (Descriptors.Descriptor nestedType : responseDescriptor.getNestedTypes()) {
+                MessageRegistry.getInstance().addMessageDescriptor(nestedType.getName(), nestedType);
+            }
 
             MethodDescriptor.Marshaller<Message> reqMarshaller = ProtoUtils.marshaller(Message.newBuilder
                     (requestDescriptor.getName()).build());
@@ -191,7 +197,7 @@ public class GrpcServicesBuilder {
             try {
                 server.start();
             } catch (IOException e) {
-                throw new GrpcServerException("Error while starting gRPC server", e);
+                throw new GrpcServerException(e);
             }
         } else {
             throw new GrpcServerException("No gRPC service is registered to Start" +

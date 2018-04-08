@@ -35,7 +35,7 @@ import org.ballerinalang.net.websub.hub.Hub;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.websub",
+        orgName = "ballerina", packageName = "websub",
         functionName = "validateAndPublishToInternalHub",
         args = {@Argument(name = "hubUrl", type = TypeKind.STRING),
                 @Argument(name = "topic", type = TypeKind.STRING),
@@ -49,11 +49,11 @@ public class ValidateAndPublishToInternalHub extends BlockingNativeCallableUnit 
         String hubUrl = context.getStringArgument(0);
         String topic = context.getStringArgument(1);
         BJSON jsonPayload = (BJSON) context.getRefArgument(0);
-        String errorMessage = null;
+        String errorMessage;
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted() && hubInstance.retrieveHubUrl().equals(hubUrl)) {
             String payload = jsonPayload.stringValue();
-            Hub.getInstance().publish(topic, payload);
+            errorMessage = Hub.getInstance().publish(topic, payload);
         } else {
             errorMessage = "Internal Ballerina Hub not initialized or incorrectly referenced";
         }

@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for constraining json types with structs.
  */
+@Test(groups = {"broken"})
 public class ConstrainedJSONTest {
 
     private CompileResult compileResult;

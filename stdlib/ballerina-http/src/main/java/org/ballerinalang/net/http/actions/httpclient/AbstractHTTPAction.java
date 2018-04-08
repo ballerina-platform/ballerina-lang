@@ -53,6 +53,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
 import java.io.IOException;
@@ -241,6 +242,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER,
                                            dataContext.context.getProperty(HttpConstants.SRC_HANDLER));
         }
+        Object poolableByteBufferFactory = outboundRequestMsg.getProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY);
+        if (poolableByteBufferFactory == null) {
+            outboundRequestMsg.setProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY,
+                    dataContext.context.getProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY));
+        }
         Object remoteAddress = outboundRequestMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteAddress == null) {
             outboundRequestMsg.setProperty(HttpConstants.REMOTE_ADDRESS,
@@ -286,11 +292,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             boundaryString = HttpUtil.addBoundaryIfNotExist(outboundRequestMsg, contentType);
         }
 
-        HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundRequestMsg);
-        OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-        HTTPClientConnectorListener httpClientConnectorLister =
-                new HTTPClientConnectorListener(dataContext, outboundMsgDataStreamer);
+        final HttpMessageDataStreamer outboundMsgDataStreamer = getHttpMessageDataStreamer(outboundRequestMsg);
 
+        final HTTPClientConnectorListener httpClientConnectorLister =
+                new HTTPClientConnectorListener(dataContext, outboundMsgDataStreamer);
+        final OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         if (async) {
             future.setResponseHandleListener(httpClientConnectorLister);
@@ -308,6 +314,18 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             // the error though the listener
             logger.warn("couldn't serialize the message", serializerException);
         }
+    }
+
+    private HttpMessageDataStreamer getHttpMessageDataStreamer(HTTPCarbonMessage outboundRequestMsg) {
+        final HttpMessageDataStreamer outboundMsgDataStreamer;
+        final PooledDataStreamerFactory pooledDataStreamerFactory = (PooledDataStreamerFactory)
+                outboundRequestMsg.getProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY);
+        if (pooledDataStreamerFactory != null) {
+            outboundMsgDataStreamer = pooledDataStreamerFactory.createHttpDataStreamer(outboundRequestMsg);
+        } else {
+            outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundRequestMsg);
+        }
+        return outboundMsgDataStreamer;
     }
 
     /**
@@ -394,10 +412,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         @Override
         public void onResponseHandle(ResponseHandle responseHandle) {
-            BStruct httpHandle = createStruct(this.dataContext.context, HttpConstants.HTTP_HANDLE,
+            BStruct httpFuture = createStruct(this.dataContext.context, HttpConstants.HTTP_FUTURE,
                                               HttpConstants.PROTOCOL_PACKAGE_HTTP);
-            httpHandle.addNativeData(HttpConstants.TRANSPORT_HANDLE, responseHandle);
-            this.dataContext.notifyReply(httpHandle, null);
+            httpFuture.addNativeData(HttpConstants.TRANSPORT_HANDLE, responseHandle);
+            this.dataContext.notifyReply(httpFuture, null);
         }
 
         @Override

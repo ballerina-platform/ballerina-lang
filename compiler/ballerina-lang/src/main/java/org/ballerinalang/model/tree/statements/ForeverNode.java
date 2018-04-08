@@ -30,7 +30,7 @@ public interface ForeverNode extends ExpressionStatementNode {
 
     void addStreamingQueryStatement(StreamingQueryStatementNode streamingQueryStatementNode);
 
-    List<StreamingQueryStatementNode> gettreamingQueryStatements();
+    List<StreamingQueryStatementNode> getStreamingQueryStatements();
 
     void addGlobalVariable(VariableNode variable);
 

@@ -24,7 +24,8 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -64,33 +65,63 @@ public class PermissionStoreTest {
     public void testReadGroupsForNonExistingScope() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsForNonExistingScope");
         Assert.assertTrue(returns != null);
-        Assert.assertTrue(returns[0].stringValue().isEmpty());
+        Assert.assertEquals(((BStringArray) returns[0]).size(), 0);
     }
 
     @Test(description = "Test case for reading groups of a scope")
     public void testReadGroupsForScope() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsForScope");
         Assert.assertTrue(returns != null);
-        BString groups = (BString) returns[0];
-        log.info("Groups for scope: " + groups);
-        Assert.assertNotNull(groups);
-        Assert.assertEquals(groups.stringValue(), "xyz,pqr");
+        BStringArray groups = (BStringArray) returns[0];
+        Assert.assertEquals(groups.size(), 2);
+        log.info("Groups for scope: " + groups.stringValue());
+        Assert.assertEquals(groups.get(0), "xyz");
+        Assert.assertEquals(groups.get(1), "pqr");
     }
 
     @Test(description = "Test case for reading groups of non-existing user")
     public void testReadGroupsForNonExistingUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsForNonExistingUser");
         Assert.assertTrue(returns != null);
-        Assert.assertTrue(returns[0].stringValue().isEmpty());
+        Assert.assertEquals(((BStringArray) returns[0]).size(), 0);
     }
 
     @Test(description = "Test case for reading groups of a user")
     public void testReadGroupsForUser() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsForUser");
         Assert.assertTrue(returns != null);
-        BString groups = (BString) returns[0];
-        log.info("Groups for user: " + groups);
-        Assert.assertNotNull(groups);
-        Assert.assertEquals(groups.stringValue(), "prq,lmn");
+        BStringArray groups = (BStringArray) returns[0];
+        Assert.assertEquals(groups.size(), 2);
+        log.info("Groups for user: " + groups.stringValue());
+        Assert.assertEquals(groups.get(0), "prq");
+        Assert.assertEquals(groups.get(1), "lmn");
+    }
+
+    @Test(description = "Test case for successful authorization")
+    public void testAuthorizationSuccess () {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthorizationSuccess");
+        Assert.assertTrue(returns != null);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for authorization failure")
+    public void testAuthorizationFailure () {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthorizationFailure");
+        Assert.assertTrue(returns != null);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for successful authorization with groups")
+    public void testAuthorizationSuccessWithGroups () {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthorizationSuccessWithGroups");
+        Assert.assertTrue(returns != null);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for authorization failure with groups")
+    public void testAuthorizationFailureWithGroups () {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthorizationFailureWithGroups");
+        Assert.assertTrue(returns != null);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 }

@@ -25,13 +25,14 @@ public native function <table dt> close ();
 @Return {value:"True if there is a new row; false otherwise"}
 public native function <table dt> hasNext () returns (boolean);
 
-@Description {value:"Retrives the current row and return a struct with the data in the columns"}
+@Description {value:"Retrives the current row and return a record with the data in the columns"}
 @Param {value:"dt: The table object"}
-@Return {value:"The resulting row as a struct"}
+@Return {value:"The resulting row as a record"}
 public native function <table dt> getNext () returns (any);
 
-@Description {value:"Add struct to the table."}
+@Description {value:"Add record to the table."}
 @Param {value:"dt: The table object"}
+
 @Param {value:"data: A struct with data"}
 public native function <table dt> add (any data) returns (TableOperationError | null);
 
@@ -60,17 +61,17 @@ native function queryTableWithoutJoinClause (string sqlQuery, table fromTable, a
 @Description { value:"TableOperationError struct represents an error occured during a operation over a table" }
 @Field {value:"message:  An error message explaining about the error"}
 @Field {value:"cause: The error(s) that caused TableOperationError to get thrown"}
-public struct TableOperationError {
-    string message;
-    error[] cause;
-}
+public type TableOperationError {
+    string message,
+    error[] cause,
+};
 
 @Description { value:"TableConfig represents properties used during table initialization" }
 @Field {value:"primaryKey:  An array of primary key columns"}
 @Field {value:"index: An array of index columns"}
-@Field {value:"data: An array of struct data"}
-public struct TableConfig {
+@Field {value:"data: An array of record data"}
+type TableConfig {
     string[] primaryKey;
     string[] index;
     any[] data;
-}
+};

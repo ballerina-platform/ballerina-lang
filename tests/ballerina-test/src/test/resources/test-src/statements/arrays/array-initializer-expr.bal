@@ -32,17 +32,14 @@ function testNestedArrayInit() returns (int[][]) {
 }
 
 function testArrayOfMapsInit() returns (map[]) {
+    map addressOne = {city:"Colombo", "country":"SriLanka"};
+    map addressTwo = {city:"Kandy", "country":"SriLanka"};
+    map addressThree = {city:"Galle", "country":"SriLanka"};
     map[] array = [
-                     {address:{city:"Colombo", "country":"SriLanka"}},
-                     {address:{city:"Kandy", "country":"SriLanka"}},
-                     {address:{city:"Galle", "country":"SriLanka"}}
+                     {address: addressOne},
+                     {address: addressTwo},
+                     {address: addressThree}
                   ];
-
-    return array;
-}
-
-function testAnyAsArray() returns (any) {
-    any array = [1,2,3];
     return array;
 }
 

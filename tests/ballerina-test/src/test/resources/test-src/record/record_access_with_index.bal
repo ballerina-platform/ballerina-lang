@@ -1,7 +1,7 @@
 type Department {
     string dptName;
     Person[] employees;
-}
+};
 
 type Person {
     string name = "default first name";
@@ -9,13 +9,13 @@ type Person {
     map adrs;
     int age = 999;
     Family family;
-}
+};
 
 type Family {
     string spouse;
     int noOfChildren;
     string[] children;
-}
+};
 
 function testCreateStruct () returns (string, map, int) {
     map address1;

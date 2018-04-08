@@ -4,25 +4,25 @@ import ballerina/reflect;
 
 
 function testNullTruePositive() returns (boolean) {
-    string | null s1;
-    string | null s2;
+    string | () s1;
+    string | () s2;
     return reflect:equals(s1,s2);
 }
 
 function testNullTrueNegative() returns (boolean) {
-    string |null s1;
+    string |() s1;
     string s2 = "b";
     return reflect:equals(s1,s2);
 }
 
 function testNullFalseNegative() returns (boolean) {
-    string | null s1;
-    string | null s2;
+    string | () s1;
+    string | () s2;
     return !reflect:equals(s1,s2);
 }
 
 function testNullFalsePositive() returns (boolean) {
-    string | null s1;
+    string | () s1;
     string s2 = "b";
     return !reflect:equals(s1,s2);
 }

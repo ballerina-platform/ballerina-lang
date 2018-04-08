@@ -56,7 +56,7 @@ public class BLangForever extends BLangExpressionStmt implements ForeverNode {
     }
 
     @Override
-    public List<StreamingQueryStatementNode> gettreamingQueryStatements() {
+    public List<StreamingQueryStatementNode> getStreamingQueryStatements() {
         return streamingQueryStatementNodeList;
     }
 

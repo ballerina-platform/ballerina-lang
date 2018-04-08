@@ -1,22 +1,22 @@
 package org.foo.bar;
 
-public struct officer {
+public type officer {
     int age;
     string name = "hidden, private";
     string address;
     string zipcode = "23468";
     private:
         int ssn;
-}
+};
 
-public struct userBar {
+public type userBar {
     int age;
     string name = "hidden, private";
     string address;
     string zipcode = "23468";
     private:
         int ssn;
-}
+};
 
 public function <userBar ub> getName() returns (string) {
     return ub.name;

@@ -1,11 +1,11 @@
-public struct TrxError {
+public type TrxError {
     string message;
     error[] cause;
     string data;
-}
+};
 
-const int RETRYCOUNT = 4;
-const int RETRYCOUNT_2 = -4;
+@final int RETRYCOUNT = 4;
+@final int RETRYCOUNT_2 = -4;
 
 function testTransactionStmt (int i) returns (string) {
     string a = "start";

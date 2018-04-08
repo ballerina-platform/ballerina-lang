@@ -23,6 +23,7 @@ import org.ballerinalang.composer.server.core.ServerConfig;
 import org.ballerinalang.composer.service.ballerina.launcher.service.dto.CommandDTO;
 import org.ballerinalang.composer.service.ballerina.launcher.service.dto.MessageDTO;
 import org.ballerinalang.composer.service.ballerina.launcher.service.util.LaunchUtils;
+import org.ballerinalang.composer.service.ballerina.launcher.service.util.LogParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,9 +76,15 @@ public class LaunchManager {
         return launchManagerInstance;
     }
 
+    public void pushLogToClient(String logLine) {
+        pushMessageToClient(launchSession, LauncherConstants.OUTPUT,
+                LauncherConstants.TRACE, logLine);
+    }
+
     private void run(Command command) {
         Process program = null;
         this.command = command;
+
         // send a message if ballerina home is not set
         if (null == serverConfig.getBallerinaHome()) {
             pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR, LauncherConstants
@@ -89,17 +96,19 @@ public class LaunchManager {
 
         try {
             String[] cmdArray = command.getCommandArray();
+
             if (command.getSourceRoot() == null) {
                 program = Runtime.getRuntime().exec(cmdArray);
             } else {
                 program = Runtime.getRuntime().exec(cmdArray, null, new File(command.getSourceRoot()));
+
             }
 
             command.setProgram(program);
 
 
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
-                        String.format(LauncherConstants.RUN_MESSAGE, command.getFileName()));
+                    String.format(LauncherConstants.RUN_MESSAGE, command.getFileName()));
 
             if (command.isDebug()) {
                 MessageDTO debugMessage = new MessageDTO();
@@ -125,6 +134,12 @@ public class LaunchManager {
         } catch (IOException e) {
             pushMessageToClient(launchSession, LauncherConstants.EXIT, LauncherConstants.ERROR, e.getMessage());
         }
+        new Thread(new Runnable() {
+            public void run() {
+                LogParser.getLogParserInstance().startListner(launchManagerInstance);
+            }
+        }).start();
+
     }
 
     public void streamOutput() {
@@ -211,6 +226,7 @@ public class LaunchManager {
             }
 
             terminator.terminate();
+            LogParser.getLogParserInstance().stopListner();
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_TERMINATED, LauncherConstants.INFO,
                     LauncherConstants.TERMINATE_MESSAGE);
         }

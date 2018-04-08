@@ -5,7 +5,7 @@ public function main (string[] args) {
     secureFunction(x, x);
 
     int x2;
-    x2 =? <int>"100";
+    x2 = check <int>"100";
     x2++;
     secureFunction(x2,x2);
 }

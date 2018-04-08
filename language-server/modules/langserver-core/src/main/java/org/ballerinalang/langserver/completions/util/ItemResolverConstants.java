@@ -28,7 +28,6 @@ public class ItemResolverConstants {
     public static final String IF = "if";
     public static final String FORK = "fork";
     public static final String WORKER = "worker";
-    public static final String TRANSFORMER = "transformer";
     public static final String TRANSACTION = "transaction";
     public static final String ABORT = "abort";
     public static final String TRY = "try";
@@ -48,39 +47,33 @@ public class ItemResolverConstants {
     public static final String FUNCTION = "function";
     public static final String MAIN_FUNCTION = "main function";
     public static final String SERVICE = "service";
-    public static final String CONNECTOR = "connector";
-    public static final String ACTION = "action";
-    public static final String STRUCT = "struct";
     public static final String ANNOTATION = "annotation";
     public static final String XMLNS = "xmlns";
     public static final String RESOURCE = "resource";
-    public static final String ENUM = "enum";
 
     // End of Basic Constructs
 
     // Package Name Context Constants
     public static final String PACKAGE = "package";
     public static final String IMPORT = "import";
-    public static final String CONST = "const";
     public static final String TYPE = "type ";
     // End of Package Name Context Constants
 
     // Symbol Types Constants
+    public static final String ANNOTATION_TYPE = "Annotation";
     public static final String PACKAGE_TYPE = "Package";
     public static final String FUNCTION_TYPE = "Function";
-    public static final String ACTION_TYPE = "Action";
     public static final String RESOURCE_TYPE = "Resource";
     public static final String WORKER_TYPE = "Worker";
     public static final String KEYWORD_TYPE = "Keyword";
     public static final String SNIPPET_TYPE = "Snippet";
     public static final String STATEMENT_TYPE = "Statement";
     public static final String B_TYPE = "BType";
-    public static final String STRUCT_TYPE = "Struct";
-    public static final String ENUM_TYPE = "Enum";
     public static final String FIELD_TYPE = "Field";
     public static final String NONE = "none";
     public static final String BOOLEAN_TYPE = "boolean";
-    public static final String OBJECT_TYPE = "type <Name> object";
+    public static final String OBJECT_TYPE = "type <ObjectName> object";
+    public static final String RECORD_TYPE = "type <RecordName>";
     public static final String TYPE_TYPE = "type";
     public static final String NEW_OBJECT_CONSTRUCTOR_TYPE = "new object constructor";
     // End Symbol Types Constants

@@ -1,9 +1,8 @@
 package ballerina.http;
 
-public struct Service {
-}
-
-function <Service s> getEndpoint() returns ServiceEndpoint {
-    ServiceEndpoint ep = {};
-    return ep;
-}
+public type Service object {
+    public function getEndpoint() returns ServiceEndpoint {
+        ServiceEndpoint ep = new;
+        return ep;
+    }
+};

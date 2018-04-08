@@ -19,17 +19,20 @@ package org.ballerinalang.composer.service.ballerina.parser.service.model;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
+import java.util.Comparator;
 import java.util.List;
 
 /**
  * Class which contains Ballerina model and Diagnostic information.
  */
+@Deprecated
 public class BallerinaFile {
 
     private BLangPackage bLangPackage;
     private List<Diagnostic> diagnostics;
 
     public List<Diagnostic> getDiagnostics() {
+        diagnostics.sort(Comparator.comparingInt(a -> a.getPosition().getStartLine()));
         return diagnostics;
     }
 

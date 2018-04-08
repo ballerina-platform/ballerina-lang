@@ -551,7 +551,8 @@ class BallerinaFileEditor extends React.Component {
                 TreeUtils.isConnectorInitExpr(node.getVariable().getInitialExpression()))) {
             fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
         } else if (TreeUtils.isEndpointTypeVariableDef(node)) {
-            fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
+            // fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
+            fullPackageName = '';
         } else if (TreeUtils.isService(node)) {
             fullPackageName = node.getFullPackageName();
         } else {
@@ -559,7 +560,7 @@ class BallerinaFileEditor extends React.Component {
         }
 
         if (fullPackageName === 'Current Package' || fullPackageName === ''
-            || fullPackageName === 'ballerina.builtin') {
+            || fullPackageName === 'builtin') {
             return;
         }
 

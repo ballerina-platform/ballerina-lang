@@ -1,13 +1,13 @@
 import ballerina/mime;
 import ballerina/http;
-import ballerina/http;
 
-const string constPath = getConstPath();
+@final string constPath = getConstPath();
 
-struct Person {
-    string name;
-    int age;
-}
+type Person {
+    string name,
+    int age,
+};
+
 endpoint http:NonListeningServiceEndpoint echoEP {
     port:9090
 };
@@ -24,7 +24,7 @@ service<http:Service> echo bind echoEP {
         path:"/message"
     }
     echo (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         _ = conn -> respond(res);
     }
 
@@ -34,7 +34,7 @@ service<http:Service> echo bind echoEP {
     }
     echo_worker (endpoint conn, http:Request req) {
         worker w1 {
-            http:Response res = {};
+            http:Response res = new;
             _ = conn -> respond(res);
         }
         worker w2 {
@@ -48,12 +48,12 @@ service<http:Service> echo bind echoEP {
         path:"/setString"
     }
     setString (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         string payloadData;
         var payload = req.getStringPayload();
         match payload {
             http:PayloadError err => {
-                return;
+                done;
             }
             string s => {
                 payloadData = s;
@@ -69,7 +69,7 @@ service<http:Service> echo bind echoEP {
         path:"/getString"
     }
     getString (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(serviceLevelStr);
         _ = conn -> respond(res);
     }
@@ -78,7 +78,7 @@ service<http:Service> echo bind echoEP {
         methods:["GET"]
     }
     removeHeaders (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setHeader("header1", "wso2");
         res.setHeader("header2", "ballerina");
         res.setHeader("header3", "hello");
@@ -91,7 +91,7 @@ service<http:Service> echo bind echoEP {
         path:"/getServiceLevelString"
     }
     getServiceLevelString (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(serviceLevelStringVar);
         _ = conn -> respond(res);
     }
@@ -101,7 +101,7 @@ service<http:Service> echo bind echoEP {
         path:constPath
     }
     connstValueAsAttributeValue (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("constant path test");
         _ = conn -> respond(res);
     }
@@ -127,13 +127,13 @@ service<http:Service> echo bind echoEP {
                 team = <string>p.team;
             }
             http:PayloadError err => {
-                return;
+                done;
             }
         }
 
         json responseJson = {"Name":name , "Team":team};
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
     }
@@ -143,7 +143,7 @@ service<http:Service> echo bind echoEP {
         path:"/modify"
     }
     modify11 (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.statusCode = 204;
         _ = conn -> respond(res);
     }

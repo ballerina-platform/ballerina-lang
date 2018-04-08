@@ -20,9 +20,11 @@ package ballerina.security.crypto;
 @Field {value:"MD5: MD5 algorithm"}
 @Field {value:"SHA1: SHA1 algorithm"}
 @Field {value:"SHA256: SHA256 algorithm"}
-public enum Algorithm {
-    SHA1, SHA256, MD5
-}
+public type Algorithm "SHA1" | "SHA256" | "MD5";
+
+@final public Algorithm SHA1 = "SHA1";
+@final public Algorithm SHA256 = "SHA256";
+@final public Algorithm MD5 = "MD5";
 
 @Description {value:"Returns the hash of the given string using the specified algorithm."}
 @Param {value:"baseString: The string to be hashed"}

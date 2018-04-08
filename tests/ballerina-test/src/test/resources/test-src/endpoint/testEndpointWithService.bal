@@ -26,15 +26,15 @@ type DummyEndpoint object {
 
     public function getClient () returns (DummyClient) {
         exFlow = exFlow + "getClient:DummyEndpoint;";
-        return {};
+        return new;
     }
-}
+};
 
-public struct DummyEndpointConfig {
+public type DummyEndpointConfig {
     string conf1;
     boolean conf2;
     int conf3;
-}
+};
 
 type DummyClient object {
     public {string conf1; }
@@ -48,11 +48,11 @@ type DummyClient object {
         string result = a + b;
         return result;
     }
-}
+};
 
 type DummyServiceType object {
     function getEndpoint () returns (DummyEndpoint);
-}
+};
 
 function test1 () returns (string) {
     exFlow = exFlow + "<test1>";

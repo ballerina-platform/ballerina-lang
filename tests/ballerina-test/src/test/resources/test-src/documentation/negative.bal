@@ -5,17 +5,17 @@ F{{a}} annotation `field a` documentation
 F{{a}} annotation `field a` documentation
 F{{b}} annotation `field b` documentation
 F{{c}} annotation `field c` documentation}
-struct Tst {
+type Tst {
     string a;
     string b;
     string cd;
-}
+};
 
 annotation Test Tst;
 
 documentation { Documentation for testConst constant
 V{{testConst}} abc description}
-const string testConst = "TestConstantDocumentation";
+@final string testConst = "TestConstantDocumentation";
 
 documentation { Documentation for state enum
 F{{foo}} enum `field foo` documentation
@@ -31,11 +31,11 @@ F{{a}} struct `field a` documentation
 F{{a}} struct `field a` documentation
 F{{b}} struct `field b` documentation
 F{{c}} struct `field c` documentation}
-struct Test {
+type Test {
     int a;
     int b;
     int cdd;
-}
+};
 
 documentation {
 Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
@@ -54,9 +54,9 @@ public function <File file> open (string accessMode) returns (boolean) {
 documentation { Documentation for File struct
 F{{path}} struct `field path` documentation
 }
-public struct File {
+public type File {
     string path;
-}
+};
 
 //documentation {
 // Transformer Foo Person -> Employee
@@ -69,28 +69,28 @@ public struct File {
 //    e.name = p.firstName;
 //}
 
-struct Person {
+type Person {
     string firstName;
     string lastName;
     int age;
     string city;
-}
+};
 
-struct Employee {
+type Employee {
     string name;
     int age;
     string address;
     any ageAny;
-}
+};
 
 documentation {
 Test Connector
 F{{url}} url for endpoint
 F{{url}} url for endpoint
 P{{urls}} urls for endpoint}
-struct TestConnector {
+type TestConnector {
   string url;
-}
+};
 
 //documentation {Test Connector action testAction
 //    R{{s}} which represent successful or not
@@ -119,4 +119,4 @@ service<http:Service> PizzaService {
 
 documentation { Documentation for testConst constant
 V{{testConstd}} abc description}
-const string testConsts = "TestConstantDocumentation";
+@final string testConsts = "TestConstantDocumentation";

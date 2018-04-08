@@ -18,6 +18,7 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
@@ -94,11 +95,11 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                                                               HttpResource httpResource) {
         boolean isTransactionInfectable = httpResource.isTransactionInfectable();
         Map<String, Object> properties = collectRequestProperties(httpCarbonMessage, isTransactionInfectable);
-        properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
-        properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
         // invoke the request path filters
-        invokeRequestFilters(httpCarbonMessage, signatureParams[1], getRequestFilterContext(httpResource));
+        WorkerExecutionContext parentCtx = new WorkerExecutionContext(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile());
+        invokeRequestFilters(httpCarbonMessage, signatureParams[1], getRequestFilterContext(httpResource), parentCtx);
 
         Resource balResource = httpResource.getBalResource();
 
@@ -117,7 +118,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         Executor.submit(balResource, callback, properties, ctx, signatureParams);
     }
 
-    private BValue getRequestFilterContext(HttpResource httpResource) {
+    protected BValue getRequestFilterContext(HttpResource httpResource) {
         BStruct filterCtxtStruct = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, "FilterContext");
@@ -132,7 +133,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         return httpCarbonMessage.getProperty(HTTP_RESOURCE) != null;
     }
 
-    protected Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage, boolean isInfectable) {
+    private Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage, boolean isInfectable) {
         Map<String, Object> properties = new HashMap<>();
         if (httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
             Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);
@@ -150,6 +151,10 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             properties.put(Constants.TRANSACTION_URL, registerAtUrl);
             return properties;
         }
+        properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
+        properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
+        properties.put(HttpConstants.POOLED_BYTE_BUFFER_FACTORY,
+                httpCarbonMessage.getHeader(HttpConstants.POOLED_BYTE_BUFFER_FACTORY));
         return properties;
     }
 
@@ -160,8 +165,11 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
      * @param httpCarbonMessage {@link HTTPCarbonMessage} instance
      * @param requestObject     Representation of ballerina.net.Request struct
      * @param filterCtxt        filtering criteria
+     * @param parentCtx         WorkerExecutionContext instance, which corresponds to the current worker execution
+     *                          context
      */
-    private void invokeRequestFilters(HTTPCarbonMessage httpCarbonMessage, BValue requestObject, BValue filterCtxt) {
+    protected void invokeRequestFilters(HTTPCarbonMessage httpCarbonMessage, BValue requestObject, BValue filterCtxt,
+            WorkerExecutionContext parentCtx) {
 
         if (!hasFilters()) {
             // no filters, return
@@ -171,7 +179,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         for (FilterHolder filterHolder : filterHolders) {
             // get the request filter function and invoke
             BValue[] returnValue = BLangFunctions
-                    .invokeCallable(filterHolder.getRequestFilterFunction().getFunctionInfo(),
+                    .invokeCallable(filterHolder.getRequestFilterFunction().getFunctionInfo(), parentCtx,
                             new BValue[]{requestObject, filterCtxt});
             BStruct filterResultStruct = (BStruct) returnValue[0];
             if (filterResultStruct.getBooleanField(0) == 0) {

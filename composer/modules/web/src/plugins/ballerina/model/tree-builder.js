@@ -34,6 +34,7 @@ function requireAll(requireContext) {
 }
 
 const treeNodes = requireAll(require.context('./tree/', true, /\.js$/));
+
 /**
  * A utill class to build the client side AST from serialized JSON.
  *
@@ -134,9 +135,9 @@ class TreeBuilder {
                     node.userDefinedAlias = true;
                 }
             }
-            if (node.packageName.length === 2 
-                && node.packageName[0].value === 'transactions' && node.packageName[1].value === 'coordinator' ) {
-                
+            if (node.packageName.length === 2
+                && node.packageName[0].value === 'transactions' && node.packageName[1].value === 'coordinator') {
+
                 node.isInternal = true
             }
         }
@@ -153,6 +154,12 @@ class TreeBuilder {
         if (node.kind === 'VariableDef' && node.variable.typeNode && node.variable.typeNode.kind === 'EndpointType') {
             node.variable.endpoint = true;
             node.endpoint = true;
+        }
+
+        if (node.kind === 'Service') {
+            if (!node.serviceTypeStruct) {
+                node.isServiceTypeUnavailable = true;
+            }
         }
 
         // Mark the first argument ad a service endpoint.
@@ -190,7 +197,7 @@ class TreeBuilder {
         }
 
         if (node.kind === 'Function') {
-            if (node.returnTypeNode.typeKind !== 'nil') {
+            if (node.returnTypeNode && node.returnTypeNode.typeKind !== 'nil') {
                 node.hasReturns = true;
             }
         }

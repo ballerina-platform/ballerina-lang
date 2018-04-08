@@ -1,3 +1,3 @@
 $ ballerina run caching.bal
 Name: Ballerina
-Name: null
+Name:

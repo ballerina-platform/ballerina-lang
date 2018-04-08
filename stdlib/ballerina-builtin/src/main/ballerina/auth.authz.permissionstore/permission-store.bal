@@ -18,14 +18,27 @@ package ballerina.auth.authz.permissionstore;
 
 @Description {value:"Represents the permission store. Any implementation of the Permission store should be
 struct-wise similar"}
-public struct PermissionStore {
-}
+public type PermissionStore object {
+    public function isAuthorized (string username, string[] scopes) returns (boolean);
+    public function isAuthorizedByGroups (string[] groups, string[] scopes) returns (boolean);
+    public function readGroupsOfScope (string scopeName) returns (string[]);
+    public function readGroupsOfUser (string username) returns (string[]);
+};
 
 @Description {value:"Checks if the the user has sufficient permission to access a resource with the specified scope"}
 @Param {value:"username: user name"}
 @Param {value:"scopes: array of scope names"}
 @Return {value:"boolean: true if authorized, else false"}
-public function <PermissionStore permissionStore> isAuthorized (string username, string[] scopes) returns (boolean) {
+public function PermissionStore::isAuthorized (string username, string[] scopes) returns (boolean) {
+    error e = {message:"Not implemented"};
+    throw e;
+}
+
+@Description {value:"Checks whether the groups provided can access a resource with the specified scopes"}
+@Param {value:"groups: array of group names"}
+@Param {value:"scopes: array of scope names"}
+@Return {value:"boolean: true if authorized, else false"}
+public function PermissionStore::isAuthorizedByGroups (string[] groups, string[] scopes) returns (boolean) {
     error e = {message:"Not implemented"};
     throw e;
 }
@@ -33,15 +46,15 @@ public function <PermissionStore permissionStore> isAuthorized (string username,
 @Description {value:"Reads groups for the given scopes"}
 @Param {value:"scopeName: name of the scope"}
 @Return {value:"string: comma separated groups specified for the scopename"}
-public function <PermissionStore permissionStore> readGroupsOfScope (string scopeName) returns (string) {
+public function PermissionStore::readGroupsOfScope (string scopeName) returns (string[]) {
     error e = {message:"Not implemented"};
     throw e;
 }
 
 @Description {value:"Reads the groups for a user"}
 @Param {value:"string: username"}
-@Return {value:"string: comma separeted groups list, as specified in the userstore file"}
-public function <PermissionStore permissionStore> readGroupsOfUser (string username) returns (string) {
+@Return {value:"string[]: array of groups for the user denoted by the username"}
+public function PermissionStore::readGroupsOfUser (string username) returns (string[]) {
     error e = {message:"Not implemented"};
     throw e;
 }

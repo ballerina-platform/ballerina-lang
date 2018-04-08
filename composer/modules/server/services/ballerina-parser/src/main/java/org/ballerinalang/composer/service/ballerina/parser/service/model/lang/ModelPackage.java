@@ -32,6 +32,8 @@ public class ModelPackage   {
   private List<Struct> structs = new ArrayList<Struct>();
   private List<AnnotationDef> annotations = new ArrayList<AnnotationDef>();
   private List<Enum> enums = new ArrayList<Enum>();
+  private List<ObjectModel> objects = new ArrayList<>();
+  private List<Endpoint> endpoints = new ArrayList<>();
 
   public ModelPackage name(String name) {
     this.name = name;
@@ -232,6 +234,30 @@ public class ModelPackage   {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  public List<ObjectModel> getObjects() {
+    return objects;
+  }
+
+  public void setObjects(List<ObjectModel> objects) {
+    this.objects = objects;
+  }
+
+  public void addObjectItem(ObjectModel object) {
+    this.objects.add(object);
+  }
+
+  public List<Endpoint> getEndpoints() {
+    return endpoints;
+  }
+
+  public void setEndpoints(List<Endpoint> endpoints) {
+    this.endpoints = endpoints;
+  }
+
+  public void addEndpointItem(Endpoint endpoint) {
+    this.endpoints.add(endpoint);
   }
 }
 

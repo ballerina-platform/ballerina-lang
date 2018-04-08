@@ -15,28 +15,37 @@
 // under the License.
 package ballerina.grpc;
 
-public struct ClientResponder {
-    int id;
-}
+public type ClientResponder object {
+    public {
+        int id;
+    }
 
-@Description {value:"Sends outbound response to the caller"}
-@Param {value:"res: The outbound response message"}
-@Return {value:"Error occured during server connector respond"}
-public native function<ClientResponder ep> send(any res) returns (ConnectorError);
+    documentation {
+        Sends outbound response to the caller.
 
-@Description {value:"Informs the caller, server finished sending messages"}
-@Return {value:"Error occured during server connector respond"}
-public native function<ClientResponder ep> complete() returns  (ConnectorError);
+        P{{res}} - The outbound response message.
+    }
+    public native function send(any res) returns (ConnectorError);
 
-@Description {value:"Checks whether the connection is closed by the caller."}
-@Return {value:"Returns true if the connection is closed, false otherwise"}
-public native function<ClientResponder ep> isCancelled ()returns (boolean);
+    documentation {
+        Informs the caller, server finished sending messages.
+    }
+    public native function complete() returns  (ConnectorError);
 
-@Description {value:"Sends server error to the caller"}
-@Param {value:"serverError: The server error message"}
-@Return {value:"Error occured during server connector respond"}
-public native function<ClientResponder ep> errorResponse(ServerError serverError)returns (ConnectorError);
+    documentation {
+        Checks whether the connection is closed by the caller.
+    }
+    public native function isCancelled () returns (boolean);
 
-@Description {value:"Get connection ID which is unique to the connection"}
-@Return {value:"Connection ID"}
-public native function<ClientResponder ep> getID() returns (string);
+    documentation {
+        Sends server error to the caller.
+
+        P{{serverError}} - remote procedure call id.
+    }
+    public native function errorResponse(ServerError serverError) returns (ConnectorError);
+
+    documentation {
+        Get connection ID which is unique to the connection.
+    }
+    public native function getID() returns (string);
+};

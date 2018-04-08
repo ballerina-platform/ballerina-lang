@@ -42,6 +42,7 @@ public class BSymbol implements Symbol {
     public BType type;
     public BSymbol owner;
     public boolean tainted;
+    public boolean closure;
 
     /**
      * If a symbol has child symbols, then the scope will not be null.

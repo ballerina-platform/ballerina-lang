@@ -250,12 +250,11 @@ public class MatchStatementTest {
         CompileResult compile = BCompileUtil.compile("test-src/statements/matchstmt/match_stmt_negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 4);
 
-        BAssertUtil.validateError(compile, 0, "A matching pattern cannot be guaranteed for types '[boolean]'", 9, 31);
-        BAssertUtil.validateError(compile, 1, "this function must return a result", 5, 1);
-        BAssertUtil.validateError(compile, 2, "unreachable pattern: preceding patterns are " +
+        BAssertUtil.validateError(compile, 0, "this function must return a result", 5, 1);
+        BAssertUtil.validateError(compile, 1, "A matching pattern cannot be guaranteed for types '[boolean]'", 9, 31);
+        BAssertUtil.validateError(compile, 2, "pattern will not be matched", 18, 9);
+        BAssertUtil.validateError(compile, 3, "unreachable pattern: preceding patterns are " +
                 "too general or the pattern ordering is not correct", 21, 9);
-        BAssertUtil.validateError(compile, 3, "pattern will not be matched",
-                18, 9);
     }
 }
 
