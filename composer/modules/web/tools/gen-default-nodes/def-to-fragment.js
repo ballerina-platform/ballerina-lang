@@ -22,7 +22,7 @@ export default {
     createHTTPServiceDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `
-                service<http:Service> serviceName bind serviceEp {
+                service serviceName bind serviceEp {
                     resourceName (endpoint conn, http:Request req) {
 
                     }
@@ -40,7 +40,7 @@ export default {
     createWSServiceDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `
-            service<http:WebSocketService> SimpleSecureServer bind ep {
+            service SimpleSecureServer bind ep {
             
                 onOpen (endpoint ep) {
 

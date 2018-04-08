@@ -119,6 +119,8 @@ class ResourceNode extends React.Component {
             };
         }
 
+        const clientEndpoint = this.props.model.parameters[0];
+
         return (
             <g>
                 <PanelDecorator
@@ -133,7 +135,7 @@ class ResourceNode extends React.Component {
                     {...panelAdditionalProps}
                 >
                     <Client
-                        title={protocolPkgIdentifier + ' conn'}
+                        title={clientEndpoint.name.value}
                         bBox={this.props.model.viewState.components.client}
                     />
                     <g>
