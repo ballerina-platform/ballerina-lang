@@ -82,8 +82,8 @@ public type Request object {
     @Description {value:"Removes all transport headers from the message"}
     public function removeAllHeaders ();
 
-    @Description {value:"Get all transport headers from the request. Manipulating the return map does not have any impact to the original copy"}
-    public function getCopyOfAllHeaders () returns (map);
+    @Description {value:"Get all transport header names from the request."}
+    public function getHeaderNames () returns (string[]);
 
     @Description {value:"Checks whether the client expects a 100-continue response."}
     @Return {value:"Returns true if the client expects a 100-continue response. If not, returns false."}
@@ -190,9 +190,9 @@ public function Request::removeAllHeaders () {
     entity.removeAllHeaders();
 }
 
-public function Request::getCopyOfAllHeaders () returns (map) {
+public function Request::getHeaderNames () returns (string[]) {
     mime:Entity entity = self.getEntityWithoutBody();
-    return entity.getCopyOfAllHeaders();
+    return entity.getHeaderNames();
 }
 
 public function Request::expects100Continue () returns (boolean) {

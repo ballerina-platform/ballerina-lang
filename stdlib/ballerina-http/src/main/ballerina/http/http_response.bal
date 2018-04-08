@@ -77,9 +77,9 @@ public type Response object {
     @Param {value:"res: The response message"}
     public function removeAllHeaders ();
 
-    @Description {value:"Get all transport headers from the response. Manipulating the return map does not have any impact to the original copy"}
+    @Description {value:"Get all transport header names from the response."}
     @Param {value:"res: The response message"}
-    public function getCopyOfAllHeaders () returns (map);
+    public function getHeaderNames () returns (string[]);
 
     @Description {value:"Gets the response payload in JSON format"}
     @Param {value:"response: The response message"}
@@ -189,9 +189,9 @@ public function Response::removeAllHeaders () {
     entity.removeAllHeaders();
 }
 
-public function Response::getCopyOfAllHeaders () returns (map) {
+public function Response::getHeaderNames () returns (string[]) {
     mime:Entity entity = self.getEntityWithoutBody();
-    return entity.getCopyOfAllHeaders();
+    return entity.getHeaderNames();
 }
 
 public function Response::getJsonPayload () returns (json | PayloadError) {

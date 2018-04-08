@@ -216,9 +216,9 @@ public type Entity object {
     @Return {value:"Return all the header values associated with the given header name as a string of arrays"}
     public native function getHeaders (string headerName) returns string[];
 
-    @Description {value:"Get all the headers as a map. Please note that manipulating the returned map has no effect to the original copy of headers"}
-    @Return {value:"Return a copy of all headers as a map."}
-    public native function getCopyOfAllHeaders () returns map;
+    @Description {value:"Get all header names."}
+    @Return {value:"Return all header names as an array of strings"}
+    public native function getHeaderNames () returns string[];
 
     @Description {value:"Add the given header value against the given header"}
     @Param {value:"headerName: Represent the header name"}
