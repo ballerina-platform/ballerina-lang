@@ -79,14 +79,14 @@ function forkJoinWithMultipleForkMessages() returns int {
 	     int b = 0;
 	     a -> w2;
 	     b <- w2;
-	     a, b -> fork;
+	     (a, b) -> fork;
 	   }
 	   worker w2 {
 	     int a = 0;
 	     int b = 15;
 	     a <- w1;
 	     b -> w1;
-	     a, b -> fork;
+	     (a, b) -> fork;
 	   }
 	} join (all) (map results) {  io:println(results);  }
 	return x;

@@ -19,7 +19,7 @@ service<http:Service> echo bind ep {
         path:"/test"
     }
     echo (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         _ = client -> respond(res);
     }
 }

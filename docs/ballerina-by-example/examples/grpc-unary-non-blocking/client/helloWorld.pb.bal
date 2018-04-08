@@ -28,7 +28,7 @@ public type HelloWorldBlockingStub object {
             }
         }
     }
-}
+};
 
 
 // Non-Blocking client
@@ -52,7 +52,7 @@ public type HelloWorldStub object {
         }
         return ();
     }
-}
+};
 
 
 // Blocking endpoint.
@@ -76,7 +76,7 @@ public type HelloWorldBlockingClient object {
     public function getClient () returns (HelloWorldBlockingStub) {
         return self.stub;
     }
-}
+};
 
 // Non-Blocking endpoint.
 public type HelloWorldClient object {
@@ -99,7 +99,7 @@ public type HelloWorldClient object {
     public function getClient () returns (HelloWorldStub) {
         return self.stub;
     }
-}
+};
 
 @final string DESCRIPTOR_KEY = "HelloWorld.proto";
 map descriptorMap =

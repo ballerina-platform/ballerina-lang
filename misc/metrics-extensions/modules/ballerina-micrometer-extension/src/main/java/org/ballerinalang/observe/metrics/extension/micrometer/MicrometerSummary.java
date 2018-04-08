@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.observe.metrics.extension.micrometer;
 
-import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import org.ballerinalang.util.metrics.AbstractMetric;
 import org.ballerinalang.util.metrics.MetricId;
@@ -32,14 +32,14 @@ public class MicrometerSummary extends AbstractMetric implements Summary {
 
     private final io.micrometer.core.instrument.DistributionSummary summary;
 
-    public MicrometerSummary(MetricId id) {
+    public MicrometerSummary(MeterRegistry meterRegistry, MetricId id) {
         super(id);
         summary = io.micrometer.core.instrument.DistributionSummary.builder(id.getName())
                 .description(id.getDescription())
                 .tags(id.getTags().stream().map(tag -> Tag.of(tag.getKey(), tag.getValue()))
                         .collect(Collectors.toList()))
                 .publishPercentiles(0.5, 0.75, 0.98, 0.99, 0.999)
-                .register(Metrics.globalRegistry);
+                .register(meterRegistry);
     }
 
     @Override

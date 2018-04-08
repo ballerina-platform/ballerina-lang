@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for user defined struct types in ballerina.
  */
+@Test(groups = {"broken"})
 public class StructNegativeTest {
     CompileResult result;
     

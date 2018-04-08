@@ -14,7 +14,7 @@ type Person object {
     }
 
     function attachInterface(int add) returns int;
-}
+};
 
 function Person::attachInterface(int add) returns int {
     int count = age + add;
@@ -33,7 +33,7 @@ type Employee object {
     private {
         string month = "february";
     }
-}
+};
 
 function Employee::attachInterfaceFunc(int add) returns int {
     int count = age + add;

@@ -93,26 +93,26 @@ public type HttpClient object {
     @Param { value:"httpVerb: The HTTP verb value" }
     @Param { value:"path: The Resource path " }
     @Param { value:"req: An HTTP outbound request message" }
-    @Return { value:"The Handle for further interactions" }
+    @Return { value:"The Future for further interactions" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public native function submit(string httpVerb, string path, Request req) returns (HttpHandle | HttpConnectorError);
+    public native function submit(string httpVerb, string path, Request req) returns (HttpFuture | HttpConnectorError);
 
     @Description { value:"Retrieves response for a previously submitted request."}
-    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
     @Return { value:"The HTTP response message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public native function getResponse(HttpHandle handle) returns (Response | HttpConnectorError);
+    public native function getResponse(HttpFuture httpFuture) returns (Response | HttpConnectorError);
 
     @Description { value:"Checks whether server push exists for a previously submitted request."}
-    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
     @Return { value:"Whether push promise exists" }
-    public native function hasPromise(HttpHandle handle) returns (boolean);
+    public native function hasPromise(HttpFuture httpFuture) returns (boolean);
 
     @Description { value:"Retrieves the next available push promise for a previously submitted request."}
-    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
     @Return { value:"The HTTP Push Promise message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public native function getNextPromise(HttpHandle handle) returns (PushPromise | HttpConnectorError);
+    public native function getNextPromise(HttpFuture httpFuture) returns (PushPromise | HttpConnectorError);
 
     @Description { value:"Retrieves the promised server push response."}
     @Param { value:"promise: The related Push Promise message" }

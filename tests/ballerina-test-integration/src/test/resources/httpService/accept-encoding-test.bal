@@ -46,7 +46,7 @@ service<http:Service> passthrough bind passthroughEP {
                     _ = outboundEP -> forward(res);
                 }
                 http:HttpConnectorError err => {
-                    http:Response res = {};
+                    http:Response res = new;
                     res.statusCode = 500;
                     res.setStringPayload(err.message);
                     _ = outboundEP -> respond(res);
@@ -59,7 +59,7 @@ service<http:Service> passthrough bind passthroughEP {
                     _ = outboundEP -> forward(res);
                 }
                 http:HttpConnectorError err => {
-                    http:Response res = {};
+                    http:Response res = new;
                     res.statusCode = 500;
                     res.setStringPayload(err.message);
                     _ = outboundEP -> respond(res);
@@ -72,7 +72,7 @@ service<http:Service> passthrough bind passthroughEP {
                     _ = outboundEP -> forward(res);
                 }
                 http:HttpConnectorError err => {
-                    http:Response res = {};
+                    http:Response res = new;
                     res.statusCode = 500;
                     res.setStringPayload(err.message);
                     _ = outboundEP -> respond(res);
@@ -95,7 +95,7 @@ service<http:Service> hello bind helloEP {
         path:"/"
     }
     helloResource (endpoint outboundEP, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json payload = {};
         boolean hasHeader = req.hasHeader(ACCEPT_ENCODING);
         if (hasHeader) {

@@ -539,6 +539,7 @@ function AnyStruct::shout (AnotherAnyStruct aa) returns (string) {
     string str;
     match j.toString() {
         string s => str = s;
+        () => str = "";
     }
     return "anyStruct" + str;
 }

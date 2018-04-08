@@ -37,7 +37,7 @@ function testConnectionPoolProperties1 () returns (json) {
     };
 
 
-    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", (), ());
     table dt = check dtRet;
 
     var j = check <json>dt;
@@ -51,7 +51,7 @@ function testConnectionPoolProperties2 () returns (json) {
         options: properties
     };
 
-    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", (), ());
     table dt = check dtRet;
 
     var j = check <json>dt;
@@ -67,7 +67,7 @@ function testConnectionPoolProperties3 () returns (json) {
         username: "SA"
     };
 
-    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", (), ());
     table dt = check dtRet;
 
     var j = check <json>dt;
@@ -86,7 +86,7 @@ function testConnectorWithDefaultPropertiesForListedDB () returns (json) {
         options: {}
     };
 
-    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", (), ());
     table dt = check dtRet;
 
     var j = check <json>dt;
@@ -108,7 +108,7 @@ function testConnectorWithWorkers () returns (json) {
         int x = 0;
         json y;
 
-	    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+	    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", (), ());
         table dt = check dtRet;
 
 	    var j = check <json>dt;
@@ -127,7 +127,7 @@ function testConnectorWithDirectUrl () returns (json) {
         options: Properties2
     };
 
-    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", (), ());
     table dt = check dtRet;
 
     var j = check <json>dt;
@@ -142,7 +142,7 @@ function testConnectorWithDataSourceClass () returns (json) {
         options: properties3
     };
 
-    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", (), ());
     table dt = check dtRet;
 
     var j = check <json>dt;
@@ -160,7 +160,7 @@ function testConnectorWithDataSourceClassAndProps () returns (json) {
         options: properties4
     };
 
-    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", (), ());
     table dt = check dtRet;
 
     var j = check <json>dt;
@@ -178,7 +178,7 @@ function testConnectorWithDataSourceClassWithoutURL () returns (json) {
         options: properties5
     };
 
-    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", (), ());
     table dt = check dtRet;
 
     var j = check <json>dt;
@@ -196,7 +196,7 @@ function testConnectorWithDataSourceClassURLPriority () returns (json) {
         options: properties6
     };
 
-    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", (), ());
     table dt = check dtRet;
 
     var j = check <json>dt;

@@ -60,6 +60,7 @@ public class ItemResolverConstants {
     // End of Package Name Context Constants
 
     // Symbol Types Constants
+    public static final String ANNOTATION_TYPE = "Annotation";
     public static final String PACKAGE_TYPE = "Package";
     public static final String FUNCTION_TYPE = "Function";
     public static final String RESOURCE_TYPE = "Resource";
@@ -71,7 +72,8 @@ public class ItemResolverConstants {
     public static final String FIELD_TYPE = "Field";
     public static final String NONE = "none";
     public static final String BOOLEAN_TYPE = "boolean";
-    public static final String OBJECT_TYPE = "type <Name> object";
+    public static final String OBJECT_TYPE = "type <ObjectName> object";
+    public static final String RECORD_TYPE = "type <RecordName>";
     public static final String TYPE_TYPE = "type";
     public static final String NEW_OBJECT_CONSTRUCTOR_TYPE = "new object constructor";
     // End Symbol Types Constants

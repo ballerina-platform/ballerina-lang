@@ -53,7 +53,7 @@ function testInsertTableData () returns (int) {
      };
 
     var insertCountRet = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                         values ('James', 'Clerk', 2, 5000.75, 'USA')", null);
+                                         values ('James', 'Clerk', 2, 5000.75, 'USA')", ());
     int insertCount = check insertCountRet;
     _ = testDB -> close();
     return insertCount;
@@ -71,7 +71,7 @@ function testCreateTable () returns (int) {
     };
 
     var returnValueRet = testDB -> update("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))",
-                              null);
+        ());
     int returnValue = check returnValueRet;
     _ = testDB -> close();
     return returnValue;
@@ -109,7 +109,7 @@ function testGeneratedKeyOnInsert () returns (string) {
     string returnVal;
 
     var x = testDB -> updateWithGeneratedKeys("insert into Customers (firstName,lastName,
-    registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", null, null);
+            registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", (), ());
 
     match x {
         (int, string[]) y  =>{
@@ -140,12 +140,11 @@ function testGeneratedKeyWithColumn () returns (string) {
 
     int insertCount;
     string[] generatedID;
-    string[] keyColumns;
-    keyColumns = ["CUSTOMERID"];
+    string[] keyColumns = ["CUSTOMERID"];
     string returnVal;
     var x = testDB -> updateWithGeneratedKeys("insert into Customers (firstName,lastName,
                                registrationID,creditLimit,country) values ('Kathy', 'Williams', 4, 5000.75, 'USA')",
-                                                              null, keyColumns);
+                                (), keyColumns);
     match x {
         (int, string[]) y  =>{
             int a;
@@ -173,13 +172,13 @@ function testSelectData () returns (string) {
         options: {maximumPoolSize:1}
     };
 
-    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null,
+    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", (),
                              typeof ResultCustomers);
     table dt = check dtRet;
     string firstName;
 
     while (dt.hasNext()) {
-        var rs = check <ResultCustomers>dt.getNext();
+        ResultCustomers rs = check <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
@@ -198,14 +197,14 @@ function testSelectIntFloatData () returns (int, int, float, float) {
     };
 
     var dtRet = testDB -> select("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
-        where row_id = 1", null, typeof ResultDataType);
+        where row_id = 1", (), typeof ResultDataType);
     table dt = check dtRet;
     int int_type;
     int long_type;
     float float_type;
     float double_type;
     while (dt.hasNext()) {
-        var rs = check <ResultDataType>dt.getNext();
+        ResultDataType rs = check <ResultDataType>dt.getNext();
         int_type = rs.INT_TYPE;
         long_type = rs.LONG_TYPE;
         float_type = rs.FLOAT_TYPE;
@@ -226,13 +225,13 @@ function testCallProcedure () returns (string) {
         options: {maximumPoolSize:1}
     };
 
-    _ = testDB -> call("{call InsertPersonData(100,'James')}", null, null);
-    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 100", null,
+    _ = testDB -> call("{call InsertPersonData(100,'James')}", (), ());
+    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 100", (),
                              typeof ResultCustomers);
     table dt = check dtRet;
     string firstName;
     while (dt.hasNext()) {
-        var rs = check <ResultCustomers>dt.getNext();
+        ResultCustomers rs = check <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
@@ -250,12 +249,12 @@ function testCallProcedureWithResultSet () returns (string) {
         options: {maximumPoolSize:1}
     };
 
-    var dtsRet = testDB -> call("{call SelectPersonData()}", null, typeof ResultCustomers);
+    var dtsRet = testDB -> call("{call SelectPersonData()}", (), typeof ResultCustomers);
     table[] dts = check dtsRet;
-    string firstName;
 
+    string firstName;
     while (dts[0].hasNext()) {
-        var rs = check <ResultCustomers>dts[0].getNext();
+        ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
         firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
@@ -273,18 +272,19 @@ function testCallProcedureWithMultipleResultSets () returns (string, string) {
         options: {maximumPoolSize:1}
     };
 
-    var dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", null, typeof ResultCustomers);
+    var dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", (), typeof ResultCustomers);
     table[] dts = check dtsRet;
+
     string firstName1;
     string firstName2;
 
     while (dts[0].hasNext()) {
-        var rs = check <ResultCustomers>dts[0].getNext();
+        ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
         firstName1 = rs.FIRSTNAME;
     }
 
     while (dts[1].hasNext()) {
-        var rs = check <ResultCustomers>dts[1].getNext();
+        ResultCustomers rs = check <ResultCustomers>dts[1].getNext();
         firstName2 = rs.FIRSTNAME;
     }
 
@@ -312,7 +312,7 @@ function testQueryParameters () returns (string) {
     string firstName;
 
     while (dt.hasNext()) {
-    var rs = check <ResultCustomers>dt.getNext();
+        ResultCustomers rs = check <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
@@ -372,7 +372,7 @@ function testArrayofQueryParameters () returns (string) {
 
     string firstName;
     while (dt.hasNext()) {
-        var rs = check <ResultCustomers>dt.getNext();
+        ResultCustomers rs = check <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
@@ -395,12 +395,12 @@ function testBoolArrayofQueryParameters () returns (int) {
     boolean accepted3 = true;
     boolean[] boolDataArray = [accepted1, accepted2, accepted3];
 
-    var dt1Ret = testDB -> select("SELECT blob_type from DataTypeTable where row_id = 1", null, typeof ResultBlob);
+    var dt1Ret = testDB -> select("SELECT blob_type from DataTypeTable where row_id = 1", (), typeof ResultBlob);
     table dt1 = check dt1Ret;
 
     blob blobData;
     while (dt1.hasNext()) {
-        var rs = check <ResultBlob>dt1.getNext();
+        ResultBlob rs = check <ResultBlob>dt1.getNext();
         blobData = rs.BLOB_TYPE;
     }
     blob[] blobDataArray = [blobData];
@@ -416,7 +416,7 @@ function testBoolArrayofQueryParameters () returns (int) {
 
     int value;
     while (dt.hasNext()) {
-    var rs = check <ResultIntType>dt.getNext();
+        ResultIntType rs = check <ResultIntType>dt.getNext();
         value = rs.INT_TYPE;
     }
     _ = testDB -> close();
@@ -462,11 +462,11 @@ function testArrayInParameters () returns (int, map, map, map, map, map, map) {
     insertCount = check insertCountRet;
 
     var dtRet = testDB -> select("SELECT int_array, long_array, double_array, boolean_array,
-        string_array, float_array from ArrayTypes where row_id = 2", null, typeof ResultArrayType);
+        string_array, float_array from ArrayTypes where row_id = 2", (), typeof ResultArrayType);
     table dt = check dtRet;
 
     while (dt.hasNext()) {
-        var rs = check <ResultArrayType>dt.getNext();
+        ResultArrayType rs = check <ResultArrayType>dt.getNext();
         int_arr = rs.INT_ARRAY;
         long_arr = rs.LONG_ARRAY;
         double_arr = rs.DOUBLE_ARRAY;
@@ -508,7 +508,7 @@ function testOutParameters () returns (any, any, any, any, any, any, any, any, a
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
     paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
 
-    _ = testDB -> call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters, ());
 
     _ = testDB -> close();
 
@@ -546,7 +546,7 @@ function testNullOutParameters () returns (any, any, any, any, any, any, any, an
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    _ = testDB -> call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters, ());
     _ = testDB -> close();
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
            paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
@@ -627,27 +627,6 @@ function testNullINParameterValues () returns (int) {
     return insertCount;
 }
 
-////function testNullINParameters () returns (int) {
-////    endpoint sql:Client testDB {
-////        database: sql:DB_HSQLDB_FILE,
-////        host: "./target/tempdb/",
-////        port: 0,
-////        name: "TEST_SQL_CONNECTOR",
-////        username: "SA",
-////        password: "",
-////        options: {maximumPoolSize:1}
-////    };
-////    (sql:Parameter) paraID = {sqlType:sql:TYPE_INTEGER, value:10};
-////
-////    (sql:Parameter | null)[] parameters = [paraID, null, null, null, null, null, null, null,
-////                                  null, null, null, null, null, null, null];
-////    int insertCount = testDB -> update("INSERT INTO DataTypeTable (row_id,int_type, long_type,
-////                float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
-////                smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
-////    testDB -> close();
-////    return insertCount;
-////}
-//
 function testINOutParameters () returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
         database: sql:DB_HSQLDB_FILE,
@@ -677,7 +656,7 @@ function testINOutParameters () returns (any, any, any, any, any, any, any, any,
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    _ = testDB -> call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters, ());
     _ = testDB -> close();
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
            paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
@@ -713,7 +692,7 @@ function testNullINOutParameters () returns (any, any, any, any, any, any, any, 
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
                                   paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    _ = testDB -> call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters, ());
     _ = testDB -> close();
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
            paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
@@ -759,7 +738,7 @@ function testArrayOutParameters () returns (any, any, any, any, any, any) {
     sql:Parameter para5 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
     sql:Parameter para6 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6];
-    _ = testDB -> call("{call TestArrayOutParams(?,?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestArrayOutParams(?,?,?,?,?,?)}", parameters, ());
     _ = testDB -> close();
     return (para1.value, para2.value, para3.value, para4.value, para5.value, para6.value);
 }
@@ -785,7 +764,7 @@ function testArrayInOutParameters () returns (any, any, any, any, any, any, any)
     sql:Parameter para8 = {sqlType:sql:TYPE_ARRAY, value:"Hello,Ballerina,Lang", direction:sql:DIRECTION_INOUT};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8];
 
-    _ = testDB -> call("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", parameters, ());
     _ = testDB -> close();
     return (para2.value, para3.value, para4.value, para5.value, para6.value, para7.value, para8.value);
 }
@@ -883,7 +862,7 @@ function testBatchUpdateWithFailure () returns (int[], int) {
         country) values (?,?,?,?,?,?)", parameters);
     updateCount = check updateCountRet;
 
-    var dtRet = testDB -> select("SELECT count(*) as countval from Customers where customerId in (111,222,333)", null, typeof ResultCount);
+    var dtRet = testDB -> select("SELECT count(*) as countval from Customers where customerId in (111,222,333)", (), typeof ResultCount);
     table dt = check dtRet;
 
     while (dt.hasNext()) {
@@ -908,7 +887,7 @@ function testBatchUpdateWithNullParam () returns (int[]) {
 
     int[] updateCount;
     var updateCountRet = testDB -> batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values ('Alex','Smith',20,3400.5,'Colombo')", null);
+                                     values ('Alex','Smith',20,3400.5,'Colombo')", ());
     updateCount = check updateCountRet;
 
     _ = testDB -> close();
@@ -981,17 +960,17 @@ function testDateTimeNullInValues () returns (string) {
     };
 
     sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:33};
-    sql:Parameter para1 = {sqlType:sql:TYPE_DATE, value:null};
-    sql:Parameter para2 = {sqlType:sql:TYPE_TIME, value:null};
-    sql:Parameter para3 = {sqlType:sql:TYPE_TIMESTAMP, value:null};
-    sql:Parameter para4 = {sqlType:sql:TYPE_DATETIME, value:null};
+    sql:Parameter para1 = {sqlType:sql:TYPE_DATE, value:()};
+    sql:Parameter para2 = {sqlType:sql:TYPE_TIME, value:()};
+    sql:Parameter para3 = {sqlType:sql:TYPE_TIMESTAMP, value:()};
+    sql:Parameter para4 = {sqlType:sql:TYPE_DATETIME, value:()};
     sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
 
     _ = testDB -> update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", parameters);
 
     var dtRet = testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 33", null, typeof ResultDates);
+                from DateTimeTypes where row_id = 33", (), typeof ResultDates);
     table dt = check dtRet;
 
     string data;
@@ -1016,10 +995,10 @@ function testDateTimeNullOutValues () returns (int) {
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:123};
-    sql:Parameter para2 = {sqlType:sql:TYPE_DATE, value:null};
-    sql:Parameter para3 = {sqlType:sql:TYPE_TIME, value:null};
-    sql:Parameter para4 = {sqlType:sql:TYPE_TIMESTAMP, value:null};
-    sql:Parameter para5 = {sqlType:sql:TYPE_DATETIME, value:null};
+    sql:Parameter para2 = {sqlType:sql:TYPE_DATE, value:()};
+    sql:Parameter para3 = {sqlType:sql:TYPE_TIME, value:()};
+    sql:Parameter para4 = {sqlType:sql:TYPE_TIMESTAMP, value:()};
+    sql:Parameter para5 = {sqlType:sql:TYPE_DATETIME, value:()};
 
     sql:Parameter para6 = {sqlType:sql:TYPE_DATE, direction:sql:DIRECTION_OUT};
     sql:Parameter para7 = {sqlType:sql:TYPE_TIME, direction:sql:DIRECTION_OUT};
@@ -1028,16 +1007,15 @@ function testDateTimeNullOutValues () returns (int) {
 
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
 
-    _ = testDB -> call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters, ());
 
-    int count;
-
-    var dtRet = testDB -> select("SELECT count(*) as countval from DateTimeTypes where row_id = 123", null,
+    var dtRet = testDB -> select("SELECT count(*) as countval from DateTimeTypes where row_id = 123", (),
                              typeof ResultCount);
     table dt = check dtRet;
 
+    int count;
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -1063,7 +1041,7 @@ function testDateTimeNullInOutValues () returns (any, any, any, any) {
 
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
 
-    _ = testDB -> call("{call TestDateINOUTParams(?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestDateINOUTParams(?,?,?,?,?)}", parameters, ());
     _ = testDB -> close();
     return (para2.value, para3.value, para4.value, para5.value);
 }
@@ -1092,15 +1070,15 @@ function testDateTimeOutParams (int time, int date, int timestamp) returns (int)
 
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
 
-    _ = testDB -> call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters, ());
 
-    var dtRet = testDB -> select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", null,
+    var dtRet = testDB -> select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", (),
                              typeof ResultCount);
     table dt = check dtRet;
 
     int count;
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -1120,7 +1098,7 @@ function testStructOutParameters () returns (any) {
 
     sql:Parameter para1 = {sqlType:sql:TYPE_STRUCT, direction:sql:DIRECTION_OUT};
     sql:Parameter[] parameters = [para1];
-    _ = testDB -> call("{call TestStructOut(?)}", parameters, null);
+    _ = testDB -> call("{call TestStructOut(?)}", parameters, ());
     _ = testDB -> close();
     return para1.value;
 }
@@ -1141,22 +1119,22 @@ function testComplexTypeRetrieval () returns (string, string, string, string) {
     string s3;
     string s4;
 
-    var dtRet = testDB -> select("SELECT * from DataTypeTable where row_id = 1", null, null);
+    var dtRet = testDB -> select("SELECT * from DataTypeTable where row_id = 1", (), ());
     table dt = check dtRet;
     var x1 = check <xml>dt;
     s1 = io:sprintf("%l", [x1]);
 
-    dtRet = testDB -> select("SELECT * from DateTimeTypes where row_id = 1", null, null);
+    dtRet = testDB -> select("SELECT * from DateTimeTypes where row_id = 1", (), ());
     dt = check dtRet;
     var x2 = check <xml>dt;
     s2 = io:sprintf("%l", [x2]);
 
-    dtRet = testDB -> select("SELECT * from DataTypeTable where row_id = 1", null, null);
+    dtRet = testDB -> select("SELECT * from DataTypeTable where row_id = 1", (), ());
     dt = check dtRet;
     var j = check <json>dt;
     s3 = io:sprintf("%j", [j]);
 
-    dtRet = testDB -> select("SELECT * from DateTimeTypes where row_id = 1", null, null);
+    dtRet = testDB -> select("SELECT * from DateTimeTypes where row_id = 1", (), ());
     dt = check dtRet;
     j = check <json>dt;
     s4 = io:sprintf("%j", [j]);
@@ -1176,13 +1154,13 @@ function testCloseConnectionPool () returns (int) {
         options: {maximumPoolSize:1}
     };
 
-
-    var dtRet = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
-    typeof ResultCount);
+    var dtRet = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", (),
+        typeof ResultCount);
     table dt = check dtRet;
+
     int count;
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();

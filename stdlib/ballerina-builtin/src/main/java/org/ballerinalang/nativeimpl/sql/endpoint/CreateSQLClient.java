@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.sql.Constants;
@@ -49,7 +50,12 @@ public class CreateSQLClient extends BlockingNativeCallableUnit {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
 
         //Extract parameters from the endpoint config
-        String database = clientEndpointConfig.getRefField(Constants.EndpointConfig.DATABASE).getStringValue();
+        Value dbRef = clientEndpointConfig.getRefField(Constants.EndpointConfig.DATABASE);
+        String database = "";
+        if (dbRef != null) {
+            database = dbRef.getStringValue();
+        }
+
         String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
         int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
         String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);

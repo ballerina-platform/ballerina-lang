@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 /**
  * Test class for ballerina map.
  */
+@Test(groups = {"broken"})
 public class BJSONValueTest {
 
     private CompileResult compileResult;

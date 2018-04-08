@@ -49,7 +49,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
     private void populateSnippetSignatures(List<CompletionItem> completionItems) {
         CompletionItem functionItem = new CompletionItem();
         functionItem.setLabel(ItemResolverConstants.FUNCTION);
-        functionItem.setInsertText(Snippet.FUNCTION.toString());
+        functionItem.setInsertText(Snippet.FUNCTION_SIGNATURE.toString());
         functionItem.setInsertTextFormat(InsertTextFormat.Snippet);
         functionItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
         completionItems.add(functionItem);

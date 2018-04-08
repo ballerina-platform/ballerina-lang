@@ -34,9 +34,9 @@ function getCoordinationTypeToProtocolsMap () returns map<string[]> {
 @http:ServiceConfig {
     basePath:initiatorCoordinatorBasePath
 }
-documentation {
-    Service on the initiator which is independent from the coordination type and handles registration of remote participants.
-}
+//documentation {
+//    Service on the initiator which is independent from the coordination type and handles registration of remote participants.
+//}
 service InitiatorService bind coordinatorListener {
 
     @http:ResourceConfig {
@@ -104,7 +104,7 @@ service InitiatorService bind coordinatorListener {
                 RegistrationResponse regRes = {transactionId:txnId,
                                                   coordinatorProtocols:coordinatorProtocols};
                 json resPayload = regResponseToJson(regRes);
-                http:Response res = {statusCode:http:OK_200};
+                http:Response res = new; res.statusCode = http:OK_200;
                 res.setJsonPayload(resPayload);
                 var resResult = conn -> respond(res);
                 match resResult {

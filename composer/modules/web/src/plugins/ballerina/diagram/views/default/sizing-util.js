@@ -348,10 +348,8 @@ class SizingUtil {
         cmp.client.h = maxWorkerHeight;
         cmp.client.arrowLine = (cmp.client.w / 2);
         const paramText = node.parameters.filter((param) => {
-            // skip connection on client invocation arrow
-            param.typeNode = param.typeNode || {};
-            param.typeNode.typeName = param.typeNode.typeName || {};
-            return param.typeNode.typeName.value !== 'Connection';
+            // skip if the param is service endpoint.
+            return !param.serviceEndpoint;
         }).map((param) => {
             return param.name.value;
         }).join(', ');
@@ -410,7 +408,7 @@ class SizingUtil {
                 endpointWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
                 endpoint.viewState.bBox.h = node.viewState.components.defaultWorker.h;
                 endpoint.viewState.endpointIdentifier =
-                    this.getTextWidth(endpoint.getName().value, 0, endpointWidth).text;
+                    this.getTextWidth(endpoint.name.value, 0, endpointWidth).text;
             });
         }
 
@@ -1332,6 +1330,7 @@ class SizingUtil {
      *
      */
     sizeMatchNode(node) {
+        const components = node.viewState.components;
         let height = this.config.statement.height;
         let width = 0;
 
@@ -1347,7 +1346,10 @@ class SizingUtil {
         };
 
         node.viewState.bBox.h = height;
-        node.viewState.bBox.w = width;
+        node.viewState.bBox.w = (this.config.statement.width < width) ? width :
+            this.config.statement.width;
+        components.expression = this.getTextWidth(node.expression.getSource(true), 0,
+            node.viewState.bBox.w / 2);
     }
 
 
@@ -1358,8 +1360,11 @@ class SizingUtil {
      *
      */
     sizeMatchPatternClauseNode(node) {
+        const components = node.viewState.components;
         node.viewState.bBox.h = node.statement.viewState.bBox.h + this.config.statement.height;
         node.viewState.bBox.w = node.statement.viewState.bBox.w;
+        components.expression = this.getTextWidth(node.variableNode.getSource(true), 0,
+            node.viewState.bBox.w / 2);
     }
 
 

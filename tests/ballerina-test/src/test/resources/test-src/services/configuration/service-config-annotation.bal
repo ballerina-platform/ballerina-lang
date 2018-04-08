@@ -1,12 +1,11 @@
 import ballerina/http;
-import ballerina/http;
 
 endpoint http:NonListeningServiceEndpoint helloEP {
     port:9090
 };
 
 @http:ServiceConfig {basePath:"/hello"}
-@http:ServiceConfig {transactionInfectable: false}
+@http:ServiceConfig {compression: http:COMPRESSION_AUTO}
 service<http:Service> helloWorldServiceConfig bind helloEP{
 
     @http:ResourceConfig {
@@ -14,7 +13,7 @@ service<http:Service> helloWorldServiceConfig bind helloEP{
         path:"/"
     }
     sayHello (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("Hello World!!!");
         _ = conn -> respond(res);
     }

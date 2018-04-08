@@ -43,7 +43,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
                 structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
-                @Argument(name = "handle", type = TypeKind.STRUCT, structType = "HttpHandle",
+                @Argument(name = "handle", type = TypeKind.STRUCT, structType = "HttpFuture",
                         structPackage = "ballerina.http")
         },
         returnType = {
