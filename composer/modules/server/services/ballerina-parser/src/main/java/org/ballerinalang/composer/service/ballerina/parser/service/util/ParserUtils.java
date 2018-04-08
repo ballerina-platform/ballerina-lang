@@ -31,6 +31,7 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Mo
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ObjectField;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ObjectModel;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Parameter;
+import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.RecordModel;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Struct;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.StructField;
 import org.ballerinalang.langserver.CollectDiagnosticListener;
@@ -72,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -344,6 +346,7 @@ public class ParserUtils {
             pkg.getConnectors().forEach((connector) -> extractConnector(packages, packageName, connector));
             pkg.getEnums().forEach((enumerator) -> extractEnums(packages, packageName, enumerator));
             pkg.objects.forEach((object) -> extractObjects(packages, packageName, object));
+            pkg.records.forEach((record) -> extractRecords(packages, packageName, record));
             extractEndpoints(packages, packageName, pkg.structs, pkg.functions);
         }
     }
@@ -545,6 +548,19 @@ public class ParserUtils {
         }
     }
 
+    private static void extractRecords(Map<String, ModelPackage> packages, String packagePath, BLangRecord record) {
+        String fileName = record.getPosition().getSource().getCompilationUnitName();
+        if (packages.containsKey(packagePath)) {
+            ModelPackage modelPackage = packages.get(packagePath);
+            modelPackage.addRecord(createNewRecord(record.name.getValue(), record.fields, fileName));
+        } else {
+            ModelPackage modelPackage = new ModelPackage();
+            modelPackage.setName(packagePath);
+            modelPackage.addRecord(createNewRecord(record.name.getValue(), record.fields, fileName));
+            packages.put(packagePath, modelPackage);
+        }
+    }
+
     private static void extractEndpoints(Map<String, ModelPackage> packages, String packagePath,
                                          List<BLangStruct> structs, List<BLangFunction> functions) {
         functions.forEach((function) -> {
@@ -737,6 +753,25 @@ public class ParserUtils {
         });
 
         return objectModel;
+    }
+
+    /**
+     * Create a new Record Model.
+     * @param name                  Record Name
+     * @param fields                List of Fields
+     * @param fileName              File name
+     * @return {@link RecordModel}  New Record Model  
+     */
+    private static RecordModel createNewRecord(String name, List<BLangVariable> fields, String fileName) {
+        RecordModel recordModel = new RecordModel(name);
+
+        fields.forEach((field) -> {
+            ObjectField objectField = new ObjectField(field.name.getValue(), field.getTypeNode().type.toString());
+            recordModel.addField(objectField);
+        });
+        recordModel.setFileName(fileName);
+        
+        return recordModel;
     }
 
     private static Endpoint createNewEndpoint(String name, List<BLangFunction> functions, List<BLangVariable> fields,

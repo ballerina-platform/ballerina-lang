@@ -34,6 +34,7 @@ public class ModelPackage   {
   private List<Enum> enums = new ArrayList<Enum>();
   private List<ObjectModel> objects = new ArrayList<>();
   private List<Endpoint> endpoints = new ArrayList<>();
+  private List<RecordModel> records = new ArrayList<>();
 
   public ModelPackage name(String name) {
     this.name = name;
@@ -258,6 +259,18 @@ public class ModelPackage   {
 
   public void addEndpointItem(Endpoint endpoint) {
     this.endpoints.add(endpoint);
+  }
+
+  public List<RecordModel> getRecords() {
+      return records;
+  }
+
+  public void setRecords(List<RecordModel> records) {
+      this.records = records;
+  }
+  
+  public void addRecord(RecordModel recordModel) {
+      this.records.add(recordModel);
   }
 }
 
