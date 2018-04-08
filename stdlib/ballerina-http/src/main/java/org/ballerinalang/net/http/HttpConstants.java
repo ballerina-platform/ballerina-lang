@@ -165,7 +165,7 @@ public class HttpConstants {
     public static final String LOCAL = "Local";
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
-    public static final String HTTP_HANDLE = "HttpHandle";
+    public static final String HTTP_FUTURE = "HttpFuture";
     public static final String PUSH_PROMISE = "PushPromise";
     public static final String ENTITY = "Entity";
     public static final String RESPONSE_CACHE_CONTROL = "ResponseCacheControl";
@@ -288,12 +288,12 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_TRUST_STORE = "trustStore";
     public static final String FILE_PATH = "filePath";
     public static final String PASSWORD = "password";
-    public static final String PROTOCOL_VERSION = "protocolName";
+    public static final String PROTOCOL_VERSION = "name";
     public static final String ENABLED_PROTOCOLS = "versions";
     public static final String ENABLE = "enable";
     public static final String ENDPOINT_CONFIG_OCSP_STAPLING = "ocspStapling";
     public static final String ENDPOINT_CONFIG_KEY_STORE = "keyStore";
-    public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocols";
+    public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocol";
     public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "certValidation";
 
     //SslConfiguration indexes

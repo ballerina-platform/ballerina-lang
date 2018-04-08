@@ -7,7 +7,7 @@ import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * WebSub HTTP wrapper for the {@code Resource} implementation.
+ * WebSub HTTP wrapper for the {@code Resource} implementation. TODO: remove dependency on HTTP resource
  *
  * @since 0.965.0
  */
@@ -33,7 +33,6 @@ class WebSubHttpResource extends HttpResource {
         }
 
         httpResource.setPath("/");
-        httpResource.prepareAndValidateSignatureParams();
         return httpResource;
     }
 

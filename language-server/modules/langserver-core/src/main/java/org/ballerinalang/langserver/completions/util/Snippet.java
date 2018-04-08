@@ -37,7 +37,7 @@ public enum Snippet {
     NEXT("next;"),
     RESOURCE("${1:newResource} (endpoint ${2:epReference}, ${3:http:Request request}) {\n\t${4}\n}"),
     RETURN("return;"),
-    SERVICE("service<${1:http:Service}> ${2:serviceName}{\n\t${3:newResource} (endpoint ${4:epReference}, " +
+    SERVICE("service<${1:http:Service}> ${2:serviceName} {\n\t${3:newResource} (endpoint ${4:epReference}, " +
             "${5:http:Request request}) {\n\t}\n}"),
     TRANSACTION("transaction with retries(${1}), oncommit(${2:foo}), onabort(${3:bar}) " +
             "{\n\t${4}\n} onretry {\n\t${5}\n}"),
