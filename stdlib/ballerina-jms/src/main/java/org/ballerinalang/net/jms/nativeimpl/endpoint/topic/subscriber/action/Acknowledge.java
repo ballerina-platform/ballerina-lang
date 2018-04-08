@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.consumer.action;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.subscriber.action;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -36,8 +36,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageAcknowledgeme
                    packageName = "jms",
                    functionName = "acknowledge",
                    receiver = @Receiver(type = TypeKind.STRUCT,
-                                        structType = "QueueConsumerConnector",
-                                        structPackage = "ballerina.jms"),
+                                        structType = "TopicSubscriberConnector", structPackage = "ballerina.jms"),
                    args = { @Argument(name = "message", type = TypeKind.STRUCT, structType = "Message") },
                    returnType = {
                            @ReturnType(type = TypeKind.STRUCT, structPackage = "ballerina.jms", structType = "Message")
