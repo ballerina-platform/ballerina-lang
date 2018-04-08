@@ -20,7 +20,7 @@ endpoint jms:QueueConsumer queueConsumer {
 
 public function main (string[] args) {
     // Receive a message from the JMS provider.
-    var result = queueConsumer -> receive(5000);
+    var result = queueConsumer -> receive(timeoutInMilliSeconds = 5000);
 
     match result {
         jms:Message msg => {
