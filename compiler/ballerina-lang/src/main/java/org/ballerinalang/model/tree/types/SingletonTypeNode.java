@@ -15,19 +15,16 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+package org.ballerinalang.model.tree.types;
 
-import java.util.Set;
+import org.ballerinalang.model.tree.expressions.LiteralNode;
 
 /**
- * {@code FiniteType} represents the finite type interface.
- *
+ * Represents Singleton Type.
  */
-public interface FiniteType extends ReferenceType {
+public interface SingletonTypeNode {
 
-    Set<? extends Type> getMemberTypes();
+    LiteralNode getValueSpace();
 
-    Set<? extends ExpressionNode> getValueSpace();
 }

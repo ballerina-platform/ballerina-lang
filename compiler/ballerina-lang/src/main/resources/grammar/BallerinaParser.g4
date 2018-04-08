@@ -86,7 +86,7 @@ callableUnitSignature
     ;
 
 typeDefinition
-    :   (PUBLIC)? TYPE Identifier finiteType SEMICOLON
+    :   (PUBLIC)? TYPE Identifier typeName SEMICOLON
     ;
 
 objectBody
@@ -189,17 +189,9 @@ endpointInitlization
     |   ASSIGN variableReference
     ;
 
-finiteType
-    :  finiteTypeUnit (PIPE finiteTypeUnit)*
-    ;
-
-finiteTypeUnit
-    :   simpleLiteral
-    |   typeName
-    ;
-
 typeName
-    :   simpleTypeName                                                      # simpleTypeNameLabel
+    :   simpleLiteral                                                       # singletonTypeLabel
+    |   simpleTypeName                                                      # simpleTypeNameLabel
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
     |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
     |   typeName QUESTION_MARK                                              # nullableTypeNameLabel

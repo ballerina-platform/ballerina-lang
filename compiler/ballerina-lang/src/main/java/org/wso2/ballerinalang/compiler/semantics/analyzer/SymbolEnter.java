@@ -53,7 +53,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
@@ -108,7 +107,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -411,21 +409,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(typeDefinition.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         typeDefinition.symbol = typeDefSymbol;
 
-        HashSet<BType> memberTypes = new HashSet<>();
-        HashSet<BLangExpression> resultSet = new HashSet<>();
 
-        for (BLangExpression literal : typeDefinition.valueSpace) {
-            BType literalType = symTable.getTypeFromTag(((BLangLiteral) literal).typeTag);
-            ((BLangLiteral) literal).type = literalType;
-            resultSet.add(literal);
-        }
+        typeDefinition.symbol.type = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
 
-        if (typeDefinition.typeNode != null) {
-            BType definedType = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
-            memberTypes.add(definedType);
-        }
 
-        typeDefinition.symbol.type = new BFiniteType((BTypeSymbol) typeDefSymbol, memberTypes, resultSet);
         defineSymbol(typeDefinition.pos, typeDefSymbol);
     }
 

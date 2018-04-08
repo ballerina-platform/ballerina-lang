@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
@@ -32,11 +33,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSingletonType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
@@ -255,23 +256,13 @@ public class Types {
             return checkStructEquivalency(source, target);
         }
 
-        if (target.tag == TypeTags.FINITE) {
-            return isFiniteTypeAssignable(source, target);
+        if (source.getKind() == TypeKind.SINGLETON) {
+            BSingletonType singletonType = (BSingletonType) source;
+            return isAssignable(singletonType.superSetType, target);
         }
 
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
-    }
-
-    public boolean isFiniteTypeAssignable(BType source, BType target) {
-        BFiniteType finiteType = (BFiniteType) target;
-
-        boolean foundMemberType = finiteType.memberTypes
-                .stream()
-                .map(memberType -> isAssignable(source, memberType))
-                .anyMatch(foundType -> foundType);
-
-        return foundMemberType;
     }
 
     public boolean isArrayTypesAssignable(BType source, BType target) {
@@ -482,6 +473,13 @@ public class Types {
         BSymbol symbol = symResolver.resolveImplicitConversionOp(actualType, expType);
         if (expType.tag == TypeTags.UNION && isValueType(actualType)) {
             symbol = symResolver.resolveImplicitConversionOp(actualType, symTable.anyType);
+        }
+
+        if ((expType.tag == TypeTags.UNION || expType.tag == TypeTags.ANY ||
+                expType.getKind() == TypeKind.SINGLETON) &&
+                actualType.getKind() == TypeKind.SINGLETON) {
+            BSingletonType singletonType = (BSingletonType) actualType;
+            symbol = symResolver.resolveImplicitConversionOp(singletonType.superSetType, symTable.anyType);
         }
 
         if (symbol == symTable.notFoundSymbol) {
@@ -853,6 +851,11 @@ public class Types {
             // TODO FUTUREX
             return null;
         }
+
+        @Override
+        public BSymbol visit(BSingletonType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
     };
 
     private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
@@ -994,6 +997,20 @@ public class Types {
         public Boolean visit(BErrorType t, BType s) {
             return true;
         }
+
+        @Override
+        public Boolean visit(BSingletonType t, BType s) {
+            if (s.getKind() == TypeKind.SINGLETON) {
+                BSingletonType sT = (BSingletonType) s;
+                if (sT.valueSpace.value == null) {
+                    return t.valueSpace.value == null;
+                } else {
+                    return sT.valueSpace.value.equals(t.valueSpace.value);
+                }
+            }
+            return false;
+        }
+
     };
 
     private boolean checkEquivalencyOfTwoPrivateStructs(BStructType lhsType, BStructType rhsType) {
@@ -1135,7 +1152,7 @@ public class Types {
             return true;
         }
 
-        if (type.tag == TypeTags.STRUCT || type.tag == TypeTags.INVOKABLE || type.tag == TypeTags.FINITE) {
+        if (type.tag == TypeTags.STRUCT || type.tag == TypeTags.INVOKABLE) {
             return false;
         }
 
@@ -1148,4 +1165,46 @@ public class Types {
         }
         return true;
     }
+
+    public boolean isIntersectionExist(BType lhsType,
+                                       BType rhsType) {
+        Set<BType> lhsTypes = new HashSet<>();
+        Set<BType> rhsTypes = new HashSet<>();
+
+        if (lhsType.tag == TypeTags.UNION) {
+            BUnionType lhsUnionType = (BUnionType) lhsType;
+            lhsTypes.addAll(lhsUnionType.memberTypes);
+        } else if (lhsType.getKind() == TypeKind.SINGLETON) {
+            BType superType = ((BSingletonType) lhsType).superSetType;
+            lhsTypes.add(superType);
+            lhsTypes.add(lhsType);
+        } else {
+            lhsTypes.add(lhsType);
+        }
+
+        if (rhsType.tag == TypeTags.UNION) {
+            BUnionType rhsUnionType = (BUnionType) rhsType;
+            rhsTypes.addAll(rhsUnionType.memberTypes);
+        } else if (rhsType.getKind() == TypeKind.SINGLETON) {
+            BType superType = ((BSingletonType) rhsType).superSetType;
+            rhsTypes.add(superType);
+            rhsTypes.add(rhsType);
+        } else {
+            rhsTypes.add(rhsType);
+        }
+
+        if (lhsTypes.contains(symTable.anyType) ||
+                rhsTypes.contains(symTable.anyType)) {
+            return true;
+        }
+
+        boolean matchFound = lhsTypes
+                .stream()
+                .map(s -> rhsTypes
+                        .stream()
+                        .anyMatch(t -> isSameType(s, t)))
+                .anyMatch(found -> found);
+        return matchFound;
+    }
+
 }

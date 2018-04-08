@@ -896,6 +896,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral literalExpr) {
+        literalExpr.type = this.symTable.getTypeFromTag(literalExpr.typeTag);
         result = literalExpr;
     }
 

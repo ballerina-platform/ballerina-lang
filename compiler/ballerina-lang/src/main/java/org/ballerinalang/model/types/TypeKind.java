@@ -77,6 +77,7 @@ public enum TypeKind {
     TUPLE("tuple"),
     RECORD("record"),
     FINITE("finite"),
+    SINGLETON("singleton"),
     ;
 
     private String name;

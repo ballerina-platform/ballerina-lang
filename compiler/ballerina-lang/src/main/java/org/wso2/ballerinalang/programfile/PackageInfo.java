@@ -58,8 +58,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public Map<String, EnumInfo> enumInfoMap = new HashMap<>();
 
-    public Map<String, TypeDefinitionInfo> typeDefInfoMap = new HashMap<>();
-
     public Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
 
     private Map<String, StructureTypeInfo> structureTypeInfoMap = new HashMap<>();
@@ -121,15 +119,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public EnumInfo[] getEnumInfoEntries() {
         return enumInfoMap.values().toArray(new EnumInfo[0]);
-    }
-
-    public void addTypeDefinitionInfo(String typeDefinitionName, TypeDefinitionInfo typeDefinitionInfo) {
-        typeDefInfoMap.put(typeDefinitionName, typeDefinitionInfo);
-        structureTypeInfoMap.put(typeDefinitionName, typeDefinitionInfo);
-    }
-
-    public TypeDefinitionInfo[] getTypeDefinitionInfoEntries() {
-        return typeDefInfoMap.values().toArray(new TypeDefinitionInfo[0]);
     }
 
     public ConnectorInfo getConnectorInfo(String connectorName) {

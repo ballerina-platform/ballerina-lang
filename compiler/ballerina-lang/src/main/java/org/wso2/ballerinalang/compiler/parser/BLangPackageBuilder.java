@@ -198,6 +198,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangSingletonTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -389,6 +390,15 @@ public class BLangPackageBuilder {
         typeNode.addWS(ws);
         typeNode.pos = pos;
         typeNode.typeKind = (TreeUtils.stringToTypeKind(typeName.replaceAll("\\s+", "")));
+
+        addType(typeNode);
+    }
+
+    public void addSingletonType(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangSingletonTypeNode typeNode = (BLangSingletonTypeNode) TreeBuilder.createSingletonTypeNode();
+        typeNode.addWS(ws);
+        typeNode.pos = pos;
+        typeNode.literal = (BLangLiteral) exprNodeStack.pop();
 
         addType(typeNode);
     }
@@ -1475,43 +1485,22 @@ public class BLangPackageBuilder {
         return objectNode;
     }
 
-    void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicStruct) {
+    void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicConstruct) {
         //TODO only adding object type for now
         if (!this.objectStack.isEmpty()) {
-            endObjectDef(pos, ws, identifier, publicStruct);
+            endObjectDef(pos, ws, identifier, publicConstruct);
         } else if (!this.recordStack.isEmpty()) {
-            endRecordDef(pos, ws, identifier, publicStruct);
+            endRecordDef(pos, ws, identifier, publicConstruct);
         } else {
             BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
             typeDefinition.setName(this.createIdentifier(identifier));
 
-            if (publicStruct) {
+            if (publicConstruct) {
                 typeDefinition.flagSet.add(Flag.PUBLIC);
             }
 
-            BLangUnionTypeNode members = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
-            while (!typeNodeStack.isEmpty()) {
-                BLangType memberType = (BLangType) typeNodeStack.pop();
-                if (memberType.getKind() == NodeKind.UNION_TYPE_NODE) {
-                    members.memberTypeNodes.addAll(((BLangUnionTypeNode) memberType).memberTypeNodes);
-                } else {
-                    members.memberTypeNodes.add(memberType);
-                }
-            }
+            typeDefinition.typeNode = (BLangType) typeNodeStack.pop();
 
-            if (members.memberTypeNodes.isEmpty()) {
-                typeDefinition.typeNode = null;
-            } else if (members.memberTypeNodes.size() == 1) {
-                BLangType[] memberArray = new BLangType[1];
-                members.memberTypeNodes.toArray(memberArray);
-                typeDefinition.typeNode = memberArray[0];
-            } else {
-                typeDefinition.typeNode = members;
-            }
-
-            while (!exprNodeStack.isEmpty()) {
-                typeDefinition.valueSpace.add((BLangExpression) exprNodeStack.pop());
-            }
 
             typeDefinition.pos = pos;
             typeDefinition.addWS(ws);

@@ -139,6 +139,7 @@ public enum NodeKind {
     USER_DEFINED_TYPE,
     ENDPOINT_TYPE,
     VALUE_TYPE,
+    SINGLETON_TYPE,
 
     /* Clauses */
     ORDER_BY,

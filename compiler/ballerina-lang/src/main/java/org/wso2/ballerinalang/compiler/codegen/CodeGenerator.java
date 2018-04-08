@@ -41,12 +41,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -185,8 +183,6 @@ import org.wso2.ballerinalang.programfile.ServiceInfo;
 import org.wso2.ballerinalang.programfile.StructFieldInfo;
 import org.wso2.ballerinalang.programfile.StructInfo;
 import org.wso2.ballerinalang.programfile.TransformerInfo;
-import org.wso2.ballerinalang.programfile.TypeDefinitionInfo;
-import org.wso2.ballerinalang.programfile.ValueSpaceItemInfo;
 import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 import org.wso2.ballerinalang.programfile.WorkerInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
@@ -214,7 +210,6 @@ import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -448,7 +443,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         pkgNode.globalVars.forEach(this::createPackageVarInfo);
         pkgNode.structs.forEach(this::createStructInfoEntry);
         pkgNode.enums.forEach(this::createEnumInfoEntry);
-        pkgNode.typeDefinitions.forEach(this::createTypeDefinitionInfoEntry);
         pkgNode.connectors.forEach(this::createConnectorInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
         pkgNode.services.forEach(this::createServiceInfoEntry);
@@ -1916,33 +1910,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangTypeDefinition typeDefinition) {
         //TODO
-    }
-
-    private void createTypeDefinitionInfoEntry(BLangTypeDefinition typeDefinition) {
-        BTypeSymbol typeDefSymbol = (BTypeSymbol) typeDefinition.symbol;
-
-        int typeDefNameCPIndex = addUTF8CPEntry(currentPkgInfo, typeDefSymbol.name.value);
-        TypeDefinitionInfo typeDefInfo = new TypeDefinitionInfo(currentPackageRefCPIndex,
-                typeDefNameCPIndex, typeDefSymbol.flags);
-        currentPkgInfo.addTypeDefinitionInfo(typeDefSymbol.name.value, typeDefInfo);
-        typeDefInfo.finiteType = (BFiniteType) typeDefSymbol.type;
-
-        for (BType bType : typeDefInfo.finiteType.memberTypes) {
-            if (bType.tag == TypeTags.UNION) {
-                BUnionType unionType = (BUnionType) bType;
-                unionType.memberTypes.forEach(t -> {
-                    typeDefInfo.typeDescCPIndexes.add(getTypeCPIndex(t).value);
-                });
-            } else {
-                typeDefInfo.typeDescCPIndexes.add(getTypeCPIndex(bType).value);
-            }
-        }
-
-        Iterator<BLangExpression> valueSpaceIterator = typeDefInfo.finiteType.valueSpace.iterator();
-        while (valueSpaceIterator.hasNext()) {
-            BLangExpression literal = valueSpaceIterator.next();
-            typeDefInfo.valueSpaceItemInfos.add(new ValueSpaceItemInfo(getDefaultValue((BLangLiteral) literal)));
-        }
     }
 
     private void createEnumInfoEntry(BLangEnum enumNode) {

@@ -437,7 +437,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (!(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)) {
+        if (!(ctx.parent.parent instanceof BallerinaParser.TypeDefinitionContext)) {
             this.pkgBuilder.addAnonObjectType(getCurrentPos(ctx), getWS(ctx));
         }
     }
@@ -762,7 +762,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (!(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)) {
+        if (!(ctx.parent.parent instanceof BallerinaParser.TypeDefinitionContext)) {
             this.pkgBuilder.addAnonRecordType(getCurrentPos(ctx), getWS(ctx));
         }
     }
@@ -2839,6 +2839,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createElvisExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitSingletonTypeLabel(BallerinaParser.SingletonTypeLabelContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addSingletonType(getCurrentPos(ctx), getWS(ctx));
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {

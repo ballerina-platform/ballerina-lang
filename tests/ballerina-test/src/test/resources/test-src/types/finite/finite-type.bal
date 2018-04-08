@@ -2,8 +2,7 @@ type State "on"|"off";
 
 function finiteAssignmentStateType() returns State {
     State p = "on";
-    State comparator = "on";
-    if (p == comparator) {
+    if (p == "on") {
        p = "off";
     }
     return p;
@@ -13,8 +12,7 @@ type NumberSet 1|2|3|4|5;
 
 function finiteAssignmentNumberSetType() returns NumberSet {
     NumberSet n = 1;
-    NumberSet comparator = 1;
-    if (n == comparator) {
+    if (n == 1) {
        n = 5;
     }
     return n;
@@ -24,8 +22,7 @@ type StringOrInt int|string;
 
 function finiteAssignmentStringOrIntSetType() returns StringOrInt {
     StringOrInt si = 1;
-    StringOrInt comparator = 1;
-    if (si == comparator) {
+    if (si == 1) {
        si = "This is a string";
     }
     return si;
@@ -33,8 +30,7 @@ function finiteAssignmentStringOrIntSetType() returns StringOrInt {
 
 function finiteAssignmentStringOrIntSetTypeCaseTwo() returns StringOrInt {
     StringOrInt si = "This is a string";
-    StringOrInt comparator = "This is a string";
-    if (si == comparator) {
+    if (si == "This is a string") {
        si = 111;
     }
     return si;
@@ -44,8 +40,7 @@ type Int int;
 
 function finiteAssignmentIntSetType() returns Int {
     Int si = 1;
-    Int comparator = 1;
-    if (si == comparator) {
+    if (si == 1) {
        si = 222;
     }
     return si;
@@ -55,8 +50,7 @@ function finiteAssignmentIntArrayType() returns Int {
     Int[] si = [];
     si[0] = 10001;
     si[1] = 2345;
-    Int comparator = 2345;
-    if (si[1] == comparator){
+    if (si[1] == 2345){
         si[1] = 9989;
     }
     return si[1];
@@ -64,8 +58,7 @@ function finiteAssignmentIntArrayType() returns Int {
 
 function finiteAssignmentStateSameTypeComparison() returns int {
     State a = "off";
-    State b = "on";
-    if (a == b){
+    if (a == "on"){
        return 1;
     }
     return 2;
@@ -73,12 +66,11 @@ function finiteAssignmentStateSameTypeComparison() returns int {
 
 function finiteAssignmentStateSameTypeComparisonCaseTwo() returns State {
     State a = "off";
-    State b = "on";
-    if (a != b){
-       a = b;
+    if (a != "on"){
+       a = "on";
        return a;
     }
-    return b;
+    return "on";
 }
 
 type POrInt Person|int;

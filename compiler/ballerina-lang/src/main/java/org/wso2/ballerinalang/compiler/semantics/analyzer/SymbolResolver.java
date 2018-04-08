@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSingletonType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -55,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangSingletonTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -177,7 +179,32 @@ public class SymbolResolver extends BLangNodeVisitor {
             bSymbol = getBinaryOpForNullChecks(opKind, lhsType, rhsType);
         }
 
+        if (bSymbol == symTable.notFoundSymbol) {
+            bSymbol = getBinaryOpForSingletonTypes(opKind, lhsType, rhsType);
+        }
+
         return bSymbol;
+    }
+
+
+    private BSymbol getBinaryOpForSingletonTypes(OperatorKind opKind, BType lhsType,
+                                                 BType rhsType) {
+
+        BType effectiveLhsType;
+        BType effectiveRhsType;
+        if (lhsType.getKind() == TypeKind.SINGLETON) {
+            effectiveLhsType = ((BSingletonType) lhsType).superSetType;
+        } else {
+            effectiveLhsType = lhsType;
+        }
+
+        if (rhsType.getKind() == TypeKind.SINGLETON) {
+            effectiveRhsType = ((BSingletonType) rhsType).superSetType;
+        } else {
+            effectiveRhsType = rhsType;
+        }
+
+        return resolveOperator(names.fromString(opKind.value()), Lists.of(effectiveLhsType, effectiveRhsType));
     }
 
     private BSymbol getBinaryOpForNullChecks(OperatorKind opKind, BType lhsType,
@@ -212,22 +239,25 @@ public class SymbolResolver extends BLangNodeVisitor {
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
         }
 
-        if (lhsType.tag == TypeTags.FINITE
-                && rhsType.tag == TypeTags.FINITE && lhsType == rhsType) {
-            opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.TEQ : InstructionCodes.TNE;
-            List<BType> paramTypes = Lists.of(lhsType, rhsType);
-            BType retType = symTable.booleanType;
-            BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-            return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
-        }
-
         return symTable.notFoundSymbol;
     }
 
     public BSymbol resolveUnaryOperator(DiagnosticPos pos,
                                         OperatorKind opKind,
                                         BType type) {
-        return resolveOperator(names.fromString(opKind.value()), Lists.of(type));
+        BSymbol bSymbol = resolveOperator(names.fromString(opKind.value()), Lists.of(type));
+
+        if (bSymbol == symTable.notFoundSymbol) {
+            bSymbol = getUnaryOpForSingletonType(opKind, type);
+        }
+
+        return bSymbol;
+    }
+
+
+    private BSymbol getUnaryOpForSingletonType(OperatorKind opKind, BType type) {
+        BType effectiveType = (type.getKind() == TypeKind.SINGLETON) ? ((BSingletonType) type).superSetType : type;
+        return resolveOperator(names.fromString(opKind.value()), Lists.of(effectiveType));
     }
 
     public BSymbol resolveOperator(Name name, List<BType> types) {
@@ -539,6 +569,11 @@ public class SymbolResolver extends BLangNodeVisitor {
                 .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
                 .collect(Collectors.toList());
         resultType = new BTupleType(memberTypes);
+    }
+
+    public void visit(BLangSingletonTypeNode singletonTypeNode) {
+        resultType = new BSingletonType(singletonTypeNode.literal,
+                this.symTable.getTypeFromTag(singletonTypeNode.literal.typeTag));
     }
 
     public void visit(BLangConstrainedType constrainedTypeNode) {

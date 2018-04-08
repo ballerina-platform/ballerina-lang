@@ -21,7 +21,6 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
-import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
@@ -361,9 +360,6 @@ public class ProgramFileReader {
         // Read enum info entries
         readEnumInfoEntries(dataInStream, packageInfo);
 
-        // Read type definition info entries
-        readTypeDefinitionInfoEntries(dataInStream, packageInfo);
-
         // Read connector info entries
         readConnectorInfoEntries(dataInStream, packageInfo);
 
@@ -485,41 +481,6 @@ public class ProgramFileReader {
             readAttributeInfoEntries(dataInStream, packageInfo, structInfo);
         }
     }
-
-    private void readTypeDefinitionInfoEntries(DataInputStream dataInStream,
-                                               PackageInfo packageInfo) throws IOException {
-        int typeDefCount = dataInStream.readShort();
-        for (int i = 0; i < typeDefCount; i++) {
-
-            int typeDefNameCPIndex = dataInStream.readInt();
-            int flags = dataInStream.readInt();
-            UTF8CPEntry typeDefNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeDefNameCPIndex);
-            String typeDefName = typeDefNameUTF8Entry.getValue();
-            TypeDefinitionInfo typeDefinitionInfo = new TypeDefinitionInfo(packageInfo.getPkgNameCPIndex(),
-                    packageInfo.getPkgPath(),
-                    typeDefNameCPIndex, typeDefName, flags);
-            packageInfo.addTypeDefinitionInfo(typeDefName, typeDefinitionInfo);
-
-            BFiniteType finiteType = new BFiniteType(typeDefName, packageInfo.getPkgPath());
-            typeDefinitionInfo.setType(finiteType);
-
-            int memberTypeCount = dataInStream.readShort();
-            for (int j = 0; j < memberTypeCount; j++) {
-                int memberTypeCPIndex = dataInStream.readInt();
-                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(memberTypeCPIndex);
-                finiteType.memberTypes.add(getBTypeFromDescriptor(typeRefCPEntry.getTypeSig()));
-            }
-
-            int valueSpaceCount = dataInStream.readShort();
-            for (int k = 0; k < valueSpaceCount; k++) {
-                finiteType.valueSpace.add(getDefaultValueToBValue(getDefaultValue(dataInStream, packageInfo)));
-            }
-
-            readAttributeInfoEntries(dataInStream, packageInfo, typeDefinitionInfo);
-        }
-
-    }
-
 
     private void readEnumInfoEntries(DataInputStream dataInStream,
                                      PackageInfo packageInfo) throws IOException {
@@ -948,7 +909,6 @@ public class ProgramFileReader {
             case 'T':
             case 'E':
             case 'D':
-            case 'G':
             case 'H':
             case 'Z':
                 char typeChar = chars[index];
@@ -998,8 +958,6 @@ public class ProgramFileReader {
                     }
                 } else if (typeChar == 'E') {
                     typeStack.push(packageInfoOfType.getEnumInfo(name).getType());
-                } else if (typeChar == 'G') {
-                    typeStack.push(packageInfoOfType.getTypeDefinitionInfo(name).getType());
                 } else {
                     // This is a struct type
                     typeStack.push(packageInfoOfType.getStructInfo(name).getType());
@@ -1089,7 +1047,6 @@ public class ProgramFileReader {
             case 'E':
             case 'H':
             case 'Z':
-            case 'G':
             case 'D':
                 String typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
@@ -1119,8 +1076,6 @@ public class ProgramFileReader {
                     return new BStreamType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'E') {
                     return packageInfoOfType.getEnumInfo(name).getType();
-                } else if (ch == 'G') {
-                    return packageInfoOfType.getTypeDefinitionInfo(name).getType();
                 } else {
                     return packageInfoOfType.getStructInfo(name).getType();
                 }
