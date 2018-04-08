@@ -12,4 +12,4 @@ function testUndeclaredAttributeAccess() {
 type Department {
     string dptName;     
     int count;      
-}
+};

@@ -50,7 +50,7 @@ function test3() returns (string){
 
 type Test4Val {
     string value;
-}
+};
 
 function test4() returns (Test4Val){
     Test4Val data = { value : ""};
@@ -214,8 +214,8 @@ function testAbort1 () returns (Test4Val) {
             }
             data.value = data.value + "-";
         }finally {
-             data.value = data.value + "f";
-         }
+            data.value = data.value + "f";
+        }
     }
     return data;
 }
@@ -233,8 +233,8 @@ function testAbort2 () returns (Test4Val) {
                 }
                 data.value = data.value + "-";
             }finally {
-                 data.value = data.value + "f" + i;
-             }
+                data.value = data.value + "f" + i;
+            }
         }
     }
     return data;

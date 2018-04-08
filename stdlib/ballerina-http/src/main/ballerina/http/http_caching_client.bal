@@ -148,26 +148,26 @@ public type HttpCachingClient object {
     @Param {value:"httpVerb: The HTTP verb value"}
     @Param {value:"path: The Resource path "}
     @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The Handle for further interactions"}
+    @Return {value:"The Future for further interactions"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function submit (string httpVerb, string path, Request req) returns (HttpHandle|HttpConnectorError);
+    public function submit (string httpVerb, string path, Request req) returns (HttpFuture|HttpConnectorError);
 
     @Description {value:"Retrieves response for a previously submitted request."}
-    @Param {value:"handle: The Handle which relates to previous async invocation"}
+    @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"The HTTP response message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function getResponse (HttpHandle handle) returns (Response|HttpConnectorError);
+    public function getResponse (HttpFuture httpFuture) returns (Response|HttpConnectorError);
 
     @Description {value:"Checks whether server push exists for a previously submitted request."}
-    @Param {value:"handle: The Handle which relates to previous async invocation"}
+    @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"Whether push promise exists"}
-    public function hasPromise (HttpHandle handle) returns boolean;
+    public function hasPromise (HttpFuture httpFuture) returns boolean;
 
     @Description {value:"Retrieves the next available push promise for a previously submitted request."}
-    @Param {value:"handle: The Handle which relates to previous async invocation"}
+    @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"The HTTP Push Promise message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function getNextPromise (HttpHandle handle) returns (PushPromise|HttpConnectorError);
+    public function getNextPromise (HttpFuture httpFuture) returns (PushPromise|HttpConnectorError);
 
     @Description {value:"Retrieves the promised server push response."}
     @Param {value:"promise: The related Push Promise message"}
@@ -281,20 +281,20 @@ public function HttpCachingClient::forward (string path, Request req) returns (R
     }
 }
 
-public function HttpCachingClient::submit (string httpVerb, string path, Request req) returns (HttpHandle|HttpConnectorError) {
+public function HttpCachingClient::submit (string httpVerb, string path, Request req) returns (HttpFuture|HttpConnectorError) {
     return self.httpClient.submit(httpVerb, path, req);
 }
 
-public function HttpCachingClient::getResponse (HttpHandle handle) returns (Response|HttpConnectorError) {
-    return self.httpClient.getResponse(handle);
+public function HttpCachingClient::getResponse (HttpFuture httpFuture) returns (Response|HttpConnectorError) {
+    return self.httpClient.getResponse(httpFuture);
 }
 
-public function HttpCachingClient::hasPromise (HttpHandle handle) returns boolean {
-    return self.httpClient.hasPromise(handle);
+public function HttpCachingClient::hasPromise (HttpFuture httpFuture) returns boolean {
+    return self.httpClient.hasPromise(httpFuture);
 }
 
-public function HttpCachingClient::getNextPromise (HttpHandle handle) returns (PushPromise|HttpConnectorError) {
-    return self.httpClient.getNextPromise(handle);
+public function HttpCachingClient::getNextPromise (HttpFuture httpFuture) returns (PushPromise|HttpConnectorError) {
+    return self.httpClient.getNextPromise(httpFuture);
 }
 
 public function HttpCachingClient::getPromisedResponse (PushPromise promise) returns (Response|HttpConnectorError) {
@@ -487,8 +487,8 @@ function getFreshnessLifetime (Response cachedResponse, boolean isSharedCache) r
 
                 if (lengthof dateHeader == 1) {
                     // TODO: See if time parsing errors need to be handled
-                    int freshnessLifetime = (time:parseTo(expiresHeader[0], time:TIME_RFC_1123).time
-                                             - time:parseTo(dateHeader[0], time:TIME_RFC_1123).time) / 1000;
+                    int freshnessLifetime = (time:parseTo(expiresHeader[0], time:TIME_FORMAT_RFC_1123).time
+                                             - time:parseTo(dateHeader[0], time:TIME_FORMAT_RFC_1123).time) / 1000;
                     return freshnessLifetime;
                 }
             }
@@ -669,13 +669,13 @@ function getDateValue (Response inboundResponse) returns int {
     if (!inboundResponse.hasHeader(DATE)) {
         log:printDebug("Date header not found. Using current time for the Date header.");
         time:Time currentT = time:currentTime();
-        inboundResponse.setHeader(DATE, currentT.formatTo(time:TIME_RFC_1123));
+        inboundResponse.setHeader(DATE, currentT.formatTo(time:TIME_FORMAT_RFC_1123));
         return currentT.time;
     }
 
     string dateHeader = inboundResponse.getHeader(DATE);
     // TODO: May need to handle invalid date headers
-    time:Time dateHeaderTime = time:parseTo(dateHeader, time:TIME_RFC_1123);
+    time:Time dateHeaderTime = time:parseTo(dateHeader, time:TIME_FORMAT_RFC_1123);
     return dateHeaderTime.time;
 }
 

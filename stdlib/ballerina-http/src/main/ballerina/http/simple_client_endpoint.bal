@@ -50,8 +50,6 @@ public type SimpleClientEndpoint object {
 
     documentation {
         Returns the backing HTTP client used by the endpoint.
-
-        T{{ep}} - The endpoint of which the backing HTTP client needs to be retrieved
     }
     public function getClient() returns HttpClient {
         return httpEP.httpClient;
@@ -77,7 +75,7 @@ documentation {
     F{{chunking}} - The chunking behaviour of the request
     F{{followRedirects}} - Redirect related options
     F{{retry}} - Retry related options
-    F{{proxy}} - Proxy related options
+    F{{proxyConfig}} - Proxy related options
     F{{connectionThrottling}} - The configurations for controlling the number of connections allowed concurrently
     F{{cacheConfig}} - The configurations for controlling the caching behaviour
 }
@@ -92,7 +90,7 @@ public type SimpleClientEndpointConfiguration {
     Chunking chunking = "AUTO",
     FollowRedirects? followRedirects,
     Retry? retry,
-    Proxy? proxy,
+    Proxy? proxyConfig,
     ConnectionThrottling? connectionThrottling,
     CacheConfig cacheConfig = {},
 };
@@ -101,7 +99,6 @@ documentation {
     The initialization function for the SimpleClientEndpoint.
 
     P{{simpleConfig}} - The user provided configurations for the endpoint
-    T{{ep}} - The endpoint to be initialized
 }
 public function SimpleClientEndpoint::init(SimpleClientEndpointConfiguration simpleConfig) {
     string url = simpleConfig.url;
@@ -122,7 +119,7 @@ public function SimpleClientEndpoint::init(SimpleClientEndpointConfiguration sim
     self.httpEP.config.chunking = simpleConfig.chunking;
     self.httpEP.config.followRedirects = simpleConfig.followRedirects;
     self.httpEP.config.retry = simpleConfig.retry;
-    self.httpEP.config.proxy = simpleConfig.proxy;
+    self.httpEP.config.proxyConfig = simpleConfig.proxyConfig;
     self.httpEP.config.connectionThrottling = simpleConfig.connectionThrottling;
 
     if (simpleConfig.cacheConfig.enabled) {

@@ -7,7 +7,7 @@ public type officer {
     string zipcode = "23468";
     private:
         int ssn;
-}
+};
 
 public type userBar {
     int age;
@@ -16,7 +16,7 @@ public type userBar {
     string zipcode = "23468";
     private:
         int ssn;
-}
+};
 
 public function <userBar ub> getName() returns (string) {
     return ub.name;

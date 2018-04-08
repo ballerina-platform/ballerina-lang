@@ -1590,6 +1590,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean analyzeBlockedNodeWithReturnAnnotations(Map<BlockingNode, List<BlockedNode>> blockedNodeMap) {
+        boolean partialResolutionFound = false;
         for (BlockingNode blockingNode : blockedNodeMap.keySet()) {
             List<BlockedNode> blockedNodeList = blockedNodeMap.get(blockingNode);
             for (BlockedNode blockedNode : blockedNodeList) {
@@ -1599,11 +1600,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
                 if (retParamIsAnnotated) {
                     attachTaintTableBasedOnAnnotations(blockedNode.invokableNode);
-                    return true;
+                    //TODO: Re-enable this once websub looping issue is resolved
+                    //return true;
+                    partialResolutionFound = true;
                 }
             }
         }
-        return false;
+        //return false;
+        return partialResolutionFound;
     }
 
     private BLangVariable getParam(BLangInvokableNode invNode, int paramIndex, int requiredParamCount,

@@ -17,7 +17,7 @@ public type person object {
     public function getSSN() returns (string);
 
     public function setSSN(string ssn);
-}
+};
 
 
 public function person::getName() returns (string) {
@@ -58,7 +58,7 @@ public type employee object {
     public function setSSN(string ssn);
 
     public function getEmployeeId() returns (int);
-}
+};
 
 public function employee::getName() returns (string) {
     return name;

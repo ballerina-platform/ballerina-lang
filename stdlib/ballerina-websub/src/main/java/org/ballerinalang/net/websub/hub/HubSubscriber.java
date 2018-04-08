@@ -47,9 +47,6 @@ class HubSubscriber extends Consumer {
     HubSubscriber(String queue, String topic, String callback, BStruct subscriptionDetails) {
         this.queue = queue;
         this.topic = topic;
-        if (!callback.endsWith("/")) {
-            callback = callback.concat("/");
-        }
         this.callback = callback;
         this.subscriptionDetails = subscriptionDetails;
     }
@@ -65,7 +62,7 @@ class HubSubscriber extends Consumer {
         BValue[] args = {new BString(callback),
                 subscriptionDetails,
                 new BJSON(new String(bytes, StandardCharsets.UTF_8))};
-        BLangFunctions.invokeCallable(programFile.getPackageInfo("net.websub.hub")
+        BLangFunctions.invokeCallable(programFile.getPackageInfo("websub.hub")
                                      .getFunctionInfo("distributeContent"), args);
     }
 

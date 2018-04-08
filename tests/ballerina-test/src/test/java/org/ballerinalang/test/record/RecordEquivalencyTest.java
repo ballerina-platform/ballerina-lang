@@ -99,22 +99,6 @@ public class RecordEquivalencyTest {
     public void testRuntimeEqPublicStructs1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructs1");
 
-        Assert.assertEquals(returns[0].stringValue(), "Brandon:userPFoo");
-    }
-
-    @Test(description = "Test record equivalency as an argument")
-    public void testStructEquivalencyWithArguments() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructEquivalencyWithArguments");
-
-        Assert.assertEquals(returns[0].stringValue(), "ENG2CMB");
-        Assert.assertEquals(returns[1].stringValue(), "1CMB");
-        Assert.assertEquals(returns[2].stringValue(), "ENG2CMB");
-    }
-
-    @Test(description = "Test record equivalency with function type which has records")
-    public void testStructEquivalencyWithFunctionType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructEquivalencyWithFunctionType");
-        Assert.assertEquals(returns[0].stringValue(), "anyStruct{\"s\":\"sss\"}");
-        Assert.assertEquals(returns[1].stringValue(), "someStruct{\"s\":\"sss\"}");
+        Assert.assertEquals(returns[0].stringValue(), "Brandon");
     }
 }

@@ -3,7 +3,7 @@ package org.foo.baz;
 public type FooDepartment {
     string dptName;
     FooPerson[] employees;
-}
+};
 
 public type FooPerson {
     string name = "default first name";
@@ -12,13 +12,13 @@ public type FooPerson {
     int age = 999;
     FooFamily family;
     FooPerson parent;
-}
+};
 
 type FooFamily {
     string spouse;
     int noOfChildren;
     string[] children;
-}
+};
 
 public type FooEmployee {
     string fname;
@@ -30,7 +30,7 @@ public type FooEmployee {
             string state;
             string zipcode;
         } address;
-}
+};
 
 public function createStruct() returns (FooPerson) {
     map address1;
