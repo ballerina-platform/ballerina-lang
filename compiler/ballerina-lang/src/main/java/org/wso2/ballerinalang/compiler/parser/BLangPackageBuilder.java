@@ -1390,7 +1390,8 @@ public class BLangPackageBuilder {
             var.flagSet.add(Flag.PUBLIC);
         }
         var.docTag = DocTag.VARIABLE;
-
+        attachDocumentations(var);
+        attachDeprecatedNode(var);
         this.compUnit.addTopLevelNode(var);
     }
 
@@ -1515,6 +1516,8 @@ public class BLangPackageBuilder {
 
             typeDefinition.pos = pos;
             typeDefinition.addWS(ws);
+            attachDocumentations(typeDefinition);
+            attachDeprecatedNode(typeDefinition);
             this.compUnit.addTopLevelNode(typeDefinition);
         }
     }
