@@ -7,6 +7,8 @@ public type TrxError {
 @final int RETRYCOUNT = 4;
 @final int RETRYCOUNT_2 = -4;
 
+string workerTest = "";
+
 function testTransactionStmt (int i) returns (string) {
     string a = "start";
     try {
@@ -411,7 +413,6 @@ function testSimpleNestedTransactionAbort () returns (string) {
     return a;
 }
 
-
 function testValidReturn () returns (string) {
     string a = "start ";
     int i = 0;
@@ -420,16 +421,39 @@ function testValidReturn () returns (string) {
         transaction {
             a = a + " inInnerTxstart ";
             if (i == 0) {
-                a = a + foo();
+                a = a + testReturn();
             }
             a = a + " endInnerTx";
         }
-        a = a + foo();
+        a = a + testReturn();
         a = a + " endOuterTx";
     }
     return a;
 }
 
-function foo() returns (string) {
+function testReturn() returns (string) {
     return " foo";
+}
+
+function testValidDoneWithinTransaction () returns (string) {
+    workerTest = "start ";
+    int i = 0;
+    transaction {
+        workerTest = workerTest + " withinTx";
+        testDone();
+        workerTest = workerTest + " endTx";
+    }
+    workerTest = workerTest + " afterTx";
+    return workerTest;
+}
+
+function testDone() {
+    worker w1 {
+        workerTest = workerTest + " withinworker";
+        int i = 0;
+        if (i == 0) {
+            workerTest = workerTest + " beforeDone";
+            done;
+        }
+    }
 }

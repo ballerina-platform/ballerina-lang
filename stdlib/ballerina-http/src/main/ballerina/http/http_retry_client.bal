@@ -103,28 +103,28 @@ public type RetryClient object {
         P{{path}} - Target service url.
         P{{request}}  - A request message.
     }
-    public function submit (string httpVerb, string path, Request request) returns (HttpHandle | HttpConnectorError);
+    public function submit (string httpVerb, string path, Request request) returns (HttpFuture | HttpConnectorError);
 
     documentation {
         The getResponse function implementation of the HTTP retry client.
 
-        P{{handle}} -The Handle which relates to previous async invocation.
+        P{{httpFuture}} -The Future which relates to previous async invocation.
     }
-    public function getResponse (HttpHandle handle) returns (Response | HttpConnectorError);
+    public function getResponse (HttpFuture httpFuture) returns (Response | HttpConnectorError);
 
     documentation {
         The hasPromise function implementation of the HTTP retry client.
 
-        P{{handle}} -The Handle which relates to previous async invocation.
+        P{{httpFuture}} -The Future which relates to previous async invocation.
     }
-    public function hasPromise (HttpHandle handle) returns (boolean);
+    public function hasPromise (HttpFuture httpFuture) returns (boolean);
 
     documentation {
         The getNextPromise function implementation of the HTTP retry client.
 
-        P{{handle}} -The Handle which relates to previous async invocation.
+        P{{httpFuture}} -The Future which relates to previous async invocation.
     }
-    public function getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError);
+    public function getNextPromise (HttpFuture httpFuture) returns (PushPromise | HttpConnectorError);
 
     documentation {
         The getPromisedResponse function implementation of the HTTP retry client.
@@ -177,25 +177,25 @@ public function RetryClient::options (string path, Request request) returns (Res
 	return performRetryAction(path, request, HTTP_OPTIONS, self);
 }
 
-public function RetryClient::submit (string httpVerb, string path, Request request) returns (HttpHandle | HttpConnectorError) {
+public function RetryClient::submit (string httpVerb, string path, Request request) returns (HttpFuture | HttpConnectorError) {
     //TODO : Initialize the record type correctly once it is fixed.
 	HttpConnectorError httpConnectorError = {statusCode:501};
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
 
-public function RetryClient::getResponse (HttpHandle handle) returns (Response | HttpConnectorError) {
+public function RetryClient::getResponse (HttpFuture httpFuture) returns (Response | HttpConnectorError) {
     //TODO : Initialize the record type correctly once it is fixed.
 	HttpConnectorError httpConnectorError = {statusCode:501};
 	httpConnectorError.message = "Unsupported action for Circuit breaker";
 	return httpConnectorError;
 }
 
-public function RetryClient::hasPromise (HttpHandle handle) returns (boolean) {
+public function RetryClient::hasPromise (HttpFuture httpFuture) returns (boolean) {
 	return false;
 }
 
-public function RetryClient::getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError) {
+public function RetryClient::getNextPromise (HttpFuture httpFuture) returns (PushPromise | HttpConnectorError) {
     //TODO : Initialize the record type once it is fixed.
 	HttpConnectorError httpConnectorError = {statusCode:501};
 	httpConnectorError.message = "Unsupported action for Circuit breaker";

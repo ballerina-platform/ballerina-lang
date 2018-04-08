@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  */
 
 public class SwaggerConverterUtils {
-    
+
     /**
      * This method will generate ballerina string from swagger definition. Since ballerina service definition is super
      * set of swagger definition we will take both swagger and ballerina definition and merge swagger changes to

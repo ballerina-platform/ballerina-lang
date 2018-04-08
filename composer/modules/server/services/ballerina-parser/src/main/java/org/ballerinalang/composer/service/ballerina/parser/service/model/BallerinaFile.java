@@ -25,6 +25,7 @@ import java.util.List;
 /**
  * Class which contains Ballerina model and Diagnostic information.
  */
+@Deprecated
 public class BallerinaFile {
 
     private BLangPackage bLangPackage;
