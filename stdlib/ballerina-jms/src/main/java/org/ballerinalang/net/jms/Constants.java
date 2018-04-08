@@ -54,6 +54,7 @@ public class Constants {
     public static final String CONSUMER_CONFIG = "config";
     public static final String QUEUE_NAME = "queueName";
     public static final String TOPIC_PATTERN = "topicPattern";
+    public static final String CONSUMER_IDENTIFIER = "identifier";
     public static final String CONSUMER_CONNECTOR = "connector";
     public static final String QUEUE_CONSUMER_ENDPOINT = "QueueConsumer";
 

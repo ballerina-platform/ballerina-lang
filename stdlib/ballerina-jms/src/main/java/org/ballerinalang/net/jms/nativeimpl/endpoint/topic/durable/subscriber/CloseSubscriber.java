@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.subscriber.action;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.durable.subscriber;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -26,23 +26,28 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
-import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageAcknowledgementHandler;
+import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler;
 
 /**
- * {@code Send} is the send action implementation of the JMS Connector.
+ * Close the message consumer object.
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "jms",
-                   functionName = "acknowledge",
-                   receiver = @Receiver(type = TypeKind.STRUCT,
-                                        structType = "TopicSubscriberConnector", structPackage = "ballerina.jms"),
-                   args = { @Argument(name = "message", type = TypeKind.STRUCT, structType = "Message") },
-                   isPublic = true
+@BallerinaFunction(
+        orgName = "ballerina",
+        packageName = "jms",
+        functionName = "closeSubscriber",
+        receiver = @Receiver(type = TypeKind.STRUCT,
+                             structType = "DurableTopicSubscriber",
+                             structPackage = "ballerina.jms"),
+        args = {
+                @Argument(name = "connector",
+                          type = TypeKind.STRUCT,
+                          structType = "DurableTopicSubscriberConnector")
+        },
+        isPublic = true
 )
-public class Acknowledge extends AbstractBlockinAction {
-
+public class CloseSubscriber extends AbstractBlockinAction {
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        MessageAcknowledgementHandler.handle(context);
+    public void execute(Context context, CallableUnitCallback callback) {
+        CloseConsumerHandler.handle(context);
     }
 }

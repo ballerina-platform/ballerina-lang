@@ -266,4 +266,9 @@ public class JMSUtils {
         }
         return resources[0];
     }
+
+    public static Topic getTopic(Session session, String topicPattern) throws JMSException {
+        // TODO: need to fix this on andes client side.
+        return session.createTopic("BURL:" + topicPattern);
+    }
 }

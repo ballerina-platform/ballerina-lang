@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -66,8 +67,7 @@ public class CreateSubscriber extends AbstractBlockinAction {
         String topicPattern = topicSubscriberConfigBRecord.getStringField(Constants.TOPIC_PATTERN);
 
         try {
-            // TODO: need to fix this on andes client side.
-            Topic topic = session.createTopic("BURL:" + topicPattern);
+            Topic topic = JMSUtils.getTopic(session, topicPattern);
             MessageConsumer consumer = session.createConsumer(topic);
             Struct consumerConnectorBObject = topicSubscriberBObject.getStructField(Constants.CONSUMER_CONNECTOR);
             consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);

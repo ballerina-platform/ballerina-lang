@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.subscriber.action;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.durable.subscriber.action;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -25,24 +25,34 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
-import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageAcknowledgementHandler;
+import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler;
 
 /**
- * {@code Send} is the send action implementation of the JMS Connector.
+ * {@code Receive} is the receive action implementation of the JMS topic subscriber connector.
  */
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "jms",
-                   functionName = "acknowledge",
+                   functionName = "receive",
                    receiver = @Receiver(type = TypeKind.STRUCT,
-                                        structType = "TopicSubscriberConnector", structPackage = "ballerina.jms"),
-                   args = { @Argument(name = "message", type = TypeKind.STRUCT, structType = "Message") },
+                                        structType = "DurableTopicSubscriberConnector",
+                                        structPackage = "ballerina.jms"),
+                   args = {
+                           @Argument(name = "timeInMilliSeconds",
+                                     type = TypeKind.INT)
+                   },
+                   returnType = {
+                           @ReturnType(type = TypeKind.STRUCT,
+                                       structPackage = "ballerina.jms",
+                                       structType = "Message")
+                   },
                    isPublic = true
 )
-public class Acknowledge extends AbstractBlockinAction {
+public class Receive extends AbstractBlockinAction {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        MessageAcknowledgementHandler.handle(context);
+    public void execute(Context context, CallableUnitCallback callback) {
+        ReceiveActionHandler.handle(context);
     }
 }

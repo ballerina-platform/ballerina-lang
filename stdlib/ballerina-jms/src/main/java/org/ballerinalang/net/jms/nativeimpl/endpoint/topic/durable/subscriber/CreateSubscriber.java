@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.topic;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.durable.subscriber;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -34,21 +34,22 @@ import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.JMSException;
-import javax.jms.MessageProducer;
+import javax.jms.MessageConsumer;
 import javax.jms.Session;
 import javax.jms.Topic;
 
 /**
- * Initialize the topic producer.
+ * Create JMS topic subscriber for a durable topic subscriber endpoint.
  *
- * @since 0.966
+ * @since 0.970
  */
+
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "jms",
-        functionName = "initTopicProducer",
+        functionName = "createSubscriber",
         receiver = @Receiver(type = TypeKind.STRUCT,
-                             structType = "TopicProducer",
+                             structType = "DurableTopicSubscriber",
                              structPackage = "ballerina.jms"),
         args = {
                 @Argument(name = "session",
@@ -57,28 +58,34 @@ import javax.jms.Topic;
         },
         isPublic = true
 )
-public class InitTopicProducer extends AbstractBlockinAction {
+public class CreateSubscriber extends AbstractBlockinAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        Struct topicProducerBObject = BallerinaAdapter.getReceiverStruct(context);
-        Struct topicProducerConfig = topicProducerBObject.getStructField(Constants.TOPIC_PRODUCER_FIELD_CONFIG);
-        String topicPattern = topicProducerConfig.getStringField(Constants.TOPIC_PRODUCER_FIELD_TOPIC_PATTERN);
+        Struct topicSubscriberBObject = BallerinaAdapter.getReceiverStruct(context);
 
         BStruct sessionBObject = (BStruct) context.getRefArgument(1);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,
                                                            Constants.JMS_SESSION,
                                                            Session.class,
                                                            context);
+        Struct topicSubscriberConfigBRecord = topicSubscriberBObject.getStructField(Constants.CONSUMER_CONFIG);
+        String topicPattern = topicSubscriberConfigBRecord.getStringField(Constants.TOPIC_PATTERN);
+        String consumerId = topicSubscriberConfigBRecord.getStringField(Constants.CONSUMER_IDENTIFIER);
+        if (JMSUtils.isNullOrEmptyAfterTrim(consumerId)) {
+            throw new BallerinaException("Please provide a durable subscription ID", context);
+        }
+
         try {
             Topic topic = JMSUtils.getTopic(session, topicPattern);
-            MessageProducer producer = session.createProducer(topic);
-            Struct topicProducerConnectorBObject
-                    = topicProducerBObject.getStructField(Constants.TOPIC_PRODUCER_FIELD_CONNECTOR);
-            topicProducerConnectorBObject.addNativeData(Constants.JMS_TOPIC_PRODUCER_OBJECT, producer);
+
+            MessageConsumer consumer = session.createDurableSubscriber(topic, consumerId);
+            Struct consumerConnectorBObject = topicSubscriberBObject.getStructField(Constants.CONSUMER_CONNECTOR);
+            consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
         } catch (JMSException e) {
-            throw new BallerinaException("Error creating topic producer", e, context);
+            throw new BallerinaException("Error while creating Qeueu consumer", e, context);
         }
 
     }
+
 }

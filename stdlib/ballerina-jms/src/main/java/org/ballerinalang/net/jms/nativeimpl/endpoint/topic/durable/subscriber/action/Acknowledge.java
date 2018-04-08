@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.subscriber.action;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.durable.subscriber.action;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -35,8 +35,13 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageAcknowledgeme
                    packageName = "jms",
                    functionName = "acknowledge",
                    receiver = @Receiver(type = TypeKind.STRUCT,
-                                        structType = "TopicSubscriberConnector", structPackage = "ballerina.jms"),
-                   args = { @Argument(name = "message", type = TypeKind.STRUCT, structType = "Message") },
+                                        structType = "DurableTopicSubscriberConnector",
+                                        structPackage = "ballerina.jms"),
+                   args = {
+                           @Argument(name = "message",
+                                     type = TypeKind.STRUCT,
+                                     structType = "Message")
+                   },
                    isPublic = true
 )
 public class Acknowledge extends AbstractBlockinAction {
