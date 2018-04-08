@@ -148,7 +148,11 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
             node.forEach((element, i, array) => {
                 const silent = (i !== (array.length - 1));
                 TreeUtils.generateDefaultName(this, element);
-                this.addTopLevelNodes(element, -1, silent);
+                if (TreeUtils.isImport(element)) {
+                    this.addImport(element, silent);
+                } else {
+                    this.addTopLevelNodes(element, -1, silent);
+                }
             });
         } else {
             TreeUtils.generateDefaultName(this, node);
