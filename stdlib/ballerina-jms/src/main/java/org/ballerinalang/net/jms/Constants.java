@@ -62,7 +62,7 @@ public class Constants {
     public static final String JMS_QUEUE_SENDER_OBJECT = "jms_queue_sender_object";
     public static final String JMS_TOPIC_PRODUCER_OBJECT = "jms_topic_producer_object";
     public static final String JMS_MESSAGE_OBJECT = "jms_message_object";
-    public static final String JMS_QUEUE_CONSUMER_OBJECT = "jms_consumer_object";
+    public static final String JMS_CONSUMER_OBJECT = "jms_consumer_object";
 
     public static final String SERVER_CONNECTOR = "serverConnector";
 

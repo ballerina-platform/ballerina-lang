@@ -66,7 +66,7 @@ public class RegisterMessageListener implements NativeCallableUnit {
 
         Resource resource = JMSUtils.extractJMSResource(service);
 
-        Object nativeData = consumerConnector.getNativeData(Constants.JMS_QUEUE_CONSUMER_OBJECT);
+        Object nativeData = consumerConnector.getNativeData(Constants.JMS_CONSUMER_OBJECT);
         if (nativeData instanceof MessageConsumer) {
             MessageListener listener = new JmsMessageListenerImpl(resource, queueConsumerBObject.getVMValue());
             try {

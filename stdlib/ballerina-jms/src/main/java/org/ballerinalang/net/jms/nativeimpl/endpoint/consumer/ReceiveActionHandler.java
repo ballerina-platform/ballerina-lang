@@ -17,19 +17,12 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.consumer.action;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.consumer;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -40,36 +33,21 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 
 /**
- * {@code Send} is the send action implementation of the JMS Connector.
+ * {@code Receive} is the receive action implementation of the JMS Connector.
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "jms",
-                   functionName = "receive",
-                   receiver = @Receiver(type = TypeKind.STRUCT,
-                                        structType = "QueueConsumerConnector",
-                                        structPackage = "ballerina.jms"),
-                   args = {
-                           @Argument(name = "timeInMilliSeconds",
-                                     type = TypeKind.INT)
-                   },
-                   returnType = {
-                           @ReturnType(type = TypeKind.STRUCT,
-                                       structPackage = "ballerina.jms",
-                                       structType = "Message")
-                   },
-                   isPublic = true
-)
-public class Receive extends AbstractBlockinAction {
+public class ReceiveActionHandler {
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+    private ReceiveActionHandler() {
+    }
 
-        Struct queueConsumerConnectorBObject = BallerinaAdapter.getReceiverStruct(context);
-        MessageConsumer messageConsumer = BallerinaAdapter.getNativeObject(queueConsumerConnectorBObject,
-                                                                           Constants.JMS_QUEUE_CONSUMER_OBJECT,
+    public static void handle(Context context) {
+
+        Struct connectorBObject = BallerinaAdapter.getReceiverStruct(context);
+        MessageConsumer messageConsumer = BallerinaAdapter.getNativeObject(connectorBObject,
+                                                                           Constants.JMS_CONSUMER_OBJECT,
                                                                            MessageConsumer.class,
                                                                            context
-        );
+                                                                          );
 
         long timeInMilliSeconds = context.getIntArgument(0);
 
@@ -89,3 +67,40 @@ public class Receive extends AbstractBlockinAction {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

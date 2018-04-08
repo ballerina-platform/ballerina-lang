@@ -70,7 +70,7 @@ public class CreateConsumer implements NativeCallableUnit {
             Queue queue = session.createQueue(queueName);
             MessageConsumer consumer = session.createConsumer(queue);
             Struct consumerConnectorBObject = queueConsumerBObject.getStructField(Constants.CONSUMER_CONNECTOR);
-            consumerConnectorBObject.addNativeData(Constants.JMS_QUEUE_CONSUMER_OBJECT, consumer);
+            consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
         } catch (JMSException e) {
             throw new BallerinaException("Error while creating Qeueu consumer", e, context);
         }
