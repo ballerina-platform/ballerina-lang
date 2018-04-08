@@ -410,7 +410,7 @@ class SizingUtil {
                 endpointWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
                 endpoint.viewState.bBox.h = node.viewState.components.defaultWorker.h;
                 endpoint.viewState.endpointIdentifier =
-                    this.getTextWidth(endpoint.getName().value, 0, endpointWidth).text;
+                    this.getTextWidth(endpoint.name.value, 0, endpointWidth).text;
             });
         }
 
