@@ -14,8 +14,8 @@ type Tst {
 annotation Test Tst;
 
 documentation { Documentation for testConst constant
-V{{testConst}} abc description}
-@final string testConst = "TestConstantDocumentation";
+V{{testConstd}} abc description}
+@final string testConsts = "TestConstantDocumentation";
 
 //documentation { Documentation for state enum
 //F{{foo}} enum `field foo` documentation
@@ -117,6 +117,3 @@ service<http:Service> PizzaService {
     }
 }
 
-documentation { Documentation for testConst constant
-V{{testConstd}} abc description}
-@final string testConsts = "TestConstantDocumentation";
