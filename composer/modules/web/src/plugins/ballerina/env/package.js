@@ -70,6 +70,35 @@ class Package {
     }
 
     /**
+     * Add records to the package.
+     *
+     * @param records records to be added to the package
+     */
+    addRecords(records) {
+        this._records = this._records || [];
+        this._records = _.concat(this._records, records);
+    }
+
+    /**
+     * Get objects available in the package.
+     *
+     * @returns {objects} objects available in the package
+     */
+    getRecords() {
+        return this._records;
+    }
+
+    /**
+     * Set objects to the package.
+     *
+     * @param records objects to be added to the package
+     */
+    setRecords(records) {
+        this._records = null;
+        this.addRecords(records);
+    }
+
+    /**
      * Add the endpoints to the package.
      *
      * @param endpoints - endpoints to be added.
@@ -479,6 +508,12 @@ class Package {
             const objectDef = BallerinaEnvFactory.createObject();
             objectDef.initFromJson(objectNode);
             this.addObjects(objectDef);
+        });
+
+        _.each(jsonNode.records, (recordNode) => {
+            const recordDef = BallerinaEnvFactory.createRecord();
+            recordDef.initFromJson(recordNode);
+            this.addRecords(recordDef);
         });
     }
 
