@@ -13,14 +13,15 @@ jms:Session jmsSession = new (conn, {
     acknowledgementMode: "AUTO_ACKNOWLEDGE"
 });
 
-// Initialize a Queue consumer using the created session.
-endpoint jms:QueueConsumer consumer {
+// Initialize a Durable topic subscriber using the created session.
+endpoint jms:DurableTopicSubscriber subscriber {
     session: jmsSession,
-    queueName: "MyQueue"
+    topicPattern: "MyTopic",
+    identifier: "sub1"
 };
 
-// Bind the created consumer to the listener service.
-service<jms:Consumer> jmsListener bind consumer {
+// Bind the created subscriber to the listener service.
+service<jms:Consumer> jmsListener bind subscriber {
 
     // OnMessage resource get invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
