@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.topic;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.publisher;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -64,6 +64,10 @@ public class InitTopicProducer extends AbstractBlockinAction {
         Struct topicProducerBObject = BallerinaAdapter.getReceiverStruct(context);
         Struct topicProducerConfig = topicProducerBObject.getStructField(Constants.TOPIC_PRODUCER_FIELD_CONFIG);
         String topicPattern = topicProducerConfig.getStringField(Constants.TOPIC_PRODUCER_FIELD_TOPIC_PATTERN);
+
+        if (JMSUtils.isNullOrEmptyAfterTrim(topicPattern)) {
+            throw new BallerinaException("Topic pattern cannot be null", context);
+        }
 
         BStruct sessionBObject = (BStruct) context.getRefArgument(1);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,
