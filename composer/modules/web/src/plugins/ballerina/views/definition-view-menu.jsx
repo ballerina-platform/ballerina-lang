@@ -85,9 +85,6 @@ class DefinitionViewMenu extends React.Component {
                                     </Grid.Row>
                                 </Grid.Column>
                                 <Grid.Column width={8}>
-                                    {/* <Button icon>
-                                        <Icon name={'fw fw-endpoint'} />
-                                    </Button> */}
                                     <Grid.Row>
                                         <Label> 
                                             <Icon name={'fw fw-endpoint'} />
@@ -101,9 +98,8 @@ class DefinitionViewMenu extends React.Component {
                     </Button>
                     }
                 flowing
-                // hoverable
+                hoverable
                 wide
-                on='click'
                 position='bottom center'
                 open={this.state.isOpen}
                 onClose={this.handleClose}
