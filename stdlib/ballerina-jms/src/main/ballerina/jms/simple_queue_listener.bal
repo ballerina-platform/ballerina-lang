@@ -43,7 +43,7 @@ public type SimpleQueueListener object {
                 c.register(serviceType);
             }
             () => {
-                error e = {message: "Queue consumer cannot be null"};
+                error e = {message: "Queue consumer cannot be nil"};
                 throw e;
             }
         }
@@ -56,7 +56,7 @@ public type SimpleQueueListener object {
         match (consumer) {
             QueueConsumer c => return c.getClient();
             () => {
-                error e = {message: "Queue consumer cannot be null"};
+                error e = {message: "Queue consumer cannot be nil"};
                 throw e;
             }
         }

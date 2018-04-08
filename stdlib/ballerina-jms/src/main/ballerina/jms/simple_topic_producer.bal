@@ -47,7 +47,7 @@ public type SimpleTopicProducer object {
         match (producer) {
             TopicProducer s => return s.getClient();
             () => {
-                error e = {message: "Topic producer cannot be null"};
+                error e = {message: "Topic producer cannot be nil"};
                 throw e;
             }
         }
@@ -60,7 +60,7 @@ public type SimpleTopicProducer object {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
-                error e = {message: "Session cannot be null"};
+                error e = {message: "Session cannot be nil"};
                 throw e;
             }
         }

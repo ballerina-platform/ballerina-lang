@@ -2,18 +2,18 @@ package ballerina.jms;
 
 import ballerina/log;
 
-public type SimpleQueueSender object {
+public type SimpleTopicListener object {
     public {
-        SimpleQueueSenderEndpointConfiguration config;
+        SimpleTopicListenerEndpointConfiguration config;
     }
 
     private {
         Connection? connection;
         Session? session;
-        QueueSender? sender;
+        TopicSubscriber? subscriber;
     }
 
-    public function init(SimpleQueueSenderEndpointConfiguration config) {
+    public function init(SimpleTopicListenerEndpointConfiguration config) {
         self.config = config;
         Connection conn = new ({
                 initialContextFactory: config.initialContextFactory,
@@ -28,26 +28,35 @@ public type SimpleQueueSender object {
             });
         session = newSession;
 
-        QueueSender queueSender = new;
-        QueueSenderEndpointConfiguration senderConfig = {
+        TopicSubscriber topicSubscriber = new;
+        TopicSubscriberEndpointConfiguration consumerConfig = {
             session: newSession,
-            queueName: config.queueName
+            topicPattern: config.topicPattern
         };
-        queueSender.init(senderConfig);
-        sender = queueSender;
+        topicSubscriber.init(consumerConfig);
+        subscriber = topicSubscriber;
     }
 
     public function register (typedesc serviceType) {
+        match (subscriber) {
+            TopicSubscriber c => {
+                c.register(serviceType);
+            }
+            () => {
+                error e = {message: "Topic Subscriber cannot be nil"};
+                throw e;
+            }
+        }
     }
 
     public function start () {
     }
 
-    public function getClient () returns (QueueSenderConnector) {
-        match (sender) {
-            QueueSender s => return s.getClient();
+    public function getClient () returns (TopicSubscriberConnector) {
+        match (subscriber) {
+            TopicSubscriber c => return c.getClient();
             () => {
-                error e = {message: "Queue sender cannot be nil"};
+                error e = {message: "Topic subscriber cannot be nil"};
                 throw e;
             }
         }
@@ -68,12 +77,12 @@ public type SimpleQueueSender object {
     }
 };
 
-public type SimpleQueueSenderEndpointConfiguration {
+public type SimpleTopicListenerEndpointConfiguration {
     string initialContextFactory = "wso2mbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     map properties;
-    string queueName;
+    string topicPattern;
 };
 
