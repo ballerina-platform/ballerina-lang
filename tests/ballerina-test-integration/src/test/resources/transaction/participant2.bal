@@ -153,19 +153,19 @@ function saveToDatabase(http:ServiceEndpoint conn, http:Request req, boolean sho
     }
 }
 
-function onAbort() {
+function onAbort(string transactionid) {
     state.abortedFunctionCalled = true;
 }
 
-function onCommit() {
+function onCommit(string transactionid) {
     state.committedFunctionCalled = true;
 }
 
-function onLocalParticipantAbort() {
+function onLocalParticipantAbort(string transactionid) {
     state.localParticipantAbortedFunctionCalled = true;
 }
 
-function onLocalParticipantCommit() {
+function onLocalParticipantCommit(string transactionid) {
     state.localParticipantCommittedFunctionCalled = true;
 }
 
