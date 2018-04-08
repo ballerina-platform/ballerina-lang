@@ -348,10 +348,8 @@ class SizingUtil {
         cmp.client.h = maxWorkerHeight;
         cmp.client.arrowLine = (cmp.client.w / 2);
         const paramText = node.parameters.filter((param) => {
-            // skip connection on client invocation arrow
-            param.typeNode = param.typeNode || {};
-            param.typeNode.typeName = param.typeNode.typeName || {};
-            return param.typeNode.typeName.value !== 'Connection';
+            // skip if the param is service endpoint.
+            return !param.serviceEndpoint;
         }).map((param) => {
             return param.name.value;
         }).join(', ');

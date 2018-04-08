@@ -40,6 +40,7 @@ import java.util.List;
 public class WebSubHttpService extends HttpService {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSubHttpService.class);
+    private String topic;
 
     protected WebSubHttpService(Service service) {
         super(service);
@@ -56,30 +57,38 @@ public class WebSubHttpService extends HttpService {
      * @param service   the service for which the HTTP representation is built
      * @return  the built HttpService representation
      */
-    static HttpService buildWebSubSubscriberHttpService(Service service) {
-        WebSubHttpService httpService = new WebSubHttpService(service);
+    static WebSubHttpService buildWebSubSubscriberHttpService(Service service) {
+        WebSubHttpService websubHttpService = new WebSubHttpService(service);
         Annotation serviceConfigAnnotation = getWebSubSubscriberServiceConfigAnnotation(service);
 
         if (serviceConfigAnnotation == null) {
             logger.debug("ServiceConfig not specified in the Service instance, using default base path");
             //service name cannot start with / hence concat
-            httpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
-            return httpService;
+            websubHttpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(websubHttpService.getName()));
+            return websubHttpService;
         }
 
         Struct serviceConfig = serviceConfigAnnotation.getValue();
 
-        httpService.setBasePath(serviceConfig.getStringField(BASE_PATH_FIELD));
+        websubHttpService.setBasePath(serviceConfig.getStringField(BASE_PATH_FIELD));
 
         List<HttpResource> resources = new ArrayList<>();
-        for (Resource resource : httpService.getBallerinaService().getResources()) {
-            HttpResource httpResource = WebSubHttpResource.buildWebSubHttpResource(resource, httpService);
+        for (Resource resource : websubHttpService.getBallerinaService().getResources()) {
+            HttpResource httpResource = WebSubHttpResource.buildWebSubHttpResource(resource, websubHttpService);
             resources.add(httpResource);
         }
-        httpService.setResources(resources);
-        httpService.setAllAllowedMethods(DispatcherUtil.getAllResourceMethods(httpService));
+        websubHttpService.setResources(resources);
+        websubHttpService.setAllAllowedMethods(DispatcherUtil.getAllResourceMethods(websubHttpService));
 
-        return httpService;
+        return websubHttpService;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
 }

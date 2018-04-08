@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.CustomErrorStrategyFactory;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.LSParserUtils;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.workspace.repository.LangServerFSProgramDirectory;
 import org.ballerinalang.langserver.workspace.repository.LangServerFSProjectDirectory;
@@ -237,6 +238,12 @@ public class TextDocumentServiceUtil {
                                                      boolean preserveWhitespace, Class customErrorStrategy,
                                                      boolean compileFullProject) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String unsavedFileId = LSParserUtils.getUnsavedFileIdOrNull(uri);
+        if (unsavedFileId != null) {
+            // if it is an unsaved file; overrides the file path
+            uri = LSParserUtils.createAndGetTempFile(unsavedFileId).toUri().toString();
+            context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
+        }
         LSDocument document = new LSDocument(uri);
         Path filePath = CommonUtil.getPath(document);
         Path fileNamePath = filePath.getFileName();
@@ -244,7 +251,6 @@ public class TextDocumentServiceUtil {
         if (fileNamePath != null) {
             fileName = fileNamePath.toString();
         }
-
 
         String sourceRoot = TextDocumentServiceUtil.getSourceRoot(filePath);
         String pkgName = TextDocumentServiceUtil.getPackageNameForGivenFile(sourceRoot, filePath.toString());

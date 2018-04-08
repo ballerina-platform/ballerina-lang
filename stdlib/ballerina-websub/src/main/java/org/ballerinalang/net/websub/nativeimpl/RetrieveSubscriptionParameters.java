@@ -40,13 +40,13 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.websub",
-        functionName = "retrieveAnnotationsAndCallback",
+        orgName = "ballerina", packageName = "websub",
+        functionName = "retrieveSubscriptionParameters",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
-                structPackage = "ballerina.net.websub"),
+                structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH),
         returnType = {@ReturnType(type = TypeKind.MAP)}
 )
-public class RetrieveAnnotationsAndCallback extends AbstractHttpNativeFunction {
+public class RetrieveSubscriptionParameters extends AbstractHttpNativeFunction {
 
     @Override
     public void execute(Context context) {
@@ -65,42 +65,45 @@ public class RetrieveAnnotationsAndCallback extends AbstractHttpNativeFunction {
         subscriptionDetails.put(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP,
                                     new BString(Boolean.toString(annotationStruct.getBooleanField(
                                             WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP))));
+        subscriptionDetails.put(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_RESOURCE_URL,
+                                new BString(annotationStruct.getStringField(
+                                                WebSubSubscriberConstants.ANN_WEBSUB_ATTR_RESOURCE_URL)));
         subscriptionDetails.put(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_HUB,
-                                    new BString(
-                                            annotationStruct.getStringField(
+                                    new BString(annotationStruct.getStringField(
                                                     WebSubSubscriberConstants.ANN_WEBSUB_ATTR_HUB)));
         subscriptionDetails.put(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TOPIC,
-                                    new BString(
-                                            annotationStruct.getStringField(
+                                    new BString(annotationStruct.getStringField(
                                                     WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TOPIC)));
         subscriptionDetails.put(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_LEASE_SECONDS,
-                                    new BString(Long.toString(
-                                            annotationStruct.getIntField(
+                                    new BString(Long.toString(annotationStruct.getIntField(
                                                     WebSubSubscriberConstants.ANN_WEBSUB_ATTR_LEASE_SECONDS))));
         subscriptionDetails.put(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SECRET,
-                                    new BString(
-                                            annotationStruct.getStringField(
+                                    new BString(annotationStruct.getStringField(
                                                     WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SECRET)));
 
-        //TODO: intro methods to return host+port and change instead of using connector ID, and fix http:// hack
-        String callback = httpService.getBasePath() + httpService.getResources().get(0).getPath();
-        BStruct serviceEndpointConfig = ((BStruct) ((BStruct) serviceEndpoint.getVMValue()).getRefField(1));
-        if (!serviceEndpointConfig.getStringField(0).equals("") &&
-                serviceEndpointConfig.getIntField(0) != 0) {
-            callback = serviceEndpointConfig.getStringField(0) + ":"
-                        + serviceEndpointConfig.getIntField(0) + callback;
-        } else {
-            callback = getServerConnector(serviceEndpoint).getConnectorID() + callback;
-        }
+        String callback = annotationStruct.getStringField(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_CALLBACK);
 
-        if (!callback.contains("://")) {
-            if (serviceEndpointConfig.getRefField(3) != null) { //if secure socket is specified
-                callback = ("https://").concat(callback);
+        if (callback.isEmpty()) {
+            //TODO: intro methods to return host+port and change instead of using connector ID, and fix http:// hack
+            callback = httpService.getBasePath() + httpService.getResources().get(0).getPath();
+            BStruct serviceEndpointConfig = ((BStruct) ((BStruct) serviceEndpoint.getVMValue()).getRefField(3));
+            if (!serviceEndpointConfig.getStringField(0).equals("") &&
+                    serviceEndpointConfig.getIntField(0) != 0) {
+                callback = serviceEndpointConfig.getStringField(0) + ":"
+                        + serviceEndpointConfig.getIntField(0) + callback;
             } else {
-                callback = ("http://").concat(callback);
+                callback = getServerConnector(serviceEndpoint).getConnectorID() + callback;
+            }
+            if (!callback.contains("://")) {
+                if (serviceEndpointConfig.getRefField(3) != null) { //if secure socket is specified
+                    callback = ("https://").concat(callback);
+                } else {
+                    callback = ("http://").concat(callback);
+                }
             }
         }
-        subscriptionDetails.put("callback", new BString(callback));
+
+        subscriptionDetails.put(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_CALLBACK, new BString(callback));
         context.setReturnValues(subscriptionDetails);
     }
 

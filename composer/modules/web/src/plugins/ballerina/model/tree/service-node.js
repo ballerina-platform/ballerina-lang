@@ -141,7 +141,17 @@ class ServiceNode extends AbstractServiceNode {
      * @memberof ServiceNode
      */
     getType() {
-        return this.isServiceTypeUnavailable ? '': this.serviceTypeStruct.typeName.value;
+        const epName = this.boundEndpoints[0].variableName.value;
+        const root = this.getRoot();
+        const endpoint = root.find((node) => {
+            if (TreeUtil.isEndpoint(node)) {
+                return epName === node.name.value;
+            }
+            return false;
+        });
+        const pkg = endpoint.endPointType.packageAlias.value;
+        const name = endpoint.endPointType.typeName.value;
+        return pkg;
     }
 
 }

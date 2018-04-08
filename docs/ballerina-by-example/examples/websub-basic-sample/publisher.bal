@@ -12,6 +12,8 @@ function main (string [] args) {
     //Start up the internal Ballerina Hub
     log:printInfo("Starting up the Ballerina Hub Service");
     websub:WebSubHub webSubHub = websub:startUpBallerinaHub();
+    //Register a topic at the hub
+    _ = webSubHub.registerTopic("http://www.websubpubtopic.com");
 
     //Allow for subscription
     runtime:sleepCurrentWorker(20000);
@@ -22,7 +24,7 @@ function main (string [] args) {
 
     log:printInfo("Publishing update to remote Hub");
     //Publish to the internal Ballerina Hub considering it as a remote hub
-    _ = websubHubClientEP -> publishUpdateToRemoteHub("http://www.websubpubtopic.com",
+    _ = websubHubClientEP -> publishUpdate("http://www.websubpubtopic.com",
                                                       {"action":"publish","mode":"remote-hub"});
 
     //Allow for notification by the Hub service
