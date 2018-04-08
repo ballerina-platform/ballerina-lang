@@ -85,8 +85,14 @@ function runPatternQuery1() returns (TempDiffInfo[]) {
     runtime:sleepCurrentWorker(200);
 
     regulatorStream.publish(r2);
-    runtime:sleepCurrentWorker(1000);
-
+    int count = 0;
+    while(true) {
+        runtime:sleepCurrentWorker(500);
+        count++;
+        if((lengthof tempDiffInfoArray) > 0 || count == 10) {
+            break;
+        }
+    }
     return tempDiffInfoArray;
 }
 
@@ -139,7 +145,15 @@ function runPatternQuery2() returns (RoomKeyAction[]) {
     regulatorStateChangeStream.publish(regulatorState1);
     runtime:sleepCurrentWorker(200);
     regulatorStateChangeStream.publish(regulatorState2);
-    runtime:sleepCurrentWorker(500);
+
+    int count = 0;
+    while(true) {
+        runtime:sleepCurrentWorker(500);
+        count++;
+        if((lengthof roomActions) > 0 || count == 10) {
+            break;
+        }
+    }
 
     return roomActions;
 }
@@ -184,11 +198,18 @@ function runPatternQuery3() returns (RoomKeyAction[]) {
     runtime:sleepCurrentWorker(200);
     roomKeyStream2.publish(roomKeyAction1);
     regulatorStateChangeStream2.publish(regulatorState2);
-    runtime:sleepCurrentWorker(500);
+
+    int count = 0;
+    while(true) {
+        runtime:sleepCurrentWorker(500);
+        count++;
+        if((lengthof roomActions2) > 0 || count == 10) {
+            break;
+        }
+    }
 
     return roomActions2;
 }
-
 
 function alertRoomAction2(RoomKeyAction action) {
     io:println("alertRoomAction function invoked for Room:" + action.roomNo + " and the action :" +
@@ -230,7 +251,15 @@ function runPatternQuery4() returns (RoomKeyAction[]) {
     runtime:sleepCurrentWorker(200);
     roomKeyStream3.publish(roomKeyAction1);
     regulatorStateChangeStream3.publish(regulatorState2);
-    runtime:sleepCurrentWorker(500);
+
+    int count = 0;
+    while(true) {
+        runtime:sleepCurrentWorker(500);
+        count++;
+        if((lengthof roomActions3) > 0 || count == 10) {
+            break;
+        }
+    }
 
     return roomActions3;
 }
@@ -272,8 +301,14 @@ function runPatternQuery5() returns (RoomKeyAction[]) {
     regulatorStateChangeStream4.publish(regulatorState1);
     runtime:sleepCurrentWorker(200);
     roomKeyStream4.publish(roomKeyAction1);
-    runtime:sleepCurrentWorker(2500);
-
+    int count = 0;
+    while(true) {
+        runtime:sleepCurrentWorker(500);
+        count++;
+        if((lengthof roomActions3) > 0 || count == 10) {
+            break;
+        }
+    }
     return roomActions4;
 }
 
