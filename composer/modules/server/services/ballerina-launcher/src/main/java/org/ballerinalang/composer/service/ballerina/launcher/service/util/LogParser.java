@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,6 +47,8 @@ public class LogParser {
     static final Pattern HTTP_METHOD = Pattern.compile("(GET|POST|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)");
     static final Pattern PATH = Pattern.compile("(?:GET|POST|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)"
             + " ([^\\s]+)");
+
+    static final Pattern HEADER_PARSABLE =  Pattern.compile("^(?:[A-Z]*?).*\\)[\\s\\S],(.*)");
 
     public static LogParser getLogParserInstance() {
         if (logParserInstance == null) {
@@ -131,17 +135,42 @@ public class LogParser {
     }
 
 
-    public String parseLogLine(String logLine) {
+    private String parseLogLine(String logLine) {
 
         Gson gson = new Gson();
         LogDTO log = new LogDTO();
         log.setId(getId(logLine));
         log.setDirection(getDirection(logLine));
         log.setHeaders(getHeader(logLine));
+        String rawHeader = getHeader(logLine);
         log.setHttpMethod(getHttpMethod(logLine));
+        log.setParsedHeader(parseHeader(rawHeader));
         log.setPath(getPath(logLine));
-
         String json = gson.toJson(log);
         return json;
+    }
+
+    private List<String> parseHeader(String header) {
+        Matcher matcher = HEADER_PARSABLE.matcher(header);
+        String parsableRawHeader;
+        List<String> parsedHeader = new ArrayList<>();
+        if (matcher.find()) {
+            parsableRawHeader = matcher.group(1);
+            String[] rawHeaderArray = parsableRawHeader.split(",");
+            StringBuilder logLineBuilder = new StringBuilder();
+            for (int i = 0; i < rawHeaderArray.length; i++) {
+                if (rawHeaderArray[i].split(": ").length > 1) {
+                    parsedHeader.add(logLineBuilder.toString());
+                    logLineBuilder.setLength(0);
+                    logLineBuilder.append(rawHeaderArray[i] + ",");
+                } else {
+                    logLineBuilder.append(rawHeaderArray[i]);
+                    if (i == rawHeaderArray.length - 1) {
+                        parsedHeader.add(logLineBuilder.toString());
+                    }
+                }
+            }
+        }
+        return parsedHeader;
     }
 }
