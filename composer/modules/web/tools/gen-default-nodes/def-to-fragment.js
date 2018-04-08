@@ -239,8 +239,8 @@ endpoint http:ServiceEndpoint ep {
         return FragmentUtils.createStatementFragment(`
             transaction {
 
-            } failed {
-
+            } onretry {
+        
             }
         `);
     },

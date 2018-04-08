@@ -144,9 +144,16 @@ class CompilationUnitNode extends AbstractCompilationUnitNode {
      * @param {Node} node Node instance to be dropped
      */
     acceptDrop(node) {
-        // TODO
-        TreeUtils.generateDefaultName(this, node);
-        this.addTopLevelNodes(node);
+        if (node instanceof Array) {
+            node.forEach((element, i, array) => {
+                const silent = (i !== (array.length - 1));
+                TreeUtils.generateDefaultName(this, element);
+                this.addTopLevelNodes(element, -1, silent);
+            });
+        } else {
+            TreeUtils.generateDefaultName(this, node);
+            this.addTopLevelNodes(node);
+        }
     }
 
     /**

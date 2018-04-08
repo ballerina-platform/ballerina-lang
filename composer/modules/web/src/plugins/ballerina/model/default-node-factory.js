@@ -130,7 +130,7 @@ class DefaultNodeFactory {
         const service = getStaticDefaultNode('createHTTPServiceDef');
         const endpoint = getStaticDefaultNode('createHTTPEndpointDef');
         service.setFullPackageName('ballerina/http');
-        return [ endpoint, service];
+        return [ endpoint, service ];
     }
 
     createWSServiceDef() {
