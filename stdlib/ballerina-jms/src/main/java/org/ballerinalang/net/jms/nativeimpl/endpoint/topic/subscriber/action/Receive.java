@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.consumer.action;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.subscriber.action;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -30,13 +30,13 @@ import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler;
 
 /**
- * {@code Send} is the send action implementation of the JMS Connector.
+ * {@code Receive} is the receive action implementation of the JMS topic subscriber connector.
  */
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "jms",
                    functionName = "receive",
                    receiver = @Receiver(type = TypeKind.STRUCT,
-                                        structType = "QueueConsumerConnector",
+                                        structType = "TopicSubscriberConnector",
                                         structPackage = "ballerina.jms"),
                    args = {
                            @Argument(name = "timeInMilliSeconds",
@@ -49,7 +49,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler
                    },
                    isPublic = true
 )
-public class QueueReceive extends AbstractBlockinAction {
+public class Receive extends AbstractBlockinAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {

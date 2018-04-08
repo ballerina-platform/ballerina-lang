@@ -23,16 +23,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.ballerinalang.util.exceptions.BallerinaException;
-
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
+import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler;
 
 /**
  * Close the message consumer object.
@@ -50,16 +44,7 @@ import javax.jms.MessageConsumer;
 public class CloseConsumer implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BStruct connectorBObject = (BStruct) context.getRefArgument(1);
-        MessageConsumer consumer = BallerinaAdapter.getNativeObject(connectorBObject,
-                                                                    Constants.JMS_CONSUMER_OBJECT,
-                                                                    MessageConsumer.class,
-                                                                    context);
-        try {
-            consumer.close();
-        } catch (JMSException e) {
-            throw new BallerinaException("Error closing message consumer.");
-        }
+        CloseConsumerHandler.handle(context);
     }
 
     @Override
