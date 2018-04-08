@@ -181,7 +181,7 @@
                                                             <h2 id="{{../name}}-{{name}}">
                                                                 <span class={{icon}}></span>
                                                                 <span class="thin-text light-gray">&lt; {{../name}} &gt;</span>
-                                                                {{name}}({{join parameters ", "}}) {{#if returnParams}}({{join returnParams ", "}}) {{/if}}
+                                                                {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
                                                             </h2>
                                                             {{#if description}}
                                                             <p>
@@ -233,7 +233,7 @@
                                                 {{#if isFunction}}
                                                 <h2 id="{{name}}">
                                                     <span class="{{icon}} sm-icon"> </span>
-                                                    public function {{name}}({{join parameters ", "}}) {{#if returnParams}}({{join returnParams ", "}}) {{/if}}
+                                                    public function {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
                                                 </h2>
                                                 {{#if description}}
                                                 <p>
@@ -313,8 +313,8 @@
                                                         <li>
                                                             <h2 id="{{../name}}-{{name}}">
                                                                 <span class={{icon}}></span>
-                                                                <span class="thin-text light-gray">&lt; {{../name}} &gt;</span>
-                                                                {{name}}({{join parameters ", "}}) {{#if returnParams}}({{join returnParams ", "}}) {{/if}}
+                                                                <span class="thin-text light-gray">&lt;{{../name}}&gt;</span>
+                                                                {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
                                                             </h2>
                                                             {{#if description}}
                                                             <p>
@@ -399,9 +399,9 @@
                                                             <h2 id="{{../name}}-{{name}}">
                                                                 <span class={{icon}}></span>
                                                                 <span class="thin-text light-gray">
-                                                                    < {{../name}}>
+                                                                    <{{../name}}>
                                                                 </span>
-                                                                {{name}}({{join parameters ", "}}) {{#if returnParams}} ({{join returnParams ", "}}) {{/if}}
+                                                                {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
                                                             </h2>
                                                             {{#if description}}
                                                             <p>
