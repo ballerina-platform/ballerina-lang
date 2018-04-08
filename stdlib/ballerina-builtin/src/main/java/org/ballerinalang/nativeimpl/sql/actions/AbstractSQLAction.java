@@ -272,9 +272,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         }
     }
 
-    protected BStructType getStructType(Context context) {
+    protected BStructType getStructType(Context context, int index) {
         BStructType structType = null;
-        BTypeDescValue type = (BTypeDescValue) context.getNullableRefArgument(2);
+        BTypeDescValue type = (BTypeDescValue) context.getNullableRefArgument(index);
         if (type != null) {
             structType = (BStructType) type.value();
         }

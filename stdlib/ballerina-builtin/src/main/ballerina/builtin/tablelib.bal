@@ -34,7 +34,7 @@ public native function <table dt> getNext () returns (any);
 @Param {value:"dt: The table object"}
 
 @Param {value:"data: A struct with data"}
-public native function <table dt> add (any data) returns (TableOperationError | null);
+public native function <table dt> add (any data) returns (TableOperationError | ());
 
 @Description {value:"Remove data from the table."}
 @Param {value:"dt: The table object"}

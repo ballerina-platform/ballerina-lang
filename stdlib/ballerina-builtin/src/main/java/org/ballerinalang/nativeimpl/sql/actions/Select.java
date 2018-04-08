@@ -64,7 +64,7 @@ public class Select extends AbstractSQLAction {
             BStruct bConnector = (BStruct) context.getRefArgument(0);
             String query = context.getStringArgument(0);
             BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
-            BStructType structType = getStructType(context);
+            BStructType structType = getStructType(context, 2);
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
 
             ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.

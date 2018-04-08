@@ -234,7 +234,7 @@ public type SQLClient object {
         (Parameter[] | ()) parameters, (string[] | ()) keyColumns)
         returns (int, string[]) | SQLConnectorError;
 
-    public native function <ClientConnector client> mirror (string tableName, typedesc structType) returns
+    public native function mirror (string tableName, typedesc structType) returns
     (table|SQLConnectorError);
 
 };

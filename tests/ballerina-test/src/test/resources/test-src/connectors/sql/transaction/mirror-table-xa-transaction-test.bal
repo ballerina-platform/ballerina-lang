@@ -1,24 +1,24 @@
 import ballerina/sql;
 
-struct ResultCount {
-    int COUNTVAL;
-}
+type ResultCount {
+    int COUNTVAL,
+};
 
-struct CustomersTrx {
-    int customerId;
-    string name;
-    float creditLimit;
-    string country;
-}
+type CustomersTrx {
+    int customerId,
+    string name,
+    float creditLimit,
+    string country,
+};
 
-struct SalaryTrx {
-    int id;
-    float value;
-}
+type SalaryTrx {
+    int id,
+    float value,
+};
 
 function testXATransactionSuccess () returns (int, int) {
     endpoint sql:Client testDB1 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_1/",
         port: 0,
         name: "TestDB1",
@@ -28,7 +28,7 @@ function testXATransactionSuccess () returns (int, int) {
     };
 
     endpoint sql:Client testDB2 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_2/",
         port: 0,
         name: "TestDB2",
@@ -37,8 +37,11 @@ function testXATransactionSuccess () returns (int, int) {
         options: {maximumPoolSize:1, isXA:true}
     };
 
-    table dt0 =? testDB1 -> mirror("CustomersTrx", typeof CustomersTrx);
-    table dt1 =? testDB2 -> mirror("SalaryTrx", typeof SalaryTrx);
+    var temp0 = testDB1 -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp1 = testDB2 -> mirror("SalaryTrx", typeof SalaryTrx);
+    
+    table dt0 = check temp0;
+    table dt1 = check temp1;
 
     transaction {
         CustomersTrx c1 = {customerId:1, name:"Anne", creditLimit:1000, country:"UK"};
@@ -51,16 +54,18 @@ function testXATransactionSuccess () returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    table dt =? testDB1 -> select("Select COUNT(*) as countval from CustomersTrx where customerId = 1 ",
-                                  null, typeof ResultCount);
+    var temp = testDB1 -> select("Select COUNT(*) as countval from CustomersTrx where customerId = 1 ",
+                                  (), typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    dt =? testDB2 -> select("Select COUNT(*) as countval from SalaryTrx where id = 1", null, typeof ResultCount);
+    temp = testDB2 -> select("Select COUNT(*) as countval from SalaryTrx where id = 1", (), typeof ResultCount);
+    dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();
@@ -71,7 +76,7 @@ function testXATransactionSuccess () returns (int, int) {
 function testXATransactionFailed1 () returns (int, int) {
 
     endpoint sql:Client testDB1 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_1/",
         port: 0,
         name: "TestDB1",
@@ -81,7 +86,7 @@ function testXATransactionFailed1 () returns (int, int) {
     };
 
     endpoint sql:Client testDB2 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_2/",
         port: 0,
         name: "TestDB2",
@@ -90,9 +95,12 @@ function testXATransactionFailed1 () returns (int, int) {
         options: {maximumPoolSize:1, isXA:true}
     };
 
-    table dt0 =? testDB1 -> mirror("CustomersTrx", typeof CustomersTrx);
-    table dt1 =? testDB2 -> mirror("SalaryTrx", typeof SalaryTrx);
-    
+    var temp0 = testDB1 -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp1 = testDB2 -> mirror("SalaryTrx", typeof SalaryTrx);
+
+    table dt0 = check temp0;
+    table dt1 = check temp1;
+
     try {
         transaction {
             CustomersTrx c1 = {customerId:2, name:"John", creditLimit:1000, country:"UK"};
@@ -108,16 +116,18 @@ function testXATransactionFailed1 () returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    table dt =? testDB1 -> select("Select COUNT(*) as countval from CustomersTrx where customerId = 2", null,
+    var temp = testDB1 -> select("Select COUNT(*) as countval from CustomersTrx where customerId = 2", (),
                                   typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    dt =? testDB2 -> select("Select COUNT(*) as countval from SalaryTrx where id = 2 ", null, typeof ResultCount);
+    temp = testDB2 -> select("Select COUNT(*) as countval from SalaryTrx where id = 2 ", (), typeof ResultCount);
+    dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();
@@ -128,7 +138,7 @@ function testXATransactionFailed1 () returns (int, int) {
 function testXATransactionFailed2 () returns (int, int) {
 
     endpoint sql:Client testDB1 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_1/",
         port: 0,
         name: "TestDB1",
@@ -138,7 +148,7 @@ function testXATransactionFailed2 () returns (int, int) {
     };
 
     endpoint sql:Client testDB2 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_2/",
         port: 0,
         name: "TestDB2",
@@ -147,8 +157,12 @@ function testXATransactionFailed2 () returns (int, int) {
         options: {maximumPoolSize:1, isXA:true}
     };
 
-    table dt0 =? testDB1 -> mirror("CustomersTrx", typeof CustomersTrx);
-    table dt1 =? testDB2 -> mirror("SalaryTrx", typeof SalaryTrx);
+    var temp0 = testDB1 -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp1 = testDB2 -> mirror("SalaryTrx", typeof SalaryTrx);
+
+    table dt0 = check temp0;
+    table dt1 = check temp1;
+    
     try {
         transaction {
             CustomersTrx c1 = {customerId:30, name:"John", creditLimit:1000, country:"UK"};
@@ -161,18 +175,21 @@ function testXATransactionFailed2 () returns (int, int) {
 
     }
     //check whether update action is performed
-    table dt =? testDB1 -> select("Select COUNT(*) as countval from CustomersTrx where customerId = 2",
-                                  null, typeof ResultCount);
+    var temp = testDB1 -> select("Select COUNT(*) as countval from CustomersTrx where customerId = 2",
+                                  (), typeof ResultCount);
+    table dt = check temp;
     int count1;
     int count2;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    dt =? testDB2 -> select("Select COUNT(*) as countval from SalaryTrx where id = 2 ", null, typeof ResultCount);
+    temp = testDB2 -> select("Select COUNT(*) as countval from SalaryTrx where id = 2 ", (), typeof ResultCount);
+    dt = check temp;
+    
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();
@@ -183,7 +200,7 @@ function testXATransactionFailed2 () returns (int, int) {
 function testXATransactionRetry () returns (int, int) {
 
     endpoint sql:Client testDB1 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_1/",
         port: 0,
         name: "TestDB1",
@@ -193,7 +210,7 @@ function testXATransactionRetry () returns (int, int) {
     };
 
     endpoint sql:Client testDB2 {
-        database: sql:DB.H2_FILE,
+        database: sql:DB_H2_FILE,
         host: "./target/H2_2/",
         port: 0,
         name: "TestDB2",
@@ -203,8 +220,11 @@ function testXATransactionRetry () returns (int, int) {
     };
 
     int i = 0;
-    table dt0 =? testDB1 -> mirror("CustomersTrx", typeof CustomersTrx);
-    table dt1 =? testDB2 -> mirror("SalaryTrx", typeof SalaryTrx);
+    var temp0 = testDB1 -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp1 = testDB2 -> mirror("SalaryTrx", typeof SalaryTrx);
+
+    table dt0 = check temp0;
+    table dt1 = check temp1;
 
     try {
         transaction {
@@ -223,19 +243,22 @@ function testXATransactionRetry () returns (int, int) {
     } catch (error e) {
     }
     //check whether update action is performed
-    table dt =? testDB1 -> select("Select COUNT(*) as countval from CustomersTrx where customerId = 4",
-                                  null, typeof ResultCount);
+    var temp = testDB1 -> select("Select COUNT(*) as countval from CustomersTrx where customerId = 4",
+                                  (), typeof ResultCount);
+    table dt = check temp;
     int count1;
     int count2;
 
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    dt =? testDB2 -> select("Select COUNT(*) as countval from SalaryTrx where id = 4", null, typeof ResultCount);
+    temp = testDB2 -> select("Select COUNT(*) as countval from SalaryTrx where id = 4", (), typeof ResultCount);
+    dt = check temp;
+    
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     _ = testDB1 -> close();

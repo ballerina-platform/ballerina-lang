@@ -1,14 +1,14 @@
 import ballerina/sql;
 
-struct Employee {
-    int id;
-    string name;
-    string address;
-}
+type Employee {
+    int id,
+    string name,
+    string address,
+};
 
 function testIterateMirrorTable () returns (Employee[], Employee[]) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -17,13 +17,14 @@ function testIterateMirrorTable () returns (Employee[], Employee[]) {
         options: {maximumPoolSize:2}
     };
 
-    table dt =? testDB -> mirror("employeeItr", typeof Employee);
+    var temp = testDB -> mirror("employeeItr", typeof Employee);
+    table dt = check temp;
 
     Employee [] employeeArray1;
     Employee [] employeeArray2;
     int i = 0;
     while (dt.hasNext()) {
-        var rs =? <Employee>dt.getNext();
+        var rs = check <Employee>dt.getNext();
         Employee e = {id: rs.id, name: rs.name, address:rs.address};
         employeeArray1[i] = e;
         i++;
@@ -31,7 +32,7 @@ function testIterateMirrorTable () returns (Employee[], Employee[]) {
 
     i = 0;
     while (dt.hasNext()) {
-        var rs =? <Employee>dt.getNext();
+        var rs = check <Employee>dt.getNext();
         Employee e = {id: rs.id, name: rs.name, address:rs.address};
         employeeArray2[i] = e;
         i++;
@@ -43,7 +44,7 @@ function testIterateMirrorTable () returns (Employee[], Employee[]) {
 
 function testAddToMirrorTable () returns (Employee[]) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -52,7 +53,8 @@ function testAddToMirrorTable () returns (Employee[]) {
         options: {maximumPoolSize:2}
     };
 
-    table dt =? testDB -> mirror("employeeAdd", typeof Employee);
+    var temp = testDB -> mirror("employeeAdd", typeof Employee);
+    table dt = check temp;
 
     Employee e1 = {id: 1, name:"Manuri", address:"Sri Lanka"};
     Employee e2 = {id: 2, name:"Devni", address:"Sri Lanka"};
@@ -60,12 +62,13 @@ function testAddToMirrorTable () returns (Employee[]) {
     var result1 = dt.add(e1);
     var result2 = dt.add(e2);
 
-    table dt2 =? testDB -> select("SELECT  * from employeeAdd", null, typeof Employee);
+    var temp2 = testDB -> select("SELECT  * from employeeAdd", (), typeof Employee);
+    table dt2 = check temp2;
 
     Employee [] employeeArray;
     int i = 0;
     while (dt2.hasNext()) {
-        var rs =? <Employee>dt2.getNext();
+        var rs = check <Employee>dt2.getNext();
         Employee e = {id: rs.id, name: rs.name, address:rs.address};
         employeeArray[i] = e;
         i++;
@@ -78,7 +81,7 @@ function testAddToMirrorTable () returns (Employee[]) {
 
 function testAddToMirrorTableNegative () returns (any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -87,7 +90,8 @@ function testAddToMirrorTableNegative () returns (any) {
         options: {maximumPoolSize:2}
     };
 
-    table dt =? testDB -> mirror("employeeAddNegative", typeof Employee);
+    var temp = testDB -> mirror("employeeAddNegative", typeof Employee);
+    table dt = check temp;
 
     Employee e1 = {id: 1, name:"Manuri", address:"Sri Lanka"};
 
@@ -101,7 +105,7 @@ function testAddToMirrorTableNegative () returns (any) {
 
 function testDeleteFromMirrorTable () returns (boolean, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR",
@@ -110,7 +114,8 @@ function testDeleteFromMirrorTable () returns (boolean, int) {
         options: {maximumPoolSize:2}
     };
 
-    table dt =? testDB -> mirror("employeeDel", typeof Employee);
+    var temp = testDB -> mirror("employeeDel", typeof Employee);
+    table dt = check temp;
 
     var val = dt.remove(idMatches);
     int removedCount;
@@ -119,8 +124,8 @@ function testDeleteFromMirrorTable () returns (boolean, int) {
         TableOperationError e => removedCount = -1;
     }
 
-    table dt2 =? testDB -> select("SELECT  * from employeeDel", null, typeof Employee);
-
+    var temp2 = testDB -> select("SELECT  * from employeeDel", (), typeof Employee);
+    table dt2 = check temp2;
     boolean hasNext = dt2.hasNext();
 
     _ = testDB -> close();

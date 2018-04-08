@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.nativeimpl.sql.Constants;
 import org.ballerinalang.nativeimpl.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.Argument;
@@ -38,7 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
         functionName = "mirror",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.SQL_CLIENT),
         args = {
                 @Argument(name = "tableName", type = TypeKind.STRING)
         },
@@ -54,19 +53,9 @@ public class Mirror extends AbstractSQLAction {
     public void execute(Context context) {
         BStruct bConnector = (BStruct) context.getRefArgument(0);
         String tableName = context.getStringArgument(0);
-        BStructType structType = getStructType(context);
-        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
+        BStructType structType = getStructType(context, 1);
+        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
 
         createMirroredTable(context, datasource, tableName, structType);
-
-    }
-
-    protected BStructType getStructType(Context context) {
-        BStructType structType = null;
-        BTypeDescValue type = (BTypeDescValue) context.getNullableRefArgument(1);
-        if (type != null) {
-            structType = (BStructType) type.value();
-        }
-        return structType;
     }
 }

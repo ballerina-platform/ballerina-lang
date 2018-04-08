@@ -165,6 +165,12 @@ public class BTable implements BRefType<Object>, BCollection {
         return iterator.generateNext();
     }
 
+    /**
+     * Performs addition of a record to the database.
+     *
+     * @param data The record to be inserted
+     * @param context The context which represents the runtime state of the program that called "table.add"
+     */
     public void performAddOperation(BStruct data, Context context) {
         this.addData(data, context);
         context.setReturnValues();
@@ -186,6 +192,12 @@ public class BTable implements BRefType<Object>, BCollection {
         addData(data, null);
     }
 
+    /**
+     * Performs Removal of records matching the condition defined by the provided lambda function.
+     *
+     * @param context The context which represents the runtime state of the program that called "table.remove"
+     * @param lambdaFunction The function that decides the condition of data removal
+     */
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
         int deletedCount = 0;
         while (this.hasNext(false)) {

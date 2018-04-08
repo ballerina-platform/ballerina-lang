@@ -2,30 +2,30 @@ import ballerina/sql;
 import ballerina/io;
 import ballerina/runtime;
 
-struct ResultCount {
-    int COUNTVAL;
-}
+type ResultCount {
+    int COUNTVAL,
+};
 
-struct CustomersTrx {
-    string firstName;
-    string lastName;
-    int registrationID;
-    float creditLimit;
-    string country;
-}
+type CustomersTrx {
+    string firstName,
+    string lastName,
+    int registrationID,
+    float creditLimit,
+    string country,
+};
 
-struct CustomersTrx2 {
-    int customerId;
-    string firstName;
-    string lastName;
-    int registrationID;
-    float creditLimit;
-    string country;
-}
+type CustomersTrx2 {
+    int customerId,
+    string firstName,
+    string lastName,
+    int registrationID,
+    float creditLimit,
+    string country,
+};
 
 function testLocalTransacton () returns (int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -33,8 +33,9 @@ function testLocalTransacton () returns (int, int) {
         password: "",
         options: {maximumPoolSize:1}
     };
-    
-    table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+
+    var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    table dt0 = check temp0;
 
     int returnVal = 0;
     int count;
@@ -49,10 +50,11 @@ function testLocalTransacton () returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt =? testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 200", null,
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 200", (),
                                  typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -61,7 +63,7 @@ function testLocalTransacton () returns (int, int) {
 
 function testTransactonRollback () returns (int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -73,8 +75,11 @@ function testTransactonRollback () returns (int, int) {
     int returnVal = 0;
     int count;
 
-    table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
-    table dt1 =? testDB -> mirror("CustomersTrx2", typeof CustomersTrx2);
+    var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp1 = testDB -> mirror("CustomersTrx2", typeof CustomersTrx2);
+
+    table dt0 = check temp0;
+    table dt1 = check temp1;
 
     transaction {
         CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:200,creditLimit:5000.75,
@@ -90,10 +95,11 @@ function testTransactonRollback () returns (int, int) {
 
 
     //check whether update action is performed
-    table dt =? testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 210", null,
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 210", (),
                                  typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -102,7 +108,7 @@ function testTransactonRollback () returns (int, int) {
 
 function testTransactonAbort () returns (int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -114,7 +120,8 @@ function testTransactonAbort () returns (int, int) {
     int returnVal = -1;
     int count;
 
-    table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    table dt0 = check temp0;
 
     transaction {
         CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:200,creditLimit:5000.75,
@@ -132,10 +139,12 @@ function testTransactonAbort () returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt =? testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 220", null,
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 220", (),
                                  typeof ResultCount);
+    table dt = check temp;
+
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -144,7 +153,7 @@ function testTransactonAbort () returns (int, int) {
 
 function testTransactonErrorThrow () returns (int, int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -156,7 +165,8 @@ function testTransactonErrorThrow () returns (int, int, int) {
     int returnVal = 0;
     int catchValue = 0;
     int count;
-    table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    table dt0 = check temp0;
 
     try {
         transaction {
@@ -175,10 +185,11 @@ function testTransactonErrorThrow () returns (int, int, int) {
         catchValue = -1;
     }
     //check whether update action is performed
-    table dt =? testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 260", null,
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 260", (),
                                  typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -187,7 +198,7 @@ function testTransactonErrorThrow () returns (int, int, int) {
 
 function testTransactionErrorThrowAndCatch () returns (int, int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -199,7 +210,8 @@ function testTransactionErrorThrowAndCatch () returns (int, int, int) {
     int returnVal = 0;
     int catchValue = 0;
     int count;
-    table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    table dt0 = check temp0;
 
     transaction {
         CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:250,creditLimit:5000.75,
@@ -218,10 +230,12 @@ function testTransactionErrorThrowAndCatch () returns (int, int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt =? testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 250", null,
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 250", (),
                                  typeof ResultCount);
+    table dt = check temp;
+
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -230,7 +244,7 @@ function testTransactionErrorThrowAndCatch () returns (int, int, int) {
 
 function testTransactonCommitted () returns (int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -241,7 +255,9 @@ function testTransactonCommitted () returns (int, int) {
 
     int returnVal = 1;
     int count;
-    table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+
+    table dt0 = check temp0;
     transaction {
         CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:300,creditLimit:5000.75,
                               country:"USA"};
@@ -253,10 +269,11 @@ function testTransactonCommitted () returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt =? testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 300", null,
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 300", (),
                                  typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -265,7 +282,7 @@ function testTransactonCommitted () returns (int, int) {
 
 function testTwoTransactons () returns (int, int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -277,7 +294,8 @@ function testTwoTransactons () returns (int, int, int) {
     int returnVal1 = 1;
     int returnVal2 = 1;
     int count;
-    table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    table dt0 = check temp0;
     transaction {
         CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:400,creditLimit:5000.75,
                               country:"USA"};
@@ -300,10 +318,11 @@ function testTwoTransactons () returns (int, int, int) {
         returnVal2 = 0;
     }
     //check whether update action is performed
-    table dt =? testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 400", null,
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 400", (),
                                  typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -312,7 +331,7 @@ function testTwoTransactons () returns (int, int, int) {
 
 function testTransactonWithoutHandlers () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -321,7 +340,9 @@ function testTransactonWithoutHandlers () returns (int) {
         options: {maximumPoolSize:1}
     };
 
-    table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    table dt0 = check temp0;
+
     transaction {
         CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:350,creditLimit:5000.75,
                               country:"USA"};
@@ -333,10 +354,11 @@ function testTransactonWithoutHandlers () returns (int) {
 
     int count;
     //check whether update action is performed
-    table dt =? testDB -> select("Select COUNT(*) as countval from CustomersTrx where
-                                      registrationID = 350", null, typeof ResultCount);
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where
+                                      registrationID = 350", (), typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -345,7 +367,7 @@ function testTransactonWithoutHandlers () returns (int) {
 
 function testLocalTransactionFailed () returns (string, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -356,8 +378,11 @@ function testLocalTransactionFailed () returns (string, int) {
 
     string a = "beforetx";
     int count = -1;
-    table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
-    table dt1 =? testDB -> mirror("CustomersTrx2", typeof CustomersTrx2);
+    var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp1 = testDB -> mirror("CustomersTrx2", typeof CustomersTrx2);
+
+    table dt0 = check temp0;
+    table dt1 = check temp1;
     try {
         transaction with retries = 4 {
             a = a + " inTrx";
@@ -376,10 +401,12 @@ function testLocalTransactionFailed () returns (string, int) {
 
     }
     a = a + " afterTrx";
-    table dt =? testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 111", null,
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 111", (),
                                  typeof ResultCount);
+    table dt = check temp;
+
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -388,7 +415,7 @@ function testLocalTransactionFailed () returns (string, int) {
 
 function testLocalTransactonSuccessWithFailed () returns (string, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -400,8 +427,11 @@ function testLocalTransactonSuccessWithFailed () returns (string, int) {
     string a = "beforetx";
     int count = -1;
     int i = 0;
-    table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
-    table dt1 =? testDB -> mirror("CustomersTrx2", typeof CustomersTrx2);
+    var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp1 = testDB -> mirror("CustomersTrx2", typeof CustomersTrx2);
+
+    table dt0 = check temp0;
+    table dt1 = check temp1;
     try {
         transaction with retries=4 {
             a = a + " inTrx";
@@ -426,10 +456,12 @@ function testLocalTransactonSuccessWithFailed () returns (string, int) {
         a = a + " inCatch";
     }
     a = a + " afterTrx";
-    table dt =? testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 222", null,
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 222", (),
                                  typeof ResultCount);
+    table dt = check temp;
+
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _= testDB -> close();
@@ -438,7 +470,7 @@ function testLocalTransactonSuccessWithFailed () returns (string, int) {
 
 function testLocalTransactonFailedWithNextupdate () returns (int) {
     endpoint sql:Client testDB1 {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -448,7 +480,7 @@ function testLocalTransactonFailedWithNextupdate () returns (int) {
     };
 
     endpoint sql:Client testDB2 {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -459,7 +491,8 @@ function testLocalTransactonFailedWithNextupdate () returns (int) {
 
     int i = 0;
 
-    table dt1 =? testDB1 -> mirror("CustomersTrx2", typeof CustomersTrx2);
+    var temp1 = testDB1 -> mirror("CustomersTrx2", typeof CustomersTrx2);
+    table dt1 = check temp1;
     try {
         transaction {
             CustomersTrx2 c1 = {customerId:1, firstName:"James",lastName:"Clerk",registrationID:1234,creditLimit:5000.75,
@@ -476,10 +509,11 @@ function testLocalTransactonFailedWithNextupdate () returns (int) {
 
     _ = testDB1 -> close();
 
-    table dt =? testDB2 -> select("Select COUNT(*) as countval from CustomersTrx2 where registrationID = 12343", null,
+    var temp = testDB2 -> select("Select COUNT(*) as countval from CustomersTrx2 where registrationID = 12343", (),
                                   typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         i = rs.COUNTVAL;
     }
     _ = testDB2 -> close();
@@ -488,7 +522,7 @@ function testLocalTransactonFailedWithNextupdate () returns (int) {
 
 function testNestedTwoLevelTransactonSuccess () returns (int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -499,7 +533,8 @@ function testNestedTwoLevelTransactonSuccess () returns (int, int) {
 
     int returnVal = 0;
     int count;
-    table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    table dt0 = check temp0;
     transaction {
         CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:333,creditLimit:5000.75,
                               country:"USA"};
@@ -513,10 +548,11 @@ function testNestedTwoLevelTransactonSuccess () returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt =? testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 333", null,
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 333", (),
                                  typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -525,7 +561,7 @@ function testNestedTwoLevelTransactonSuccess () returns (int, int) {
 
 function testNestedThreeLevelTransactonSuccess () returns (int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -536,7 +572,8 @@ function testNestedThreeLevelTransactonSuccess () returns (int, int) {
 
     int returnVal = 0;
     int count;
-    table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    table dt0 = check temp0;
     transaction {
         CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:444,creditLimit:5000.75,
                               country:"USA"};
@@ -555,10 +592,11 @@ function testNestedThreeLevelTransactonSuccess () returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    table dt =? testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 444", null,
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 444", (),
                                  typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -567,7 +605,7 @@ function testNestedThreeLevelTransactonSuccess () returns (int, int) {
 
 function testNestedThreeLevelTransactonFailed () returns (int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -578,8 +616,11 @@ function testNestedThreeLevelTransactonFailed () returns (int, int) {
 
     int returnVal = 0;
     int count;
-    table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
-    table dt1 =? testDB -> mirror("CustomersTrx2", typeof CustomersTrx2);
+    var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp1 = testDB -> mirror("CustomersTrx2", typeof CustomersTrx2);
+
+    table dt0 = check temp0;
+    table dt1 = check temp1;
     try {
         transaction {
             CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:555,creditLimit:5000.75,
@@ -603,10 +644,11 @@ function testNestedThreeLevelTransactonFailed () returns (int, int) {
         // ignore.
     }
     //check whether update action is performed
-    table dt =? testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 555", null,
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 555", (),
                                  typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -615,7 +657,7 @@ function testNestedThreeLevelTransactonFailed () returns (int, int) {
 
 function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, int, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -628,8 +670,11 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, i
     int index = 0;
     string a = "start";
     int count;
-    table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
-    table dt1 =? testDB -> mirror("CustomersTrx2", typeof CustomersTrx2);
+    var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+    var temp1 = testDB -> mirror("CustomersTrx2", typeof CustomersTrx2);
+
+    table dt0 = check temp0;
+    table dt1 = check temp1;
     try {
         transaction {
             a = a + " txL1";
@@ -667,10 +712,11 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, i
         // ignore.
     }
     //check whether update action is performed
-    table dt =? testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 666", null,
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 666", (),
                                  typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -679,7 +725,7 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, i
 
 function testTransactionWithWorkers () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
+        database: sql:DB_HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
         name: "TEST_SQL_CONNECTOR_TR",
@@ -694,10 +740,11 @@ function testTransactionWithWorkers () returns (int) {
 
     //check whether update action is performed
     int count;
-    table dt =? testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 834", null,
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 834", (),
                                  typeof ResultCount);
+    table dt = check temp;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -709,13 +756,15 @@ function invokeWorkers(sql:Client testDBClient) {
 
 
     worker w1 {
-        table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+        var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+        table dt0 = check temp0;
         CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:834,creditLimit:5000.75, country:"USA"};
         var result1 = dt0.add(c1);
     }
 
     worker w2 {
-        table dt0 =? testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+        var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
+        table dt0 = check temp0;
         runtime:sleepCurrentWorker(5000);
         CustomersTrx c2 = {firstName:"James",lastName:"Clerk",registrationID:834,creditLimit:5000.75, country:"USA"};
         var result2 = dt0.add(c2);
