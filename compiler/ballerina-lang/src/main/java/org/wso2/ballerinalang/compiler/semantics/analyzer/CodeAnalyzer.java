@@ -170,6 +170,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
     private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
     private Stack<Boolean> returnWithintransactionCheckStack = new Stack<>();
+    private Stack<Boolean> doneWithintransactionCheckStack = new Stack<>();
     private Names names;
     private SymbolEnv env;
 
@@ -239,9 +240,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         this.returnWithintransactionCheckStack.push(true);
+        this.doneWithintransactionCheckStack.push(true);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         this.visitInvocable(funcNode, funcEnv);
         this.returnWithintransactionCheckStack.pop();
+        this.doneWithintransactionCheckStack.pop();
     }
 
     private void visitInvocable(BLangInvokableNode invNode, SymbolEnv invokableEnv) {
@@ -330,6 +333,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(transactionNode);
         this.loopWithintransactionCheckStack.push(false);
         this.returnWithintransactionCheckStack.push(false);
+        this.doneWithintransactionCheckStack.push(false);
         this.transactionCount++;
         transactionNode.transactionBody.accept(this);
         this.transactionCount--;
@@ -341,6 +345,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.returnWithintransactionCheckStack.pop();
         this.loopWithintransactionCheckStack.pop();
+        this.doneWithintransactionCheckStack.pop();
         analyzeExpr(transactionNode.retryCount);
         analyzeExpr(transactionNode.onCommitFunction);
         analyzeExpr(transactionNode.onAbortFunction);
@@ -357,6 +362,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangDone doneNode) {
+        if (checkReturnValidityInTransaction()) {
+            this.dlog.error(doneNode.pos, DiagnosticCode.DONE_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
+            return;
+        }
         this.lastStatement = true;
     }
 
@@ -1100,6 +1109,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean checkReturnValidityInTransaction() {
         return (this.returnWithintransactionCheckStack.empty() || !this.returnWithintransactionCheckStack.peek())
+                && transactionCount > 0;
+    }
+
+    private boolean checkDoneValidityInTransaction() {
+        return (this.doneWithintransactionCheckStack.empty() || !this.doneWithintransactionCheckStack.peek())
                 && transactionCount > 0;
     }
 
