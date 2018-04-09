@@ -21,7 +21,7 @@ documentation {
 
     F{{epName}} - Name of the endpoint
     F{{simpleConfig}} - The configurations for the endpoint to connect to. This contains all the configurations as the
-                        ClientEndpointConfiguration, except for the resiliency related configurations.
+                        ClientEndpointConfig, except for the resiliency related configurations.
 }
 public type SimpleClientEndpoint object {
     public {

@@ -27,15 +27,15 @@ import ballerina/io;
 public type ClientEndpoint object {
     public {
         string epName;
-        ClientEndpointConfiguration config;
+        ClientEndpointConfig config;
         HttpClient httpClient;
     }
 
     @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
     @Param {value:"ep: The endpoint to be initialized"}
     @Param {value:"epName: The endpoint name"}
-    @Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
-    public function init(ClientEndpointConfiguration config);
+    @Param {value:"config: The ClientEndpointConfig of the endpoint"}
+    public function init(ClientEndpointConfig config);
 
     public function register(typedesc serviceType) {
     }
@@ -65,7 +65,7 @@ public type TargetService {
     SecureSocket? secureSocket,
 };
 
-@Description { value:"ClientEndpointConfiguration struct represents options to be used for HTTP client invocation" }
+@Description { value:"ClientEndpointConfig struct represents options to be used for HTTP client invocation" }
 @Field {value:"circuitBreaker: Circuit Breaker configuration"}
 @Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
 @Field {value:"keepAlive: Specifies whether to reuse a connection for multiple requests"}
@@ -82,7 +82,7 @@ public type TargetService {
 @Field {value:"failoverConfig: Failover configuration"}
 @Field {value:"cacheConfig: HTTP caching related configurations"}
 @Field {value:"acceptEncoding: Specifies the way of handling accept-encoding header."}
-public type ClientEndpointConfiguration {
+public type ClientEndpointConfig {
     CircuitBreakerConfig? circuitBreaker,
     int endpointTimeout = 60000,
     boolean keepAlive = true,
@@ -100,7 +100,7 @@ public type ClientEndpointConfiguration {
     string acceptEncoding = "auto",
 };
 
-public native function createHttpClient(string uri, ClientEndpointConfiguration config) returns HttpClient;
+public native function createHttpClient(string uri, ClientEndpointConfig config) returns HttpClient;
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
@@ -162,7 +162,7 @@ public type ConnectionThrottling {
     int waitTime = 60000,
 };
 
-public function ClientEndpoint::init(ClientEndpointConfiguration config) {
+public function ClientEndpoint::init(ClientEndpointConfig config) {
     boolean httpClientRequired = false;
     string url = config.targets[0].url;
     match config.lbMode {
@@ -229,7 +229,7 @@ public function ClientEndpoint::init(ClientEndpointConfiguration config) {
     }
 }
 
-function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) returns HttpClient {
+function createCircuitBreakerClient (string uri, ClientEndpointConfig configuration) returns HttpClient {
     var cbConfig = configuration.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
@@ -280,12 +280,12 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
     }
 }
 
-function createLoadBalancerClient(ClientEndpointConfiguration config, string lbAlgorithm) returns HttpClient {
+function createLoadBalancerClient(ClientEndpointConfig config, string lbAlgorithm) returns HttpClient {
     HttpClient[] lbClients = createHttpClientArray(config);
     return new LoadBalancer(config.targets[0].url, config, lbClients, lbAlgorithm, 0);
 }
 
-public function createFailOverClient(ClientEndpointConfiguration config, FailoverConfig foConfig) returns HttpClient {
+public function createFailOverClient(ClientEndpointConfig config, FailoverConfig foConfig) returns HttpClient {
         HttpClient[] clients = createHttpClientArray(config);
 
         boolean[] failoverCodes = populateErrorCodeIndex(foConfig.failoverCodes);
@@ -296,7 +296,7 @@ public function createFailOverClient(ClientEndpointConfiguration config, Failove
         return new Failover(config.targets[0].url, config, failoverInferredConfig);
 }
 
-function createRetryClient (string url, ClientEndpointConfiguration configuration) returns HttpClient {
+function createRetryClient (string url, ClientEndpointConfig configuration) returns HttpClient {
     var retryConfig = configuration.retry;
     match retryConfig {
         Retry retry => {

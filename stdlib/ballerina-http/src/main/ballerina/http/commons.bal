@@ -86,7 +86,7 @@ function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
     return result;
 }
 
-function createHttpClientArray (ClientEndpointConfiguration config) returns HttpClient[] {
+function createHttpClientArray (ClientEndpointConfig config) returns HttpClient[] {
     HttpClient[] httpClients = [];
     int i=0;
     boolean httpClientRequired = false;

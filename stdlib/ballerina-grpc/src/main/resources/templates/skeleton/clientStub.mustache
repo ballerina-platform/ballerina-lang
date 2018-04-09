@@ -63,7 +63,7 @@ public struct {{connectorId}}{{stubTypeName}}Client {
     {{connectorId}}{{stubTypeName}}Stub stub;
 }
 
-public function <{{connectorId}}{{stubTypeName}}Client ep> init (grpc:ClientEndpointConfiguration config) {
+public function <{{connectorId}}{{stubTypeName}}Client ep> init (grpc:ClientEndpointConfig config) {
     // initialize client endpoint.
     grpc:Client client = {};
     client.init(config);

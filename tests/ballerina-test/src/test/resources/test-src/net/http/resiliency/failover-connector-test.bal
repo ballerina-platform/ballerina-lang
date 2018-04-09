@@ -88,7 +88,7 @@ function testFailureScenario () returns (http:Response | http:HttpConnectorError
 public type MockClient object {
     public {
         string serviceUri;
-        http:ClientEndpointConfiguration config;
+        http:ClientEndpointConfig config;
     }
 
     public function post (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {

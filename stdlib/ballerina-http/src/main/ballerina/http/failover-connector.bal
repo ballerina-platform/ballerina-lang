@@ -55,7 +55,7 @@ public type FailoverInferredConfig {
 public type Failover object {
     public {
         string serviceUri;
-        ClientEndpointConfiguration config;
+        ClientEndpointConfig config;
         FailoverInferredConfig failoverInferredConfig;
     }
 

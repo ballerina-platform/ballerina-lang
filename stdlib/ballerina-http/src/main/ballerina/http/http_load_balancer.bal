@@ -23,7 +23,7 @@ package ballerina.http;
 public type LoadBalancer object {
    public {
        string serviceUri;
-       ClientEndpointConfiguration config;
+       ClientEndpointConfig config;
        HttpClient[] loadBalanceClientsArray;
        string algorithm;
        int nextIndex; // Keeps to index which needs to be take the next load balance endpoint.

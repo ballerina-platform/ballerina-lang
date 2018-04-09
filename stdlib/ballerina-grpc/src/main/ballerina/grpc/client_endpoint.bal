@@ -22,15 +22,15 @@ documentation {
 }
 public type Client object {
     public {
-        ClientEndpointConfiguration config;
+        ClientEndpointConfig config;
     }
 
     documentation {
         Gets called when the endpoint is being initialize during package init time
 
-        P{{config}} - The ClientEndpointConfiguration of the endpoint.
+        P{{config}} - The ClientEndpointConfig of the endpoint.
     }
-    public function init (ClientEndpointConfiguration config) {
+    public function init (ClientEndpointConfig config) {
         self.config = config;
         self.initEndpoint();
     }
@@ -69,7 +69,7 @@ documentation {
     F{{ssl}} - The SSL configurations for the client endpoint.
 }
 
-public type ClientEndpointConfiguration {
+public type ClientEndpointConfig {
     string host;
     int port;
     SSL ssl;
