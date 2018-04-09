@@ -17,17 +17,17 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.sender;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.publisher;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
@@ -35,20 +35,20 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
-import javax.jms.Queue;
 import javax.jms.Session;
+import javax.jms.Topic;
 
 /**
- * Get the ID of the connection.
+ * Initialize the topic producer.
  *
  * @since 0.966
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "jms",
-        functionName = "initQueueSender",
+        functionName = "initTopicProducer",
         receiver = @Receiver(type = TypeKind.STRUCT,
-                             structType = "QueueSender",
+                             structType = "TopicProducer",
                              structPackage = "ballerina.jms"),
         args = {
                 @Argument(name = "session",
@@ -57,16 +57,16 @@ import javax.jms.Session;
         },
         isPublic = true
 )
-public class InitQueueSender implements NativeCallableUnit {
+public class InitTopicProducer extends AbstractBlockinAction {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct queueSenderBObject = BallerinaAdapter.getReceiverStruct(context);
-        Struct queueSenderConfig = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONFIG);
-        String queueName = queueSenderConfig.getStringField(Constants.QUEUE_SENDER_FIELD_QUEUE_NAME);
+    public void execute(Context context, CallableUnitCallback callback) {
+        Struct topicProducerBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct topicProducerConfig = topicProducerBObject.getStructField(Constants.TOPIC_PRODUCER_FIELD_CONFIG);
+        String topicPattern = topicProducerConfig.getStringField(Constants.TOPIC_PRODUCER_FIELD_TOPIC_PATTERN);
 
-        if (JMSUtils.isNullOrEmptyAfterTrim(queueName)) {
-            throw new BallerinaException("Queue name cannot be null", context);
+        if (JMSUtils.isNullOrEmptyAfterTrim(topicPattern)) {
+            throw new BallerinaException("Topic pattern cannot be null", context);
         }
 
         BStruct sessionBObject = (BStruct) context.getRefArgument(1);
@@ -75,18 +75,14 @@ public class InitQueueSender implements NativeCallableUnit {
                                                            Session.class,
                                                            context);
         try {
-            Queue queue = session.createQueue(queueName);
-            MessageProducer producer = session.createProducer(queue);
-            Struct queueSenderConnectorBObject
-                    = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONNECTOR);
-            queueSenderConnectorBObject.addNativeData(Constants.JMS_QUEUE_SENDER_OBJECT, producer);
+            Topic topic = JMSUtils.getTopic(session, topicPattern);
+            MessageProducer producer = session.createProducer(topic);
+            Struct topicProducerConnectorBObject
+                    = topicProducerBObject.getStructField(Constants.TOPIC_PRODUCER_FIELD_CONNECTOR);
+            topicProducerConnectorBObject.addNativeData(Constants.JMS_TOPIC_PRODUCER_OBJECT, producer);
         } catch (JMSException e) {
-            throw new BallerinaException("Error creating Queue sender", e, context);
+            throw new BallerinaException("Error creating topic producer", e, context);
         }
-    }
 
-    @Override
-    public boolean isBlocking() {
-        return true;
     }
 }

@@ -17,48 +17,37 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.connection;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.subscriber;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.ballerinalang.util.exceptions.BallerinaException;
-
-import javax.jms.Connection;
-import javax.jms.JMSException;
+import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandler;
 
 /**
- * Get the ID of the connection.
+ * Register JMS listener for a consumer endpoint.
  *
  * @since 0.970
  */
+
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jms",
-        functionName = "stop",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection", structPackage = "ballerina.jms"),
+        functionName = "registerListener",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "TopicSubscriber", structPackage = "ballerina.jms"),
+        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC),
+                @Argument(name = "connector", type = TypeKind.STRUCT, structType = "TopicSubscriberConnector")
+        },
         isPublic = true
 )
-public class Stop implements NativeCallableUnit {
-    @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct connectionBObject = BallerinaAdapter.getReceiverStruct(context);
-        Connection connection = BallerinaAdapter.getNativeObject(connectionBObject, Constants.JMS_CONNECTION,
-                                                                 Connection.class, context);
-        try {
-            connection.stop();
-        } catch (JMSException e) {
-            throw new BallerinaException("Error occurred while stopping the connection.");
-        }
-    }
+public class RegisterMessageListener extends AbstractBlockinAction {
 
     @Override
-    public boolean isBlocking() {
-        return true;
+    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+        MessageListenerHandler.createAndRegister(context);
     }
+
 }

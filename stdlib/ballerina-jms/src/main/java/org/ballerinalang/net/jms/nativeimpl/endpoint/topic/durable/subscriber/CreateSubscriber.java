@@ -17,38 +17,39 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.sender;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.durable.subscriber;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
+import javax.jms.MessageConsumer;
 import javax.jms.Session;
+import javax.jms.Topic;
 
 /**
- * Get the ID of the connection.
+ * Create JMS topic subscriber for a durable topic subscriber endpoint.
  *
- * @since 0.966
+ * @since 0.970
  */
+
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "jms",
-        functionName = "initQueueSender",
+        functionName = "createSubscriber",
         receiver = @Receiver(type = TypeKind.STRUCT,
-                             structType = "QueueSender",
+                             structType = "DurableTopicSubscriber",
                              structPackage = "ballerina.jms"),
         args = {
                 @Argument(name = "session",
@@ -57,36 +58,34 @@ import javax.jms.Session;
         },
         isPublic = true
 )
-public class InitQueueSender implements NativeCallableUnit {
+public class CreateSubscriber extends AbstractBlockinAction {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct queueSenderBObject = BallerinaAdapter.getReceiverStruct(context);
-        Struct queueSenderConfig = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONFIG);
-        String queueName = queueSenderConfig.getStringField(Constants.QUEUE_SENDER_FIELD_QUEUE_NAME);
-
-        if (JMSUtils.isNullOrEmptyAfterTrim(queueName)) {
-            throw new BallerinaException("Queue name cannot be null", context);
-        }
+    public void execute(Context context, CallableUnitCallback callback) {
+        Struct topicSubscriberBObject = BallerinaAdapter.getReceiverStruct(context);
 
         BStruct sessionBObject = (BStruct) context.getRefArgument(1);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,
                                                            Constants.JMS_SESSION,
                                                            Session.class,
                                                            context);
-        try {
-            Queue queue = session.createQueue(queueName);
-            MessageProducer producer = session.createProducer(queue);
-            Struct queueSenderConnectorBObject
-                    = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONNECTOR);
-            queueSenderConnectorBObject.addNativeData(Constants.JMS_QUEUE_SENDER_OBJECT, producer);
-        } catch (JMSException e) {
-            throw new BallerinaException("Error creating Queue sender", e, context);
+        Struct topicSubscriberConfigBRecord = topicSubscriberBObject.getStructField(Constants.CONSUMER_CONFIG);
+        String topicPattern = topicSubscriberConfigBRecord.getStringField(Constants.TOPIC_PATTERN);
+        String consumerId = topicSubscriberConfigBRecord.getStringField(Constants.CONSUMER_IDENTIFIER);
+        if (JMSUtils.isNullOrEmptyAfterTrim(consumerId)) {
+            throw new BallerinaException("Please provide a durable subscription ID", context);
         }
+
+        try {
+            Topic topic = JMSUtils.getTopic(session, topicPattern);
+
+            MessageConsumer consumer = session.createDurableSubscriber(topic, consumerId);
+            Struct consumerConnectorBObject = topicSubscriberBObject.getStructField(Constants.CONSUMER_CONNECTOR);
+            consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
+        } catch (JMSException e) {
+            throw new BallerinaException("Error while creating Qeueu consumer", e, context);
+        }
+
     }
 
-    @Override
-    public boolean isBlocking() {
-        return true;
-    }
 }

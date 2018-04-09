@@ -17,15 +17,15 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.consumer;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.durable.subscriber;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandler;
 
 /**
@@ -35,23 +35,26 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandl
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jms",
+        orgName = "ballerina",
+        packageName = "jms",
         functionName = "registerListener",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "QueueConsumer", structPackage = "ballerina.jms"),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC),
-                @Argument(name = "connector", type = TypeKind.STRUCT, structType = "QueueConsumerConnector")
+        receiver = @Receiver(type = TypeKind.STRUCT,
+                             structType = "DurableTopicSubscriber",
+                             structPackage = "ballerina.jms"),
+        args = {
+                @Argument(name = "serviceType",
+                          type = TypeKind.TYPEDESC),
+                @Argument(name = "connector",
+                          type = TypeKind.STRUCT,
+                          structType = "DurableTopicSubscriberConnector")
         },
         isPublic = true
 )
-public class RegisterMessageListener implements NativeCallableUnit {
+public class RegisterMessageListener extends AbstractBlockinAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
         MessageListenerHandler.createAndRegister(context);
     }
 
-    @Override
-    public boolean isBlocking() {
-        return true;
-    }
 }
