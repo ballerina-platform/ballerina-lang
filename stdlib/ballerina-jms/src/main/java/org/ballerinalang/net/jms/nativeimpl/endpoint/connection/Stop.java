@@ -27,7 +27,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.Connection;
@@ -53,7 +52,7 @@ public class Stop implements NativeCallableUnit {
         try {
             connection.stop();
         } catch (JMSException e) {
-            JMSUtils.throwBallerinaException("Error occurred while stopping the connection.", context, e);
+            BallerinaAdapter.throwBallerinaException("Error occurred while stopping the connection.", context, e);
         }
     }
 

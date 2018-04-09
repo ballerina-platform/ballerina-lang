@@ -57,7 +57,7 @@ public class MessageListenerHandler {
             try {
                 ((MessageConsumer) nativeData).setMessageListener(listener);
             } catch (JMSException e) {
-                JMSUtils.throwBallerinaException("Error registering the message listener for service"
+                BallerinaAdapter.throwBallerinaException("Error registering the message listener for service"
                                                  + service.getPackage() + service.getName(), context, e);
             }
         }

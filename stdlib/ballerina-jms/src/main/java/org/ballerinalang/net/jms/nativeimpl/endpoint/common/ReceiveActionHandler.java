@@ -24,8 +24,9 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import javax.jms.JMSException;
@@ -36,6 +37,8 @@ import javax.jms.MessageConsumer;
  * {@code Receive} is the receive action implementation of the JMS Connector.
  */
 public class ReceiveActionHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReceiveActionHandler.class);
 
     private ReceiveActionHandler() {
     }
@@ -52,8 +55,6 @@ public class ReceiveActionHandler {
                                                                              Constants.SESSION_CONNECTOR_OBJECT,
                                                                              SessionConnector.class,
                                                                              context);
-
-
         long timeInMilliSeconds = context.getIntArgument(0);
 
         try {
@@ -69,7 +70,10 @@ public class ReceiveActionHandler {
                 context.setReturnValues();
             }
         } catch (JMSException e) {
-            JMSUtils.throwBallerinaException("Message receiving failed.", context, e);
+            String errorMsg = "Message receiving failed.";
+            LOGGER.error(errorMsg, e);
+            BStruct errorRecord = BallerinaAdapter.createErrorRecord(context, errorMsg, e);
+            context.setReturnValues(errorRecord);
         }
     }
 }

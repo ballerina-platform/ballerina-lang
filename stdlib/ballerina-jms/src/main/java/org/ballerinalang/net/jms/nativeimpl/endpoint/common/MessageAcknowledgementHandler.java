@@ -23,7 +23,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
@@ -48,12 +47,14 @@ public class MessageAcknowledgementHandler {
                                                                 Constants.JMS_MESSAGE_OBJECT,
                                                                 Message.class,
                                                                 context);
-
         try {
             sessionConnector.handleTransactionBlock(context);
             message.acknowledge();
+            context.setReturnValues();
         } catch (JMSException e) {
-            JMSUtils.throwBallerinaException("Message acknowledgement failed.", context, e);
+            String errorMsg = "Message acknowledgement failed.";
+            BStruct errorRecord = BallerinaAdapter.createErrorRecord(context, errorMsg, e);
+            context.setReturnValues(errorRecord);
         }
     }
 }

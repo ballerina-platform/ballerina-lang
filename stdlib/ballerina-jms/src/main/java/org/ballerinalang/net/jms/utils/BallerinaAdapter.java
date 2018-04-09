@@ -20,15 +20,25 @@
 package org.ballerinalang.net.jms.utils;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jms.JMSException;
 
 /**
  * Adapter class use used to bridge the connector native codes and Ballerina API.
  */
 public class BallerinaAdapter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaAdapter.class);
 
     private BallerinaAdapter() {
     }
@@ -53,5 +63,17 @@ public class BallerinaAdapter {
             throw new BallerinaException(structName + " is not properly initialized.", context);
         }
         return objectClass.cast(nativeData);
+    }
+
+    public static void throwBallerinaException(String message, Context context, Throwable throwable) {
+        LOGGER.error(message, throwable);
+        throw new BallerinaException(message + " " + throwable.getMessage(), throwable, context);
+    }
+
+    public static BStruct createErrorRecord(Context context, String errorMsg, JMSException e) {
+        PackageInfo filePkg = context.getProgramFile().getPackageInfo(Constants.BALLERINA_PACKAGE_JMS);
+        StructInfo entityErrInfo = filePkg.getStructInfo(Constants.ERROR_STRUCT);
+        return BLangVMStructs.createBStruct(entityErrInfo, errorMsg + " " + e.getMessage());
+
     }
 }
