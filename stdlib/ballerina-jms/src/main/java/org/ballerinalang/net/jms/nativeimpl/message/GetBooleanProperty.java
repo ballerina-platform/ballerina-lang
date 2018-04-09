@@ -23,9 +23,11 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
@@ -34,22 +36,22 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 
 /**
- * Set a boolean property in the JMS Message.
+ * Get a boolean property in the JMS Message.
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "jms",
-        functionName = "setBooleanProperty",
+        functionName = "getBooleanProperty",
         receiver = @Receiver(type = TypeKind.STRUCT,
                              structType = "Message",
                              structPackage = "ballerina.jms"),
         args = {
                 @Argument(name = "key", type = TypeKind.STRING),
-                @Argument(name = "value", type = TypeKind.BOOLEAN)
         },
+        returnType = { @ReturnType(type = TypeKind.BOOLEAN) },
         isPublic = true
 )
-public class SetBooleanProperty extends AbstractBlockinAction {
+public class GetBooleanProperty extends AbstractBlockinAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
@@ -60,10 +62,10 @@ public class SetBooleanProperty extends AbstractBlockinAction {
                                                            Message.class,
                                                            context);
         String key = context.getStringArgument(0);
-        boolean value = context.getBooleanArgument(0);
 
         try {
-            message.setBooleanProperty(key, value);
+            boolean booleanProperty = message.getBooleanProperty(key);
+            context.setReturnValues(new BBoolean(booleanProperty));
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error when setting string property", context, e);
         }

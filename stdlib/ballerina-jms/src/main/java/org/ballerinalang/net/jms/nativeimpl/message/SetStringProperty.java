@@ -26,7 +26,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
@@ -48,7 +47,6 @@ import javax.jms.Message;
                 @Argument(name = "key", type = TypeKind.STRING),
                 @Argument(name = "value", type = TypeKind.STRING)
         },
-        returnType = { @ReturnType(type = TypeKind.STRING) },
         isPublic = true
 )
 public class SetStringProperty extends AbstractBlockinAction {
