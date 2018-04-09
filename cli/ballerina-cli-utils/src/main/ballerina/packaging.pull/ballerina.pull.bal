@@ -6,7 +6,7 @@ import ballerina/mime;
 import ballerina/http;
 
 function pullPackage (string url, string destDirPath, string fullPkgPath, string fileSeparator) {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets: [
         {
             url: url,

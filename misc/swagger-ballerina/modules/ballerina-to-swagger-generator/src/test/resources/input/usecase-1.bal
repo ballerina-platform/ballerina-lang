@@ -1,6 +1,6 @@
 import ballerina/http;
 
-endpoint http:ClientEndpoint backendClientEP {
+endpoint http:Client backendClientEP {
     targets:[{url: "http://localhost:8080"}]
 };
 

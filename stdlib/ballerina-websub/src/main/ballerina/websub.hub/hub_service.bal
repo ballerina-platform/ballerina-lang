@@ -228,7 +228,7 @@ function validateSubscriptionChangeRequest(string mode, map params) returns (boo
 @Param {value:"callback: The callback URL of the new subscription/unsubscription request"}
 @Param {value:"params: Parameters specified in the new subscription/unsubscription request"}
 function verifyIntent(string callback, map params) {
-    endpoint http:ClientEndpoint callbackEp {
+    endpoint http:Client callbackEp {
         targets:[{url:callback, secureSocket: secureSocket }]
     };
 
@@ -473,7 +473,7 @@ function addSubscriptionsOnStartup() {
 @Param {value:"subscriptionDetails: The subscription details for the particular subscriber"}
 @Param {value:"payload: The update payload to be delivered to the subscribers"}
 public function distributeContent(string callback, websub:SubscriptionDetails subscriptionDetails, json payload) {
-    endpoint http:ClientEndpoint callbackEp {
+    endpoint http:Client callbackEp {
         targets:[{url:callback, secureSocket: secureSocket }]
     };
 

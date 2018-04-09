@@ -29,7 +29,7 @@ service<http:Service> CustomerMgtService bind serviceEndpoint {
     }
 }
 
-endpoint http:ClientEndpoint productsService {
+endpoint http:Client productsService {
     targets:[{url: "http://localhost:9090"}]
 };
 

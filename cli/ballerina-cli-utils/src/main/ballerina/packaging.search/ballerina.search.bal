@@ -5,7 +5,7 @@ import ballerina/http;
 import ballerina/time;
 
 function search (string url, string querySearched) {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets: [
         {
             url: url,

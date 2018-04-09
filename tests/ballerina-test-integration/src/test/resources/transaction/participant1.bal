@@ -21,7 +21,7 @@ endpoint http:ServiceEndpoint participant1EP {
     port:8889
 };
 
-endpoint http:ClientEndpoint participant2EP {
+endpoint http:Client participant2EP {
     targets:[{url: "http://localhost:8890"}]
 };
 

@@ -10,7 +10,7 @@ endpoint http:ServiceEndpoint backendEP {
     port:8080
 };
 
-endpoint http:ClientEndpoint backendClientEP {
+endpoint http:Client backendClientEP {
     circuitBreaker: {
         rollingWindow: {
                             timeWindow:10000,

@@ -40,7 +40,7 @@ function init() {
 
 function verify() {
     // verifies whether the service got stopped correctly
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets:[{ url:url2 }]
     };
 
@@ -57,7 +57,7 @@ function verify() {
 
 @test:Config{before: "init", after: "verify"}
 function testService () {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets:[{ url:url2 }]
     };
 

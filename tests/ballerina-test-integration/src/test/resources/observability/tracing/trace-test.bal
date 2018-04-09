@@ -61,7 +61,7 @@ service echoService bind ep1 {
 }
 
 function callNextResource(observe:Span parentSpan) returns (http:Response | ()) {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets : [{url: "http://localhost:9090/echoService"}]
     };
     observe:Span span = observe:startSpan("testService", "calling next resource", (), observe:REFERENCE_TYPE_CHILDOF, parentSpan);

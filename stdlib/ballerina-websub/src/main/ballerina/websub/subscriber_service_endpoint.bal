@@ -158,7 +158,7 @@ public type SubscriberServiceEndpointConfiguration {
 @Param {value:"resourceUrl: The resource URL advertising hub and topic URLs"}
 @Return {value:"The (hub, topic) URLs if successful, WebSubError if not"}
 function retrieveHubAndTopicUrl (string resourceUrl) returns @tainted ((string, string) | WebSubError) {
-    endpoint http:ClientEndpoint resourceEP {targets:[{url:resourceUrl}]};
+    endpoint http:Client resourceEP {targets:[{url:resourceUrl}]};
     http:Request request = new;
     var discoveryResponse = resourceEP -> get("", request);
     WebSubError websubError = {};

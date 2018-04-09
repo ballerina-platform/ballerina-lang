@@ -4,7 +4,7 @@ endpoint http:ServiceEndpoint serviceEndpoint {
     port:9090
 };
 
-endpoint http:ClientEndpoint endPoint {
+endpoint http:Client endPoint {
     targets: [
         {
             url: "http://localhost:9090"

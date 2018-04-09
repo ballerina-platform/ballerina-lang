@@ -4,7 +4,7 @@ endpoint http:ServiceEndpoint passthroughEP {
     port:9090
 };
 
-endpoint http:ClientEndpoint nyseEP {
+endpoint http:Client nyseEP {
     targets:[{url:"http://localhost:9090"}]
 };
 

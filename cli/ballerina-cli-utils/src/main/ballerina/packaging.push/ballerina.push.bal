@@ -6,7 +6,7 @@ import ballerina/mime;
 import ballerina/http;
 
 function pushPackage (string accessToken, string url, string dirPath, string msg) {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets: [
         {
             url: url,

@@ -6,12 +6,12 @@ endpoint http:ServiceEndpoint serviceEnpoint {
     port:9090
 };
 
-endpoint http:ClientEndpoint bankInfoService {
+endpoint http:Client bankInfoService {
     targets:[{url: "http://localhost:9090/bankinfo/product"}]
 
 };
 
-endpoint http:ClientEndpoint branchLocatorService {
+endpoint http:Client branchLocatorService {
     targets:[{url: "http://localhost:9090/branchlocator/product"}]
 };
 

@@ -5,7 +5,7 @@ endpoint http:ServiceEndpoint frontendEP {
     port:9090
 };
 
-endpoint http:ClientEndpoint backendClientEP {
+endpoint http:Client backendClientEP {
     targets: [
         {
             url: "http://localhost:7090"

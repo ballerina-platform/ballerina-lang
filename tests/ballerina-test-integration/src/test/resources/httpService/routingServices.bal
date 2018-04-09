@@ -6,11 +6,11 @@ endpoint http:ServiceEndpoint serviceEP {
     port:9090
 };
 
-endpoint http:ClientEndpoint nasdaqEP {
+endpoint http:Client nasdaqEP {
     targets:[{url:"http://localhost:9090/nasdaqStocks"}]
 };
 
-endpoint http:ClientEndpoint nyseEP {
+endpoint http:Client nyseEP {
     targets:[{url:"http://localhost:9090/nyseStocks"}]
 };
 

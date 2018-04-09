@@ -5,7 +5,7 @@ endpoint http:ServiceEndpoint helloWorldEP {
     port:9090
 };
 
-endpoint http:ClientEndpoint clientEP {
+endpoint http:Client clientEP {
     targets:[{url: "http://httpstat.us"}]
 };
 
