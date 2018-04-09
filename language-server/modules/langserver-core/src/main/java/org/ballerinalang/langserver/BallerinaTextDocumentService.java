@@ -426,9 +426,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
         BallerinaFile balFile;
         String tempFileId = LSParserUtils.getUnsavedFileIdOrNull(path.toString());
         if (tempFileId == null) {
-            balFile = LSParserUtils.compile(content, path, CompilerPhase.CODE_ANALYZE, false);
+            balFile = LSParserUtils.compile(content, path, CompilerPhase.TAINT_ANALYZE, false);
         } else {
-            balFile = LSParserUtils.compile(content, tempFileId, CompilerPhase.CODE_ANALYZE, false);
+            balFile = LSParserUtils.compile(content, tempFileId, CompilerPhase.TAINT_ANALYZE, false);
         }
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics;
         if (balFile.getDiagnostics() != null) {
