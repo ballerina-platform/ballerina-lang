@@ -107,8 +107,11 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
      *
      * @return next available stream id
      */
-    private synchronized int getNextStreamId() {
-        return connection.local().incrementAndGetNextStreamId();
+    private synchronized int getNextStreamId() throws Http2Exception {
+        int nextStreamId = connection.local().incrementAndGetNextStreamId();
+        connection.local().createStream(nextStreamId, false);
+        log.debug("Stream created streamId: {}", nextStreamId);
+        return nextStreamId;
     }
 
     /**
@@ -126,7 +129,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
             httpOutboundRequest = outboundMsgHolder.getRequest();
         }
 
-        void writeContent(ChannelHandlerContext ctx) {
+        void writeContent(ChannelHandlerContext ctx) throws Http2Exception {
             int streamId = getNextStreamId();
             http2ClientChannel.putInFlightMessage(streamId, outboundMsgHolder);
             http2ClientChannel.getDataEventListeners().

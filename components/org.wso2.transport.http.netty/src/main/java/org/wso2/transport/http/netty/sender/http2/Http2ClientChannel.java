@@ -23,6 +23,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2EventAdapter;
 import io.netty.handler.codec.http2.Http2Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.HttpRoute;
 
 import java.util.ArrayList;
@@ -38,8 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Http2ClientChannel {
 
-    private static ConcurrentHashMap<Integer, OutboundMsgHolder> inFlightMessages = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<Integer, OutboundMsgHolder> promisedMessages = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, OutboundMsgHolder> inFlightMessages, promisedMessages;
     private Channel channel;
     private Http2Connection connection;
     private ChannelFuture channelFuture;
@@ -52,6 +53,8 @@ public class Http2ClientChannel {
     private boolean upgradedToHttp2 = false;
     private List<Http2DataEventListener> dataEventListeners;
 
+    private static final Logger log = LoggerFactory.getLogger(Http2ClientChannel.class);
+
     public Http2ClientChannel(Http2ConnectionManager http2ConnectionManager, Http2Connection connection,
                               HttpRoute httpRoute, Channel channel) {
         this.http2ConnectionManager = http2ConnectionManager;
@@ -60,6 +63,8 @@ public class Http2ClientChannel {
         this.httpRoute = httpRoute;
         this.connection.addListener(new StreamCloseListener(this));
         dataEventListeners = new ArrayList<>();
+        inFlightMessages = new ConcurrentHashMap<>();
+        promisedMessages = new ConcurrentHashMap<>();
     }
 
     /**
@@ -114,6 +119,10 @@ public class Http2ClientChannel {
      * @param inFlightMessage {@link OutboundMsgHolder} which holds the in-flight message
      */
     public void putInFlightMessage(int streamId, OutboundMsgHolder inFlightMessage) {
+        if (log.isDebugEnabled()) {
+            log.debug("TID: {} OID: {} In flight message added to stream id: {}",
+                     Thread.currentThread().getId(), this.toString(), streamId);
+        }
         inFlightMessages.put(streamId, inFlightMessage);
     }
 
@@ -124,6 +133,10 @@ public class Http2ClientChannel {
      * @return in-flight message associated with the a particular stream id
      */
     public OutboundMsgHolder getInFlightMessage(int streamId) {
+        if (log.isDebugEnabled()) {
+            log.debug("TID: {} OID: {} Getting in flight message for stream id: {}",
+                      Thread.currentThread().getId(), this.toString(), streamId);
+        }
         return inFlightMessages.get(streamId);
     }
 
@@ -133,6 +146,10 @@ public class Http2ClientChannel {
      * @param streamId stream id
      */
     void removeInFlightMessage(int streamId) {
+        if (log.isDebugEnabled()) {
+            log.debug("TID: {} OID: {} In flight message for stream id: {} removed",
+                      Thread.currentThread().getId(), this.toString(), streamId);
+        }
         inFlightMessages.remove(streamId);
     }
 
