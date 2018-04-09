@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint ep {
+endpoint http:Listener ep {
    port:7090,
    // HTTP version is set to 2.0.
    httpVersion:"2.0"
@@ -69,7 +69,7 @@ service<http:Service> http2Service bind ep {
   }
 }
 
-endpoint http:ClientEndpoint clientEP {
+endpoint http:Client clientEP {
     targets: [
         {
             url: "http://localhost:7090"

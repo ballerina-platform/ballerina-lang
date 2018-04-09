@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -53,8 +54,10 @@ public class LSAnnotationCache {
     static synchronized void initiate() {
         if (lsAnnotationCache == null) {
             lsAnnotationCache = new LSAnnotationCache();
-            lsAnnotationCache.loadAnnotations(LSPackageCache.getInstance().getPackageMap().values()
-                    .stream().collect(Collectors.toList()));
+            List<BLangPackage> builtins = LSPackageLoader.getBuiltinPackages();
+            Map<String, BLangPackage> packages = LSPackageCache.getInstance().getPackageMap();
+            builtins.forEach(bLangPackage -> packages.put(bLangPackage.packageID.getName().getValue(), bLangPackage));
+            lsAnnotationCache.loadAnnotations(packages.values().stream().collect(Collectors.toList()));
         }
     }
     

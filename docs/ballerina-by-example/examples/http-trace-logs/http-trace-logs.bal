@@ -1,11 +1,11 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint helloWorldEP {
+endpoint http:Listener helloWorldEP {
     port:9090
 };
 
-endpoint http:ClientEndpoint clientEP {
+endpoint http:Client clientEP {
     targets:[{url: "http://httpstat.us"}]
 };
 

@@ -247,7 +247,7 @@ function consumeChannel (io:ByteChannel channel) {
     var result = channel.read(1000000);
 }
 
-endpoint http:NonListeningServiceEndpoint mockEP {
+endpoint http:NonListener mockEP {
     port:9090
 };
 

@@ -5,14 +5,14 @@ type person {
     string fname;
     string lname;
     int age;
-}
+};
 
 type movie{
     string title;
     string year;
     string released;
     person writer;
-}
+};
 
 function main (string[] args) {
     movie theRevenant = {title:"The Revenant", year:"2015",

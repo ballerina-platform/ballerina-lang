@@ -1712,6 +1712,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BUnionType unionType = new BUnionType(null, new LinkedHashSet<>(), false);
         if (actualType.tag == TypeTags.UNION) {
             unionType.memberTypes.addAll(((BUnionType) actualType).memberTypes);
+            unionType.setNullable(actualType.isNullable());
         } else {
             unionType.memberTypes.add(actualType);
         }
