@@ -278,6 +278,33 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
         Assert.assertEquals(returns[3].stringValue(), "");
     }
+
+    @Test(description = "Test passing value to a defaultable object field")
+    public void testPassingValueForDefaultableObjectField() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_values_for_defaultable_field.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "passValueForDefaultableObjectField");
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+        Assert.assertEquals(returns[1].stringValue(), "passed in name value");
+    }
+
+//    @Test(description = "Test shadowing object field")
+//    public void testShadowingObjectField() {
+//        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_shadow_field.bal");
+//        BValue[] returns = BRunUtil.invoke(compileResult, "testShadowingObjectField");
+//
+//        Assert.assertEquals(returns.length, 2);
+//        Assert.assertSame(returns[0].getClass(), BInteger.class);
+//        Assert.assertSame(returns[1].getClass(), BString.class);
+//
+//        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+//        Assert.assertEquals(returns[1].stringValue(), "passed in name value");
+//    }
+
 //
 //    @Test(description = "Test object with default initializer with default values") //TODO fix
 //    public void testObjectWithWithDefaultInitializeWithDefaultValues() {
