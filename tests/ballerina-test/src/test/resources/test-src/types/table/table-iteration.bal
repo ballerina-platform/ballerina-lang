@@ -399,9 +399,9 @@ function createTable() returns (table<Employee>) {
     Employee e2 = {id:2, name:"B", salary:200};
     Employee e3 = {id:3, name:"C", salary:300};
 
-    dt.add(e1);
-    dt.add(e2);
-    dt.add(e3);
+    _ = dt.add(e1);
+    _ = dt.add(e2);
+    _ = dt.add(e3);
 
     return dt;
 }
