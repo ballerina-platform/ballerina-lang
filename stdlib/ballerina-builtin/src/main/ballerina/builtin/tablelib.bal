@@ -62,7 +62,7 @@ native function queryTableWithoutJoinClause (string sqlQuery, table fromTable, a
 @Field {value:"cause: The error(s) that caused TableOperationError to get thrown"}
 public type TableOperationError {
     string message,
-    error[] cause,
+    error? cause,
 };
 
 @Description { value:"TableConfig represents properties used during table initialization" }

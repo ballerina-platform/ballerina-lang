@@ -91,7 +91,7 @@ public class EndpointTest {
 
         BValue[] result = BRunUtil.invoke(compileResult, "testCheck");
         Assert.assertEquals(result.length, 1);
-        Assert.assertEquals(result[0].stringValue(), "{message:\"i1\", cause:[]}");
+        Assert.assertEquals(result[0].stringValue(), "{message:\"i1\", cause:null}");
 
         result = BRunUtil.invoke(compileResult, "testBut");
         Assert.assertEquals(result.length, 7);
