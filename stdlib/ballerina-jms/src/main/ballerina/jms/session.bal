@@ -14,7 +14,7 @@ public type Session object {
 
     public native function createTextMessage (string content) returns (Message);
 
-    public native function unsubscribe (string subscriptionId);
+    public native function unsubscribe (string subscriptionId) returns (Error | ());
 };
 
 public type SessionConfiguration {
