@@ -66,7 +66,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
 
     private static final Logger log = LoggerFactory.getLogger(HttpClientChannelInitializer.class);
 
-    private SSLEngine sslEngine;
     private TargetHandler targetHandler;
     private boolean httpTraceLogEnabled;
     private boolean followRedirect;
@@ -182,10 +181,11 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
                 socketChannel.pipeline().addLast(new OCSPStaplingHandler(engine));
             }
         } else {
-            clientPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(instantiateAndConfigSSL(sslConfig)));
+            SSLEngine sslEngine = instantiateAndConfigSSL(sslConfig);
+            clientPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
             if (validateCertEnabled) {
                 clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
-                        new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
+                        new CertificateValidationHandler(sslEngine, this.cacheDelay, this.cacheSize));
             }
         }
         clientPipeline.addLast(Constants.SSL_COMPLETION_HANDLER,
@@ -206,16 +206,15 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
                 ch.pipeline().addLast(new OCSPStaplingHandler(engine));
             }
         } else {
-            SslContext sslCtx = new SSLHandlerFactory(sslConfig)
-                    .createHttp2TLSContextForClient(false);
-            clientPipeline.addLast(sslCtx.newHandler(ch.alloc()));
-            if (validateCertEnabled && sslEngine != null) {
+            SslContext sslCtx = new SSLHandlerFactory(sslConfig).createHttp2TLSContextForClient(false);
+            SslHandler sslHandler = sslCtx.newHandler(ch.alloc());
+            clientPipeline.addLast(sslHandler);
+            if (validateCertEnabled) {
                 clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
-                        new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
+                        new CertificateValidationHandler(sslHandler.engine(), this.cacheDelay, this.cacheSize));
             }
         }
-        clientPipeline.addLast(new Http2PipelineConfiguratorForClient(targetHandler,
-                connectionAvailabilityFuture));
+        clientPipeline.addLast(new Http2PipelineConfiguratorForClient(targetHandler, connectionAvailabilityFuture));
     }
 
     public TargetHandler getTargetHandler() {
@@ -291,8 +290,8 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     /**
      * Set configurations to create ssl engine.
      *
-     * @param sslConfig
-     * @return
+     * @param sslConfig ssl related configurations
+     * @return ssl engine
      */
     private SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig) {
         // set the pipeline factory, which creates the pipeline for each newly created channels
