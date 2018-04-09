@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/runtime;
 import ballerina/websub;
 
-endpoint websub:HubClientEndpoint websubHubClientEP {
+endpoint websub:Client websubHubClientEP {
     url: "https://localhost:9999/websub/hub"
 };
 

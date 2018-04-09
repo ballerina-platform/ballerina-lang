@@ -23,7 +23,7 @@ import ballerina/http;
 @Description {value:"Struct representing the WebSubSubscriber Service Endpoint"}
 @Field {value:"config: The configuration for the endpoint"}
 @Field {value:"serviceEndpoint: The underlying HTTP service endpoint"}
-public type SubscriberServiceEndpoint object {
+public type Listener object {
 
     public {
         SubscriberServiceEndpointConfiguration config;
@@ -75,7 +75,7 @@ public type SubscriberServiceEndpoint object {
 
 };
 
-public function SubscriberServiceEndpoint::init(SubscriberServiceEndpointConfiguration config) {
+public function Listener::init(SubscriberServiceEndpointConfiguration config) {
     SignatureValidationFilter sigValFilter = new(interceptWebSubRequest, interceptionPlaceholder);//TODO:rem placeholder
     http:Filter[] filters = [<http:Filter> sigValFilter];
     http:ServiceEndpointConfiguration serviceConfig = { host:config.host, port:config.port,
@@ -84,26 +84,26 @@ public function SubscriberServiceEndpoint::init(SubscriberServiceEndpointConfigu
     initWebSubSubscriberServiceEndpoint();
 }
 
-public function SubscriberServiceEndpoint::register(typedesc serviceType) {
+public function Listener::register(typedesc serviceType) {
     serviceEndpoint.register(serviceType);
     registerWebSubSubscriberServiceEndpoint(serviceType);
 }
 
-public function SubscriberServiceEndpoint::start() {
+public function Listener::start() {
     serviceEndpoint.start();//TODO:not needed?
     startWebSubSubscriberServiceEndpoint();
     sendSubscriptionRequest();
 }
 
-public function SubscriberServiceEndpoint::getClient() returns (http:Connection) {
+public function Listener::getClient() returns (http:Connection) {
     return serviceEndpoint.getClient();
 }
 
-public function SubscriberServiceEndpoint::stop () {
+public function Listener::stop () {
     serviceEndpoint.stop();
 }
 
-function SubscriberServiceEndpoint::sendSubscriptionRequest() {
+function Listener::sendSubscriptionRequest() {
     map subscriptionDetails = retrieveSubscriptionParameters();
     if (lengthof subscriptionDetails.keys() == 0) {
         return;
@@ -278,7 +278,7 @@ returns (http:FilterResult) {
 @Param {value:"hub: The hub to which the subscription request is to be sent"}
 @Param {value:"subscriptionDetails: Map containing subscription details"}
 function invokeClientConnectorForSubscription (string hub, map subscriptionDetails) {
-    endpoint HubClientEndpoint websubHubClientEP { url:hub };
+    endpoint Client websubHubClientEP { url:hub };
 
     string topic = <string> subscriptionDetails["topic"];
     string callback = <string> subscriptionDetails["callback"];

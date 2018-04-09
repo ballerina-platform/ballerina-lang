@@ -223,7 +223,7 @@ redirection from original hub"}
 @Param {value:"subscriptionChangeRequest: The request containing subscription details"}
 function invokeClientConnectorOnRedirection (string hub, string mode,
 SubscriptionChangeRequest subscriptionChangeRequest) returns @untainted  (SubscriptionChangeResponse | WebSubError) {
-    endpoint HubClientEndpoint websubHubClientEP { url:hub };
+    endpoint Client websubHubClientEP { url:hub };
     if (mode == MODE_SUBSCRIBE) {
         var response = websubHubClientEP -> subscribe(subscriptionChangeRequest);
         return response;
