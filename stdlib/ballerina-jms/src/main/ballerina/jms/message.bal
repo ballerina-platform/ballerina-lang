@@ -44,6 +44,30 @@ public type Message object {
         P{{key}} The float property name
         returns The float property value}
     public native function getFloatProperty (string key) returns float|Error;
+
+    documentation {Get JMS transport header MessageID from the message
+        returns The header value}
+    public native function getMessageID () returns string|Error;
+
+    documentation {Get JMS transport header Timestamp from the message
+        returns The header value}
+    public native function getTimestamp () returns int|Error;
+
+    documentation {Sets DeliveryMode JMS transport header to the message
+        P{{mode}} The header value}
+    public native function setDeliveryMode (int mode) returns Error|();
+
+    documentation {Get JMS transport header DeliveryMode from the message
+        returns The header value" }
+    public native function getDeliveryMode () returns int|Error;
+
+    documentation {Sets Expiration JMS transport header to the message
+        P{{value}} The header value}
+    public native function setExpiration (int value) returns Error|();
+
+    documentation {Get JMS transport header Expiration from the message
+        returns int: The header value}
+    public native function getExpiration () returns int|Error;
 };
 
 
