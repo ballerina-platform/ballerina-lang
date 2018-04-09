@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.types.SingletonType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
 /**
  * Singleton Type.
@@ -59,12 +58,12 @@ public class BSingletonType extends BType implements SingletonType {
 
     @Override
     public String toString() {
-        return "[" + valueSpace.toString() + "]";
+        return superSetType.toString();
     }
 
     @Override
     public String getDesc() {
-        return TypeDescriptor.SIG_SINGLETON;
+        return superSetType.getDesc();
     }
 
 }

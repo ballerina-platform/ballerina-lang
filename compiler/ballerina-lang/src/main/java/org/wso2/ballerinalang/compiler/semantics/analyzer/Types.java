@@ -256,11 +256,6 @@ public class Types {
             return checkStructEquivalency(source, target);
         }
 
-        if (source.getKind() == TypeKind.SINGLETON) {
-            BSingletonType singletonType = (BSingletonType) source;
-            return isAssignable(singletonType.superSetType, target);
-        }
-
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
     }
@@ -861,6 +856,10 @@ public class Types {
     private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
         @Override
         public Boolean visit(BType t, BType s) {
+            if (s.getKind() == TypeKind.SINGLETON) {
+                BSingletonType singletonType = (BSingletonType) s;
+                return isSameType(singletonType.superSetType, t);
+            }
             return t == s;
 
         }
