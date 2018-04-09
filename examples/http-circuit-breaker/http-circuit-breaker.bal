@@ -2,15 +2,15 @@ import ballerina/http;
 import ballerina/runtime;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint passthruEP {
+endpoint http:Listener passthruEP {
     port:9090
 };
 
-endpoint http:ServiceEndpoint backendEP {
+endpoint http:Listener backendEP {
     port:8080
 };
 
-endpoint http:ClientEndpoint backendClientEP {
+endpoint http:Client backendClientEP {
     circuitBreaker: {
         rollingWindow: {
                             timeWindow:10000,
