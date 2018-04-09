@@ -23,9 +23,10 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -64,35 +65,10 @@ public class ZipFile extends BlockingNativeCallableUnit {
      * @param destDir destination path to place the compressed file
      */
     private static void compress(String dirPath, String destDir) {
-        ZipOutputStream zos = null;
-        FileOutputStream fos = null;
         try {
-            Stream<Path> list = Files.list(Paths.get(dirPath));
-            fos = new FileOutputStream(destDir);
-            zos = new ZipOutputStream(fos);
-            try (ZipOutputStream finalZos = zos) {
-                list.forEach(p -> {
-                    try {
-                        addEntry(finalZos, p.toString());
-                    } catch (IOException e) {
-                        throw new BLangRuntimeException("I/O Exception when processing files " + e.getMessage());
-                    }
-                });
-            }
-        } catch (IOException e) {
-            throw new BLangRuntimeException("Failed or interrupted I/O operation has occured");
-        } finally {
-            try {
-                if (zos != null) {
-                    zos.close();
-                }
-                if (fos != null) {
-                    fos.close();
-                }
-            } catch (IOException e) {
-                throw new BLangRuntimeException("Failed or interrupted I/O operation has occured when closing " +
-                                                        "the ZipOutputStream");
-            }
+            zipFiles(dirPath, new FileOutputStream(destDir));
+        } catch (FileNotFoundException e) {
+            throw new BLangRuntimeException("File not found" + dirPath);
         }
     }
 
@@ -102,23 +78,38 @@ public class ZipFile extends BlockingNativeCallableUnit {
      * @param zos      ZipOutputStream
      * @param filePath file path of each file inside the driectory
      */
-    private static void addEntry(ZipOutputStream zos, String filePath) throws IOException {
+    static void addEntry(ZipOutputStream zos, String filePath) throws IOException {
         ZipEntry ze = new ZipEntry(filePath);
         zos.putNextEntry(ze);
-        FileInputStream fis = null;
+        Files.copy(Paths.get(filePath), zos);
+        zos.closeEntry();
+    }
+
+    /**
+     * Zip files.
+     *
+     * @param dirPath      path of the directory to be zipped
+     * @param outputStream outputstream object
+     * @return outputstream
+     */
+    static OutputStream zipFiles(String dirPath, OutputStream outputStream) {
         try {
-            fis = new FileInputStream(filePath);
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = fis.read(buffer)) > 0) {
-                zos.write(buffer, 0, len);
+            Stream<Path> list = Files.list(Paths.get(dirPath));
+            ZipOutputStream zos = new ZipOutputStream(outputStream);
+            try (ZipOutputStream finalZos = zos) {
+                list.forEach(p -> {
+                    try {
+                        ZipFile.addEntry(finalZos, p.toString());
+                    } catch (IOException e) {
+                        throw new BLangRuntimeException("I/O Exception when processing files " + e.getMessage());
+                    }
+                });
             }
-            zos.closeEntry();
-        } finally {
-            if (fis != null) {
-                fis.close();
-            }
+            zos.close();
+        } catch (IOException e) {
+            throw new BLangRuntimeException("Failed or interrupted I/O operation has occured");
         }
+        return outputStream;
     }
 
     @Override

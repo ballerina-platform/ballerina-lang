@@ -22,17 +22,9 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.io.OutputStream;
 
 /**
  * Native function ballerina.compression:ZipToBytes.
@@ -53,45 +45,13 @@ public class ZipToBytes extends BlockingNativeCallableUnit {
     private static final int SRC_PATH_FIELD_INDEX = 0;
 
     /**
+     * Zip a file content as bytes.
      * @param dirPath file content as a byte array.
      */
     private static byte[] zipToByte(String dirPath) {
-        ByteArrayOutputStream bos;
-        try {
-            Stream<Path> list = Files.list(Paths.get(dirPath));
-            bos = new ByteArrayOutputStream();
-            ZipOutputStream zos = new ZipOutputStream(bos);
-            byte[] buffer = new byte[4096];
-            list.forEach(p -> addEntry(zos, buffer, p.toString()));
-            zos.close();
-        } catch (IOException e) {
-            throw new BLangRuntimeException("I/O Exception when processing files " + e.getMessage());
-        }
+        OutputStream os = ZipFile.zipFiles(dirPath, new ByteArrayOutputStream());
+        ByteArrayOutputStream bos = (ByteArrayOutputStream) os;
         return bos.toByteArray();
-    }
-
-    /**
-     * Add file inside the src directory to the ZipOutputStream.
-     *
-     * @param zos      ZipOutputStream
-     * @param buffer   byte buffer
-     * @param filePath file path of each file inside the driectory
-     */
-    private static void addEntry(ZipOutputStream zos, byte[] buffer, String filePath) {
-        try {
-            ZipEntry ze = new ZipEntry(filePath);
-            zos.putNextEntry(ze);
-            try (FileInputStream fis = new FileInputStream(filePath)) {
-                int len;
-                while ((len = fis.read(buffer)) > 0) {
-                    zos.write(buffer, 0, len);
-                }
-                zos.closeEntry();
-                fis.close();
-            }
-        } catch (IOException e) {
-            throw new BLangRuntimeException("I/O Exception when processing files " + e.getMessage());
-        }
     }
 
     @Override

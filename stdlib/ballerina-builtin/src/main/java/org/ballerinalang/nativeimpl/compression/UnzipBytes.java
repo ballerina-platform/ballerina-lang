@@ -22,15 +22,14 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -64,30 +63,30 @@ public class UnzipBytes extends BlockingNativeCallableUnit {
 
     /**
      * Decompress/unzip byte arrays/blob.
-     *  @param fileContentAsByteArray file content as a byte arry
+     *  @param inputStream file content as an inputstream
      * @param outputFolder           destination folder
      * @param folderToUnzip folder to unzip in the zipped file
      */
-    static void decompress(byte[] fileContentAsByteArray, String outputFolder, String folderToUnzip) {
+    static void decompress(InputStream inputStream, String outputFolder, String folderToUnzip) {
         ZipInputStream zin = null;
         try {
             Path outdir = Paths.get(outputFolder);
-            zin = new ZipInputStream(new ByteArrayInputStream(fileContentAsByteArray));
+            zin = new ZipInputStream(inputStream);
             ZipEntry entry;
             String name, dir;
             while ((entry = zin.getNextEntry()) != null) {
                 name = entry.getName();
                 if (!folderToUnzip.isEmpty() && name.startsWith(folderToUnzip)) {
-                    int index = name.lastIndexOf('/') + 1;
+                    int index = name.lastIndexOf(File.separator) + 1;
                     name = name.substring(index);
                 }
                     if (entry.isDirectory()) {
-                        mkdirs(outdir, name);
+                        Files.createDirectories(outdir.resolve(name));
                         continue;
                     }
                     dir = getDirectoryPath(name);
                     if (dir != null) {
-                        mkdirs(outdir, dir);
+                        Files.createDirectories(outdir.resolve(dir));
                     }
                     extractFile(zin, outdir, name);
             }
@@ -112,27 +111,11 @@ public class UnzipBytes extends BlockingNativeCallableUnit {
      * @param name   name of the file
      */
     private static void extractFile(ZipInputStream in, Path outdir, String name) {
-        byte[] buffer = new byte[4096];
-        BufferedOutputStream out = null;
         try {
             Path resourcePath = Paths.get(outdir.toString()).resolve(name);
-            out = new BufferedOutputStream(new FileOutputStream(resourcePath.toString()));
-            int count;
-            while ((count = in.read(buffer)) != -1) {
-                out.write(buffer, 0, count);
-            }
-        } catch (FileNotFoundException e) {
-            throw new BLangRuntimeException("File not found to process " + outdir);
+            Files.copy(in, resourcePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new BLangRuntimeException("I/O Exception when closing the input stream " + outdir);
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    throw new BLangRuntimeException("I/O Exception when closing the input stream " + e.getMessage());
-                }
-            }
         }
     }
 
@@ -150,28 +133,12 @@ public class UnzipBytes extends BlockingNativeCallableUnit {
         return null;
     }
 
-    /**
-     * Make directories if they doesn't exists.
-     *
-     * @param outdir destination file
-     * @param path   path of the destination directory
-     */
-    private static void mkdirs(Path outdir, String path) {
-        Path dir = outdir.resolve(path);
-        if (!Files.exists(dir)) {
-            try {
-                Files.createDirectories(dir);
-            } catch (IOException e) {
-                throw new BLangRuntimeException("Error occured when creating directories");
-            }
-        }
-    }
-
     @Override
     public void execute(Context context) {
         byte[] content = context.getBlobArgument(SRC_AS_BYTEARRAY_FIELD_INDEX);
+        InputStream inputStream = new ByteArrayInputStream(content);
         String destDir = context.getStringArgument(DEST_PATH_FIELD_INDEX);
         String folderToUnzip = context.getStringArgument(FOLDER_TO_UNZIP_INDEX);
-        decompress(content, destDir, folderToUnzip);
+        decompress(inputStream, destDir, folderToUnzip);
     }
 }
