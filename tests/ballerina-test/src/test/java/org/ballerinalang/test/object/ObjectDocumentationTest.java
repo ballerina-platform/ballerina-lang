@@ -20,6 +20,7 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -86,7 +87,8 @@ public class ObjectDocumentationTest {
     @Test(description = "Test doc negative cases.")
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_annotation_negative.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 12);
+        Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
+        Assert.assertEquals(compileResult.getWarnCount(), 11);
         BAssertUtil.validateWarning(compileResult, 0,
                 "already documented attribute 'a'", 5, 1);
         BAssertUtil.validateWarning(compileResult, 1,
@@ -94,25 +96,25 @@ public class ObjectDocumentationTest {
 //        BAssertUtil.validateWarning(compileResult, 2,
 //                "already documented attribute 'foo'", 22, 1);
         BAssertUtil.validateWarning(compileResult, 2,
-                "no such documentable attribute 'testConst' with doc prefix 'V'", 17, 1);
-        BAssertUtil.validateWarning(compileResult, 3,
                 "already documented attribute 'a'", 31, 1);
-        BAssertUtil.validateWarning(compileResult, 4,
+        BAssertUtil.validateWarning(compileResult, 3,
                 "no such documentable attribute 'c' with doc prefix 'F'", 33, 1);
-        BAssertUtil.validateWarning(compileResult, 5,
+        BAssertUtil.validateWarning(compileResult, 4,
                 "already documented attribute 'file'", 45, 1);
-        BAssertUtil.validateWarning(compileResult, 6,
-                "no such documentable attribute 'successfuls' with doc prefix 'R'", 47, 1);
-        BAssertUtil.validateWarning(compileResult, 7,
+//        BAssertUtil.validateWarning(compileResult, 5,
+//                "no such documentable attribute 'successfuls' with doc prefix 'R'", 47, 1);
+        BAssertUtil.validateWarning(compileResult, 5,
                 "already documented attribute 'url'", 89, 1);
-        BAssertUtil.validateWarning(compileResult, 8,
+        BAssertUtil.validateWarning(compileResult, 6,
                 "no such documentable attribute 'urls' with doc prefix 'P'", 90, 1);
-        BAssertUtil.validateWarning(compileResult, 9,
+        BAssertUtil.validateWarning(compileResult, 7,
                 "no such documentable attribute 'conn' with doc prefix 'P'", 104, 1);
-        BAssertUtil.validateWarning(compileResult, 10,
+        BAssertUtil.validateWarning(compileResult, 8,
                 "already documented attribute 'req'", 110, 5);
-        BAssertUtil.validateWarning(compileResult, 11,
+        BAssertUtil.validateWarning(compileResult, 9,
                 "no such documentable attribute 'reqest' with doc prefix 'P'", 111, 5);
+        BAssertUtil.validateWarning(compileResult, 10,
+                "no such documentable attribute 'testConstd' with doc prefix 'V'", 121, 1);
 //        BAssertUtil.validateWarning(compileResult, 12,
 //                "no such documentable attribute 'c' with doc prefix 'F'", 33, 1);
 //        BAssertUtil.validateWarning(compileResult, 8,
@@ -127,4 +129,11 @@ public class ObjectDocumentationTest {
 
     }
 
+    private String getErrorString(Diagnostic[] diagnostics) {
+        StringBuilder sb = new StringBuilder();
+        for (Diagnostic diagnostic : diagnostics) {
+            sb.append(diagnostic + "\n");
+        }
+        return sb.toString();
+    }
 }

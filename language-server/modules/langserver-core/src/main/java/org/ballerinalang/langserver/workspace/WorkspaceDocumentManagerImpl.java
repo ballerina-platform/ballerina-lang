@@ -21,8 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An in-memory document manager that keeps dirty files in-memory and will match the collection of files currently
@@ -32,7 +32,7 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceDocumentManagerImpl.class);
 
-    private Map<Path, WorkspaceDocument> documentList = new HashMap<>();
+    private Map<Path, WorkspaceDocument> documentList = new ConcurrentHashMap<>();
 
     private static WorkspaceDocumentManagerImpl instance = new WorkspaceDocumentManagerImpl();
 

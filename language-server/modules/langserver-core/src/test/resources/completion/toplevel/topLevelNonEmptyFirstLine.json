@@ -30,7 +30,7 @@
       "label":"service",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"service\u003c${1:http:Service}\u003e ${2:serviceName}{\n\t${3:newResource} (endpoint ${4:epReference}, ${5:http:Request request}) {\n\t}\n}",
+      "insertText":"service\u003c${1:http:Service}\u003e ${2:serviceName} {\n\t${3:newResource} (endpoint ${4:epReference}, ${5:http:Request request}) {\n\t}\n}",
       "insertTextFormat":"Snippet"
     },
     {

@@ -541,7 +541,21 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return dent() + w() + 'return' + a(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + ';';
         case 'Service':
-            return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+            if (node.isServiceTypeUnavailable && node.annotationAttachments
+                         && node.documentationAttachments && node.deprecatedAttachments
+                         && node.name.valueWithBar && node.boundEndpoints && node.variables
+                         && node.resources) {
+                return dent()
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w() + 'service' + a(' ') + w(' ')
+                 + node.name.valueWithBar + a(' ') + w() + 'bind' + a(' ')
+                 + join(node.boundEndpoints, pretty, replaceLambda, l, w, '', ',') + w(' ') + '{'
+                 + indent() + join(node.variables, pretty, replaceLambda, l, w, '')
+                 + join(node.resources, pretty, replaceLambda, l, w, '')
+                 + outdent() + w() + '}';
+            } else {
+                return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + w() + 'service' + a(' ') + w() + '<'
                  + getSourceOf(node.serviceTypeStruct, pretty, l, replaceLambda) + w()
@@ -550,6 +564,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.boundEndpoints, pretty, replaceLambda, l, w, '', ',') + w(' ') + '{' + indent()
                  + join(node.variables, pretty, replaceLambda, l, w, '')
                  + join(node.resources, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
+            }
         case 'SimpleVariableRef':
             if (node.inTemplateLiteral && node.packageAlias.valueWithBar
                          && node.variableName.valueWithBar) {

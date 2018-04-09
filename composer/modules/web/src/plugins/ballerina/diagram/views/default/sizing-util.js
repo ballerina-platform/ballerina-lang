@@ -348,10 +348,8 @@ class SizingUtil {
         cmp.client.h = maxWorkerHeight;
         cmp.client.arrowLine = (cmp.client.w / 2);
         const paramText = node.parameters.filter((param) => {
-            // skip connection on client invocation arrow
-            param.typeNode = param.typeNode || {};
-            param.typeNode.typeName = param.typeNode.typeName || {};
-            return param.typeNode.typeName.value !== 'Connection';
+            // skip if the param is service endpoint.
+            return !param.serviceEndpoint;
         }).map((param) => {
             return param.name.value;
         }).join(', ');
@@ -410,7 +408,7 @@ class SizingUtil {
                 endpointWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
                 endpoint.viewState.bBox.h = node.viewState.components.defaultWorker.h;
                 endpoint.viewState.endpointIdentifier =
-                    this.getTextWidth(endpoint.getName().value, 0, endpointWidth).text;
+                    this.getTextWidth(endpoint.name.value, 0, endpointWidth).text;
             });
         }
 
@@ -729,7 +727,7 @@ class SizingUtil {
         bBox.h = workerBody.viewState.bBox.h
             + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
 
-        if (!TreeUtil.isForkJoin(node.parent)) {
+        if (node.parent && !TreeUtil.isForkJoin(node.parent)) {
             bBox.h += (this.config.statement.height * 2); // Top gap for client invoke line
         }
 
@@ -1390,6 +1388,9 @@ class SizingUtil {
         this.sizeStatement(node.getSource(true), viewState);
         this.adjustToLambdaSize(node, viewState);
         this.sizeClientResponderStatement(node);
+        if (viewState.displayText === '()') {
+            viewState.displayText = '';
+        }
     }
 
 

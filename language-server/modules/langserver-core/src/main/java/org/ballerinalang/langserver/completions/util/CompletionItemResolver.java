@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.util;
 
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.ballerinalang.langserver.completions.resolvers.AnnotationAttachmentContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.AnnotationAttachmentResolver;
 import org.ballerinalang.langserver.completions.resolvers.BLangEndpointContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.BLangMatchContextResolver;
@@ -42,14 +41,16 @@ import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRu
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleExpressionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleMatchStatementContextResolver;
+import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleResourceDefinitionContextResolver;
+import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleServiceBodyContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleStatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleTriggerWorkerContext;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleTypeNameContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleVariableDefinitionStatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleWorkerReplyContext;
-import org.ballerinalang.model.AnnotationAttachment;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -77,8 +78,6 @@ public enum CompletionItemResolver {
             new TopLevelResolver()),
     PACKAGE_NAME_CONTEXT(BallerinaParser.PackageNameContext.class,
             new PackageNameContextResolver()),
-    ANNOTATION_ATTACHMENT_CONTEXT(BallerinaParser.AnnotationAttachmentContext.class,
-            new AnnotationAttachmentContextResolver()),
     IMPORT_DECLARATION_CONTEXT(BallerinaParser.ImportDeclarationContext.class,
             new PackageNameContextResolver()),
     PARAMETER_CONTEXT(BallerinaParser.ParameterContext.class,
@@ -87,7 +86,9 @@ public enum CompletionItemResolver {
             new ParameterContextResolver()),
     BLOCK_STATEMENT_CONTEXT(BLangBlockStmt.class,
             new BlockStatementContextResolver()),
-    ANNOTATION_ATTACHMENT(AnnotationAttachment.class,
+    ANNOTATION_ATTACHMENT(AnnotationAttachmentResolver.class,
+            new AnnotationAttachmentResolver()),
+    B_LANG_ANNOTATION_ATTACHMENT(BLangAnnotationAttachment.class,
             new AnnotationAttachmentResolver()),
     RECORD_CONTEXT(BLangRecord.class,
             new BLangRecordContextResolver()),
@@ -132,6 +133,10 @@ public enum CompletionItemResolver {
             new ParserRuleConditionalClauseContextResolver()),
     PARSER_RULE_WHILE_CLAUSE_CONTEXT(BallerinaParser.WhileStatementContext.class,
             new ParserRuleConditionalClauseContextResolver()),
+    PARSER_RULE_SERVICE_BODY_CONTEXT(BallerinaParser.ServiceBodyContext.class,
+            new ParserRuleServiceBodyContextResolver()),
+    PARSER_RULE_RESOURCE_DEF_CONTEXT(BallerinaParser.ResourceDefinitionContext.class,
+            new ParserRuleResourceDefinitionContextResolver()),
     PARSER_RULE_MATCH_STATEMENT_CONTEXT(BallerinaParser.MatchStatementContext.class,
             new ParserRuleMatchStatementContextResolver());
 

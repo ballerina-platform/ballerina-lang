@@ -32,7 +32,6 @@ import java.io.File;
 /**
  * Class to test functionality of transactions in SQL.
  */
-@Test(groups = {"broken"})
 public class SQLTransactionsTest {
 
     private CompileResult result;
