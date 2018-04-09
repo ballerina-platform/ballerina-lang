@@ -159,7 +159,7 @@ public class HttpConstants {
     public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
-    public static final String SERVICE_ENDPOINT = "ServiceEndpoint";
+    public static final String SERVICE_ENDPOINT = "Listener";
     public static final String CONNECTION = "Connection";
     public static final String REMOTE = "Remote";
     public static final String LOCAL = "Local";

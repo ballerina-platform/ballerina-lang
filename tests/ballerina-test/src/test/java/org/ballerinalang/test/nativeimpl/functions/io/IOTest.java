@@ -45,7 +45,6 @@ import java.util.stream.Stream;
 /**
  * Tests I/O related functions.
  */
-@Test(groups = {"broken"})
 public class IOTest {
     private CompileResult bytesInputOutputProgramFile;
     private CompileResult characterInputOutputProgramFile;
