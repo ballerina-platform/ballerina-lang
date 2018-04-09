@@ -3480,6 +3480,11 @@ public class CPU {
                 }
                 return true;
             case TypeTags.JSON_TAG:
+                // If target type is not constrained, any JSON is assignable.
+                if (((BJSONType) targetType).getConstrainedType() == null) {
+                    return true;
+                }
+
                 if (sourceType.getTag() != TypeTags.JSON_TAG) {
                     return false;
                 }
