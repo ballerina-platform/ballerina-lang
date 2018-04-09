@@ -118,6 +118,9 @@ public type Request object {
     @Return {value:"Returns the body parts as an array of entities"}
     public function getMultiparts () returns (mime:Entity[] | mime:EntityError);
 
+    @Description {value:"Builds the Cache-Control header from the RequestCacheControl object and sets it to the request."}
+    public function setCacheControl();
+
     @Description {value:"Sets a JSON as the request payload"}
     @Param {value:"payload: The JSON payload to be set to the request"}
     public function setJsonPayload (json payload);
@@ -300,6 +303,11 @@ public function Request::getMultiparts () returns (mime:Entity[] | mime:EntityEr
         mime:Entity entity => return entity.getBodyParts();
         mime:EntityError err => return err;
     }
+}
+
+public function Request::setCacheControl() {
+    string cacheControlDirectives = self.cacheControl.buildCacheControlDirectives();
+    self.setHeader(CACHE_CONTROL, cacheControlDirectives);
 }
 
 public function Request::setJsonPayload (json payload) {
