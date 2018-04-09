@@ -577,7 +577,7 @@ public class SwaggerConverterUtilsTest {
             "            create resiliency:Failover(\n" +
             "                    [create http:HttpClient(\"http://localhost:23456/mock\", {}),\n" +
             "                     create http:HttpClient(\"http://localhost:9090/echo\",\n" +
-            "                                    {endpointTimeout:5000}),\n" +
+            "                                    {timeoutMillies:5000}),\n" +
             "                     create http:HttpClient(\"http://localhost:9090/mock\", {})],\n" +
             "                     errorCode);\n" +
             "        }        http:Response inResponse = {};\n" +

@@ -192,7 +192,7 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
                 boolean hostNameVerificationEnabled = secureSocket
                         .getBooleanField(HttpConstants.SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED);
                 boolean ocspStaplingEnabled = secureSocket.getBooleanField(HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
-                senderConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
+             //   senderConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
                 senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
 
                 List<Value> ciphersValueList = Arrays
@@ -248,11 +248,11 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         String chunking = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_CHUNKING).getStringValue();
         senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
 
-        long endpointTimeout = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
-        if (endpointTimeout < 0 || !isInteger(endpointTimeout)) {
-            throw new BallerinaConnectorException("invalid idle timeout: " + endpointTimeout);
+        long timeoutMillies = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
+        if (timeoutMillies < 0 || !isInteger(timeoutMillies)) {
+            throw new BallerinaConnectorException("invalid idle timeout: " + timeoutMillies);
         }
-        senderConfiguration.setSocketIdleTimeout((int) endpointTimeout);
+        senderConfiguration.setSocketIdleTimeout((int) timeoutMillies);
 
         boolean isKeepAlive = clientEndpointConfig.getBooleanField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE);
         senderConfiguration.setKeepAlive(isKeepAlive);

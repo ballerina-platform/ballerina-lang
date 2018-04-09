@@ -67,7 +67,7 @@ documentation {
 
     F{{url}} - The URL of the HTTP endpoint to connect to
     F{{secureSocket}} - The SSL configurations for the endpoint
-    F{{endpointTimeout}} - The maximum time to wait (in milli seconds) for a response before closing the connection
+    F{{timeoutMillies}} - The maximum time to wait (in milli seconds) for a response before closing the connection
     F{{httpVersion}} - The HTTP version to be used to communicate with the endpoint
     F{{forwarded}} - The choice of setting forwarded/x-forwarded header
     F{{keepAlive}} - Specifies whether to keep the connection alive (or not) for multiple request/response pairs
@@ -82,7 +82,7 @@ documentation {
 public type SimpleClientEndpointConfiguration {
     string url,
     SecureSocket? secureSocket,
-    int endpointTimeout = 60000,
+    int timeoutMillies = 60000,
     string httpVersion = "1.1",
     string forwarded = "disable",
     boolean keepAlive = true,
@@ -111,7 +111,7 @@ public function SimpleClientEndpoint::init(SimpleClientEndpointConfiguration sim
     self.httpEP.config.targets = [];
 
     self.httpEP.config.targets[0] = {url: simpleConfig.url, secureSocket: simpleConfig.secureSocket};
-    self.httpEP.config.endpointTimeout = simpleConfig.endpointTimeout;
+    self.httpEP.config.timeoutMillies = simpleConfig.timeoutMillies;
     self.httpEP.config.httpVersion = simpleConfig.httpVersion;
     self.httpEP.config.forwarded = simpleConfig.forwarded;
     self.httpEP.config.keepAlive = simpleConfig.keepAlive;

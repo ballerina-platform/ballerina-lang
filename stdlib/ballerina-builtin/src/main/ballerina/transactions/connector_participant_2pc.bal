@@ -20,7 +20,7 @@ import ballerina/http;
 
 public type Participant2pcClientConfig {
     string participantURL;
-    int endpointTimeout;
+    int timeoutMillies;
     {
         int count;
         int interval;
@@ -36,7 +36,7 @@ public type Participant2pcClientEP object {
 
     public function init(Participant2pcClientConfig conf) {
         endpoint http:ClientEndpoint httpEP {targets:[{url:conf.participantURL}],
-                                            endpointTimeout:conf.endpointTimeout,
+                                            timeoutMillies:conf.timeoutMillies,
                                             retry:{count:conf.retryConfig.count,
                                                       interval:conf.retryConfig.interval}};
         self.httpClient = httpEP;

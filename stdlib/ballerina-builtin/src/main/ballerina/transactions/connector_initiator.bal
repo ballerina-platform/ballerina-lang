@@ -20,7 +20,7 @@ import ballerina/http;
 
 type InitiatorClientConfig {
     string registerAtURL;
-    int endpointTimeout;
+    int timeoutMillies;
     {
         int count;
         int interval;
@@ -34,7 +34,7 @@ type InitiatorClientEP object {
 
     function init (InitiatorClientConfig conf) {
         endpoint http:ClientEndpoint httpEP {targets:[{url:conf.registerAtURL}],
-                                            endpointTimeout:conf.endpointTimeout,
+                                            timeoutMillies:conf.timeoutMillies,
                                             retry:{count:conf.retryConfig.count,
                                                       interval:conf.retryConfig.interval}};
         self.httpClient = httpEP;

@@ -312,7 +312,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         }
         if (ocspStapling != null) {
             boolean ocspStaplingEnabled = ocspStapling.getBooleanField(HttpConstants.ENABLE);
-            listenerConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
+          //  listenerConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
             long cacheSize = ocspStapling.getIntField(HttpConstants.SSL_CONFIG_CACHE_SIZE);
             long cacheValidationPeriod = ocspStapling.getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
             listenerConfiguration.setValidateCertEnabled(ocspStaplingEnabled);

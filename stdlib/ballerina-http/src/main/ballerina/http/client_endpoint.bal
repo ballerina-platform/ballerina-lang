@@ -67,7 +67,7 @@ public type TargetService {
 
 @Description { value:"ClientEndpointConfig struct represents options to be used for HTTP client invocation" }
 @Field {value:"circuitBreaker: Circuit Breaker configuration"}
-@Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
+@Field {value:"timeoutMillies: Endpoint timeout value in millisecond"}
 @Field {value:"keepAlive: Specifies whether to reuse a connection for multiple requests"}
 @Field {value:"transferEncoding: The types of encoding applied to the request"}
 @Field {value:"chunking: The chunking behaviour of the request"}
@@ -84,7 +84,7 @@ public type TargetService {
 @Field {value:"acceptEncoding: Specifies the way of handling accept-encoding header."}
 public type ClientEndpointConfig {
     CircuitBreakerConfig? circuitBreaker,
-    int endpointTimeout = 60000,
+    int timeoutMillies = 60000,
     boolean keepAlive = true,
     TransferEncoding transferEncoding = "CHUNKING",
     Chunking chunking = "AUTO",
