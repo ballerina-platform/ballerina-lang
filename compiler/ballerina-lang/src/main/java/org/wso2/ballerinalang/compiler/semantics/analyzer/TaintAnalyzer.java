@@ -281,11 +281,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (isMainFunction(funcNode)) {
             visitEntryPoint(funcNode, funcEnv);
             // Following statements are used only when main method is called from a different function (test execution).
-            // Since main method has no return values, set the all untainted entry to empty, denoting that all untainted
-            // case is not invalid for the an invocation.
-            funcNode.symbol.taintTable.put(ALL_UNTAINTED_TABLE_ENTRY_INDEX, new TaintRecord(new ArrayList<>(), null));
-            // It is valid to have a case where first argument of main is tainted. Hence manually adding such scenario.
-            funcNode.symbol.taintTable.put(0, new TaintRecord(new ArrayList<>(), null));
+            if (funcNode.symbol.taintTable != null) {
+                // Since main method has no return values, set the all untainted entry to empty, denoting that all
+                // untainted case is not invalid for the an invocation.
+                funcNode.symbol.taintTable.put(ALL_UNTAINTED_TABLE_ENTRY_INDEX,
+                        new TaintRecord(new ArrayList<>(), null));
+                // It is valid to have a case where first argument of main is tainted. Hence manually adding such
+                // scenario.
+                funcNode.symbol.taintTable.put(0, new TaintRecord(new ArrayList<>(), null));
+            }
         } else {
             visitInvokable(funcNode, funcEnv);
         }
