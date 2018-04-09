@@ -14,7 +14,7 @@ service<http:Service> test bind multipartEP {
     }
     nestedPartReceiver (endpoint conn, http:Request req)  {
         http:Response res = {};
-        match req.getMultiparts() {
+        match req.getBodyParts() {
             mime:EntityError err => {
                 res.setStringPayload("Error occurred while decoding parent parts!");
                 res.statusCode = 500;
