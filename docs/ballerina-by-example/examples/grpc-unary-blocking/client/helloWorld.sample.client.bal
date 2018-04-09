@@ -9,8 +9,9 @@ function main (string[] args) {
         port:9090
     };
 
+    //Working with custom headers
     grpc:MessageContext context = helloWorldBlockingEp -> getContext();
-    context.setHeader("x-id", "woow");
+    context.setHeader("x-id", "0987654321");
     // Executing unary blocking call
     string|error unionResp = helloWorldBlockingEp -> hello("WSO2");
     match unionResp {

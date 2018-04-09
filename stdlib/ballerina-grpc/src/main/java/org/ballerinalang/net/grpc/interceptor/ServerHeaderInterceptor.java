@@ -51,7 +51,6 @@ public class ServerHeaderInterceptor extends AbstractHeaderInterceptor implement
             .SimpleForwardingServerCall<ReqT, RespT> {
 
         HeaderForwardingServerCall(ServerCall<ReqT, RespT> delegate) {
-
             super(delegate);
         }
 
