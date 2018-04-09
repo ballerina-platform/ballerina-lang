@@ -19,6 +19,8 @@
 
 package org.ballerinalang.net.websub;
 
+import org.ballerinalang.connector.api.ParamDetail;
+import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -40,15 +42,58 @@ class WebSubSubscriberServiceValidator {
         for (HttpResource resource : resources) {
             String resourceName = resource.getName();
             switch (resourceName) {
-                case WebSubSubscriberConstants.RESOURCE_NAME_VERIFY_INTENT:
+                case WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION:
+                    validateOnIntentVerificationResource(resource.getBalResource());
+                    break;
                 case WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION:
+                    validateOnNotificationResource(resource.getBalResource());
                     break;
                 default:
                     throw new BallerinaException(String.format("Invalid resource name %s for WebSubSubscriberService. "
                                                         + "Allowed resource names [%s, %s]", resourceName,
-                                                        WebSubSubscriberConstants.RESOURCE_NAME_VERIFY_INTENT,
+                                                        WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION,
                                                         WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION));
             }
+        }
+    }
+
+    private static void validateOnIntentVerificationResource(Resource resource) {
+        List<ParamDetail> paramDetails = resource.getParamDetails();
+        validateParamNumber(paramDetails, 2, resource.getName());
+        validateStructType(resource.getName(), paramDetails.get(0), WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
+                           WebSubSubscriberConstants.SERVICE_ENDPOINT);
+        validateStructType(resource.getName(), paramDetails.get(1), WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
+                           WebSubSubscriberConstants.STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST);
+    }
+
+    private static void validateOnNotificationResource(Resource resource) {
+        List<ParamDetail> paramDetails = resource.getParamDetails();
+        validateParamNumber(paramDetails, 1, resource.getName());
+        validateStructType(resource.getName(), paramDetails.get(0), WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
+                           WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST);
+    }
+
+    private static void validateParamNumber(List<ParamDetail> paramDetails, int expectedSize, String resourceName) {
+        if (paramDetails == null || paramDetails.size() < expectedSize) {
+            throw new BallerinaException(String.format("Invalid resource signature for WebSub Resource \"%s\"",
+                                                       resourceName));
+        }
+    }
+
+    private static void validateStructType(String resourceName, ParamDetail paramDetail, String packageName,
+                                           String structName) {
+        if (!paramDetail.getVarType().getPackagePath().equals(packageName)) {
+            throw new BallerinaException(
+                    String.format("Invalid parameter type %s:%s %s in resource %s. Requires %s:%s",
+                                  paramDetail.getVarType().getPackagePath(), paramDetail.getVarType().getName(),
+                                  paramDetail.getVarName(), resourceName, packageName, structName));
+        }
+
+        if (!paramDetail.getVarType().getName().equals(structName)) {
+            throw new BallerinaException(
+                    String.format("Invalid parameter type %s:%s %s in resource %s. Requires %s:%s",
+                                  paramDetail.getVarType().getPackagePath(), paramDetail.getVarType().getName(),
+                                  paramDetail.getVarName(), resourceName, packageName, structName));
         }
     }
 

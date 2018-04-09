@@ -19,7 +19,9 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
@@ -410,6 +412,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangDocumentation docNode) {
         Set<BLangIdentifier> visitedAttributes = new HashSet<>();
         for (BLangDocumentationAttribute attribute : docNode.attributes) {
+            if (attribute.docTag == DocTag.RETURN) {
+                // return params can't have names, hence can't validate
+                continue;
+            }
             if (!visitedAttributes.add(attribute.documentationField)) {
                 this.dlog.warning(attribute.pos, DiagnosticCode.DUPLICATE_DOCUMENTED_ATTRIBUTE,
                         attribute.documentationField);
@@ -431,10 +437,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
             } else {
-                if (attributeSymbol.tag != SymTag.VARIABLE
-                        || ((BVarSymbol) attributeSymbol).docTag != attribute.docTag) {
-                    this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
-                            attribute.documentationField, attribute.docTag.getValue());
+                if (!(attributeSymbol.tag == SymTag.VARIABLE || attributeSymbol.tag == SymTag.ENDPOINT) || (
+                        (BVarSymbol) attributeSymbol).docTag != attribute.docTag) {
+                    this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE, attribute
+                            .documentationField, attribute.docTag.getValue());
                     continue;
                 }
             }
@@ -533,8 +539,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // If the variable is a package/service/connector level variable, we don't need to check types.
         // It will we done during the init-function of the respective construct is visited.
-        if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE ||
-                (ownerSymTag & SymTag.SERVICE) == SymTag.SERVICE ||
+        if ((ownerSymTag & SymTag.SERVICE) == SymTag.SERVICE ||
                 (ownerSymTag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
             return;
         }
@@ -923,8 +928,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     final BEndpointVarSymbol bEndpointVarSymbol = symbolEnter.defineEndpointVarSymbol(variable.pos,
                             EnumSet.noneOf(Flag.class), variable.type, names.fromString(actualVarName), resourceEnv);
                     variable.symbol = bEndpointVarSymbol;
-                    endpointSPIAnalyzer.populateEndpointSymbol((BStructSymbol) variable.type.tsymbol,
-                            bEndpointVarSymbol);
+                    if (variable.type.tsymbol.kind == SymbolKind.OBJECT
+                            || variable.type.tsymbol.kind == SymbolKind.RECORD) {
+                        endpointSPIAnalyzer.populateEndpointSymbol((BStructSymbol) variable.type.tsymbol,
+                                bEndpointVarSymbol);
+                    }
                 } else {
                     variable.type = symTable.errType;
                     variable.symbol = symbolEnter.defineVarSymbol(variable.pos, EnumSet.noneOf(Flag.class),
@@ -970,10 +978,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (transactionNode.onCommitFunction != null) {
             typeChecker.checkExpr(transactionNode.onCommitFunction, env, symTable.noType);
+            checkTransactionHandlerValidity(transactionNode.onCommitFunction);
         }
 
         if (transactionNode.onAbortFunction != null) {
             typeChecker.checkExpr(transactionNode.onAbortFunction, env, symTable.noType);
+            checkTransactionHandlerValidity(transactionNode.onAbortFunction);
         }
     }
 
@@ -1481,45 +1491,31 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         validateVariableDefinition(rhsExpr);
-
-        boolean newVarDeclaration = false;
-        BType expType;
-
-        // Check variable symbol if exists.
-        BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRefExpr;
-        simpleVarRef.lhsVar = true;
-        Name varName = names.fromIdNode(simpleVarRef.variableName);
-        if (varName == Names.IGNORE) {
-            expType = symTable.noType;
-        } else {
-            BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
-            if (symbol == symTable.notFoundSymbol) {
-                newVarDeclaration = true;
-                expType = symTable.noType;
-            } else {
-                expType = symbol.type;
-            }
-        }
-
         BType rhsType = typeChecker.checkExpr(rhsExpr, this.env, expType);
         if (safeAssignment) {
             rhsType = handleSafeAssignmentWithVarDeclaration(varRefExpr.pos, rhsType);
         }
 
-        if (newVarDeclaration) {
-            // Define the new variable
-            BVarSymbol varSymbol = this.symbolEnter.defineVarSymbol(simpleVarRef.pos,
-                    Collections.emptySet(), rhsType, varName, env);
-            simpleVarRef.symbol = varSymbol;
-            simpleVarRef.type = varSymbol.type;
-        } else {
-            dlog.error(pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
+        // Check variable symbol if exists.
+        BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRefExpr;
+        simpleVarRef.lhsVar = true;
+        Name varName = names.fromIdNode(simpleVarRef.variableName);
+        if (varName != Names.IGNORE) {
+            BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
+            if (symbol != symTable.notFoundSymbol) {
+                dlog.error(simpleVarRef.pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
+                return;
+            }
         }
+        // Define the new variable
+        BVarSymbol varSymbol = this.symbolEnter.defineVarSymbol(simpleVarRef.pos,
+                Collections.emptySet(), rhsType, varName, env);
+        simpleVarRef.symbol = varSymbol;
+        simpleVarRef.type = varSymbol.type;
     }
 
     private void handleAssignNodeWithVarDeStructure(BLangTupleDestructure tupleDeNode) {
         int ignoredCount = 0;
-        int createdSymbolCount = 0;
 
         List<Name> newVariables = new ArrayList<Name>();
         List<BType> expTypes = new ArrayList<>();
@@ -1545,15 +1541,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
             if (symbol == symTable.notFoundSymbol) {
-                createdSymbolCount++;
                 newVariables.add(varName);
                 expTypes.add(symTable.noType);
             } else {
+                dlog.error(varRef.pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
                 expTypes.add(symbol.type);
             }
         }
 
-        if (ignoredCount == tupleDeNode.varRefs.size() || createdSymbolCount == 0) {
+        if (ignoredCount == tupleDeNode.varRefs.size()) {
             dlog.error(tupleDeNode.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
         }
 
@@ -1604,6 +1600,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         if (error) {
             this.dlog.error(retryCountExpr.pos, DiagnosticCode.INVALID_RETRY_COUNT);
+        }
+    }
+
+    private void checkTransactionHandlerValidity(BLangExpression transactionHanlder) {
+        if (transactionHanlder != null) {
+            if (transactionHanlder.type.tag == TypeTags.INVOKABLE) {
+                BInvokableType handlerType = (BInvokableType) transactionHanlder.type;
+                int parameterCount = handlerType.paramTypes.size();
+                if (parameterCount != 1) {
+                    dlog.error(transactionHanlder.pos, DiagnosticCode.INVALID_TRANSACTION_HANDLER_ARGS);
+                }
+                if (handlerType.paramTypes.get(0).tag != TypeTags.STRING) {
+                    dlog.error(transactionHanlder.pos, DiagnosticCode.INVALID_TRANSACTION_HANDLER_ARGS);
+                }
+            } else {
+                dlog.error(transactionHanlder.pos, DiagnosticCode.LAMBDA_REQUIRED_FOR_TRANSACTION_HANDLER);
+            }
         }
     }
 

@@ -35,7 +35,7 @@ public interface Metric {
      * @param <B> Builder for a given metric class.
      * @param <M> Metric class.
      */
-    abstract class Builder<B extends Builder<B, M>, M extends Metric> {
+    interface Builder<B extends Builder<B, M>, M extends Metric> {
 
         /**
          * Set the description of the metric.
@@ -43,7 +43,7 @@ public interface Metric {
          * @param description The description of the metric.
          * @return This builder instance.
          */
-        abstract B description(String description);
+        B description(String description);
 
         /**
          * Add tags to this metric.
@@ -51,7 +51,7 @@ public interface Metric {
          * @param keyValues Must be an even number of arguments representing key/value pairs of tags.
          * @return The builder with added tags.
          */
-        abstract B tags(String... keyValues);
+        B tags(String... keyValues);
 
         /**
          * Add tags to this metric.
@@ -59,7 +59,7 @@ public interface Metric {
          * @param tags Tags to add to the metrics
          * @return The builder with added tags.
          */
-        abstract B tags(Iterable<Tag> tags);
+        B tags(Iterable<Tag> tags);
 
         /**
          * Add tags to this metric.
@@ -68,7 +68,7 @@ public interface Metric {
          * @param value The tag value.
          * @return The builder with a single added tag.
          */
-        abstract B tag(String key, String value);
+        B tag(String key, String value);
 
         /**
          * Add tags to this metric.
@@ -76,16 +76,14 @@ public interface Metric {
          * @param tags A map of key value pairs to be used as tags
          * @return The builder with added tags.
          */
-        abstract B tags(Map<String, String> tags);
+        B tags(Map<String, String> tags);
 
         /**
          * Create and register the metric with the default registry.
          *
          * @return Registered metric
          */
-        public M register() {
-            return register(MetricRegistry.getDefaultRegistry());
-        }
+        M register();
 
         /**
          * Create and register the metric with the given registry.
@@ -93,7 +91,7 @@ public interface Metric {
          * @param registry {@link MetricRegistry} to be used
          * @return Registered metric
          */
-        public abstract M register(MetricRegistry registry);
+        M register(MetricRegistry registry);
     }
 
 }

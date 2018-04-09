@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 /**
  * Advanced worker related tests.
  */
+@Test(groups = {"broken"})
 public class NotSoBasicWorkerTest {
 
     private CompileResult result;

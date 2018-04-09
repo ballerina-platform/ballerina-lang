@@ -43,10 +43,6 @@ public class HasNextDelimitedRecordEvent implements Event {
 
     private static final Logger log = LoggerFactory.getLogger(HasNextDelimitedRecordEvent.class);
 
-    public HasNextDelimitedRecordEvent(DelimitedRecordChannel channel) {
-        this.channel = channel;
-    }
-
     public HasNextDelimitedRecordEvent(DelimitedRecordChannel channel, EventContext context) {
         this.channel = channel;
         this.context = context;
@@ -64,6 +60,10 @@ public class HasNextDelimitedRecordEvent implements Event {
         } catch (IOException e) {
             String message = "Error occurred while reading bytes for hasNext()";
             log.error(message, e);
+            context.setError(e);
+            result = new BooleanResult(context);
+        } catch (Throwable e) {
+            log.error("Unidentified error occurred while performing hasNext()", e);
             context.setError(e);
             result = new BooleanResult(context);
         }

@@ -29,13 +29,7 @@ public type LoadBalancer object {
        int nextIndex; // Keeps to index which needs to be take the next load balance endpoint.
    }
 
-   public new (serviceUri, config, loadBalanceClientsArray, algorithm, nextIndex) {
-       self.serviceUri = serviceUri;
-       self.config = config;
-       self.loadBalanceClientsArray = loadBalanceClientsArray;
-       self.algorithm = algorithm;
-       self.nextIndex = nextIndex;
-   }
+   public new (serviceUri, config, loadBalanceClientsArray, algorithm, nextIndex) {}
 
     @Description {value:"The POST action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
@@ -105,26 +99,26 @@ public type LoadBalancer object {
     @Param { value:"httpVerb: The HTTP verb value" }
     @Param { value:"path: The Resource path " }
     @Param { value:"req: An HTTP outbound request message" }
-    @Return { value:"The Handle for further interactions" }
+    @Return { value:"The Future for further interactions" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public function submit (string httpVerb, string path, Request req) returns (HttpHandle | HttpConnectorError);
+    public function submit (string httpVerb, string path, Request req) returns (HttpFuture | HttpConnectorError);
 
     @Description { value:"The getResponse implementation of the LoadBalancer Connector."}
-    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
     @Return { value:"The HTTP response message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public function getResponse (HttpHandle handle) returns (Response | HttpConnectorError);
+    public function getResponse (HttpFuture httpFuture) returns (Response | HttpConnectorError);
 
     @Description { value:"The hasPromise implementation of the LoadBalancer Connector."}
-    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
     @Return { value:"Whether push promise exists" }
-    public function hasPromise (HttpHandle handle) returns (boolean);
+    public function hasPromise (HttpFuture httpFuture) returns (boolean);
 
     @Description { value:"The getNextPromise implementation of the LoadBalancer Connector."}
-    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
     @Return { value:"The HTTP Push Promise message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public function getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError);
+    public function getNextPromise (HttpFuture httpFuture) returns (PushPromise | HttpConnectorError);
 
     @Description { value:"The getPromisedResponse implementation of the LoadBalancer Connector."}
     @Param { value:"promise: The related Push Promise message" }
@@ -239,41 +233,35 @@ public function LoadBalancer::get (string path, Request request) returns (Respon
 @Param { value:"httpVerb: The HTTP verb value" }
 @Param { value:"path: The Resource path " }
 @Param { value:"req: An HTTP outbound request message" }
-@Return { value:"The Handle for further interactions" }
+@Return { value:"The Future for further interactions" }
 @Return { value:"The Error occured during HTTP client invocation" }
-public function LoadBalancer::submit (string httpVerb, string path, Request req) returns (HttpHandle | HttpConnectorError) {
-    //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-    HttpConnectorError httpConnectorError = {statusCode:501};
-    httpConnectorError.message = "Unsupported action for LoadBalancer Connector";
+public function LoadBalancer::submit (string httpVerb, string path, Request req) returns (HttpFuture | HttpConnectorError) {
+    HttpConnectorError httpConnectorError = {message:"Unsupported action for LoadBalancer client."};
     return httpConnectorError;
 }
 
 @Description { value:"The getResponse implementation of the LoadBalancer Connector."}
-@Param { value:"handle: The Handle which relates to previous async invocation" }
+@Param { value:"httpFuture: The Future which relates to previous async invocation" }
 @Return { value:"The HTTP response message" }
 @Return { value:"The Error occured during HTTP client invocation" }
-public function LoadBalancer::getResponse (HttpHandle handle) returns (Response | HttpConnectorError) {
-    //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-    HttpConnectorError httpConnectorError = {statusCode:501};
-    httpConnectorError.message = "Unsupported action for LoadBalancer Connector";
+public function LoadBalancer::getResponse (HttpFuture httpFuture) returns (Response | HttpConnectorError) {
+    HttpConnectorError httpConnectorError = {message:"Unsupported action for LoadBalancer client."};
     return httpConnectorError;
 }
 
 @Description { value:"The hasPromise implementation of the LoadBalancer Connector."}
-@Param { value:"handle: The Handle which relates to previous async invocation" }
+@Param { value:"httpFuture: The Future which relates to previous async invocation" }
 @Return { value:"Whether push promise exists" }
-public function LoadBalancer::hasPromise (HttpHandle handle) returns (boolean) {
+public function LoadBalancer::hasPromise (HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
 @Description { value:"The getNextPromise implementation of the LoadBalancer Connector."}
-@Param { value:"handle: The Handle which relates to previous async invocation" }
+@Param { value:"httpFuture: The Future which relates to previous async invocation" }
 @Return { value:"The HTTP Push Promise message" }
 @Return { value:"The Error occured during HTTP client invocation" }
-public function LoadBalancer::getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError) {
-    //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-    HttpConnectorError httpConnectorError = {statusCode:501};
-    httpConnectorError.message = "Unsupported action for LoadBalancer Connector";
+public function LoadBalancer::getNextPromise (HttpFuture httpFuture) returns (PushPromise | HttpConnectorError) {
+    HttpConnectorError httpConnectorError = {message:"Unsupported action for LoadBalancer client."};
     return httpConnectorError;
 }
 
@@ -282,9 +270,7 @@ public function LoadBalancer::getNextPromise (HttpHandle handle) returns (PushPr
 @Return { value:"HTTP The Push Response message" }
 @Return { value:"The Error occured during HTTP client invocation" }
 public function LoadBalancer::getPromisedResponse (PushPromise promise) returns (Response | HttpConnectorError) {
-    //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-    HttpConnectorError httpConnectorError = {statusCode:501};
-    httpConnectorError.message = "Unsupported action for LoadBalancer Connector";
+    HttpConnectorError httpConnectorError = {message:"Unsupported action for LoadBalancer client."};
     return httpConnectorError;
 }
 
@@ -303,10 +289,7 @@ function performLoadBalanceExecuteAction (LoadBalancer lb, string path, Request 
     if (connectorAction != HTTP_NONE) {
         return performLoadBalanceAction(lb, path, outRequest, connectorAction);
     } else {
-        //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-        HttpConnectorError httpConnectorError = {statusCode:501};
-        httpConnectorError.statusCode = 501;
-        httpConnectorError.message = "Unsupported connector action received.";
+        HttpConnectorError httpConnectorError = {message:"Unsupported connector action received.", statusCode:501};
         return httpConnectorError;
     }
 }
@@ -366,7 +349,7 @@ public function roundRobin(LoadBalancer lb, HttpClient[] loadBalanceConfigArray)
 function populateGenericLoadBalanceConnectorError (LoadBalanceConnectorError loadBalanceConnectorError)
                                                     returns (HttpConnectorError) {
     int nErrs = lengthof loadBalanceConnectorError.httpConnectorError;
-    loadBalanceConnectorError.statusCode = 500;
+    loadBalanceConnectorError.statusCode = INTERNAL_SERVER_ERROR_500;
     loadBalanceConnectorError.message = "All the load balance endpoints failed. Last error was: "
                                         + loadBalanceConnectorError.httpConnectorError[nErrs - 1].message;
     HttpConnectorError httpConnectorError = loadBalanceConnectorError;

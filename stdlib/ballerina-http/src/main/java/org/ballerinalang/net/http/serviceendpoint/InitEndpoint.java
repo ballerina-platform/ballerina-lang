@@ -46,9 +46,11 @@ import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_PORT;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
@@ -132,9 +134,10 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
     private ListenerConfiguration getListenerConfig(Struct endpointConfig) {
         String host = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_HOST);
         long port = endpointConfig.getIntField(HttpConstants.ENDPOINT_CONFIG_PORT);
-        String keepAlive = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE);
-        String transferEncoding = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_TRANSFER_ENCODING);
-        String chunking = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_CHUNKING);
+        String keepAlive = endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE).getStringValue();
+        String transferEncoding =
+                endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_TRANSFER_ENCODING).getStringValue();
+        String chunking = endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_CHUNKING).getStringValue();
         Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
         Struct requestLimits = endpointConfig.getStructField(HttpConstants.ENDPOINT_REQUEST_LIMITS);
@@ -270,21 +273,27 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         List<Parameter> serverParamList = new ArrayList<>();
         Parameter serverParameters;
         if (protocols != null) {
-            String sslEnabledProtocols = protocols.getStringField(HttpConstants.ENABLED_PROTOCOLS);
-            String sslProtocol = protocols.getStringField(HttpConstants.PROTOCOL_VERSION);
-            if (StringUtils.isNotBlank(sslEnabledProtocols)) {
+            List<Value> sslEnabledProtocolsValueList = Arrays
+                    .asList(protocols.getArrayField(HttpConstants.ENABLED_PROTOCOLS));
+            if (sslEnabledProtocolsValueList.size() > 0) {
+                String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
+                        .collect(Collectors.joining(",", "", ""));
                 serverParameters = new Parameter(HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
                         sslEnabledProtocols);
                 serverParamList.add(serverParameters);
             }
+
+            String sslProtocol = protocols.getStringField(HttpConstants.PROTOCOL_VERSION);
             if (StringUtils.isNotBlank(sslProtocol)) {
                 listenerConfiguration.setSSLProtocol(sslProtocol);
             }
         }
 
-        String cipher = sslConfig.getStringField(HttpConstants.SSL_CONFIG_CIPHERS);
-        if (StringUtils.isNotBlank(cipher)) {
-            serverParameters = new Parameter(HttpConstants.ANN_CONFIG_ATTR_CIPHERS, cipher);
+        List<Value> ciphersValueList = Arrays.asList(sslConfig.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
+        if (ciphersValueList.size() > 0) {
+            String ciphers = ciphersValueList.stream().map(Value::getStringValue)
+                    .collect(Collectors.joining(",", "", ""));
+            serverParameters = new Parameter(HttpConstants.CIPHERS, ciphers);
             serverParamList.add(serverParameters);
         }
         if (validateCert != null) {

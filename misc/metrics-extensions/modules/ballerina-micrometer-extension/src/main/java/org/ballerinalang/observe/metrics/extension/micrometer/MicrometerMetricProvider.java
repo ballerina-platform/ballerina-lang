@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.observe.metrics.extension.micrometer;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.util.metrics.CallbackGauge;
 import org.ballerinalang.util.metrics.Counter;
@@ -34,28 +35,43 @@ import java.util.function.ToDoubleFunction;
 @JavaSPIService("org.ballerinalang.util.metrics.spi.MetricProvider")
 public class MicrometerMetricProvider implements MetricProvider {
 
+    private final MeterRegistry meterRegistry;
+
+    public MicrometerMetricProvider() {
+        this(MicrometerMeterRegistryHolder.getInstance());
+    }
+
+    public MicrometerMetricProvider(MeterRegistry meterRegistry) {
+        this.meterRegistry = meterRegistry;
+    }
+
+    @Override
+    public String getName() {
+        return "Micrometer";
+    }
+
     @Override
     public Counter newCounter(MetricId metricId) {
-        return new MicrometerCounter(metricId);
+        return new MicrometerCounter(meterRegistry, metricId);
     }
 
     @Override
     public Gauge newGauge(MetricId metricId) {
-        return new MicrometerGauge(metricId);
+        return new MicrometerGauge(meterRegistry, metricId);
     }
 
     @Override
     public <T> CallbackGauge newCallbackGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction) {
-        return new MicrometerCallbackGauge(metricId, obj, toDoubleFunction);
+        return new MicrometerCallbackGauge(meterRegistry, metricId, obj, toDoubleFunction);
     }
 
     @Override
     public Summary newSummary(MetricId metricId) {
-        return new MicrometerSummary(metricId);
+        return new MicrometerSummary(meterRegistry, metricId);
     }
 
     @Override
     public Timer newTimer(MetricId metricId) {
-        return new MicrometerTimer(metricId);
+        return new MicrometerTimer(meterRegistry, metricId);
     }
 }

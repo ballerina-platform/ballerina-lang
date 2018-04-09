@@ -1,13 +1,13 @@
 import ballerina/mime;
 
 function testAddHeader (string headerName, string headerValue, string headerNameToBeUsedForRetrieval) returns string {
-    mime:Entity entity = {};
+    mime:Entity entity = new;
     entity.addHeader(headerName, headerValue);
     return entity.getHeader(headerNameToBeUsedForRetrieval);
 }
 
 function testAddingMultipleHeaders () returns (string, string , string ) {
-    mime:Entity entity = {};
+    mime:Entity entity = new;
     entity.addHeader("header1", "value1");
     entity.addHeader("header2", "value2");
     entity.addHeader("header3", "value3");
@@ -15,7 +15,7 @@ function testAddingMultipleHeaders () returns (string, string , string ) {
 }
 
 function testAddingMultipleValuesToSameHeader () returns (string[], string ) {
-    mime:Entity entity = {};
+    mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
     entity.addHeader("header1", "value3");
@@ -25,13 +25,13 @@ function testAddingMultipleValuesToSameHeader () returns (string[], string ) {
 }
 
 function testSetHeader () returns (string[], string ) {
-    mime:Entity entity = {};
+    mime:Entity entity = new;
     entity.setHeader("HeADEr2", "totally different value");
     return (entity.getHeaders("header1"), entity.getHeader("header2"));
 }
 
 function testSetHeaderAfterAddHeader () returns (string[], string ) {
-    mime:Entity entity = {};
+    mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
     entity.addHeader("header1", "value3");
@@ -43,7 +43,7 @@ function testSetHeaderAfterAddHeader () returns (string[], string ) {
 
 
 function testAddHeaderAfterSetHeader () returns (string[], string ) {
-    mime:Entity entity = {};
+    mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
     entity.addHeader("header1", "value3");
@@ -54,7 +54,7 @@ function testAddHeaderAfterSetHeader () returns (string[], string ) {
 }
 
 function testRemoveHeader () returns (string[], string) {
-    mime:Entity entity = {};
+    mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
     entity.addHeader("header1", "value3");
@@ -67,13 +67,13 @@ function testRemoveHeader () returns (string[], string) {
 }
 
 function testNonExistenceHeader () returns string {
-    mime:Entity entity = {};
+    mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     return entity.getHeader("header");
 }
 
 function testGetCopyOfAllHeaders () returns (map) {
-    mime:Entity entity = {};
+    mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
     entity.addHeader("header1", "value3");
@@ -85,7 +85,7 @@ function testGetCopyOfAllHeaders () returns (map) {
 }
 
 function testManipulatingReturnHeaders () returns (map) {
-    mime:Entity entity = {};
+    mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
     entity.addHeader("header1", "value3");
@@ -100,13 +100,13 @@ function testManipulatingReturnHeaders () returns (map) {
 }
 
 function testHasHeader() returns boolean{
-    mime:Entity entity = {};
+    mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     return entity.hasHeader("header1");
 }
 
 function testHasHeaderForNonExistenceHeader() returns boolean{
-    mime:Entity entity = {};
+    mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     return entity.hasHeader("header2");
 }

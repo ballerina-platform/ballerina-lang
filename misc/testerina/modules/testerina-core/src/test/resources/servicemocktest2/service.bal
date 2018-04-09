@@ -10,10 +10,9 @@ endpoint http:ServiceEndpoint portalEP {
 @http:ServiceConfig {
       basePath: "/portal"
 }
-service<http:Service> PortalService bind portalEP {
+service PortalService bind portalEP {
 
     @http:ResourceConfig {
-        methods:["GET"],
         path:"events"
     }
     getEvents (endpoint client, http:Request req) {

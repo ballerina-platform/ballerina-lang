@@ -11,5 +11,4 @@
     border-radius    : @noBorderRadius;
     font-weight      : @fontWeight;
     display          : inline-block;
-    border-left      : 1px solid @orange;
 }

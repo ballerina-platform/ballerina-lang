@@ -2,11 +2,11 @@ package ballerina.http;
 
 public type WebSocketClient object {
     public {
-        map attributes;
         string id;
         string negotiatedSubProtocol;
         boolean isSecure;
         boolean isOpen;
+        map attributes;
     }
 
     private {

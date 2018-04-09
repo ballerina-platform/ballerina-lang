@@ -1400,7 +1400,8 @@ public class BLangPackageBuilder {
             var.flagSet.add(Flag.PUBLIC);
         }
         var.docTag = DocTag.VARIABLE;
-
+        attachDocumentations(var);
+        attachDeprecatedNode(var);
         this.compUnit.addTopLevelNode(var);
     }
 
@@ -1504,6 +1505,8 @@ public class BLangPackageBuilder {
 
             typeDefinition.pos = pos;
             typeDefinition.addWS(ws);
+            attachDocumentations(typeDefinition);
+            attachDeprecatedNode(typeDefinition);
             this.compUnit.addTopLevelNode(typeDefinition);
         }
     }
@@ -3050,51 +3053,46 @@ public class BLangPackageBuilder {
     public void endPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isFollowedBy,
             boolean enclosedInParenthesis, boolean andWithNotAvailable, boolean forWithNotAvailable,
             boolean onlyAndAvailable, boolean onlyOrAvailable) {
+        if (!this.patternStreamingInputStack.empty()) {
+            PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.pop();
 
-        try {
-            if (!this.patternStreamingInputStack.empty()) {
-                PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.pop();
+            ((BLangPatternStreamingInput) patternStreamingInputNode).pos = pos;
+            patternStreamingInputNode.addWS(ws);
 
-                ((BLangPatternStreamingInput) patternStreamingInputNode).pos = pos;
-                patternStreamingInputNode.addWS(ws);
-
-                if (isFollowedBy) {
-                    processFollowedByPattern(patternStreamingInputNode);
-                }
-
-                if (enclosedInParenthesis) {
-                    processEnclosedPattern(patternStreamingInputNode);
-                }
-
-                if (andWithNotAvailable) {
-                    processNegationPattern(patternStreamingInputNode);
-                }
-
-                if (onlyAndAvailable) {
-                    processPatternWithAndCondition(patternStreamingInputNode);
-                }
-
-                if (onlyOrAvailable) {
-                    processPatternWithOrCondition(patternStreamingInputNode);
-                }
-
-                if (forWithNotAvailable) {
-                    processNegationPatternWithTimeDuration(patternStreamingInputNode);
-                }
-
-                if (!(isFollowedBy || enclosedInParenthesis || forWithNotAvailable ||
-                      onlyAndAvailable || onlyOrAvailable || andWithNotAvailable)) {
-                    patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
-                    this.recentStreamingPatternInputNode = patternStreamingInputNode;
-                }
+            if (isFollowedBy) {
+                processFollowedByPattern(patternStreamingInputNode);
             }
 
-            if (this.patternStreamingInputStack.empty()) {
-                this.patternStreamingInputStack.push(this.recentStreamingPatternInputNode);
-                this.recentStreamingPatternInputNode = null;
+            if (enclosedInParenthesis) {
+                processEnclosedPattern(patternStreamingInputNode);
             }
-        } catch (Throwable e) {
-            throw new RuntimeException(e.getMessage(), e);
+
+            if (andWithNotAvailable) {
+                processNegationPattern(patternStreamingInputNode);
+            }
+
+            if (onlyAndAvailable) {
+                processPatternWithAndCondition(patternStreamingInputNode);
+            }
+
+            if (onlyOrAvailable) {
+                processPatternWithOrCondition(patternStreamingInputNode);
+            }
+
+            if (forWithNotAvailable) {
+                processNegationPatternWithTimeDuration(patternStreamingInputNode);
+            }
+
+            if (!(isFollowedBy || enclosedInParenthesis || forWithNotAvailable ||
+                  onlyAndAvailable || onlyOrAvailable || andWithNotAvailable)) {
+                patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
+                this.recentStreamingPatternInputNode = patternStreamingInputNode;
+            }
+        }
+
+        if (this.patternStreamingInputStack.empty()) {
+            this.patternStreamingInputStack.push(this.recentStreamingPatternInputNode);
+            this.recentStreamingPatternInputNode = null;
         }
     }
 

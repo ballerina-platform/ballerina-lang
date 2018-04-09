@@ -8,6 +8,11 @@ function testCurrentTime () returns (int, string, int){
     return (timeValue, zoneId, zoneoffset);
 }
 
+function testNanoTime() returns (int) {
+    int nanoTime = time:nanoTime();
+    return nanoTime;
+}
+
 function testCreateTimeWithZoneID () returns (int, string, int) {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
     time:Time time = new (1498488382000, zoneValue);

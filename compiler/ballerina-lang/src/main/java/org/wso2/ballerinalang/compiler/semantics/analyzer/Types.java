@@ -1151,7 +1151,7 @@ public class Types {
             return true;
         }
 
-        if (type.tag == TypeTags.STRUCT || type.tag == TypeTags.INVOKABLE) {
+        if (type.tag == TypeTags.INVOKABLE) {
             return false;
         }
 

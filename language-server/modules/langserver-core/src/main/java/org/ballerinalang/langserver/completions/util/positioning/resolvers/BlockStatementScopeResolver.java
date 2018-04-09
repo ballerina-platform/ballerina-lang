@@ -48,7 +48,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
      * @return true|false
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor,
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
                                       LSServiceOperationContext completionContext) {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
@@ -72,6 +72,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, null);
             treeVisitor.setTerminateVisitor(true);
+            treeVisitor.setNextNode(node);
             return true;
         }
 

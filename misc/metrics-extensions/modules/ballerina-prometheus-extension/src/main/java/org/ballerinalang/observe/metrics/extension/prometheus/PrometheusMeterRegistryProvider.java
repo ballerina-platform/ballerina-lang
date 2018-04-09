@@ -40,23 +40,22 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG
 @JavaSPIService("org.ballerinalang.observe.metrics.extension.micrometer.spi.MeterRegistryProvider")
 public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
 
-    private static final String PROMETHEUS_CONFIG_TABLE = CONFIG_TABLE_METRICS + ".prometheus";
-    private static final String PROMETHEUS_ENABLED = PROMETHEUS_CONFIG_TABLE + ".enabled";
-    private static final String PROMETHEUS_PORT = PROMETHEUS_CONFIG_TABLE + ".port";
+    private static final String METRICS_PORT = CONFIG_TABLE_METRICS + ".port";
     private static final int DEFAULT_PORT = 9797;
 
     private static final PrintStream console = System.out;
     private static final PrintStream consoleError = System.err;
 
     @Override
+    public String getName() {
+        return "Prometheus";
+    }
+
+    @Override
     public MeterRegistry get() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        if (!Boolean.valueOf(configRegistry.getConfigOrDefault(PROMETHEUS_ENABLED, String.valueOf(Boolean.FALSE)))) {
-            // Do not return if Prometheus is not enabled
-            return null;
-        }
         PrometheusMeterRegistry registry = new PrometheusMeterRegistry(new BallerinaPrometheusConfig());
-        String portConfigValue = configRegistry.getConfigOrDefault(PROMETHEUS_PORT, String.valueOf(DEFAULT_PORT));
+        String portConfigValue = configRegistry.getConfigOrDefault(METRICS_PORT, String.valueOf(DEFAULT_PORT));
         int port;
         try {
             port = Integer.parseInt(portConfigValue);
@@ -87,7 +86,7 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
 
         @Override
         public String prefix() {
-            return PROMETHEUS_CONFIG_TABLE;
+            return CONFIG_TABLE_METRICS;
         }
 
         @Override

@@ -8,3 +8,15 @@ function testVarDeclarationWithAllDeclaredSymbols () returns (int, string) {
 function unionReturnTest() returns (int, string) {
     return (5, "hello");
 }
+
+function testVarDeclarationWithAtLeaseOneNonDeclaredSymbol () returns (int, error) {
+    int a;
+    var (a, err) = returnTupleForVarAssignment();
+    return (a, err);
+}
+
+function returnTupleForVarAssignment() returns (int, error) {
+    int a = 10;
+    error er = {};
+    return (a, er);
+}

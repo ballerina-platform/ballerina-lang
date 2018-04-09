@@ -13813,8 +13813,8 @@ public class BallerinaParser extends Parser {
 		public TerminalNode NOT() { return getToken(BallerinaParser.NOT, 0); }
 		public TerminalNode AND() { return getToken(BallerinaParser.AND, 0); }
 		public TerminalNode FOR() { return getToken(BallerinaParser.FOR, 0); }
-		public IntegerLiteralContext integerLiteral() {
-			return getRuleContext(IntegerLiteralContext.class,0);
+		public SimpleLiteralContext simpleLiteral() {
+			return getRuleContext(SimpleLiteralContext.class,0);
 		}
 		public TerminalNode OR() { return getToken(BallerinaParser.OR, 0); }
 		public PatternStreamingInputContext(ParserRuleContext parent, int invokingState) {
@@ -13885,7 +13885,7 @@ public class BallerinaParser extends Parser {
 					setState(2178);
 					match(FOR);
 					setState(2179);
-					integerLiteral();
+					simpleLiteral();
 					}
 					break;
 				default:
@@ -16220,7 +16220,7 @@ public class BallerinaParser extends Parser {
 		"\u087b\u088e\3\2\2\2\u087c\u087d\7z\2\2\u087d\u087e\5\u0158\u00ad\2\u087e"+
 		"\u087f\7{\2\2\u087f\u088e\3\2\2\2\u0880\u0881\7\u0086\2\2\u0881\u0886"+
 		"\5\u015a\u00ae\2\u0882\u0883\7\u008d\2\2\u0883\u0887\5\u015a\u00ae\2\u0884"+
-		"\u0885\7&\2\2\u0885\u0887\5\u0104\u0083\2\u0886\u0882\3\2\2\2\u0886\u0884"+
+		"\u0885\7&\2\2\u0885\u0887\5\u0102\u0082\2\u0886\u0882\3\2\2\2\u0886\u0884"+
 		"\3\2\2\2\u0887\u088e\3\2\2\2\u0888\u0889\5\u015a\u00ae\2\u0889\u088a\t"+
 		"\23\2\2\u088a\u088b\5\u015a\u00ae\2\u088b\u088e\3\2\2\2\u088c\u088e\5"+
 		"\u015a\u00ae\2\u088d\u0877\3\2\2\2\u088d\u087c\3\2\2\2\u088d\u0880\3\2"+

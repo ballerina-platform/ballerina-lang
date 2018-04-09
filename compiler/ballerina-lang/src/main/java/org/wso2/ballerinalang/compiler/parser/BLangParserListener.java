@@ -504,11 +504,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String name = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
         if (ctx.parent instanceof BallerinaParser.PublicObjectFieldsContext) {
-            this.pkgBuilder
-                    .addFieldToObject(currentPos, ws, name, exprAvailable, ctx.annotationAttachment().size(), false);
+            this.pkgBuilder.addFieldToObject(currentPos, ws, name,
+                    exprAvailable, ctx.annotationAttachment().size(), false);
         } else if (ctx.parent instanceof BallerinaParser.PrivateObjectFieldsContext) {
-            this.pkgBuilder
-                    .addFieldToObject(currentPos, ws, name, exprAvailable, ctx.annotationAttachment().size(), true);
+            this.pkgBuilder.addFieldToObject(currentPos, ws, name,
+                    exprAvailable, ctx.annotationAttachment().size(), true);
         } else if (ctx.parent instanceof BallerinaParser.FieldDefinitionListContext) {
             this.pkgBuilder.addFieldToRecord(currentPos, ws, name, exprAvailable, ctx.annotationAttachment().size());
         }
@@ -2543,7 +2543,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean followedByAvailable = ctx.FOLLOWED() != null && ctx.BY() != null;
         boolean enclosedInParenthesis = ctx.LEFT_PARENTHESIS() != null && ctx.RIGHT_PARENTHESIS() != null;
         boolean andWithNotAvailable = ctx.NOT() != null && ctx.AND() != null;
-        boolean forWithNotAvailable = ctx.integerLiteral() != null;
+        boolean forWithNotAvailable = ctx.simpleLiteral() != null;
         boolean onlyAndAvailable = ctx.AND() != null && ctx.NOT() == null && ctx.FOR() == null;
         boolean onlyOrAvailable = ctx.OR() != null && ctx.NOT() == null && ctx.FOR() == null;
         this.pkgBuilder.endPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx), followedByAvailable,

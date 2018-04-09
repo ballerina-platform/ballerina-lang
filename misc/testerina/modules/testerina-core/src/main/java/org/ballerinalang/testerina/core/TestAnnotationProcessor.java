@@ -345,14 +345,27 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                         .getTestName())).findFirst().get());
             }
 
-            if (test.getBeforeTestFunction() != null && functionNames.contains(test.getBeforeTestFunction())) {
-                test.setBeforeTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
+            if (test.getBeforeTestFunction() != null) {
+                if (functionNames.contains(test.getBeforeTestFunction())) {
+                    test.setBeforeTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
                         .getBeforeTestFunction())).findFirst().get());
+                } else {
+                    String msg = String
+                        .format("Cannot find the specified before function : [%s] for testerina function" +
+                                " : [%s]", test.getBeforeTestFunction(), test.getTestName());
+                    throw new BallerinaException(msg);
+                }
             }
-
-            if (test.getAfterTestFunction() != null && functionNames.contains(test.getAfterTestFunction())) {
-                test.setAfterTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
+            if (test.getAfterTestFunction() != null) {
+                if (functionNames.contains(test.getAfterTestFunction())) {
+                    test.setAfterTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
                         .getAfterTestFunction())).findFirst().get());
+                } else {
+                    String msg = String
+                        .format("Cannot find the specified after function : [%s] for testerina function" +
+                                " : [%s]", test.getBeforeTestFunction(), test.getTestName());
+                    throw new BallerinaException(msg);
+                }
             }
 
             if (test.getDataProvider() != null && functionNames.contains(test.getDataProvider())) {
