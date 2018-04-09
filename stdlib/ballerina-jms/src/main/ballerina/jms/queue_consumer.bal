@@ -37,7 +37,10 @@ public type QueueConsumer object {
     }
 
     public function stop () {
+        closeConsumer(connector);
     }
+
+    native function closeConsumer(QueueConsumerConnector connector);
 };
 
 public type QueueConsumerEndpointConfiguration {
@@ -47,4 +50,7 @@ public type QueueConsumerEndpointConfiguration {
 };
 
 public type QueueConsumerConnector object {
+    public native function acknowledge (Message message);
+
+    public native function receive (int timeoutInMilliSeconds = 0) returns (Message | ());
 };

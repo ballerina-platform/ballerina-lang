@@ -32,9 +32,9 @@ import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
-import javax.jms.Queue;
 import javax.jms.Session;
 
 /**
@@ -67,7 +67,7 @@ public class CreateConsumer implements NativeCallableUnit {
         String queueName = queueConsumerConfigBRecord.getStringField(Constants.QUEUE_NAME);
 
         try {
-            Queue queue = session.createQueue(queueName);
+            Destination queue = session.createQueue(queueName);
             MessageConsumer consumer = session.createConsumer(queue);
             Struct consumerConnectorBObject = queueConsumerBObject.getStructField(Constants.CONSUMER_CONNECTOR);
             consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);

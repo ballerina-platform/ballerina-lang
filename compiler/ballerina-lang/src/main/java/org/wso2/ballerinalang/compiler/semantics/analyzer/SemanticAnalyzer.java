@@ -1491,45 +1491,31 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         validateVariableDefinition(rhsExpr);
-
-        boolean newVarDeclaration = false;
-        BType expType;
-
-        // Check variable symbol if exists.
-        BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRefExpr;
-        simpleVarRef.lhsVar = true;
-        Name varName = names.fromIdNode(simpleVarRef.variableName);
-        if (varName == Names.IGNORE) {
-            expType = symTable.noType;
-        } else {
-            BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
-            if (symbol == symTable.notFoundSymbol) {
-                newVarDeclaration = true;
-                expType = symTable.noType;
-            } else {
-                expType = symbol.type;
-            }
-        }
-
         BType rhsType = typeChecker.checkExpr(rhsExpr, this.env, expType);
         if (safeAssignment) {
             rhsType = handleSafeAssignmentWithVarDeclaration(varRefExpr.pos, rhsType);
         }
 
-        if (newVarDeclaration) {
-            // Define the new variable
-            BVarSymbol varSymbol = this.symbolEnter.defineVarSymbol(simpleVarRef.pos,
-                    Collections.emptySet(), rhsType, varName, env);
-            simpleVarRef.symbol = varSymbol;
-            simpleVarRef.type = varSymbol.type;
-        } else {
-            dlog.error(pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
+        // Check variable symbol if exists.
+        BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRefExpr;
+        simpleVarRef.lhsVar = true;
+        Name varName = names.fromIdNode(simpleVarRef.variableName);
+        if (varName != Names.IGNORE) {
+            BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
+            if (symbol != symTable.notFoundSymbol) {
+                dlog.error(simpleVarRef.pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
+                return;
+            }
         }
+        // Define the new variable
+        BVarSymbol varSymbol = this.symbolEnter.defineVarSymbol(simpleVarRef.pos,
+                Collections.emptySet(), rhsType, varName, env);
+        simpleVarRef.symbol = varSymbol;
+        simpleVarRef.type = varSymbol.type;
     }
 
     private void handleAssignNodeWithVarDeStructure(BLangTupleDestructure tupleDeNode) {
         int ignoredCount = 0;
-        int createdSymbolCount = 0;
 
         List<Name> newVariables = new ArrayList<Name>();
         List<BType> expTypes = new ArrayList<>();
@@ -1555,15 +1541,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
             if (symbol == symTable.notFoundSymbol) {
-                createdSymbolCount++;
                 newVariables.add(varName);
                 expTypes.add(symTable.noType);
             } else {
+                dlog.error(varRef.pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
                 expTypes.add(symbol.type);
             }
         }
 
-        if (ignoredCount == tupleDeNode.varRefs.size() || createdSymbolCount == 0) {
+        if (ignoredCount == tupleDeNode.varRefs.size()) {
             dlog.error(tupleDeNode.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
         }
 

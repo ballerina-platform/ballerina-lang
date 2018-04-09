@@ -727,7 +727,7 @@ class SizingUtil {
         bBox.h = workerBody.viewState.bBox.h
             + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
 
-        if (!TreeUtil.isForkJoin(node.parent)) {
+        if (node.parent && !TreeUtil.isForkJoin(node.parent)) {
             bBox.h += (this.config.statement.height * 2); // Top gap for client invoke line
         }
 
@@ -1388,6 +1388,9 @@ class SizingUtil {
         this.sizeStatement(node.getSource(true), viewState);
         this.adjustToLambdaSize(node, viewState);
         this.sizeClientResponderStatement(node);
+        if (viewState.displayText === '()') {
+            viewState.displayText = '';
+        }
     }
 
 
