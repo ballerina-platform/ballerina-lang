@@ -13,7 +13,7 @@ public type Message object {
     documentation {Gets a JMS transport string property from the message
         P{{key}} The string property name
         returns The string property value}
-    public native function getStringProperty (string key) returns (string);
+    public native function getStringProperty (string key) returns (string | ());
 
     documentation {Sets a JMS transport integer property from the message
         P{{key}} The integer property name

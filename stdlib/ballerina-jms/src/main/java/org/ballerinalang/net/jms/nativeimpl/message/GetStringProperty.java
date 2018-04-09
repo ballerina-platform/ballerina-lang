@@ -32,6 +32,7 @@ import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
+import java.util.Objects;
 import javax.jms.JMSException;
 import javax.jms.Message;
 
@@ -48,7 +49,7 @@ import javax.jms.Message;
         args = {
                 @Argument(name = "key", type = TypeKind.STRING),
         },
-        returnType = { @ReturnType(type = TypeKind.STRING) },
+        returnType = { @ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.NIL) },
         isPublic = true
 )
 public class GetStringProperty extends AbstractBlockinAction {
@@ -64,8 +65,12 @@ public class GetStringProperty extends AbstractBlockinAction {
         String key = context.getStringArgument(0);
 
         try {
-            String booleanProperty = message.getStringProperty(key);
-            context.setReturnValues(new BString(booleanProperty));
+            String stringProperty = message.getStringProperty(key);
+            if (Objects.isNull(stringProperty)) {
+                context.setReturnValues();
+            } else {
+                context.setReturnValues(new BString(stringProperty));
+            }
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error when setting string property", context, e);
         }
