@@ -69,6 +69,15 @@ public type Message object {
         returns int: The header value}
     public native function getExpiration () returns int|Error;
 
+    documentation { Sets Type JMS transport header to the message
+        P{{messageType}} The message type header value
+        returns Error if any JMS provider level internal error occur}
+    public native function setType (string messageType) returns Error|();
+
+    documentation { Get JMS transport header Type from the message
+        returns The message type header value }
+    public native function getType () returns string|Error;
+
     documentation {Clear JMS properties of the message
         returns Error if any JMS provider level internal error occur}
     public native function clearProperties();
