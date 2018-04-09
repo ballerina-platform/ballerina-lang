@@ -1,4 +1,5 @@
 import ballerina/sql;
+import ballerina/io;
 
 function testSelectData () returns (string) {
     endpoint sql:Client testDB {
@@ -10,26 +11,25 @@ function testSelectData () returns (string) {
         password: "",
         options: {maximumPoolSize:1}
     };
-    string firstName;
+    string returnData;
     try {
-        var x = testDB -> select("SELECT Name from Customers where registrationID = 1", null, null);
+        var x = testDB -> select("SELECT Name from Customers where registrationID = 1", (), ());
 
         match x {
             table dt => {
                 var j = check <json>dt;
-                firstName = j.toString();
+                returnData = io:sprintf("%j", [j]);
             }
             sql:SQLConnectorError err1 => {
-               firstName = err1.message;
+                returnData = err1.message;
             }
         }
 
     } finally {
         _ = testDB -> close();
     }
-    return firstName;
+    return returnData;
 }
-
 
 function testGeneratedKeyOnInsert () returns (string) {
     endpoint sql:Client testDB {
@@ -48,7 +48,7 @@ function testGeneratedKeyOnInsert () returns (string) {
         int insertCount;
         var x = testDB -> updateWithGeneratedKeys("insert into Customers (name,lastName,
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')",
-                                                                  null, null);
+                                (), ());
 
         match x {
             (int, string[] ) =>{
@@ -65,8 +65,6 @@ function testGeneratedKeyOnInsert () returns (string) {
     return id;
 }
 
-
-
 function testCallProcedure () returns (string) {
     endpoint sql:Client testDB {
         database: sql:DB_HSQLDB_FILE,
@@ -77,23 +75,22 @@ function testCallProcedure () returns (string) {
         password: "",
         options: {maximumPoolSize:1}
     };
-    string firstName;
+    string returnData;
     try {
-        var x = testDB -> call("{call InsertPersonDataInfo(100,'James')}", null, null);
+        var x = testDB -> call("{call InsertPersonDataInfo(100,'James')}", (), ());
         match x {
             table[] dt  =>{
                 var j = check <json>dt[0];
-                firstName = j.toString();
+                returnData = io:sprintf("%j", [j]);
             }
             sql:SQLConnectorError err1 =>{
-                firstName = err1.message;
+                returnData = err1.message;
             }
         }
-
     } finally {
         _ = testDB -> close();
     }
-    return firstName;
+    return returnData;
 }
 
 function testBatchUpdate () returns (string) {
@@ -154,26 +151,28 @@ function testInvalidArrayofQueryParameters () returns (string) {
         password: "",
         options: {maximumPoolSize:1}
     };
-    string value;
+
+    string returnData;
     try {
         xml x1 = xml `<book>The Lost World</book>`;
         xml x2 = xml `<book>The Lost World2</book>`;
         xml[] xmlDataArray = [x1, x2];
         sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:xmlDataArray};
         sql:Parameter[] parameters = [para0];
-        var x = testDB -> select("SELECT FirstName from Customers where registrationID in (?)", parameters, null);
+        var x = testDB -> select("SELECT FirstName from Customers where registrationID in (?)", parameters, ());
+
         match x {
             table dt  =>{
-                var j = check <json>dt;
-                value = j.toString();
+                var j =  check <json>dt;
+                returnData = io:sprintf("%j", [j]);
             }
             sql:SQLConnectorError err1 =>{
-                value = err1.message;
+                returnData = err1.message;
             }
         }
 
     } finally {
         _ = testDB -> close();
     }
-    return value;
+    return returnData;
 }

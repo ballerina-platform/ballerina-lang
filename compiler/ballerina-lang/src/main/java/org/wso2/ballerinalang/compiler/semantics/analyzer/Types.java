@@ -1135,7 +1135,7 @@ public class Types {
             return true;
         }
 
-        if (type.tag == TypeTags.STRUCT || type.tag == TypeTags.INVOKABLE || type.tag == TypeTags.FINITE) {
+        if (type.tag == TypeTags.INVOKABLE || type.tag == TypeTags.FINITE) {
             return false;
         }
 

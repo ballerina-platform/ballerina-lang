@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
@@ -22,12 +24,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Package context to keep the builtin and the current package.
@@ -90,13 +90,8 @@ public class LSPackageCache {
      * @param bLangPackage ballerina package to be added.
      */
     void addPackage(PackageID packageID, BLangPackage bLangPackage) {
-        if (bLangPackage != null && bLangPackage.getPackageDeclaration() == null) {
-            //TODO check whether getPackageDeclaration() is needed
-            this.packageCache.put(new PackageID(Names.DOT.value), bLangPackage);
-        } else {
-            if (bLangPackage != null) {
-                bLangPackage.packageID = packageID;
-            }
+        if (bLangPackage != null) {
+            bLangPackage.packageID = packageID;
             this.packageCache.put(packageID, bLangPackage);
         }
     }
@@ -125,9 +120,13 @@ public class LSPackageCache {
     }
 
     static class ExtendedPackageCache extends PackageCache {
+
+        private static final long MAX_CACHE_COUNT = 100L;
+
         private ExtendedPackageCache(CompilerContext context) {
             super(context);
-            this.packageMap = new ConcurrentHashMap<>();
+            Cache<String, BLangPackage> cache = CacheBuilder.newBuilder().maximumSize(MAX_CACHE_COUNT).build();
+            this.packageMap = cache.asMap();
         }
 
         public Map<String, BLangPackage> getMap() {

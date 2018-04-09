@@ -92,7 +92,7 @@ public type ClientEndpointConfiguration {
     string forwarded = "disable",
     FollowRedirects? followRedirects,
     Retry? retry,
-    Proxy? proxy,
+    Proxy? proxyConfig,
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
     string|FailoverConfig lbMode = ROUND_ROBIN,
@@ -118,19 +118,19 @@ public type Retry {
 @Field {value: "trustStore: TrustStore related options"}
 @Field {value: "keyStore: KeyStore related options"}
 @Field {value: "protocols: SSL/TLS protocol related options"}
-@Field {value: "validateCert: Certificate validation against CRL or OCSP related options"}
+@Field {value: "certValidation: Certificate validation against CRL or OCSP related options"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
-@Field {value:"hostNameVerification: Enable/disable host name verification"}
-@Field {value:"sessionCreation: Enable/disable new ssl session creation"}
+@Field {value:"verifyHostname: Enable/disable host name verification"}
+@Field {value:"shareSession: Enable/disable new ssl session creation"}
 @Field {value:"ocspStapling: Enable/disable ocsp stapling"}
 public type SecureSocket {
     TrustStore? trustStore,
     KeyStore? keyStore,
-    Protocols? protocols,
-    ValidateCert? validateCert,
-    string ciphers,
-    boolean hostNameVerification = true,
-    boolean sessionCreation = true,
+    Protocols? protocol,
+    ValidateCert? certValidation,
+    string[] ciphers,
+    boolean verifyHostname = true,
+    boolean shareSession = true,
     boolean ocspStapling,
 };
 
@@ -267,10 +267,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
                                                                 rollingWindow:cb.rollingWindow
                                                             };
             CircuitHealth circuitHealth = {startTime:circuitStartTime, totalBuckets: bucketArray};
-            CircuitBreakerClient cbClient = new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig,
-                cbHttpClient, circuitHealth);
-            HttpClient httpClient = check <HttpClient>cbClient;
-            return httpClient;
+            return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
         }
         () => {
             //remove following once we can ignore
@@ -285,9 +282,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
 
 function createLoadBalancerClient(ClientEndpointConfiguration config, string lbAlgorithm) returns HttpClient {
     HttpClient[] lbClients = createHttpClientArray(config);
-    LoadBalancer lb = new LoadBalancer(config.targets[0].url, config, lbClients, lbAlgorithm, 0);
-    HttpClient lbClient = check <HttpClient>lb;
-    return lbClient;
+    return new LoadBalancer(config.targets[0].url, config, lbClients, lbAlgorithm, 0);
 }
 
 public function createFailOverClient(ClientEndpointConfiguration config, FailoverConfig foConfig) returns HttpClient {
@@ -298,31 +293,25 @@ public function createFailOverClient(ClientEndpointConfiguration config, Failove
                                                             failoverCodesIndex : failoverCodes,
                                                             failoverInterval : foConfig.interval};
 
-        Failover failover = new Failover(config.targets[0].url, config, failoverInferredConfig);
-        HttpClient foClient = check <HttpClient>failover;
-        return foClient;
+        return new Failover(config.targets[0].url, config, failoverInferredConfig);
 }
 
-function createRetryClient (string uri, ClientEndpointConfiguration configuration) returns HttpClient {
+function createRetryClient (string url, ClientEndpointConfiguration configuration) returns HttpClient {
     var retryConfig = configuration.retry;
     match retryConfig {
         Retry retry => {
-            HttpClient retryHttpClient = new;
             if (configuration.cacheConfig.enabled) {
-                retryHttpClient = createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+                return new RetryClient(url, configuration, retry, createHttpCachingClient(url, configuration, configuration.cacheConfig));
             } else{
-                retryHttpClient = createHttpClient(uri, configuration);
+                return new RetryClient(url, configuration, retry, createHttpClient(url, configuration));
             }
-            RetryClient retryClient = new RetryClient(uri, configuration, retry, retryHttpClient);
-            HttpClient httpClient = check <HttpClient>retryClient;
-            return httpClient;
         }
         () => {
             //remove following once we can ignore
             if (configuration.cacheConfig.enabled) {
-                return createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+                return createHttpCachingClient(url, configuration, configuration.cacheConfig);
             } else {
-                return createHttpClient(uri, configuration);
+                return createHttpClient(url, configuration);
             }
         }
     }

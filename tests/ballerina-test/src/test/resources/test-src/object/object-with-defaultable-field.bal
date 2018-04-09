@@ -18,6 +18,6 @@ type Person object {
         age = age + count;
         month = val1;
     }
-}
+};
 
 

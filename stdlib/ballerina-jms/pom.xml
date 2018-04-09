@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha1-SNAPSHOT</version>
+        <version>0.970.0-alpha3-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -111,5 +111,7 @@
     <properties>
         <!-- Path to the generated natives ballerina files temp directory -->
         <generated.ballerina.source.directory>${project.build.directory}/../src/main/ballerina</generated.ballerina.source.directory>
+        <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
     </properties>
 </project>

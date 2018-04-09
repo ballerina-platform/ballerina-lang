@@ -14,9 +14,12 @@ endpoint grpc:Service ep {
     serverStreaming:true,
     generateClientConnector:false}
 service<grpc:Endpoint> Chat bind ep {
-    map consMap = new;
+    //TODO: remove temp initialization when map issue is fixed.
+    map<grpc:Service> consMap = {"_":new};
+
     onOpen (endpoint client) {
-        consMap[<string>client.getClient().getID()] = client;
+        var connID = client -> getID();
+        consMap[<string> connID] = client;
     }
 
     onMessage (endpoint client, ChatMessage chatMsg) {
@@ -25,9 +28,10 @@ service<grpc:Endpoint> Chat bind ep {
         io:println(msg);
         string[] conKeys = consMap.keys();
         int len = lengthof conKeys;
-        int i = 0;
+        //TODO: set i to zero when map issue is fixed.
+        int i = 1;
         while (i < len) {
-            con = check <grpc:Service>consMap[conKeys[i]];
+            con = <grpc:Service>consMap[conKeys[i]];
             grpc:ConnectorError err = con -> send(msg);
             if (err != ()) {
                 io:println("Error at onMessage : " + err.message);
@@ -44,14 +48,16 @@ service<grpc:Endpoint> Chat bind ep {
 
     onComplete (endpoint client) {
         endpoint grpc:Service con;
-        string msg = string `{{client.getClient().getID()}} left the chat`;
+        var connID = client -> getID();
+        string msg = string `{{connID}} left the chat`;
         io:println(msg);
-        var v = consMap.remove(<string>client.getClient().getID());
+        var v = consMap.remove(<string>connID);
         string[] conKeys = consMap.keys();
         int len = lengthof conKeys;
-        int i = 0;
+        //TODO: set i to zero when map issue is fixed.
+        int i = 1;
         while (i < len) {
-            con = check <grpc:Service>consMap[conKeys[i]];
+            con = <grpc:Service>consMap[conKeys[i]];
             grpc:ConnectorError err = con -> send(msg);
             if (err != ()) {
                 io:println("Error at onComplete send message : " + err.message);
@@ -64,4 +70,4 @@ service<grpc:Endpoint> Chat bind ep {
 type ChatMessage {
     string name;
     string message;
-}
+};

@@ -17,10 +17,9 @@
 package ballerina.transactions;
 import ballerina/io;
 
-type ProtocolName "completion" | "volatile" | "durable";
-@final ProtocolName PROTOCOL_COMPLETION = "completion";
-@final ProtocolName PROTOCOL_VOLATILE = "volatile";
-@final ProtocolName PROTOCOL_DURABLE = "durable";
+@final string PROTOCOL_COMPLETION = "completion";
+@final string PROTOCOL_VOLATILE = "volatile";
+@final string PROTOCOL_DURABLE = "durable";
 
 type TransactionState "active" | "prepared" | "committed" | "aborted";
 @final TransactionState TXN_STATE_ACTIVE = "active";
@@ -49,12 +48,12 @@ public type TransactionContext {
     @readonly int transactionBlockId;
     @readonly string coordinationType;
     @readonly string registerAtURL;
-}
+};
 
 type Participant {
     string participantId;
     Protocol[] participantProtocols;
-}
+};
 
 documentation {
     This represents the protocol associated with the coordination type.
@@ -65,19 +64,19 @@ documentation {
     F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
 }
 public type Protocol {
-    @readonly ProtocolName name;
+    @readonly string name;
     @readonly string url;
     @readonly int transactionBlockId;
     @readonly (function (string transactionId,
                            int transactionBlockId,
                            string protocolAction) returns boolean)? protocolFn;
-}
+};
 
 public type RegistrationRequest {
     string transactionId;
     string participantId;
     Protocol[] participantProtocols;
-}
+};
 
 public function regRequestToJson (RegistrationRequest req) returns json {
     json j = {};
@@ -85,7 +84,7 @@ public function regRequestToJson (RegistrationRequest req) returns json {
     j.participantId = req.participantId;
     json[] protocols = [];
     foreach proto in req.participantProtocols {
-        json j2 = {name:proto.name, url:proto.url};
+        json j2 = {name: proto.name, url:proto.url};
         protocols[lengthof protocols] = j2;
     }
     j.participantProtocols = protocols;
@@ -95,14 +94,14 @@ public function regRequestToJson (RegistrationRequest req) returns json {
 public type RegistrationResponse {
     string transactionId;
     Protocol[] coordinatorProtocols;
-}
+};
 
 public function regResponseToJson (RegistrationResponse res) returns json {
     json j = {};
     j.transactionId = res.transactionId;
     json[] protocols;
     foreach proto in res.coordinatorProtocols {
-        json j2 = {name:proto.name, url:proto.url};
+        json j2 = {name: proto.name, url:proto.url};
         protocols[lengthof protocols] = j2;
     }
     j.coordinatorProtocols = protocols;
@@ -110,15 +109,12 @@ public function regResponseToJson (RegistrationResponse res) returns json {
 }
 
 public function jsonToRegResponse (json j) returns RegistrationResponse {
-    //string transactionId =? <string>j.transactionId; //TODO: Fix
     string transactionId = <string>jsonToAny(j.transactionId);
     RegistrationResponse res = {transactionId:transactionId};
     Protocol[] protocols;
     foreach proto in j.coordinatorProtocols {
         string name = <string>jsonToAny(proto.name);
         string url = <string>jsonToAny(proto.url);
-        //string name =? <string>proto.name; //TODO: Fix
-        //string url =? <string>proto.url; //TODO: Fix
         Protocol p = {name:name, url:url};
         protocols[lengthof protocols] = p;
     }
@@ -132,28 +128,28 @@ function jsonToAny(json j) returns any {
         int i => return i;
         string s => return s;
         boolean b => return b;
-        null => return null;
+        () => return null;
         json j2 => return j2;
     }
 }
 
 public type RequestError {
     string errorMessage;
-}
+};
 
 public type PrepareRequest {
     string transactionId;
-}
+};
 
 public type PrepareResponse {
     string message;
-}
+};
 
 public type NotifyRequest {
     string transactionId;
     string message;
-}
+};
 
 public type NotifyResponse {
     string message;
-}
+};

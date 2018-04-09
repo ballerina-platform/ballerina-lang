@@ -72,6 +72,10 @@ public class DelimitedRecordWriteEvent implements Event {
             log.error("Error occurred while reading from record channel", e);
             context.setError(e);
             result = new NumericResult(context);
+        } catch (Throwable e) {
+            log.error("Unidentified error occurred while writing delimited records", e);
+            context.setError(e);
+            result = new NumericResult(context);
         }
         return result;
     }

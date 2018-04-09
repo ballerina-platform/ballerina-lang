@@ -265,7 +265,7 @@ public function Request::getFormParams () returns (map | PayloadError) {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity entity => {
 
-            map parameters = {};
+            map parameters;
             var entityText = entity.getText();
             match entityText {
                 mime:EntityError txtErr => return <PayloadError>txtErr; // TODO: Check if this is ok

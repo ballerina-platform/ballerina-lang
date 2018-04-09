@@ -1,11 +1,10 @@
 import ballerina/http;
-import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
-struct Data {
-    string name;
-}
+type Data {
+    string name,
+};
 
 endpoint http:NonListeningServiceEndpoint sessionEP {
     port:9090
@@ -24,7 +23,7 @@ service<http:Service> sample bind sessionEP {
         if (session != null) {
             result = "session created";
         }
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(result);
         _ = conn -> respond(res);
     }
@@ -42,7 +41,7 @@ service<http:Service> sample bind sessionEP {
         } else {
             result = "no session id available";
         }
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(result);
         _ = conn -> respond(res);
     }
@@ -60,7 +59,7 @@ service<http:Service> sample bind sessionEP {
         } else {
             result = "session is not created";
         }
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(result);
         _ = conn -> respond(res);
     }
@@ -79,7 +78,7 @@ service<http:Service> sample bind sessionEP {
         } else {
             result = "attribute not available";
         }
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(result);
         _ = conn -> respond(res);
     }
@@ -90,7 +89,7 @@ service<http:Service> sample bind sessionEP {
     }
     echo5 (endpoint conn, http:Request req) {
 
-        http:Response res = {};
+        http:Response res = new;
         string result = "testValue";
         http:Session session = req.getSession();
         if (session != null) {
@@ -116,7 +115,7 @@ service<http:Service> sample bind sessionEP {
         if (attribute != null) {
             myName = <string>attribute;
         }
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(myName);
         _ = conn -> respond(res);
     }
@@ -126,7 +125,7 @@ service<http:Service> sample bind sessionEP {
         path:"/hello"
     }
     hello (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         string result;
         match req.getStringPayload() {
             http:PayloadError err => res.setStringPayload("Error");
@@ -168,7 +167,7 @@ service<http:Service> counter bind sessionEP {
         sessionCounter = sessionCounter + 1;
         session.setAttribute("Counter", sessionCounter);
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(<string> sessionCounter);
         _ = conn -> respond(res);
     }
@@ -193,7 +192,7 @@ service<http:Service> counter bind sessionEP {
         sessionCounter = sessionCounter + 1;
         session.setAttribute("Counter", sessionCounter);
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(<string>(sessionCounter));
         _ = conn -> respond(res);
     }
@@ -213,7 +212,7 @@ service<http:Service> sample2 bind sessionEP {
         }
         Session.setAttribute("name", "chamil");
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(myName);
         _ = conn -> respond(res);
     }
@@ -222,7 +221,7 @@ service<http:Service> sample2 bind sessionEP {
         methods:["POST"]
     }
     myStruct (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         match req.getStringPayload() {
             http:PayloadError err => res.setStringPayload("Error");
             string payload => {
@@ -256,7 +255,7 @@ service<http:Service> sample2 bind sessionEP {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("arraysize:" + arrsize);
         _ = conn -> respond(res);
     }
@@ -272,7 +271,7 @@ service<http:Service> sample2 bind sessionEP {
         session.setAttribute("location", "colombo");
         string[] arr = session.getAttributeNames();
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(arr[0]);
         _ = conn -> respond(res);
     }
@@ -292,7 +291,7 @@ service<http:Service> sample2 bind sessionEP {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(<string>(arrsize));
         _ = conn -> respond(res);
     }
@@ -311,7 +310,7 @@ service<http:Service> sample2 bind sessionEP {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(<string>(arrsize));
         _ = conn -> respond(res);
     }
@@ -326,7 +325,7 @@ service<http:Service> sample2 bind sessionEP {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(<string>(arrsize));
         _ = conn -> respond(res);
     }
@@ -343,7 +342,7 @@ service<http:Service> sample2 bind sessionEP {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(<string>(arrsize));
         _ = conn -> respond(res);
     }
@@ -354,7 +353,7 @@ service<http:Service> sample2 bind sessionEP {
     }
     getmap (endpoint conn, http:Request req) {
 
-        http:Response res = {};
+        http:Response res = new;
         http:Session session = req.createSessionIfAbsent();
         if (!req.hasHeader("counter")) {
             session.setAttribute("Name", "chamil");
@@ -387,7 +386,7 @@ service<http:Service> sample2 bind sessionEP {
             string[] arr = attributes.keys();
             v0 = <string>attributes[arr[0]];
         }
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("value" + ":" + v0);
         _ = conn -> respond(res);
     }
@@ -401,7 +400,7 @@ service<http:Service> sample2 bind sessionEP {
         http:Session session = req.createSessionIfAbsent();
         string id = session.getId();
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(id);
         _ = conn -> respond(res);
     }
@@ -417,7 +416,7 @@ service<http:Service> sample2 bind sessionEP {
         if (session != null) {
             id = session.getId();
         }
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(id);
         _ = conn -> respond(res);
     }
@@ -431,7 +430,7 @@ service<http:Service> sample2 bind sessionEP {
         http:Session session = req.createSessionIfAbsent();
         boolean stat = session.isNew();
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(<string>(stat));
         _ = conn -> respond(res);
     }
@@ -445,7 +444,7 @@ service<http:Service> sample2 bind sessionEP {
         http:Session session = req.createSessionIfAbsent();
         int time = session.getCreationTime();
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(<string>(time));
         _ = conn -> respond(res);
     }
@@ -460,7 +459,7 @@ service<http:Service> sample2 bind sessionEP {
         session.invalidate();
         int time = session.getCreationTime();
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(<string>(time));
         _ = conn -> respond(res);
     }
@@ -474,7 +473,7 @@ service<http:Service> sample2 bind sessionEP {
         http:Session session = req.createSessionIfAbsent();
         int time = session.getLastAccessedTime();
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(<string>(time));
         _ = conn -> respond(res);
     }
@@ -489,7 +488,7 @@ service<http:Service> sample2 bind sessionEP {
         session.invalidate();
         int time = session.getLastAccessedTime();
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(<string>(time));
         _ = conn -> respond(res);
     }
@@ -504,7 +503,7 @@ service<http:Service> sample2 bind sessionEP {
         int time = session.getMaxInactiveInterval();
         session.setMaxInactiveInterval(60);
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(<string>(time));
         _ = conn -> respond(res);
     }
@@ -519,7 +518,7 @@ service<http:Service> sample2 bind sessionEP {
         session.invalidate();
         session.setMaxInactiveInterval(89);
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("done");
         _ = conn -> respond(res);
     }
@@ -534,7 +533,7 @@ service<http:Service> sample2 bind sessionEP {
         int time = session.getMaxInactiveInterval();
         session.setMaxInactiveInterval(-1);
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(<string>(time));
         _ = conn -> respond(res);
     }
@@ -552,7 +551,7 @@ service<http:Service> sample2 bind sessionEP {
         }
         Session.setAttribute("name", "SecondName");
 
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(myName);
         _ = conn -> respond(res);
     }

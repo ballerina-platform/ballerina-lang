@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha1-SNAPSHOT</version>
+        <version>0.970.0-alpha3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -27,6 +27,11 @@
                 <version>${lsp4j.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${google.guava.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${apache.commons.io.version}</version>
@@ -35,9 +40,10 @@
     </dependencyManagement>
 
     <properties>
-        <maven.findbugsplugin.version>3.0.3</maven.findbugsplugin.version>
+        <maven.spotbugsplugin.version>3.1.1</maven.spotbugsplugin.version>
         <lsp4j.version>0.3.0</lsp4j.version>
         <apache.commons.io.version>2.6</apache.commons.io.version>
+        <google.guava.version>21.0</google.guava.version>
     </properties>
     <modules>
         <module>modules/langserver-core</module>

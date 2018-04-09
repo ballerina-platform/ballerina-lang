@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.security.crypto;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -30,7 +29,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -57,11 +55,12 @@ public class GetHmac extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         String baseString = context.getStringArgument(0);
         String keyString = context.getStringArgument(1);
-        BEnumerator algorithm = (BEnumerator) context.getRefArgument(0);
+        BString algorithm = context.getNullableRefArgument(0) != null ?
+                (BString) context.getNullableRefArgument(0) : new BString("");
         String hmacAlgorithm;
 
         //todo document the supported algorithm
-        switch (algorithm.getName()) {
+        switch (algorithm.stringValue()) {
             case "SHA1":
                 hmacAlgorithm = "HmacSHA1";
                 break;
@@ -85,7 +84,7 @@ public class GetHmac extends BlockingNativeCallableUnit {
             result = HashUtils.toHexString(mac.doFinal(baseStringBytes));
         } catch (IllegalArgumentException | InvalidKeyException | NoSuchAlgorithmException e) {
             throw new BallerinaException("Error while calculating HMAC for " + hmacAlgorithm + ": " + e.getMessage(),
-                                         context);
+                    context);
         }
         context.setReturnValues(new BString(result));
     }

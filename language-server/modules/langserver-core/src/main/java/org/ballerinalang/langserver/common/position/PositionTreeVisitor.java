@@ -44,10 +44,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -55,6 +57,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -146,7 +150,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(funcNode.receiver);
         }
 
-        if (!funcNode.requiredParams.isEmpty()) {
+        if (funcNode.requiredParams != null) {
             funcNode.requiredParams.forEach(this::acceptNode);
         }
 
@@ -154,7 +158,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(funcNode.returnTypeNode);
         }
 
-        if (funcNode.endpoints != null && !funcNode.endpoints.isEmpty()) {
+        if (funcNode.endpoints != null) {
             funcNode.endpoints.forEach(this::acceptNode);
         }
 
@@ -163,11 +167,11 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
 
         // Process workers
-        if (!funcNode.workers.isEmpty()) {
+        if (funcNode.workers != null) {
             funcNode.workers.forEach(this::acceptNode);
         }
 
-        if (!funcNode.defaultableParams.isEmpty()) {
+        if (funcNode.defaultableParams != null) {
             funcNode.defaultableParams.forEach(this::acceptNode);
         }
     }
@@ -252,7 +256,9 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
             setTerminateVisitor(true);
         } else if (varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
-                && varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.OBJECT)
+                && (varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.OBJECT) ||
+                varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.RECORD) ||
+                varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.TYPE_DEF))
                 && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
             this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
             this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
@@ -317,7 +323,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangBlockStmt blockNode) {
         setPreviousNode(blockNode);
-        if (!blockNode.stmts.isEmpty()) {
+        if (blockNode.stmts != null) {
             blockNode.stmts.forEach(this::acceptNode);
         }
     }
@@ -370,7 +376,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         setPreviousNode(structNode);
         this.addToNodeStack(structNode);
 
-        if (!structNode.fields.isEmpty()) {
+        if (structNode.fields != null) {
             structNode.fields.forEach(this::acceptNode);
         }
     }
@@ -397,11 +403,11 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             acceptNode(transformerNode.source);
         }
 
-        if (!transformerNode.requiredParams.isEmpty()) {
+        if (transformerNode.requiredParams != null) {
             transformerNode.requiredParams.forEach(this::acceptNode);
         }
 
-        if (!transformerNode.retParams.isEmpty()) {
+        if (transformerNode.retParams != null) {
             transformerNode.retParams.forEach(this::acceptNode);
         }
 
@@ -409,7 +415,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             acceptNode(transformerNode.body);
         }
 
-        if (!transformerNode.workers.isEmpty()) {
+        if (transformerNode.workers != null) {
             transformerNode.workers.forEach(this::acceptNode);
         }
     }
@@ -422,15 +428,15 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         setPreviousNode(connectorNode);
         this.addToNodeStack(connectorNode);
 
-        if (!connectorNode.params.isEmpty()) {
+        if (connectorNode.params != null) {
             connectorNode.params.forEach(this::acceptNode);
         }
 
-        if (!connectorNode.varDefs.isEmpty()) {
+        if (connectorNode.varDefs != null) {
             connectorNode.varDefs.forEach(this::acceptNode);
         }
 
-        if (!connectorNode.actions.isEmpty()) {
+        if (connectorNode.actions != null) {
             connectorNode.actions.forEach(this::acceptNode);
         }
     }
@@ -443,7 +449,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         setPreviousNode(actionNode);
         this.addToNodeStack(actionNode);
 
-        if (!actionNode.requiredParams.isEmpty()) {
+        if (actionNode.requiredParams != null) {
             actionNode.requiredParams.forEach(this::acceptNode);
         }
 
@@ -451,7 +457,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             acceptNode(actionNode.body);
         }
 
-        if (!actionNode.workers.isEmpty()) {
+        if (actionNode.workers != null) {
             actionNode.workers.forEach(this::acceptNode);
         }
     }
@@ -468,19 +474,19 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(serviceNode.serviceTypeStruct);
         }
 
-        if (!serviceNode.vars.isEmpty()) {
+        if (serviceNode.vars != null) {
             serviceNode.vars.forEach(this::acceptNode);
         }
 
-        if (!serviceNode.resources.isEmpty()) {
+        if (serviceNode.resources != null) {
             serviceNode.resources.forEach(this::acceptNode);
         }
 
-        if (!serviceNode.endpoints.isEmpty()) {
+        if (serviceNode.endpoints != null) {
             serviceNode.endpoints.forEach(this::acceptNode);
         }
 
-        if (!serviceNode.boundEndpoints.isEmpty()) {
+        if (serviceNode.boundEndpoints != null) {
             serviceNode.boundEndpoints.forEach(this::acceptNode);
         }
 
@@ -497,7 +503,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         setPreviousNode(resourceNode);
         this.addToNodeStack(resourceNode);
 
-        if (!resourceNode.requiredParams.isEmpty()) {
+        if (resourceNode.requiredParams != null) {
             resourceNode.requiredParams.forEach(this::acceptNode);
         }
 
@@ -505,11 +511,11 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(resourceNode.body);
         }
 
-        if (!resourceNode.endpoints.isEmpty()) {
+        if (resourceNode.endpoints != null) {
             resourceNode.endpoints.forEach(this::acceptNode);
         }
 
-        if (!resourceNode.workers.isEmpty()) {
+        if (resourceNode.workers != null) {
             resourceNode.workers.forEach(this::acceptNode);
         }
     }
@@ -521,7 +527,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             acceptNode(tryCatchFinally.tryBody);
         }
 
-        if (!tryCatchFinally.catchBlocks.isEmpty()) {
+        if (tryCatchFinally.catchBlocks != null) {
             tryCatchFinally.catchBlocks.forEach(this::acceptNode);
         }
 
@@ -562,7 +568,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     public void visit(BLangForkJoin forkJoin) {
         setPreviousNode(forkJoin);
 
-        if (!forkJoin.workers.isEmpty()) {
+        if (forkJoin.workers != null) {
             forkJoin.workers.forEach(this::acceptNode);
         }
 
@@ -590,7 +596,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangWorker workerNode) {
         setPreviousNode(workerNode);
-        if (!workerNode.requiredParams.isEmpty()) {
+        if (workerNode.requiredParams != null) {
             workerNode.requiredParams.forEach(this::acceptNode);
         }
 
@@ -598,7 +604,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             acceptNode(workerNode.body);
         }
 
-        if (!workerNode.workers.isEmpty()) {
+        if (workerNode.workers != null) {
             workerNode.workers.forEach(this::acceptNode);
         }
     }
@@ -634,7 +640,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(invocationExpr.expr);
         }
 
-        if (!invocationExpr.argExprs.isEmpty()) {
+        if (invocationExpr.argExprs != null) {
             invocationExpr.argExprs.forEach(this::acceptNode);
         }
 
@@ -658,7 +664,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             acceptNode(foreach.collection);
         }
 
-        if (!foreach.varRefs.isEmpty()) {
+        if (foreach.varRefs != null) {
             foreach.varRefs.forEach(this::acceptNode);
         }
 
@@ -669,7 +675,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
     public void visit(BLangArrayLiteral arrayLiteral) {
         setPreviousNode(arrayLiteral);
-        if (!arrayLiteral.exprs.isEmpty()) {
+        if (arrayLiteral.exprs != null) {
             arrayLiteral.exprs.forEach(this::acceptNode);
         }
     }
@@ -680,7 +686,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             acceptNode(connectorInitExpr.userDefinedType);
         }
 
-        if (!connectorInitExpr.argsExpr.isEmpty()) {
+        if (connectorInitExpr.argsExpr != null) {
             connectorInitExpr.argsExpr.forEach(this::acceptNode);
         }
     }
@@ -715,7 +721,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
         setPreviousNode(stringTemplateLiteral);
 
-        if (!stringTemplateLiteral.exprs.isEmpty()) {
+        if (stringTemplateLiteral.exprs != null) {
             stringTemplateLiteral.exprs.forEach(this::acceptNode);
         }
     }
@@ -768,7 +774,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangUnionTypeNode unionTypeNode) {
         setPreviousNode(unionTypeNode);
-        if (!unionTypeNode.memberTypeNodes.isEmpty()) {
+        if (unionTypeNode.memberTypeNodes != null) {
             unionTypeNode.memberTypeNodes.forEach(this::acceptNode);
         }
     }
@@ -776,7 +782,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
         setPreviousNode(tupleTypeNode);
-        if (!tupleTypeNode.memberTypeNodes.isEmpty()) {
+        if (tupleTypeNode.memberTypeNodes != null) {
             tupleTypeNode.memberTypeNodes.forEach(this::acceptNode);
         }
     }
@@ -784,7 +790,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         setPreviousNode(bracedOrTupleExpr);
-        if (!bracedOrTupleExpr.expressions.isEmpty()) {
+        if (bracedOrTupleExpr.expressions != null) {
             bracedOrTupleExpr.expressions.forEach(this::acceptNode);
         }
     }
@@ -792,7 +798,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangTupleDestructure stmt) {
         setPreviousNode(stmt);
-        if (!stmt.varRefs.isEmpty()) {
+        if (stmt.varRefs != null) {
             stmt.varRefs.forEach(this::acceptNode);
         }
 
@@ -805,11 +811,11 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     public void visit(BLangObject objectNode) {
         setPreviousNode(objectNode);
 
-        if (!objectNode.fields.isEmpty()) {
+        if (objectNode.fields != null) {
             objectNode.fields.forEach(this::acceptNode);
         }
 
-        if (!objectNode.functions.isEmpty()) {
+        if (objectNode.functions != null) {
             objectNode.functions.forEach(this::acceptNode);
         }
 
@@ -829,7 +835,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(matchNode.expr);
         }
 
-        if (!matchNode.patternClauses.isEmpty()) {
+        if (matchNode.patternClauses != null) {
             matchNode.patternClauses.forEach(this::acceptNode);
         }
     }
@@ -844,6 +850,86 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (patternClauseNode.body != null) {
             this.acceptNode(patternClauseNode.body);
         }
+    }
+
+    @Override
+    public void visit(BLangRecord record) {
+        addTopLevelNodeToContext(record, record.name.getValue(), record.symbol.pkgID,
+                record.symbol.kind.name(), record.symbol.kind.name(),
+                record.symbol.owner.name.getValue(), record.symbol.owner.pkgID);
+        setPreviousNode(record);
+        if (record.fields != null) {
+            record.fields.forEach(this::acceptNode);
+        }
+
+        if (record.initFunction != null &&
+                !(record.initFunction.returnTypeNode.type instanceof BNilType)) {
+            this.acceptNode(record.initFunction);
+        }
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral recordLiteral) {
+        setPreviousNode(recordLiteral);
+
+        if (recordLiteral.keyValuePairs != null) {
+            recordLiteral.keyValuePairs.forEach((bLangRecordKeyValue -> {
+                if (bLangRecordKeyValue.valueExpr != null) {
+                    this.acceptNode(bLangRecordKeyValue.valueExpr);
+                }
+            }));
+        }
+
+        if (recordLiteral.impConversionExpr != null) {
+            this.acceptNode(recordLiteral.impConversionExpr);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatchExpression bLangMatchExpression) {
+        setPreviousNode(bLangMatchExpression);
+
+        if (bLangMatchExpression.impConversionExpr != null) {
+            this.acceptNode(bLangMatchExpression.impConversionExpr);
+        }
+
+        if (bLangMatchExpression.expr != null) {
+            this.acceptNode(bLangMatchExpression.expr);
+        }
+
+        if (bLangMatchExpression.patternClauses != null) {
+            bLangMatchExpression.patternClauses.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
+        setPreviousNode(bLangMatchExprPatternClause);
+
+        if (bLangMatchExprPatternClause.variable != null) {
+            this.acceptNode(bLangMatchExprPatternClause.variable);
+        }
+
+        if (bLangMatchExprPatternClause.expr != null) {
+            this.acceptNode(bLangMatchExprPatternClause.expr);
+        }
+    }
+
+    @Override
+    public void visit(BLangTypeDefinition typeDefinition) {
+        addTopLevelNodeToContext(typeDefinition, typeDefinition.name.getValue(), typeDefinition.symbol.pkgID,
+                typeDefinition.symbol.kind.name(), typeDefinition.symbol.kind.name(),
+                typeDefinition.symbol.owner.name.getValue(), typeDefinition.symbol.owner.pkgID);
+        setPreviousNode(typeDefinition);
+
+        if (typeDefinition.typeNode != null) {
+            this.acceptNode(typeDefinition.typeNode);
+        }
+
+        if (typeDefinition.valueSpace != null) {
+            typeDefinition.valueSpace.forEach(this::acceptNode);
+        }
+
     }
 
     /**

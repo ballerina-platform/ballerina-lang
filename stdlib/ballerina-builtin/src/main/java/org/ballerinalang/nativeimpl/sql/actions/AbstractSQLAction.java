@@ -30,7 +30,6 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
-import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -904,9 +903,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private int getParameterDirection(BStruct parameter) {
         int direction = 0;
-        BEnumerator dirEnum = (BEnumerator) parameter.getRefField(2);
-        if (dirEnum != null) {
-            String sqlType = dirEnum.getName();
+        BRefType dir = parameter.getRefField(2);
+        if (dir != null) {
+            String sqlType = dir.stringValue();
             switch (sqlType) {
             case Constants.QueryParamDirection.DIR_OUT:
                 direction = Constants.QueryParamDirection.OUT;

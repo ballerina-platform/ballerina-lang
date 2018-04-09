@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
@@ -44,7 +45,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -256,6 +256,18 @@ public class Desugar extends BLangNodeVisitor {
         }
         SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
+
+        pkgNode.globalVars.forEach(v -> {
+            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v);
+            if (assignment.expr == null) {
+                assignment.expr = getInitExpr(v);
+            }
+            if (assignment.expr != null) {
+                pkgNode.initFunction.body.stmts.add(assignment);
+            }
+        });
+        annotationDesugar.rewritePackageAnnotations(pkgNode);
+
         //Adding object functions to package level.
         pkgNode.objects.forEach(o -> o.functions.forEach(f -> {
             if (!pkgNode.objAttachedFunctions.contains(f.symbol)) {
@@ -284,7 +296,6 @@ public class Desugar extends BLangNodeVisitor {
         endpointDesugar.rewriteAnonymousEndpointsInPkg(pkgNode, env);
         pkgNode.globalEndpoints = rewrite(pkgNode.globalEndpoints, env);
         pkgNode.globalEndpoints.forEach(endpoint -> endpointDesugar.defineGlobalEndpoint(endpoint, env));
-        annotationDesugar.rewritePackageAnnotations(pkgNode);
         endpointDesugar.rewriteAllEndpointsInPkg(pkgNode, env);
         endpointDesugar.rewriteServiceBoundToEndpointInPkg(pkgNode, env);
         pkgNode.transformers = rewrite(pkgNode.transformers, env);
@@ -314,7 +325,7 @@ public class Desugar extends BLangNodeVisitor {
                     // If the rhs value is not given in-line inside the struct
                     // then get the default value literal for that particular struct.
                     if (field.expr == null) {
-                        field.expr = getInitExpr(field.type);
+                        field.expr = getInitExpr(field);
                     }
                     return field;
                 })
@@ -377,6 +388,17 @@ public class Desugar extends BLangNodeVisitor {
         serviceNode.resources = rewrite(serviceNode.resources, serviceEnv);
         serviceNode.vars = rewrite(serviceNode.vars, serviceEnv);
         serviceNode.endpoints = rewrite(serviceNode.endpoints, serviceEnv);
+        serviceNode.vars.forEach(v -> {
+            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v.var);
+            if (assignment.expr == null) {
+                assignment.expr = getInitExpr(v.var);
+            }
+            if (assignment.expr != null) {
+                serviceNode.initFunction.body.stmts.add(assignment);
+            }
+        });
+        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(serviceNode.pos, symTable.nilType);
+        serviceNode.initFunction.body.stmts.add(returnStmt);
         serviceNode.initFunction = rewrite(serviceNode.initFunction, serviceEnv);
         result = serviceNode;
     }
@@ -522,11 +544,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Generate default init expression, if rhs expr is null
         if (varNode.expr == null) {
-            if (varNode.type instanceof BStreamType) {
-                varNode.expr = new BLangStreamLiteral(varNode.type, varNode.name);
-            } else {
-                varNode.expr = getInitExpr(varNode.type);
-            }
+            varNode.expr = getInitExpr(varNode);
         }
 
         if (!varNode.safeAssignment) {
@@ -2246,7 +2264,8 @@ public class Desugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createIsAssignableExpr(pos, varRef, patternType, symTable.booleanType, names);
     }
 
-    private BLangExpression getInitExpr(BType type) {
+    private BLangExpression getInitExpr(BLangVariable varNode) {
+        BType type = varNode.type;
         // Don't need to create an empty init expressions if the type allows null.
         if (type.isNullable()) {
             return null;
@@ -2264,8 +2283,10 @@ public class Desugar extends BLangNodeVisitor {
                 return new BLangXMLSequenceLiteral(type);
             case TypeTags.MAP:
                 return new BLangMapLiteral(new ArrayList<>(), type);
+            case TypeTags.STREAM:
+                return new BLangStreamLiteral(type, varNode.name);
             case TypeTags.STRUCT:
-                if (((BStructSymbol) type.tsymbol).isObject) {
+                if (type.tsymbol.kind == SymbolKind.OBJECT) {
                     return createTypeInitNode(type);
                 }
                 return new BLangStructLiteral(new ArrayList<>(), type);

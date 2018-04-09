@@ -14,4 +14,4 @@ F{{path}} type `field path` documentation
 }
 public type File {
     string path;
-}
+};

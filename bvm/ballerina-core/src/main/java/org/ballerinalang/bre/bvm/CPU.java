@@ -146,38 +146,30 @@ public class CPU {
                 break;
             } catch (HandleErrorException e) {
                 ctx = e.ctx;
-            } catch (FatalCPUException e) {
-                ctx = e.ctx;
-                ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                try {
-                    handleError(ctx);
-                } catch (HandleErrorException e2) {
-                    ctx = e2.ctx;
-                }
             }
         }
     }
 
     @SuppressWarnings("rawtypes")
     private static void tryExec(WorkerExecutionContext ctx) {
-        try {
-            BLangScheduler.workerRunning(ctx);
-    
-            int i;
-            int j;
-            int cpIndex;
-            FunctionCallCPEntry funcCallCPEntry;
-            FunctionRefCPEntry funcRefCPEntry;
-            TypeRefCPEntry typeRefCPEntry;
-            FunctionInfo functionInfo;
-            InstructionCALL callIns;
-    
-            boolean debugEnabled = ctx.programFile.getDebugger().isDebugEnabled();
-    
-            WorkerData currentSF, callersSF;
-            int callersRetRegIndex;
-    
-            while (ctx.ip >= 0) {
+        BLangScheduler.workerRunning(ctx);
+
+        int i;
+        int j;
+        int cpIndex;
+        FunctionCallCPEntry funcCallCPEntry;
+        FunctionRefCPEntry funcRefCPEntry;
+        TypeRefCPEntry typeRefCPEntry;
+        FunctionInfo functionInfo;
+        InstructionCALL callIns;
+
+        boolean debugEnabled = ctx.programFile.getDebugger().isDebugEnabled();
+
+        WorkerData currentSF, callersSF;
+        int callersRetRegIndex;
+
+        while (ctx.ip >= 0) {
+            try {
                 if (ctx.stop) {
                     BLangScheduler.workerDone(ctx);
                     return;
@@ -754,11 +746,13 @@ public class CPU {
                     default:
                         throw new UnsupportedOperationException();
                 }
+            } catch (HandleErrorException e) { 
+                throw e;
+            } catch (Throwable e) {
+                BLangVMUtils.log("fatal error: " + e.getMessage());
+                ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                handleError(ctx);
             }
-        } catch (HandleErrorException e) { 
-            throw e;
-        } catch (Throwable e) {
-            throw new FatalCPUException(ctx, e);
         }
     }
 
@@ -3771,22 +3765,6 @@ public class CPU {
         } else {
             return respCtx.joinTargetContextInfo(ctx, new int[0]);
         }
-    }
-    
-    /**
-     * This is used to propagate unexpected error conditions in the CPU.
-     */
-    private static class FatalCPUException extends BallerinaException {
-        
-        private static final long serialVersionUID = 1L;
-        
-        public WorkerExecutionContext ctx;
-        
-        public FatalCPUException(WorkerExecutionContext ctx, Throwable cause) {
-            super(cause.getMessage(), cause);
-            this.ctx = ctx;
-        }
-        
     }
 
     /**

@@ -293,9 +293,6 @@ public class MimeUtilityFunctionTest {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
             bufferedWriter.write("Hello Ballerina!");
             bufferedWriter.close();
-      /*      BStruct fileStruct = BCompileUtil
-                    .createAndGetStruct(compileResult.getProgFile(), PROTOCOL_PACKAGE_FILE, FILE);
-            fileStruct.setStringField(0, file.getAbsolutePath());*/
             BValue[] args = {new BString(file.getAbsolutePath())};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetFileAsEntityBody", args);
             Assert.assertEquals(returns.length, 1);
@@ -482,5 +479,36 @@ public class MimeUtilityFunctionTest {
         } catch (IOException | URISyntaxException e) {
             log.error("Error occurred in testLargePayload", e.getMessage());
         }
+    }
+
+    @Test(description = "Test whether the Content-Disposition header value can be built from ContentDisposition " +
+            "object values.")
+    public void testContentDispositionForFormData() {
+        BStruct bodyPart = Util.getEntityStruct(compileResult);
+        BStruct contentDispositionStruct = Util.getContentDispositionStruct(compileResult);
+        MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
+                "form-data; name=\"filepart\"; filename=\"file-01.txt\"");
+        String contentDispositionValue = MimeUtil.getContentDisposition(bodyPart);
+        Assert.assertEquals(contentDispositionValue, "form-data;name=\"filepart\";filename=\"file-01.txt\"");
+    }
+
+    @Test
+    public void testFileNameWithoutQuotes() {
+        BStruct bodyPart = Util.getEntityStruct(compileResult);
+        BStruct contentDispositionStruct = Util.getContentDispositionStruct(compileResult);
+        MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
+                "form-data; name=filepart; filename=file-01.txt");
+        String contentDispositionValue = MimeUtil.getContentDisposition(bodyPart);
+        Assert.assertEquals(contentDispositionValue, "form-data;name=\"filepart\";filename=\"file-01.txt\"");
+    }
+
+    @Test
+    public void testContentDispositionWithoutParams() {
+        BStruct bodyPart = Util.getEntityStruct(compileResult);
+        BStruct contentDispositionStruct = Util.getContentDispositionStruct(compileResult);
+        MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
+                "form-data");
+        String contentDispositionValue = MimeUtil.getContentDisposition(bodyPart);
+        Assert.assertEquals(contentDispositionValue, "form-data");
     }
 }

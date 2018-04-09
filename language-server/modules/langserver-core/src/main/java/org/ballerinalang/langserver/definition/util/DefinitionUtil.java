@@ -45,9 +45,9 @@ public class DefinitionUtil {
     /**
      * Get definition position for the given definition context.
      *
-     * @param definitionContext   context of the definition.
-     * @param lSPackageCache package context for language server.
-     * @return position
+     * @param definitionContext context of the definition.
+     * @param lSPackageCache    package context for language server.
+     * @return {@link List} list of locations
      */
     public static List<Location> getDefinitionPosition(LSServiceOperationContext definitionContext,
                                                        LSPackageCache lSPackageCache) {
@@ -79,14 +79,17 @@ public class DefinitionUtil {
                                 .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 break;
-            case ContextConstants.ENUM:
-                bLangNode = bLangPackage.enums.stream()
-                        .filter(enm -> enm.name.getValue()
+            case ContextConstants.RECORD:
+                bLangNode = bLangPackage.records.stream()
+                        .filter(record -> record.name.getValue()
                                 .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
-                // Fixing the position issue with enum node.
-                bLangNode.getPosition().eLine = bLangNode.getPosition().sLine;
-                bLangNode.getPosition().eCol = bLangNode.getPosition().sCol;
+                break;
+            case ContextConstants.TYPE_DEF:
+                bLangNode = bLangPackage.typeDefinitions.stream()
+                        .filter(typeDef -> typeDef.name.getValue()
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
                 break;
             case ContextConstants.CONNECTOR:
                 bLangNode = bLangPackage.connectors.stream()
@@ -175,6 +178,11 @@ public class DefinitionUtil {
 
     /**
      * Get the package of the owner of given node.
+     *
+     * @param packageID         package id
+     * @param definitionContext definition context
+     * @param lSPackageCache    ls package cache
+     * @return {@link BLangPackage} package of the owner
      */
     private static BLangPackage getPackageOfTheOwner(PackageID packageID, LSServiceOperationContext definitionContext,
                                                      LSPackageCache lSPackageCache) {

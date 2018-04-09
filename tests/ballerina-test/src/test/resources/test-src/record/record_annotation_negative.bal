@@ -9,22 +9,22 @@ type Tst {
     string a;
     string b;
     string cd;
-}
+};
 
 annotation Test Tst;
 
 documentation { Documentation for testConst constant
-V{{testConst}} abc description}
-@final string testConst = "TestConstantDocumentation";
+V{{testConstd}} abc description}
+@final string testConsts = "TestConstantDocumentation";
 
-documentation { Documentation for state enum
-F{{foo}} enum `field foo` documentation
-F{{foo}} enum `field foo` documentation
-F{{bar}} enum `field bar` documentation}
-enum state {
-    foo,
-    bars
-}
+//documentation { Documentation for state enum
+//F{{foo}} enum `field foo` documentation
+//F{{foo}} enum `field foo` documentation
+//F{{bar}} enum `field bar` documentation}
+//enum state {
+//    foo,
+//    bars
+//}
 
 documentation { Documentation for Test struct
 F{{a}} struct `field a` documentation
@@ -35,7 +35,7 @@ type Test {
     int a;
     int b;
     int cdd;
-}
+};
 
 documentation {
 Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
@@ -56,7 +56,7 @@ F{{path}} struct `field path` documentation
 }
 public type File {
     string path;
-}
+};
 
 //documentation {
 // Transformer Foo Person -> Employee
@@ -74,14 +74,14 @@ type Person {
     string lastName;
     int age;
     string city;
-}
+};
 
 type Employee {
     string name;
     int age;
     string address;
     any ageAny;
-}
+};
 
 documentation {
 Test Connector
@@ -90,7 +90,7 @@ F{{url}} url for endpoint
 P{{urls}} urls for endpoint}
 type TestConnector {
   string url;
-}
+};
 
 //documentation {Test Connector action testAction
 //    R{{s}} which represent successful or not
@@ -112,11 +112,8 @@ service<http:Service> PizzaService {
 //  P{{conn}} HTTP connection. Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
 
     orderPizza(endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res;
         _ = conn -> respond(res);
     }
 }
 
-documentation { Documentation for testConst constant
-V{{testConstd}} abc description}
-@final string testConsts = "TestConstantDocumentation";

@@ -93,7 +93,7 @@ class Client extends React.Component {
             <g>
                 <text
                     x={line.x1 + this.context.designer.config.statement.gutter.h}
-                    y={topBox.y + topBox.h + (this.context.designer.config.statement.height / 2)}
+                    y={topBox.y + topBox.h + (this.context.designer.config.statement.height - 5)}
                 >{bBox.text}</text>
                 <title> {bBox.fullText} </title>
             </g>

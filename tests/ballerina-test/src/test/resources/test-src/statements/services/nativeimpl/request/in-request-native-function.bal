@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/file;
@@ -9,46 +8,47 @@ function testGetContentLength (http:Request req) returns (string) {
 }
 
 function testAddHeader (string key, string value) returns (http:Request) {
-    http:Request req = {};
+    http:Request req = new;
     req.setHeader(key, "1stHeader");
     req.addHeader(key, value);
     return req;
 }
 
 function testSetHeader (string key, string value) returns (http:Request) {
-    http:Request req = {};
+    http:Request req = new;
     req.setHeader(key, "abc");
     req.setHeader(key, value);
     return req;
 }
 
 function testSetJsonPayload (json value) returns (http:Request) {
-    http:Request req = {};
+    http:Request req = new;
     req.setJsonPayload(value);
     return req;
 }
 
 function testSetStringPayload (string value) returns (http:Request) {
-    http:Request req = {};
+    http:Request req = new;
     req.setStringPayload(value);
     return req;
 }
 
 function testSetXmlPayload (xml value) returns (http:Request) {
-    http:Request req = {};
+    http:Request req = new;
     req.setXmlPayload(value);
     return req;
 }
 
 function testSetBinaryPayload (blob value) returns (http:Request) {
-    http:Request req = {};
+    http:Request req = new;
     req.setBinaryPayload(value);
     return req;
 }
 
-function testSetEntityBody (file:File content, string contentType) returns (http:Request) {
-    http:Request req = {};
-    req.setFileAsPayload(content, contentType);
+function testSetEntityBody (string filePath, string contentType) returns (http:Request) {
+    http:Request req = new;
+    file:Path path = file:getPath(filePath);
+    req.setFileAsPayload(path, contentType);
     return req;
 }
 
@@ -92,10 +92,10 @@ service<http:Service> hello bind mockEP {
         path:"/addheader/{key}/{value}"
     }
     addheader (endpoint conn, http:Request inReq, string key, string value) {
-        http:Request req = {};
+        http:Request req = new;
         req.addHeader(key, value);
         string result = req.getHeader(key);
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload({lang:result});
         _ = conn -> respond(res);
     }
@@ -104,7 +104,7 @@ service<http:Service> hello bind mockEP {
         path:"/11"
     }
     echo1 (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         string method = req.method;
         res.setStringPayload(method);
         _ = conn -> respond(res);
@@ -114,7 +114,7 @@ service<http:Service> hello bind mockEP {
         path:"/12"
     }
     echo2 (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         string url = req.rawPath;
         res.setStringPayload(url);
         _ = conn -> respond(res);
@@ -124,7 +124,7 @@ service<http:Service> hello bind mockEP {
         path:"/13"
     }
     echo3 (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         string url = req.rawPath;
         res.setStringPayload(url);
         _ = conn -> respond(res);
@@ -134,7 +134,7 @@ service<http:Service> hello bind mockEP {
         path:"/getHeader"
     }
     getHeader (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         string header = req.getHeader("content-type");
         res.setJsonPayload({value:header});
         _ = conn -> respond(res);
@@ -155,7 +155,7 @@ service<http:Service> hello bind mockEP {
         path:"/getJsonPayload"
     }
     GetJsonPayload (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         var returnResult = req.getJsonPayload();
         match returnResult {
             http:PayloadError err => {
@@ -173,7 +173,7 @@ service<http:Service> hello bind mockEP {
         path:"/GetStringPayload"
     }
     GetStringPayload (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         match req.getStringPayload() {
             http:PayloadError err => {
                 res.setStringPayload("Error occurred");
@@ -188,7 +188,7 @@ service<http:Service> hello bind mockEP {
         path:"/GetXmlPayload"
     }
     GetXmlPayload (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         match req.getXmlPayload() {
             http:PayloadError err => {
                 res.setStringPayload("Error occurred");
@@ -206,7 +206,7 @@ service<http:Service> hello bind mockEP {
         path:"/GetBinaryPayload"
     }
     GetBinaryPayload (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         match req.getBinaryPayload() {
             http:PayloadError err => {
                 res.setStringPayload("Error occurred");
@@ -224,7 +224,7 @@ service<http:Service> hello bind mockEP {
         path:"/GetByteChannel"
     }
     GetByteChannel (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         match req.getByteChannel() {
             http:PayloadError err => {
                 res.setStringPayload("Error occurred");
@@ -241,14 +241,14 @@ service<http:Service> hello bind mockEP {
         path:"/RemoveHeader"
     }
     RemoveHeader (endpoint conn, http:Request inReq) {
-        http:Request req = {};
+        http:Request req = new;
         req.setHeader("Content-Type", "application/x-www-form-urlencoded");
         req.removeHeader("Content-Type");
         string header;
         if (!req.hasHeader("Content-Type")) {
             header = "value is null";
         }
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload({value:header});
         _ = conn -> respond(res);
     }
@@ -257,7 +257,7 @@ service<http:Service> hello bind mockEP {
         path:"/RemoveAllHeaders"
     }
     RemoveAllHeaders (endpoint conn, http:Request inReq) {
-        http:Request req = {};
+        http:Request req = new;
         req.setHeader("Content-Type", "application/x-www-form-urlencoded");
         req.setHeader("Expect", "100-continue");
         req.setHeader("Range", "bytes=500-999");
@@ -266,7 +266,7 @@ service<http:Service> hello bind mockEP {
         if (!req.hasHeader("Range")) {
             header = "value is null";
         }
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload({value:header});
         _ = conn -> respond(res);
     }
@@ -275,12 +275,12 @@ service<http:Service> hello bind mockEP {
         path:"/setHeader/{key}/{value}"
     }
     setHeader (endpoint conn, http:Request inReq, string key, string value) {
-        http:Request req = {};
+        http:Request req = new;
         req.setHeader(key, "abc");
         req.setHeader(key, value);
         string result = req.getHeader(key);
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload({value:result});
         _ = conn -> respond(res);
     }
@@ -289,11 +289,11 @@ service<http:Service> hello bind mockEP {
         path:"/SetJsonPayload/{value}"
     }
     SetJsonPayload (endpoint conn, http:Request inReq, string value) {
-        http:Request req = {};
+        http:Request req = new;
         json jsonStr = {lang:value};
         req.setJsonPayload(jsonStr);
         var returnResult = req.getJsonPayload();
-        http:Response res = {};
+        http:Response res = new;
         match returnResult {
             http:PayloadError err => {
                 res.setStringPayload("Error occurred");
@@ -310,9 +310,9 @@ service<http:Service> hello bind mockEP {
         path:"/SetStringPayload/{value}"
     }
     SetStringPayload (endpoint conn, http:Request inReq, string value) {
-        http:Request req = {};
+        http:Request req = new;
         req.setStringPayload(value);
-        http:Response res = {};
+        http:Response res = new;
         match req.getStringPayload() {
             http:PayloadError err => {
                 res.setStringPayload("Error occurred");
@@ -327,10 +327,10 @@ service<http:Service> hello bind mockEP {
         path:"/SetXmlPayload"
     }
     SetXmlPayload (endpoint conn, http:Request inReq) {
-        http:Request req = {};
+        http:Request req = new;
         xml xmlStr = xml `<name>Ballerina</name>`;
         req.setXmlPayload(xmlStr);
-        http:Response res = {};
+        http:Response res = new;
         match req.getXmlPayload() {
             http:PayloadError err => {
                 res.setStringPayload("Error occurred");
@@ -348,11 +348,11 @@ service<http:Service> hello bind mockEP {
         path:"/SetBinaryPayload"
     }
     SetBinaryPayload (endpoint conn, http:Request inReq) {
-        http:Request req = {};
+        http:Request req = new;
         string text = "Ballerina";
         blob payload = text.toBlob("UTF-8");
         req.setBinaryPayload(payload);
-        http:Response res = {};
+        http:Response res = new;
         match req.getBinaryPayload() {
             http:PayloadError err => {
                 res.setStringPayload("Error occurred");

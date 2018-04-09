@@ -3,13 +3,13 @@ import ballerina/http;
 import ballerina/mime;
 endpoint http:ClientEndpoint clientEndpoint {
     targets: [{
-                  uri: "https://postman-echo.com"
+                  url: "https://postman-echo.com"
               }]
     };
 
 function main (string[] args) {
 
-    http:Request req = {};
+    http:Request req = new;
     // Send a GET request to the specified endpoint
     var response = clientEndpoint -> get("/get?test=123", req);
     match response {
@@ -113,7 +113,7 @@ function main (string[] args) {
     // The execute() action can be used if one needs to use custom HTTP verbs.
     response = clientEndpoint -> execute("COPY", "/get", req);
 
-    req = {};
+    req = new;
     req.addHeader("Sample-Name", "http-client-connector");
     response = clientEndpoint -> get("/get", req);
     match response {

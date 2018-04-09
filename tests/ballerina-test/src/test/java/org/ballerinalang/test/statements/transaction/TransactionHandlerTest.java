@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.statements.transaction;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -127,5 +128,63 @@ public class TransactionHandlerTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
                 "start inFirstTrx beforeRetry-First inAbortFunction trxErr inSecondTrx inAbortFunctionSecond end");
+    }
+
+    @Test
+    public void testMultipleTransactionsWithAllHandlersWithID() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testMultipleTransactionsWithAllHandlersWithID");
+
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals(returns[0].stringValue(),
+                "start inFirstTrx endFirstTrx incommitFunction inSecondTrx endSecondTrx incommitFunctionSecond end");
+        String tx1ID = returns[1].stringValue();
+        String tx1HandlerID = returns[2].stringValue();
+        Assert.assertTrue(tx1ID.equals(tx1HandlerID));
+        String tx2ID = returns[3].stringValue();
+        String tx2HandlerID = returns[4].stringValue();
+        Assert.assertTrue(tx2ID.equals(tx2HandlerID));
+    }
+
+    @Test
+    public void testMultipleTransactionsFailedWithAllHandlersWithID() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testMultipleTransactionsFailedWithAllHandlersWithID");
+
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals(returns[0].stringValue(),
+                "start inFirstTrx beforeRetry-First inAbortFunction trxErr inSecondTrx inAbortFunctionSecond end");
+        String tx1ID = returns[1].stringValue();
+        String tx1HandlerID = returns[2].stringValue();
+        Assert.assertTrue(tx1ID.equals(tx1HandlerID));
+        String tx2ID = returns[3].stringValue();
+        String tx2HandlerID = returns[4].stringValue();
+        Assert.assertTrue(tx2ID.equals(tx2HandlerID));
+    }
+
+    @Test(description = "Test transaction handler function with invalid argument")
+    public void testInvalidHandlers() {
+        CompileResult res = BCompileUtil.compile("test-src/statements/transaction/transaction-handler-negative.bal");
+        Assert.assertEquals(res.getErrorCount(), 10);
+        BAssertUtil.validateError(res, 0,
+                "transaction handler function required single string parameter which is transaction id", 4, 46);
+        BAssertUtil.validateError(res, 1,
+                "transaction handler function required single string parameter which is transaction id", 4, 70);
+        BAssertUtil.validateError(res, 2,
+                "transaction handler function required single string parameter which is transaction id", 29, 46);
+        BAssertUtil.validateError(res, 3,
+                "transaction handler function required single string parameter which is transaction id", 29, 71);
+        BAssertUtil.validateError(res, 4, "undefined symbol 'commitFunction3'", 54, 46);
+        BAssertUtil
+                .validateError(res, 5, "lambda function with string input parameter is required as transaction handler",
+                        54, 46);
+        BAssertUtil.validateError(res, 6, "undefined symbol 'abortFunction3'", 54, 71);
+        BAssertUtil
+                .validateError(res, 7, "lambda function with string input parameter is required as transaction handler",
+                        54, 71);
+        BAssertUtil
+                .validateError(res, 8, "lambda function with string input parameter is required as transaction handler",
+                        71, 46);
+        BAssertUtil
+                .validateError(res, 9, "lambda function with string input parameter is required as transaction handler",
+                        71, 57);
     }
 }

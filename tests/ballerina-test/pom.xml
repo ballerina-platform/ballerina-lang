@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha1-SNAPSHOT</version>
+        <version>0.970.0-alpha3-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -95,10 +95,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>protobuf-ballerina</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-metrics</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>

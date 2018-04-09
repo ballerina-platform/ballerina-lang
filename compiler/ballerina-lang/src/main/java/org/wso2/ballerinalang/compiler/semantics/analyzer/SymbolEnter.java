@@ -633,9 +633,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         // this is a field variable defined for object init function
         if (varNode.isField) {
             Name varName = names.fromIdNode(varNode.name);
-            BVarSymbol fieldVar = (BVarSymbol) symResolver.resolveObjectField(varNode.pos, env, varName,
+            BSymbol symbol = symResolver.resolveObjectField(varNode.pos, env, varName,
                     env.enclObject.symbol.type.tsymbol);
-            varNode.type = fieldVar.type;
+
+            if (symbol == symTable.notFoundSymbol) {
+                dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_OBJECT_FIELD, varName, env.enclObject.name);
+            }
+            varNode.type = symbol.type;
             varName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
             BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
 
@@ -643,8 +647,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             varSymbol.field = true;
             varSymbol.originalName = names.fromIdNode(varNode.name);
 
-            env.enclObject.initFunction.initFunctionStmts.put(fieldVar,
-                    (BLangStatement) createAssignmentStmt(varNode, varSymbol, fieldVar));
+            env.enclObject.initFunction.initFunctionStmts.put(symbol,
+                    (BLangStatement) createAssignmentStmt(varNode, varSymbol, symbol));
             varSymbol.docTag = varNode.docTag;
             varNode.symbol = varSymbol;
             return;
@@ -1020,8 +1024,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                       Name varName, SymbolEnv env) {
         // Create variable symbol
         Scope enclScope = env.scope;
-        BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(Flags.asMask(flagSet), varName,
-                env.enclPkg.symbol.pkgID, varType, enclScope.owner);
+        BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(Flags.asMask(flagSet), varName, env.enclPkg.symbol
+                .pkgID, varType, enclScope.owner);
+        Scope.ScopeEntry scopeEntry = enclScope.entries.get(names.fromString("$" + varName.value));
+        if (scopeEntry != null && scopeEntry.symbol != null && scopeEntry.symbol instanceof BVarSymbol) {
+            varSymbol.docTag = ((BVarSymbol) scopeEntry.symbol).docTag;
+        }
 
         // Add it to the enclosing scope
         // Find duplicates
@@ -1115,14 +1123,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineServiceInitFunction(BLangService service, SymbolEnv conEnv) {
         BLangFunction initFunction = createInitFunction(service.pos, service.getName().getValue(),
                 Names.INIT_FUNCTION_SUFFIX);
-        //Add service level variables to the init function
-        service.vars.stream().filter(f -> f.var.expr != null)
-                .forEachOrdered(v -> initFunction.body.addStatement(createAssignmentStmt(v.var)));
-
-        addInitReturnStatement(initFunction.body);
         service.initFunction = initFunction;
         defineNode(service.initFunction, conEnv);
-//        service.symbol.initFunctionSymbol = service.initFunction.symbol;
     }
 
     private void defineAttachedFunctions(BLangFunction funcNode, BInvokableSymbol funcSymbol,
@@ -1213,7 +1215,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         objectSymbol.initializerFunc = attachedFunc;
     }
 
-    private StatementNode createAssignmentStmt(BLangVariable variable, BVarSymbol varSym, BVarSymbol fieldVar) {
+    private StatementNode createAssignmentStmt(BLangVariable variable, BVarSymbol varSym, BSymbol fieldVar) {
         //Create LHS reference variable
         BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         varRef.pos = variable.pos;
@@ -1286,11 +1288,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             initFunction.body.addStatement(createNamespaceDeclrStatement(xmlns));
         });
 
-        //Add global variables to the init function
-        pkgNode.globalVars.stream().filter(f -> f.expr != null)
-                .forEachOrdered(v -> initFunction.body.addStatement(createAssignmentStmt(v)));
-
-        addInitReturnStatement(initFunction.body);
         defineNode(pkgNode.initFunction, env);
         pkgNode.symbol.initFunctionSymbol = pkgNode.initFunction.symbol;
 

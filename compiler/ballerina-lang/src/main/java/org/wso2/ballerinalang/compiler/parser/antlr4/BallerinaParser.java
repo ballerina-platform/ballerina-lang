@@ -1,21 +1,3 @@
-/*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
 // Generated from BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.atn.*;
@@ -443,7 +425,7 @@ public class BallerinaParser extends Parser {
 				setState(409);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,5,_ctx);
-				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				while ( _alt!=2 && _alt != ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
@@ -1054,7 +1036,7 @@ public class BallerinaParser extends Parser {
 			setState(491);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,16,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt != ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -1070,7 +1052,7 @@ public class BallerinaParser extends Parser {
 			setState(497);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,17,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt != ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -2402,7 +2384,7 @@ public class BallerinaParser extends Parser {
 				setState(726);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,61,_ctx);
-				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				while ( _alt!=2 && _alt != ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
@@ -3675,7 +3657,7 @@ public class BallerinaParser extends Parser {
 			setState(905);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,89,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt != ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
@@ -3710,7 +3692,7 @@ public class BallerinaParser extends Parser {
 							setState(892); 
 							_errHandler.sync(this);
 							_alt = getInterpreter().adaptivePredict(_input,86,_ctx);
-						} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
+						} while ( _alt!=2 && _alt != ATN.INVALID_ALT_NUMBER );
 						}
 						break;
 					case 2:
@@ -3740,7 +3722,7 @@ public class BallerinaParser extends Parser {
 							setState(899); 
 							_errHandler.sync(this);
 							_alt = getInterpreter().adaptivePredict(_input,87,_ctx);
-						} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
+						} while ( _alt!=2 && _alt != ATN.INVALID_ALT_NUMBER );
 						}
 						break;
 					case 3:
@@ -4017,7 +3999,7 @@ public class BallerinaParser extends Parser {
 					setState(930); 
 					_errHandler.sync(this);
 					_alt = getInterpreter().adaptivePredict(_input,92,_ctx);
-				} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
+				} while ( _alt!=2 && _alt != ATN.INVALID_ALT_NUMBER );
 				}
 				break;
 			}
@@ -5792,7 +5774,7 @@ public class BallerinaParser extends Parser {
 			setState(1154);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,123,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt != ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -5860,7 +5842,7 @@ public class BallerinaParser extends Parser {
 			setState(1161);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,124,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt != ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -7858,7 +7840,7 @@ public class BallerinaParser extends Parser {
 			setState(1465);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,164,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt != ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
@@ -9930,7 +9912,7 @@ public class BallerinaParser extends Parser {
 			setState(1692);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,185,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt != ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
@@ -10957,7 +10939,7 @@ public class BallerinaParser extends Parser {
 				setState(1814);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,200,_ctx);
-				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				while ( _alt!=2 && _alt != ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
@@ -13290,7 +13272,7 @@ public class BallerinaParser extends Parser {
 			setState(2102);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,247,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt != ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -13917,8 +13899,8 @@ public class BallerinaParser extends Parser {
 		public TerminalNode NOT() { return getToken(BallerinaParser.NOT, 0); }
 		public TerminalNode AND() { return getToken(BallerinaParser.AND, 0); }
 		public TerminalNode FOR() { return getToken(BallerinaParser.FOR, 0); }
-		public IntegerLiteralContext integerLiteral() {
-			return getRuleContext(IntegerLiteralContext.class,0);
+		public SimpleLiteralContext simpleLiteral() {
+			return getRuleContext(SimpleLiteralContext.class,0);
 		}
 		public TerminalNode OR() { return getToken(BallerinaParser.OR, 0); }
 		public PatternStreamingInputContext(ParserRuleContext parent, int invokingState) {
@@ -13989,7 +13971,7 @@ public class BallerinaParser extends Parser {
 					setState(2193);
 					match(FOR);
 					setState(2194);
-					integerLiteral();
+					simpleLiteral();
 					}
 					break;
 				default:
@@ -16333,7 +16315,7 @@ public class BallerinaParser extends Parser {
 		"\2\2\u088b\u088c\7z\2\2\u088c\u088d\5\u015c\u00af\2\u088d\u088e\7{\2\2"+
 		"\u088e\u089d\3\2\2\2\u088f\u0890\7\u0086\2\2\u0890\u0895\5\u015e\u00b0"+
 		"\2\u0891\u0892\7\u008d\2\2\u0892\u0896\5\u015e\u00b0\2\u0893\u0894\7&"+
-		"\2\2\u0894\u0896\5\u0108\u0085\2\u0895\u0891\3\2\2\2\u0895\u0893\3\2\2"+
+		"\2\2\u0894\u0896\5\u0106\u0084\2\u0895\u0891\3\2\2\2\u0895\u0893\3\2\2"+
 		"\2\u0896\u089d\3\2\2\2\u0897\u0898\5\u015e\u00b0\2\u0898\u0899\t\23\2"+
 		"\2\u0899\u089a\5\u015e\u00b0\2\u089a\u089d\3\2\2\2\u089b\u089d\5\u015e"+
 		"\u00b0\2\u089c\u0886\3\2\2\2\u089c\u088b\3\2\2\2\u089c\u088f\3\2\2\2\u089c"+

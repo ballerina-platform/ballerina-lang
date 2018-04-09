@@ -37,6 +37,7 @@ type TwoPhaseCommitTransaction object {
     new(transactionId, transactionBlockId, string coordinationType = "2pc") {
         self.createdTime = time:currentTime().time;
         self.coordinationType = coordinationType;
+        self.state =  TXN_STATE_ACTIVE;
     }
 
     // This function will be called by the initiator
@@ -134,7 +135,7 @@ type TwoPhaseCommitTransaction object {
         return ""; //TODO: check what will happen if nothing is returned
     }
 
-    function prepareParticipants(ProtocolName protocol) returns boolean {
+    function prepareParticipants(string protocol) returns boolean {
         boolean successful = true;
         foreach _, participant in self.participants {
             Protocol[] protocols = participant.participantProtocols;
@@ -369,4 +370,4 @@ type TwoPhaseCommitTransaction object {
             log:printError(failedMessage);
         }
     }
-}
+};

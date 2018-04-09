@@ -19,6 +19,7 @@
 package org.ballerinalang.test.mime;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -68,6 +69,9 @@ public class MultipartEncoderTest {
 
     @BeforeClass
     public void setup() {
+        //Used only to get an instance of CompileResult.
+        String sourceFilePath = "test-src/mime/dummy.bal";
+        result = BCompileUtil.compile(sourceFilePath);
         String sourceFilePathForServices = "test-src/mime/multipart-response.bal";
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePathForServices);
     }
@@ -185,9 +189,9 @@ public class MultipartEncoderTest {
                 "form-data; name=\"filepart\"; filename=\"file-01.txt\"");
         BStruct contentDisposition = (BStruct) bodyPart.getRefField(CONTENT_DISPOSITION_INDEX);
         Assert.assertEquals(contentDisposition.getStringField(CONTENT_DISPOSITION_FILENAME_INDEX),
-                "\"file-01.txt\"");
+                "file-01.txt");
         Assert.assertEquals(contentDisposition.getStringField(CONTENT_DISPOSITION_NAME_INDEX),
-                "\"filepart\"");
+                "filepart");
         Assert.assertEquals(contentDisposition.getStringField(DISPOSITION_INDEX),
                 "form-data");
     }

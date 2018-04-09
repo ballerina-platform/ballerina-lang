@@ -22,33 +22,6 @@ import Node from '../node';
 class AbstractAnnotationAttachmentNode extends Node {
 
 
-    setPackageAlias(newValue, silent, title) {
-        const oldValue = this.packageAlias;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.packageAlias = newValue;
-
-        this.packageAlias.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'packageAlias',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getPackageAlias() {
-        return this.packageAlias;
-    }
-
-
-
     setAnnotationName(newValue, silent, title) {
         const oldValue = this.annotationName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -99,6 +72,33 @@ class AbstractAnnotationAttachmentNode extends Node {
 
     getExpression() {
         return this.expression;
+    }
+
+
+
+    setPackageAlias(newValue, silent, title) {
+        const oldValue = this.packageAlias;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.packageAlias = newValue;
+
+        this.packageAlias.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'packageAlias',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getPackageAlias() {
+        return this.packageAlias;
     }
 
 
