@@ -66,7 +66,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
 
     private static final Logger log = LoggerFactory.getLogger(HttpClientChannelInitializer.class);
 
-    private SSLEngine sslEngine;
     private TargetHandler targetHandler;
     private boolean httpTraceLogEnabled;
     private boolean followRedirect;
@@ -185,7 +184,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             clientPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(instantiateAndConfigSSL(sslConfig)));
             if (validateCertEnabled) {
                 clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
-                        new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
+                        new CertificateValidationHandler(instantiateAndConfigSSL(sslConfig), this.cacheDelay, this.cacheSize));
             }
         }
         clientPipeline.addLast(Constants.SSL_COMPLETION_HANDLER,
@@ -209,9 +208,10 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             SslContext sslCtx = new SSLHandlerFactory(sslConfig)
                     .createHttp2TLSContextForClient(false);
             clientPipeline.addLast(sslCtx.newHandler(ch.alloc()));
-            if (validateCertEnabled && sslEngine != null) {
+            if (validateCertEnabled && sslConfig != null) {
                 clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
-                        new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
+                        new CertificateValidationHandler(instantiateAndConfigSSL(sslConfig), this.cacheDelay,
+                                this.cacheSize));
             }
         }
         clientPipeline.addLast(new Http2PipelineConfiguratorForClient(targetHandler,
@@ -282,8 +282,8 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             if (log.isDebugEnabled()) {
                 log.debug("Follow Redirect is enabled, so adding the redirect handler to the pipeline.");
             }
-            RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount
-                    , connectionManager);
+            RedirectHandler redirectHandler = new RedirectHandler(instantiateAndConfigSSL(sslConfig),
+                    httpTraceLogEnabled, maxRedirectCount, connectionManager);
             pipeline.addLast(Constants.REDIRECT_HANDLER, redirectHandler);
         }
     }

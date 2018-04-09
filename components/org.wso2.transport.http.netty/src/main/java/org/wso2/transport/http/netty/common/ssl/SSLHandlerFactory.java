@@ -177,6 +177,7 @@ public class SSLHandlerFactory {
      * This method will provide netty ssl context which supports HTTP2 over TLS using
      * Application Layer Protocol Negotiation (ALPN)
      *
+     * @param enableOcsp whether ocsp is enabled or not (true/false)
      * @return instance of {@link SslContext}
      * @throws SSLException if any error occurred during building SSL context.
      */
