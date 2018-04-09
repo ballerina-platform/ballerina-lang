@@ -14,7 +14,7 @@ service<http:Service> test bind multipartEP {
     }
     receiveMultiparts (endpoint conn, http:Request request) {
         http:Response response = {};
-        match request.getMultiparts() {
+        match request.getBodyParts() {
             mime:EntityError err => {
                 io:println(err);
                 response.setStringPayload("Error in decoding multiparts!");

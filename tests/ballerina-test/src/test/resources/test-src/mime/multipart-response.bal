@@ -59,7 +59,7 @@ service<http:Service> test bind mockEP {
     nestedPartsInOutResponse (endpoint conn, http:Request request) {
         string contentType = request.getHeader("content-type");
         http:Response outResponse = new;
-        match (request.getMultiparts()) {
+        match (request.getBodyParts()) {
             mime:EntityError err => {
                 outResponse.setStringPayload(err.message);
             }

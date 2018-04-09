@@ -21,6 +21,7 @@ package org.ballerinalang.mime.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
@@ -33,6 +34,7 @@ import org.ballerinalang.runtime.message.StringDataSource;
 
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.Constants.TEXT_TYPE;
 
 /**
  * Get the entity body as a string.
@@ -53,21 +55,25 @@ public class GetText extends BlockingNativeCallableUnit {
         BString result;
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-            if (dataSource != null) {
-                result = new BString(dataSource.getMessageAsString());
+            String baseType = HeaderUtil.getBaseType(entityStruct);
+            if (baseType != null && baseType.startsWith(TEXT_TYPE)) {
+                MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+                if (dataSource != null) {
+                    result = new BString(dataSource.getMessageAsString());
+                } else {
+                    StringDataSource stringDataSource = EntityBodyHandler.constructStringDataSource(entityStruct);
+                    result = new BString(stringDataSource.getMessageAsString());
+                    EntityBodyHandler.addMessageDataSource(entityStruct, stringDataSource);
+                    //Set byte channel to null, once the message data source has been constructed
+                    entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+                }
+                context.setReturnValues(result);
             } else {
-                StringDataSource stringDataSource = EntityBodyHandler.constructStringDataSource(entityStruct);
-                result = new BString(stringDataSource.getMessageAsString());
-                EntityBodyHandler.addMessageDataSource(entityStruct, stringDataSource);
-                //Set byte channel to null, once the message data source has been constructed
-                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not text compatible"));
             }
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createEntityError(context,
                     "Error occurred while retrieving text data from entity : " + e.getMessage()));
-            return;
         }
-        context.setReturnValues(result);
     }
 }

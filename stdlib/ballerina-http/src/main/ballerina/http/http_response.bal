@@ -102,7 +102,7 @@ public type Response object {
     public function getBinaryPayload () returns (blob | PayloadError);
 
     @Description {value:"Gets the response payload as a byte channel except for multiparts. In case of multiparts,
-    please use 'getMultiparts()' instead."}
+    please use 'getBodyParts()' instead."}
     @Param {value:"response: The response message"}
     @Return {value:"A byte channel as the message payload or 'PayloadError' in case of errors"}
     public function getByteChannel () returns (io:ByteChannel | PayloadError);
@@ -110,7 +110,7 @@ public type Response object {
     @Description {value:"Get multiparts from response"}
     @Param {value:"response: The response message"}
     @Return {value:"Returns the body parts as an array of entities"}
-    public function getMultiparts () returns (mime:Entity[] | mime:EntityError);
+    public function getBodyParts () returns (mime:Entity[] | mime:EntityError);
 
     @Description {value:"Sets a JSON as the outbound response payload"}
     @Param {value:"response: The response message"}
@@ -136,7 +136,7 @@ public type Response object {
     @Param {value:"response: The response message"}
     @Param {value:"bodyParts: Represent body parts that needs to be set to the response"}
     @Param {value:"contentType: Content type of the top level message"}
-    public function setMultiparts (mime:Entity[] bodyParts, string contentType);
+    public function setBodyParts (mime:Entity[] bodyParts, string contentType);
 
     @Description {value:"Sets the entity body of the outbound response with the given file content"}
     @Param {value:"response: The response message"}
@@ -254,7 +254,7 @@ public function Response::getByteChannel () returns (io:ByteChannel | PayloadErr
     }
 }
 
-public function Response::getMultiparts () returns mime:Entity[] | mime:EntityError {
+public function Response::getBodyParts () returns mime:Entity[] | mime:EntityError {
     var mimeEntity = self.getEntity();
     match mimeEntity {
         mime:Entity entity => return entity.getBodyParts();
@@ -290,7 +290,7 @@ public function Response::setBinaryPayload (blob payload) {
     self.setEntity(entity);
 }
 
-public function Response::setMultiparts (mime:Entity[] bodyParts, string contentType) {
+public function Response::setBodyParts (mime:Entity[] bodyParts, string contentType) {
     mime:Entity entity = self.getEntityWithoutBody();
     mime:MediaType mediaType = getMediaTypeFromResponse(self, mime:MULTIPART_MIXED);
     if (contentType != null && contentType != "") {

@@ -106,7 +106,7 @@ public type Request object {
     public function getBinaryPayload () returns (blob | PayloadError);
 
     @Description {value:"Get the request payload as a byte channel except for multiparts. In case of multiparts,
-    please use 'getMultiparts()' instead."}
+    please use 'getBodyParts()' instead."}
     @Return {value:"A byte channel as the message payload or 'PayloadError' in case of errors"}
     public function getByteChannel () returns (io:ByteChannel | PayloadError);
 
@@ -116,7 +116,7 @@ public type Request object {
 
     @Description {value:"Get multiparts from request"}
     @Return {value:"Returns the body parts as an array of entities"}
-    public function getMultiparts () returns (mime:Entity[] | mime:EntityError);
+    public function getBodyParts () returns (mime:Entity[] | mime:EntityError);
 
     @Description {value:"Sets a JSON as the request payload"}
     @Param {value:"payload: The JSON payload to be set to the request"}
@@ -137,7 +137,7 @@ public type Request object {
     @Description {value:"Set multiparts as the request payload"}
     @Param {value:"bodyParts: Represent body parts that needs to be set to the request"}
     @Param {value:"contentType: Content type of the top level message"}
-    public function setMultiparts (mime:Entity[] bodyParts, string contentType);
+    public function setBodyParts (mime:Entity[] bodyParts, string contentType);
 
     @Description {value:"Sets the entity body of the request with the given file content"}
     @Param {value:"filePath: Path to the file that needs to be set to the payload"}
@@ -294,7 +294,7 @@ public function Request::getFormParams () returns (map | PayloadError) {
     }
 }
 
-public function Request::getMultiparts () returns (mime:Entity[] | mime:EntityError) {
+public function Request::getBodyParts () returns (mime:Entity[] | mime:EntityError) {
     var mimeEntity = self.getEntity();
     match mimeEntity {
         mime:Entity entity => return entity.getBodyParts();
@@ -330,7 +330,7 @@ public function Request::setBinaryPayload (blob payload) {
     self.setEntity(entity);
 }
 
-public function Request::setMultiparts (mime:Entity[] bodyParts, string contentType) {
+public function Request::setBodyParts (mime:Entity[] bodyParts, string contentType) {
     mime:Entity entity = self.getEntityWithoutBody();
     mime:MediaType mediaType = getMediaTypeFromRequest(self, mime:MULTIPART_MIXED);
     if (contentType != null && contentType != "") {

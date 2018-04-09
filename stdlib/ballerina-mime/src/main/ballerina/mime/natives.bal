@@ -86,19 +86,19 @@ public type MediaType object {
 
     @Description {value:"Get “primaryType/subtype+suffix” combination in string format."}
     @Return {value:"Return base type from MediaType struct"}
-    public function toString () returns (string);
+    public function getBaseType () returns (string);
 
     @Description {value:"Convert the media type to a string suitable for use as the value of a corresponding HTTP header."}
     @Return {value:"Return the Content-Type with parameters as a string"}
-    public function toStringWithParameters () returns (string);
+    public function toString () returns (string);
 };
 
-public function MediaType::toString () returns (string) {
+public function MediaType::getBaseType () returns (string) {
     return self.primaryType + "/" + self.subType;
 }
 
-public function MediaType::toStringWithParameters () returns (string) {
-    string contentType = self.toString() + "; ";
+public function MediaType::toString () returns (string) {
+    string contentType = getBaseType() + "; ";
     map<string> parameters = self.parameters;
     string[] arrKeys = self.parameters.keys();
     int size = lengthof arrKeys;

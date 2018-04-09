@@ -21,6 +21,7 @@ package org.ballerinalang.mime.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
@@ -33,6 +34,8 @@ import org.ballerinalang.runtime.message.MessageDataSource;
 
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.Constants.JSON_SUFFIX;
+import static org.ballerinalang.mime.util.Constants.XML_SUFFIX;
 
 /**
  * Get the entity body in xml form.
@@ -53,21 +56,26 @@ public class GetXml extends BlockingNativeCallableUnit {
         BXML result;
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-            if (dataSource != null) {
-                if (dataSource instanceof BXML) {
-                    result = (BXML) dataSource;
+            String baseType = HeaderUtil.getBaseType(entityStruct);
+            if (baseType != null && baseType.endsWith(XML_SUFFIX)) {
+                MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+                if (dataSource != null) {
+                    if (dataSource instanceof BXML) {
+                        result = (BXML) dataSource;
+                    } else {
+                        // else, build the XML from the string representation of the payload.
+                        result = XMLUtils.parse(dataSource.getMessageAsString());
+                    }
                 } else {
-                    // else, build the XML from the string representation of the payload.
-                    result = XMLUtils.parse(dataSource.getMessageAsString());
+                    result = EntityBodyHandler.constructXmlDataSource(entityStruct);
+                    EntityBodyHandler.addMessageDataSource(entityStruct, result);
+                    //Set byte channel to null, once the message data source has been constructed
+                    entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
                 }
+                context.setReturnValues(result);
             } else {
-                result = EntityBodyHandler.constructXmlDataSource(entityStruct);
-                EntityBodyHandler.addMessageDataSource(entityStruct, result);
-                //Set byte channel to null, once the message data source has been constructed
-                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not xml compatible"));
             }
-            context.setReturnValues(result);
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createEntityError(context,
                     "Error occurred while retrieving xml data from entity : " + e.getMessage()));

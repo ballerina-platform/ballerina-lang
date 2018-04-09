@@ -18,9 +18,11 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
@@ -29,6 +31,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.runtime.message.StringDataSource;
 
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 /**
  * Set the entity body with text data.
@@ -47,6 +50,9 @@ public class SetText extends BlockingNativeCallableUnit {
         BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
         String textContent = context.getStringArgument(FIRST_PARAMETER_INDEX);
         EntityBodyHandler.addMessageDataSource(entityStruct, new StringDataSource(textContent));
+        if(HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString()) == null) {
+            HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
+        }
         context.setReturnValues();
     }
 }

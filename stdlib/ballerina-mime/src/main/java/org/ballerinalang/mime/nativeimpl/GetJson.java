@@ -21,6 +21,7 @@ package org.ballerinalang.mime.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BJSON;
@@ -32,6 +33,7 @@ import org.ballerinalang.runtime.message.MessageDataSource;
 
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.Constants.JSON_SUFFIX;
 
 /**
  * Get the entity body in JSON form.
@@ -52,21 +54,26 @@ public class GetJson extends BlockingNativeCallableUnit {
         BJSON result;
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-            if (dataSource != null) {
-                if (dataSource instanceof BJSON) {
-                    result = (BJSON) dataSource;
+            String baseType = HeaderUtil.getBaseType(entityStruct);
+            if (baseType != null && baseType.endsWith(JSON_SUFFIX)) {
+                MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+                if (dataSource != null) {
+                    if (dataSource instanceof BJSON) {
+                        result = (BJSON) dataSource;
+                    } else {
+                        // else, build the JSON from the string representation of the payload.
+                        result = new BJSON(dataSource.getMessageAsString());
+                    }
                 } else {
-                    // else, build the JSON from the string representation of the payload.
-                    result = new BJSON(dataSource.getMessageAsString());
+                    result = EntityBodyHandler.constructJsonDataSource(entityStruct);
+                    EntityBodyHandler.addMessageDataSource(entityStruct, result);
+                    //Set byte channel to null, once the message data source has been constructed
+                    entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
                 }
+                context.setReturnValues(result);
             } else {
-                result = EntityBodyHandler.constructJsonDataSource(entityStruct);
-                EntityBodyHandler.addMessageDataSource(entityStruct, result);
-                //Set byte channel to null, once the message data source has been constructed
-                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not json compatible"));
             }
-            context.setReturnValues(result);
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createEntityError(context,
                     "Error occurred while extracting json data from entity: " + e.getMessage()));

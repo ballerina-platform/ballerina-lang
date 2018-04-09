@@ -20,7 +20,7 @@ service<http:Service> test bind mockEP {
     }
     multipart1 (endpoint client, http:Request request) {
         http:Response response = new;
-        match request.getMultiparts() {
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -46,7 +46,7 @@ service<http:Service> test bind mockEP {
     }
     multipart2 (endpoint client, http:Request request) {
         http:Response response = new;
-        match request.getMultiparts() {
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -68,7 +68,7 @@ service<http:Service> test bind mockEP {
     }
     multipart3 (endpoint client, http:Request request) {
         http:Response response = new;
-        match request.getMultiparts() {
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -90,7 +90,7 @@ service<http:Service> test bind mockEP {
     }
     multipart4 (endpoint client, http:Request request) {
         http:Response response = new;
-        match request.getMultiparts() {
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -112,7 +112,7 @@ service<http:Service> test bind mockEP {
     }
     multipart5 (endpoint client, http:Request request) {
         http:Response response = new;
-        match request.getMultiparts() {
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -136,7 +136,7 @@ service<http:Service> test bind mockEP {
     }
     multipart6 (endpoint client, http:Request request) {
         http:Response response = new;
-        match (request.getMultiparts()) {
+        match (request.getBodyParts()) {
             mime:EntityError err => {
                 response.setStringPayload(err.message);
             }
@@ -153,7 +153,7 @@ service<http:Service> test bind mockEP {
     }
     multipart7 (endpoint client, http:Request request) {
         http:Response response = new;
-        match request.getMultiparts() {
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
