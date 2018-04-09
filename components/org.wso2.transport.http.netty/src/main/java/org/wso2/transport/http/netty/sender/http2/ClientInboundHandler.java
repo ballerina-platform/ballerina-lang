@@ -56,8 +56,8 @@ public class ClientInboundHandler extends Http2EventAdapter {
     public int onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, int padding,
                           boolean endOfStream) throws Http2Exception {
         if (log.isDebugEnabled()) {
-            log.debug("TID: {} OID: {} Reading data of stream id: {}, isEndOfStream: {}",
-                      Thread.currentThread().getId(), http2ClientChannel.toString(), streamId, endOfStream);
+            log.debug("Reading data on channel: {} with stream id: {}, isEndOfStream: {}",
+                      http2ClientChannel.toString(), streamId, endOfStream);
         }
 
         http2ClientChannel.getDataEventListeners().
@@ -69,8 +69,8 @@ public class ClientInboundHandler extends Http2EventAdapter {
             if (outboundMsgHolder != null) {
                 isServerPush = true;
             } else {
-                log.warn("TID: {} OID: {} Data Frame received over invalid stream id: {}",
-                         Thread.currentThread().getId(), streamId, http2ClientChannel.toString());
+                log.warn("Data Frame received on channel: {} with invalid stream id: {}",
+                         http2ClientChannel.toString(), streamId);
                 return 0;
             }
         }
@@ -105,8 +105,8 @@ public class ClientInboundHandler extends Http2EventAdapter {
     public void onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers,
                               int padding, boolean endStream) throws Http2Exception {
         if (log.isDebugEnabled()) {
-            log.debug("TID: {} OID: {} Reading Http2 headers of stream id: {}, isEndOfStream: {}",
-                     Thread.currentThread().getId(), http2ClientChannel.toString(), streamId, endStream);
+            log.debug("Reading Http2 headers on channel: {} with stream id: {}, isEndOfStream: {}",
+                      http2ClientChannel.toString(), streamId, endStream);
         }
         http2ClientChannel.getDataEventListeners().
                 forEach(dataEventListener -> dataEventListener.onDataRead(streamId, ctx, endStream));
@@ -117,8 +117,8 @@ public class ClientInboundHandler extends Http2EventAdapter {
             if (outboundMsgHolder != null) {
                 isServerPush = true;
             } else {
-                log.warn("TID: {} OID: {} Header Frame received over invalid stream id: {} ",
-                         Thread.currentThread().getId(), http2ClientChannel.toString(), streamId);
+                log.warn("Header Frame received on channel: {} with invalid stream id: {} ",
+                         http2ClientChannel.toString(), streamId);
                 return;
             }
         }
@@ -149,8 +149,8 @@ public class ClientInboundHandler extends Http2EventAdapter {
 
     @Override
     public void onRstStreamRead(ChannelHandlerContext ctx, int streamId, long errorCode) throws Http2Exception {
-        log.warn("TID: {} OID: {}  RST received for streamId: {} errorCode: {}",
-                 Thread.currentThread().getId(), http2ClientChannel.toString(), streamId, errorCode);
+        log.warn("RST received on channel: {} for streamId: {} errorCode: {}",
+                 http2ClientChannel.toString(), streamId, errorCode);
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         if (outboundMsgHolder != null) {
             outboundMsgHolder.getResponseFuture().
@@ -162,16 +162,16 @@ public class ClientInboundHandler extends Http2EventAdapter {
     public void onPushPromiseRead(ChannelHandlerContext ctx, int streamId, int promisedStreamId,
                                   Http2Headers headers, int padding) throws Http2Exception {
         if (log.isDebugEnabled()) {
-            log.debug("TID: {} OID: {} Received a push promise over stream id: {}, promisedStreamId: {}",
-                      Thread.currentThread().getId(), http2ClientChannel.toString(), streamId, promisedStreamId);
+            log.debug("Received a push promise on channel: {} over stream id: {}, promisedStreamId: {}",
+                      http2ClientChannel.toString(), streamId, promisedStreamId);
         }
         http2ClientChannel.getDataEventListeners().
                 forEach(dataEventListener -> dataEventListener.onDataRead(streamId, ctx, false));
 
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         if (outboundMsgHolder == null) {
-            log.warn("TID: {} OID: {} Push promised received over invalid stream id : {}",
-                     Thread.currentThread().getId(), http2ClientChannel.toString(), streamId);
+            log.warn("Push promise received in channel: {} over invalid stream id : {}",
+                     http2ClientChannel.toString(), streamId);
             return;
         }
         http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);

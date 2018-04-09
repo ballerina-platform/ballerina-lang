@@ -120,8 +120,7 @@ public class Http2ClientChannel {
      */
     public void putInFlightMessage(int streamId, OutboundMsgHolder inFlightMessage) {
         if (log.isDebugEnabled()) {
-            log.debug("TID: {} OID: {} In flight message added to stream id: {}",
-                     Thread.currentThread().getId(), this.toString(), streamId);
+            log.debug("In flight message added to channel: {} with stream id: {}  ", this.toString(), streamId);
         }
         inFlightMessages.put(streamId, inFlightMessage);
     }
@@ -134,8 +133,7 @@ public class Http2ClientChannel {
      */
     public OutboundMsgHolder getInFlightMessage(int streamId) {
         if (log.isDebugEnabled()) {
-            log.debug("TID: {} OID: {} Getting in flight message for stream id: {}",
-                      Thread.currentThread().getId(), this.toString(), streamId);
+            log.debug("Getting in flight message for stream id: {} from channel: {}", streamId, this.toString());
         }
         return inFlightMessages.get(streamId);
     }
@@ -147,8 +145,7 @@ public class Http2ClientChannel {
      */
     void removeInFlightMessage(int streamId) {
         if (log.isDebugEnabled()) {
-            log.debug("TID: {} OID: {} In flight message for stream id: {} removed",
-                      Thread.currentThread().getId(), this.toString(), streamId);
+            log.debug("In flight message for stream id: {} removed from channel: {}", streamId, this.toString());
         }
         inFlightMessages.remove(streamId);
     }
