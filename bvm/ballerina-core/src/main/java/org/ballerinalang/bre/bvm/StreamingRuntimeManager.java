@@ -21,8 +21,8 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
@@ -74,8 +74,13 @@ public class StreamingRuntimeManager {
     public void addCallback(String streamId, BFunctionPointer functionPointer, SiddhiAppRuntime siddhiAppRuntime) {
 
         BType[] parameters = functionPointer.value().getFunctionInfo().getParamTypes();
-        // TODO: 4/6/18 extract all parameters from closure and pass them to the callback
-        BStream stream = (BStream) (functionPointer.getClosureVars().get(0)).value();
+
+        // Create an array list with closure var values
+        List<BValue> closureArgs = new ArrayList<>();
+        for (BClosure closure : functionPointer.getClosureVars()) {
+            closureArgs.add(closure.value());
+        }
+
         BStructType structType = (BStructType) ((BArrayType) parameters[parameters.length - 1]).getElementType();
         if (!(parameters[parameters.length - 1] instanceof BArrayType)) {
             throw new BallerinaException("incompatible function: inline function needs to be a function accepting"
@@ -102,8 +107,11 @@ public class StreamingRuntimeManager {
                             output.setStringField(stringVarIndex.incrementAndGet(), (String) field);
                         }
                     }
-                    BValue[] args = {stream, output};
-                    BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(), args);
+                    List<BValue> argsList = new ArrayList<>();
+                    argsList.addAll(closureArgs);
+                    argsList.add(output);
+                    BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(),
+                            argsList.toArray(new BValue[argsList.size()]));
                 }
             }
         });
