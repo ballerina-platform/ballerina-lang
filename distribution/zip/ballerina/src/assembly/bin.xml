@@ -131,6 +131,7 @@
                 <include>org.ballerinalang:ballerina-mime:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
                 <include>org.ballerinalang:ballerina-jms:jar</include>
+                <include>org.ballerinalang:ballerina-mysql:jar</include>
                 <include>org.ballerinalang:strip-bouncycastle:jar</include>
                 <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>

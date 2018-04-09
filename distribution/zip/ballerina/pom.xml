@@ -73,6 +73,10 @@
             <artifactId>ballerina-jms</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-mysql</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.jms</groupId>
             <artifactId>javax.jms-api</artifactId>
         </dependency>
