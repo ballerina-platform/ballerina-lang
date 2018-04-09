@@ -131,10 +131,8 @@ public class HttpClientRedirectTestCase {
             }
         });
         httpsClientConnector = connectorFactory.createHttpClientConnector(HTTPConnectorUtil
-                        .getTransportProperties(transportsConfigurationForHttps),
-                HTTPConnectorUtil.getSenderConfiguration(transportsConfigurationForHttps,
-                        Constants.HTTPS_SCHEME));
-
+                .getTransportProperties(transportsConfigurationForHttps), HTTPConnectorUtil
+                .getSenderConfiguration(transportsConfigurationForHttps, Constants.HTTPS_SCHEME));
     }
 
     /**
