@@ -29,18 +29,15 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
-import org.ballerinalang.net.grpc.MessageContext;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static org.ballerinalang.net.grpc.MessageContext.MESSAGE_CONTEXT_KEY;
 import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
+import static org.ballerinalang.net.grpc.MessageUtils.updateContextProperties;
 
 /**
  * Abstract Method listener.
@@ -143,14 +140,5 @@ abstract class MethodListener {
         }
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
         Executor.submit(resource, callback, updateContextProperties(null), null, signatureParams);
-    }
-
-    Map<String, Object> updateContextProperties(Map<String, Object> properties) {
-        if (MessageContext.isPresent()) {
-            properties = properties != null ? properties : new HashMap<>();
-            MessageContext context = MessageContext.current();
-            properties.put(MESSAGE_CONTEXT_KEY, new MessageContext(context));
-        }
-        return properties;
     }
 }

@@ -48,8 +48,12 @@ public abstract class AbstractHeaderInterceptor {
 
     public MessageContext readIncomingHeaders(Metadata headers) {
 
-        MessageContext ctx = MessageContext.DATA_KEY.get();
-        ctx = ctx != null ? ctx : new MessageContext();
+        MessageContext ctx;
+        if (MessageContext.isPresent()) {
+            ctx = MessageContext.DATA_KEY.get();
+        } else {
+            ctx = new MessageContext();
+        }
 
         boolean found = false;
         for (String keyName : headers.keys()) {

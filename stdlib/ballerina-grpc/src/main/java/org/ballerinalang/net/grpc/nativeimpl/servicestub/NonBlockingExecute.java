@@ -32,7 +32,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageContext;
 import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
@@ -47,7 +46,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageContext.MESSAGE_CONTEXT_KEY;
+import static org.ballerinalang.net.grpc.MessageUtils.setRequestHeaders;
 
 /**
  * {@code NonBlockingExecute} is the NonBlockingExecute action implementation of the gRPC Connector.
@@ -102,12 +101,8 @@ public class NonBlockingExecute extends AbstractExecute {
             return;
         }
 
-        // Set request headers.
-        io.grpc.Context msgContext = io.grpc.Context.current().withValue(MessageContext.DATA_KEY, (MessageContext)
-                context.getProperty(MESSAGE_CONTEXT_KEY)).attach();
-        if (msgContext == null) {
-            LOG.error("Error while setting request headers. gRPC context is null");
-        }
+        // Update request headers when request headers exists in the context.
+        setRequestHeaders(context);
 
         if (connectionStub instanceof GrpcNonBlockingStub) {
             BValue payloadBValue = context.getRefArgument(1);

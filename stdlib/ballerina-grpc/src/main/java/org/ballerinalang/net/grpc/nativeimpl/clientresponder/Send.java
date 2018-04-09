@@ -75,10 +75,12 @@ public class Send extends BlockingNativeCallableUnit {
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) clientEndpoint.getNativeData(MessageConstants
                 .RESPONSE_MESSAGE_DEFINITION);
         // Set response headers.
-        io.grpc.Context msgContext = io.grpc.Context.current().withValue(MessageContext.DATA_KEY, (MessageContext)
-                context.getProperty(MESSAGE_CONTEXT_KEY)).attach();
-        if (msgContext == null) {
-            LOG.error("Error while setting response headers. gRPC context is null");
+        if (context.getProperty(MESSAGE_CONTEXT_KEY) != null) {
+            io.grpc.Context msgContext = io.grpc.Context.current().withValue(MessageContext.DATA_KEY, (MessageContext)
+                    context.getProperty(MESSAGE_CONTEXT_KEY)).attach();
+            if (msgContext == null) {
+                LOG.error("Error while setting response headers. gRPC context is null");
+            }
         }
 
         if (responseObserver == null) {

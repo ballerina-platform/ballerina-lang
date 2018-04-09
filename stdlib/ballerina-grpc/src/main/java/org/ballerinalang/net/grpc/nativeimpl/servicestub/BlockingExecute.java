@@ -43,6 +43,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAG
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX;
 import static org.ballerinalang.net.grpc.MessageContext.MESSAGE_CONTEXT_KEY;
+import static org.ballerinalang.net.grpc.MessageUtils.setRequestHeaders;
 
 /**
  * {@code BlockingExecute} is the BlockingExecute action implementation of the gRPC Connector.
@@ -97,12 +98,8 @@ public class BlockingExecute extends AbstractExecute {
             return;
         }
 
-        // Set request headers.
-        io.grpc.Context msgContext = io.grpc.Context.current().withValue(MessageContext.DATA_KEY, (MessageContext)
-                context.getProperty(MESSAGE_CONTEXT_KEY)).attach();
-        if (msgContext == null) {
-            LOG.error("Error while setting request headers. gRPC context is null");
-        }
+        // Update request headers when request headers exists in the context.
+        setRequestHeaders(context);
 
         if (connectionStub instanceof GrpcBlockingStub) {
             BValue payloadBValue = context.getRefArgument(1);
@@ -116,8 +113,10 @@ public class BlockingExecute extends AbstractExecute {
                     Descriptors.Descriptor outputDescriptor = methodDescriptor.getOutputType();
                     BValue responseBValue = MessageUtils.generateRequestStruct(responseMsg, context.getProgramFile(),
                             outputDescriptor.getName(), getBalType(outputDescriptor.getName(), context));
-                    // Set response headers.
-                    context.setProperty(MESSAGE_CONTEXT_KEY, new MessageContext(MessageContext.current()));
+                    // Set response headers, when response headers exists in the message context.
+                    if (MessageContext.isPresent()) {
+                        context.setProperty(MESSAGE_CONTEXT_KEY, new MessageContext(MessageContext.current()));
+                    }
                     context.setReturnValues(responseBValue);
                     return;
                 } else {

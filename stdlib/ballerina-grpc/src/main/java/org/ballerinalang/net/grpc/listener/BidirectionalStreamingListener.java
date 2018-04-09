@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.MessageUtils.updateContextProperties;
+
 /**
  * This is Bidirectional Streaming Method Implementation for gRPC Service Call.
  *

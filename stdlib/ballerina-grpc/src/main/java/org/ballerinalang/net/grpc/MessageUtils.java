@@ -102,6 +102,18 @@ public class MessageUtils {
         }
         return properties;
     }
+
+    public static void setRequestHeaders(Context context) {
+        if (context.getProperty(MESSAGE_CONTEXT_KEY) == null) {
+            LOG.debug("Request headers not found in the ballerina context");
+        }
+        // Set request headers.
+        io.grpc.Context msgContext = io.grpc.Context.current().withValue(MessageContext.DATA_KEY, (MessageContext)
+                context.getProperty(MESSAGE_CONTEXT_KEY)).attach();
+        if (msgContext == null) {
+            LOG.error("Error while setting request headers. gRPC context is null");
+        }
+    }
     
     public static StreamObserver<Message> getResponseObserver(BRefType refType) {
         Object observerObject = null;
