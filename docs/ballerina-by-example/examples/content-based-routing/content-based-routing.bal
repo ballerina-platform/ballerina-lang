@@ -2,12 +2,12 @@ import ballerina/mime;
 import ballerina/http;
 
 @Description {value:"Attributes associated with the service endpoint is defined here."}
-endpoint http:ServiceEndpoint cbrEP {
+endpoint http:Listener cbrEP {
     port:9090
 };
 
 @Description {value:"Attributes associated with the client endpoint is defined here."}
-endpoint http:ClientEndpoint locationEP {
+endpoint http:Client locationEP {
     targets:[{url: "http://www.mocky.io"}]
 };
 

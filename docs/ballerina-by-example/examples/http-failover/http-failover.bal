@@ -2,15 +2,15 @@ import ballerina/http;
 import ballerina/runtime;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint failoveruEP {
+endpoint http:Listener failoveruEP {
     port:9090
 };
 
-endpoint http:ServiceEndpoint backendEP {
+endpoint http:Listener backendEP {
     port:8080
 };
 
-endpoint http:ClientEndpoint backendClientEP {
+endpoint http:Client backendClientEP {
     lbMode: {
         failoverCodes : [400, 404, 500],
         interval : 0

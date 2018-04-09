@@ -1,15 +1,15 @@
 import ballerina/http;
 
-endpoint http:ServiceEndpoint chunkingEP {
+endpoint http:Listener chunkingEP {
     port:9092
 };
 
-endpoint http:ServiceEndpoint echoEP {
+endpoint http:Listener echoEP {
     port:9090
 };
 
 //Config client endpoint chunking behaviour by adding auto (default value), always or never to chunking option.
-endpoint http:ClientEndpoint clientEndpoint {
+endpoint http:Client clientEndpoint {
     targets: [
         {
            uri: "http://localhost:9090"

@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:NonListeningServiceEndpoint echoEP {
+endpoint http:NonListener echoEP {
     port:9090
 };
 

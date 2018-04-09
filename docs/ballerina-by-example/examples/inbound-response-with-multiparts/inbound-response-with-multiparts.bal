@@ -2,11 +2,11 @@ import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
-endpoint http:ClientEndpoint clientEP {
+endpoint http:Client clientEP {
     targets:[{url:"http://localhost:9092"}]
 };
 
-endpoint http:ServiceEndpoint multipartEP {
+endpoint http:Listener multipartEP {
     port:9090
 };
 

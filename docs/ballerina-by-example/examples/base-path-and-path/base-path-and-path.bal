@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/mime;
 
 @Description {value:"Attributes associated with the service endpoint is defined here."}
-endpoint http:ServiceEndpoint echoEP {
+endpoint http:Listener echoEP {
     port:9090
 };
 

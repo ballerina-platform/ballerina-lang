@@ -7,7 +7,7 @@ struct Student {
     map Marks;
 }
 
-endpoint http:ServiceEndpoint helloEP {
+endpoint http:Listener helloEP {
     port:9090
 };
 
