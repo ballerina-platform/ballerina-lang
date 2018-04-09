@@ -51,7 +51,7 @@ function main (string[] args) {
     _ = newFile3.createNewFile();
 
     //Get the list of files in a directory.
-    var filesList =? possibleDir.list();
+    var filesList = check possibleDir.list();
 
     //Print the list of files in directory "/tmp/dir/abc".
     int i=0;
@@ -62,7 +62,7 @@ function main (string[] args) {
 
     //Get file meta data.
     string name = newFile1.getName();
-    time:Time lastModifiedTime =? newFile1.getModifiedTime();
+    time:Time lastModifiedTime = check newFile1.getModifiedTime();
     io:println(name + " modified at: " + lastModifiedTime.time);
     io:println(name + " is readable: " + newFile1.isReadable());
     io:println(name + " is writable: " + newFile1.isWritable());

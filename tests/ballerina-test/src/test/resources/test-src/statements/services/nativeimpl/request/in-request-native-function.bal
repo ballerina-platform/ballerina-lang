@@ -81,7 +81,7 @@ function testGetXmlPayload (http:Request req) returns (xml | http:PayloadError) 
     return req.getXmlPayload();
 }
 
-endpoint http:NonListeningServiceEndpoint mockEP {
+endpoint http:NonListener mockEP {
     port:9090
 };
 

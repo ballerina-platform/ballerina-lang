@@ -1,10 +1,10 @@
 import ballerina/http;
 
-endpoint http:ServiceEndpoint echoEP1 {
+endpoint http:Listener echoEP1 {
     port:9094
 };
 
-endpoint http:ServiceEndpoint echoEP2 {
+endpoint http:Listener echoEP2 {
     port:9090
 };
 

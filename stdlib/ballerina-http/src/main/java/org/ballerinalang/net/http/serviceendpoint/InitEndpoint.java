@@ -64,7 +64,7 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
                              structPackage = "ballerina.http"),
         isPublic = true
 )

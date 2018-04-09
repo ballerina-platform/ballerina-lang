@@ -18,11 +18,11 @@ package ballerina.http;
 
 @Description {value:"Representation of an API Endpoint"}
 @Field {value:"config: ServiceEndpointConfiguration instance"}
-@Field {value:"httpEndpoint: ServiceEndpoint instance"}
+@Field {value:"httpEndpoint: HTTP Listener instance"}
 public type ApiEndpoint object {
     public {
         ServiceEndpointConfiguration config;
-        ServiceEndpoint httpEndpoint;
+        Listener httpEndpoint;
     }
 
     new () {
