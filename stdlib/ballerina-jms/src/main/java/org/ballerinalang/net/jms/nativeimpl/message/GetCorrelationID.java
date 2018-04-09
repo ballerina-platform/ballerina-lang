@@ -21,58 +21,53 @@ package org.ballerinalang.net.jms.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
-import org.ballerinalang.net.jms.JMSUtils;
+import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.TextMessage;
 
 /**
- * Get text content of the JMS Message.
+ * Get a correlation ID of the JMS Message.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jms",
-        functionName = "getTextMessageContent",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Message", structPackage = "ballerina.jms"),
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        orgName = "ballerina",
+        packageName = "jms",
+        functionName = "getCorrelationID",
+        receiver = @Receiver(type = TypeKind.STRUCT,
+                             structType = "Message",
+                             structPackage = "ballerina.jms"),
+        returnType = { @ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.NIL) },
         isPublic = true
 )
-public class GetTextMessageContent extends AbstractBlockinAction {
-
-    private static final Logger log = LoggerFactory.getLogger(GetTextMessageContent.class);
+public class GetCorrelationID extends AbstractBlockinAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
 
-        BStruct messageStruct  = ((BStruct) context.getRefArgument(0));
-        Message jmsMessage = JMSUtils.getJMSMessage(messageStruct);
-
-        String messageContent = null;
+        Struct messageStruct = BallerinaAdapter.getReceiverObject(context);
+        Message message = BallerinaAdapter.getNativeObject(messageStruct,
+                                                           Constants.JMS_MESSAGE_OBJECT,
+                                                           Message.class,
+                                                           context);
 
         try {
-            if (jmsMessage instanceof TextMessage) {
-                messageContent = ((TextMessage) jmsMessage).getText();
+            String correlationID = message.getJMSCorrelationID();
+            if (Objects.isNull(correlationID)) {
+                context.setReturnValues();
             } else {
-                log.error("JMSMessage is not a Text message. ");
+                context.setReturnValues(new BString(correlationID));
             }
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Error when retrieving JMS message content.", context, e);
+            BallerinaAdapter.returnError("Error when retrieving correlation ID", context, e);
         }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Get content from the JMS message");
-        }
-
-        context.setReturnValues(new BString(messageContent));
     }
 }

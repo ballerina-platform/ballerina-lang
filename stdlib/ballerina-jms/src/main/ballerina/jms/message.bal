@@ -3,7 +3,7 @@ package ballerina.jms;
 public type Message object {
     documentation {Gets text content of the JMS message
         returns message content as string}
-    public native function getTextMessageContent () returns (string);
+    public native function getTextMessageContent () returns string|Error;
 
     documentation {Sets a JMS transport string property from the message
         P{{key}} The string property name
@@ -75,7 +75,27 @@ public type Message object {
 
     documentation {Clears body of the JMS message
         returns Error if any JMS provider level internal error occur}
-    public native function clearBody() returns Error|() ;
+    public native function clearBody() returns Error|();
+
+    documentation {Sets Priority JMS transport header to the message
+        P{{value}} The header value}
+    public native function setPriority (int value) returns Error|();
+
+    documentation {Get JMS transport header Priority from the message
+        returns The header value}
+    public native function getPriority () returns int|Error;
+
+    documentation {Get JMS transport header Redelivered from the message
+        returns The header value}
+    public native function getRedelivered () returns boolean|Error;
+
+    documentation {Sets CorrelationID JMS transport header to the message
+        P{{value}} The header value}
+    public native function setCorrelationID (string value) returns Error|();
+
+    documentation {Get JMS transport header CorrelationID from the message
+        returns The header value}
+    public native function getCorrelationID () returns string|()|Error;
 };
 
 
