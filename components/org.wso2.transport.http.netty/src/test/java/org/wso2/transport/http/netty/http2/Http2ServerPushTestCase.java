@@ -127,7 +127,7 @@ public class Http2ServerPushTestCase {
         HTTPCarbonMessage response = msgSender.getResponse(handle);
         assertNotNull(response);
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
-        assertEquals(expectedResource, result, "Expected response not received");
+        assertEquals(result, expectedResource, "Expected response not received");
 
         // Get the 1st promised response
         HTTPCarbonMessage promisedResponse = msgSender.getPushResponse(promise1);

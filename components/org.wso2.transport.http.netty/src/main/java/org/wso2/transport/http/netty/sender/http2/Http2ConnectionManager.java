@@ -105,6 +105,8 @@ public class Http2ConnectionManager {
                                 PerRouteConnectionPool pool = connectionPools.get(key);
                                 if (pool != null) {
                                     pool.removeChannel(http2ClientChannel);
+                                    http2ClientChannel.getDataEventListeners().
+                                            forEach(Http2DataEventListener::destroy);
                                 }
                             }
                 );

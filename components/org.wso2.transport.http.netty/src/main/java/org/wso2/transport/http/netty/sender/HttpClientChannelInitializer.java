@@ -136,8 +136,10 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             SSLConfig sslConfig = senderConfiguration.getSSLConfig();
             if (sslConfig != null) {
                 configureSslForHttp2(socketChannel, clientPipeline, sslConfig);
+            } else if (senderConfiguration.isForceHttp2()) {
+                configureHttp2Pipeline(clientPipeline);
             } else {
-                configureH2cPipeline(clientPipeline, sourceCodec, targetHandler);
+                configureHttp2UpgradePipeline(clientPipeline, sourceCodec, targetHandler);
             }
         } else {
             if (sslConfig != null) {
@@ -225,14 +227,14 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     }
 
     /**
-     * Create the pipeline for requests with h2c.
+     * Creates the pipeline for handing http2 upgrade.
      *
-     * @param pipeline client channel pipeline.
-     * @param sourceCodec source codec handler.
-     * @param targetHandler target handler.
+     * @param pipeline      the client channel pipeline
+     * @param sourceCodec   the source codec handler
+     * @param targetHandler the target handler
      */
-    private void configureH2cPipeline(ChannelPipeline pipeline, HttpClientCodec sourceCodec,
-            TargetHandler targetHandler) {
+    private void configureHttp2UpgradePipeline(ChannelPipeline pipeline, HttpClientCodec sourceCodec,
+                                               TargetHandler targetHandler) {
         pipeline.addLast(sourceCodec);
         addCommonHandlers(pipeline);
         Http2ClientUpgradeCodec upgradeCodec = new Http2ClientUpgradeCodec(http2ConnectionHandler);
@@ -243,21 +245,21 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     }
 
     /**
-     * Create the pipeline for h2 negotiated requests over TLS.
+     * Creates the pipeline for http2 requests which does not involve a connection upgrade.
      *
-     * @param pipeline client channel pipeline.
+     * @param pipeline the client channel pipeline
      */
-    private void configureH2Pipeline(ChannelPipeline pipeline) {
+    private void configureHttp2Pipeline(ChannelPipeline pipeline) {
         pipeline.addLast(Constants.CONNECTION_HANDLER, http2ConnectionHandler);
         pipeline.addLast(Constants.OUTBOUND_HANDLER, clientOutboundHandler);
         addCommonHandlers(pipeline);
     }
 
     /**
-     * Create pipeline for http requests.
+     * Creates pipeline for http requests.
      *
-     * @param pipeline client channel pipeline.
-     * @param targetHandler target handler.
+     * @param pipeline      the client channel pipeline
+     * @param targetHandler the target handler
      */
     public void configureHttpPipeline(ChannelPipeline pipeline, TargetHandler targetHandler) {
         pipeline.addLast(Constants.HTTP_CLIENT_CODEC, new HttpClientCodec());
@@ -268,7 +270,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     /**
      * Add common handlers used in both http2 and http.
      *
-     * @param pipeline client channel pipeline.
+     * @param pipeline the client channel pipeline
      */
     private void addCommonHandlers(ChannelPipeline pipeline) {
         pipeline.addLast(Constants.DECOMPRESSOR_HANDLER, new HttpContentDecompressor());
@@ -346,7 +348,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         @Override
         protected void configurePipeline(ChannelHandlerContext ctx, String protocol) {
             if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
-                configureH2Pipeline(ctx.pipeline());
+                configureHttp2Pipeline(ctx.pipeline());
                 connectionAvailabilityFuture.notifySuccess(ApplicationProtocolNames.HTTP_2);
             } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
                 // handles pipeline for HTTP/1.x requests after SSL handshake
