@@ -153,7 +153,7 @@ class PanelDecorator extends React.Component {
                 key: `${this.props.model.getID()}-publicPrivateFlag-button`,
             };
 
-            //staticButtons.push(React.createElement(PanelDecoratorButton, publicPrivateFlagButtonProps, null));
+            // staticButtons.push(React.createElement(PanelDecoratorButton, publicPrivateFlagButtonProps, null));
         }
         // Dynamic buttons
         const dynamicButtons = this.props.rightComponents.map((rightComponent, index) => {
@@ -326,7 +326,7 @@ class PanelDecorator extends React.Component {
                     data-original-title=''
                     title=''
                 />
-                <rect 
+                <rect
                     x={bBox.x}
                     y={bBox.y - 1}
                     width={bBox.w}
@@ -374,17 +374,10 @@ class PanelDecorator extends React.Component {
                         className='resourceName'
                     >{titleWidth.text}</text>
                 </g>}
-                
+
                 {!wsResourceDef && !lambda && <g>
-                    <rect
-                        x={bBox.x + titleHeight + publicPrivateFlagoffset - 5}
-                        y={bBox.y}
-                        width={titleWidth.w + iconSize + 10}
-                        height={titleHeight - 1}
-                        className='title-bg'
-                    />
                     <text
-                        x={bBox.x + 30 + publicPrivateFlagoffset}
+                        x={bBox.x + 15 + publicPrivateFlagoffset}
                         y={bBox.y + 22}
                         width={iconSize}
                         height={iconSize}
@@ -392,27 +385,29 @@ class PanelDecorator extends React.Component {
                         fontFamily='font-ballerina'
                         fontSize={iconSize}
                     >{ImageUtil.getCodePoint(this.props.icon)}</text>
-                    <EditableText
-                        x={bBox.x + titleHeight + iconSize + publicPrivateFlagoffset}
-                        y={bBox.y + (titleHeight / 2)}
-                        width={titleWidth.w}
-                        onBlur={() => {
-                            this.onTitleInputBlur();
-                        }}
-                        onClick={() => {
-                            this.onTitleClick();
-                        }}
-                        editing={this.state.titleEditing}
-                        onChange={(e) => {
-                            this.onTitleInputChange(e);
-                        }}
-                        displayText={titleWidth.text}
-                        onKeyDown={(e) => {
-                            this.onTitleKeyDown(e);
-                        }}
-                    >
-                        {this.state.editingTitle}
-                    </EditableText>
+                    <g className='panel-header-title'>
+                        <EditableText
+                            x={bBox.x + 20 + iconSize + publicPrivateFlagoffset}
+                            y={bBox.y + (titleHeight / 2)}
+                            width={titleWidth.w}
+                            onBlur={() => {
+                                this.onTitleInputBlur();
+                            }}
+                            onClick={() => {
+                                this.onTitleClick();
+                            }}
+                            editing={this.state.titleEditing}
+                            onChange={(e) => {
+                                this.onTitleInputChange(e);
+                            }}
+                            displayText={titleWidth.text}
+                            onKeyDown={(e) => {
+                                this.onTitleKeyDown(e);
+                            }}
+                        >
+                            {this.state.editingTitle}
+                        </EditableText>
+                    </g>
                 </g>
                 }
                 { this.props.headerComponent &&
