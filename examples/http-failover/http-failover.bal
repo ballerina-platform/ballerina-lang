@@ -11,7 +11,7 @@ endpoint http:ServiceEndpoint backendEP {
 };
 
 endpoint http:ClientEndpoint backendClientEP {
-    lbMode: {
+    availabilityMode: {
         failoverCodes : [400, 404, 500],
         interval : 0
     },
@@ -19,7 +19,7 @@ endpoint http:ClientEndpoint backendClientEP {
              {url: "http://localhost:300000/mock"},
              {url: "http://localhost:8080/echo"},
              {url: "http://localhost:8080/mock"}],
-    endpointTimeout:5000
+    timeoutMillies:5000
 };
 
 @http:ServiceConfig {
