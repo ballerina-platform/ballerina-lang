@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.http2;
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -28,28 +29,32 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
+import org.wso2.transport.http.netty.http2.listeners.Http2NoResponseListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
-import org.wso2.transport.http.netty.util.client.http2.MessageSender;
 import org.wso2.transport.http.netty.util.client.http2.RequestGenerator;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 /**
- * This contains basic test cases for HTTP2 Client connector.
+ * {@code Http2ClientTimeoutTestCase} contains test cases for HTTP/2 Client request timeout.
  */
-public class Http2ServerConnectorBasicTestCase {
+public class Http2ClientTimeoutTestCase {
 
-    private static Logger log = LoggerFactory.getLogger(Http2ServerConnectorBasicTestCase.class);
+    private static Logger log = LoggerFactory.getLogger(Http2ClientTimeoutTestCase.class);
 
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
@@ -66,25 +71,39 @@ public class Http2ServerConnectorBasicTestCase {
         serverConnector = connectorFactory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = serverConnector.start();
-        future.setHttpConnectorListener(new EchoMessageListener());
+        Http2NoResponseListener http2ServerConnectorListener = new Http2NoResponseListener();
+        future.setHttpConnectorListener(http2ServerConnectorListener);
         future.sync();
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         senderConfiguration =
                 HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+        senderConfiguration.setSocketIdleTimeout(3000);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
+
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
 
     @Test
-    public void testHttp2Post() {
-        String testValue = "Test Http2 Message";
-        HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.POST, testValue);
-        HTTPCarbonMessage response = new MessageSender(httpClientConnector).sendMessage(httpCarbonMessage);
-        assertNotNull(response, "Expected response not received");
-        String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
-        assertEquals(result, testValue, "Expected response not received");
+    public void testHttp2ClientTimeout() {
+        HTTPCarbonMessage request = RequestGenerator.generateRequest(HttpMethod.POST, "test");
+        try {
+            CountDownLatch latch = new CountDownLatch(1);
+            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
+            HttpResponseFuture responseFuture = httpClientConnector.send(request);
+            responseFuture.setHttpConnectorListener(listener);
+            latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS);
+            Throwable error = listener.getHttpErrorMessage();
+            AssertJUnit.assertNotNull(error);
+            assertTrue(error instanceof EndpointTimeOutException,
+                       "Exception is not an instance of EndpointTimeOutException");
+            String result = error.getMessage();
+            assertEquals(result, Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE,
+                         "Expected error message not received");
+        } catch (Exception e) {
+            TestUtil.handleException("Exception occurred while running testHttp2ClientTimeout test case", e);
+        }
     }
 
     @AfterClass

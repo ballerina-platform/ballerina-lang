@@ -96,6 +96,9 @@ public class SenderConfiguration {
     @XmlAttribute
     private int http2MaxActiveStreams = Integer.MAX_VALUE;
 
+    @XmlAttribute
+    private boolean forceHttp2 = false;
+
     private String tlsStoreType;
     private String httpVersion = "1.1";
     private ProxyServerConfiguration proxyServerConfiguration;
@@ -282,6 +285,14 @@ public class SenderConfiguration {
 
     public void setHttp2MaxActiveStreams(int http2MaxActiveStreams) {
         this.http2MaxActiveStreams = http2MaxActiveStreams;
+    }
+
+    public boolean isForceHttp2() {
+        return forceHttp2;
+    }
+
+    public void setForceHttp2(boolean forceHttp2) {
+        this.forceHttp2 = forceHttp2;
     }
 
     public void setValidateCertEnabled(boolean validateCertEnabled) {
