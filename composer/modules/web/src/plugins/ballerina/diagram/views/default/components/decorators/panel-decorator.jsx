@@ -328,7 +328,7 @@ class PanelDecorator extends React.Component {
                 />
                 <rect 
                     x={bBox.x}
-                    y={bBox.y + titleHeight - 1}
+                    y={bBox.y - 1}
                     width={bBox.w}
                     height={1}
                     className='divider'
