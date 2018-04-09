@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.util.metrics;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.ToDoubleFunction;
 
 /**
@@ -48,7 +49,7 @@ public interface CallbackGauge extends Metric {
 
         private final String name;
         // Expecting at least 10 tags
-        private final ArrayList<Tag> tags = new ArrayList<>(10);
+        private final Set<Tag> tags = new HashSet<>(10);
         private String description;
         private T obj;
         private ToDoubleFunction<T> valueFunction;
