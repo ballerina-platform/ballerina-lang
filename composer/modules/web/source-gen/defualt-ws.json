@@ -101,6 +101,12 @@
     "before ;": "",
     "after ;": ""
   },
+  "AwaitExpr": {
+    "before await": "",
+    "after await": " ",
+    "before expression": "",
+    "after expression": ""
+  },
   "BinaryExpr": {
     "before {{": "",
     "after {{": "",
@@ -154,6 +160,12 @@
     "after body": "",
     "before }": "",
     "after }": ""
+  },
+  "CheckExpr": {
+    "before check": "",
+    "after check":" ",
+    "before expression": "",
+    "after expression": ""
   },
   "Comment": {
     "before comment": "",
@@ -414,6 +426,8 @@
     "after ]": ""
   },
   "Invocation": {
+    "before async": "",
+    "after async": " ",
     "before expression": "",
     "after expression": "",
     "before .": "",
@@ -721,7 +735,7 @@
     "before transformerInvocation": "",
     "after transformerInvocation": "",
     "before >": "",
-    "after >": "",
+    "after >": " ",
     "before expression": "",
     "after expression": ""
   },

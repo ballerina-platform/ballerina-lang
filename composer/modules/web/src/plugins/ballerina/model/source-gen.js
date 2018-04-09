@@ -188,6 +188,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.variable, pretty, l, replaceLambda) + w(' ') + '='
                  + a(' ') + getSourceOf(node.expression, pretty, l, replaceLambda)
                  + w() + ';';
+        case 'AwaitExpr':
+            return w() + 'await' + a(' ')
+                 + getSourceOf(node.expression, pretty, l, replaceLambda);
         case 'BinaryExpr':
             if (node.inTemplateLiteral && node.leftExpression
                          && node.operatorKind && node.rightExpression) {
@@ -214,6 +217,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.parameter, pretty, l, replaceLambda) + w() + ')' + w(' ') + '{' + indent()
                  + getSourceOf(node.body, pretty, l, replaceLambda) + outdent()
                  + w() + '}';
+        case 'CheckExpr':
+            return w() + 'check' + a(' ')
+                 + getSourceOf(node.expression, pretty, l, replaceLambda);
         case 'Comment':
             return dent() + w() + node.comment;
         case 'Connector':
@@ -475,21 +481,25 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Invocation':
             if (node.actionInvocation && node.expression
                          && node.name.valueWithBar && node.argumentExpressions) {
-                return getSourceOf(node.expression, pretty, l, replaceLambda) + w()
-                 + '->' + w() + node.name.valueWithBar + w() + '('
+                return (node.async ? w() + 'async' + a(' ') : '')
+                 + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + '->' + w()
+                 + node.name.valueWithBar + w() + '('
                  + join(node.argumentExpressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             } else if (node.expression && node.name.valueWithBar
                          && node.argumentExpressions) {
                 return getSourceOf(node.expression, pretty, l, replaceLambda) + w()
-                 + '.' + w() + node.name.valueWithBar + w() + '('
+                 + '.' + (node.async ? w() + 'async' + a(' ') : '') + w()
+                 + node.name.valueWithBar + w() + '('
                  + join(node.argumentExpressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             } else if (node.packageAlias.valueWithBar && node.name.valueWithBar
                          && node.argumentExpressions) {
-                return w() + node.packageAlias.valueWithBar + w() + ':' + w()
-                 + node.name.valueWithBar + w() + '('
+                return w() + node.packageAlias.valueWithBar + w() + ':'
+                 + (node.async ? w() + 'async' + a(' ') : '') + w() + node.name.valueWithBar + w()
+                 + '('
                  + join(node.argumentExpressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             } else {
-                return w() + node.name.valueWithBar + w() + '('
+                return (node.async ? w() + 'async' + a(' ') : '') + w()
+                 + node.name.valueWithBar + w() + '('
                  + join(node.argumentExpressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             }
         case 'Lambda':
@@ -836,7 +846,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}'
                  + join(node.catchBlocks, pretty, replaceLambda, l, w, '');
             }
-        case 'TupleType':
+        case 'TupleTypeNode':
             return w() + '('
                  + join(node.memberTypeNodes, pretty, replaceLambda, l, w, '', ',') + w() + ')';
         case 'TypeCastExpr':
@@ -847,11 +857,11 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             if (node.typeNode && node.transformerInvocation && node.expression) {
                 return w() + '<' + getSourceOf(node.typeNode, pretty, l, replaceLambda)
                  + w() + ','
-                 + getSourceOf(node.transformerInvocation, pretty, l, replaceLambda) + w() + '>'
+                 + getSourceOf(node.transformerInvocation, pretty, l, replaceLambda) + w() + '>' + a(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
             } else {
                 return w() + '<' + getSourceOf(node.typeNode, pretty, l, replaceLambda)
-                 + w() + '>'
+                 + w() + '>' + a(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
             }
         case 'TypeofExpression':
@@ -869,6 +879,8 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'UnaryExpr':
             return w() + node.operatorKind + b(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
+        case 'UnionTypeNode':
+            return join(node.memberTypeNodes, pretty, replaceLambda, l, w, '', '|');
         case 'UserDefinedType':
             if (node.anonStruct) {
                 return getSourceOf(node.anonStruct, pretty, l, replaceLambda);
@@ -965,17 +977,15 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + w(' ') + '{' + indent()
                  + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}';
         case 'WorkerReceive':
-            return dent()
-                 + join(node.expressions, pretty, replaceLambda, l, w, '', ',') + w() + '<-' + w() + node.workerName.valueWithBar + w()
-                 + ';';
+            return dent() + getSourceOf(node.expression, pretty, l, replaceLambda)
+                 + w() + '<-' + w() + node.workerName.valueWithBar + w() + ';';
         case 'WorkerSend':
-            if (node.forkJoinedSend && node.expressions) {
-                return dent()
-                 + join(node.expressions, pretty, replaceLambda, l, w, '', ',') + w() + '->' + w() + 'fork' + w() + ';';
+            if (node.forkJoinedSend && node.expression) {
+                return dent() + getSourceOf(node.expression, pretty, l, replaceLambda)
+                 + w() + '->' + w() + 'fork' + w() + ';';
             } else {
-                return dent()
-                 + join(node.expressions, pretty, replaceLambda, l, w, '', ',') + w() + '->' + w() + node.workerName.valueWithBar + w()
-                 + ';';
+                return dent() + getSourceOf(node.expression, pretty, l, replaceLambda)
+                 + w() + '->' + w() + node.workerName.valueWithBar + w() + ';';
             }
         case 'XmlAttribute':
             return getSourceOf(node.name, pretty, l, replaceLambda) + w() + '='
