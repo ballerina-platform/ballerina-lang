@@ -4,7 +4,7 @@ import ballerina/http;
 @final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
 @final string REMOTE_BACKEND = "wss://echo.websocket.org";
 
-endpoint http:ServiceEndpoint serviceEndpoint {
+endpoint http:Listener serviceEndpoint {
     port:9090
 };
 

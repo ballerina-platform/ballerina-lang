@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-endpoint http:ServiceEndpoint servicEp {
+endpoint http:Listener servicEp {
     port:9090
 };
 

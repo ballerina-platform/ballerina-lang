@@ -1,6 +1,6 @@
 import ballerina/http;
 
-endpoint http:ServiceEndpoint sampleEP {
+endpoint http:Listener sampleEP {
     port:9090
 };
 

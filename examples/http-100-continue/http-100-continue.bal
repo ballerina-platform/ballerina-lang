@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/http;
 
 @Description {value:"Attributes associated with the service endpoint is defined here."}
-endpoint http:ServiceEndpoint helloWorldEP {
+endpoint http:Listener helloWorldEP {
     port:9090
 };
 

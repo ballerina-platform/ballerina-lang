@@ -2,7 +2,7 @@ import ballerina/http;
 
 import ballerina/io;
 
-endpoint http:ServiceEndpoint backendEP {
+endpoint http:Listener backendEP {
     port: 9090
 };
 

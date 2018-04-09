@@ -6,7 +6,7 @@ endpoint http:Client clientEP {
     targets:[{url:"http://localhost:9092"}]
 };
 
-endpoint http:ServiceEndpoint multipartEP {
+endpoint http:Listener multipartEP {
     port:9090
 };
 

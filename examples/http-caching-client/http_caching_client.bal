@@ -1,11 +1,11 @@
 import ballerina/security.crypto;
 import ballerina/http;
 
-endpoint http:ServiceEndpoint proxyEP {
+endpoint http:Listener proxyEP {
     port:9090
 };
 
-endpoint http:ServiceEndpoint backendEP {
+endpoint http:Listener backendEP {
     port:8080
 };
 
