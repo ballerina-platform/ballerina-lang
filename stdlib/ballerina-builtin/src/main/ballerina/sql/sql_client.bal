@@ -23,7 +23,7 @@ package ballerina.sql;
 @Field {value:"recordType: In case of OUT direction, if the sqlType is REFCURSOR, this represents the record type to
 map a result row"}
 public type Parameter {
-    Type sqlType,
+    SQLType sqlType,
     any value,
     Direction direction,
     typedesc recordType,
@@ -103,7 +103,7 @@ public type DB "MYSQL"|
 @Field {value:"TIMESTAMP: Both DATE and TIME with additional a nanosecond field"}
 @Field {value:"ARRAY: Composite data value that consists of zero or more elements of a specified data type"}
 @Field {value:"STRUCT: User defined structured type, consists of one or more attributes"}
-public type Type
+public type SQLType
     "VARCHAR"|
     "CHAR"|
     "LONGVARCHAR"|
@@ -135,36 +135,36 @@ public type Type
     "STRUCT"|
     "REFCURSOR";
 
-@final public Type TYPE_VARCHAR= "VARCHAR";
-@final public Type TYPE_CHAR = "CHAR";
-@final public Type TYPE_LONGVARCHAR = "LONGVARCHAR";
-@final public Type TYPE_NCHAR = "NCHAR";
-@final public Type TYPE_LONGNVARCHAR = "LONGNVARCHAR";
-@final public Type TYPE_NVARCHARR = "NVARCHAR";
-@final public Type TYPE_BIT = "BIT";
-@final public Type TYPE_BOOLEAN = "BOOLEAN";
-@final public Type TYPE_TINYINT = "TINYINT";
-@final public Type TYPE_SMALLINT = "SMALLINT";
-@final public Type TYPE_INTEGER = "INTEGER";
-@final public Type TYPE_BIGINT = "BIGINT";
-@final public Type TYPE_NUMERIC = "NUMERIC";
-@final public Type TYPE_DECIMAL = "DECIMAL";
-@final public Type TYPE_REAL = "REAL";
-@final public Type TYPE_FLOAT = "FLOAT";
-@final public Type TYPE_DOUBLE = "DOUBLE";
-@final public Type TYPE_BINARY = "BINARY";
-@final public Type TYPE_BLOB = "BLOB";
-@final public Type TYPE_LONGVARBINARY = "LONGVARBINARY";
-@final public Type TYPE_VARBINARY = "VARBINARY";
-@final public Type TYPE_CLOB = "CLOB";
-@final public Type TYPE_NCLOB = "NCLOB";
-@final public Type TYPE_DATE = "DATE";
-@final public Type TYPE_TIME = "TIME";
-@final public Type TYPE_DATETIME = "DATETIME";
-@final public Type TYPE_TIMESTAMP = "TIMESTAMP";
-@final public Type TYPE_ARRAY = "ARRAY";
-@final public Type TYPE_STRUCT = "STRUCT";
-@final public Type TYPE_REFCURSOR = "REFCURSOR";
+@final public SQLType TYPE_VARCHAR= "VARCHAR";
+@final public SQLType TYPE_CHAR = "CHAR";
+@final public SQLType TYPE_LONGVARCHAR = "LONGVARCHAR";
+@final public SQLType TYPE_NCHAR = "NCHAR";
+@final public SQLType TYPE_LONGNVARCHAR = "LONGNVARCHAR";
+@final public SQLType TYPE_NVARCHARR = "NVARCHAR";
+@final public SQLType TYPE_BIT = "BIT";
+@final public SQLType TYPE_BOOLEAN = "BOOLEAN";
+@final public SQLType TYPE_TINYINT = "TINYINT";
+@final public SQLType TYPE_SMALLINT = "SMALLINT";
+@final public SQLType TYPE_INTEGER = "INTEGER";
+@final public SQLType TYPE_BIGINT = "BIGINT";
+@final public SQLType TYPE_NUMERIC = "NUMERIC";
+@final public SQLType TYPE_DECIMAL = "DECIMAL";
+@final public SQLType TYPE_REAL = "REAL";
+@final public SQLType TYPE_FLOAT = "FLOAT";
+@final public SQLType TYPE_DOUBLE = "DOUBLE";
+@final public SQLType TYPE_BINARY = "BINARY";
+@final public SQLType TYPE_BLOB = "BLOB";
+@final public SQLType TYPE_LONGVARBINARY = "LONGVARBINARY";
+@final public SQLType TYPE_VARBINARY = "VARBINARY";
+@final public SQLType TYPE_CLOB = "CLOB";
+@final public SQLType TYPE_NCLOB = "NCLOB";
+@final public SQLType TYPE_DATE = "DATE";
+@final public SQLType TYPE_TIME = "TIME";
+@final public SQLType TYPE_DATETIME = "DATETIME";
+@final public SQLType TYPE_TIMESTAMP = "TIMESTAMP";
+@final public SQLType TYPE_ARRAY = "ARRAY";
+@final public SQLType TYPE_STRUCT = "STRUCT";
+@final public SQLType TYPE_REFCURSOR = "REFCURSOR";
 
 
 @Description {value:"The direction of the parameter"}
