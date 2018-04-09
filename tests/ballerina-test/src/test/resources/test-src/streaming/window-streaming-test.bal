@@ -33,10 +33,10 @@ type Teacher {
 StatusCount[] globalStatusCountArray = [];
 int index = 0;
 
-function startWindowQuery() returns (StatusCount[]) {
+stream<StatusCount> statusCountStream1;
+stream<Teacher> teacherStream5;
 
-    stream<StatusCount> statusCountStream1;
-    stream<Teacher> teacherStream5;
+function testWindowQuery() {
 
     forever {
         from teacherStream5 where age > 18 window lengthBatch(3)
@@ -46,6 +46,11 @@ function startWindowQuery() returns (StatusCount[]) {
             statusCountStream1.publish(emp);
         }
     }
+}
+
+function startWindowQuery() returns (StatusCount[]) {
+
+    testWindowQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
