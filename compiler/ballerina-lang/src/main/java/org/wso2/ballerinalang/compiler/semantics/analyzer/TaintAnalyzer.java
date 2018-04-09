@@ -278,12 +278,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        if (funcNode.attachedOuterFunction) {
-            // Clear taint table of the interface deceleration when, declaration is found.
-            funcNode.symbol.taintTable = null;
-        }
-        if (isEntryPoint(funcNode)) {
+        if (isMainFunction(funcNode)) {
             visitEntryPoint(funcNode, funcEnv);
+            // Following statements are used only when main method is called from a different function (test execution).
+            // Since main method has no return values, set the all untainted entry to empty, denoting that all untainted
+            // case is not invalid for the an invocation.
+            funcNode.symbol.taintTable.put(ALL_UNTAINTED_TABLE_ENTRY_INDEX, new TaintRecord(new ArrayList<>(), null));
+            // It is valid to have a case where first argument of main is tainted. Hence manually adding such scenario.
+            funcNode.symbol.taintTable.put(0, new TaintRecord(new ArrayList<>(), null));
         } else {
             visitInvokable(funcNode, funcEnv);
         }
@@ -1133,7 +1135,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     // Private methods related to invokable node analysis and taint-table generation.
 
-    private boolean isEntryPoint(BLangFunction funcNode) {
+    private boolean isMainFunction(BLangFunction funcNode) {
         // Service resources are handled through BLangResource visitor.
         boolean isMainFunction = false;
         if (funcNode.name.value.equals(MAIN_FUNCTION_NAME) && funcNode.symbol.params.size() == 1
