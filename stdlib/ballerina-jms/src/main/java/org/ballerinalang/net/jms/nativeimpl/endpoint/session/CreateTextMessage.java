@@ -73,10 +73,7 @@ public class CreateTextMessage extends AbstractBlockinAction {
             jmsMessage = session.createTextMessage(content);
             bStruct.addNativeData(Constants.JMS_MESSAGE_OBJECT, jmsMessage);
         } catch (JMSException e) {
-            String errorMessage = "Failed to create message.";
-            LOGGER.error(errorMessage, e);
-            BStruct errorRecord = BallerinaAdapter.createErrorRecord(context, errorMessage, e);
-            context.setReturnValues(errorRecord);
+            BallerinaAdapter.returnError("Failed to create message.", context, e);
         }
         context.setReturnValues(bStruct);
     }

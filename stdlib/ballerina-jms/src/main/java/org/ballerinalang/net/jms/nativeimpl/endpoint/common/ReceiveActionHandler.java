@@ -70,10 +70,7 @@ public class ReceiveActionHandler {
                 context.setReturnValues();
             }
         } catch (JMSException e) {
-            String errorMsg = "Message receiving failed.";
-            LOGGER.error(errorMsg, e);
-            BStruct errorRecord = BallerinaAdapter.createErrorRecord(context, errorMsg, e);
-            context.setReturnValues(errorRecord);
+            BallerinaAdapter.returnError("Message receiving failed.", context, e);
         }
     }
 }

@@ -65,7 +65,7 @@ public class SetStringProperty extends AbstractBlockinAction {
         try {
             message.setStringProperty(key, value);
         } catch (JMSException e) {
-            BallerinaAdapter.throwBallerinaException("Error when setting string property", context, e);
+            BallerinaAdapter.returnError("Error when setting string property", context, e);
         }
     }
 }

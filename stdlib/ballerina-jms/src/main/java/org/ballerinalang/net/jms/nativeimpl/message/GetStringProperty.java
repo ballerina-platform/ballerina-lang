@@ -72,7 +72,7 @@ public class GetStringProperty extends AbstractBlockinAction {
                 context.setReturnValues(new BString(stringProperty));
             }
         } catch (JMSException e) {
-            BallerinaAdapter.throwBallerinaException("Error when setting string property", context, e);
+            BallerinaAdapter.returnError("Error when retrieving string property", context, e);
         }
     }
 }

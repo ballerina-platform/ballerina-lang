@@ -23,7 +23,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -69,10 +68,7 @@ public class Unsubscribe extends AbstractBlockinAction {
         try {
             session.unsubscribe(subscriptionId);
         } catch (JMSException e) {
-            String errorMessage = "Unsubscribe request failed.";
-            LOGGER.error(errorMessage, e);
-            BStruct errorRecord = BallerinaAdapter.createErrorRecord(context, errorMessage, e);
-            context.setReturnValues(errorRecord);
+            BallerinaAdapter.returnError("Unsubscribe request failed.", context, e);
         }
     }
 }

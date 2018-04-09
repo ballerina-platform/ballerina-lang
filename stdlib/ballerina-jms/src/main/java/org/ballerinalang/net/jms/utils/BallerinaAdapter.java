@@ -67,11 +67,17 @@ public class BallerinaAdapter {
         throw new BallerinaException(message + " " + throwable.getMessage(), throwable, context);
     }
 
-    public static BStruct createErrorRecord(Context context, String errorMsg, JMSException e) {
+    private static BStruct createErrorRecord(Context context, String errorMsg, JMSException e) {
         BStruct errorStruct = BLangConnectorSPIUtil.createBStruct(context,
                                                                   Constants.BALLERINA_PACKAGE_JMS,
                                                                   Constants.ERROR_STRUCT);
         errorStruct.setStringField(0, errorMsg + " " + e.getMessage());
         return errorStruct;
+    }
+
+    public static void returnError(String errorMessage, Context context, JMSException e) {
+        LOGGER.error(errorMessage, e);
+        BStruct errorRecord = createErrorRecord(context, errorMessage, e);
+        context.setReturnValues(errorRecord);
     }
 }

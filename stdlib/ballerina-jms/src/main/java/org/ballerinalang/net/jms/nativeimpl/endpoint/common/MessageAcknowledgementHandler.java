@@ -52,9 +52,7 @@ public class MessageAcknowledgementHandler {
             message.acknowledge();
             context.setReturnValues();
         } catch (JMSException e) {
-            String errorMsg = "Message acknowledgement failed.";
-            BStruct errorRecord = BallerinaAdapter.createErrorRecord(context, errorMsg, e);
-            context.setReturnValues(errorRecord);
+            BallerinaAdapter.returnError("Message acknowledgement failed.", context, e);
         }
     }
 }

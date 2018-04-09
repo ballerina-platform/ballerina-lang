@@ -65,7 +65,7 @@ public class SetBooleanProperty extends AbstractBlockinAction {
         try {
             message.setBooleanProperty(key, value);
         } catch (JMSException e) {
-            BallerinaAdapter.throwBallerinaException("Error when setting string property", context, e);
+            BallerinaAdapter.returnError("Error when setting boolean property", context, e);
         }
     }
 }

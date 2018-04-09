@@ -67,7 +67,7 @@ public class GetIntProperty extends AbstractBlockinAction {
             int booleanProperty = message.getIntProperty(key);
             context.setReturnValues(new BInteger(booleanProperty));
         } catch (JMSException e) {
-            BallerinaAdapter.throwBallerinaException("Error when setting string property", context, e);
+            BallerinaAdapter.returnError("Error when retrieving int property", context, e);
         }
     }
 }

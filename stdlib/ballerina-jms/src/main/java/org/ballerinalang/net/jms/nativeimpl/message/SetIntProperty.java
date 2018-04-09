@@ -65,7 +65,7 @@ public class SetIntProperty extends AbstractBlockinAction {
         try {
             message.setIntProperty(key, (int) value);
         } catch (JMSException e) {
-            BallerinaAdapter.throwBallerinaException("Error when setting string property", context, e);
+            BallerinaAdapter.returnError("Error when setting int property", context, e);
         }
     }
 }

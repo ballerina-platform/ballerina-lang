@@ -67,7 +67,7 @@ public class GetFloatProperty extends AbstractBlockinAction {
             float booleanProperty = message.getFloatProperty(key);
             context.setReturnValues(new BFloat(booleanProperty));
         } catch (JMSException e) {
-            BallerinaAdapter.throwBallerinaException("Error when setting string property", context, e);
+            BallerinaAdapter.returnError("Error when retrieving float property", context, e);
         }
     }
 }

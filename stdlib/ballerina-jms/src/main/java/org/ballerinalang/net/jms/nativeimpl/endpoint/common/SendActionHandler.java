@@ -61,10 +61,7 @@ public class SendActionHandler {
             sessionConnector.handleTransactionBlock(context);
             messageProducer.send(message);
         } catch (JMSException e) {
-            String errorMsg = "Message sending failed.";
-            LOGGER.error(errorMsg, e);
-            BStruct errorRecord = BallerinaAdapter.createErrorRecord(context, errorMsg, e);
-            context.setReturnValues(errorRecord);
+            BallerinaAdapter.returnError("Message sending failed.", context, e);
         }
     }
 }
