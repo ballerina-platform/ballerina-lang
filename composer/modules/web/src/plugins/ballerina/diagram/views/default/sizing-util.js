@@ -357,6 +357,7 @@ class SizingUtil {
             (this.config.clientLine.width + this.config.lifeLine.gutter.h));
         cmp.client.text = paramTextWidth.text;
         cmp.client.fullText = paramText;
+        cmp.client.title = this.getTextWidth(node.getClientTitle(), 0, (this.config.clientLine.head.width)).text;
 
         // calculate default worker
         cmp.defaultWorker.w = workers.length > 0 ? 0 : node.body.viewState.bBox.w;
