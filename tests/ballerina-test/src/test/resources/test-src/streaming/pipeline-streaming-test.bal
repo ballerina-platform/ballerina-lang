@@ -71,9 +71,14 @@ function startPipelineQuery() returns (StatusCount[]) {
     teacherStream3.publish(t1);
     teacherStream3.publish(t2);
     teacherStream3.publish(t3);
-
-    runtime:sleepCurrentWorker(1000);
-
+    int count = 0;
+    while(true) {
+        runtime:sleepCurrentWorker(500);
+        count++;
+        if((lengthof globalStatusCountArray) > 0 || count == 10) {
+            break;
+        }
+    }
     return globalStatusCountArray;
 }
 
