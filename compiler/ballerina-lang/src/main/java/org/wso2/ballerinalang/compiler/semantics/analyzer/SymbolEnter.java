@@ -86,6 +86,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -100,6 +101,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -1077,7 +1079,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         initFunction.attachedFunction = true;
 
         //Set cached receiver to the init function
-        initFunction.receiver = createReceiver(object.pos, object.name);
+        final BLangVariable receiver  = createReceiver(object.pos, object.name);
+        initFunction.receiver = receiver;
         object.functions.forEach(f -> f.setReceiver(createReceiver(object.pos, object.name)));
 
         initFunction.flagSet.add(Flag.ATTACHED);
@@ -1085,7 +1088,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         //Add object level variables to the init function
         BLangFunction finalInitFunction = initFunction;
         object.fields.stream().filter(f -> f.expr != null).forEachOrdered(v -> finalInitFunction.initFunctionStmts
-                .put(v.symbol, (BLangStatement) createAssignmentStmt(v)));
+                .put(v.symbol, (BLangStatement) createObjectAssignmentStmt(v, receiver)));
 
         object.initFunction = initFunction;
 
@@ -1247,6 +1250,27 @@ public class SymbolEnter extends BLangNodeVisitor {
         assignmentStmt.expr = variable.expr;
         assignmentStmt.pos = variable.pos;
         assignmentStmt.setVariable(varRef);
+        return assignmentStmt;
+    }
+
+    private StatementNode createObjectAssignmentStmt(BLangVariable variable, BLangVariable receiver) {
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
+                .createSimpleVariableReferenceNode();
+        varRef.pos = variable.pos;
+        varRef.variableName = receiver.name;
+        varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
+        fieldBasedAccess.pos = variable.pos;
+        fieldBasedAccess.field = variable.name;
+        fieldBasedAccess.expr = varRef;
+        fieldBasedAccess.fieldKind = FieldKind.SINGLE;
+        fieldBasedAccess.safeNavigate = false;
+
+        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignmentStmt.expr = variable.expr;
+        assignmentStmt.pos = variable.pos;
+        assignmentStmt.setVariable(fieldBasedAccess);
         return assignmentStmt;
     }
 
