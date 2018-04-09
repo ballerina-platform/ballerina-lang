@@ -12,10 +12,9 @@ jms:Session jmsSession = new (jmsConnection, {
     acknowledgementMode: "AUTO_ACKNOWLEDGE"
 });
 
-// Initialize a Queue sender on top of the the created sessions
 endpoint jms:QueueSender queueSender {
     session: jmsSession,
-    queueName: "requestQueue"
+    queueName: "MyQueue"
 };
 
 public function main (string[] args) {

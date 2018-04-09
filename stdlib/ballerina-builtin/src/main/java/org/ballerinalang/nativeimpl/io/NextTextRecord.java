@@ -59,16 +59,15 @@ public class NextTextRecord implements NativeCallableUnit {
      * @return the response obtained after reading record.
      */
     private static EventResult response(EventResult<String[], EventContext> result) {
-        BStruct errorStruct = null;
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
-        String[] fields = result.getResponse();
         CallableUnitCallback callback = eventContext.getCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
-            errorStruct = IOUtils.createError(context, error.getMessage());
+            BStruct errorStruct = IOUtils.createError(context, error.getMessage());
             context.setReturnValues(errorStruct);
         } else {
+            String[] fields = result.getResponse();
             context.setReturnValues(new BStringArray(fields));
         }
         callback.notifySuccess();
