@@ -91,10 +91,10 @@ public class PushUtils {
                                                          "Please visit https://central.ballerina.io/cli-token");
             }
 
-            // Read the Package.md file content from the balo archive
-            String mdFileContent = getBallerinaMDFileContent(pkgPathFromPrjtDir.toString());
+            // Read the Package.md file content from the artifact
+            String mdFileContent = getPackageMDFileContent(pkgPathFromPrjtDir.toString());
             if (mdFileContent == null) {
-                throw new BLangCompilerException("Cannot find Package.md file in the archived balo");
+                throw new BLangCompilerException("Cannot find Package.md file in the artifact");
             }
 
             String description = readSummary(mdFileContent);
@@ -203,7 +203,7 @@ public class PushUtils {
      * @param archivedFilePath balo file path of the package
      * @return content of Package.md as a string
      */
-    private static String getBallerinaMDFileContent(String archivedFilePath) {
+    private static String getPackageMDFileContent(String archivedFilePath) {
         ZipFile zipFile = null;
         try {
             zipFile = new ZipFile(archivedFilePath);
@@ -237,7 +237,7 @@ public class PushUtils {
      */
     private static String readSummary(String mdFileContent) {
         if (mdFileContent.isEmpty()) {
-            throw new BLangCompilerException("Package.md in the archived balo is empty");
+            throw new BLangCompilerException("Package.md in the artifact is empty");
         }
         int newLineIndex = mdFileContent.indexOf("\n");
         if (newLineIndex == -1) {
