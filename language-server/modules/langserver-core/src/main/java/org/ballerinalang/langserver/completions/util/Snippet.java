@@ -25,7 +25,7 @@ public enum Snippet {
     ANNOTATION_DEFINITION("annotation<${1:attachmentPoint}> ${2:name};"),
     BIND("bind ${1:__connector} with ${2:__endpoint}"),
     BREAK("break;"),
-    ENDPOINT("endpoint ${1:http:ServiceEndpoint} ${2:endpointName} {\n\t${3}\n};"),
+    ENDPOINT("endpoint ${1:http:ServiceEndpoint} ${2:listener} {\n\t${3}\n};"),
     FOREACH("foreach ${1:varRefList} in ${2:listReference} {\n\t${3}\n}"),
     FORK("fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}"),
     FUNCTION("function ${1:name} (${2}) {\n\t${3}\n}"),
@@ -35,9 +35,9 @@ public enum Snippet {
     MAIN_FUNCTION("function main (string[] args) {\n\t${1}\n}"),
     NAMESPACE_DECLARATION("xmlns \"${1}\" as ${2:ns};"),
     NEXT("next;"),
-    RESOURCE("${1:newResource} (endpoint ${2:epReference}, ${3:http:Request request}) {\n\t${4}\n}"),
+    RESOURCE("${1:newResource} (endpoint ${2:caller}, ${3:http:Request request}) {\n\t${4}\n}"),
     RETURN("return;"),
-    SERVICE("service<${1:http:Service}> ${2:serviceName} {\n\t${3:newResource} (endpoint ${4:epReference}, " +
+    SERVICE("service<${1:http:Service}> ${2:serviceName} {\n\t${3:newResource} (endpoint ${4:caller}, " +
             "${5:http:Request request}) {\n\t}\n}"),
     TRANSACTION("transaction with retries(${1}), oncommit(${2:foo}), onabort(${3:bar}) " +
             "{\n\t${4}\n} onretry {\n\t${5}\n}"),
