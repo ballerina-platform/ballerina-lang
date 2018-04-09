@@ -22,18 +22,19 @@ import TreeUtil from './../../../model/tree-util';
 import * as DesignerDefaults from './designer-defaults';
 import splitVariableDefByLambda from '../../../model/lambda-util';
 
+const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+svg.setAttribute('style', 'border: 0px');
+svg.setAttribute('width', '600');
+svg.setAttribute('height', '50');
+svg.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xlink', 'http://www.w3.org/1999/xlink');
+const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+svg.appendChild(textElement);
+document.body.appendChild(svg);
+
 class SizingUtil {
 
     constructor() {
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('style', 'border: 0px');
-        svg.setAttribute('width', '600');
-        svg.setAttribute('height', '50');
-        svg.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xlink', 'http://www.w3.org/1999/xlink');
-        this.textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        svg.appendChild(this.textElement);
-        document.body.appendChild(svg);
-
+        this.textElement = textElement;
         this.config = DesignerDefaults;
     }
 
