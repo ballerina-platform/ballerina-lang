@@ -45,6 +45,11 @@ public type Message object {
         returns The float property value}
     public native function getFloatProperty (string key) returns float|Error;
 
+
+    documentation {Clear JMS properties of the message
+        returns Error if any JMS provider level internal error occur}
+    public native function clearProperties();
+
     documentation {Clears body of the JMS message
         returns Error if any JMS provider level internal error occur}
     public native function clearBody() returns Error|() ;
