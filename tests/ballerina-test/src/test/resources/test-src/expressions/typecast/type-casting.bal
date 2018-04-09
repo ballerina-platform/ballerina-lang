@@ -529,8 +529,8 @@ function testAnyToTable() returns (table | error) {
 
     Employee e1 = {id:1, name:"Jane"};
     Employee e2 = {id:2, name:"Anne"};
-    tb.add(e1);
-    tb.add(e2);
+    _ = tb.add(e1);
+    _ = tb.add(e2);
 
     any anyValue = tb;
     var casted = <table> anyValue;

@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
-import org.ballerinalang.nativeimpl.sql.actions.SQLDatasourceUtils;
 import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -56,6 +55,15 @@ public class SQLDataIterator extends TableIterator {
     private Calendar utcCalendar;
     private StructInfo timeStructInfo;
     private StructInfo zoneStructInfo;
+
+    public SQLDataIterator(Calendar utcCalendar, BStructType structType, StructInfo timeStructInfo,
+            StructInfo zoneStructInfo, TableResourceManager rm, ResultSet rs, List<ColumnDefinition> columnDefs)
+            throws SQLException {
+        super(rm, rs, structType, columnDefs);
+        this.utcCalendar = utcCalendar;
+        this.timeStructInfo = timeStructInfo;
+        this.zoneStructInfo = zoneStructInfo;
+    }
 
     public SQLDataIterator(TableResourceManager rm, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructType structType, StructInfo timeStructInfo,

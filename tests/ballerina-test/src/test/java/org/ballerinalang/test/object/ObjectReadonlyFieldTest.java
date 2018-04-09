@@ -44,8 +44,13 @@ public class ObjectReadonlyFieldTest {
     public void testReadOnlyAccessInDifferentPackage() {
         CompileResult compileResultNegative = BCompileUtil
                 .compile("test-src/object/object-readonly-field-negative.bal");
-        BAssertUtil.validateError(compileResultNegative, 0, "cannot assign a value to readonly 'p.age'", 8, 5);
-        BAssertUtil.validateError(compileResultNegative, 1, "cannot assign a value to readonly 'bar:globalInt'", 14, 5);
+        Assert.assertEquals(compileResultNegative.getErrorCount(), 4);
+        BAssertUtil.validateError(compileResultNegative, 0, "cannot assign a value to readonly 'p.age'", 9, 5);
+        BAssertUtil.validateError(compileResultNegative, 1, "cannot assign a value to readonly 'bar:globalInt'", 15, 5);
+        BAssertUtil.validateError(compileResultNegative, 2,
+                "annotation 'ballerina/builtin:readonly' is not allowed in function", 20, 1);
+        BAssertUtil.validateError(compileResultNegative, 3,
+                "annotation 'ballerina/builtin:readonly' is not allowed in service", 24, 1);
     }
 
     @Test(description = "Test object with readonly field which is in a same package")
