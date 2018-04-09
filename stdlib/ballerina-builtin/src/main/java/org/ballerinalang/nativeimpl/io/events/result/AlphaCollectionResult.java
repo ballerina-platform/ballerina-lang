@@ -39,12 +39,6 @@ public class AlphaCollectionResult implements EventResult<String[], EventContext
         this.context = context;
     }
 
-    public AlphaCollectionResult(String[] response) {
-        //We need to clone here since we cannot expose the internal representation
-        //Causes security vulnerability
-        this.response = response.clone();
-    }
-
     public AlphaCollectionResult(String[] response, EventContext context) {
         this.response = response.clone();
         this.context = context;

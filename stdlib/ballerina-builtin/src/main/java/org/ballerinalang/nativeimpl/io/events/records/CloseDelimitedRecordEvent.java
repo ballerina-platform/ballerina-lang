@@ -43,10 +43,6 @@ public class CloseDelimitedRecordEvent implements Event {
 
     private static final Logger log = LoggerFactory.getLogger(CloseDelimitedRecordEvent.class);
 
-    public CloseDelimitedRecordEvent(DelimitedRecordChannel channel) {
-        this.channel = channel;
-    }
-
     public CloseDelimitedRecordEvent(DelimitedRecordChannel channel, EventContext context) {
         this.channel = channel;
         this.context = context;
@@ -63,6 +59,10 @@ public class CloseDelimitedRecordEvent implements Event {
             result = new BooleanResult(true, context);
         } catch (IOException e) {
             log.error("Error occurred while closing delimited record channel", e);
+            context.setError(e);
+            result = new BooleanResult(context);
+        } catch (Throwable e) {
+            log.error("Unidentified error occurred while closing delimited record channel", e);
             context.setError(e);
             result = new BooleanResult(context);
         }

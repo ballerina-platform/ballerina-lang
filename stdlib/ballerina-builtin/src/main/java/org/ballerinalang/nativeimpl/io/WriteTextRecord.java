@@ -66,15 +66,14 @@ public class WriteTextRecord implements NativeCallableUnit {
      * @return the result context.
      */
     private static EventResult writeResponse(EventResult<Integer, EventContext> result) {
-        BStruct errorStruct = null;
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
         CallableUnitCallback callback = eventContext.getCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
-            errorStruct = IOUtils.createError(context, error.getMessage());
+            BStruct errorStruct = IOUtils.createError(context, error.getMessage());
+            context.setReturnValues(errorStruct);
         }
-        context.setReturnValues(errorStruct);
         callback.notifySuccess();
         return result;
     }
