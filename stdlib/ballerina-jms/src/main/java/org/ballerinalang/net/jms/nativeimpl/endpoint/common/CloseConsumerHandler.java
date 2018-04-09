@@ -22,8 +22,8 @@ package org.ballerinalang.net.jms.nativeimpl.endpoint.common;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -45,7 +45,7 @@ public class CloseConsumerHandler {
         try {
             consumer.close();
         } catch (JMSException e) {
-            throw new BallerinaException("Error closing message consumer.");
+            JMSUtils.throwBallerinaException("Error closing message consumer.", context, e);
         }
     }
 

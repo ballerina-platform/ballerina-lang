@@ -29,8 +29,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -73,7 +73,7 @@ public class CreateConsumer implements NativeCallableUnit {
             Struct consumerConnectorBObject = queueConsumerBObject.getStructField(Constants.CONSUMER_CONNECTOR);
             consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
         } catch (JMSException e) {
-            throw new BallerinaException("Error while creating queue consumer. " + e.getMessage(), e, context);
+            JMSUtils.throwBallerinaException("Error while creating queue consumer.", context, e);
         }
     }
 

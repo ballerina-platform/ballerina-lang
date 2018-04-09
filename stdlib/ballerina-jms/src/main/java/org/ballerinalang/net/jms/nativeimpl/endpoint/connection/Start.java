@@ -27,8 +27,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -53,7 +53,7 @@ public class Start implements NativeCallableUnit {
         try {
             connection.start();
         } catch (JMSException e) {
-            throw new BallerinaException("Error occurred while starting connection.");
+            JMSUtils.throwBallerinaException("Error occurred while starting connection.", context, e);
         }
     }
 

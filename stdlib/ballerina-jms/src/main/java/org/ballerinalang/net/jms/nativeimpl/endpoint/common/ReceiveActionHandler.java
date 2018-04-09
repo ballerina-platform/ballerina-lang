@@ -24,8 +24,8 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Objects;
 import javax.jms.JMSException;
@@ -63,7 +63,7 @@ public class ReceiveActionHandler {
                 context.setReturnValues();
             }
         } catch (JMSException e) {
-            throw new BallerinaException("Message receiving failed", e, context);
+            JMSUtils.throwBallerinaException("Message receiving failed.", context, e);
         }
     }
 }

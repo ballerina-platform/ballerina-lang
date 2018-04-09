@@ -81,7 +81,7 @@ public class InitQueueSender implements NativeCallableUnit {
                     = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONNECTOR);
             queueSenderConnectorBObject.addNativeData(Constants.JMS_QUEUE_SENDER_OBJECT, producer);
         } catch (JMSException e) {
-            throw new BallerinaException("Error creating Queue sender", e, context);
+            JMSUtils.throwBallerinaException("Error creating queue sender.", context, e);
         }
     }
 

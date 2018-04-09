@@ -31,7 +31,6 @@ import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -75,7 +74,7 @@ public class CreateSubscriber extends AbstractBlockinAction {
             Struct consumerConnectorBObject = topicSubscriberBObject.getStructField(Constants.CONSUMER_CONNECTOR);
             consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
         } catch (JMSException e) {
-            throw new BallerinaException("Error while creating Qeueu consumer", e, context);
+            JMSUtils.throwBallerinaException("Error while creating Qeueu consumer", context, e);
         }
 
     }
