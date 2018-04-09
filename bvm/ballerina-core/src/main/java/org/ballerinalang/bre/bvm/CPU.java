@@ -549,6 +549,8 @@ public class CPU {
                     case InstructionCodes.DT2JSON:
                     case InstructionCodes.T2MAP:
                     case InstructionCodes.T2JSON:
+                    case InstructionCodes.MAP2JSON:
+                    case InstructionCodes.JSON2MAP:
                     case InstructionCodes.MAP2T:
                     case InstructionCodes.JSON2T:
                     case InstructionCodes.XMLATTRS2MAP:
@@ -2284,6 +2286,12 @@ public class CPU {
             case InstructionCodes.T2JSON:
                 convertStructToJSON(ctx, operands, sf);
                 break;
+            case InstructionCodes.MAP2JSON:
+                convertMapToJSON(ctx, operands, sf);
+                break;
+            case InstructionCodes.JSON2MAP:
+                convertJSONToMap(ctx, operands, sf);
+                break;
             case InstructionCodes.MAP2T:
                 convertMapToStruct(ctx, operands, sf);
                 break;
@@ -3552,6 +3560,49 @@ public class CPU {
             sf.refRegs[j] = JSONUtils.convertStructToJSON(bStruct, targetType);
         } catch (Exception e) {
             String errorMsg = "cannot convert '" + bStruct.getType() + "' to type '" + targetType + "': " +
+                    e.getMessage();
+            handleTypeConversionError(ctx, sf, j, errorMsg);
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private static void convertMapToJSON(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
+        int i = operands[0];
+        int cpIndex = operands[1];
+        int j = operands[2];
+        BJSONType targetType = (BJSONType) ((TypeRefCPEntry) ctx.constPool[cpIndex]).getType();
+
+        BMap<String, ?> bMap = (BMap<String, ?>) sf.refRegs[i];
+        if (bMap == null) {
+            handleNullRefError(ctx);
+            return;
+        }
+
+        try {
+            sf.refRegs[j] = JSONUtils.convertMapToJSON((BMap<String, BValue>) bMap, targetType);
+        } catch (Exception e) {
+            String errorMsg = "cannot convert '" + bMap.getType() + "' to type '" + targetType + "': " +
+                    e.getMessage();
+            handleTypeConversionError(ctx, sf, j, errorMsg);
+        }
+    }
+    
+    private static void convertJSONToMap(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
+        int i = operands[0];
+        int cpIndex = operands[1];
+        int j = operands[2];
+        BMapType targetType = (BMapType) ((TypeRefCPEntry) ctx.constPool[cpIndex]).getType();
+
+        BJSON json = (BJSON) sf.refRegs[i];
+        if (json == null) {
+            handleNullRefError(ctx);
+            return;
+        }
+
+        try {
+            sf.refRegs[j] = JSONUtils.convertJSONToMap(json, targetType);
+        } catch (Exception e) {
+            String errorMsg = "cannot convert '" + json.getType() + "' to type '" + targetType + "': " +
                     e.getMessage();
             handleTypeConversionError(ctx, sf, j, errorMsg);
         }

@@ -1646,6 +1646,8 @@ public class ProgramFileReader {
                 case InstructionCodes.XMLSEQLOAD:
                 case InstructionCodes.NEWTABLE:
                 case InstructionCodes.T2JSON:
+                case InstructionCodes.MAP2JSON:
+                case InstructionCodes.JSON2MAP:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
