@@ -76,7 +76,10 @@ public class InitQueueSender implements NativeCallableUnit {
                                                            Session.class,
                                                            context);
         try {
-            Queue queue = session.createQueue(queueName);
+            Queue queue = null;
+            if (!JMSUtils.isNullOrEmptyAfterTrim(queueName)) {
+                queue = session.createQueue(queueName);
+            }
             MessageProducer producer = session.createProducer(queue);
             Struct queueSenderConnectorBObject
                     = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONNECTOR);

@@ -75,7 +75,11 @@ public class InitTopicProducer extends AbstractBlockinAction {
                                                            Session.class,
                                                            context);
         try {
-            Topic topic = JMSUtils.getTopic(session, topicPattern);
+
+            Topic topic = null;
+            if (!JMSUtils.isNullOrEmptyAfterTrim(topicPattern)) {
+                topic = JMSUtils.getTopic(session, topicPattern);
+            }
             MessageProducer producer = session.createProducer(topic);
             Struct topicProducerConnectorBObject
                     = topicProducerBObject.getStructField(Constants.TOPIC_PRODUCER_FIELD_CONNECTOR);
