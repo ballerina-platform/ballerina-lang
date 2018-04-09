@@ -201,6 +201,39 @@ class TreeBuilder {
                 node.hasReturns = true;
             }
         }
+
+        if (node.kind === 'Object') {
+            node.publicFields = [];
+            node.privateFields = [];
+            let fields = node.fields;
+            if (fields.length <= 0) {
+                node.noFieldsAvailable = true;
+            } else {
+                for (let i = fields.length; i--;) {
+                    if (fields[i].public) {
+                        node.publicFields.push(fields[i]);
+                    } else {
+                        node.privateFields.push(fields[i]);
+                    }
+                }
+            }
+
+            if (node.privateFields.length <= 0) {
+                node.noPrivateFieldsAvailable = true;
+            }
+
+            if (node.publicFields.length <= 0) {
+                node.noPublicFieldAvailable = true;
+            }
+        }
+
+        if (node.kind === 'TypeInitExpr') {
+            if (!node.type) {
+                node.noTypeAttached = true;
+            } else {
+                node.typeName = node.type.typeName;
+            }
+        }
     }
 
     static modify(tree, parentKind = null) {

@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.sql.Constants;
 import org.ballerinalang.nativeimpl.sql.SQLDatasource;
+import org.ballerinalang.nativeimpl.sql.SQLDatasourceUtils;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;

@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 
-endpoint http:ServiceEndpoint serviceEndpoint {
+endpoint http:Listener serviceEndpoint {
     port:9090
 };
 
@@ -29,7 +29,7 @@ service<http:Service> CustomerMgtService bind serviceEndpoint {
     }
 }
 
-endpoint http:ClientEndpoint productsService {
+endpoint http:Client productsService {
     targets:[{url: "http://localhost:9090"}]
 };
 

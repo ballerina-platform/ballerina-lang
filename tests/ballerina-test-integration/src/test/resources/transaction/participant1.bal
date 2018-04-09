@@ -17,11 +17,11 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:ServiceEndpoint participant1EP {
+endpoint http:Listener participant1EP {
     port:8889
 };
 
-endpoint http:ClientEndpoint participant2EP {
+endpoint http:Client participant2EP {
     targets:[{url: "http://localhost:8890"}]
 };
 
@@ -166,8 +166,8 @@ service<http:Service> participant1 bind participant1EP {
     }
 }
 
-function sendErrorResponseToInitiator(http:ServiceEndpoint conn) {
-    endpoint http:ServiceEndpoint conn2 = conn;
+function sendErrorResponseToInitiator(http:Listener conn) {
+    endpoint http:Listener conn2 = conn;
     http:Response errRes = new; errRes.statusCode = 500;
     var respondResult = conn2 -> respond(errRes);
     match respondResult {

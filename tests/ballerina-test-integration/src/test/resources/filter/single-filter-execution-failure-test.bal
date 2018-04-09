@@ -33,7 +33,7 @@ public function interceptResponse1 (http:Response response, http:FilterContext c
 
 Filter1 filter1 = new (interceptRequest1, interceptResponse1);
 
-endpoint http:ServiceEndpoint echoEP {
+endpoint http:Listener echoEP {
     port:9090,
     filters:[filter1]
 };
