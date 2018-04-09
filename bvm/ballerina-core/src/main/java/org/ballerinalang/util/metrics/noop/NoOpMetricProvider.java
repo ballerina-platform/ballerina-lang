@@ -40,6 +40,11 @@ public class NoOpMetricProvider implements MetricProvider {
     }
 
     @Override
+    public void initialize() {
+        // Do nothing
+    }
+
+    @Override
     public Counter newCounter(MetricId metricId) {
         return new NoOpCounter(metricId);
     }
@@ -56,12 +61,12 @@ public class NoOpMetricProvider implements MetricProvider {
 
     @Override
     public Summary newSummary(MetricId metricId) {
-        return null;
+        return new NoOpSummary(metricId);
     }
 
     @Override
     public Timer newTimer(MetricId metricId) {
-        return null;
+        return new NoOpTimer(metricId);
     }
 
 }

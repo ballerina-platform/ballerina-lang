@@ -83,7 +83,7 @@ public interface Timer extends Metric {
 
         @Override
         public Timer register() {
-            return register(MetricRegistry.getDefaultRegistry());
+            return register(DefaultMetricRegistry.getInstance());
         }
 
         @Override

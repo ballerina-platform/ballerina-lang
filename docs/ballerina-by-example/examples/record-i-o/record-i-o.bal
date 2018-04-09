@@ -86,7 +86,7 @@ function main (string[] args) {
         io:println("error occurred while processing records " + err.message);
     }finally {
        //Close the text record channel.
-       io:IOError closeError = srcRecordChannel.closeDelimitedRecordChannel();
+       io:IOError? closeError = srcRecordChannel.closeDelimitedRecordChannel();
        closeError = dstRecordChannel.closeDelimitedRecordChannel();
     }
 }

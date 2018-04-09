@@ -140,8 +140,8 @@ function protocolCompatible (string coordinationType,
     return participantProtocolIsValid;
 }
 
-function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
-    endpoint http:ServiceEndpoint ep = conn;
+function respondToBadRequest (http:Listener conn, string msg) {
+    endpoint http:Listener ep = conn;
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
     RequestError err = {errorMessage:msg};
