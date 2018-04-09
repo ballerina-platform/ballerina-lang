@@ -147,12 +147,13 @@ public class JMSUtils {
         return str == null || str.trim().isEmpty();
     }
 
-    public static void preProcessIfWso2MB(Map<String, String> configParams) {
+    private static void preProcessIfWso2MB(Map<String, String> configParams) {
         if (Constants.MB_ICF_ALIAS.equalsIgnoreCase(configParams.get(Constants.ALIAS_INITIAL_CONTEXT_FACTORY))) {
 
             configParams.put(Constants.ALIAS_INITIAL_CONTEXT_FACTORY, Constants.MB_ICF_NAME);
             String connectionFactoryName = configParams.get(Constants.ALIAS_CONNECTION_FACTORY_NAME);
             if (configParams.get(Constants.ALIAS_PROVIDER_URL) != null) {
+                System.setProperty("qpid.dest_syntax", "BURL");
                 if (!isNullOrEmptyAfterTrim(connectionFactoryName)) {
                     configParams.put(Constants.MB_CF_NAME_PREFIX + connectionFactoryName,
                                      configParams.get(Constants.ALIAS_PROVIDER_URL));
@@ -268,7 +269,6 @@ public class JMSUtils {
     }
 
     public static Topic getTopic(Session session, String topicPattern) throws JMSException {
-        // TODO: need to fix this on andes client side.
-        return session.createTopic("BURL:" + topicPattern);
+        return session.createTopic(topicPattern);
     }
 }
