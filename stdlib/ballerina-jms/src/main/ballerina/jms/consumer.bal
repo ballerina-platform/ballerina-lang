@@ -26,6 +26,7 @@ public type ConsumerTemplate object {
 };
 
 public type ConsumerConnector object {
+    public function acknowledge (Message message);
 };
 
 public type ConsumerEndpointConfiguration {

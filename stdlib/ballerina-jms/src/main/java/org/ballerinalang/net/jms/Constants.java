@@ -30,23 +30,31 @@ import javax.naming.Context;
  * @since 0.8.0
  */
 public class Constants {
+    // Common fields
+    public static final String B_OBJECT_FIELD_CONNECTOR = "connector";
+    public static final String B_OBJECT_FIELD_CONFIG = "config";
 
     // Connection fields
-    public static final String CONNECTION_CONNECTOR = "connector";
     public static final String CONNECTION_CONFIG = "config";
 
     // Session fields
-    public static final String SESSION_FIELD_CONNECTOR = "connector";
     public static final String SESSION_CONFIG = "config";
 
     // Queue Sender fields
-    public static final String QUEUE_SENDER_FIELD_CONFIG = "config";
+    public static final String QUEUE_SENDER_FIELD_CONFIG = B_OBJECT_FIELD_CONFIG;
     public static final String QUEUE_SENDER_FIELD_QUEUE_NAME = "queueName";
-    public static final String QUEUE_SENDER_FIELD_CONNECTOR = "connector";
+    public static final String QUEUE_SENDER_FIELD_CONNECTOR = B_OBJECT_FIELD_CONNECTOR;
+
+    // Topic Producer fields
+    public static final String TOPIC_PRODUCER_FIELD_CONFIG = B_OBJECT_FIELD_CONFIG;
+    public static final String TOPIC_PRODUCER_FIELD_TOPIC_PATTERN = "topicPattern";
+    public static final String TOPIC_PRODUCER_FIELD_CONNECTOR = B_OBJECT_FIELD_CONNECTOR;
 
     // Consumer fields
     public static final String CONSUMER_CONFIG = "config";
     public static final String QUEUE_NAME = "queueName";
+    public static final String TOPIC_PATTERN = "topicPattern";
+    public static final String CONSUMER_IDENTIFIER = "identifier";
     public static final String CONSUMER_CONNECTOR = "connector";
     public static final String QUEUE_CONSUMER_ENDPOINT = "QueueConsumer";
 
@@ -54,6 +62,7 @@ public class Constants {
     public static final String JMS_CONNECTION = "jms_connection_object";
     public static final String JMS_SESSION = "jms_session_object";
     public static final String JMS_QUEUE_SENDER_OBJECT = "jms_queue_sender_object";
+    public static final String JMS_TOPIC_PRODUCER_OBJECT = "jms_topic_producer_object";
     public static final String JMS_MESSAGE_OBJECT = "jms_message_object";
     public static final String JMS_CONSUMER_OBJECT = "jms_consumer_object";
 

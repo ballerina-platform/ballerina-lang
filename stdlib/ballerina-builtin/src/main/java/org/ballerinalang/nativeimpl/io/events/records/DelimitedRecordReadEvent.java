@@ -66,6 +66,10 @@ public class DelimitedRecordReadEvent implements Event {
             log.error("Error occurred while reading from record channel", e);
             context.setError(e);
             result = new AlphaCollectionResult(context);
+        } catch (Throwable e) {
+            log.error("Unidentified error occurred while reading delimited records", e);
+            context.setError(e);
+            result = new AlphaCollectionResult(context);
         }
         return result;
     }

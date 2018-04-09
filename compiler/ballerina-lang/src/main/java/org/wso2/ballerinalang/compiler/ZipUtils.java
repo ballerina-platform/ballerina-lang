@@ -106,7 +106,7 @@ class ZipUtils {
             Path root = zipFS.getPath(SRC_DIR);
             String fileName = path.getFileName().toString();
             Path dest = zipFS.getPath(root.toString(), fileName);
-            if (path.getFileName().toString().equals("Ballerina.md")) {
+            if (path.getFileName().toString().equals("Package.md")) {
                 dest = zipFS.getPath(File.separator, fileName);
             }
             try {
