@@ -78,6 +78,10 @@ public class LSPackageCache {
     public void removePackage(PackageID packageID) {
         this.packageCache.remove(packageID);
     }
+    
+    public void clearCache() {
+        this.packageCache.clearCache();
+    }
 
     /**
      * add package to the package map.
@@ -132,6 +136,10 @@ public class LSPackageCache {
             if (packageID != null) {
                 this.packageMap.remove(packageID.bvmAlias());
             }
+        }
+        
+        public void clearCache() {
+            this.packageMap.clear();
         }
     }
 }

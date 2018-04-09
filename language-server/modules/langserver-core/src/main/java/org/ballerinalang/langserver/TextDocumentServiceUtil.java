@@ -222,8 +222,12 @@ public class TextDocumentServiceUtil {
                     new LangServerFSProgramDirectory(sourceRoot.getSourceRootPath(), documentManager));
         }
         LSPackageCache globalPackageCache = LSPackageCache.getInstance();
-        globalPackageCache.removePackage(new PackageID(Names.ANON_ORG,
-                new Name(packageName), new Name("0.0.0")));
+        if (packageName.endsWith(".bal")) {
+            globalPackageCache.removePackage(new PackageID(""));
+        } else {
+            globalPackageCache.removePackage(new PackageID(Names.ANON_ORG,
+                    new Name(packageName), new Name("0.0.0")));
+        }
         PackageCache.setInstance(globalPackageCache.getPackageCache(), context);
         return context;
     }
