@@ -9,7 +9,7 @@ endpoint http:ServiceEndpoint echoEP {
 };
 
 //Config client endpoint chunking behaviour by adding auto (default value), always or never to chunking option.
-endpoint http:ClientEndpoint clientEndpoint {
+endpoint http:Client clientEndpoint {
     targets: [
         {
            uri: "http://localhost:9090"

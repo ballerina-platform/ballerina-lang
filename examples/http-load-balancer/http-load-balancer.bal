@@ -6,7 +6,7 @@ endpoint http:ServiceEndpoint backendEP {
     port: 9090
 };
 
-endpoint http:ClientEndpoint lbEP {
+endpoint http:Client lbEP {
     targets: [
              {url:"http://localhost:9090/mock1"},
              {url:"http://localhost:9090/mock2"},

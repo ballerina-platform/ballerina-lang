@@ -31,7 +31,7 @@ service<http:Service> helloWorld bind helloWorldEP {
     }
 }
 
-endpoint http:ClientEndpoint clientEP {
+endpoint http:Client clientEP {
     targets: [{
         url: "https://localhost:9095",
         secureSocket: {

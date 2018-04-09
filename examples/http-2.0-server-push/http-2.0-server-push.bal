@@ -69,7 +69,7 @@ service<http:Service> http2Service bind ep {
   }
 }
 
-endpoint http:ClientEndpoint clientEP {
+endpoint http:Client clientEP {
     targets: [
         {
             url: "http://localhost:7090"

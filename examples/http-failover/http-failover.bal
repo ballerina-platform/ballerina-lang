@@ -10,7 +10,7 @@ endpoint http:ServiceEndpoint backendEP {
     port:8080
 };
 
-endpoint http:ClientEndpoint backendClientEP {
+endpoint http:Client backendClientEP {
     lbMode: {
         failoverCodes : [400, 404, 500],
         interval : 0
