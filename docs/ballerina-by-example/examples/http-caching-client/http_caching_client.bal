@@ -69,14 +69,14 @@ service<http:Service> helloWorld bind backendEP {
         res.cacheControl.mustRevalidate = true;
         res.cacheControl.isPrivate = false;
 
-        // Once the cache control directives has been set, calling the buildCacheControlDirectives() function
-        // takes all those directives and build the directives string which can then be set as the Cache-Control header
-        res.setHeader(http:CACHE_CONTROL, res.cacheControl.buildCacheControlDirectives());
+        // Once the cache control directives has been set, calling the setCacheControl() function takes all those
+        // directives, build the directives string, and sets the Cache-Control header.
+        res.setCacheControl();
 
-        // The getCRC32() function from the ballerina/security.crypto library can be used for generating ETags for
-        // string, json, xml and blob types.
-        string etag = crypto:getCRC32(payload);
-        res.setHeader(http:ETAG, etag);
+        // The setETag() function can be used for setting the ETag header. The getCRC32() function from the
+        // ballerina/security.crypto library is used for generating ETags. This function accepts string, json, xml
+        // and blob types as its argument.
+        res.setETag(payload);
 
         res.setJsonPayload(payload);
         _ = outboundEP -> respond(res);
