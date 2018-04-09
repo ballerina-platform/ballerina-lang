@@ -24,7 +24,7 @@ import ballerina/io;
 @Description {value:"Represents an HTTP client endpoint"}
 @Field {value:"epName: The name of the endpoint"}
 @Field {value:"config: The configurations associated with the endpoint"}
-public type ClientEndpoint object {
+public type Client object {
     public {
         string epName;
         ClientEndpointConfiguration config;
@@ -92,7 +92,7 @@ public type ClientEndpointConfiguration {
     string forwarded = "disable",
     FollowRedirects? followRedirects,
     Retry? retry,
-    Proxy? proxy,
+    Proxy? proxyConfig,
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
     string|FailoverConfig lbMode = ROUND_ROBIN,
@@ -126,7 +126,7 @@ public type Retry {
 public type SecureSocket {
     TrustStore? trustStore,
     KeyStore? keyStore,
-    Protocols? protocols,
+    Protocols? protocol,
     ValidateCert? certValidation,
     string[] ciphers,
     boolean verifyHostname = true,
@@ -162,7 +162,7 @@ public type ConnectionThrottling {
     int waitTime = 60000,
 };
 
-public function ClientEndpoint::init(ClientEndpointConfiguration config) {
+public function Client::init(ClientEndpointConfiguration config) {
     boolean httpClientRequired = false;
     string url = config.targets[0].url;
     match config.lbMode {

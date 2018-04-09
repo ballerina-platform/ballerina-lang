@@ -1,11 +1,11 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:ServiceEndpoint frontendEP {
+endpoint http:Listener frontendEP {
     port:9090
 };
 
-endpoint http:ClientEndpoint backendClientEP {
+endpoint http:Client backendClientEP {
     targets: [
         {
             url: "http://localhost:7090"
@@ -27,7 +27,7 @@ service<http:Service> frontendHttpService bind frontendEP {
     frontendHttpResource (endpoint client, http:Request clientRequest) {
 
         http:Request serviceReq = new;
-        http:HttpHandle handle = new;
+        http:HttpFuture httpFuture = new;
         // Submit a request
         var submissionResult = backendClientEP -> submit("GET", "/backend/main", serviceReq);
         match submissionResult {
@@ -38,19 +38,19 @@ service<http:Service> frontendHttpService bind frontendEP {
                 errorResponse.setJsonPayload(errMsg);
                 _ = client -> respond(errorResponse);
             }
-            http:HttpHandle resultantHandle => {
-                handle = resultantHandle;
+            http:HttpFuture resultantFuture => {
+                httpFuture = resultantFuture;
             }
         }
 
         // Check whether promises exists
         http:PushPromise[] promises = [];
         int promiseCount = 0;
-        boolean hasPromise = backendClientEP -> hasPromise(handle);
+        boolean hasPromise = backendClientEP -> hasPromise(httpFuture);
         while (hasPromise) {
             http:PushPromise pushPromise = new;
             // Get the next promise
-            var nextPromiseResult = backendClientEP -> getNextPromise(handle);
+            var nextPromiseResult = backendClientEP -> getNextPromise(httpFuture);
             match nextPromiseResult {
                 http:PushPromise resultantPushPromise => {
                     pushPromise = resultantPushPromise;
@@ -68,7 +68,7 @@ service<http:Service> frontendHttpService bind frontendEP {
             // Store required promises
             promises[promiseCount] = pushPromise;
             promiseCount = promiseCount + 1;
-            hasPromise = backendClientEP -> hasPromise(handle);
+            hasPromise = backendClientEP -> hasPromise(httpFuture);
         }
         // By this time 3 promises should be received, if not send an error response
         if (promiseCount != 3) {
@@ -81,7 +81,7 @@ service<http:Service> frontendHttpService bind frontendEP {
 
         // Get the requested resource
         http:Response res = new;
-        var result = backendClientEP -> getResponse(handle);
+        var result = backendClientEP -> getResponse(httpFuture);
         match result {
             http:Response resultantResponse => {
                 res = resultantResponse;
@@ -169,7 +169,7 @@ service<http:Service> frontendHttpService bind frontendEP {
     }
 }
 
-endpoint http:ServiceEndpoint backendEP {
+endpoint http:Listener backendEP {
     port:7090,
     // HTTP version is set to 2.0
     httpVersion:"2.0"

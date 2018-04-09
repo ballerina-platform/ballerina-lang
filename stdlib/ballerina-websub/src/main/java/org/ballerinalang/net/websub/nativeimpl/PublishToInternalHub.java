@@ -22,8 +22,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
@@ -32,10 +34,11 @@ import org.ballerinalang.net.websub.hub.Hub;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.websub",
+        orgName = "ballerina", packageName = "websub",
         functionName = "publishToInternalHub",
         args = {@Argument(name = "topic", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.JSON)},
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 public class PublishToInternalHub extends BlockingNativeCallableUnit {
@@ -45,8 +48,7 @@ public class PublishToInternalHub extends BlockingNativeCallableUnit {
         String topic = context.getStringArgument(0);
         BJSON jsonPayload = (BJSON) context.getRefArgument(0);
         String payload = jsonPayload.stringValue();
-        Hub.getInstance().publish(topic, payload);
-        context.setReturnValues();
+        context.setReturnValues(new BString(Hub.getInstance().publish(topic, payload)));
     }
 
 }

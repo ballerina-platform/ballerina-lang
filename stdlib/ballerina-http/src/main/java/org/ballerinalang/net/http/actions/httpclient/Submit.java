@@ -44,7 +44,7 @@ import org.wso2.transport.http.netty.contract.ClientConnectorException;
                         structPackage = "ballerina.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "HttpHandle", structPackage = "ballerina.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "HttpFuture", structPackage = "ballerina.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
                         structPackage = "ballerina.http"),
         }

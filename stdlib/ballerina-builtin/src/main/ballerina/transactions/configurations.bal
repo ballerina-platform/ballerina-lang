@@ -29,6 +29,7 @@ import ballerina/config;
 @final int coordinatorPort = (<int>(config:getAsString("http.coordinator.port") but { () => getAvailablePort()}))
                              but { error => getAvailablePort()};
 
-endpoint http:ServiceEndpoint coordinatorListener {
+endpoint http:Listener coordinatorListener {
+    host:coordinatorHost,
     port:coordinatorPort
 };

@@ -1,8 +1,8 @@
-//Ballerina WebSub Subscriber service that subscribes to notifications at a Hub
+//Ballerina WebSub Subscriber service which subscribes to notifications at a Hub.
 import ballerina/log;
 import ballerina/mime;
 import ballerina/http;
-import ballerina/net.websub;
+import ballerina/websub;
 
 //The endpoint to which the subscriber service is bound
 endpoint websub:SubscriberServiceEndpoint websubEP {
@@ -21,33 +21,28 @@ endpoint websub:SubscriberServiceEndpoint websubEP {
 }
 service<websub:SubscriberService> websubSubscriber bind websubEP {
 
-    //Method that accepts intent verification requests
-    onVerifyIntent (endpoint client, http:Request request) {
-        //Build the response for the subscription intent verification request that was received
-        var subscriptionVerificationResponse = websub:buildSubscriptionVerificationResponse(request);
-        http:Response response = {};
-        match (subscriptionVerificationResponse) {
+    //Resource accepting intent verification requests
+    onIntentVerification (endpoint client, websub:IntentVerificationRequest request) {
+        //Build the response for the subscription intent verification request received
+        http:Response response = new;
+        match (request.buildSubscriptionVerificationResponse()) {
             http:Response httpResponse => {
                 log:printInfo("Intent verified for subscription request");
                 response = httpResponse;
             }
-            null => {
-                log:printInfo("Intent verification for subscription request denied");
-                response = { statusCode:404 };
+            () => {
+                log:printWarn("Intent verification for subscription request denied");
+                response.statusCode = 404;
             }
         }
         _ = client -> respond(response);
     }
 
-    //Method that accepts content delivery requests
-    onNotification (endpoint client, http:Request request) {
-        http:Response response = { statusCode:202 };
-        _ = client -> respond(response);
-        var reqPayload = request.getJsonPayload();
-        match (reqPayload) {
-            json jsonPayload => { log:printInfo("WebSub Notification Received: " + jsonPayload.toString()); }
-            http:PayloadError error => { log:printInfo("Error occurred processing WebSub Notification"); }
-        }
+    //Resource accepting content delivery requests
+    onNotification (websub:NotificationRequest notification) {
+        json notificationPayload = notification.payload;
+        string notificationString = notificationPayload.toString() but {() => ""};
+        log:printInfo("WebSub Notification Received: " + notificationString);
     }
 
 }

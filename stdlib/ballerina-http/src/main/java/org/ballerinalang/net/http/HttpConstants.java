@@ -40,7 +40,7 @@ public class HttpConstants {
 
     public static final String PROTOCOL_HTTP = "http";
     public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.http";
-    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.http:ServiceEndpoint";
+    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.http:Listener";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
@@ -159,13 +159,13 @@ public class HttpConstants {
     public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
-    public static final String SERVICE_ENDPOINT = "ServiceEndpoint";
+    public static final String SERVICE_ENDPOINT = "Listener";
     public static final String CONNECTION = "Connection";
     public static final String REMOTE = "Remote";
     public static final String LOCAL = "Local";
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
-    public static final String HTTP_HANDLE = "HttpHandle";
+    public static final String HTTP_FUTURE = "HttpFuture";
     public static final String PUSH_PROMISE = "PushPromise";
     public static final String ENTITY = "Entity";
     public static final String RESPONSE_CACHE_CONTROL = "ResponseCacheControl";
@@ -288,12 +288,12 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_TRUST_STORE = "trustStore";
     public static final String FILE_PATH = "filePath";
     public static final String PASSWORD = "password";
-    public static final String PROTOCOL_VERSION = "protocolName";
+    public static final String PROTOCOL_VERSION = "name";
     public static final String ENABLED_PROTOCOLS = "versions";
     public static final String ENABLE = "enable";
     public static final String ENDPOINT_CONFIG_OCSP_STAPLING = "ocspStapling";
     public static final String ENDPOINT_CONFIG_KEY_STORE = "keyStore";
-    public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocols";
+    public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocol";
     public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "certValidation";
 
     //SslConfiguration indexes
@@ -329,11 +329,11 @@ public class HttpConstants {
     public static final String FOLLOW_REDIRECT_MAXCOUNT = "maxCount";
 
     //Proxy Indexed
-    public static final String PROXY_STRUCT_REFERENCE = "proxy";
+    public static final String PROXY_STRUCT_REFERENCE = "proxyConfig";
     public static final String PROXY_HOST = "host";
     public static final String PROXY_PORT = "port";
     public static final String PROXY_USERNAME = "userName";
-    public static final String PROXY_PASSWORD = "pasword";
+    public static final String PROXY_PASSWORD = "password";
 
     public static final String HTTP_SERVICE_TYPE = "Service";
     // Filter related

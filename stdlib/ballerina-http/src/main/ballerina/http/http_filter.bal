@@ -26,10 +26,7 @@ public type Filter object {
         function (Response response, FilterContext context) returns (FilterResult) filterResponse;
     }
 
-    new (function (Request, FilterContext) returns (FilterResult) requestFilter,
-            function (Response, FilterContext) returns (FilterResult) responseFilter) {
-        filterRequest = requestFilter;
-        filterResponse = responseFilter;
+    public new (filterRequest, filterResponse) {
     }
 
     public function init ();

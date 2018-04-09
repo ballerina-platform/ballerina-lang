@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.NonWritableChannelException;
 
 /**
  * Read bytes in blocking mode.
@@ -53,7 +54,7 @@ public class BlockingWriter implements Writer {
             if (log.isDebugEnabled()) {
                 log.debug("Number of bytes " + numberOfBytesWritten + " to the channel " + channel.hashCode());
             }
-        } catch (IOException e) {
+        } catch (IOException | NonWritableChannelException e) {
             String message = "Error occurred while writing to channel ";
             throw new BallerinaIOException(message, e);
         }

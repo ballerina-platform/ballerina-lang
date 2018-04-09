@@ -7,7 +7,7 @@ function setErrorResponse(http:Response response,  mime:EntityError err) {
     response.setStringPayload(err.message);
 }
 
-endpoint http:NonListeningServiceEndpoint mockEP {
+endpoint http:NonListener mockEP {
     port:9090
 };
 

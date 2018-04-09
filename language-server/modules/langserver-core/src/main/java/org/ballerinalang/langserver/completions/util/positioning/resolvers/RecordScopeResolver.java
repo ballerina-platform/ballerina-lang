@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -44,7 +45,7 @@ public class RecordScopeResolver extends CursorPositionResolver {
      * @return {@link Boolean}      Whether the cursor is before the node start or not
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor,
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
                                       LSServiceOperationContext completionContext) {
         Node recordNode = treeVisitor.getBlockOwnerStack().peek();
         if (!recordNode.getKind().equals(NodeKind.RECORD)) {

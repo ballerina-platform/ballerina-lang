@@ -19,7 +19,7 @@ import ballerina/io;
 import ballerina/util;
 import ballerina/sql;
 
-endpoint http:ServiceEndpoint participant2EP {
+endpoint http:Listener participant2EP {
     port:8890
 };
 
@@ -124,8 +124,8 @@ type Registration {
     string REGISTRATIONID;
 };
 
-function saveToDatabase(http:ServiceEndpoint conn, http:Request req, boolean shouldAbort) {
-    endpoint http:ServiceEndpoint ep = conn;
+function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbort) {
+    endpoint http:Listener ep = conn;
     http:Response res = new;  res.statusCode = 200;
     transaction with oncommit=onCommit, onabort=onAbort {
         transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort {
@@ -153,19 +153,19 @@ function saveToDatabase(http:ServiceEndpoint conn, http:Request req, boolean sho
     }
 }
 
-function onAbort() {
+function onAbort(string transactionid) {
     state.abortedFunctionCalled = true;
 }
 
-function onCommit() {
+function onCommit(string transactionid) {
     state.committedFunctionCalled = true;
 }
 
-function onLocalParticipantAbort() {
+function onLocalParticipantAbort(string transactionid) {
     state.localParticipantAbortedFunctionCalled = true;
 }
 
-function onLocalParticipantCommit() {
+function onLocalParticipantCommit(string transactionid) {
     state.localParticipantCommittedFunctionCalled = true;
 }
 

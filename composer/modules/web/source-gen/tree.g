@@ -176,9 +176,29 @@ Match
 MatchPatternClause
    : <withoutCurlies?> <variableNode.source> =>   <statement.source>
    :                   <variableNode.source> => { <statement.source> }
+   ;
+
+MatchExpression
+   : <expr> but { <patternClauses>* }
+   ;
+
+MatchExprPatternClause
+   : <variable.source> => <expr.source>
+   ;
 
 Next
    : next ;
+   ;
+
+Object
+   : <noFieldsAvailable?>        <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> object {                                                         <initFunction> <functions>* };
+   | <noPrivateFieldsAvailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> object { public { <publicFields>* }                              <initFunction> <functions>* };
+   | <noPublicFieldAvailable?>   <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> object {                            private { <privateFields>* } <initFunction> <functions>* };
+   |                             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> object { public { <publicFields>* } private { <privateFields>* } <initFunction> <functions>* };
+   ;
+
+Record
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> { <fields-suffixed-by-;>* };
    ;
 
 RecordLiteralExpr
@@ -199,7 +219,8 @@ Return
    ;
 
 Service
-   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value> bind <boundEndpoints-joined-by,>* { <variables>* <resources>* }
+   : <isServiceTypeUnavailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value> bind <boundEndpoints-joined-by,>* { <variables>* <resources>* }
+   |                             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value> bind <boundEndpoints-joined-by,>* { <variables>* <resources>* }
    ;
 
 SimpleVariableRef
@@ -273,6 +294,11 @@ TypeConversionExpr
 
 TypeofExpression
    : typeof <typeNode.source>
+   ;
+
+TypeInitExpr
+   : <noTypeAttached?> new                   ( <expressions-joined-by,>* );
+   |                   new <typeName.source> ( <expressions-joined-by,>* );
    ;
 
 UnaryExpr

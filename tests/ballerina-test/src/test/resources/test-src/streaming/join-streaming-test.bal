@@ -38,11 +38,11 @@ type StockWithPrice {
 StockWithPrice[] globalEventsArray = [];
 int index = 0;
 
-function startJoinQuery() returns (StockWithPrice[]) {
+stream<Stock> stockStream;
+stream<Twitter> twitterStream;
+stream<StockWithPrice> stockWithPriceStream;
 
-    stream<Stock> stockStream;
-    stream<Twitter> twitterStream;
-    stream<StockWithPrice> stockWithPriceStream;
+function testJoinQuery() {
 
     forever {
         from stockStream window time(1000)
@@ -53,6 +53,11 @@ function startJoinQuery() returns (StockWithPrice[]) {
             stockWithPriceStream.publish(emp);
         }
     }
+}
+
+function startJoinQuery() returns (StockWithPrice[]) {
+
+    testJoinQuery();
 
     Stock s1 = {symbol:"WSO2", price:55.6, volume:100};
     Stock s2 = {symbol:"MBI", price:74.6, volume:100};

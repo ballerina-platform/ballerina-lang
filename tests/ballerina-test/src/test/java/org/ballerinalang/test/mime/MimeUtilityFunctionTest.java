@@ -480,4 +480,35 @@ public class MimeUtilityFunctionTest {
             log.error("Error occurred in testLargePayload", e.getMessage());
         }
     }
+
+    @Test(description = "Test whether the Content-Disposition header value can be built from ContentDisposition " +
+            "object values.")
+    public void testContentDispositionForFormData() {
+        BStruct bodyPart = Util.getEntityStruct(compileResult);
+        BStruct contentDispositionStruct = Util.getContentDispositionStruct(compileResult);
+        MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
+                "form-data; name=\"filepart\"; filename=\"file-01.txt\"");
+        String contentDispositionValue = MimeUtil.getContentDisposition(bodyPart);
+        Assert.assertEquals(contentDispositionValue, "form-data;name=\"filepart\";filename=\"file-01.txt\"");
+    }
+
+    @Test
+    public void testFileNameWithoutQuotes() {
+        BStruct bodyPart = Util.getEntityStruct(compileResult);
+        BStruct contentDispositionStruct = Util.getContentDispositionStruct(compileResult);
+        MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
+                "form-data; name=filepart; filename=file-01.txt");
+        String contentDispositionValue = MimeUtil.getContentDisposition(bodyPart);
+        Assert.assertEquals(contentDispositionValue, "form-data;name=\"filepart\";filename=\"file-01.txt\"");
+    }
+
+    @Test
+    public void testContentDispositionWithoutParams() {
+        BStruct bodyPart = Util.getEntityStruct(compileResult);
+        BStruct contentDispositionStruct = Util.getContentDispositionStruct(compileResult);
+        MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
+                "form-data");
+        String contentDispositionValue = MimeUtil.getContentDisposition(bodyPart);
+        Assert.assertEquals(contentDispositionValue, "form-data");
+    }
 }

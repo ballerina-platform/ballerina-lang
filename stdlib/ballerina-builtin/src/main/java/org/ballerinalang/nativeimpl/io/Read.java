@@ -75,18 +75,17 @@ public class Read implements NativeCallableUnit {
      * @return Once the callback is processed we further return back the result.
      */
     private static EventResult readResponse(EventResult<Integer, EventContext> result) {
-        BStruct errorStruct;
         BRefValueArray contentTuple = new BRefValueArray(readTupleType);
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
         Throwable error = eventContext.getError();
-        Integer numberOfBytes = result.getResponse();
         CallableUnitCallback callback = eventContext.getCallback();
         byte[] content = (byte[]) eventContext.getProperties().get(ReadBytesEvent.CONTENT_PROPERTY);
         if (null != error) {
-            errorStruct = IOUtils.createError(context, error.getMessage());
+            BStruct errorStruct = IOUtils.createError(context, error.getMessage());
             context.setReturnValues(errorStruct);
         } else {
+            Integer numberOfBytes = result.getResponse();
             contentTuple.add(0, new BBlob(content));
             contentTuple.add(1, new BInteger(numberOfBytes));
             context.setReturnValues(contentTuple);

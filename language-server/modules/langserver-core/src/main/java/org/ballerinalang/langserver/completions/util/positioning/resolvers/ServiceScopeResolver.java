@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class ServiceScopeResolver extends CursorPositionResolver {
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor,
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
                                       LSServiceOperationContext completionContext) {
         Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         DiagnosticPos zeroBasedPo = CommonUtil.toZeroBasedPosition(nodePosition);
@@ -52,6 +52,7 @@ public class ServiceScopeResolver extends CursorPositionResolver {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, null);
+            treeVisitor.setNextNode(node);
             treeVisitor.setTerminateVisitor(true);
             return true;
         }

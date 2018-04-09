@@ -35,10 +35,10 @@ public type Connection object {
     @Return {value:"Returns null if any error does not exist."}
     public native function forward(Response res) returns (HttpConnectorError | ());
 
-    @Description { value:"Sends a push promise to the caller."}
+    @Description { value:"Pushes a promise to the caller."}
     @Param { value:"conn: The server connector connection" }
     @Param { value:"promise: Push promise message" }
-    @Return { value:"Error occured during HTTP server connector forward" }
+    @Return { value:"Error occured during HTTP server connector promise function invocation" }
     @Return {value:"Returns null if any error does not exist."}
     public native function promise(PushPromise promise) returns (HttpConnectorError | ());
 
@@ -46,13 +46,13 @@ public type Connection object {
     @Param { value:"conn: The server connector connection" }
     @Param { value:"promise: Push promise message" }
     @Param { value:"res: The outbound response message" }
-    @Return { value:"Error occured during HTTP server connector forward" }
+    @Return { value:"Error occured during HTTP server connector pushPromisedResponse function invocation" }
     @Return {value:"Returns null if any error does not exist."}
     public native function pushPromisedResponse(PushPromise promise, Response res) returns (HttpConnectorError | ());
 
     @Description {value:"Sends a upgrade request with custom headers"}
     @Param {value:"headers: a map of custom headers for handshake."}
-    public native function upgradeToWebSocket(map headers) returns WebSocketEndpoint;
+    public native function upgradeToWebSocket(map headers) returns WebSocketListener;
 
     @Description {value:"Cancels the handshake"}
     @Param {value:"statusCode: Status code for closing the connection"}

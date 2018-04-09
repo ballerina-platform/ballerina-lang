@@ -1024,8 +1024,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                       Name varName, SymbolEnv env) {
         // Create variable symbol
         Scope enclScope = env.scope;
-        BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(Flags.asMask(flagSet), varName,
-                env.enclPkg.symbol.pkgID, varType, enclScope.owner);
+        BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(Flags.asMask(flagSet), varName, env.enclPkg.symbol
+                .pkgID, varType, enclScope.owner);
+        Scope.ScopeEntry scopeEntry = enclScope.entries.get(names.fromString("$" + varName.value));
+        if (scopeEntry != null && scopeEntry.symbol != null && scopeEntry.symbol instanceof BVarSymbol) {
+            varSymbol.docTag = ((BVarSymbol) scopeEntry.symbol).docTag;
+        }
 
         // Add it to the enclosing scope
         // Find duplicates
@@ -1119,14 +1123,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineServiceInitFunction(BLangService service, SymbolEnv conEnv) {
         BLangFunction initFunction = createInitFunction(service.pos, service.getName().getValue(),
                 Names.INIT_FUNCTION_SUFFIX);
-        //Add service level variables to the init function
-        service.vars.stream().filter(f -> f.var.expr != null)
-                .forEachOrdered(v -> initFunction.body.addStatement(createAssignmentStmt(v.var)));
-
-        addInitReturnStatement(initFunction.body);
         service.initFunction = initFunction;
         defineNode(service.initFunction, conEnv);
-//        service.symbol.initFunctionSymbol = service.initFunction.symbol;
     }
 
     private void defineAttachedFunctions(BLangFunction funcNode, BInvokableSymbol funcSymbol,

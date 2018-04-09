@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 /**
  * Test cases for user defined object types in ballerina.
  */
-@Test(groups = {"broken"})
 public class ObjectTest {
 
     @Test(description = "Test Basic object as struct")
@@ -279,6 +278,19 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
         Assert.assertEquals(returns[3].stringValue(), "");
     }
+//
+//    @Test(description = "Test object with default initializer with default values") //TODO fix
+//    public void testObjectWithWithDefaultInitializeWithDefaultValues() {
+//        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_with_default_test.bal");
+//        BValue[] returns = BRunUtil.invoke(compileResult, "testGetDefaultValuesInObjectFields");
+//
+//        Assert.assertEquals(returns.length, 2);
+//        Assert.assertSame(returns[0].getClass(), BInteger.class);
+//        Assert.assertSame(returns[1].getClass(), BString.class);
+//
+//        Assert.assertEquals(((BInteger) returns[0]).intValue(), 15);
+//        Assert.assertEquals(returns[1].stringValue(), "hello world");
+//    }
 
     @Test(description = "Test object with default initialize global variable")
     public void testObjectWithDefaultInitializeGlobalVar() {
@@ -297,7 +309,7 @@ public class ObjectTest {
         Assert.assertEquals(returns[3].stringValue(), "");
     }
 
-//    @Test(description = "Test object with default initialize global variable")
+//    @Test(description = "Test object with default initialize global variable") //TODO fix
 //    public void testObjectWithDefaultInitializeGlobalVar1() {
 //        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_declaration_test1.bal");
 //        BValue[] returns = BRunUtil.invoke(compileResult, "testGetDefaultValuesInObjectGlobalVar");
@@ -310,9 +322,9 @@ public class ObjectTest {
 //        Assert.assertEquals(returns[1].stringValue(), "");
 //    }
 
-//    @Test(description = "Test object with default initialize global variable")
+//    @Test(description = "Test object with default initialize global variable") //TODO fix
 //    public void abc() {
-//        CompileResult compileResult = BCompileUtil.compile("test-src/object/abc.bal");
+//        CompileResult compileResult = BCompileUtil.compile("test-src/object/abc1.bal");
 //        BValue[] returns = BRunUtil.invoke(compileResult, "test");
 //
 //        Assert.assertEquals(returns.length, 2);
@@ -338,7 +350,7 @@ public class ObjectTest {
     }
 
 //    @Test (description = "Negative test to test multiple attach functions for same function interface and " +
-//            "attached function without function interface")
+//            "attached function without function interface") //TODO fix
 //    public void testObjectNegativeTestForNonInitializable() {
 //        CompileResult result = BCompileUtil.compile("test-src/object/object_with_non_defaultable_negative.bal");
 //        Assert.assertEquals(result.getErrorCount(), 2);

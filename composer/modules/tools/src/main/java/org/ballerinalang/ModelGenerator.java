@@ -130,6 +130,10 @@ public class ModelGenerator {
         alias.put("StreamingQueryDeclarationNode", "");
         alias.put("WithinNode", "WithinClause");
         alias.put("PatternClauseNode", "PatternClause");
+        alias.put("TypeDefinitionNode", "");
+        alias.put("TableNode", "");
+        alias.put("ElvisExprNode", "ElvisExpressionNode");
+        //alias.put("CheckExprNode", "");
 
         List<Class<?>> list = ModelGenerator.find("org.ballerinalang.model.tree");
 

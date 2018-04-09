@@ -582,7 +582,7 @@ class PositioningUtil {
         node.body.viewState.bBox.x = node.viewState.bBox.x + (cmp.lifeLine.w / 2);
         node.body.viewState.bBox.y = node.viewState.bBox.y + this.config.lifeLine.head.height;
 
-        if (!TreeUtil.isForkJoin(node.parent)) {
+        if (node.parent && !TreeUtil.isForkJoin(node.parent)) {
             node.body.viewState.bBox.y += this.config.statement.height;
         }
     }

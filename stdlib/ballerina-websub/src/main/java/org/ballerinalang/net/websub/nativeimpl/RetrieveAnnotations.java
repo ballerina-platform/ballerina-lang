@@ -34,10 +34,10 @@ import org.ballerinalang.util.codegen.ResourceInfo;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.websub",
+        orgName = "ballerina", packageName = "websub",
         functionName = "retrieveAnnotations",
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "SubscriberServiceConfiguration",
-                structPackage = "ballerina.net.websub")}
+                structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH)}
 )
 public class RetrieveAnnotations extends BlockingNativeCallableUnit {
 

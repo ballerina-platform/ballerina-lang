@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 8,
+    "line": 12,
     "character": 8
   },
   "source": "resource/source/allVisibleSymbolsEmptyLine.bal",
@@ -43,7 +43,7 @@
     {
       "label":"client",
       "kind":"Unit",
-      "detail":"ballerina.http:ServiceEndpoint",
+      "detail":"ballerina.http:Listener",
       "sortText":"110",
       "insertText":"client"
     }

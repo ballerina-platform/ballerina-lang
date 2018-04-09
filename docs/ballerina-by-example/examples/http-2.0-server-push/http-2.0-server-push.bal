@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint ep {
+endpoint http:Listener ep {
    port:7090,
    // HTTP version is set to 2.0.
    httpVersion:"2.0"
@@ -69,7 +69,7 @@ service<http:Service> http2Service bind ep {
   }
 }
 
-endpoint http:ClientEndpoint clientEP {
+endpoint http:Client clientEP {
     targets: [
         {
             url: "http://localhost:7090"
@@ -82,7 +82,7 @@ endpoint http:ClientEndpoint clientEP {
 function main (string[] args) {
 
     http:Request serviceReq = new;
-    http:HttpHandle handle = new;
+    http:HttpFuture httpFuture = new;
     // Submit a request.
     var submissionResult = clientEP -> submit("GET", "/http2Service/main", serviceReq);
     match submissionResult {
@@ -90,19 +90,19 @@ function main (string[] args) {
             io:println("Error occurred while submitting a request");
             return;
         }
-        http:HttpHandle resultantHandle => {
-            handle = resultantHandle;
+        http:HttpFuture resultantFuture => {
+            httpFuture = resultantFuture;
         }
     }
 
     http:PushPromise[] promises = [];
     int promiseCount = 0;
     // Check whether promises exists.
-    boolean hasPromise = clientEP -> hasPromise(handle);
+    boolean hasPromise = clientEP -> hasPromise(httpFuture);
     while (hasPromise) {
         http:PushPromise pushPromise = new;
         // Get the next promise.
-        var nextPromiseResult = clientEP -> getNextPromise(handle);
+        var nextPromiseResult = clientEP -> getNextPromise(httpFuture);
         match nextPromiseResult {
             http:PushPromise resultantPushPromise => {
                 pushPromise = resultantPushPromise;
@@ -123,12 +123,12 @@ function main (string[] args) {
             promises[promiseCount] = pushPromise;
             promiseCount = promiseCount + 1;
         }
-        hasPromise = clientEP -> hasPromise(handle);
+        hasPromise = clientEP -> hasPromise(httpFuture);
     }
 
     http:Response res = new;
     // Get the requested resource.
-    var result = clientEP -> getResponse(handle);
+    var result = clientEP -> getResponse(httpFuture);
     match result {
         http:Response resultantResponse => {
             res = resultantResponse;
