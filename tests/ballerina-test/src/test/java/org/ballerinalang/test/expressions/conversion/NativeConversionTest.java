@@ -206,6 +206,25 @@ public class NativeConversionTest {
         Assert.assertEquals(marks.get(1).longValue(), 94);
         Assert.assertEquals(marks.get(2).longValue(), 72);
     }
+    
+    @Test
+    public void testStructToJsonConstrained1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrained1");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+    }
+    
+    @Test
+    public void testStructToJsonConstrained2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrained2");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+    }
+    
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*cannot convert 'Person2' to type 'json<Person3>'.*")
+    public void testStructToJsonConstrainedNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrainedNegative");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+    }
 
     @Test(description = "Test converting a map to json")
     public void testMapToJsonConversionError() {
