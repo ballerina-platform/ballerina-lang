@@ -104,29 +104,43 @@ public class SwaggerResourceMapper {
     private void useMultiResourceMapper(Map<String, Path> pathMap, ResourceNode resource) {
         List<String> httpMethods = this.getHttpMethods(resource, true);
         String path = this.getPath(resource);
+        Path pathObject = new Path();
         Operation operation = null;
+        //Iterate through http methods and fill path map.
         for (String httpMethod : httpMethods) {
-            // If operation is still not assigned and has GET method, then get the operation for GET. This is because
-            // GET operations have an extra param.
-            if (null == operation && httpMethod.equalsIgnoreCase("get")) {
-                operation = this.convertResourceToOperation(resource,
-                        httpMethod.toLowerCase(Locale.getDefault())).getOperation();
-            }
-            // But if there are other http methods, their operation will be used.
             if (!httpMethod.equalsIgnoreCase("get")) {
                 operation = this.convertResourceToOperation(resource,
                         httpMethod.toLowerCase(Locale.getDefault())).getOperation();
-                break;
+                if (operation != null) {
+                    switch (httpMethod.toLowerCase(Locale.getDefault())) {
+                        case "get":
+                            pathObject.setGet(operation);
+                            break;
+                        case "put":
+                            pathObject.setPut(operation);
+                            break;
+                        case "post":
+                            pathObject.setPost(operation);
+                            break;
+                        case "delete":
+                            pathObject.setDelete(operation);
+                            break;
+                        case "head":
+                            pathObject.setHead(operation);
+                            break;
+                        case "options":
+                            pathObject.setOptions(operation);
+                            break;
+                        case "patch":
+                            pathObject.setPatch(operation);
+                            break;
+                        default:
+                            break;
+                    }
+                    pathMap.put(path, pathObject);
+                }
             }
         }
-    
-        if (operation != null) {
-            operation.setVendorExtension(X_HTTP_METHODS, httpMethods);
-        }
-    
-        Path pathObject = new Path();
-        pathObject.setVendorExtension(X_MULTI_OPERATIONS, operation);
-        pathMap.put(path, pathObject);
     }
     
     /**
