@@ -32,14 +32,14 @@ service<http:Service> failover bind failoveruEP {
         path:"/"
     }
     doFailover (endpoint client, http:Request request) {
-        http:Response response = {};
+        http:Response response = new;
         http:HttpConnectorError err = {};
         var backendRes = backendClientEP -> post("/", request);
         match backendRes {
             http:Response res => {
             _ = client -> forward(res);}
         http:HttpConnectorError err1 => {
-            response = {};
+            response = new;
             response.statusCode = 500;
             response.setStringPayload(err1.message);
             _ = client -> respond(response);}
@@ -56,7 +56,7 @@ service<http:Service> echo bind backendEP{
         path:"/"
     }
     echoResource (endpoint ep, http:Request req) {
-        http:Response outResponse = {};
+        http:Response outResponse = new;
         runtime:sleepCurrentWorker(30000);
         outResponse.setStringPayload("echo Resource is invoked");
         _ = ep -> respond(outResponse);
@@ -72,7 +72,7 @@ service<http:Service> mock  bind backendEP{
         path:"/"
     }
     mockResource (endpoint ep, http:Request req) {
-        http:Response outResponse = {};
+        http:Response outResponse = new;
         outResponse.setStringPayload("Mock Resource is Invoked.");
         _ = ep -> respond(outResponse);
     }

@@ -17,10 +17,10 @@ service<http:Service> test bind multipartEP {
         path:"/decode_in_response"
     }
      receiveMultiparts (endpoint conn, http:Request request) {
-        http:Request outRequest = {};
-        http:Response inResponse = {};
+        http:Request outRequest = new;
+        http:Response inResponse = new;
         var returnResult = clientEP -> get("/multiparts/encode_out_response", outRequest);
-        http:Response res = {};
+        http:Response res = new;
         match returnResult {
             http:HttpConnectorError connectionErr => {
                 res.statusCode = 500;
@@ -93,7 +93,6 @@ function handleContent (mime:Entity bodyPart) {
         match payload {
             mime:EntityError err => io:println("Error in getting string payload");
             string textContent => io:println(textContent);
-            int |  null => io:println("null payload");
         }
     }
 }

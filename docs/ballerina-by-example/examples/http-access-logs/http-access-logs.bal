@@ -13,7 +13,7 @@ service<http:Service> helloService bind helloServiceEP {
         path:"/"
     }
     hello (endpoint outboundEP, http:Request request) {
-        http:Response response = {};
+        http:Response response = new;
         response.setStringPayload("Successful");
         _ = outboundEP -> respond(response);
     }

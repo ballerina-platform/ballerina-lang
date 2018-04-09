@@ -16,7 +16,7 @@ function main (string[] args) {
     // Checking if a specified file exists.
     file:File newDir = {path:"/ballerina-user/README.txt"};
     boolean filesExists;
-    filesExists =? clientEndpoint -> exists(newDir);
+    filesExists = check clientEndpoint -> exists(newDir);
     io:println("File exists: " + filesExists);
 
     // Creating a new directory at a remote location.
@@ -25,7 +25,7 @@ function main (string[] args) {
 
     // Reading a file in a remote directory.
     files:File txtFile = {path:"/ballerina-user/final-results.txt"};
-    io:ByteChannel channel =? clientEndpoint -> read(txtFile);
+    io:ByteChannel channel = check clientEndpoint -> read(txtFile);
 
     // Copying a remote file to another location.
     files:File copyOfTxt = {path:"/ballerina-user/backup/copy-final-results.txt"};

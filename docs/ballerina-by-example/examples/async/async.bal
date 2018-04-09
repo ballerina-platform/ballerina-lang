@@ -31,7 +31,7 @@ function main(string[] args) {
   io:println(f2.isCancelled());
 
   // async action call
-  http:Request req = {};
+  http:Request req = new;
   future<http:Response|http:HttpConnectorError> f3 = async clientEndpoint -> get("/get?test=123", req);
   io:println(sum(25, 75));
   io:println(f3.isDone());

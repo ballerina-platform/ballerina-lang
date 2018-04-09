@@ -5,7 +5,7 @@ type Person {
     string name;
     int age;
     string city;
-}
+};
 
 function main (string[] args) {
     // Create a new JSON that is constrained by the Person struct. Only the
