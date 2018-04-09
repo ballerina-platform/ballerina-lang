@@ -11,6 +11,17 @@ type Person {
     Person[]|() children;
 };
 
+type Person2 {
+    string name;
+    int age;
+};
+
+type Person3 {
+    string name;
+    int age;
+    string gender;
+};
+
 type Student {
     string name;
     int age;
@@ -69,6 +80,34 @@ function testStructToJson () returns (json) {
                };
 
     json j = check <json>p;
+    return j;
+}
+
+function testStructToJsonConstrained1() returns (json) {
+    Person p = {   name:"Child",
+                   age:25,
+                   parent:{name:"Parent", age:50},
+                   address:{"city":"Colombo", "country":"SriLanka"},
+                   info:{status:"single"},
+                   marks:[87, 94, 72]
+               };
+    json<Person2> j = check <json<Person2>> p;
+    return j;
+}
+
+function testStructToJsonConstrained2() returns (json) {
+    Person2 p = {   name:"Child",
+                    age:25
+                };
+    json<Person2> j = check <json<Person2>> p;
+    return j;
+}
+
+function testStructToJsonConstrainedNegative() returns (json) {
+    Person2 p = {   name:"Child",
+                    age:25
+                };
+    json<Person3> j = check <json<Person3>> p;
     return j;
 }
 

@@ -199,8 +199,7 @@ class ClientResponderDecorator extends React.Component {
                     <text
                         x={viewState.components.invocation.end.x
                             + this.context.designer.config.statement.gutter.h}
-                        y={viewState.components.invocation.end.y
-                            - (this.context.designer.config.actionInvocationStatement.text.height / 2)}
+                        y={viewState.components.invocation.end.y - 5}
                     >
                         {viewState.displayText}
                         <title>{fullExp}</title>

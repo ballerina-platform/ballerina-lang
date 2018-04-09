@@ -45,18 +45,19 @@ public class MicroTransactionTestCase {
     private ServerInstance participant1;
     private ServerInstance participant2;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR";
+    private static final String[] ARGS = {"-e", "http.coordinator.host=127.0.0.1"};
 
     @BeforeClass
     private void setup() throws Exception {
         initiator = ServerInstance.initBallerinaServer(8888);
         initiator.
                 startBallerinaServer(new File("src" + File.separator + "test" + File.separator + "resources"
-                        + File.separator + "transaction" + File.separator + "initiator.bal").getAbsolutePath());
+                        + File.separator + "transaction" + File.separator + "initiator.bal").getAbsolutePath(), ARGS);
 
         participant1 = ServerInstance.initBallerinaServer(8889);
         participant1.
                 startBallerinaServer(new File("src" + File.separator + "test" + File.separator + "resources" +
-                        File.separator + "transaction" + File.separator + "participant1.bal").getAbsolutePath());
+                        File.separator + "transaction" + File.separator + "participant1.bal").getAbsolutePath(), ARGS);
 
         participant2 = ServerInstance.initBallerinaServer(8890);
         copyFile(new File(System.getProperty("hsqldb.jar")),
@@ -66,7 +67,8 @@ public class MicroTransactionTestCase {
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "transaction/data.sql");
         participant2.
                 startBallerinaServer(new File("src" + File.separator + "test" + File.separator + "resources"
-                        + File.separator + "transaction" + File.separator + "participant2.bal").getAbsolutePath());
+                        + File.separator + "transaction" + File.separator + "participant2.bal").getAbsolutePath(),
+                        ARGS);
     }
 
     @Test(description = "Test participant1 transaction id")

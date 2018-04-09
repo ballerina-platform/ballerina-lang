@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 
-endpoint http:ServiceEndpoint serviceEndpoint {
+endpoint http:Listener serviceEndpoint {
     port:9090
 };
 
@@ -23,13 +23,13 @@ service<http:Service> CustomerMgtService bind serviceEndpoint {
             payload = {"Status":"Customer is successfully added."};
         }
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(payload);
         _ = outboundEP -> respond(res);
     }
 }
 
-endpoint http:ClientEndpoint productsService {
+endpoint http:Client productsService {
     targets:[{url: "http://localhost:9090"}]
 };
 
@@ -37,7 +37,6 @@ endpoint http:ClientEndpoint productsService {
     basePath:"/ecommerceservice"
 }
 service<http:Service> Ecommerce bind serviceEndpoint {
-    http:HttpConnectorError err = {};
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -45,7 +44,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
     }
     productsInfo (endpoint outboundEP, http:Request req, string prodId) {
         string reqPath = "/productsservice/" + prodId;
-        http:Request clientRequest = {};
+        http:Request clientRequest = new;
         var clientResponse = productsService -> get(reqPath, clientRequest);
 
         match clientResponse {
@@ -64,7 +63,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         path:"/products"
     }
     productMgt (endpoint outboundEP, http:Request req) {
-        http:Request clientRequest = {};
+        http:Request clientRequest = new;
         var jsonReq = req.getJsonPayload();
         match jsonReq {
             http:PayloadError err => {
@@ -75,7 +74,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
             }
         }
 
-        http:Response clientResponse = {};
+        http:Response clientResponse = new;
         var clientRes = productsService -> post("/productsservice", clientRequest);
         match clientRes {
             http:HttpConnectorError err => {
@@ -93,7 +92,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         path:"/orders"
     }
     ordersInfo (endpoint outboundEP, http:Request req) {
-        http:Request clientRequest = {};
+        http:Request clientRequest = new;
         var clientResponse = productsService -> get("/orderservice/orders", clientRequest);
         match clientResponse {
             http:HttpConnectorError err => {
@@ -110,7 +109,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         path:"/orders"
     }
     ordersMgt (endpoint outboundEP, http:Request req) {
-        http:Request clientRequest = {};
+        http:Request clientRequest = new;
         var clientResponse = productsService -> post("/orderservice/orders", clientRequest);
         match clientResponse {
             http:HttpConnectorError err => {
@@ -128,7 +127,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         path:"/customers"
     }
     customersInfo (endpoint outboundEP, http:Request req) {
-        http:Request clientRequest = {};
+        http:Request clientRequest = new;
         var clientResponse = productsService -> get("/customerservice/customers", clientRequest);
         match clientResponse {
             http:HttpConnectorError err => {
@@ -146,7 +145,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         path:"/customers"
     }
     customerMgt (endpoint outboundEP, http:Request req) {
-        http:Request clientRequest = {};
+        http:Request clientRequest = new;
         var clientResponse = productsService -> post("/customerservice/customers", clientRequest);
         match clientResponse {
             http:HttpConnectorError err => {
@@ -176,7 +175,7 @@ service<http:Service> OrderMgtService bind serviceEndpoint {
             payload = {"Status":"Order is successfully added."};
         }
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(payload);
         _ = outboundEP -> respond(res);
     }
@@ -194,10 +193,10 @@ service<http:Service> productmgt bind serviceEndpoint {
         path:"/{prodId}"
     }
     product (endpoint outboundEP, http:Request req, string prodId) {
-        json payload;
-        payload =? <json>productsMap[prodId];
+        json payload = {};
+        payload = check <json>productsMap[prodId];
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(payload);
         _ = outboundEP -> respond(res);
     }
@@ -218,7 +217,7 @@ service<http:Service> productmgt bind serviceEndpoint {
                 productsMap[productId] = prod;
                 json payload = {"Status":"Product is successfully added."};
 
-                http:Response res = {};
+                http:Response res = new;
                 res.setJsonPayload(payload);
                 _ = outboundEP -> respond(res);
             }
@@ -227,7 +226,7 @@ service<http:Service> productmgt bind serviceEndpoint {
 }
 
 function populateSampleProducts () returns (map) {
-    map productsMap = {};
+    map productsMap;
     json prod_1 = {"Product":{"ID":"123000", "Name":"ABC_1", "Description":"Sample product."}};
     json prod_2 = {"Product":{"ID":"123001", "Name":"ABC_2", "Description":"Sample product."}};
     json prod_3 = {"Product":{"ID":"123002", "Name":"ABC_3", "Description":"Sample product."}};
@@ -244,7 +243,7 @@ function extractFieldValue(json fieldValue) returns string {
         int i => return "error";
         string s => return s;
         boolean b => return "error";
-        null  => return "error";
+        ()  => return "error";
         json j => return "error";
     }
 }

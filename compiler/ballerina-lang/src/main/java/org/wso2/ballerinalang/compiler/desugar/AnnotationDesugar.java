@@ -73,9 +73,6 @@ public class AnnotationDesugar {
     protected void rewritePackageAnnotations(BLangPackage pkgNode) {
         BLangFunction initFunction = pkgNode.initFunction;
 
-        // Remove last return statement. we will add it later. TODO : Fix this properly.
-        initFunction.body.stmts.remove(initFunction.body.stmts.size() - 1);
-
         // This is the variable which store all package level annotations.
         BLangVariable annotationMap = createGlobalAnnotationMapVar(pkgNode);
 
@@ -113,7 +110,7 @@ public class AnnotationDesugar {
         }
 
         BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
-        initFunction.body.addStatement(returnStmt);
+        pkgNode.initFunction.body.stmts.add(returnStmt);
     }
 
     private void generateAnnotations(AnnotatableNode node, String key, BLangFunction target, BLangVariable annMapVar) {

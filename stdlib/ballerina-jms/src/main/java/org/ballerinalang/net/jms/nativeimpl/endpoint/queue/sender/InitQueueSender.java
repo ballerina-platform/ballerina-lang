@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -63,6 +64,10 @@ public class InitQueueSender implements NativeCallableUnit {
         Struct queueSenderBObject = BallerinaAdapter.getReceiverStruct(context);
         Struct queueSenderConfig = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONFIG);
         String queueName = queueSenderConfig.getStringField(Constants.QUEUE_SENDER_FIELD_QUEUE_NAME);
+
+        if (JMSUtils.isNullOrEmptyAfterTrim(queueName)) {
+            throw new BallerinaException("Queue name cannot be null", context);
+        }
 
         BStruct sessionBObject = (BStruct) context.getRefArgument(1);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,

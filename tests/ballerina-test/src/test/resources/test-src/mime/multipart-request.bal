@@ -7,7 +7,7 @@ function setErrorResponse(http:Response response,  mime:EntityError err) {
     response.setStringPayload(err.message);
 }
 
-endpoint http:NonListeningServiceEndpoint mockEP {
+endpoint http:NonListener mockEP {
     port:9090
 };
 
@@ -30,7 +30,7 @@ service<http:Service> test bind mockEP {
                          setErrorResponse(response, err);
                     }
                     string textPayload => {
-                            mime:Entity entity = {};
+                            mime:Entity entity = new;
                             entity.setText(textPayload);
                             response.setEntity(entity);
                     }

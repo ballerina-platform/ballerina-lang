@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/config;
 
-endpoint http:ServiceEndpoint backendEP {
+endpoint http:Listener backendEP {
     port: getBackendPort()
 };
 

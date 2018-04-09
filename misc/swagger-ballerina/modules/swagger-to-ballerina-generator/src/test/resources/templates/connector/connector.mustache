@@ -16,12 +16,12 @@ struct {{cut info.title " "}}ClientConfig {
 //============Client Endpoint============
 //=======================================
 struct {{cut info.title " "}}ClientEp {
-    http:ClientEndpoint client;
+    http:Client client;
     {{cut info.title " "}}ClientConfig config;
 }
 
 function <{{cut info.title " "}}ClientEp ep> init({{cut info.title " "}}ClientConfig config) {
-    endpoint http:ClientEndpoint httpEp {
+    endpoint http:Client httpEp {
         targets:[{url: config.serviceUrl}]
     };
 
@@ -42,7 +42,7 @@ struct {{cut info.title " "}}Client {
 
 {{#paths}}{{#value}}{{#get}}
 function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-    endpoint http:ClientEndpoint ep = client.clientEp.client;
+    endpoint http:Client ep = client.clientEp.client;
     http:Request request = {};
 
     //Create the required request as needed
@@ -58,7 +58,7 @@ function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{
 }
 {{/get}}{{#post}}
 function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-    endpoint http:ClientEndpoint ep = client.clientEp.client;
+    endpoint http:Client ep = client.clientEp.client;
     http:Request request = {};
 
     //Create the required request as needed
@@ -74,7 +74,7 @@ function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{
 }
 {{/post}}{{#put}}
 function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-    endpoint http:ClientEndpoint ep = client.clientEp.client;
+    endpoint http:Client ep = client.clientEp.client;
     http:Request request = {};
 
     //Create the required request as needed
@@ -90,7 +90,7 @@ function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{
 }
 {{/put}}{{#delete}}
 function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-    endpoint http:ClientEndpoint ep = client.clientEp.client;
+    endpoint http:Client ep = client.clientEp.client;
     http:Request request = {};
 
     //Create the required request as needed
@@ -106,7 +106,7 @@ function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{
 }
 {{/delete}}{{#options}}
 function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-    endpoint http:ClientEndpoint ep = client.clientEp.client;
+    endpoint http:Client ep = client.clientEp.client;
     http:Request request = {};
 
     //Create the required request as needed
@@ -122,7 +122,7 @@ function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{
 }
 {{/options}}{{#head}}
 function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-    endpoint http:ClientEndpoint ep = client.clientEp.client;
+    endpoint http:Client ep = client.clientEp.client;
     http:Request request = {};
 
     //Create the required request as needed
@@ -138,7 +138,7 @@ function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{
 }
 {{/head}}{{#patch}}
 function <{{cut info.title " "}}Client client> {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-    endpoint http:ClientEndpoint ep = client.clientEp.client;
+    endpoint http:Client ep = client.clientEp.client;
     http:Request request = {};
 
     //Create the required request as needed

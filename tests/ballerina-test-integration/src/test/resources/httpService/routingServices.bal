@@ -2,15 +2,15 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
 
-endpoint http:ServiceEndpoint serviceEP {
+endpoint http:Listener serviceEP {
     port:9090
 };
 
-endpoint http:ClientEndpoint nasdaqEP {
+endpoint http:Client nasdaqEP {
     targets:[{url:"http://localhost:9090/nasdaqStocks"}]
 };
 
-endpoint http:ClientEndpoint nyseEP {
+endpoint http:Client nyseEP {
     targets:[{url:"http://localhost:9090/nyseStocks"}]
 };
 
@@ -31,8 +31,8 @@ service<http:Service> contentBasedRouting bind serviceEP{
                 nameString = extractFieldValue(payload.name);
             }
         }
-        http:Request clientRequest = {};
-        http:Response clientResponse = {};
+        http:Request clientRequest = new;
+        http:Response clientResponse = new;
         if (nameString == nyseString) {
             var result = nyseEP -> post("/stocks", clientRequest);
             match result {
@@ -68,8 +68,8 @@ service<http:Service> headerBasedRouting bind serviceEP{
         string nyseString = "nyse";
         var nameString = req.getHeader("name");
 
-        http:Request clientRequest = {};
-        http:Response clientResponse = {};
+        http:Request clientRequest = new;
+        http:Response clientResponse = new;
         if (nameString == nyseString) {
             var result = nyseEP -> post("/stocks", clientRequest);
             match result {
@@ -102,7 +102,7 @@ service<http:Service> nasdaqStocksQuote bind serviceEP {
     }
     stocks (endpoint conn, http:Request req) {
         json payload = {"exchange":"nasdaq", "name":"IBM", "value":"127.50"};
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(payload);
         _ = conn -> respond(res);
     }
@@ -116,7 +116,7 @@ service<http:Service> nyseStockQuote bind serviceEP {
     }
     stocks (endpoint conn, http:Request req) {
         json payload = {"exchange":"nyse", "name":"IBM", "value":"127.50"};
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(payload);
         _ = conn -> respond(res);
     }
@@ -128,7 +128,7 @@ function extractFieldValue(json fieldValue) returns string {
         int i => return "error";
         string s => return s;
         boolean b => return "error";
-        null  => return "error";
+        ()  => return "error";
         json j => return "error";
     }
 }

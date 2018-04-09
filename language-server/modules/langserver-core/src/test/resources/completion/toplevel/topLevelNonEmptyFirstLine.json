@@ -30,7 +30,7 @@
       "label":"service",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"service\u003c${1:http:Service}\u003e ${2:serviceName}{\n\t${3:newResource} (endpoint ${4:epReference}, ${5:http:Request request}) {\n\t}\n}",
+      "insertText":"service\u003c${1:http:Service}\u003e ${2:serviceName} {\n\t${3:newResource} (endpoint ${4:epReference}, ${5:http:Request request}) {\n\t}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -48,17 +48,24 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"type \u003cName\u003e object",
+      "label":"type \u003cObjectName\u003e object",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"type ${1:ObjectTypeName} object {\n\t${2}\n}",
+      "insertText":"type ${1:ObjectName} object {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"type \u003cRecordName\u003e",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"type ${1:RecordName} {\n\t${2}\n};",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"endpoint",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"endpoint ${1:http:ServiceEndpoint} ${2:endpointName} {\n\t${3}\n};",
+      "insertText":"endpoint ${1:http:Listener} ${2:endpointName} {\n\t${3}\n};",
       "insertTextFormat":"Snippet"
     },
     {

@@ -19,7 +19,6 @@ package org.ballerinalang.util.metrics;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -41,10 +40,11 @@ public interface Timer extends Metric {
     /**
      * Builder for {@link Timer}s.
      */
-    class Builder extends Metric.Builder<Builder, Timer> {
+    class Builder implements Metric.Builder<Builder, Timer> {
 
         private final String name;
-        private final List<Tag> tags = new ArrayList<>();
+        // Expecting at least 10 tags
+        private final ArrayList<Tag> tags = new ArrayList<>(10);
         private String description;
 
         private Builder(String name) {
@@ -59,26 +59,31 @@ public interface Timer extends Metric {
 
         @Override
         public Builder tags(String... keyValues) {
-            this.tags.addAll(Tags.tags(keyValues));
+            Tags.tags(this.tags, keyValues);
             return this;
         }
 
         @Override
         public Builder tags(Iterable<Tag> tags) {
-            this.tags.addAll(Tags.tags(tags));
+            Tags.tags(this.tags, tags);
             return this;
         }
 
         @Override
         public Builder tag(String key, String value) {
-            this.tags.addAll(Tags.tags(key, value));
+            Tags.tags(this.tags, key, value);
             return this;
         }
 
         @Override
         public Builder tags(Map<String, String> tags) {
-            this.tags.addAll(Tags.tags(tags));
+            Tags.tags(this.tags, tags);
             return this;
+        }
+
+        @Override
+        public Timer register() {
+            return register(DefaultMetricRegistry.getInstance());
         }
 
         @Override

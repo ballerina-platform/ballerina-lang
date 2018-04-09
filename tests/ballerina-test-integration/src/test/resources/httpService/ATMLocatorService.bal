@@ -2,16 +2,16 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 
-endpoint http:ServiceEndpoint serviceEnpoint {
+endpoint http:Listener serviceEnpoint {
     port:9090
 };
 
-endpoint http:ClientEndpoint bankInfoService {
+endpoint http:Client bankInfoService {
     targets:[{url: "http://localhost:9090/bankinfo/product"}]
 
 };
 
-endpoint http:ClientEndpoint branchLocatorService {
+endpoint http:Client branchLocatorService {
     targets:[{url: "http://localhost:9090/branchlocator/product"}]
 };
 
@@ -25,7 +25,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
     }
     locator (endpoint outboundEP, http:Request req) {
 
-        http:Request backendServiceReq = {};
+        http:Request backendServiceReq = new;
         var jsonLocatorReq = req.getJsonPayload();
         match jsonLocatorReq {
             json zip => {
@@ -41,7 +41,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
             }
         }
 
-        http:Response locatorResponse = {};
+        http:Response locatorResponse = new;
         var locatorRes = branchLocatorService -> post("", backendServiceReq);
         match locatorRes {
             http:Response locRes => {
@@ -67,7 +67,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
             }
         }
 
-        http:Response infomationResponse = {};
+        http:Response infomationResponse = new;
         var infoRes = bankInfoService -> post("", backendServiceReq);
         match infoRes {
             http:Response res => {
@@ -91,7 +91,7 @@ service<http:Service> Bankinfo bind serviceEnpoint {
         methods:["POST"]
     }
     product (endpoint outboundEP, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         var jsonRequest = req.getJsonPayload();
         match jsonRequest {
             json bankInfo => {
@@ -125,7 +125,7 @@ service<http:Service> Banklocator bind serviceEnpoint {
         methods:["POST"]
     }
     product (endpoint outboundEP, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         var jsonRequest = req.getJsonPayload();
         match jsonRequest {
             json bankLocator => {
@@ -154,7 +154,7 @@ function extractFieldValue(json fieldValue) returns string {
         int i => return "error";
         string s => return s;
         boolean b => return "error";
-        null  => return "error";
+        ()  => return "error";
         json j => return "error";
     }
 }

@@ -1,10 +1,10 @@
 import ballerina/http;
 
-endpoint http:ServiceEndpoint passthroughEP {
+endpoint http:Listener passthroughEP {
     port:9090
 };
 
-endpoint http:ClientEndpoint nyseEP {
+endpoint http:Client nyseEP {
     targets:[{url:"http://localhost:9090"}]
 };
 
@@ -22,7 +22,7 @@ service<http:Service> passthroughService bind passthroughEP {
                 _ = outboundEP -> forward(httpResponse);
             }
             http:HttpConnectorError err => {
-                http:Response errorResponse = {};
+                http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while invoking the service"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = outboundEP -> respond(errorResponse);
@@ -39,7 +39,7 @@ service<http:Service> nyseStockQuote bind passthroughEP {
         path:"/stocks"
     }
     stocks (endpoint outboundEP, http:Request clientRequest) {
-        http:Response res = {};
+        http:Response res = new;
         json payload = {"exchange":"nyse", "name":"IBM", "value":"127.50"};
         res.setJsonPayload(payload);
         _ = outboundEP -> respond(res);

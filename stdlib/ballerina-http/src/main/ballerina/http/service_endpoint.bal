@@ -28,7 +28,7 @@ documentation {
     F{{local}} - The details of local address.
     F{{protocol}}  - The protocol associate with the service endpoint.
 }
-public type ServiceEndpoint object {
+public type Listener object {
     public {
         @readonly Remote remote;
         @readonly Local local;
@@ -119,19 +119,19 @@ public type ServiceEndpointConfiguration {
 @Field {value:"trustStore: TrustStore related options"}
 @Field {value:"keyStore: KeyStore related options"}
 @Field {value:"protocols: SSL/TLS protocol related options"}
-@Field {value:"validateCert: Certificate validation against CRL or OCSP related options"}
+@Field {value:"certValidation: Certificate validation against CRL or OCSP related options"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
 @Field {value:"sslVerifyClient: The type of client certificate verification"}
-@Field {value:"sessionCreation: Enable/disable new ssl session creation"}
+@Field {value:"shareSession: Enable/disable new ssl session creation"}
 @Field {value:"ocspStapling: Enable/disable ocsp stapling"}
 public type ServiceSecureSocket {
     TrustStore? trustStore,
     KeyStore? keyStore,
-    Protocols? protocols,
-    ValidateCert? validateCert,
-    string ciphers,
+    Protocols? protocol,
+    ValidateCert? certValidation,
+    string[] ciphers,
     string sslVerifyClient,
-    boolean sessionCreation = true,
+    boolean shareSession = true,
     ServiceOcspStapling? ocspStapling,
 };
 
@@ -145,7 +145,7 @@ public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public function ServiceEndpoint::init (ServiceEndpointConfiguration config) {
+public function Listener::init (ServiceEndpointConfiguration config) {
     self.config = config;
     var err = self.initEndpoint();
     if (err != null) {
@@ -162,24 +162,23 @@ public function ServiceEndpoint::init (ServiceEndpointConfiguration config) {
 //////////////////////////////////
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
-public type WebSocketEndpoint object {
+public type WebSocketListener object {
     public {
-        map attributes;
         string id;
         string negotiatedSubProtocol;
         boolean isSecure;
         boolean isOpen;
-        map<string> upgradeHeaders; // TODO: Need to remove this since this is a part of Request
+        map attributes;
     }
 
     private {
         WebSocketConnector conn;
         ServiceEndpointConfiguration config;
-        ServiceEndpoint httpEndpoint;
+        Listener httpEndpoint;
     }
 
     public new () {
-        ServiceEndpoint httpEndpoint = new;
+        Listener httpEndpoint = new;
         self.httpEndpoint = httpEndpoint;
     }
 

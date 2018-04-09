@@ -3,7 +3,7 @@ package versioning.test;
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:NonListeningServiceEndpoint passthruEP {
+endpoint http:NonListener passthruEP {
     port:9090
 };
 
@@ -21,7 +21,7 @@ service<http:Service> hello1 bind passthruEP {
         path:"/go"
     }
     sample (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload({hello:"common service"});
         _ = conn -> respond(res);
     }
@@ -39,7 +39,7 @@ service<http:Service> hello2 bind passthruEP {
         path:"/go"
     }
     sample (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload({hello:"Only template"});
         _ = conn -> respond(res);
     }
@@ -57,7 +57,7 @@ service<http:Service> hello3 bind passthruEP {
         path:"/go"
     }
     sample (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload({hello:"only allow no version"});
         _ = conn -> respond(res);
     }
@@ -75,7 +75,7 @@ service<http:Service> hello4 bind passthruEP {
         path:"/go"
     }
     sample (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload({hello:"only match major"});
         _ = conn -> respond(res);
     }
@@ -93,7 +93,7 @@ service<http:Service> hello5 bind passthruEP {
         path:"/go"
     }
     sample (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload({hello:"without version segment in basePath"});
         _ = conn -> respond(res);
     }

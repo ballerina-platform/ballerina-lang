@@ -17,11 +17,11 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:ServiceEndpoint participant1EP {
+endpoint http:Listener participant1EP {
     port:8889
 };
 
-endpoint http:ClientEndpoint participant2EP {
+endpoint http:Client participant2EP {
     targets:[{url: "http://localhost:8890"}]
 };
 
@@ -33,7 +33,7 @@ State state = new();
 service<http:Service> participant1 bind participant1EP {
 
     getState(endpoint ep, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(state.toString());
         state.reset();
         _ = ep -> respond(res);
@@ -47,7 +47,7 @@ service<http:Service> participant1 bind participant1EP {
             state.abortedByParticipant = true;
             abort;
         }
-        http:Response res = {statusCode: 200};
+        http:Response res = new;  res.statusCode = 200;
         _ = ep -> respond(res);
     }
 
@@ -57,7 +57,7 @@ service<http:Service> participant1 bind participant1EP {
             transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
             }
         }
-        http:Response res = {statusCode: 200};
+        http:Response res = new;  res.statusCode = 200;
         _ = ep -> respond(res);
     }
 
@@ -71,7 +71,7 @@ service<http:Service> participant1 bind participant1EP {
                 abort;
             }
         }
-        http:Response res = {statusCode: 200};
+        http:Response res = new;  res.statusCode = 200;
         res.setStringPayload("Non infectable resource call successful");
         _ = ep -> respond(res);
     }
@@ -86,7 +86,7 @@ service<http:Service> participant1 bind participant1EP {
                 abort;
             }
         }
-        http:Response res = {statusCode: 200};
+        http:Response res = new;  res.statusCode = 200;
         _ = ep -> respond(res);
     }
 
@@ -95,7 +95,7 @@ service<http:Service> participant1 bind participant1EP {
     }
     member (endpoint conn, http:Request req) {
 
-        http:Request newReq = {};
+        http:Request newReq = new;
         newReq.setHeader("participant-id", req.getHeader("X-XID"));
         transaction {
             var forwardResult = participant2EP -> forward("/task1", req);
@@ -120,7 +120,7 @@ service<http:Service> participant1 bind participant1EP {
                                     io:print("Participant1 could not forward response from participant2 to initiator. Error:");
                                     io:println(err);
                                 }
-                                null => io:print("");
+                                () => io:print("");
                             }
                         }
                     }
@@ -132,9 +132,9 @@ service<http:Service> participant1 bind participant1EP {
     }
 
     testSaveToDatabaseSuccessfulInParticipant(endpoint ep, http:Request req) {
-        http:Response res = {statusCode: 500};
-        http:Request newReq = {};
-        var result = participant2EP -> get("/testSaveToDatabaseSuccessfulInParticipant", {});
+        http:Response res = new;  res.statusCode = 500;
+        http:Request newReq = new;
+        var result = participant2EP -> get("/testSaveToDatabaseSuccessfulInParticipant", newReq);
         match result {
             http:Response participant1Res => {
                 res = participant1Res;
@@ -147,12 +147,12 @@ service<http:Service> participant1 bind participant1EP {
     }
 
     testSaveToDatabaseFailedInParticipant(endpoint ep, http:Request req) {
-        http:Response res = {statusCode: 500};
+        http:Response res = new;  res.statusCode = 500;
         transaction with oncommit=onCommit, onabort=onAbort {
             transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort {
             }
-            http:Request newReq = {};
-            var result = participant2EP -> get("/testSaveToDatabaseFailedInParticipant", {});
+            http:Request newReq = new;
+            var result = participant2EP -> get("/testSaveToDatabaseFailedInParticipant", newReq);
             match result {
                 http:Response participant1Res => {
                     res = participant1Res;
@@ -166,32 +166,32 @@ service<http:Service> participant1 bind participant1EP {
     }
 }
 
-function sendErrorResponseToInitiator(http:ServiceEndpoint conn) {
-    endpoint http:ServiceEndpoint conn2 = conn;
-    http:Response errRes = {statusCode: 500};
+function sendErrorResponseToInitiator(http:Listener conn) {
+    endpoint http:Listener conn2 = conn;
+    http:Response errRes = new; errRes.statusCode = 500;
     var respondResult = conn2 -> respond(errRes);
     match respondResult {
         http:HttpConnectorError respondErr => {
             io:print("Participant1 could not send error response to initiator. Error:");
             io:println(respondErr);
         }
-        null => return;
+        () => return;
     }
 }
 
-function onAbort() {
+function onAbort(string transactionid) {
     state.abortedFunctionCalled = true;
 }
 
-function onCommit() {
+function onCommit(string transactionid) {
     state.committedFunctionCalled = true;
 }
 
-function onLocalParticipantAbort() {
+function onLocalParticipantAbort(string transactionid) {
     state.localParticipantAbortedFunctionCalled = true;
 }
 
-function onLocalParticipantCommit() {
+function onLocalParticipantCommit(string transactionid) {
     state.localParticipantCommittedFunctionCalled = true;
 }
 
@@ -218,4 +218,4 @@ type State object {
                             [abortedByParticipant, abortedFunctionCalled, committedFunctionCalled,
                             localParticipantAbortedFunctionCalled, localParticipantCommittedFunctionCalled]);
     }
-}
+};

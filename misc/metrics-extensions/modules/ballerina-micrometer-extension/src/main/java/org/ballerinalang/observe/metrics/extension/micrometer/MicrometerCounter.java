@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.observe.metrics.extension.micrometer;
 
-import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import org.ballerinalang.util.metrics.AbstractMetric;
 import org.ballerinalang.util.metrics.Counter;
@@ -32,12 +32,12 @@ public class MicrometerCounter extends AbstractMetric implements Counter {
 
     private final io.micrometer.core.instrument.Counter counter;
 
-    public MicrometerCounter(MetricId id) {
+    public MicrometerCounter(MeterRegistry meterRegistry, MetricId id) {
         super(id);
         counter = io.micrometer.core.instrument.Counter.builder(id.getName())
                 .description(id.getDescription())
                 .tags(id.getTags().stream().map(tag -> Tag.of(tag.getKey(), tag.getValue()))
-                        .collect(Collectors.toList())).register(Metrics.globalRegistry);
+                        .collect(Collectors.toList())).register(meterRegistry);
     }
 
     @Override

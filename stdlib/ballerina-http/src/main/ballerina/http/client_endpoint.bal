@@ -24,7 +24,7 @@ import ballerina/io;
 @Description {value:"Represents an HTTP client endpoint"}
 @Field {value:"epName: The name of the endpoint"}
 @Field {value:"config: The configurations associated with the endpoint"}
-public type ClientEndpoint object {
+public type Client object {
     public {
         string epName;
         ClientEndpointConfiguration config;
@@ -92,7 +92,7 @@ public type ClientEndpointConfiguration {
     string forwarded = "disable",
     FollowRedirects? followRedirects,
     Retry? retry,
-    Proxy? proxy,
+    Proxy? proxyConfig,
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
     string|FailoverConfig lbMode = ROUND_ROBIN,
@@ -118,19 +118,19 @@ public type Retry {
 @Field {value: "trustStore: TrustStore related options"}
 @Field {value: "keyStore: KeyStore related options"}
 @Field {value: "protocols: SSL/TLS protocol related options"}
-@Field {value: "validateCert: Certificate validation against CRL or OCSP related options"}
+@Field {value: "certValidation: Certificate validation against CRL or OCSP related options"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
-@Field {value:"hostNameVerification: Enable/disable host name verification"}
-@Field {value:"sessionCreation: Enable/disable new ssl session creation"}
+@Field {value:"verifyHostname: Enable/disable host name verification"}
+@Field {value:"shareSession: Enable/disable new ssl session creation"}
 @Field {value:"ocspStapling: Enable/disable ocsp stapling"}
 public type SecureSocket {
     TrustStore? trustStore,
     KeyStore? keyStore,
-    Protocols? protocols,
-    ValidateCert? validateCert,
-    string ciphers,
-    boolean hostNameVerification = true,
-    boolean sessionCreation = true,
+    Protocols? protocol,
+    ValidateCert? certValidation,
+    string[] ciphers,
+    boolean verifyHostname = true,
+    boolean shareSession = true,
     boolean ocspStapling,
 };
 
@@ -162,7 +162,7 @@ public type ConnectionThrottling {
     int waitTime = 60000,
 };
 
-public function ClientEndpoint::init(ClientEndpointConfiguration config) {
+public function Client::init(ClientEndpointConfiguration config) {
     boolean httpClientRequired = false;
     string url = config.targets[0].url;
     match config.lbMode {

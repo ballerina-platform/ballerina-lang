@@ -31,7 +31,7 @@ public class SrcFile {
                                                   "import ballerina/io;\n" +
                                                   "\n" +
                                                   "// A service endpoint represents a listener\n" +
-                                                  "endpoint http:ServiceEndpoint listener {\n" +
+                                                  "endpoint http:Listener listener {\n" +
                                                   "    port:9090\n" +
                                                   "};\n" +
                                                   "\n" +
@@ -61,9 +61,71 @@ public class SrcFile {
                                                         "function main(string[] args) {\n" +
                                                         "    io:println(\"Hello World!\");\n" +
                                                         "}\n";
+
+    private static final String MAIN_FUNCTION_TEST_CONTENT = "import ballerina/test;\n" +
+                                                             "import ballerina/io;\n" +
+                                                             "\n" +
+                                                             "// Before Suite Function\n" +
+                                                             "@test:BeforeSuite\n" +
+                                                             "function beforeSuiteFunc () {\n" +
+                                                             "    io:println(\"I'm the before suite function!\");\n" +
+                                                             "}\n" +
+                                                             "\n" +
+                                                             "// Before test function\n" +
+                                                             "function beforeFunc () {\n" +
+                                                             "    io:println(\"I'm the before function!\");\n" +
+                                                             "}\n" +
+                                                             "\n" +
+                                                             "// Test function\n" +
+                                                             "@test:Config{\n" +
+                                                             "    before:\"beforeFunc\",\n" +
+                                                             "    after:\"afterFunc\"\n" +
+                                                             "}\n" +
+                                                             "function testFunction () {\n" +
+                                                             "    io:println(\"I'm in test function!\");\n" +
+                                                             "    test:assertTrue(true , msg = \"Failed!\");\n" +
+                                                             "}\n" +
+                                                             "\n" +
+                                                             "// after test function\n" +
+                                                             "function afterFunc () {\n" +
+                                                             "    io:println(\"I'm the after function!\");\n" +
+                                                             "}\n" +
+                                                             "\n" +
+                                                             "// Before Suite Function\n" +
+                                                             "@test:AfterSuite\n" +
+                                                             "function afterSuiteFunc () {\n" +
+                                                             "    io:println(\"I'm the After suite function!\");\n" +
+                                                             "}";
+
+    private static final String SERVICE_TEST_CONTENT = "import ballerina/test;%n" +
+                                                       "import ballerina/io;%n" +
+                                                       "%n" +
+                                                       "// Before Suite Function can be used to start the service%n" +
+                                                       "@test:BeforeSuite%n" +
+                                                       "function beforeSuiteFunc () {%n" +
+                                                       "    io:println(\"Start the Service!\");%n" +
+                                                       "    boolean status = test:startServices(\"%1$s\");%n" +
+                                                       "}%n" +
+                                                       "%n" +
+                                                       "// Test function%n" +
+                                                       "@test:Config%n" +
+                                                       "function testFunction () {%n" +
+                                                       "    io:println(\"Do your service Tests!\");%n" +
+                                                       "    test:assertTrue(true , msg = \"Failed!\");%n" +
+                                                       "}%n" +
+                                                       "%n" +
+                                                       "// After Suite Function is used to stop the service%n" +
+                                                       "@test:AfterSuite%n" +
+                                                       "function afterSuiteFunc () {%n" +
+                                                       "    io:println(\"Stop ehe service!\");%n" +
+                                                       "    test:stopServices(\"%1$s\");%n" +
+                                                       "}";
+
     private SrcFileType srcFileType;
     private String content;
+    private String testFileContent;
     private String name;
+    private String testFileName;
     public SrcFile(String name, SrcFileType fileType) {
         this.srcFileType = fileType;
         this.name = name;
@@ -71,10 +133,14 @@ public class SrcFile {
         switch (fileType) {
             case SERVICE:
                 content += SERVICE_CONTENT;
+                testFileContent = String.format(SERVICE_TEST_CONTENT, this.name.isEmpty() ? "." : this.name);
+                testFileName = "hello_service_test.bal";
                 break;
             case MAIN:
             default:
                 content += MAIN_FUNCTION_CONTENT;
+                testFileContent = MAIN_FUNCTION_TEST_CONTENT;
+                testFileName = "main_test.bal";
                 break;
         }
     }
@@ -85,6 +151,10 @@ public class SrcFile {
     
     public String getContent() {
         return content;
+    }
+
+    public String getTestContent() {
+        return testFileContent;
     }
     
     public String getName() {
@@ -108,5 +178,12 @@ public class SrcFile {
             return fileName;
         }
     }
-}
 
+    /**
+     * Returns the name of the test file according to the type.
+     * @return name of the test file
+     */
+    public String getTestFileName() {
+        return testFileName;
+    }
+}

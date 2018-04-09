@@ -38,6 +38,7 @@ class MatchPatternClauseNode extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
+        const { designer } = this.context;
         const parentBBox = model.parent.viewState.bBox;
 
         const x1 = parentBBox.x - model.parent.viewState.components['left-margin'].w;
@@ -50,11 +51,11 @@ class MatchPatternClauseNode extends React.Component {
         return (
             <g>
                 <text
-                    x={x1}
-                    y={y1}
-                    className='match-text'
+                    x={x1 + designer.config.compoundStatement.text.padding}
+                    y={y1 + designer.config.compoundStatement.padding.top + 2}
+                    className='match-pattern-clause'
                 >
-                    true
+                    {model.viewState.components.expression.text}
                 </text>
                 <line x1={x1} y1={y1} x2={x2} y2={y2} className='compound-statement-rect' />
                 {statement}
@@ -69,6 +70,7 @@ MatchPatternClauseNode.propTypes = {
 
 MatchPatternClauseNode.contextTypes = {
     mode: PropTypes.string,
+    designer: PropTypes.instanceOf(Object),
 };
 
 export default MatchPatternClauseNode;

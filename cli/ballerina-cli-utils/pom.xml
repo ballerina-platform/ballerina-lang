@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha1-SNAPSHOT</version>
+        <version>0.970.0-alpha3-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -85,7 +85,7 @@
                 </executions>
             </plugin>
             <!-- Generate balx -->
-            <!--<plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
@@ -130,7 +130,7 @@
                 <configuration>
                     <mainClass>org.ballerinalang.cli.utils.GenerateBalx</mainClass>
                 </configuration>
-            </plugin>-->
+            </plugin>
             <!-- Copy resources -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -180,7 +180,7 @@
 
     <properties>
         <ballerina.source.directory>${basedir}/src/main/ballerina</ballerina.source.directory>
-        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+        <maven.findbugsplugin.exclude.file>findbugs-exclude.xml</maven.findbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
     </properties>
 </project>

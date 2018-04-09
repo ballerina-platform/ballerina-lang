@@ -1,14 +1,14 @@
-import ballerina/metrics;
+import ballerina/observe;
 
 map tags1 = {"method":"GET"};
 map tags2 = {"method":"POST"};
 map tags3 = {"method":"DELETE"};
 map tags4 = {"method":"UPDATE"};
 
-metrics:Gauge gauge1 = {name:"inprogress_requests",description:"Inprogress requests.", tags:tags1};
-metrics:Gauge gauge2 = {name:"inprogress_requests",description:"Inprogress requests.", tags:tags2};
-metrics:Gauge gauge3 = {name:"inprogress_requests",description:"Inprogress requests.", tags:tags3};
-metrics:Gauge gauge4 = {name:"inprogress_requests",description:"Inprogress requests.", tags:tags4};
+observe:Gauge gauge1 = new("inprogress_requests", "Inprogress requests.", tags1);
+observe:Gauge gauge2 = new("inprogress_requests", "Inprogress requests.", tags2);
+observe:Gauge gauge3 = new("inprogress_requests", "Inprogress requests.", tags3);
+observe:Gauge gauge4 = new("inprogress_requests", "Inprogress requests.", tags4);
 
 function testIncrementGaugeByOne() returns (float) {
     gauge1.incrementByOne();

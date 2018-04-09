@@ -18,12 +18,10 @@
 package org.ballerinalang.util.metrics;
 
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static java.util.stream.StreamSupport.stream;
+import java.util.Set;
 
 /**
  * Metric identity is a unique combination of name and tags.
@@ -32,7 +30,8 @@ public class MetricId {
 
     private final String name;
     private final String description;
-    private final List<Tag> tags;
+    private final Set<Tag> tags;
+    private final int hashCode;
 
     public MetricId(String name, String description, List<Tag> tags) {
         if (name == null || name.isEmpty()) {
@@ -40,14 +39,13 @@ public class MetricId {
         }
         this.name = name;
         if (tags != null) {
-            this.tags = Collections.unmodifiableList(stream(tags.spliterator(), false)
-                    .sorted(Comparator.comparing(Tag::getKey))
-                    .distinct()
-                    .collect(Collectors.toList()));
+            this.tags = Collections.unmodifiableSet(new HashSet<>(tags));
         } else {
-            this.tags = Collections.emptyList();
+            this.tags = Collections.emptySortedSet();
         }
         this.description = description;
+        // Compute hash here as this Id is immutable
+        this.hashCode = Objects.hash(name, tags);
     }
 
 
@@ -59,7 +57,7 @@ public class MetricId {
         return description;
     }
 
-    public List<Tag> getTags() {
+    public Set<Tag> getTags() {
         return tags;
     }
 
@@ -78,7 +76,7 @@ public class MetricId {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, tags);
+        return hashCode;
     }
 
     @Override

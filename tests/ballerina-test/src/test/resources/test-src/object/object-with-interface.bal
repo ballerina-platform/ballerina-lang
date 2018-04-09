@@ -27,7 +27,7 @@ type Person object {
     }
 
     function attachInterface(int add, string value1) returns (int, string);
-}
+};
 
 type Employee object {
     public {
@@ -55,6 +55,6 @@ type Employee object {
         string val2 = value1 + month;
         return (count, val2);
     }
-}
+};
 
 

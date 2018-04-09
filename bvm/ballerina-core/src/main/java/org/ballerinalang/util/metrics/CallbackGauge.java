@@ -18,7 +18,6 @@
 package org.ballerinalang.util.metrics;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.function.ToDoubleFunction;
 
@@ -45,10 +44,11 @@ public interface CallbackGauge extends Metric {
      *
      * @param <T> The type of the state object from which the gauge value is extracted.
      */
-    class Builder<T> extends Metric.Builder<Builder<T>, CallbackGauge> {
+    class Builder<T> implements Metric.Builder<Builder<T>, CallbackGauge> {
 
         private final String name;
-        private final List<Tag> tags = new ArrayList<>();
+        // Expecting at least 10 tags
+        private final ArrayList<Tag> tags = new ArrayList<>(10);
         private String description;
         private T obj;
         private ToDoubleFunction<T> valueFunction;
@@ -66,27 +66,32 @@ public interface CallbackGauge extends Metric {
         }
 
         @Override
-        public Builder<T> tags(String... keyValues) {
-            Tags.tags(keyValues).forEach(this.tags::add);
+        public Builder tags(String... keyValues) {
+            Tags.tags(this.tags, keyValues);
             return this;
         }
 
         @Override
-        public Builder<T> tags(Iterable<Tag> tags) {
-            Tags.tags(tags).forEach(this.tags::add);
+        public Builder tags(Iterable<Tag> tags) {
+            Tags.tags(this.tags, tags);
             return this;
         }
 
         @Override
-        public Builder<T> tag(String key, String value) {
-            Tags.tags(key, value).forEach(this.tags::add);
+        public Builder tag(String key, String value) {
+            Tags.tags(this.tags, key, value);
             return this;
         }
 
         @Override
-        public Builder<T> tags(Map<String, String> tags) {
-            Tags.tags(tags).forEach(this.tags::add);
+        public Builder tags(Map<String, String> tags) {
+            Tags.tags(this.tags, tags);
             return this;
+        }
+
+        @Override
+        public CallbackGauge register() {
+            return register(DefaultMetricRegistry.getInstance());
         }
 
         @Override

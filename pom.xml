@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.970.0-alpha1-SNAPSHOT</version>
+    <version>0.970.0-alpha3-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -904,11 +904,6 @@
                 <artifactId>simpleclient_httpserver</artifactId>
                 <version>${prometheus.simple.client.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-metrics</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
 
             <!-- JMS connector dependencies -->
             <dependency>
@@ -1029,7 +1024,6 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
-                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
@@ -1080,7 +1074,6 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
-                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
@@ -1123,7 +1116,6 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
-                <module>stdlib/observability/ballerina-metrics</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
@@ -1397,16 +1389,16 @@
                     <version>${clirr.maven.plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>findbugs-maven-plugin</artifactId>
-                    <version>${maven.findbugsplugin.version}</version>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>${maven.spotbugsplugin.version}</version>
                     <configuration>
                         <effort>Max</effort>
                         <threshold>Low</threshold>
                         <xmlOutput>true</xmlOutput>
-                        <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
+                        <spotbugsXmlOutputDirectory>${project.build.directory}/spotbugs</spotbugsXmlOutputDirectory>
                         <!--Exclude sources-->
-                        <excludeFilterFile>${mavan.findbugsplugin.exclude.file}</excludeFilterFile>
+                        <excludeFilterFile>${maven.spotbugsplugin.exclude.file}</excludeFilterFile>
                     </configuration>
                     <executions>
                         <execution>
@@ -1436,8 +1428,8 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
             </plugin>
             <!-- We want to package up license resources in the JARs produced -->
             <plugin>
@@ -1477,7 +1469,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.970.0-alpha1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.970.0-alpha3-SNAPSHOT</ballerina.version>
         <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
@@ -1576,7 +1568,7 @@
         <maven.docck.plugin.version>1.1</maven.docck.plugin.version>
         <maven.enforcer.plugin.version>1.4.1</maven.enforcer.plugin.version>
         <maven.failsafe.plugin.version>2.19.1</maven.failsafe.plugin.version>
-        <maven.findbugsplugin.version>3.0.3</maven.findbugsplugin.version>
+        <maven.spotbugsplugin.version>3.1.1</maven.spotbugsplugin.version>
         <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
         <maven.install.plugin.version>2.5.2</maven.install.plugin.version>
         <maven.invoker.plugin.version>2.0.0</maven.invoker.plugin.version>
@@ -1617,7 +1609,7 @@
         <libthrift.version>0.10.0</libthrift.version>
         <okhttp.version>3.9.1</okhttp.version>
         <okio.version>1.13.0</okio.version>
-        <micrometer.version>1.0.2</micrometer.version>
+        <micrometer.version>1.0.3</micrometer.version>
         <hdrhistogram.version>2.1.10</hdrhistogram.version>
         <latencyutils.version>2.0.3</latencyutils.version>
         <prometheus.simple.client.version>0.3.0</prometheus.simple.client.version>
@@ -1629,6 +1621,8 @@
         <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
 
         <file.transport.version>6.0.53</file.transport.version>
+
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
 
     </properties>
 

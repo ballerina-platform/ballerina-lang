@@ -45,7 +45,7 @@ public function createAuthnHandlerChain () returns (AuthnHandlerChain) {
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if authenticated successfully, else false"}
 public function AuthnHandlerChain::handle (Request req) returns (boolean) {
-    foreach currentAuthHandlerType, currentAuthHandler in authnHandlerChain.authnHandlers {
+    foreach currentAuthHandlerType, currentAuthHandler in self.authnHandlers {
         var authnHandler = check <HttpAuthnHandler> currentAuthHandler;
         if (authnHandler.canHandle(req)) {
             log:printDebug("trying to authenticate with the authn handler: " + currentAuthHandlerType);

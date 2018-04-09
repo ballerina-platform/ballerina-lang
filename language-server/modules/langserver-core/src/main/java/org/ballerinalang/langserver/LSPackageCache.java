@@ -24,10 +24,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.PrintStream;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,10 +51,6 @@ public class LSPackageCache {
         CompilerContext tempCompilerContext = CommonUtil.prepareTempCompilerContext();
         packageCache = new ExtendedPackageCache(tempCompilerContext);
         this.loadPackagesMap(tempCompilerContext);
-        List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
-        builtInPackages.forEach(bLangPackage -> {
-            this.addPackage(bLangPackage.packageID, bLangPackage);
-        });
     }
 
     /**
@@ -84,6 +78,10 @@ public class LSPackageCache {
     public void removePackage(PackageID packageID) {
         this.packageCache.remove(packageID);
     }
+    
+    public void clearCache() {
+        this.packageCache.clearCache();
+    }
 
     /**
      * add package to the package map.
@@ -91,13 +89,8 @@ public class LSPackageCache {
      * @param bLangPackage ballerina package to be added.
      */
     void addPackage(PackageID packageID, BLangPackage bLangPackage) {
-        if (bLangPackage != null && bLangPackage.getPackageDeclaration() == null) {
-            //TODO check whether getPackageDeclaration() is needed
-            this.packageCache.put(new PackageID(Names.DOT.value), bLangPackage);
-        } else {
-            if (bLangPackage != null) {
-                bLangPackage.packageID = packageID;
-            }
+        if (bLangPackage != null) {
+            bLangPackage.packageID = packageID;
             this.packageCache.put(packageID, bLangPackage);
         }
     }
@@ -143,6 +136,10 @@ public class LSPackageCache {
             if (packageID != null) {
                 this.packageMap.remove(packageID.bvmAlias());
             }
+        }
+        
+        public void clearCache() {
+            this.packageMap.clear();
         }
     }
 }

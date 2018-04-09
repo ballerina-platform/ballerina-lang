@@ -1,16 +1,16 @@
-struct Person {
+type Person {
     string firstName;
     string lastName;
     int age;
     string city;
-}
+};
 
-struct Employee {
+type Employee {
     string name;
     int age;
     string address;
     any ageAny;
-}
+};
 
 documentation {
  Transformer Foo Person -> Employee

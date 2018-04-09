@@ -38,7 +38,7 @@ type Person object {
         return passSelfAsValue(self);
     }
 
-}
+};
 
 function passSelfAsValue(Person p) returns string {
     return p.getName();

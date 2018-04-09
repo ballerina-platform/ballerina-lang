@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-streaming</artifactId>
-        <version>0.970.0-alpha1-SNAPSHOT</version>
+        <version>0.970.0-alpha3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -52,6 +52,6 @@
     </build>
 
     <properties>
-        <mavan.findbugsplugin.exclude.file>../findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+        <maven.spotbugsplugin.exclude.file>../spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
     </properties>
 </project>

@@ -140,10 +140,10 @@ function protocolCompatible (string coordinationType,
     return participantProtocolIsValid;
 }
 
-function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
-    endpoint http:ServiceEndpoint ep = conn;
+function respondToBadRequest (http:Listener conn, string msg) {
+    endpoint http:Listener ep = conn;
     log:printError(msg);
-    http:Response res = {statusCode:http:BAD_REQUEST_400};
+    http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
     RequestError err = {errorMessage:msg};
     json resPayload = check <json>err;
     res.setJsonPayload(resPayload);
@@ -166,13 +166,13 @@ function createNewTransaction (string coordinationType, int transactionBlockId) 
     }
 }
 
-function getCoordinatorProtocolAt (ProtocolName protocolName, int transactionBlockId) returns string {
+function getCoordinatorProtocolAt (string protocolName, int transactionBlockId) returns string {
     //TODO: protocolName is unused for the moment
     return "http://" + coordinatorHost + ":" + coordinatorPort + initiator2pcCoordinatorBasePath + "/" +
            transactionBlockId;
 }
 
-function getParticipantProtocolAt (ProtocolName protocolName, int transactionBlockId) returns string {
+function getParticipantProtocolAt (string protocolName, int transactionBlockId) returns string {
     //TODO: protocolName is unused for the moment
     return "http://" + coordinatorHost + ":" + coordinatorPort + participant2pcCoordinatorBasePath + "/" +
            transactionBlockId;
@@ -315,7 +315,7 @@ function getParticipant2pcClientEP (string participantURL) returns Participant2p
         Participant2pcClientEP participantEP = check <Participant2pcClientEP>httpClientCache.get(participantURL);
         return participantEP;
     } else {
-        Participant2pcClientEP participantEP = {};
+        Participant2pcClientEP participantEP = new;
         Participant2pcClientConfig config = {participantURL:participantURL,
                                                 endpointTimeout:120000, retryConfig:{count:5, interval:5000}};
         participantEP.init(config);

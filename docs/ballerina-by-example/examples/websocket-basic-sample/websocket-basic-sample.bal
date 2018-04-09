@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/http;
 
 @Description {value:"This example gives you the basic idea of WebSocket endpoint."}
-endpoint http:ServiceEndpoint ep {
+endpoint http:Listener ep {
     host:"0.0.0.0",
     port:9090
 };
@@ -25,7 +25,6 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
         io:println("Is connection open: " + conn.isOpen);
         io:println("Is connection secured: " + conn.isSecure);
         io:println("Upgrade headers -> ");
-        printHeaders(conn.upgradeHeaders);
     }
 
     @Description {value:"This resource is triggered when a new text frame is received from a client."}
@@ -74,18 +73,6 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
     @Description {value:"This resource is triggered when a client connection is closed from the client side."}
     onClose (endpoint conn, int statusCode, string reason) {
         io:println("\nClient left with status code " + statusCode + " because " + reason);
-    }
-}
-
-function printHeaders (map<string> headers) {
-    string[] headerKeys = headers.keys();
-    int len = lengthof headerKeys;
-    int i = 0;
-    while (i < len) {
-        string key = headerKeys[i];
-        var value = headers[key];
-        io:println(key + ": " + value);
-        i = i + 1;
     }
 }
 
