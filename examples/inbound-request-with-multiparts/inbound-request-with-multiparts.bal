@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint multipartEP {
+endpoint http:Listener multipartEP {
     port:9090
 };
 
@@ -58,7 +58,6 @@ function handleContent (mime:Entity bodyPart) {
         match payload {
             mime:EntityError err => io:println("Error in getting string payload");
             string textContent => io:println(textContent);
-            int | null => io:println("null payload");
         }
     }
 }
