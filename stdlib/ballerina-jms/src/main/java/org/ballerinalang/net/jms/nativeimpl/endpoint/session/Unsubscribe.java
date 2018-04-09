@@ -23,12 +23,15 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
 import javax.jms.Session;
@@ -49,6 +52,8 @@ import javax.jms.Session;
                    isPublic = true)
 public class Unsubscribe extends AbstractBlockinAction {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Unsubscribe.class);
+
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
 
@@ -64,7 +69,10 @@ public class Unsubscribe extends AbstractBlockinAction {
         try {
             session.unsubscribe(subscriptionId);
         } catch (JMSException e) {
-            BallerinaAdapter.throwBallerinaException("Failed to create message.", context, e);
+            String errorMessage = "Unsubscribe request failed.";
+            LOGGER.error(errorMessage, e);
+            BStruct errorRecord = BallerinaAdapter.createErrorRecord(context, errorMessage, e);
+            context.setReturnValues(errorRecord);
         }
     }
 }

@@ -30,6 +30,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
+import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -83,8 +84,9 @@ public class InitTopicProducer extends AbstractBlockinAction {
             MessageProducer producer = session.createProducer(topic);
             Struct topicProducerConnectorBObject
                     = topicProducerBObject.getStructField(Constants.TOPIC_PRODUCER_FIELD_CONNECTOR);
-            topicProducerConnectorBObject.addNativeData(Constants.JMS_TOPIC_PRODUCER_OBJECT, producer);
-            topicProducerConnectorBObject.addNativeData(Constants.JMS_SESSION, session);
+            topicProducerConnectorBObject.addNativeData(Constants.JMS_PRODUCER_OBJECT, producer);
+            topicProducerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT,
+                                                        new SessionConnector(session));
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error creating topic producer", context, e);
         }

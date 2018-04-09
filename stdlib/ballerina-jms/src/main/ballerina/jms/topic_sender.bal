@@ -42,7 +42,7 @@ public type TopicProducerEndpointConfiguration {
 };
 
 public type TopicProducerConnector object {
-    public native function send (Message m);
+    public native function send (Message m) returns (Error | ());
 };
 
 

@@ -61,8 +61,7 @@ public class Constants {
     // Native objects
     public static final String JMS_CONNECTION = "jms_connection_object";
     public static final String JMS_SESSION = "jms_session_object";
-    public static final String JMS_QUEUE_SENDER_OBJECT = "jms_queue_sender_object";
-    public static final String JMS_TOPIC_PRODUCER_OBJECT = "jms_topic_producer_object";
+    public static final String JMS_PRODUCER_OBJECT = "jms_producer_object";
     public static final String JMS_MESSAGE_OBJECT = "jms_message_object";
     public static final String JMS_CONSUMER_OBJECT = "jms_consumer_object";
     // Used to keep the session wrapper

@@ -20,13 +20,10 @@
 package org.ballerinalang.net.jms.utils;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,9 +68,10 @@ public class BallerinaAdapter {
     }
 
     public static BStruct createErrorRecord(Context context, String errorMsg, JMSException e) {
-        PackageInfo filePkg = context.getProgramFile().getPackageInfo(Constants.BALLERINA_PACKAGE_JMS);
-        StructInfo entityErrInfo = filePkg.getStructInfo(Constants.ERROR_STRUCT);
-        return BLangVMStructs.createBStruct(entityErrInfo, errorMsg + " " + e.getMessage());
-
+        BStruct errorStruct = BLangConnectorSPIUtil.createBStruct(context,
+                                                                  Constants.BALLERINA_PACKAGE_JMS,
+                                                                  Constants.ERROR_STRUCT);
+        errorStruct.setStringField(0, errorMsg + " " + e.getMessage());
+        return errorStruct;
     }
 }
