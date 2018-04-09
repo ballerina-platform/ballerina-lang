@@ -131,14 +131,16 @@ public class LaunchManager {
             };
             (new Thread(error)).start();
 
+            new Thread(new Runnable() {
+                public void run() {
+                    LogParser.getLogParserInstance().startListner(launchManagerInstance);
+                }
+            }).start();
+
         } catch (IOException e) {
             pushMessageToClient(launchSession, LauncherConstants.EXIT, LauncherConstants.ERROR, e.getMessage());
         }
-        new Thread(new Runnable() {
-            public void run() {
-                LogParser.getLogParserInstance().startListner(launchManagerInstance);
-            }
-        }).start();
+
 
     }
 
