@@ -30,11 +30,11 @@ public class SwaggerConverterUtilsTest {
     private static String sampleBallerinaServiceString = "import ballerina/http;\n" +
             "\n" +
             "\n" +
-            "endpoint http:ServiceEndpoint backendEP {\n" +
+            "endpoint http:Listener backendEP {\n" +
             "   port:8081\n" +
             "};\n" +
             "\n" +
-            "endpoint http:ClientEndpoint backendClientEP {\n" +
+            "endpoint http:Client backendClientEP {\n" +
             "   targets: [{url: \"http://localhost:8081\"}]\n" +
             "};\n" +
             "\n" +
@@ -59,11 +59,11 @@ public class SwaggerConverterUtilsTest {
     private static String complexServiceSample = "import ballerina/http;\n" +
             "\n" +
             "\n" +
-            "endpoint http:ServiceEndpoint backendEP {\n" +
+            "endpoint http:Listener backendEP {\n" +
             "   port:8081\n" +
             "};\n" +
             "\n" +
-            "endpoint http:ClientEndpoint backendClientEP {\n" +
+            "endpoint http:Client backendClientEP {\n" +
             "   targets: [{url: \"http://localhost:8081\"}]\n" +
             "};\n" +
             "\n" +
