@@ -17,7 +17,7 @@
 package ballerina.builtin;
 
 @Description {value:"Representation of readonly annotation"}
-public annotation readonly;
+public annotation<type> readonly;
 
 @Description {value:"Representation of final annotation"}
-public annotation final;
+public annotation<type> final;
