@@ -220,7 +220,7 @@ public class NativeConversionTest {
     }
     
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*cannot convert 'Student' to type 'json<Person2>'*")
+            expectedExceptionsMessageRegExp = ".*cannot convert 'Person2' to type 'json<Person3>'.*")
     public void testStructToJsonConstrainedNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrainedNegative");
         Assert.assertTrue(returns[0] instanceof BJSON);

@@ -14,7 +14,12 @@ type Person {
 type Person2 {
     string name;
     int age;
-    boolean alive;
+};
+
+type Person3 {
+    string name;
+    int age;
+    string gender;
 };
 
 type Student {
@@ -99,10 +104,10 @@ function testStructToJsonConstrained2() returns (json) {
 }
 
 function testStructToJsonConstrainedNegative() returns (json) {
-    Student s = {   name:"Child",
+    Person2 p = {   name:"Child",
                     age:25
                 };
-    json<Person2> j = check <json<Person2>> s;
+    json<Person3> j = check <json<Person3>> p;
     return j;
 }
 
