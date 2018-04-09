@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.sql;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
@@ -1058,6 +1059,26 @@ public class SQLDatasourceUtils {
 
         TransactionUtils.notifyTransactionAbort(context.getParentWorkerExecutionContext(), globalTransactionId,
                 transactionBlockId);
+    }
+
+    //Create Client Methods
+    public static BStruct createServerBasedDBClient(Context context, String database,
+            org.ballerinalang.connector.api.Struct clientEndpointConfig) {
+        String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
+        int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
+        String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
+        String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
+        String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
+        org.ballerinalang.connector.api.Struct options = clientEndpointConfig
+                .getStructField(Constants.EndpointConfig.OPTIONS);
+
+        SQLDatasource datasource = new SQLDatasource();
+        datasource.init(options, database, host, port, username, password, name);
+
+        BStruct sqlClient = BLangConnectorSPIUtil
+                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
+        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
+        return sqlClient;
     }
 
     private static String getString(Calendar calendar, String type) {
