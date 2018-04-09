@@ -149,7 +149,8 @@ public class ClientInboundHandler extends Http2EventAdapter {
 
     @Override
     public void onRstStreamRead(ChannelHandlerContext ctx, int streamId, long errorCode) throws Http2Exception {
-        log.warn("RST received for streamId: {} errorCode: {}", streamId, errorCode);
+        log.warn("TID: {} OID: {}  RST received for streamId: {} errorCode: {}",
+                 Thread.currentThread().getId(), http2ClientChannel.toString(), streamId, errorCode);
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         if (outboundMsgHolder != null) {
             outboundMsgHolder.getResponseFuture().
@@ -169,7 +170,8 @@ public class ClientInboundHandler extends Http2EventAdapter {
 
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         if (outboundMsgHolder == null) {
-            log.warn("Push promised received over invalid stream id : {}", streamId);
+            log.warn("TID: {} OID: {} Push promised received over invalid stream id : {}",
+                     Thread.currentThread().getId(), http2ClientChannel.toString(), streamId);
             return;
         }
         http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
