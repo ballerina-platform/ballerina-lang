@@ -27,7 +27,7 @@ service<http:Service> crossOriginService bind crossOriginServiceEP {
         }
     }
    companyInfo (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"type":"middleware"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -39,7 +39,7 @@ service<http:Service> crossOriginService bind crossOriginServiceEP {
         path:"/lang"
     }
     langInfo (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"lang":"Ballerina"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);

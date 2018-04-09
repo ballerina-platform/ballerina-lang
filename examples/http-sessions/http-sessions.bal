@@ -25,7 +25,7 @@ service<http:Service> sessionTest bind sessionTestEP {
         }
         //Binds a string attribute to this session with a key(string).
         session.setAttribute(key, "Session sample");
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(result);
         _ = outboundEP -> respond(res);
     }
@@ -44,7 +44,7 @@ service<http:Service> sessionTest bind sessionTestEP {
         } else {
             attributeValue = "Session unavailable";
         }
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload(attributeValue);
         _ = outboundEP -> respond(res);
     }
@@ -55,7 +55,7 @@ service<http:Service> sessionTest bind sessionTestEP {
     }
     sayBye (endpoint outboundEP, http:Request req) {
         http:Session session = req.getSession();
-        http:Response res = {};
+        http:Response res = new;
         if (session != null) {
             //Returns session id.
             string id = session.getId();

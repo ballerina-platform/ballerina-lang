@@ -23,14 +23,14 @@ service<http:Service> loadBalancerService bind backendEP{
         path:"/"
     }
     loadBalanceResource (endpoint conn, http:Request req) {
-        http:Request outRequest = {};
+        http:Request outRequest = new;
         json requestPayload = {"name":"Ballerina"};
         outRequest.setJsonPayload(requestPayload);
         var response = lbEP -> post("/", outRequest);
         match  response {
                 http:Response resp => _ = conn -> forward(resp);
                 http:HttpConnectorError err => {
-                http:Response outResponse = {};
+                http:Response outResponse = new;
                 outResponse.statusCode = err.statusCode;
                 outResponse.setStringPayload(err.message);
                 _ = conn -> respond(outResponse);
@@ -45,7 +45,7 @@ service<http:Service> mock1 bind backendEP {
         path:"/"
     }
     mock1Resource (endpoint conn, http:Request req) {
-        http:Response outResponse = {};
+        http:Response outResponse = new;
         outResponse.setStringPayload("Mock1 Resource is invoked.");
         _ = conn -> respond(outResponse);
     }
@@ -57,7 +57,7 @@ service<http:Service> mock2 bind backendEP {
         path:"/"
     }
     mock2Resource (endpoint conn, http:Request req) {
-        http:Response outResponse = {};
+        http:Response outResponse = new;
         outResponse.setStringPayload("Mock2 Resource is Invoked.");
         _ = conn -> respond(outResponse);
     }
@@ -69,7 +69,7 @@ service<http:Service> mock3 bind backendEP {
         path:"/"
     }
     mock3Resource (endpoint conn, http:Request req) {
-        http:Response outResponse = {};
+        http:Response outResponse = new;
         outResponse.setStringPayload("Mock3 Resource is Invoked.");
         _ = conn -> respond(outResponse);
     }
