@@ -19,7 +19,7 @@
 package org.ballerinalang.test.service.websocket.sample;
 
 import org.ballerinalang.test.context.ServerInstance;
-import org.ballerinalang.test.util.websocket.client.WebSocketClient;
+import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServerFrameHandler;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServerInitializer;
@@ -43,7 +43,7 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
 
     private final int awaitTimeInSecs = 10;
     private final int clientCount = 5;
-    private final WebSocketClient[] wsClients = new WebSocketClient[clientCount];
+    private final WebSocketTestClient[] wsClients = new WebSocketTestClient[clientCount];
     private ServerInstance ballerinaServer;
     private WebSocketRemoteServer webSocketRemoteServer;
     private final String name = "john";
@@ -63,7 +63,7 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
 
         // Initializing and handshaking WebSocket clients.
         for (int i = 0; i < clientCount; i++) {
-            wsClients[i] = new WebSocketClient("ws://localhost:9090/proxy/ws/" + name + "?age=" + age);
+            wsClients[i] = new WebSocketTestClient("ws://localhost:9090/proxy/ws/" + name + "?age=" + age);
         }
         handshakeAllClients(wsClients);
     }
@@ -82,7 +82,7 @@ public class WebSocketPassThroughTestCase extends WebSocketIntegrationTest {
 
     @Test(priority = 1)
     public void testPingPongSupport() throws IOException, InterruptedException {
-        WebSocketClient client = wsClients[0];
+        WebSocketTestClient client = wsClients[0];
 
         // Test ping and receive pong from server
         await().atMost(awaitTimeInSecs, SECONDS).until(() -> {

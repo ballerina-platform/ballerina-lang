@@ -21,6 +21,7 @@ package org.ballerinalang.test.util.websocket.server;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -57,6 +58,7 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) throws Exception {
         if (frame instanceof TextWebSocketFrame) {
+            System.out.println("Text frame received");
             // Echos the same text
             String text = ((TextWebSocketFrame) frame).text();
             if (PING.equals(text)) {
@@ -65,6 +67,14 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
                 return;
             }
             ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
+        } else if (frame instanceof BinaryWebSocketFrame) {
+            System.out.println("Binary frame received");
+            ByteBuffer originalBuffer = frame.content().nioBuffer();
+            ByteBuffer bufferCopy = ByteBuffer.allocate(originalBuffer.capacity());
+            originalBuffer.rewind();
+            bufferCopy.put(originalBuffer);
+            bufferCopy.flip();
+            ctx.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(bufferCopy)));
         } else if (frame instanceof CloseWebSocketFrame) {
             ctx.close();
             isOpen = false;
@@ -77,6 +87,7 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         log.error("Exception Caught: " + cause.getMessage());
+        cause.printStackTrace();
         ctx.close();
     }
 }

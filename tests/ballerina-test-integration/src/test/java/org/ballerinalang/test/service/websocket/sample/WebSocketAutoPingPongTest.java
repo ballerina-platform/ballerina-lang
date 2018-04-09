@@ -20,7 +20,7 @@ package org.ballerinalang.test.service.websocket.sample;
 
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
-import org.ballerinalang.test.util.websocket.client.WebSocketClient;
+import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,7 +37,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class WebSocketAutoPingPongTest extends WebSocketIntegrationTest {
 
     private final int awaitTimeInSecs = 10;
-    private WebSocketClient wsClient;
+    private WebSocketTestClient wsClient;
     private ServerInstance ballerinaServer;
 
     @BeforeClass
@@ -49,8 +49,8 @@ public class WebSocketAutoPingPongTest extends WebSocketIntegrationTest {
         ballerinaServer.startBallerinaServer(balFilePath);
 
         // Initializing and handshaking WebSocket client.
-        wsClient = new WebSocketClient("ws://localhost:9090/test/without/ping/resource");
-        wsClient.handhshake();
+        wsClient = new WebSocketTestClient("ws://localhost:9090/test/without/ping/resource");
+        wsClient.handshake();
     }
 
     @Test(priority = 1)

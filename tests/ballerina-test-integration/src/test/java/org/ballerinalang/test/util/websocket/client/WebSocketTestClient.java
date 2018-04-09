@@ -50,29 +50,34 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import javax.net.ssl.SSLException;
 
 /**
  * WebSocket client class for test
  */
-public class WebSocketClient {
+public class WebSocketTestClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketTestClient.class);
 
     private Channel channel = null;
-    private WebSocketClientHandler handler;
+    private WebSocketTestClientHandler handler;
     private final Map<String, String> headers;
     private final String url;
     private EventLoopGroup group;
 
-    public WebSocketClient(String url) {
+    public WebSocketTestClient(String url) {
         this.url = url;
         this.headers = new HashMap<>();
     }
 
-    public WebSocketClient(String url, Map<String, String> headers) {
+    public WebSocketTestClient(String url, Map<String, String> headers) {
         this.url = url;
         this.headers = headers;
+    }
+
+    public void setCountDownLatch(CountDownLatch countdownLatch) {
+        handler.setCountDownLatch(countdownLatch);
     }
 
     /**
@@ -80,8 +85,7 @@ public class WebSocketClient {
      * @throws URISyntaxException throws if there is an error in the URI syntax.
      * @throws InterruptedException throws if the connecting the server is interrupted.
      */
-    public boolean handhshake() throws InterruptedException, URISyntaxException, SSLException {
-        boolean isDone = false;
+    public boolean handshake() throws InterruptedException, URISyntaxException, SSLException {
         URI uri = new URI(url);
         String scheme = uri.getScheme() == null ? "ws" : uri.getScheme();
         final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
@@ -124,7 +128,7 @@ public class WebSocketClient {
             // If you change it to V00, ping is not supported and remember to change
             // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
             handler =
-                    new WebSocketClientHandler(
+                    new WebSocketTestClientHandler(
                             WebSocketClientHandshakerFactory.newHandshaker(
                                     uri, WebSocketVersion.V13, null,
                                     true, httpHeaders));
@@ -148,14 +152,11 @@ public class WebSocketClient {
                     });
 
             channel = b.connect(uri.getHost(), port).sync().channel();
-            isDone = handler.handshakeFuture().sync().isSuccess();
+            return handler.handshakeFuture().sync().isSuccess();
         } catch (Exception e) {
             logger.error("Handshake unsuccessful : " + e.getMessage(), e);
             return false;
         }
-
-        logger.info("WebSocket Handshake successful : " + isDone);
-        return isDone;
     }
 
     /**
