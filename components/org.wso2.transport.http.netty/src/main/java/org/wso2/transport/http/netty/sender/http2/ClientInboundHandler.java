@@ -148,6 +148,16 @@ public class ClientInboundHandler extends Http2EventAdapter {
     }
 
     @Override
+    public void onRstStreamRead(ChannelHandlerContext ctx, int streamId, long errorCode) throws Http2Exception {
+        log.warn("RST received for streamId: {} errorCode: {}", streamId, errorCode);
+        OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
+        if (outboundMsgHolder != null) {
+            outboundMsgHolder.getResponseFuture().
+                    notifyHttpListener(new Exception("HTTP/2 stream " + streamId + " reset by the remote peer"));
+        }
+    }
+
+    @Override
     public void onPushPromiseRead(ChannelHandlerContext ctx, int streamId, int promisedStreamId,
                                   Http2Headers headers, int padding) throws Http2Exception {
         if (log.isDebugEnabled()) {
