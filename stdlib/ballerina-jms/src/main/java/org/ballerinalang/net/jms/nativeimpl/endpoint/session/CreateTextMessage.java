@@ -55,7 +55,7 @@ public class CreateTextMessage extends AbstractBlockinAction {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
 
-        Struct sessionBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct sessionBObject = BallerinaAdapter.getReceiverObject(context);
 
         Session session = BallerinaAdapter.getNativeObject(sessionBObject, Constants.JMS_SESSION, Session.class,
                                                            context);

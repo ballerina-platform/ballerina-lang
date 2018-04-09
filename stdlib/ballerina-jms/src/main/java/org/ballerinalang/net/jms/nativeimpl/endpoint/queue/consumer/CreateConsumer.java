@@ -57,7 +57,7 @@ import javax.jms.Session;
 public class CreateConsumer implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct queueConsumerBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct queueConsumerBObject = BallerinaAdapter.getReceiverObject(context);
 
         BStruct sessionBObject = (BStruct) context.getRefArgument(1);
         String messageSelector = context.getStringArgument(0);

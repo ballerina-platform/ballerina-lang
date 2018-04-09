@@ -53,7 +53,7 @@ public class CreateConnection implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct connectionBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct connectionBObject = BallerinaAdapter.getReceiverObject(context);
         Struct connectionConfig = connectionBObject.getStructField(Constants.CONNECTION_CONFIG);
 
         Connection connection = JMSUtils.createConnection(connectionConfig);

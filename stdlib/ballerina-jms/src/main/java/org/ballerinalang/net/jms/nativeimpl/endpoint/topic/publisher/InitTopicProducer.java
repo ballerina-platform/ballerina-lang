@@ -61,7 +61,7 @@ public class InitTopicProducer extends AbstractBlockinAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        Struct topicProducerBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct topicProducerBObject = BallerinaAdapter.getReceiverObject(context);
         Struct topicProducerConfig = topicProducerBObject.getStructField(Constants.TOPIC_PRODUCER_FIELD_CONFIG);
         String topicPattern = topicProducerConfig.getStringField(Constants.TOPIC_PRODUCER_FIELD_TOPIC_PATTERN);
 

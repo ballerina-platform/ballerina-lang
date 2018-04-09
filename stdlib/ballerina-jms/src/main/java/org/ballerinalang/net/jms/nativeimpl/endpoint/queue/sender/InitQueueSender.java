@@ -62,7 +62,7 @@ public class InitQueueSender implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct queueSenderBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct queueSenderBObject = BallerinaAdapter.getReceiverObject(context);
         Struct queueSenderConfig = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONFIG);
         String queueName = queueSenderConfig.getStringField(Constants.QUEUE_SENDER_FIELD_QUEUE_NAME);
 

@@ -42,16 +42,22 @@ public class ReceiveActionHandler {
 
     public static void handle(Context context) {
 
-        Struct connectorBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct connectorBObject = BallerinaAdapter.getReceiverObject(context);
         MessageConsumer messageConsumer = BallerinaAdapter.getNativeObject(connectorBObject,
                                                                            Constants.JMS_CONSUMER_OBJECT,
                                                                            MessageConsumer.class,
                                                                            context
                                                                           );
+        SessionConnector sessionConnector = BallerinaAdapter.getNativeObject(connectorBObject,
+                                                                             Constants.SESSION_CONNECTOR_OBJECT,
+                                                                             SessionConnector.class,
+                                                                             context);
+
 
         long timeInMilliSeconds = context.getIntArgument(0);
 
         try {
+            sessionConnector.handleTransactionBlock(context);
             Message message = messageConsumer.receive(timeInMilliSeconds);
             if (Objects.nonNull(message)) {
                 BStruct messageBObject = BLangConnectorSPIUtil.createBStruct(context,

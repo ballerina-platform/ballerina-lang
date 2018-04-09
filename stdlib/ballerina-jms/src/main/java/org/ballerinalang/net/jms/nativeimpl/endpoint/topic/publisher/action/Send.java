@@ -30,6 +30,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
+import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
@@ -57,12 +58,15 @@ public class Send extends AbstractBlockinAction {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
 
-        Struct queueSenderBObject = BallerinaAdapter.getReceiverStruct(context);
-        MessageProducer messageProducer = BallerinaAdapter.getNativeObject(queueSenderBObject,
+        Struct topicProducerConnector = BallerinaAdapter.getReceiverObject(context);
+        MessageProducer messageProducer = BallerinaAdapter.getNativeObject(topicProducerConnector,
                                                                            Constants.JMS_TOPIC_PRODUCER_OBJECT,
                                                                            MessageProducer.class,
-                                                                           context
-        );
+                                                                           context);
+        SessionConnector sessionConnector = BallerinaAdapter.getNativeObject(topicProducerConnector,
+                                                                             Constants.SESSION_CONNECTOR_OBJECT,
+                                                                             SessionConnector.class,
+                                                                             context);
 
         BStruct messageBObject = ((BStruct) context.getRefArgument(1));
         Message message = BallerinaAdapter.getNativeObject(messageBObject,
@@ -71,6 +75,7 @@ public class Send extends AbstractBlockinAction {
                                                            context);
 
         try {
+            sessionConnector.handleTransactionBlock(context);
             messageProducer.send(message);
         } catch (JMSException e) {
             JMSUtils.throwBallerinaException("Message sending failed.", context, e);

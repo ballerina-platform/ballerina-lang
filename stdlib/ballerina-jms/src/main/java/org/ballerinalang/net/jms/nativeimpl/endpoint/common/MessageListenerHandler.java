@@ -45,7 +45,7 @@ public class MessageListenerHandler {
     }
 
     public static void createAndRegister(Context context) {
-        Struct queueConsumerBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct queueConsumerBObject = BallerinaAdapter.getReceiverObject(context);
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
         BStruct consumerConnector = (BStruct) context.getRefArgument(2);
 

@@ -58,7 +58,7 @@ public class CreateSubscriber extends AbstractBlockinAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        Struct topicSubscriberBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct topicSubscriberBObject = BallerinaAdapter.getReceiverObject(context);
 
         BStruct sessionBObject = (BStruct) context.getRefArgument(1);
         String messageSelector = context.getStringArgument(0);

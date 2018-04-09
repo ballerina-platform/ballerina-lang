@@ -58,7 +58,7 @@ public class Send extends AbstractBlockinAction {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
 
-        Struct queueSenderBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct queueSenderBObject = BallerinaAdapter.getReceiverObject(context);
         MessageProducer messageProducer = BallerinaAdapter.getNativeObject(queueSenderBObject,
                                                                            Constants.JMS_QUEUE_SENDER_OBJECT,
                                                                            MessageProducer.class,

@@ -47,7 +47,7 @@ import javax.jms.JMSException;
 public class Stop implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct connectionBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct connectionBObject = BallerinaAdapter.getReceiverObject(context);
         Connection connection = BallerinaAdapter.getNativeObject(connectionBObject, Constants.JMS_CONNECTION,
                                                                  Connection.class, context);
         try {

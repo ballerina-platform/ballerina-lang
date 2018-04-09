@@ -33,7 +33,7 @@ public class BallerinaAdapter {
     private BallerinaAdapter() {
     }
 
-    public static Struct getReceiverStruct(Context context) {
+    public static Struct getReceiverObject(Context context) {
         return BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
     }
 

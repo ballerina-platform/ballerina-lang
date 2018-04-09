@@ -38,9 +38,15 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageAcknowledgeme
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "QueueConsumerConnector",
                                         structPackage = "ballerina.jms"),
-                   args = { @Argument(name = "message", type = TypeKind.STRUCT, structType = "Message") },
+                   args = {
+                           @Argument(name = "message",
+                                     type = TypeKind.STRUCT,
+                                     structType = "Message")
+                   },
                    returnType = {
-                           @ReturnType(type = TypeKind.STRUCT, structPackage = "ballerina.jms", structType = "Message")
+                           @ReturnType(type = TypeKind.STRUCT,
+                                       structPackage = "ballerina.jms",
+                                       structType = "Message")
                    },
                    isPublic = true
 )
