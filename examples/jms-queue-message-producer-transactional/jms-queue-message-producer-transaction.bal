@@ -20,7 +20,7 @@ endpoint jms:QueueSender queueSender {
 public function main (string[] args) {
     transaction {
         // Create a Text message.
-        jms:Message m = jmsSession.createTextMessage("Test Text");
+        jms:Message m = check jmsSession.createTextMessage("Test Text");
         // Send the Ballerina message to the JMS provider.
         queueSender -> send(m);
     }
