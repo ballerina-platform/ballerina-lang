@@ -21,6 +21,7 @@ package org.ballerinalang.mime.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -32,6 +33,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.Constants.MESSAGE_AS_PRIMARY_TYPE;
+import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 
 /**
  * Extract body parts from a given entity.
@@ -52,21 +55,28 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
         BRefValueArray partsArray;
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            //Get the body parts from entity's multipart data field, if they've been already been decoded
-            partsArray = EntityBodyHandler.getBodyPartArray(entityStruct);
-            if (partsArray == null || partsArray.size() < 1) {
-                Channel byteChannel = EntityBodyHandler.getByteChannel(entityStruct);
-                if (byteChannel != null) {
-                    EntityBodyHandler.decodeEntityBody(context, entityStruct, byteChannel);
-                    //Check the body part availability for the second time, since the parts will be by this
-                    // time populated from bytechannel
-                    partsArray = EntityBodyHandler.getBodyPartArray(entityStruct);
-                    //Set byte channel that belongs to parent entity to null, once the message body parts have
-                    // been decoded
-                    entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+            String baseType = HeaderUtil.getBaseType(entityStruct);
+            if (baseType != null && (baseType.startsWith(MULTIPART_AS_PRIMARY_TYPE) ||
+                    baseType.startsWith(MESSAGE_AS_PRIMARY_TYPE))) {
+                //Get the body parts from entity's multipart data field, if they've been already been decoded
+                partsArray = EntityBodyHandler.getBodyPartArray(entityStruct);
+                if (partsArray == null || partsArray.size() < 1) {
+                    Channel byteChannel = EntityBodyHandler.getByteChannel(entityStruct);
+                    if (byteChannel != null) {
+                        EntityBodyHandler.decodeEntityBody(context, entityStruct, byteChannel);
+                        //Check the body part availability for the second time, since the parts will be by this
+                        // time populated from bytechannel
+                        partsArray = EntityBodyHandler.getBodyPartArray(entityStruct);
+                        //Set byte channel that belongs to parent entity to null, once the message body parts have
+                        // been decoded
+                        entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
+                    }
                 }
+                context.setReturnValues(partsArray);
+            } else {
+                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not compatible " +
+                        "with a composite media type"));
             }
-            context.setReturnValues(partsArray);
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createEntityError(context,
                     "Error occurred while extracting body parts from entity: " + e.getMessage()));

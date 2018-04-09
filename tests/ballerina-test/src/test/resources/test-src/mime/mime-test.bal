@@ -305,3 +305,9 @@ function testGetTextWithNonCompatibleMediaType (string textContent) returns stri
     entity.setText(textContent);
     return entity.getText();
 }
+
+function testSetBody ((string | xml | json | blob | io:ByteChannel) entityBody) returns string | mime:EntityError {
+    mime:Entity entity = new;
+    entity.setBody(entityBody);
+    return entity.getText();
+}

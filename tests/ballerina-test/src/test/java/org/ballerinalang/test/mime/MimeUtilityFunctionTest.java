@@ -560,4 +560,14 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
                 "Entity body is not text compatible");
     }
+
+    @Test
+    public void testSetBody() {
+        BString textContent = new BString("Hello Ballerina !");
+        BValue[] args = {textContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetBody", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
+                "Entity body is not text compatible");
+    }
 }

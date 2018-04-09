@@ -138,6 +138,9 @@ public type Entity object {
         ContentDisposition contentDisposition;
     }
 
+    @Description {value:"Set the entity body with a given content"}
+    public function setBody ((string | xml | json | blob | io:ByteChannel) entityBody);
+
     @Description {value:"Set the entity body with a given file handler"}
     @Param {value:"fileHandler: Represent a file"}
     public function setFileAsEntityBody (file:Path fileHandler);
@@ -241,6 +244,20 @@ public type Entity object {
     @Description {value:"Check the header existence"}
     public native function hasHeader (string headerName) returns boolean;
 };
+
+public function Entity::setBody ((string | xml | json | blob | io:ByteChannel) entityBody) {
+    if (typeof entityBody == "string") {
+        setText(entityBody);
+    } else if (typeof entityBody == "xml") {
+        setXml(entityBody);
+    }  else if (typeof entityBody == "json") {
+        setJson(entityBody);
+    } else if (typeof entityBody == "blob") {
+        setBlob(entityBody);
+    } else if (typeof entityBody == "io:ByteChannel") {
+        setByteChannel(entityBody);
+    }
+}
 
 public function Entity::setFileAsEntityBody (file:Path filePath) {
     io:ByteChannel channel =check file:newByteChannel(fileHandler, READ_PERMISSION);
