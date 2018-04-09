@@ -68,7 +68,7 @@ public type Versioning {
 @Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
 public type WSServiceConfig {
     Listener[] endpoints,
-    WebSocketEndpoint[] webSocketEndpoints,
+    WebSocketListener[] webSocketEndpoints,
     string basePath,
     string[] subProtocols,
     int idleTimeoutInSeconds,
