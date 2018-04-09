@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttrib
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -250,7 +251,7 @@ public class HoverUtil {
             .BLangRecordKeyValue> annotAttachmentAttributes) {
         String value = "";
         for (BLangRecordLiteral.BLangRecordKeyValue attribute : annotAttachmentAttributes) {
-            if (attribute.key.fieldSymbol.name.getValue().equals("value")) {
+            if (((BLangSimpleVarRef) attribute.key.expr).getVariableName().getValue().equals("value")) {
                 value = ((BLangLiteral) attribute.valueExpr).getValue().toString();
                 break;
             }
