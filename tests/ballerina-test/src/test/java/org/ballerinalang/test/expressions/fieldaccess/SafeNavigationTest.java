@@ -45,7 +45,7 @@ public class SafeNavigationTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 5);
+        Assert.assertEquals(negativeResult.getErrorCount(), 9);
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'string?', found 'string|error'",
                 25, 19);
         BAssertUtil.validateError(negativeResult, 1,
@@ -55,6 +55,15 @@ public class SafeNavigationTest {
         BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'string', found 'string?'", 40, 16);
         BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'string[]', found 'string[]?'", 41,
                 21);
+        BAssertUtil.validateError(negativeResult, 5,
+                "safe navigation cannot be used in the target expression of an assignment", 46, 5);
+        BAssertUtil.validateError(negativeResult, 6,
+                "safe navigation cannot be used in the target expression of an assignment", 46, 5);
+        BAssertUtil.validateError(negativeResult, 7,
+                "safe navigation cannot be used in the target expression of an assignment", 46, 5);
+        BAssertUtil.validateError(negativeResult, 8,
+                "invalid operation: type 'Person[]|error' does not support indexing", 51, 12);
+
     }
 
     @Test
@@ -146,8 +155,32 @@ public class SafeNavigationTest {
     }
 
     @Test
-    public void testSafeNavigatingWithFuncInovc_2() {
-        BValue[] returns = BRunUtil.invoke(result, "testSafeNavigatingWithFuncInovc_2");
+    public void testSafeNavigationOnObject_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeNavigationOnObject_1");
+        Assert.assertEquals(returns[0].stringValue(), "John");
+    }
+
+    @Test
+    public void testSafeNavigationOnObject_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeNavigationOnObject_2");
+        Assert.assertEquals(returns[0].stringValue(), "null name");
+    }
+
+    @Test
+    public void testSafeNavigationOnObject_3() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeNavigationOnObject_3");
+        Assert.assertEquals(returns[0].stringValue(), "John");
+    }
+
+    @Test
+    public void testSafeNavigateArray_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeNavigateArray_1");
+        Assert.assertEquals(returns[0], null);
+    }
+
+    @Test
+    public void testSafeNavigateArray_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeNavigateArray_2");
         Assert.assertEquals(returns[0], null);
     }
 }

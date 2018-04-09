@@ -467,12 +467,15 @@ public class TypeChecker extends BLangNodeVisitor {
             checkActionInvocationExpr(iExpr, exprType);
             return;
         }
-        switch (iExpr.expr.type.tag) {
+
+        BType varRefType = iExpr.expr.type;
+        varRefType = getSafeType(varRefType, iExpr.safeNavigate, iExpr.pos);
+        switch (varRefType.tag) {
             case TypeTags.STRUCT:
                 // Invoking a function bound to a struct
                 // First check whether there exist a function with this name
                 // Then perform arg and param matching
-                checkFunctionInvocationExpr(iExpr, (BStructType) iExpr.expr.type);
+                checkFunctionInvocationExpr(iExpr, (BStructType) varRefType);
                 break;
             case TypeTags.CONNECTOR:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
@@ -484,7 +487,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.FLOAT:
             case TypeTags.BLOB:
             case TypeTags.XML:
-                checkFunctionInvocationExpr(iExpr, iExpr.expr.type);
+                checkFunctionInvocationExpr(iExpr, varRefType);
                 break;
             case TypeTags.JSON:
                 checkFunctionInvocationExpr(iExpr, symTable.jsonType);

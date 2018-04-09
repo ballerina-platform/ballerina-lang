@@ -119,3 +119,43 @@ function getNullablePerson() returns Person|() {
     Person|() p = prsn;
     return p;
 }
+
+type Employee object {
+  public function getName() returns string {
+     return ("John");
+  }
+};
+
+function testSafeNavigationOnObject_1() returns string {
+  Employee? p;
+
+  p = new Employee();
+  return p.getName() but { () => "null name"};
+}
+
+function testSafeNavigationOnObject_2() returns string {
+  Employee? p;
+  return p.getName() but { () => "null name"};
+}
+
+function testSafeNavigationOnObject_3() returns string {
+  Employee|error p;
+  p = new Employee();
+  return p!getName() but { error => "error name"};
+}
+
+function testSafeNavigationOnObject_4() returns string {
+  error e = {};
+  Employee|error p = e;
+  return p!getName() but { error => "error name"};
+}
+
+function testSafeNavigateArray_1() returns Person? {
+    Person[]|() p;
+    return p[0];
+}
+
+function testSafeNavigateArray_2() returns string? {
+    Person[]|() p;
+    return p[0].info2.address2.city;
+}

@@ -209,6 +209,7 @@ public enum DiagnosticCode {
     
     // Safe navigation operator related errors
     SAFE_NAVIGATION_NOT_REQUIRED("safe.navigation.not.required"),
+    INVALID_SAFE_NAVIGATION_ON_LHS("invalid.safe.navigation.on.lhs"),
 
     // Checked expression related errors
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("checked.expr.invalid.usage.no.error.type.rhs"),
