@@ -20,10 +20,12 @@ package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
@@ -52,9 +54,12 @@ class WebSubResourceDispatcher {
         HttpResource httpResource = null;
         String resourceName;
 
-        if (WebSubSubscriberConstants.TOPIC_ID_HEADER.equals(servicesRegistry.getTopicIdentifier())) {
+        if (WebSubSubscriberConstants.TOPIC_ID_HEADER.equals(servicesRegistry.getTopicIdentifier())
+                                                                    && HttpConstants.HTTP_METHOD_POST.equals(method)) {
             String topic = inboundRequest.getHeader(servicesRegistry.getTopicHeader());
-            resourceName = retrieveResourceName(method, topic, servicesRegistry.getTopicResourceMap());
+            BMap<String, BString> topicResourceMapForHeader = servicesRegistry.getTopicResourceMap()
+                                                                .get(WebSubSubscriberConstants.TOPIC_ID_HEADER);
+            resourceName = retrieveResourceName(topic, topicResourceMapForHeader);
         } else if (servicesRegistry.getTopicIdentifier() != null && HttpConstants.HTTP_METHOD_POST.equals(method)) {
             if (inboundRequest.getProperty(Constants.HTTP_RESOURCE) == null) {
                 inboundRequest.setProperty(Constants.HTTP_RESOURCE,
@@ -62,13 +67,15 @@ class WebSubResourceDispatcher {
                 return null;
             }
             ProgramFile programFile = service.getBalService().getServiceInfo().getPackageInfo().getProgramFile();
-            String payloadValue = retrievePayloadValueForKey(programFile, inboundRequest,
-                                                             servicesRegistry.getTopicPayloadKey());
             if (servicesRegistry.getTopicIdentifier().equals(WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY)) {
-                resourceName = retrieveResourceName(method, payloadValue, servicesRegistry.getTopicResourceMap());
+                resourceName = retrieveResourceNameForPayloadBasedDispatching(programFile, inboundRequest,
+                                                                              servicesRegistry.getTopicPayloadKeys(),
+                                                                              servicesRegistry.getTopicResourceMap());
             } else {
-                String topic = inboundRequest.getHeader(servicesRegistry.getTopicHeader()) + "::" + payloadValue;
-                resourceName = retrieveResourceName(method, topic, servicesRegistry.getTopicResourceMap());
+                String topic = inboundRequest.getHeader(servicesRegistry.getTopicHeader());
+                resourceName = retrieveResourceNameForHeaderAndPayloadBasedDispatching(programFile, inboundRequest,
+                                                                       topic, servicesRegistry.getTopicPayloadKeys(),
+                                                                       servicesRegistry.getTopicResourceMap());
             }
         } else {
             resourceName = retrieveResourceName(method);
@@ -114,16 +121,60 @@ class WebSubResourceDispatcher {
         }
     }
 
-    private static String retrievePayloadValueForKey(ProgramFile programFile, HTTPCarbonMessage httpCarbonMessage,
-                                               String payloadKey) {
-        BValue httpRequest = getHttpRequest(programFile, httpCarbonMessage);
+    private static String retrieveResourceNameForHeaderAndPayloadBasedDispatching(ProgramFile programFile,
+                                                                 HTTPCarbonMessage inboundRequest,
+                                                                 String topicHeader, BStringArray payloadKeys,
+                                                                 BMap<String, BMap<String, BString>> topicResourceMap) {
+        String topicHeaderPrefix = topicHeader + "::";
+        BValue httpRequest = getHttpRequest(programFile, inboundRequest);
+        BJSON jsonBody = retrieveJsonBody(httpRequest);
+        inboundRequest.setProperty(WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST, httpRequest);
+        for (String key : payloadKeys.getStringArray()) {
+            if (jsonBody.value().has(key)) {
+                BMap<String, BString> topicResourceMapForValue = topicResourceMap.get(key);
+                String valueForKey = jsonBody.value().get(key).stringValue();
+                String topic = topicHeaderPrefix + valueForKey;
+                if (topicResourceMapForValue.hasKey(topic)) {
+                    return retrieveResourceName(topic, topicResourceMapForValue);
+                }
+            }
+        }
+        if (topicResourceMap.hasKey(WebSubSubscriberConstants.TOPIC_ID_HEADER)) {
+            BMap<String, BString> topicResourceMapForHeader = topicResourceMap.get(
+                                                                            WebSubSubscriberConstants.TOPIC_ID_HEADER);
+            if (topicResourceMapForHeader.hasKey(topicHeader)) {
+                return retrieveResourceName(topicHeader, topicResourceMapForHeader);
+            }
+        }
+        throw new BallerinaException("Matching resource not found for dispatching based on Header and Payload Key");
+    }
+
+    private static String retrieveResourceNameForPayloadBasedDispatching(ProgramFile programFile,
+                                                                 HTTPCarbonMessage inboundRequest,
+                                                                 BStringArray payloadKeys,
+                                                                 BMap<String, BMap<String, BString>> topicResourceMap) {
+        BValue httpRequest = getHttpRequest(programFile, inboundRequest);
+        BJSON jsonBody = retrieveJsonBody(httpRequest);
+        inboundRequest.setProperty(WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST, httpRequest);
+        for (String key : payloadKeys.getStringArray()) {
+            if (jsonBody.value().has(key)) {
+                BMap<String, BString> topicResourceMapForValue = topicResourceMap.get(key);
+                String valueForKey = jsonBody.value().get(key).stringValue();
+                if (topicResourceMapForValue.hasKey(valueForKey)) {
+                    return retrieveResourceName(valueForKey, topicResourceMapForValue);
+                }
+            }
+        }
+        throw new BallerinaException("Matching resource not found for dispatching based on Payload Key");
+    }
+
+
+    private static BJSON retrieveJsonBody(BValue httpRequest) {
         BStruct entityStruct = MimeUtil.extractEntity((BStruct) httpRequest);
         if (entityStruct != null) {
             if (entityStruct.getNativeData(
                     org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE) instanceof BJSON) {
-                BJSON jsonBody = (BJSON)
-                        (entityStruct.getNativeData(org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE));
-                return jsonBody.value().get(payloadKey).stringValue();
+                return (BJSON) (entityStruct.getNativeData(org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE));
             } else {
                 throw new BallerinaException("Non-JSON payload received for payload key based dispatching");
             }
@@ -132,19 +183,11 @@ class WebSubResourceDispatcher {
         }
     }
 
-    private static String retrieveResourceName(String method, String topic, BMap<String, BString> topicResourceMap) {
-        switch (method) {
-            case HttpConstants.HTTP_METHOD_POST:
-                if (topicResourceMap.get(topic) != null) {
-                    return topicResourceMap.get(topic).stringValue();
-                } else {
-                    throw new BallerinaConnectorException("resource not specified for topic : " + topic);
-                }
-            case HttpConstants.HTTP_METHOD_GET:
-                //TODO handle GET without verify intent
-                return WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
-            default:
-                throw new BallerinaConnectorException("method not allowed for WebSub Subscriber Services : " + method);
+    private static String retrieveResourceName(String topic, BMap<String, BString> topicResourceMap) {
+        if (topicResourceMap.get(topic) != null) {
+            return topicResourceMap.get(topic).stringValue();
+        } else {
+            throw new BallerinaConnectorException("resource not specified for topic : " + topic);
         }
     }
 
@@ -163,6 +206,11 @@ class WebSubResourceDispatcher {
         RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
         HttpUtil.populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage,
                                         requestCacheControl);
+        HttpUtil.populateEntityBody(null, httpRequest, inRequestEntity, true);
+        EntityBodyHandler.addMessageDataSource(inRequestEntity,
+                                               EntityBodyHandler.constructJsonDataSource(inRequestEntity));
+        //Set byte channel to null, once the message data source has been constructed
+        inRequestEntity.addNativeData(org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL, null);
         return httpRequest;
     }
 

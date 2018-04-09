@@ -25,6 +25,7 @@ import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -68,25 +69,26 @@ public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunct
                     throw new BallerinaException("Topic Header not specified to dispatch by Header");
                 }
             } else if (WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY.equals(stringTopicIdentifier)) {
-                BString topicPayloadKey = (BString) config.getRefField(3);
-                if (topicPayloadKey != null) {
-                    webSubServicesRegistry.setTopicPayloadKey(topicPayloadKey.stringValue());
+                BStringArray topicPayloadKeys = (BStringArray) config.getRefField(3);
+                if (topicPayloadKeys != null) {
+                    webSubServicesRegistry.setTopicPayloadKeys(topicPayloadKeys);
                 } else {
                     throw new BallerinaException("Payload Key not specified to dispatch by Payload Key");
                 }
             } else {
                 BString topicHeader = (BString) config.getRefField(2);
-                BString topicPayloadKey = (BString) config.getRefField(3);
-                if (topicHeader != null && topicPayloadKey != null) {
+                BStringArray topicPayloadKeys = (BStringArray) config.getRefField(3);
+                if (topicHeader != null && topicPayloadKeys != null) {
                     webSubServicesRegistry.setTopicHeader(topicHeader.stringValue());
-                    webSubServicesRegistry.setTopicPayloadKey(topicPayloadKey.stringValue());
+                    webSubServicesRegistry.setTopicPayloadKeys(topicPayloadKeys);
                 } else {
                     throw new BallerinaException("Topic Header and/or Payload Key not specified to dispatch by Topic"
                                                          + " Header and Payload Key");
                 }
             }
-            if (!((BMap<String, BString>) config.getRefField(4)).isEmpty()) {
-                webSubServicesRegistry.setTopicResourceMap((BMap<String, BString>) config.getRefField(4));
+            if (!((BMap<String, BMap<String, BString>>) config.getRefField(4)).isEmpty()) {
+                webSubServicesRegistry.setTopicResourceMap(
+                                                    (BMap<String, BMap<String, BString>>) config.getRefField(4));
             } else {
                 throw new BallerinaException("Topic-Resource Map not specified to dispatch by "
                                                      + stringTopicIdentifier);

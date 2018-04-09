@@ -103,7 +103,12 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
                                                               HttpResource httpResource) {
         BValue subscriberServiceEndpoint = getSubscriberServiceEndpoint(httpResource, httpCarbonMessage);
-        BValue httpRequest = getHttpRequest(httpResource, httpCarbonMessage);
+        BValue httpRequest;
+        if (httpCarbonMessage.getProperty(WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST) != null) {
+            httpRequest = (BValue) httpCarbonMessage.getProperty(WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST);
+        } else {
+            httpRequest = getHttpRequest(httpResource, httpCarbonMessage);
+        }
 
         // invoke request path filters
         WorkerExecutionContext parentCtx = new WorkerExecutionContext(

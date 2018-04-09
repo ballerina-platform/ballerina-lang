@@ -57,6 +57,7 @@ public class WebSubSubscriberConstants {
 
     static final String ANNOTATED_TOPIC = "annotatedTopic";
     static final String DEFERRED_FOR_PAYLOAD_BASED_DISPATCHING = "deferredForPayloadBasedDispatching";
+    static final String ENTITY_ACCESSED_REQUEST = "entityAccessedRequest";
 
     static final String STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST = "IntentVerificationRequest";
     static final String STRUCT_WEBSUB_NOTIFICATION_REQUEST = "NotificationRequest";

@@ -21,6 +21,7 @@ package org.ballerinalang.net.websub;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
@@ -38,8 +39,8 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
 
     private String topicIdentifier;
     private String topicHeader;
-    private String topicPayloadKey;
-    private BMap<String, BString> topicResourceMap;
+    private BStringArray topicPayloadKeys;
+    private BMap<String, BMap<String, BString>> topicResourceMap;
 
     public WebSubServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
         super(webSocketServicesRegistry);
@@ -71,12 +72,12 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
         this.topicHeader = topicHeader;
     }
 
-    public String getTopicPayloadKey() {
-        return topicPayloadKey;
+    public BStringArray getTopicPayloadKeys() {
+        return topicPayloadKeys;
     }
 
-    public void setTopicPayloadKey(String topicPayloadKey) {
-        this.topicPayloadKey = topicPayloadKey;
+    public void setTopicPayloadKeys(BStringArray topicPayloadKeys) {
+        this.topicPayloadKeys = topicPayloadKeys;
     }
 
     /**
@@ -84,7 +85,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      *
      * @param topicResourceMap topic-resource map specified for the service
      */
-    public void setTopicResourceMap(BMap<String, BString> topicResourceMap) {
+    public void setTopicResourceMap(BMap<String, BMap<String, BString>> topicResourceMap) {
         this.topicResourceMap = topicResourceMap;
     }
 
@@ -93,7 +94,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      *
      * @return the topic-resource map specified for the service
      */
-    public BMap<String, BString> getTopicResourceMap() {
+    public BMap<String, BMap<String, BString>> getTopicResourceMap() {
         return topicResourceMap;
     }
 

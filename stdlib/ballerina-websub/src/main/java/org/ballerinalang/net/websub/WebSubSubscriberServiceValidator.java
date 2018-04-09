@@ -41,7 +41,8 @@ class WebSubSubscriberServiceValidator {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSubSubscriberServiceValidator.class);
 
-    static void validateResources(HttpService service, String topicHeader, BMap<String, BString> topicResourceMap) {
+    static void validateResources(HttpService service, String topicHeader,
+                                  BMap<String, BMap<String, BString>> topicResourceMap) {
         if (topicHeader != null && topicResourceMap != null) {
             validateCustomResources(service.getResources(), topicResourceMap);
         } else {
@@ -108,13 +109,18 @@ class WebSubSubscriberServiceValidator {
         }
     }
 
-    private static void validateCustomResources(List<HttpResource> resources, BMap<String, BString> topicResourceMap) {
+    private static void validateCustomResources(List<HttpResource> resources,
+                                                BMap<String, BMap<String, BString>> topicResourceMap) {
         List<String> resourceNames = new ArrayList<>();
         List<String> invalidResourceNames = new ArrayList<>();
 
-        for (String topic: topicResourceMap.keySet()) {
-            resourceNames.add(topicResourceMap.get(topic).stringValue());
+        for (String key : topicResourceMap.keySet()) {
+            BMap<String, BString> topicResourceSubMap = topicResourceMap.get(key);
+            for (String topic: topicResourceSubMap.keySet()) {
+                resourceNames.add(topicResourceSubMap.get(topic).stringValue());
+            }
         }
+
         for (HttpResource resource : resources) {
             String resourceName = resource.getName();
             if (!resourceNames.contains(resourceName)) {

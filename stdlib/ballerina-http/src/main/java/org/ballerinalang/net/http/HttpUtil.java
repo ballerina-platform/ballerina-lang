@@ -215,8 +215,8 @@ public class HttpUtil {
      * @param entity            Represent an entity
      * @param isRequest         boolean representing whether the message is a request or a response
      */
-    protected static void populateEntityBody(Context context, BStruct httpMessageStruct, BStruct entity,
-                                             boolean isRequest) {
+    public static void populateEntityBody(Context context, BStruct httpMessageStruct, BStruct entity,
+                                          boolean isRequest) {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
