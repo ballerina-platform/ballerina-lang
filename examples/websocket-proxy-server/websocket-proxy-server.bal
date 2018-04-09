@@ -23,7 +23,7 @@ service <http:Service> proxy bind serviceEndpoint {
             url:REMOTE_BACKEND,
             callbackService:typeof ClientService
         };
-        endpoint http:WebSocketEndpoint wsServerEp;
+        endpoint http:WebSocketListener wsServerEp;
         wsServerEp = ep -> upgradeToWebSocket({"custom":"header"});
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsServerEp;
         wsServerEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
@@ -57,17 +57,17 @@ service<http:WebSocketService> SimpleProxyServer bind serviceEndpoint {
 service<http:WebSocketClientService> ClientService {
 
     onText (endpoint ep, string text) {
-        endpoint http:WebSocketEndpoint parentEp = getAssociatedServerEndpoint(ep);
+        endpoint http:WebSocketListener parentEp = getAssociatedServerEndpoint(ep);
         var val = parentEp -> pushText(text);
     }
 
     onBinary (endpoint ep, blob data) {
-        endpoint http:WebSocketEndpoint parentEp = getAssociatedServerEndpoint(ep);
+        endpoint http:WebSocketListener parentEp = getAssociatedServerEndpoint(ep);
         var val = parentEp -> pushBinary(data);
     }
 
     onClose (endpoint ep, int statusCode, string reason) {
-        endpoint http:WebSocketEndpoint parentEp = getAssociatedServerEndpoint(ep);
+        endpoint http:WebSocketListener parentEp = getAssociatedServerEndpoint(ep);
         var val = parentEp -> close(statusCode, reason);
         _ = ep.attributes.remove(ASSOCIATED_CONNECTION);
     }
@@ -75,13 +75,13 @@ service<http:WebSocketClientService> ClientService {
 }
 
 
-function getAssociatedClientEndpoint (http:WebSocketEndpoint ep) returns (http:WebSocketClient) {
+function getAssociatedClientEndpoint (http:WebSocketListener ep) returns (http:WebSocketClient) {
     http:WebSocketClient client = check <http:WebSocketClient> ep.attributes[ASSOCIATED_CONNECTION];
     return client;
 }
 
 
 function getAssociatedServerEndpoint (http:WebSocketClient ep) returns (http:WebSocketEndpoint) {
-    http:WebSocketEndpoint wsEndpoint = check <http:WebSocketEndpoint> ep.attributes[ASSOCIATED_CONNECTION];
+    http:WebSocketListener wsEndpoint = check <http:WebSocketEndpoint> ep.attributes[ASSOCIATED_CONNECTION];
     return wsEndpoint;
 }
