@@ -23,15 +23,15 @@ public type employee object {
 };
 
 public function employee::getName() returns (string) {
-    return name;
+    return self.name;
 }
 
 public function employee::getAge() returns (int) {
-    return age;
+    return self.age;
 }
 
 public function employee::getSSN() returns (string) {
-    return ssn + ":employee";
+    return self.ssn + ":employee";
 }
 
 public function employee::setSSN(string ssn) {
@@ -39,5 +39,5 @@ public function employee::setSSN(string ssn) {
 }
 
 public function employee::getEmployeeId() returns (int) {
-    return employeeId;
+    return self.employeeId;
 }
