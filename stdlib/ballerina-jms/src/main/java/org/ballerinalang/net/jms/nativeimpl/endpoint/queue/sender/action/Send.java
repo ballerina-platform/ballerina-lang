@@ -30,7 +30,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
-import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
@@ -78,7 +77,7 @@ public class Send extends AbstractBlockinAction {
             sessionConnector.handleTransactionBlock(context);
             messageProducer.send(message);
         } catch (JMSException e) {
-            JMSUtils.throwBallerinaException("Message sending failed.", context, e);
+            BallerinaAdapter.throwBallerinaException("Message sending failed.", context, e);
         }
     }
 }

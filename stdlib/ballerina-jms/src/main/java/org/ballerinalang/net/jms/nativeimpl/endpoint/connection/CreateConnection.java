@@ -61,7 +61,7 @@ public class CreateConnection implements NativeCallableUnit {
             connection.setExceptionListener(new LoggingExceptionListener());
             connection.start();
         } catch (JMSException e) {
-            JMSUtils.throwBallerinaException("Error occurred while starting connection.", context, e);
+            BallerinaAdapter.throwBallerinaException("Error occurred while starting connection.", context, e);
         }
         connectionBObject.addNativeData(Constants.JMS_CONNECTION, connection);
     }

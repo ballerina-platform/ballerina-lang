@@ -31,7 +31,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
@@ -70,7 +69,7 @@ public class CreateTextMessage extends AbstractBlockinAction {
             jmsMessage = session.createTextMessage(content);
             bStruct.addNativeData(Constants.JMS_MESSAGE_OBJECT, jmsMessage);
         } catch (JMSException e) {
-            JMSUtils.throwBallerinaException("Failed to create message.", context, e);
+            BallerinaAdapter.throwBallerinaException("Failed to create message.", context, e);
         }
         context.setReturnValues(bStruct);
     }

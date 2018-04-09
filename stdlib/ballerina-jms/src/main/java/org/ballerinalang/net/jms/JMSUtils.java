@@ -19,7 +19,6 @@
 
 package org.ballerinalang.net.jms;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
@@ -274,8 +273,4 @@ public class JMSUtils {
         return session.createTopic(topicPattern);
     }
 
-    public static void throwBallerinaException(String message, Context context, Throwable throwable) {
-        LOGGER.error(message, throwable);
-        throw new BallerinaException(message + " " + throwable.getMessage(), throwable, context);
-    }
 }
