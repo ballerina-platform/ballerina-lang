@@ -52,7 +52,7 @@ public type Connection object {
 
     @Description {value:"Sends a upgrade request with custom headers"}
     @Param {value:"headers: a map of custom headers for handshake."}
-    public native function upgradeToWebSocket(map headers) returns WebSocketEndpoint;
+    public native function upgradeToWebSocket(map headers) returns WebSocketListener;
 
     @Description {value:"Cancels the handshake"}
     @Param {value:"statusCode: Status code for closing the connection"}
