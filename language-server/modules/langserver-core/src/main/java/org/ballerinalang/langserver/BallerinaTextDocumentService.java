@@ -41,8 +41,6 @@ import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
-import org.ballerinalang.repository.PackageRepository;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CodeLensParams;
@@ -78,7 +76,6 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -446,17 +443,16 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 pkgName = filePath.toString();
             }
         }
-        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository, 
+        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
                 sourceDocument, false, documentManager, CompilerPhase.CODE_ANALYZE, this.lsGlobalContext);
-        
+
         // In order to capture the syntactic errors, need to go through the default error strategy
         context.put(DefaultErrorStrategy.class, null);
 
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
-
         String tempFileId = LSParserUtils.getUnsavedFileIdOrNull(path.toString());
         if (tempFileId == null) {
-            balFile = LSParserUtils.compile(content, path, CompilerPhase.TAINT_ANALYZE, context);
+            balFile = LSParserUtils.compile(content, path, CompilerPhase.TAINT_ANALYZE, false);
         } else {
             balFile = LSParserUtils.compile(content, tempFileId, CompilerPhase.TAINT_ANALYZE, false,
                     this.lsGlobalContext);
