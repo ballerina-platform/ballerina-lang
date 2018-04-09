@@ -68,6 +68,14 @@ public type Message object {
     documentation {Get JMS transport header Expiration from the message
         returns int: The header value}
     public native function getExpiration () returns int|Error;
+
+    documentation {Clear JMS properties of the message
+        returns Error if any JMS provider level internal error occur}
+    public native function clearProperties();
+
+    documentation {Clears body of the JMS message
+        returns Error if any JMS provider level internal error occur}
+    public native function clearBody() returns Error|() ;
 };
 
 

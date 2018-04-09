@@ -24,9 +24,9 @@ service<jms:Consumer> jmsListener bind consumer {
 
     // OnMessage resource get invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
-        string messageText = message.getTextMessageContent();
+        string messageText = check message.getTextMessageContent();
         log:printInfo("Message : " + messageText);
         // Acknowledge the received message using the consumer endpoint acknowledge function.
-        consumer -> acknowledge (message);
+        var _ = consumer -> acknowledge (message);
   }
 }

@@ -11,7 +11,7 @@ endpoint jms:SimpleTopicProducer topicProducer {
 
 public function main (string[] args) {
     // Create a Text message.
-    jms:Message m = topicProducer.createTextMessage("Test Text");
+    jms:Message m = check topicProducer.createTextMessage("Test Text");
     // Send the Ballerina message to the JMS provider.
-    topicProducer -> send(m);
+    var _ = topicProducer -> send(m);
 }

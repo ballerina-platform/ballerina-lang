@@ -20,7 +20,7 @@ endpoint jms:TopicProducer topicProducer {
 
 public function main (string[] args) {
     // Create a Text message.
-    jms:Message m = jmsSession.createTextMessage("Test Text");
+    jms:Message m = check jmsSession.createTextMessage("Test Text");
     // Send the Ballerina message to the JMS provider.
-    topicProducer -> send(m);
+    var _ = topicProducer -> send(m);
 }
