@@ -16,18 +16,17 @@
 
 package ballerina.http;
 
-import ballerina/auth.basic;
-import ballerina/auth.utils;
-import ballerina/auth.userstore;
+import ballerina/auth;
 import ballerina/log;
+import ballerina/runtime;
+import ballerina/util;
 
 @Description {value:"Authentication cache name"}
 @final string AUTH_CACHE = "basic_auth_cache";
 
-userstore:FilebasedUserstore fileBasedUserstore = new;
-userstore:UserStore userstore = <userstore:UserStore> fileBasedUserstore;
-@Description {value:"Basic authenticator instance"}
-basic:BasicAuthenticator basicAuthenticator = basic:createAuthenticator(userstore, utils:createCache(AUTH_CACHE));
+@Description {value:"Auth provider instance"}
+auth:ConfigAuthProvider configAuthProvider = new;
+auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
 
 @Description {value:"Representation of Basic Auth handler for HTTP traffic"}
 @Field {value:"name: Authentication handler name"}
@@ -60,11 +59,21 @@ public function HttpBasicAuthnHandler::handle (Request req) returns (boolean) {
             return false;
         }
     }
-    var credentials = utils:extractBasicAuthCredentials(basicAuthHeaderValue);
+    var credentials = extractBasicAuthCredentials(basicAuthHeaderValue);
     match credentials {
         (string, string) creds => {
             var (username, password) = creds;
-            return basicAuthenticator.authenticate(username, password);
+            boolean isAuthenticated = configAuthProvider.authenticate(username, password);
+            if (isAuthenticated) {
+                // set username
+                runtime:getInvocationContext().authenticationContext.username = username;
+                // read scopes and set to the invocation context
+                string[] scopes = configAuthProvider.getScopes(username);
+                if (lengthof scopes > 0) {
+                    runtime:getInvocationContext().authenticationContext.scopes = scopes;
+                }
+            }
+            return isAuthenticated;
         }
         error err => {
             log:printErrorCause("Error in decoding basic authentication header", err);
@@ -87,5 +96,26 @@ public function HttpBasicAuthnHandler::canHandle (Request req) returns (boolean)
         string basicAuthHeaderStr => {
             return basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC);
         }
+    }
+}
+
+@Description {value:"Extracts the basic authentication credentials from the header value"}
+@Param {value:"authHeader: basic authentication header"}
+@Return {value:"string: username extracted"}
+@Return {value:"string: password extracted"}
+@Return {value:"error: any error occurred while extracting creadentials"}
+function extractBasicAuthCredentials (string authHeader) returns (string, string)|error {
+    // extract user credentials from basic auth header
+    string decodedBasicAuthHeader;
+    try {
+        decodedBasicAuthHeader = check util:base64DecodeString(authHeader.subString(5, authHeader.length()).trim());
+    } catch (error err) {
+        return err;
+    }
+    string[] decodedCredentials = decodedBasicAuthHeader.split(":");
+    if (lengthof decodedCredentials != 2) {
+        return handleError("Incorrect basic authentication header format");
+    } else {
+        return (decodedCredentials[0], decodedCredentials[1]);
     }
 }

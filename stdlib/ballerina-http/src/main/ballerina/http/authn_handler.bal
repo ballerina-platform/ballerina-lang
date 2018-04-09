@@ -22,19 +22,3 @@ public type HttpAuthnHandler object {
     public function canHandle (Request req) returns (boolean);
     public function handle (Request req) returns (boolean);
 };
-
-@Description {value:"Intercepts a HTTP request for authentication"}
-@Param {value:"req: Request object"}
-@Return {value:"boolean: true if authentication is a success, else false"}
-public function HttpAuthnHandler::canHandle (Request req) returns (boolean) {
-    error e = {message:"Not implemented"};
-    throw e;
-}
-
-@Description {value:"Checks if the provided HTTP request can be authenticated with basic auth"}
-@Param {value:"req: Request object"}
-@Return {value:"boolean: true if its possible authenticate with basic auth, else false"}
-public function HttpAuthnHandler::handle (Request req) returns (boolean) {
-    error e = {message:"Not implemented"};
-    throw e;
-}

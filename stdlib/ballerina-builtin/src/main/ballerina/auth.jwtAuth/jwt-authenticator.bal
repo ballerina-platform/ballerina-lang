@@ -16,7 +16,6 @@
 
 package ballerina.auth.jwtAuth;
 
-import ballerina/auth.utils;
 import ballerina/caching;
 import ballerina/config;
 import ballerina/jwt;
@@ -58,10 +57,7 @@ public type CachedJWTAuthContext {
 public function createAuthenticator () returns (JWTAuthenticator) {
     JWTAuthenticator authenticator = new;
     authenticator.jwtValidatorConfig = getAuthenticatorConfig();
-    match utils:createCache(JWT_AUTH_CACHE) {
-        caching:Cache cache => authenticator.authCache = cache;
-        () => authenticator.authCache = ();
-    }
+    authenticator.authCache = caching:createCache(JWT_AUTH_CACHE, 300000, 100, 0.25);
     return authenticator;
 }
 

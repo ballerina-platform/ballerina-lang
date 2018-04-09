@@ -17,9 +17,11 @@
 package ballerina.http;
 
 import ballerina/internal;
+import ballerina/auth;
+import ballerina/caching;
 
 @Description {value:"Authz handler chain instance"}
-AuthzHandlerChain authzHandlerChain;
+HttpAuthzHandler authzHandler;
 
 @Description {value:"Representation of the Authorization filter"}
 @Field {value:"filterRequest: request filter method which attempts to authorize the request"}
@@ -29,18 +31,15 @@ public type AuthzFilter object {
         function (Request request, FilterContext context) returns (FilterResult) filterRequest;
         function (Response response, FilterContext context) returns (FilterResult) filterResponse;
     }
-
     public new (filterRequest, filterResponse) {
     }
-
     public function init ();
-
     public function terminate ();
 };
 
 @Description {value:"Initializes the AuthzFilter"}
 public function AuthzFilter::init () {
-    authzHandlerChain = createAuthzHandlerChain();
+    authzHandler = new(caching:createCache("authz_cache", 300000, 100, 0.25));
 }
 
 @Description {value:"Stops the AuthzFilter"}
@@ -63,7 +62,12 @@ public function authzRequestFilterFunc (Request request, FilterContext context) 
     boolean authorized;
     match scopes {
         string[] scopeNames => {
-            authorized = authzHandlerChain.handle(request, scopeNames, context.resourceName);
+            if (authzHandler.canHandle(request)) {
+                authorized = authzHandler.handle(runtime:getInvocationContext().authenticationContext.username,
+                                            context.serviceName, context.resourceName, request.method, scopeNames);
+            } else {
+                authorized = false;
+            }
         }
         () => {
             // scopes are not defined, no need to authorize
