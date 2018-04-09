@@ -13,7 +13,7 @@ service<http:Service> test bind multipartEP {
       path:"/decoder"
     }
     nestedPartReceiver (endpoint conn, http:Request req)  {
-        http:Response res = {};
+        http:Response res = new;
         match req.getMultiparts() {
             mime:EntityError err => {
                 res.setStringPayload("Error occurred while decoding parent parts!");
@@ -77,7 +77,6 @@ function handleContent (mime:Entity bodyPart) {
         match payload {
             mime:EntityError err => io:println("Error in getting string payload");
             string textContent => io:println(textContent);
-            int | null => io:println("null payload");
         }
     }
 }

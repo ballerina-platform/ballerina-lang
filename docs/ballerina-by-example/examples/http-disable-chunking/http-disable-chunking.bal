@@ -28,7 +28,7 @@ service<http:Service> chunkingSample bind chunkingEP {
     }
     sample (endpoint conn, http:Request req) {
         //Create new outbound request and set payload.
-        http:Request newReq = {};
+        http:Request newReq = new;
         newReq.setJsonPayload({"hello":"world!"});
         var result = clientEndpoint -> post("/echo/", newReq);
         match result {
@@ -37,7 +37,7 @@ service<http:Service> chunkingSample bind chunkingEP {
                 _ = conn -> forward(clientResponse);
             }
             http:HttpConnectorError err => {
-                http:Response errorResponse = {};
+                http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while invoking the service"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = conn -> respond(errorResponse);
@@ -63,7 +63,7 @@ service<http:Service> echo bind echoEP {
         } else {
             value = "Neither Transfer-Encoding nor content-length header found";
         }
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload({"Outbound request content":value});
         _ = conn -> respond(res);
     }

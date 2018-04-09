@@ -64,7 +64,7 @@ function main (string[] args) {
                 throw err.cause[0];
             }
         }
-        var returnedKey =? <int>generatedID[0];
+        var returnedKey = check <int>generatedID[0];
         io:println("Inserted count to CUSTOMER table:" + insertCount);
         io:println("Generated key for the inserted row:" + returnedKey);
         //This is the second action participate in the transaction which insert the

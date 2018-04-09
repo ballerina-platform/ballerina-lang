@@ -15,18 +15,18 @@ service<http:Service> test bind multipartEP {
     multipartSender (endpoint conn, http:Request request) {
 
         //Create an enclosing entity to hold child parts.
-        mime:Entity parentPart = {};
+        mime:Entity parentPart = new;
         mime:MediaType mixedContentType = mime:getMediaType(mime:MULTIPART_MIXED);
         parentPart.contentType = mixedContentType;
 
         //Create a child part with json content.
-        mime:Entity childPart1 = {};
+        mime:Entity childPart1 = new;
         mime:MediaType contentTypeOfJsonPart = mime:getMediaType(mime:APPLICATION_JSON);
         childPart1.contentType = contentTypeOfJsonPart;
         childPart1.setJson({"name":"wso2"});
 
         //Create another child part with a file.
-        mime:Entity childPart2 = {};
+        mime:Entity childPart2 = new;
         mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:TEXT_XML);
         childPart2.contentType = contentTypeOfFilePart;
         //This file path is relative to where the ballerina is running. If your file is located outside, please
@@ -42,7 +42,7 @@ service<http:Service> test bind multipartEP {
 
         //Create an array to hold the parent part and set it to response.
         mime:Entity[] immediatePartsToResponse = [parentPart];
-        http:Response outResponse = {};
+        http:Response outResponse = new;
         outResponse.setMultiparts(immediatePartsToResponse, mime:MULTIPART_FORM_DATA);
 
         _ = conn -> respond(outResponse);
