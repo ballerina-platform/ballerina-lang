@@ -159,3 +159,13 @@ function testSafeNavigateArray_2() returns string? {
     Person[]|() p;
     return p[0].info2.address2.city;
 }
+
+function testNullLiftingOnError() returns string {
+    error e;
+    return e.message;
+}
+
+function testSafeNavigateOnErrorOrNull() returns string? {
+    error|() e;
+    return e.message;
+}

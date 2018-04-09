@@ -50,3 +50,13 @@ function testErrorLiftingOnArray() returns Person|error {
     Person[]|error p;
     return p[0];
 }
+
+function testSafeNavigateOnErrorOrNull_1() returns string{
+    error|() e;
+    return e!message;
+}
+
+function testSafeNavigateOnErrorOrNull_3() returns string {
+    error e;
+    return e!message;
+}

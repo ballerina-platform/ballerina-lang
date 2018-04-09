@@ -1868,6 +1868,11 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getSafeType(BType type, boolean safeNavigate, DiagnosticPos pos) {
+        if (safeNavigate && type == symTable.errStructType) {
+            dlog.error(pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
+            return symTable.errType;
+        }
+
         if (type.tag != TypeTags.UNION) {
             return type;
         }
@@ -1879,10 +1884,17 @@ public class TypeChecker extends BLangNodeVisitor {
         if (safeNavigate) {
             if (!varRefMemberTypes.contains(symTable.errStructType)) {
                 dlog.error(pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
+                return symTable.errType;
             }
+
             lhsTypes = varRefMemberTypes.stream().filter(memberType -> {
                 return memberType != symTable.errStructType && memberType != symTable.nilType;
             }).collect(Collectors.toList());
+
+            if (lhsTypes.isEmpty()) {
+                dlog.error(pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
+                return symTable.errType;
+            }
         } else {
             lhsTypes = varRefMemberTypes.stream().filter(memberType -> {
                 return memberType != symTable.nilType;
@@ -1890,9 +1902,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (lhsTypes.size() == 1) {
-            type = lhsTypes.get(0);
+            return lhsTypes.get(0);
         }
 
-        return type;
+        return new BUnionType(null, new LinkedHashSet<>(lhsTypes), false);
     }
 }

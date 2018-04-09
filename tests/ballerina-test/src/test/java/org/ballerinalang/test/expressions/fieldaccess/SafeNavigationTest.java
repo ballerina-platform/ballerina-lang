@@ -45,7 +45,7 @@ public class SafeNavigationTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), 12);
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'string?', found 'string|error'",
                 25, 19);
         BAssertUtil.validateError(negativeResult, 1,
@@ -63,6 +63,12 @@ public class SafeNavigationTest {
                 "safe navigation cannot be used in the target expression of an assignment", 46, 5);
         BAssertUtil.validateError(negativeResult, 8,
                 "invalid operation: type 'Person[]|error' does not support indexing", 51, 12);
+        BAssertUtil.validateError(negativeResult, 9, "safe navigation operator not required for type 'error?'", 56,
+                12);
+        BAssertUtil.validateError(negativeResult, 10, "incompatible types: expected 'string', found 'other|error?'",
+                56, 12);
+        BAssertUtil.validateError(negativeResult, 11, "safe navigation operator not required for type 'error'", 61,
+                12);
 
     }
 
@@ -181,6 +187,18 @@ public class SafeNavigationTest {
     @Test
     public void testSafeNavigateArray_2() {
         BValue[] returns = BRunUtil.invoke(result, "testSafeNavigateArray_2");
+        Assert.assertEquals(returns[0], null);
+    }
+
+    @Test
+    public void testNullLiftingOnError() {
+        BValue[] returns = BRunUtil.invoke(result, "testNullLiftingOnError");
+        Assert.assertEquals(returns[0].stringValue(), "");
+    }
+
+    @Test
+    public void testSafeNavigateOnErrorOrNull() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeNavigateOnErrorOrNull");
         Assert.assertEquals(returns[0], null);
     }
 }
