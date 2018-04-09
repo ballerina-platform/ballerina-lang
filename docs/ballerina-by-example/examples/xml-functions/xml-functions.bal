@@ -8,7 +8,7 @@ function main (string[] args) {
 
     // Other than the XML literal syntax, XML can be parsed using a string. The string should be a valid XML.
     string xmlString = "<book/>";
-    xml book =? <xml>xmlString;
+    xml book = <xml>xmlString;
 
     // Get the type of the XML element.
     io:println(bookComment.getItemType());

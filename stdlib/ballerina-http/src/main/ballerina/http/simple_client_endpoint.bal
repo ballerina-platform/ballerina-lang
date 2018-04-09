@@ -17,19 +17,19 @@
 package ballerina.http;
 
 documentation {
-    SimpleClientEndpoint provides an HTTP endpoint with minimal configurations.
+    SimpleClient endpoint provides an HTTP endpoint without the resiliency aspects of the the Client endpoint
 
     F{{epName}} - Name of the endpoint
     F{{simpleConfig}} - The configurations for the endpoint to connect to. This contains all the configurations as the
                         ClientEndpointConfig, except for the resiliency related configurations.
 }
-public type SimpleClientEndpoint object {
+public type SimpleClient object {
     public {
         string epName;
         SimpleClientEndpointConfiguration simpleConfig;
     }
     private {
-        ClientEndpoint httpEP;
+        Client httpEP;
     }
 
     public function init(SimpleClientEndpointConfiguration simpleConfig);
@@ -63,7 +63,7 @@ public type SimpleClientEndpoint object {
 };
 
 documentation {
-    The configurations possible with the SimpleClientEndpoint. This endpoint excludes the resiliency related configurations.
+    The configurations possible with the SimpleClient endpoint. This endpoint excludes the resiliency related configurations.
 
     F{{url}} - The URL of the HTTP endpoint to connect to
     F{{secureSocket}} - The SSL configurations for the endpoint
@@ -100,7 +100,7 @@ documentation {
 
     P{{simpleConfig}} - The user provided configurations for the endpoint
 }
-public function SimpleClientEndpoint::init(SimpleClientEndpointConfiguration simpleConfig) {
+public function SimpleClient::init(SimpleClientEndpointConfiguration simpleConfig) {
     string url = simpleConfig.url;
     if (url.hasSuffix("/")) {
         int lastIndex = url.length() - 1;

@@ -40,7 +40,7 @@ public class HttpConstants {
 
     public static final String PROTOCOL_HTTP = "http";
     public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.http";
-    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.http:ServiceEndpoint";
+    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.http:Listener";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
@@ -159,7 +159,7 @@ public class HttpConstants {
     public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
-    public static final String SERVICE_ENDPOINT = "ServiceEndpoint";
+    public static final String SERVICE_ENDPOINT = "Listener";
     public static final String CONNECTION = "Connection";
     public static final String REMOTE = "Remote";
     public static final String LOCAL = "Local";

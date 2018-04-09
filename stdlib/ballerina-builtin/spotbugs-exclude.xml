@@ -22,4 +22,7 @@
     <Match>
         <Package name="org.ballerinalang.nativeimpl.sql.actions"/>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.sql.BMirrorTable"/>
+    </Match>
 </FindBugsFilter>

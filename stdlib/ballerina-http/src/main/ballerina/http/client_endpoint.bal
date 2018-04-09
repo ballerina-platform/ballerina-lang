@@ -24,7 +24,7 @@ import ballerina/io;
 @Description {value:"Represents an HTTP client endpoint"}
 @Field {value:"epName: The name of the endpoint"}
 @Field {value:"config: The configurations associated with the endpoint"}
-public type ClientEndpoint object {
+public type Client object {
     public {
         string epName;
         ClientEndpointConfig config;
@@ -162,7 +162,7 @@ public type ConnectionThrottling {
     int waitTime = 60000,
 };
 
-public function ClientEndpoint::init(ClientEndpointConfig config) {
+public function Client::init(ClientEndpointConfig config) {
     boolean httpClientRequired = false;
     string url = config.targets[0].url;
     match config.lbMode {

@@ -29,11 +29,11 @@ type InitiatorClientConfig {
 
 type InitiatorClientEP object {
     private {
-        http:ClientEndpoint httpClient;
+        http:Client httpClient;
     }
 
     function init (InitiatorClientConfig conf) {
-        endpoint http:ClientEndpoint httpEP {targets:[{url:conf.registerAtURL}],
+        endpoint http:Client httpEP {targets:[{url:conf.registerAtURL}],
                                             timeoutMillies:conf.timeoutMillies,
                                             retry:{count:conf.retryConfig.count,
                                                       interval:conf.retryConfig.interval}};
@@ -57,7 +57,7 @@ type InitiatorClient object {
 
     function register(string transactionId, int transactionBlockId,
                         Protocol[] participantProtocols) returns RegistrationResponse|error {
-        endpoint http:ClientEndpoint httpClient = self.clientEP.httpClient;
+        endpoint http:Client httpClient = self.clientEP.httpClient;
         string participantId = getParticipantId(transactionBlockId);
         RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
         regReq.participantProtocols = participantProtocols;

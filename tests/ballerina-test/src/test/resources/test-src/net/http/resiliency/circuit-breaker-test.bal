@@ -25,7 +25,7 @@ import ballerina/runtime;
 
 function testTypicalScenario () returns (http:Response[] , http:HttpConnectorError[]) {
 
-    endpoint http:ClientEndpoint backendClientEP {
+    endpoint http:Client backendClientEP {
         circuitBreaker: {
             rollingWindow: {
                 timeWindow:10000,
@@ -73,7 +73,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
 
 function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorError[]) {
     
-    endpoint http:ClientEndpoint backendClientEP {
+    endpoint http:Client backendClientEP {
         circuitBreaker: {
             rollingWindow: {
                 timeWindow:10000,
@@ -121,7 +121,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
 
 function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnectorError[]) {
     
-    endpoint http:ClientEndpoint backendClientEP {
+    endpoint http:Client backendClientEP {
         circuitBreaker: {
             rollingWindow: {
                 timeWindow:10000,

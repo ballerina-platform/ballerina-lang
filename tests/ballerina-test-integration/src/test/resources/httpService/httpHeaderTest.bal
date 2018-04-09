@@ -1,14 +1,14 @@
 import ballerina/http;
 
-endpoint http:ServiceEndpoint headerServiceEP {
+endpoint http:Listener headerServiceEP {
     port: 9090
 };
 
-endpoint http:ServiceEndpoint stockServiceEP {
+endpoint http:Listener stockServiceEP {
     port: 9091
 };
 
-endpoint http:ClientEndpoint stockqEP {
+endpoint http:Client stockqEP {
     targets:[{url: "http://localhost:9091"}]
 };
 
