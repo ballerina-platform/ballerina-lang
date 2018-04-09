@@ -77,7 +77,7 @@ documentation {
     F{{retry}} - Retry related options
     F{{proxyConfig}} - Proxy related options
     F{{connectionThrottling}} - The configurations for controlling the number of connections allowed concurrently
-    F{{cacheConfig}} - The configurations for controlling the caching behaviour
+    F{{cache}} - The configurations for controlling the caching behaviour
 }
 public type SimpleClientEndpointConfiguration {
     string url,
@@ -92,7 +92,7 @@ public type SimpleClientEndpointConfiguration {
     Retry? retry,
     Proxy? proxyConfig,
     ConnectionThrottling? connectionThrottling,
-    CacheConfig cacheConfig = {},
+    CacheConfig cache = {},
 };
 
 documentation {
@@ -122,9 +122,9 @@ public function SimpleClientEndpoint::init(SimpleClientEndpointConfiguration sim
     self.httpEP.config.proxyConfig = simpleConfig.proxyConfig;
     self.httpEP.config.connectionThrottling = simpleConfig.connectionThrottling;
 
-    if (simpleConfig.cacheConfig.enabled) {
-        self.httpEP.config.cacheConfig = simpleConfig.cacheConfig;
-        self.httpEP.httpClient = createHttpCachingClient(url, self.httpEP.config, self.httpEP.config.cacheConfig);
+    if (simpleConfig.cache.enabled) {
+        self.httpEP.config.cache = simpleConfig.cache;
+        self.httpEP.httpClient = createHttpCachingClient(url, self.httpEP.config, self.httpEP.config.cache);
     } else {
         self.httpEP.httpClient = createHttpClient(url, self.httpEP.config);
     }

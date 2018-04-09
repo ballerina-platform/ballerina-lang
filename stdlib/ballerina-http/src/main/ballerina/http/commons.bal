@@ -120,8 +120,8 @@ function createHttpClientArray (ClientEndpointConfig config) returns HttpClient[
                     httpClients[i] = createRetryClient(uri, config);
                 }
                 () => {
-                    if (config.cacheConfig.enabled) {
-                        httpClients[i] = createHttpCachingClient(uri, config, config.cacheConfig);
+                    if (config.cache.enabled) {
+                        httpClients[i] = createHttpCachingClient(uri, config, config.cache);
                     } else {
                         httpClients[i] = createHttpClient(uri, config);
                     }

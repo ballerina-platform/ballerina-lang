@@ -80,7 +80,7 @@ public type TargetService {
 @Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
 @Field {value:"algorithm: The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default."}
 @Field {value:"failoverConfig: Failover configuration"}
-@Field {value:"cacheConfig: HTTP caching related configurations"}
+@Field {value:"cache: HTTP caching related configurations"}
 @Field {value:"acceptEncoding: Specifies the way of handling accept-encoding header."}
 public type ClientEndpointConfig {
     CircuitBreakerConfig? circuitBreaker,
@@ -96,7 +96,7 @@ public type ClientEndpointConfig {
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
     string|FailoverConfig lbMode = ROUND_ROBIN,
-    CacheConfig cacheConfig,
+    CacheConfig cache,
     string acceptEncoding = "auto",
 };
 
@@ -177,8 +177,8 @@ public function ClientEndpoint::init(ClientEndpointConfig config) {
                 }
                 self.config = config;
 
-                if (config.cacheConfig.enabled) {
-                    self.httpClient = createHttpCachingClient(url, config, config.cacheConfig);
+                if (config.cache.enabled) {
+                    self.httpClient = createHttpCachingClient(url, config, config.cache);
                 } else{
                     self.httpClient = createHttpClient(url, config);
                 }
@@ -214,8 +214,8 @@ public function ClientEndpoint::init(ClientEndpointConfig config) {
                             self.httpClient = createRetryClient(url, config);
                         }
                         () => {
-                            if (config.cacheConfig.enabled) {
-                                self.httpClient = createHttpCachingClient(url, config, config.cacheConfig);
+                            if (config.cache.enabled) {
+                                self.httpClient = createHttpCachingClient(url, config, config.cache);
                             } else{
                                 self.httpClient = createHttpClient(url, config);
                             }
@@ -242,8 +242,8 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfig configurat
                     cbHttpClient = createRetryClient(uri, configuration);
                 }
                 () => {
-                    if (configuration.cacheConfig.enabled) {
-                        cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+                    if (configuration.cache.enabled) {
+                        cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cache);
                     } else{
                         cbHttpClient = createHttpClient(uri, configuration);
                     }
@@ -271,8 +271,8 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfig configurat
         }
         () => {
             //remove following once we can ignore
-            if (configuration.cacheConfig.enabled) {
-                return createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+            if (configuration.cache.enabled) {
+                return createHttpCachingClient(uri, configuration, configuration.cache);
             } else {
                 return createHttpClient(uri, configuration);
             }
@@ -300,16 +300,16 @@ function createRetryClient (string url, ClientEndpointConfig configuration) retu
     var retryConfig = configuration.retry;
     match retryConfig {
         Retry retry => {
-            if (configuration.cacheConfig.enabled) {
-                return new RetryClient(url, configuration, retry, createHttpCachingClient(url, configuration, configuration.cacheConfig));
+            if (configuration.cache.enabled) {
+                return new RetryClient(url, configuration, retry, createHttpCachingClient(url, configuration, configuration.cache));
             } else{
                 return new RetryClient(url, configuration, retry, createHttpClient(url, configuration));
             }
         }
         () => {
             //remove following once we can ignore
-            if (configuration.cacheConfig.enabled) {
-                return createHttpCachingClient(url, configuration, configuration.cacheConfig);
+            if (configuration.cache.enabled) {
+                return createHttpCachingClient(url, configuration, configuration.cache);
             } else {
                 return createHttpClient(url, configuration);
             }
