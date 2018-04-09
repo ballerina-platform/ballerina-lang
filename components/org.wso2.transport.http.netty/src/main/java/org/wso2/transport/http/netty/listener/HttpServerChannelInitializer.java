@@ -205,6 +205,8 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
      * @param pipeline the channel pipeline
      */
     private void configureH2cPipeline(ChannelPipeline pipeline) {
+        // Add handler to handle http2 requests without an upgrade
+        pipeline.addLast(new Http2WithPriorKnowledgeHandler(interfaceId, serverName, serverConnectorFuture));
         // Add http2 upgrade decoder and upgrade handler
         final HttpServerCodec sourceCodec = new HttpServerCodec();
 
@@ -216,7 +218,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                 return null;
             }
         };
-        pipeline.addLast(Constants.HTTP_ENCODER, sourceCodec);
+        pipeline.addLast(Constants.HTTP_SERVER_CODEC, sourceCodec);
         pipeline.addLast(Constants.HTTP2_UPGRADE_HANDLER,
                          new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory, Integer.MAX_VALUE));
         /* Max size of the upgrade request is limited to 2GB. Need to see whether there is a better approach to handle

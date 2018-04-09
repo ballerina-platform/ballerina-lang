@@ -23,7 +23,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.ssl.ApplicationProtocolNames;
+import io.netty.handler.codec.http2.Http2CodecUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -46,6 +46,7 @@ import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
 import java.util.NoSuchElementException;
 
@@ -175,10 +176,14 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                                 route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
                     }
 
-                    if (protocol.equalsIgnoreCase(ApplicationProtocolNames.HTTP_2)) {
+                    if (protocol.equalsIgnoreCase(Constants.HTTP2_CLEARTEXT_PROTOCOL) ||
+                        protocol.equalsIgnoreCase(Constants.HTTP2_TLS_PROTOCOL)) {
 
                         connectionManager.getHttp2ConnectionManager().
                                 addHttp2ClientChannel(route, freshHttp2ClientChannel);
+                        freshHttp2ClientChannel.addDataEventListener(
+                                new TimeoutHandler(socketIdleTimeout, freshHttp2ClientChannel));
+
                         freshHttp2ClientChannel.getChannel().eventLoop().execute(() -> {
                             freshHttp2ClientChannel.getChannel().write(outboundMsgHolder);
                         });
@@ -187,7 +192,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     } else {
                         // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id.
                         freshHttp2ClientChannel
-                                .putInFlightMessage(Constants.HTTP2_INITIAL_STREAM_ID, outboundMsgHolder);
+                                .putInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID, outboundMsgHolder);
                         httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                         targetChannel.setChannel(channelFuture.channel());
                         targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);

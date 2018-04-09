@@ -37,6 +37,7 @@ public class ConnectionAvailabilityFuture {
     private boolean socketAvailable = false;
     private boolean isFailure;
     private Throwable throwable;
+    private boolean forceHttp2 = false;
 
     public void setSocketAvailabilityFuture(ChannelFuture socketAvailabilityFuture) {
         this.socketAvailabilityFuture = socketAvailabilityFuture;
@@ -47,7 +48,11 @@ public class ConnectionAvailabilityFuture {
                 if (isValidChannel(channelFuture)) {
                     socketAvailable = true;
                     if (listener != null && !isSSLEnabled) {
-                        notifySuccess(Constants.HTTP_SCHEME);
+                        if (forceHttp2) {
+                            notifySuccess(Constants.HTTP2_CLEARTEXT_PROTOCOL);
+                        } else {
+                            notifySuccess(Constants.HTTP_SCHEME);
+                        }
                     }
                 } else {
                     notifyFailure(channelFuture.cause());
@@ -64,10 +69,22 @@ public class ConnectionAvailabilityFuture {
         isSSLEnabled = sslEnabled;
     }
 
+    public void setForceHttp2(boolean forceHttp2) {
+        this.forceHttp2 = forceHttp2;
+    }
+
     void notifySuccess(String protocol) {
         this.protocol = protocol;
         if (listener != null) {
-            listener.onSuccess(protocol, socketAvailabilityFuture);
+            if (forceHttp2 && !(protocol.equalsIgnoreCase(Constants.HTTP2_CLEARTEXT_PROTOCOL) ||
+                                protocol.equalsIgnoreCase(Constants.HTTP2_TLS_PROTOCOL))) {
+                ClientConnectorException connectorException =
+                        new ClientConnectorException("Protocol must be HTTP/2",
+                                                     HttpResponseStatus.HTTP_VERSION_NOT_SUPPORTED.code());
+                listener.onFailure(connectorException);
+            } else {
+                listener.onSuccess(protocol, socketAvailabilityFuture);
+            }
         }
     }
 
@@ -84,7 +101,11 @@ public class ConnectionAvailabilityFuture {
         if (protocol != null) {
             notifySuccess(protocol);
         } else if (!isSSLEnabled && socketAvailable) {
-            notifySuccess(Constants.HTTP_SCHEME);
+            if (forceHttp2) {
+                notifySuccess(Constants.HTTP2_CLEARTEXT_PROTOCOL);
+            } else {
+                notifySuccess(Constants.HTTP_SCHEME);
+            }
         } else if (isFailure) {
             notifyFailure(throwable);
         }
@@ -116,4 +137,3 @@ public class ConnectionAvailabilityFuture {
         listener.onFailure(connectorException);
     }
 }
-
