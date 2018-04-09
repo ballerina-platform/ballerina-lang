@@ -91,10 +91,10 @@ public class PushUtils {
                                                          "Please visit https://central.ballerina.io/cli-token");
             }
 
-            // Read the Ballerina.md file content from the balo archive
+            // Read the Package.md file content from the balo archive
             String mdFileContent = getBallerinaMDFileContent(pkgPathFromPrjtDir.toString());
             if (mdFileContent == null) {
-                throw new BLangCompilerException("Cannot find Ballerina.md file in the archived balo");
+                throw new BLangCompilerException("Cannot find Package.md file in the archived balo");
             }
 
             String description = readSummary(mdFileContent);
@@ -198,10 +198,10 @@ public class PushUtils {
     }
 
     /**
-     * Reads the content of Ballerina.md inside the archived balo.
+     * Reads the content of Package.md inside the archived balo.
      *
      * @param archivedFilePath balo file path of the package
-     * @return content of Ballerina.md as a string
+     * @return content of Package.md as a string
      */
     private static String getBallerinaMDFileContent(String archivedFilePath) {
         ZipFile zipFile = null;
@@ -211,7 +211,7 @@ public class PushUtils {
 
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-                if (entry.getName().equalsIgnoreCase("Ballerina.md")) {
+                if (entry.getName().equalsIgnoreCase("Package.md")) {
                     InputStream stream = zipFile.getInputStream(entry);
                     Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A");
                     return scanner.hasNext() ? scanner.next() : "";
@@ -230,18 +230,18 @@ public class PushUtils {
     }
 
     /**
-     * Read summary of the package from Ballerina.md file.
+     * Read summary of the package from Package.md file.
      *
-     * @param mdFileContent full content of Ballerina.md
+     * @param mdFileContent full content of Package.md
      * @return summary of the package
      */
     private static String readSummary(String mdFileContent) {
         if (mdFileContent.isEmpty()) {
-            throw new BLangCompilerException("Ballerina.md in the archived balo is empty");
+            throw new BLangCompilerException("Package.md in the archived balo is empty");
         }
         int newLineIndex = mdFileContent.indexOf("\n");
         if (newLineIndex == -1) {
-            throw new BLangCompilerException("Error occurred when reading Ballerina.md");
+            throw new BLangCompilerException("Error occurred when reading Package.md");
         }
         String firstLine = mdFileContent.substring(0, newLineIndex);
         if (firstLine.length() > 50) {
