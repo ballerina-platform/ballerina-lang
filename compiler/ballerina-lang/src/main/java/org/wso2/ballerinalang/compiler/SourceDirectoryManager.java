@@ -78,7 +78,7 @@ public class SourceDirectoryManager {
         } else {
             manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
         }
-        if (manifest.getVersion() == null) {
+        if (manifest.getVersion().isEmpty()) {
             manifest.setVersion(Names.DEFAULT_VERSION.getValue());
         }
         return manifest;
