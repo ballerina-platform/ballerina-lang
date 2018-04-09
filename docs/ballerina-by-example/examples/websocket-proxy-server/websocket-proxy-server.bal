@@ -81,7 +81,7 @@ function getAssociatedClientEndpoint (http:WebSocketListener ep) returns (http:W
 }
 
 
-function getAssociatedServerEndpoint (http:WebSocketClient ep) returns (http:WebSocketEndpoint) {
-    http:WebSocketListener wsEndpoint = check <http:WebSocketEndpoint> ep.attributes[ASSOCIATED_CONNECTION];
+function getAssociatedServerEndpoint (http:WebSocketClient ep) returns (http:WebSocketListener) {
+    http:WebSocketListener wsEndpoint = check <http:WebSocketListener> ep.attributes[ASSOCIATED_CONNECTION];
     return wsEndpoint;
 }
