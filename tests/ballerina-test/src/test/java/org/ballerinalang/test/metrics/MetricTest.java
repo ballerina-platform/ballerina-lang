@@ -18,8 +18,12 @@
 package org.ballerinalang.test.metrics;
 
 import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.micrometer.prometheus.PrometheusConfig;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.observe.metrics.extension.micrometer.MicrometerMetricProvider;
+import org.ballerinalang.util.metrics.DefaultMetricRegistry;
+import org.ballerinalang.util.metrics.MetricRegistry;
 import org.testng.annotations.BeforeSuite;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
@@ -28,7 +32,10 @@ public class MetricTest {
 
     @BeforeSuite
     public void init() {
-        Metrics.addRegistry(new SimpleMeterRegistry());
+        MicrometerMetricProvider metricProvider = new MicrometerMetricProvider();
+        metricProvider.initialize();
+        Metrics.addRegistry(new PrometheusMeterRegistry(PrometheusConfig.DEFAULT));
+        DefaultMetricRegistry.setInstance(new MetricRegistry(metricProvider));
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
         configRegistry.addConfiguration(CONFIG_METRICS_ENABLED, String.valueOf(Boolean.TRUE));
     }

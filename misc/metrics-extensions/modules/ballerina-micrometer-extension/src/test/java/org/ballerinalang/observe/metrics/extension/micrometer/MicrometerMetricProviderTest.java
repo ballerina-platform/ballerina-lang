@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.observe.metrics.extension.micrometer;
 
+import io.micrometer.core.instrument.Metrics;
 import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import org.ballerinalang.util.metrics.CallbackGauge;
@@ -43,8 +44,10 @@ public class MicrometerMetricProviderTest {
 
     @BeforeClass
     public void init() {
-        metricRegistry = new MetricRegistry(new MicrometerMetricProvider(
-                new PrometheusMeterRegistry(PrometheusConfig.DEFAULT)));
+        MicrometerMetricProvider metricProvider = new MicrometerMetricProvider();
+        metricProvider.initialize();
+        Metrics.addRegistry(new PrometheusMeterRegistry(PrometheusConfig.DEFAULT));
+        metricRegistry = new MetricRegistry(metricProvider);
     }
 
     @Test
