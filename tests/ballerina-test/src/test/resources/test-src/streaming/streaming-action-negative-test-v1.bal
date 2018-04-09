@@ -33,35 +33,32 @@ type Teacher {
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
+stream<Employee> employeeStream2;
+stream<Teacher> teacherStream4;
 
-stream<Employee> employeeStream;
-stream<Teacher> teacherStream1;
+function testProjectionQuery() {
 
-function testFilterQuery() {
     forever {
-        from teacherStream1
-        where age > 30
+        from teacherStream4
         select name, age, status
-        => (Employee[] emp) {
-            employeeStream.publish(emp);
+        => (int[] i) {
+            employeeStream2.publish(emp);
         }
     }
 }
 
+function startProjectionQuery() returns (Employee[]) {
 
-function startFilterQuery() returns (Employee[]) {
-
-    testFilterQuery();
-
+    testProjectionQuery();
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
     Teacher t3 = {name:"Nimal", age:45, status:"married", batch:"LK1988", school:"Ananda College"};
 
-    employeeStream.subscribe(printEmployeeNumber);
+    employeeStream2.subscribe(printEmployeeNumber);
 
-    teacherStream1.publish(t1);
-    teacherStream1.publish(t2);
-    teacherStream1.publish(t3);
+    teacherStream4.publish(t1);
+    teacherStream4.publish(t2);
+    teacherStream4.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
 
