@@ -12,10 +12,10 @@ endpoint http:ServiceEndpoint echoEP {
 endpoint http:ClientEndpoint clientEndpoint {
     targets: [
         {
-           uri: "http://localhost:9090"
+           url: "http://localhost:9090"
         }
     ],
-    chunking: http:Chunking.NEVER
+    chunking: http:CHUNKING_NEVER
 };
 
 @http:ServiceConfig {

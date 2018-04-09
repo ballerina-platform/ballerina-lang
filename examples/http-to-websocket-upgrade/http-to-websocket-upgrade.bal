@@ -20,7 +20,7 @@ service<http:Service> httpService bind servicEp {
         methods:["POST", "GET", "PUT", "My"]
     }
     httpResource (endpoint conn, http:Request req) {
-        http:Response resp = {};
+        http:Response resp = new;
         var payload = req.getStringPayload();
         match payload {
             http:PayloadError payloadError => {

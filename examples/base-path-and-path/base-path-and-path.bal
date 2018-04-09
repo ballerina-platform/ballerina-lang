@@ -22,7 +22,7 @@ service<http:Service> echo bind echoEP {
         http:Response res = new;
         match result {
             http:PayloadError err => {
-                res = {statusCode:500};
+                res.statusCode = 500;
                 res.setStringPayload(err.message);
             }
             json value =>{

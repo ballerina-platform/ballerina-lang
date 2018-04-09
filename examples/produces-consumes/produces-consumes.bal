@@ -5,8 +5,8 @@ endpoint http:ServiceEndpoint infoServiceEP {
 };
 
 @Description {value:"Consumes and Produces annotations contain MIME types as an array of strings."}
-@http:ServiceConfig { endpoints:[infoServiceEP] ,basePath:"infoService"}
-service<http:Service> infoService {
+@http:ServiceConfig {basePath:"infoService"}
+service<http:Service> infoService bind infoServiceEP {
 
     @http:ResourceConfig {
         methods:["POST"],

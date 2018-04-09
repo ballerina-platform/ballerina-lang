@@ -8,7 +8,7 @@ type Employee {
 
 function main (string[] args) {
     //Create in memory table constrained by the Employee struct type.
-    table < Employee> tb;
+    table < Employee> tb = table {};
 
     //Add some data rows to the table.
     Employee e1 = {id:1, name:"Jane", salary:300.50};
