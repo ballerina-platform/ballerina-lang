@@ -30,6 +30,7 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -264,8 +265,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             handleIdleErrorScenario();
 
             log.warn("Idle timeout has reached hence closing the connection {}", ctx.channel().id().asShortText());
+        } else if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
+            log.debug("Server upgrade event received");
         } else {
-            log.warn("Unexpected user event triggered", evt.toString());
+            log.warn("Unexpected user event {} triggered", evt.toString());
         }
     }
 

@@ -107,8 +107,11 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
      *
      * @return next available stream id
      */
-    private synchronized int getNextStreamId() {
-        return connection.local().incrementAndGetNextStreamId();
+    private synchronized int getNextStreamId() throws Http2Exception {
+        int nextStreamId = connection.local().incrementAndGetNextStreamId();
+        connection.local().createStream(nextStreamId, false);
+        log.debug("Stream created streamId: {}", nextStreamId);
+        return nextStreamId;
     }
 
     /**
@@ -120,24 +123,21 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
         boolean isHeadersWritten = false;
         HTTPCarbonMessage httpOutboundRequest;
         OutboundMsgHolder outboundMsgHolder;
+        int streamId;
 
         public Http2RequestWriter(OutboundMsgHolder outboundMsgHolder) {
             this.outboundMsgHolder = outboundMsgHolder;
             httpOutboundRequest = outboundMsgHolder.getRequest();
         }
 
-        void writeContent(ChannelHandlerContext ctx) {
-            int streamId = getNextStreamId();
-            http2ClientChannel.putInFlightMessage(streamId, outboundMsgHolder);
-            http2ClientChannel.getDataEventListeners().
-                    forEach(dataEventListener -> dataEventListener.onStreamInit(streamId, ctx));
+        void writeContent(ChannelHandlerContext ctx) throws Http2Exception {
             // Write Content
             httpOutboundRequest.getHttpContentAsync().
                     setMessageListener((httpContent ->
                                                 http2ClientChannel.getChannel().eventLoop().execute(() -> {
                                                     try {
                                                         writeOutboundRequest(
-                                                                ctx, httpContent, streamId);
+                                                                ctx, httpContent);
                                                     } catch (Exception ex) {
                                                         String errorMsg = "Failed to send the request : " +
                                                                           ex.getMessage().
@@ -148,11 +148,13 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                                                 })));
         }
 
-        private void writeOutboundRequest(ChannelHandlerContext ctx, HttpContent msg, int streamId)
+        private void writeOutboundRequest(ChannelHandlerContext ctx, HttpContent msg)
                 throws Http2Exception {
 
             boolean endStream = false;
             if (!isHeadersWritten) {
+                // Initiate the stream
+                streamId = initiateStream(ctx);
                 HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
 
                 if (msg instanceof LastHttpContent && msg.content().capacity() == 0) {
@@ -201,6 +203,14 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                     ReferenceCountUtil.release(msg);
                 }
             }
+        }
+
+        private int initiateStream(ChannelHandlerContext ctx) throws Http2Exception {
+            int streamId = getNextStreamId();
+            http2ClientChannel.putInFlightMessage(streamId, outboundMsgHolder);
+            http2ClientChannel.getDataEventListeners().
+                    forEach(dataEventListener -> dataEventListener.onStreamInit(streamId, ctx));
+            return streamId;
         }
 
         private void writeOutboundRequestHeaders(ChannelHandlerContext ctx, HttpMessage httpMsg, int streamId,

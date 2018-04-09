@@ -25,6 +25,7 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2CodecUtil;
+import io.netty.handler.codec.http2.Http2ConnectionPrefaceAndSettingsFrameWrittenEvent;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
@@ -203,8 +204,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 executePostUpgradeActions(ctx);
             }
             ctx.fireUserEventTriggered(evt);
+        } else if (evt instanceof Http2ConnectionPrefaceAndSettingsFrameWrittenEvent) {
+            log.debug("Connection Preface and Settings frame written");
         } else {
-            log.warn("Unexpected user event triggered", evt.toString());
+            log.warn("Unexpected user event {} triggered", evt.toString());
         }
     }
 

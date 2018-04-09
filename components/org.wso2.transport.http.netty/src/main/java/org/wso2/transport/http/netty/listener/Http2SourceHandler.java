@@ -85,6 +85,7 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         super.handlerAdded(ctx);
+        ctx.pipeline().remove(Constants.IDLE_STATE_HANDLER); // Remove http idle state handler
         this.ctx = ctx;
     }
 
