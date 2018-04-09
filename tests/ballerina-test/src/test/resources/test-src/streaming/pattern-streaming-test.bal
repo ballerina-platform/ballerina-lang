@@ -37,6 +37,21 @@ type TempDiffInfo {
 
 TempDiffInfo[] tempDiffInfoArray = [];
 int index = 0;
+stream<RoomTempInfo> tempStream;
+stream<RegulatorInfo> regulatorStream;
+stream<TempDiffInfo> tempDiffStream;
+
+function testPatternQuery () {
+
+    forever {
+        from every regulatorStream as e1 followed by tempStream where e1.roomNo == roomNo [1..2) as e2
+        followed by regulatorStream where e1.roomNo == roomNo as e3
+        select e1.roomNo, e2[1].temp - e2[0].temp as tempDifference
+        => (TempDiffInfo[] emp) {
+                tempDiffStream.publish(emp);
+        }
+    }
+}
 
 function printTempDifference(TempDiffInfo tempDiff) {
     io:println("printTemoDifference function invoked for Room:" + tempDiff.roomNo + " and temp difference :" +
@@ -49,21 +64,9 @@ function addToGlobalTempDiffArray(TempDiffInfo s) {
     index = index + 1;
 }
 
-
 function runPatternQuery1() returns (TempDiffInfo[]) {
 
-    stream<RoomTempInfo> tempStream;
-    stream<RegulatorInfo> regulatorStream;
-    stream<TempDiffInfo> tempDiffStream;
-
-    forever {
-        from every regulatorStream as e1 followed by tempStream where e1.roomNo == roomNo [1..2) as e2
-        followed by regulatorStream where e1.roomNo == roomNo as e3
-        select e1.roomNo, e2[1].temp - e2[0].temp as tempDifference
-        => (TempDiffInfo[] emp) {
-            tempDiffStream.publish(emp);
-        }
-    }
+    testPatternQuery();
 
     RoomTempInfo t1 = {deviceID:1, roomNo:23, temp:23.0};
     RoomTempInfo t2 = {deviceID:8, roomNo:23, temp:30.0};
@@ -82,8 +85,14 @@ function runPatternQuery1() returns (TempDiffInfo[]) {
     runtime:sleepCurrentWorker(200);
 
     regulatorStream.publish(r2);
-    runtime:sleepCurrentWorker(1000);
-
+    int count = 0;
+    while(true) {
+        runtime:sleepCurrentWorker(500);
+        count++;
+        if((lengthof tempDiffInfoArray) > 0 || count == 10) {
+            break;
+        }
+    }
     return tempDiffInfoArray;
 }
 
@@ -136,7 +145,15 @@ function runPatternQuery2() returns (RoomKeyAction[]) {
     regulatorStateChangeStream.publish(regulatorState1);
     runtime:sleepCurrentWorker(200);
     regulatorStateChangeStream.publish(regulatorState2);
-    runtime:sleepCurrentWorker(500);
+
+    int count = 0;
+    while(true) {
+        runtime:sleepCurrentWorker(500);
+        count++;
+        if((lengthof roomActions) > 0 || count == 10) {
+            break;
+        }
+    }
 
     return roomActions;
 }
@@ -181,11 +198,18 @@ function runPatternQuery3() returns (RoomKeyAction[]) {
     runtime:sleepCurrentWorker(200);
     roomKeyStream2.publish(roomKeyAction1);
     regulatorStateChangeStream2.publish(regulatorState2);
-    runtime:sleepCurrentWorker(500);
+
+    int count = 0;
+    while(true) {
+        runtime:sleepCurrentWorker(500);
+        count++;
+        if((lengthof roomActions2) > 0 || count == 10) {
+            break;
+        }
+    }
 
     return roomActions2;
 }
-
 
 function alertRoomAction2(RoomKeyAction action) {
     io:println("alertRoomAction function invoked for Room:" + action.roomNo + " and the action :" +
@@ -227,7 +251,15 @@ function runPatternQuery4() returns (RoomKeyAction[]) {
     runtime:sleepCurrentWorker(200);
     roomKeyStream3.publish(roomKeyAction1);
     regulatorStateChangeStream3.publish(regulatorState2);
-    runtime:sleepCurrentWorker(500);
+
+    int count = 0;
+    while(true) {
+        runtime:sleepCurrentWorker(500);
+        count++;
+        if((lengthof roomActions3) > 0 || count == 10) {
+            break;
+        }
+    }
 
     return roomActions3;
 }
@@ -269,8 +301,14 @@ function runPatternQuery5() returns (RoomKeyAction[]) {
     regulatorStateChangeStream4.publish(regulatorState1);
     runtime:sleepCurrentWorker(200);
     roomKeyStream4.publish(roomKeyAction1);
-    runtime:sleepCurrentWorker(2500);
-
+    int count = 0;
+    while(true) {
+        runtime:sleepCurrentWorker(500);
+        count++;
+        if((lengthof roomActions3) > 0 || count == 10) {
+            break;
+        }
+    }
     return roomActions4;
 }
 

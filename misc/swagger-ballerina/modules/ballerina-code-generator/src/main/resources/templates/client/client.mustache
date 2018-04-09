@@ -13,12 +13,12 @@ struct {{name}}ClientConfig {
 //============Client Endpoint============
 //=======================================
 struct {{name}}ClientEp {
-    http:ClientEndpoint client;
+    http:Client client;
     {{name}}ClientConfig config;
 }
 
 function <{{name}}ClientEp ep> init({{name}}ClientConfig config) {
-    endpoint http:ClientEndpoint httpEp {
+    endpoint http:Client httpEp {
         targets:[{url: config.serviceUrl}]
     };
 
@@ -39,7 +39,7 @@ struct {{name}}Client {
 
 {{#resources}}
 function <{{../name}}Client client> {{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error {
-    endpoint http:ClientEndpoint ep = client.clientEp.client;
+    endpoint http:Client ep = client.clientEp.client;
     http:Request request = {};
 
     //Create the required request as needed{{#contentType}}

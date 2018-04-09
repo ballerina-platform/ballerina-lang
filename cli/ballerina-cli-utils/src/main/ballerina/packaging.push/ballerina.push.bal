@@ -7,7 +7,7 @@ import ballerina/http;
 
 function pushPackage (string accessToken, string mdFileContent, string summary, string homePageURL, string repositoryURL,
     string apiDocURL, string authors, string keywords, string license, string url, string dirPath, string msg) {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets: [
         {
             url: url,

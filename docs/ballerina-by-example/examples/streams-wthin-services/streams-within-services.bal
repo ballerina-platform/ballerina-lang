@@ -41,7 +41,7 @@ function printRequestCount (RequestCount reqCount) {
     io:println("ALERT!! : Received more than 6 requests within 5 second from the host: " + reqCount.host);
 }
 
-endpoint http:ServiceEndpoint storeServiceEndpoint {
+endpoint http:Listener storeServiceEndpoint {
     port:9090
 };
 

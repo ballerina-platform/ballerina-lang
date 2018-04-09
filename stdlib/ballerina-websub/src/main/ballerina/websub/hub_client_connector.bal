@@ -28,7 +28,7 @@ public type HubClientConnector object {
     }
 
     private {
-        http:ClientEndpoint httpClientEndpoint;
+        http:Client httpClientEndpoint;
     }
 
     new (hubUrl, httpClientEndpoint) {}
@@ -71,7 +71,7 @@ public type HubClientConnector object {
 
 public function HubClientConnector::subscribe (SubscriptionChangeRequest subscriptionRequest) returns
 @untainted (SubscriptionChangeResponse | WebSubError) {
-    endpoint http:ClientEndpoint httpClientEndpoint = self.httpClientEndpoint;
+    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = httpClientEndpoint -> post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint);
@@ -79,27 +79,27 @@ public function HubClientConnector::subscribe (SubscriptionChangeRequest subscri
 
 public function HubClientConnector::unsubscribe (SubscriptionChangeRequest unsubscriptionRequest) returns
 @untainted (SubscriptionChangeResponse | WebSubError) {
-    endpoint http:ClientEndpoint httpClientEndpoint = self.httpClientEndpoint;
+    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtUnsubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
     var response = httpClientEndpoint -> post("", builtUnsubscriptionRequest);
     return processHubResponse(hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint);
 }
 
 public function HubClientConnector::registerTopic (string topic, string secret = "") {
-    endpoint http:ClientEndpoint httpClientEndpoint = self.httpClientEndpoint;
+    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic, secret);
     _ = httpClientEndpoint -> post("", request);
 }
 
 public function HubClientConnector::unregisterTopic (string topic, string secret = "") {
-    endpoint http:ClientEndpoint httpClientEndpoint = self.httpClientEndpoint;
+    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic, secret);
     _ = httpClientEndpoint -> post("", request);
 }
 
 public function HubClientConnector::publishUpdate (string topic, json payload,
             string secret = "", string signatureMethod = "sha256", json... headers) returns (WebSubError | ()) {
-    endpoint http:ClientEndpoint httpClientEndpoint = self.httpClientEndpoint;
+    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
     request.setJsonPayload(payload);
@@ -182,7 +182,7 @@ function buildSubscriptionChangeRequest(string mode, SubscriptionChangeRequest s
                 if the request was successful"}
 @Return { value : "WebSubErrror indicating any errors that occurred, if the request was unsuccessful"}
 function processHubResponse(string hub, string mode, SubscriptionChangeRequest subscriptionChangeRequest,
-                            http:Response|http:HttpConnectorError response, http:ClientEndpoint httpClientEndpoint)
+                            http:Response|http:HttpConnectorError response, http:Client httpClientEndpoint)
                             returns @untainted (SubscriptionChangeResponse | WebSubError) {
     string topic = subscriptionChangeRequest.topic;
     match response {
