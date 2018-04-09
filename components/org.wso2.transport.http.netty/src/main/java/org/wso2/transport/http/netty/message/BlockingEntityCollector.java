@@ -115,19 +115,48 @@ public class BlockingEntityCollector implements EntityCollector {
                 try {
                     waitForEntity();
                     HttpContent httpContent = httpContentQueue.poll();
+                    size += httpContent.content().readableBytes();
+                    contentList.add(httpContent);
                     if ((httpContent instanceof LastHttpContent)) {
                         state = EntityBodyState.CONSUMED;
                     }
+                } catch (InterruptedException e) {
+                    LOG.warn("Error while getting full message length", e);
+                }
+            }
+            httpContentQueue.addAll(contentList);
+            state = EntityBodyState.CONSUMABLE;
+        } catch (Exception e) {
+            LOG.error("Error while retrieving http content length", e);
+        } finally {
+            readWriteLock.unlock();
+        }
+
+        return size;
+    }
+
+    public int countMessageLengthTill(int maxSize) {
+        int size = 0;
+        try {
+            readWriteLock.lock();
+            List<HttpContent> contentList = new ArrayList<>();
+            while (state == EntityBodyState.CONSUMABLE || state == EntityBodyState.EXPECTING) {
+                try {
+                    waitForEntity();
+                    HttpContent httpContent = httpContentQueue.poll();
+                    size += httpContent.content().readableBytes();
                     contentList.add(httpContent);
+                    if (size >= maxSize) {
+                        break;
+                    } else if ((httpContent instanceof LastHttpContent)) {
+                        state = EntityBodyState.CONSUMED;
+                    }
                 } catch (InterruptedException e) {
                     LOG.warn("Error while getting full message length", e);
                 }
             }
             size = 0;
-            for (HttpContent httpContent : contentList) {
-                size += httpContent.content().readableBytes();
-                httpContentQueue.add(httpContent);
-            }
+            httpContentQueue.addAll(contentList);
             state = EntityBodyState.CONSUMABLE;
         } catch (Exception e) {
             LOG.error("Error while retrieving http content length", e);
