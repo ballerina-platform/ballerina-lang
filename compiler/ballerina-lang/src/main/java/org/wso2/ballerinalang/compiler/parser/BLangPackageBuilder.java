@@ -797,9 +797,14 @@ public class BLangPackageBuilder {
     public void markLastEndpointAsPublic() {
         lastBuiltEndpoint.flagSet.add(Flag.PUBLIC);
     }
-    
-    public void markLastInvocationAsAsync() {
-        ((BLangInvocation) this.exprNodeStack.peek()).async = true;
+
+    public void markLastInvocationAsAsync(DiagnosticPos pos) {
+        final ExpressionNode expressionNode = this.exprNodeStack.peek();
+        if (expressionNode.getKind() == NodeKind.INVOCATION) {
+            ((BLangInvocation) this.exprNodeStack.peek()).async = true;
+        } else {
+            dlog.error(pos, DiagnosticCode.START_REQUIRE_INVOCATION);
+        }
     }
 
     public void addVariableDefStatement(DiagnosticPos pos,

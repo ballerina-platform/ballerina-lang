@@ -750,6 +750,26 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangExpressionStmt exprStmtNode) {
         this.checkStatementExecutionValidity(exprStmtNode);
         analyzeExpr(exprStmtNode.expr);
+        validateExprStatementExpression(exprStmtNode);
+    }
+
+    private void validateExprStatementExpression(BLangExpressionStmt exprStmtNode) {
+        BLangExpression expr = exprStmtNode.expr;
+        while (expr.getKind() == NodeKind.MATCH_EXPRESSION || expr.getKind() == NodeKind.CHECK_EXPR) {
+            if (expr.getKind() == NodeKind.MATCH_EXPRESSION) {
+                expr = ((BLangMatchExpression) expr).expr;
+            } else {
+                expr = ((BLangCheckedExpr) expr).expr;
+            }
+        }
+        // Allowed expression kinds
+        if (expr.getKind() == NodeKind.INVOCATION || expr.getKind() == NodeKind.AWAIT_EXPR) {
+            return;
+        }
+        // For other expressions, error is logged already.
+        if (expr.type == symTable.nilType) {
+            dlog.error(exprStmtNode.pos, DiagnosticCode.INVALID_EXPR_STATEMENT);
+        }
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
@@ -841,6 +861,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         names.fromIdNode(invocationExpr.name));
             }
         }
+
+        if (invocationExpr.actionInvocation) {
+            validateActionInvocation(invocationExpr.pos, invocationExpr);
+        }
+    }
+
+    private void validateActionInvocation(DiagnosticPos pos, BLangNode bLangNode) {
+        BLangNode parent = bLangNode.parent;
+        while (parent != null) {
+            final NodeKind kind = parent.getKind();
+            // Allowed node types.
+            if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT
+                    || kind == NodeKind.TUPLE_DESTRUCTURE) {
+                return;
+            } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.MATCH_EXPRESSION) {
+                parent = parent.parent;
+                continue;
+            }
+            break;
+        }
+        dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
     }
 
     public void visit(BLangTypeInit cIExpr) {
