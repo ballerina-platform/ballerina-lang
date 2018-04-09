@@ -32,7 +32,6 @@ public native function <table dt> getNext () returns (any);
 
 @Description {value:"Add record to the table."}
 @Param {value:"dt: The table object"}
-
 @Param {value:"data: A struct with data"}
 public native function <table dt> add (any data) returns (TableOperationError | ());
 

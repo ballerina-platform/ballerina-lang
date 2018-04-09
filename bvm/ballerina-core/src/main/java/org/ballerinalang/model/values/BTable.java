@@ -139,14 +139,25 @@ public class BTable implements BRefType<Object>, BCollection {
         if (isIteratorGenerationConditionMet()) {
             generateIterator();
         }
-        return deriveHasNextVal(isInTransaction);
+        if (!nextPrefetched) {
+            hasNextVal = iterator.next();
+            nextPrefetched = true;
+        }
+        if (!hasNextVal) {
+            close(isInTransaction);
+        }
+        return hasNextVal;
     }
 
     public void next() {
         if (isIteratorGenerationConditionMet()) {
             generateIterator();
         }
-        moveIteratorCursorToNextRow();
+        if (!nextPrefetched) {
+            iterator.next();
+        } else {
+            nextPrefetched = false;
+        }
     }
 
     public void close(boolean isInTransaction) {
@@ -276,14 +287,6 @@ public class BTable implements BRefType<Object>, BCollection {
         return this.isInMemoryTable && this.iterator == null;
     }
 
-    protected void moveIteratorCursorToNextRow() {
-        if (!nextPrefetched) {
-            iterator.next();
-        } else {
-            nextPrefetched = false;
-        }
-    }
-
     protected void resetIterationHelperAttributes() {
         this.nextPrefetched = false;
         this.hasNextVal = false;
@@ -319,17 +322,6 @@ public class BTable implements BRefType<Object>, BCollection {
 
     protected boolean iteratorResetRequired() {
         return isInMemoryTable;
-    }
-
-    private boolean deriveHasNextVal(boolean isInTransaction) {
-        if (!nextPrefetched) {
-            hasNextVal = iterator.next();
-            nextPrefetched = true;
-        }
-        if (!hasNextVal) {
-            close(isInTransaction);
-        }
-        return hasNextVal;
     }
 
     /**

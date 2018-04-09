@@ -234,7 +234,11 @@ public type SQLClient object {
         (Parameter[] | ()) parameters, (string[] | ()) keyColumns)
         returns (int, string[]) | SQLConnectorError;
 
-    public native function mirror (string tableName, typedesc structType) returns
+    @Description {value:"The mirror action implementation for SQL connector which returns a reflection of a database
+    table that allows performing select/update operations over the actual database table"}
+    @Param {value:"tableName: The name of the table to be mirrored"}
+    @Param {value:"recordType: The type which a record of the table maps with"}
+    public native function mirror (string tableName, typedesc recordType) returns
     (table|SQLConnectorError);
 
 };

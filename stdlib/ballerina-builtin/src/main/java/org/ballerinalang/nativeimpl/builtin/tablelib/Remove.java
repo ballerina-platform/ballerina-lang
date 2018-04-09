@@ -42,7 +42,7 @@ public class Remove extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BTable table = (BTable) context.getRefArgument(0);
-        BFunctionPointer lambDaFunction = (BFunctionPointer) context.getRefArgument(1);
-        table.performRemoveOperation(context, lambDaFunction);
+        BFunctionPointer lambdaFunction = (BFunctionPointer) context.getRefArgument(1);
+        table.performRemoveOperation(context, lambdaFunction);
     }
 }

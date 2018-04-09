@@ -39,7 +39,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
         functionName = "mirror",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.SQL_CLIENT),
         args = {
-                @Argument(name = "tableName", type = TypeKind.STRING)
+                @Argument(name = "tableName", type = TypeKind.STRING),
+                @Argument(name = "recordType", type = TypeKind.STRING)
         },
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),

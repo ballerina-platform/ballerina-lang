@@ -84,7 +84,7 @@ public class BMirrorTable extends BTable {
             TableUtils.prepareAndExecuteStatement(stmt, data);
             resetIterator();
         } catch (SQLException e) {
-            throw new BallerinaException("execute update failed: " + e.getMessage(), e);
+            throw new BallerinaException("execute add failed: " + e.getMessage(), e);
         } finally {
             SQLDatasourceUtils.cleanupConnection(null, null, conn, isInTransaction);
         }

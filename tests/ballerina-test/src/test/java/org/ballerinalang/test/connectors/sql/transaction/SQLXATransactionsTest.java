@@ -42,8 +42,8 @@ public class SQLXATransactionsTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/connectors/sql/transaction/sql-xa-transactions.bal");
-        resultMirror = BCompileUtil.compile("test-src/connectors/sql/transaction/mirror-table-xa-transaction-test"
-                + ".bal");
+        resultMirror = BCompileUtil
+                .compile("test-src/connectors/sql/transaction/mirror-table-xa-transaction-test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY_H2_1), DB_NAME1);
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY_H2_2), DB_NAME2);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY_H2_1, DB_NAME1, "datafiles/sql/SQLH2CustomerTableCreate.sql");
@@ -105,7 +105,6 @@ public class SQLXATransactionsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
     }
-
 
     @AfterSuite
     public void cleanup() {
