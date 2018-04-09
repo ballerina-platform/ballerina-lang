@@ -53,9 +53,8 @@ import javax.jms.Topic;
                              structType = "DurableTopicSubscriber",
                              structPackage = "ballerina.jms"),
         args = {
-                @Argument(name = "session",
-                          type = TypeKind.STRUCT,
-                          structType = "Session")
+                @Argument(name = "session", type = TypeKind.STRUCT, structType = "Session"),
+                @Argument(name = "messageSelector", type = TypeKind.STRING)
         },
         isPublic = true
 )
@@ -66,6 +65,7 @@ public class CreateSubscriber extends AbstractBlockinAction {
         Struct topicSubscriberBObject = BallerinaAdapter.getReceiverStruct(context);
 
         BStruct sessionBObject = (BStruct) context.getRefArgument(1);
+        String messageSelector = context.getStringArgument(0);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,
                                                            Constants.JMS_SESSION,
                                                            Session.class,
@@ -79,13 +79,12 @@ public class CreateSubscriber extends AbstractBlockinAction {
 
         try {
             Topic topic = JMSUtils.getTopic(session, topicPattern);
-
-            MessageConsumer consumer = session.createDurableSubscriber(topic, consumerId);
+            MessageConsumer consumer = session.createDurableSubscriber(topic, consumerId, messageSelector, false);
             Struct consumerConnectorBObject = topicSubscriberBObject.getStructField(Constants.CONSUMER_CONNECTOR);
             consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
             consumerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT, new SessionConnector(session));
         } catch (JMSException e) {
-            throw new BallerinaException("Error while creating Qeueu consumer", e, context);
+            JMSUtils.throwBallerinaException("Error while creating Qeueu consumer", context, e);
         }
 
     }

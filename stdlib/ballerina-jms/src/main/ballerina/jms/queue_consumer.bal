@@ -13,7 +13,7 @@ public type QueueConsumer object {
         self.config = config;
         match (config.session) {
             Session s => {
-                createConsumer(s);
+                createConsumer(s, config.messageSelector);
                 log:printInfo("Consumer created for queue " + config.queueName);
             }
             () => {}
@@ -27,7 +27,7 @@ public type QueueConsumer object {
 
     native function registerListener(typedesc serviceType, QueueConsumerConnector connector);
 
-    native function createConsumer (Session session);
+    native function createConsumer (Session session, string messageSelector);
 
     public function start () {
     }
@@ -46,6 +46,7 @@ public type QueueConsumer object {
 public type QueueConsumerEndpointConfiguration {
     Session? session;
     string queueName;
+    string messageSelector;
     string identifier;
 };
 

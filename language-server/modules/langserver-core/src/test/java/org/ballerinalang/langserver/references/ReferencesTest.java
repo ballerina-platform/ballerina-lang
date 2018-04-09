@@ -77,7 +77,7 @@ public class ReferencesTest {
 
 
     @Test(description = "Test references for function in the same file",
-            dataProvider = "referencesForFunctionInDifferentPkg")
+            dataProvider = "referencesForFunctionInDifferentPkg", enabled = false)
     public void referencesForFunctionInDifferentPkg(ReferencesTestDTO referencesTestDTO, Position position)
             throws InterruptedException, IOException {
         String expected = getExpectedValue(referencesTestDTO.getExpectedFileName());

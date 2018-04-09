@@ -32,6 +32,7 @@ public type SimpleDurableTopicListener object {
         DurableTopicSubscriberEndpointConfiguration consumerConfig = {
             session: newSession,
             topicPattern: config.topicPattern,
+            messageSelector: config.messageSelector,
             identifier: config.identifier
         };
         topicSubscriber.init(consumerConfig);
@@ -80,11 +81,12 @@ public type SimpleDurableTopicListener object {
 
 public type SimpleDurableTopicListenerEndpointConfiguration {
     string initialContextFactory = "wso2mbInitialContextFactory";
-    string providerUrl = "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'";
+    string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     string identifier,
     map properties;
+    string messageSelector;
     string topicPattern;
 };
 

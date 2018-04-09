@@ -19,6 +19,7 @@
 
 package org.ballerinalang.net.jms;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
@@ -103,11 +104,10 @@ public class JMSUtils {
             InitialContext initialContext = new InitialContext(properties);
             ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup(factoryName);
             return connectionFactory.createConnection();
-        } catch (NamingException e) {
-            LOGGER.info("Error occurred while creating connection", e);
-            throw new BallerinaException("Error occurred while creating connection", e);
-        } catch (JMSException e) {
-            throw new BallerinaException("Error creating connection", e);
+        } catch (NamingException | JMSException e) {
+            String message = "Error while connecting to broker.";
+            LOGGER.error(message, e);
+            throw new BallerinaException(message + " " + e.getMessage(), e);
         }
     }
 
@@ -139,7 +139,9 @@ public class JMSUtils {
         try {
             return connection.createSession(transactedSession, sessionAckMode);
         } catch (JMSException e) {
-            throw new BallerinaException("Error creating channel", e);
+            String message = "Error while creating session.";
+            LOGGER.error(message, e);
+            throw new BallerinaException(message + " " + e.getMessage(), e);
         }
     }
 
@@ -147,12 +149,13 @@ public class JMSUtils {
         return str == null || str.trim().isEmpty();
     }
 
-    public static void preProcessIfWso2MB(Map<String, String> configParams) {
+    private static void preProcessIfWso2MB(Map<String, String> configParams) {
         if (Constants.MB_ICF_ALIAS.equalsIgnoreCase(configParams.get(Constants.ALIAS_INITIAL_CONTEXT_FACTORY))) {
 
             configParams.put(Constants.ALIAS_INITIAL_CONTEXT_FACTORY, Constants.MB_ICF_NAME);
             String connectionFactoryName = configParams.get(Constants.ALIAS_CONNECTION_FACTORY_NAME);
             if (configParams.get(Constants.ALIAS_PROVIDER_URL) != null) {
+                System.setProperty("qpid.dest_syntax", "BURL");
                 if (!isNullOrEmptyAfterTrim(connectionFactoryName)) {
                     configParams.put(Constants.MB_CF_NAME_PREFIX + connectionFactoryName,
                                      configParams.get(Constants.ALIAS_PROVIDER_URL));
@@ -262,13 +265,17 @@ public class JMSUtils {
         }
         if (resources.length > 1) {
             throw new BallerinaException("More than one resources found in JMS service " + service.getName()
-                    + ".JMS Service should only have one resource");
+                    + ". JMS Service should only have one resource");
         }
         return resources[0];
     }
 
     public static Topic getTopic(Session session, String topicPattern) throws JMSException {
-        // TODO: need to fix this on andes client side.
-        return session.createTopic("BURL:" + topicPattern);
+        return session.createTopic(topicPattern);
+    }
+
+    public static void throwBallerinaException(String message, Context context, Throwable throwable) {
+        LOGGER.error(message, throwable);
+        throw new BallerinaException(message + " " + throwable.getMessage(), throwable, context);
     }
 }

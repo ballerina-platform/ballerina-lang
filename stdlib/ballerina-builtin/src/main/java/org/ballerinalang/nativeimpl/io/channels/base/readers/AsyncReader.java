@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.NonReadableChannelException;
 
 /**
  * <p>
@@ -46,7 +47,7 @@ public class AsyncReader implements Reader {
     public int read(ByteBuffer content, ByteChannel channel) throws IOException {
         try {
             return channel.read(content);
-        } catch (IOException e) {
+        } catch (IOException | NonReadableChannelException e) {
             String message = "could not read from the channel";
             log.error(message, e);
             throw new IOException(message, e);

@@ -10,18 +10,6 @@ type Person {
     boolean alive;
 };
 
-function testVarDeclarationWithAtLeaseOneNonDeclaredSymbol () returns (int, error) {
-    int a;
-    var (a, err) = returnTupleForVarAssignment();
-    return (a, err);
-}
-
-function returnTupleForVarAssignment() returns (int, error) {
-    int a = 10;
-    error er = {};
-    return (a, er);
-}
-
 function testIntToVarAssignment() returns (int) {
     var age = 81;
     return age;

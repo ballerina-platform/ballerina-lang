@@ -44,10 +44,6 @@ public class CloseByteChannelEvent implements Event {
 
     private static final Logger log = LoggerFactory.getLogger(CloseByteChannelEvent.class);
 
-    public CloseByteChannelEvent(Channel channel) {
-        this.channel = channel;
-    }
-
     public CloseByteChannelEvent(Channel channel, EventContext context) {
         this.channel = channel;
         this.context = context;
@@ -60,7 +56,11 @@ public class CloseByteChannelEvent implements Event {
             channel.close();
             result = new BooleanResult(true, context);
         } catch (IOException e) {
-            log.error("Error occurred while closing channel", e);
+            log.error("Error occurred while closing byte channel", e);
+            context.setError(e);
+            result = new BooleanResult(context);
+        } catch (Throwable e) {
+            log.error("Unidentified error occurred while closing byte channel", e);
             context.setError(e);
             result = new BooleanResult(context);
         }

@@ -13,7 +13,7 @@ public type DurableTopicSubscriber object {
         self.config = config;
         match (config.session) {
             Session s => {
-                createSubscriber(s);
+                createSubscriber(s, config.messageSelector);
                 log:printInfo("Durable subscriber created for topic " + config.topicPattern);
             }
             () => {}
@@ -26,7 +26,7 @@ public type DurableTopicSubscriber object {
 
     native function registerListener(typedesc serviceType, DurableTopicSubscriberConnector connector);
 
-    native function createSubscriber (Session session);
+    native function createSubscriber (Session session, string messageSelector);
 
     public function start () {
     }
@@ -45,7 +45,9 @@ public type DurableTopicSubscriber object {
 public type DurableTopicSubscriberEndpointConfiguration {
     Session? session;
     string topicPattern;
+    string messageSelector;
     string identifier;
+
 };
 
 public type DurableTopicSubscriberConnector object {

@@ -31,6 +31,7 @@ import AnnotationDefinition from './annotation-definition';
 import AnnotationAttributeDefinition from './annotation-attribute-definition';
 import AnnotationAttachment from './annotation-attachment';
 import ObjectModel from "./object";
+import RecordModel from "./record";
 import ObjectField from "./object-field";
 import Endpoint from "./endpoint";
 
@@ -155,6 +156,16 @@ BallerinaEnvFactory.createEndpoint = function(args) {
  */
 BallerinaEnvFactory.createObject = function(args) {
     return new ObjectModel(args);
+};
+
+/**
+ * Creates record model.
+ *
+ * @param args arguments to be added
+ * @returns {RecordModel} new RecordModel
+ */
+BallerinaEnvFactory.createRecord = function(args) {
+    return new RecordModel(args);
 };
 
 /**

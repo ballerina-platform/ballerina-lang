@@ -65,7 +65,7 @@ public class GetTextMessageContent extends AbstractBlockinAction {
                 log.error("JMSMessage is not a Text message. ");
             }
         } catch (JMSException e) {
-            log.error("Error when retrieving JMS message content :" + e.getLocalizedMessage());
+            JMSUtils.throwBallerinaException("Error when retrieving JMS message content.", context, e);
         }
 
         if (log.isDebugEnabled()) {

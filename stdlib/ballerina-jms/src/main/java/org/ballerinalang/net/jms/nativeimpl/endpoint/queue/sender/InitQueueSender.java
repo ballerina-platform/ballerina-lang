@@ -84,7 +84,7 @@ public class InitQueueSender implements NativeCallableUnit {
             queueSenderConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT,
                                                       new SessionConnector(session));
         } catch (JMSException e) {
-            throw new BallerinaException("Error creating Queue sender", e, context);
+            JMSUtils.throwBallerinaException("Error creating queue sender.", context, e);
         }
     }
 

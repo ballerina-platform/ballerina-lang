@@ -66,7 +66,11 @@ public class ReadCharactersEvent implements Event {
             String content = channel.read(numberOfCharacters);
             result = new AlphaResult(content, context);
         } catch (IOException e) {
-            log.error("Error occurred while closing character channel", e);
+            log.error("Error occurred while reading from character channel", e);
+            context.setError(e);
+            result = new AlphaResult(context);
+        } catch (Throwable e) {
+            log.error("IO error occurred while reading from character channel", e);
             context.setError(e);
             result = new AlphaResult(context);
         }

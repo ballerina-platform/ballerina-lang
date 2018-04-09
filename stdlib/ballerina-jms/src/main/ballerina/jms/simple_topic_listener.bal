@@ -31,7 +31,8 @@ public type SimpleTopicListener object {
         TopicSubscriber topicSubscriber = new;
         TopicSubscriberEndpointConfiguration consumerConfig = {
             session: newSession,
-            topicPattern: config.topicPattern
+            topicPattern: config.topicPattern,
+            messageSelector: config.messageSelector
         };
         topicSubscriber.init(consumerConfig);
         subscriber = topicSubscriber;
@@ -79,9 +80,10 @@ public type SimpleTopicListener object {
 
 public type SimpleTopicListenerEndpointConfiguration {
     string initialContextFactory = "wso2mbInitialContextFactory";
-    string providerUrl = "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'";
+    string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
+    string messageSelector;
     map properties;
     string topicPattern;
 };
