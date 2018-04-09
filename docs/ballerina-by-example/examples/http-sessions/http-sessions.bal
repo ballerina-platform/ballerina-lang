@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint sessionTestEP {
+endpoint http:Listener sessionTestEP {
     port:9090
 };
 

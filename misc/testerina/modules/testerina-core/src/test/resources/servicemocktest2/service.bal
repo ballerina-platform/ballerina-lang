@@ -3,7 +3,7 @@ package servicemocktest2;
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint portalEP {
+endpoint http:Listener portalEP {
     port: 9093
 };
 

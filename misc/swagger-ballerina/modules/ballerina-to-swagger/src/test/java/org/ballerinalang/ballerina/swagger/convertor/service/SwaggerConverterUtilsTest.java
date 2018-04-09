@@ -32,7 +32,7 @@ public class SwaggerConverterUtilsTest {
             "import ballerina/http.swagger;\n" +
             "\n" +
             "\n" +
-            "endpoint http:ServiceEndpoint ep0 {\n" +
+            "endpoint http:Listener ep0 {\n" +
             "    host: \"localhost\",\n" +
             "    port: 9091\n" +
             "};\n" +

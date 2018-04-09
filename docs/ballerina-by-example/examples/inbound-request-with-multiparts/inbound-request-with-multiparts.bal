@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint multipartEP {
+endpoint http:Listener multipartEP {
     port:9090
 };
 

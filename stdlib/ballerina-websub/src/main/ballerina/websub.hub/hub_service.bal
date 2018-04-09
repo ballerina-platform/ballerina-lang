@@ -24,7 +24,7 @@ import ballerina/time;
 import ballerina/util;
 import ballerina/websub;
 
-endpoint http:ServiceEndpoint hubServiceEP {
+endpoint http:Listener hubServiceEP {
     host:hubHost,
     port:hubPort,
     secureSocket:serviceSecureSocket

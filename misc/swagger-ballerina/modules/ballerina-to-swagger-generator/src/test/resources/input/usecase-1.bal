@@ -4,7 +4,7 @@ endpoint http:Client backendClientEP {
     targets:[{url: "http://localhost:8080"}]
 };
 
-endpoint http:ServiceEndpoint backendEP {
+endpoint http:Listener backendEP {
     port:8080
 };
 

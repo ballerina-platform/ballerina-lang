@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:ServiceEndpoint frontendEP {
+endpoint http:Listener frontendEP {
     port:9090
 };
 
@@ -169,7 +169,7 @@ service<http:Service> frontendHttpService bind frontendEP {
     }
 }
 
-endpoint http:ServiceEndpoint backendEP {
+endpoint http:Listener backendEP {
     port:7090,
     // HTTP version is set to 2.0
     httpVersion:"2.0"

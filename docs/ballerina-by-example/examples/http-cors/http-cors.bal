@@ -1,6 +1,6 @@
 import ballerina/http;
 
-endpoint http:ServiceEndpoint crossOriginServiceEP {
+endpoint http:Listener crossOriginServiceEP {
     port:9092
 };
 

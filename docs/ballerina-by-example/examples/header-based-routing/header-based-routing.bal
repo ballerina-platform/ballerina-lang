@@ -1,7 +1,7 @@
 import ballerina/http;
 
 @Description {value:"Attributes associated with the service endpoint is defined here."}
-endpoint http:ServiceEndpoint hbrEP {
+endpoint http:Listener hbrEP {
     port:9090
 };
 

@@ -5,7 +5,7 @@ import ballerina/io;
 import ballerina/test;
 import ballerina/config;
 
-endpoint http:ServiceEndpoint eventEP {
+endpoint http:Listener eventEP {
     port: 9092
 };
 

@@ -1,6 +1,6 @@
 import ballerina/http;
 import ballerina/mime;
-endpoint http:ServiceEndpoint infoServiceEP {
+endpoint http:Listener infoServiceEP {
     port:9092
 };
 

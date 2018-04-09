@@ -17,7 +17,7 @@ import ballerina/http;
 import ballerina/testing;
 import ballerina/observe;
 
-endpoint http:ServiceEndpoint ep1 {
+endpoint http:Listener ep1 {
     port : 9090
 };
 

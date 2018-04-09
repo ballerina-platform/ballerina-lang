@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint initiatorEP {
+endpoint http:Listener initiatorEP {
     port:8888
 };
 
@@ -225,8 +225,8 @@ service<http:Service> InitiatorService bind initiatorEP {
     }
 }
 
-function sendErrorResponseToCaller(http:ServiceEndpoint conn) {
-    endpoint http:ServiceEndpoint conn2 = conn;
+function sendErrorResponseToCaller(http:Listener conn) {
+    endpoint http:Listener conn2 = conn;
     http:Response errRes = new; errRes.statusCode = 500;
     var respondResult = conn2 -> respond(errRes);
     match respondResult {

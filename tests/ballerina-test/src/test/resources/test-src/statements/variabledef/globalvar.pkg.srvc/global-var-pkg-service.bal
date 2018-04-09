@@ -17,7 +17,7 @@ float glbVarFunc = functInv();
 
 int glbVarPkgFunc = varpkg:getIntValue();
 
-endpoint http:ServiceEndpoint globalVarEP {
+endpoint http:Listener globalVarEP {
     port:9090
 };
 
