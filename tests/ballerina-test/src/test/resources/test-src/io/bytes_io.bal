@@ -11,7 +11,7 @@ function readBytes (int numberOfBytes) returns (blob|io:IOError) {
     var result = channel.read(numberOfBytes);
     match result {
         (blob,int) content =>{
-            var (bytes, numberOfBytes) = content;
+            var (bytes, _) = content;
             return bytes;
         }
         io:IOError err =>{

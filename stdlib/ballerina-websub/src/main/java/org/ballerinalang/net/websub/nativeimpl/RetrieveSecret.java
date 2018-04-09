@@ -37,7 +37,7 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.websub",
+        orgName = "ballerina", packageName = "websub",
         functionName = "retrieveSecret",
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         returnType = {@ReturnType(type = TypeKind.STRING)}
@@ -51,7 +51,7 @@ public class RetrieveSecret extends BlockingNativeCallableUnit {
                     ((BServiceType) ((BTypeDescValue) (context).getLocalWorkerData().refRegs[0]).value()))
                 .getAnnotationList(WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
                                    WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG)
-                .get(0).getValue().getVMValue()).getStringField(3);
+                .get(0).getValue().getVMValue()).getStringField(4);
 
         context.setReturnValues(new BString(secret));
     }

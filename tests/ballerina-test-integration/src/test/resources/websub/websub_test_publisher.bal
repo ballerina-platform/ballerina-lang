@@ -1,6 +1,6 @@
 import ballerina/io;
-import ballerina/net.websub;
 import ballerina/runtime;
+import ballerina/websub;
 
 endpoint websub:HubClientEndpoint websubHubClientEP {
     url: "https://localhost:9999/websub/hub"
@@ -9,6 +9,9 @@ endpoint websub:HubClientEndpoint websubHubClientEP {
 function main (string [] args) {
     io:println("Starting up the Ballerina Hub Service");
     websub:WebSubHub webSubHub = websub:startUpBallerinaHub();
+    //Register a topic at the hub
+    _ = webSubHub.registerTopic("http://www.websubpubtopic.com");
+
     //Allow for subscriber service start up and subscription
     runtime:sleepCurrentWorker(30000);
 
@@ -18,7 +21,7 @@ function main (string [] args) {
 
     io:println("Publishing update to remote Hub");
     //Publish to the internal Ballerina Hub considering it as a remote hub
-    _ = websubHubClientEP -> publishUpdateToRemoteHub("http://www.websubpubtopic.com",
+    _ = websubHubClientEP -> publishUpdate("http://www.websubpubtopic.com",
                                                           {"action":"publish","mode":"remote-hub"});
 
     //Allow for notification by the Hub service

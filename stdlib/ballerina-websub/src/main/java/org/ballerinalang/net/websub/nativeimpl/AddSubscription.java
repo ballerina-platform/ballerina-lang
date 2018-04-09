@@ -32,7 +32,7 @@ import org.ballerinalang.net.websub.hub.Hub;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.websub",
+        orgName = "ballerina", packageName = "websub",
         functionName = "addSubscription",
         args = {@Argument(name = "subscriptionDetails", type = TypeKind.STRUCT)},
         isPublic = true

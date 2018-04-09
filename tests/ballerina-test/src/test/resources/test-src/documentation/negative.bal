@@ -17,15 +17,6 @@ documentation { Documentation for testConst constant
 V{{testConst}} abc description}
 @final string testConst = "TestConstantDocumentation";
 
-documentation { Documentation for state enum
-F{{foo}} enum `field foo` documentation
-F{{foo}} enum `field foo` documentation
-F{{bar}} enum `field bar` documentation}
-enum state {
-    foo,
-    bars
-}
-
 documentation { Documentation for Test struct
 F{{a}} struct `field a` documentation
 F{{a}} struct `field a` documentation
@@ -44,7 +35,7 @@ Example:
 T{{file}} file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 T{{file}} file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 P{{accessMode}} read or write mode
-R{{successfuls}} boolean `true` or `false`
+R{{successful}} boolean `true` or `false`
 }
 public function <File file> open (string accessMode) returns (boolean) {
     boolean successful;
@@ -102,20 +93,25 @@ type TestConnector {
 
 documentation { PizzaService HTTP Service
 P{{conn}} HTTP connection.}
+@http:ServiceConfig {
+    basePath:"/hello"
+}
 service<http:Service> PizzaService {
 
+    @http:ResourceConfig {
+        path:"/"
+    }
     documentation {
     Check orderPizza resource.
     P{{req}} In request.
     P{{req}} In request.
     P{{reqest}} In request.}
 //  P{{conn}} HTTP connection. Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
-
     orderPizza(endpoint conn, http:Request req) {
-        http:Response res = {};
-        _ = conn -> respond(res);
+            http:Response res = new;
+            _ = conn -> respond(res);
+        }
     }
-}
 
 documentation { Documentation for testConst constant
 V{{testConstd}} abc description}
