@@ -33,10 +33,10 @@ type Teacher {
 StatusCount[] globalStatusCountArray = [];
 int index = 0;
 
-function startAggregationQuery() returns (StatusCount[]) {
+stream<StatusCount> filteredStatusCountStream;
+stream<Teacher> teacherStream;
 
-    stream<StatusCount> filteredStatusCountStream;
-    stream<Teacher> teacherStream;
+function testAggregationQuery() {
 
     forever {
         from teacherStream where age > 18 window lengthBatch(3)
@@ -47,6 +47,11 @@ function startAggregationQuery() returns (StatusCount[]) {
             filteredStatusCountStream.publish(emp);
         }
     }
+}
+
+function startAggregationQuery() returns (StatusCount[]) {
+
+    testAggregationQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
