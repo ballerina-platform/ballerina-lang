@@ -82,8 +82,6 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "testUnzipFile");
-
     }
 
     @Test(description = "test unzipping/decompressing a compressed file without destination directory path")
@@ -129,20 +127,20 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "testZipFile");
     }
 
-    @Test(description = "test zipping/compressing a file without destination directory path",
-            expectedExceptions = BLangRuntimeException.class)
+    @Test(description = "test zipping/compressing a file without destination directory path")
     public void testZipFileWithoutDestinationDirectory() throws IOException, URISyntaxException {
-        String resourceToRead = getAbsoluteFilePath("datafiles/compression/");
+        String resourceToRead = getAbsoluteFilePath("datafiles/compression/my.app");
         BString dirPath = new BString(resourceToRead);
-        BValue[] inputArg = {dirPath, new BString("")};
+        String currentDir = getAbsoluteFilePath("") + File.separator + "myapp.zip";
+        BValue[] inputArg = {dirPath, new BString(currentDir)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testZipFile", inputArg);
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "testZipFile");
+        Assert.assertEquals(returns.length, 0);
+
+        File file = new File(getAbsoluteFilePath("") + File.separator + "myapp.zip");
+        Assert.assertEquals(file.exists() && !file.isDirectory(), true);
     }
 
     @Test(description = "test unzipping/decompressing a byte array")
@@ -175,8 +173,6 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "testUnzipBytes");
-
     }
 
     @Test(description = "test unzipping/decompressing a byte array without the destination directory path")
@@ -192,7 +188,7 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 0);
 
         File file = new File(getAbsoluteFilePath("") + File.separator + "test" + File.separator +
-                        "test.txt");
+                                     "test.txt");
         Assert.assertEquals(file.exists() && !file.isDirectory(), true);
 
     }
@@ -200,7 +196,7 @@ public class CompressionTest {
     @Test(description = "test zipping/compressing a file to a byte array when a destination directory is given")
     public void testZipToBytesWithDestDir() throws IOException, URISyntaxException {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
-        BString dirPathValue = new BString(dirPath + File.separator + "test");
+        BString dirPathValue = new BString(dirPath + File.separator + "my.app");
         BValue[] inputArg = {dirPathValue};
         BValue[] returns = BRunUtil.invoke(compileResult, "testZipToBytes", inputArg);
 
@@ -223,8 +219,6 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "testZipToBytes");
-
     }
 
     /**

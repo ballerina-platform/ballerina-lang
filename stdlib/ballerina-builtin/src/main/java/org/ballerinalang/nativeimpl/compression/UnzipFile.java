@@ -23,9 +23,9 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 
 /**
  * Native function ballerina.compression:unzipFile
@@ -64,8 +64,8 @@ public class UnzipFile extends BlockingNativeCallableUnit {
      */
     private static void decompress(String dirPath, String outputFolder, String folderToUnzip) {
         try {
-            byte[] fileContentAsByteArray = Files.readAllBytes(Paths.get(dirPath));
-            UnzipBytes.decompress(fileContentAsByteArray, outputFolder, folderToUnzip);
+            InputStream inputStream = new FileInputStream(dirPath);
+            UnzipBytes.decompress(inputStream, outputFolder, folderToUnzip);
         } catch (IOException e) {
             throw new BLangRuntimeException("I/O exception occured when processing the file " + dirPath);
         }
