@@ -31,7 +31,8 @@ public type SimpleQueueListener object {
         QueueConsumer queueConsumer = new;
         QueueConsumerEndpointConfiguration consumerConfig = {
             session: newSession,
-            queueName: config.queueName
+            queueName: config.queueName,
+            messageSelector: config.messageSelector
         };
         queueConsumer.init(consumerConfig);
         consumer = queueConsumer;
@@ -82,6 +83,7 @@ public type SimpleQueueListenerEndpointConfiguration {
     string providerUrl = "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
+    string messageSelector;
     map properties;
     string queueName;
 };

@@ -32,6 +32,7 @@ public type SimpleDurableTopicListener object {
         DurableTopicSubscriberEndpointConfiguration consumerConfig = {
             session: newSession,
             topicPattern: config.topicPattern,
+            messageSelector: config.messageSelector,
             identifier: config.identifier
         };
         topicSubscriber.init(consumerConfig);
@@ -85,6 +86,7 @@ public type SimpleDurableTopicListenerEndpointConfiguration {
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     string identifier,
     map properties;
+    string messageSelector;
     string topicPattern;
 };
 

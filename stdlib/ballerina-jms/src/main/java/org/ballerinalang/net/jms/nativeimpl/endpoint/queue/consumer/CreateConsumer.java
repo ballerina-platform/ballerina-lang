@@ -48,8 +48,8 @@ import javax.jms.Session;
         packageName = "jms",
         functionName = "createConsumer",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "QueueConsumer", structPackage = "ballerina.jms"),
-        args = {
-                @Argument(name = "session", type = TypeKind.STRUCT, structType = "Session")
+        args = { @Argument(name = "session", type = TypeKind.STRUCT, structType = "Session"),
+                 @Argument(name = "messageSelector", type = TypeKind.STRING)
         },
         isPublic = true
 )
@@ -59,6 +59,7 @@ public class CreateConsumer implements NativeCallableUnit {
         Struct queueConsumerBObject = BallerinaAdapter.getReceiverStruct(context);
 
         BStruct sessionBObject = (BStruct) context.getRefArgument(1);
+        String messageSelector = context.getStringArgument(0);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,
                                                            Constants.JMS_SESSION,
                                                            Session.class,
@@ -68,11 +69,11 @@ public class CreateConsumer implements NativeCallableUnit {
 
         try {
             Destination queue = session.createQueue(queueName);
-            MessageConsumer consumer = session.createConsumer(queue);
+            MessageConsumer consumer = session.createConsumer(queue, messageSelector);
             Struct consumerConnectorBObject = queueConsumerBObject.getStructField(Constants.CONSUMER_CONNECTOR);
             consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
         } catch (JMSException e) {
-            throw new BallerinaException("Error while creating Qeueu consumer", e, context);
+            throw new BallerinaException("Error while creating queue consumer. " + e.getMessage(), e, context);
         }
     }
 
