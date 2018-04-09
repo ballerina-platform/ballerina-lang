@@ -10,7 +10,7 @@ function main (string[] args) {
     };
 
     grpc:MessageContext context = helloWorldBlockingEp -> getContext();
-    _ = context.setHeader("x-id", "woow");
+    context.setHeader("x-id", "woow");
     // Executing unary blocking call
     string|error unionResp = helloWorldBlockingEp -> hello("WSO2");
     match unionResp {
