@@ -6,7 +6,7 @@ public function main (string[] args) {
     // Create a new cache. Cache cleanup task runs every 5 seconds and clears
     // any expired cache. So cache expiry time is set to 4 seconds to demonstrate
     // cache cleaning.
-    caching:Cache cache = caching:createCache("UserCache", 4000, 10, 0.1);
+    caching:Cache cache = new;
     // Add a new entry to the cache.
     cache.put("Name", "Ballerina");
     // Get the cached value.
