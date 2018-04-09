@@ -2,7 +2,7 @@ import ballerina/io;
 
 function main (string[] args) {
     //Create an XML and associate it with a variable.
-    var x, _ = <xml>("<h:Store id = \"AST\" xmlns:h=\"http://www.test.com\">" +
+    var x = <xml>("<h:Store id = \"AST\" xmlns:h=\"http://www.test.com\">" +
                      "<h:name>Anne</h:name>" +
                      "<h:address><h:street>Main</h:street>" +
                      "<h:city>94</h:city></h:address>" +

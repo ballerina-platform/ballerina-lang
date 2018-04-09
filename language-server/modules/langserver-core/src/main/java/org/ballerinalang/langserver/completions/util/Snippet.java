@@ -25,7 +25,7 @@ public enum Snippet {
     ANNOTATION_DEFINITION("annotation<${1:attachmentPoint}> ${2:name};"),
     BIND("bind ${1:__connector} with ${2:__endpoint}"),
     BREAK("break;"),
-    ENDPOINT("endpoint ${1:http:ServiceEndpoint} ${2:listener} {\n\t${3}\n};"),
+    ENDPOINT("endpoint ${1:http:Listener} ${2:listener} {\n\t${3}\n};"),
     FOREACH("foreach ${1:varRefList} in ${2:listReference} {\n\t${3}\n}"),
     FORK("fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}"),
     FUNCTION("function ${1:name} (${2}) {\n\t${3}\n}"),

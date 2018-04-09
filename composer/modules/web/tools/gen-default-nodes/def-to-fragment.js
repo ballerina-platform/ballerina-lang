@@ -37,7 +37,7 @@ export default {
     createHTTPEndpointDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `
-                endpoint http:ServiceEndpoint serviceEp {
+                endpoint http:Listener serviceEp {
                     port:9090
                 };
             `);
@@ -69,7 +69,7 @@ export default {
     createWSEndpointDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `
-endpoint http:ServiceEndpoint serviceEp {
+endpoint http:Listener serviceEp {
     port:9090
 };
             `);

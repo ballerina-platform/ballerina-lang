@@ -1,16 +1,16 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint serverEP {
+endpoint http:Listener serverEP {
     port:9090
 };
 
 //Configure client connector forwarded/x-forwarded-- header behaviour by adding disable (default value), enable or transition.
 //Transition config converts available x-forwarded-- headers to forwarded header.
-endpoint http:ClientEndpoint clientEndPoint {
+endpoint http:Client clientEndPoint {
     targets: [
        {
-            uri: "http://localhost:9090"
+            url: "http://localhost:9090"
        }
     ],
     forwarded:"enable"
@@ -48,14 +48,14 @@ service<http:Service> sample bind serverEP {
         path:"/"
     }
     sampleResource (endpoint conn, http:Request req) {
-        http:Response res = {};
-        string|null header;
+        http:Response res = new;
+        string|() header;
         header = req.getHeader("forwarded");
         match header {
             string headerVal => {
                 res.setStringPayload("forwarded header value : " + headerVal);
             }
-            any | null => {
+            any | () => {
                 res.setStringPayload("forwarded header value not found");
             }
         }
