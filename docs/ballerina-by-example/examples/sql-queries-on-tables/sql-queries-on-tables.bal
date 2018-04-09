@@ -41,9 +41,9 @@ type PersonPublicProfile {
 public function main (string[] args) {
 
     // The in memory table which is constrained by struct "Person"
-    table<Person> personTable;
+    table<Person> personTable = table{};
     // The in memory table which is constrained by struct "Order"
-    table<Order> orderTable;
+    table<Order> orderTable = table{};
 
     // few sample values which represents different persons
     Person p1 = {id:1, age:25, salary:1000.50, name:"jane", married:true};
