@@ -73,14 +73,14 @@ public class SafeNavigationTest {
     public void testErrorInMiddle() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInMiddle");
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(returns[0].stringValue(), "{message:\"custom error\", cause:[]}");
+        Assert.assertEquals(returns[0].stringValue(), "{message:\"custom error\", cause:null}");
     }
 
     @Test
     public void testErrorInFirstVar() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInFirstVar");
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(returns[0].stringValue(), "{message:\"custom error\", cause:[]}");
+        Assert.assertEquals(returns[0].stringValue(), "{message:\"custom error\", cause:null}");
     }
 
     @Test
