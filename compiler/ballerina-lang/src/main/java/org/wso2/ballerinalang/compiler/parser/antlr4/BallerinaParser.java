@@ -8022,12 +8022,13 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class InvocationContext extends ParserRuleContext {
-		public TerminalNode DOT() { return getToken(BallerinaParser.DOT, 0); }
 		public AnyIdentifierNameContext anyIdentifierName() {
 			return getRuleContext(AnyIdentifierNameContext.class,0);
 		}
 		public TerminalNode LEFT_PARENTHESIS() { return getToken(BallerinaParser.LEFT_PARENTHESIS, 0); }
 		public TerminalNode RIGHT_PARENTHESIS() { return getToken(BallerinaParser.RIGHT_PARENTHESIS, 0); }
+		public TerminalNode DOT() { return getToken(BallerinaParser.DOT, 0); }
+		public TerminalNode NOT() { return getToken(BallerinaParser.NOT, 0); }
 		public InvocationArgListContext invocationArgList() {
 			return getRuleContext(InvocationArgListContext.class,0);
 		}
@@ -8053,7 +8054,12 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1473);
-			match(DOT);
+			_la = _input.LA(1);
+			if ( !(_la==DOT || _la==NOT) ) {
+			_errHandler.recoverInline(this);
+			} else {
+				consume();
+			}
 			setState(1474);
 			anyIdentifierName();
 			setState(1475);
@@ -15975,7 +15981,7 @@ public class BallerinaParser extends Parser {
 		"\2\2\2\u05ba\u05bb\3\2\2\2\u05bb\u00c1\3\2\2\2\u05bc\u05bd\5\u00f2z\2"+
 		"\u05bd\u05bf\7z\2\2\u05be\u05c0\5\u00c6d\2\u05bf\u05be\3\2\2\2\u05bf\u05c0"+
 		"\3\2\2\2\u05c0\u05c1\3\2\2\2\u05c1\u05c2\7{\2\2\u05c2\u00c3\3\2\2\2\u05c3"+
-		"\u05c4\7v\2\2\u05c4\u05c5\5\u0132\u009a\2\u05c5\u05c7\7z\2\2\u05c6\u05c8"+
+		"\u05c4\t\t\2\2\u05c4\u05c5\5\u0132\u009a\2\u05c5\u05c7\7z\2\2\u05c6\u05c8"+
 		"\5\u00c6d\2\u05c7\u05c6\3\2\2\2\u05c7\u05c8\3\2\2\2\u05c8\u05c9\3\2\2"+
 		"\2\u05c9\u05ca\7{\2\2\u05ca\u00c5\3\2\2\2\u05cb\u05d0\5\u00c8e\2\u05cc"+
 		"\u05cd\7w\2\2\u05cd\u05cf\5\u00c8e\2\u05ce\u05cc\3\2\2\2\u05cf\u05d2\3"+

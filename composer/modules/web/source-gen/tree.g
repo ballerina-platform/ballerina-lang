@@ -39,6 +39,10 @@ Assignment
    : <declaredWithVar?var> <variable.source> = <expression.source> ;
    ;
 
+AwaitExpr
+   : await <expression.source>
+   ;
+
 BinaryExpr
    : <inTemplateLiteral?> {{ <leftExpression.source> <operatorKind> <rightExpression.source> }}
    |             <leftExpression.source> <operatorKind> <rightExpression.source>
@@ -63,6 +67,10 @@ BuiltInRefType
 
 Catch
    : catch ( <parameter.source> ) { <body.source> }
+   ;
+
+CheckExpr
+   : check <expression.source>
    ;
 
 Comment
@@ -153,10 +161,10 @@ IndexBasedAccessExpr
    ;
 
 Invocation
-   : <actionInvocation?>      <expression.source>  ->   <name.value> ( <argumentExpressions-joined-by,>* )
-   | <expression.source>  .   <name.value> ( <argumentExpressions-joined-by,>* )
-   | <packageAlias.value> :   <name.value> ( <argumentExpressions-joined-by,>* )
-   |                          <name.value> ( <argumentExpressions-joined-by,>* )
+   : <actionInvocation?>      <async?async> <expression.source>  ->   <name.value> ( <argumentExpressions-joined-by,>* )
+   | <expression.source>  .   <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
+   | <packageAlias.value> :   <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
+   |                          <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
    ;
 
 Lambda
@@ -280,7 +288,7 @@ Try
    | try { <body.source> } <catchBlocks>*
    ;
 
-TupleType
+TupleTypeNode
    : ( <memberTypeNodes-joined-by,>+ )
 
 TypeCastExpr
@@ -303,6 +311,10 @@ TypeInitExpr
 
 UnaryExpr
    : <operatorKind> <expression.source>
+   ;
+
+UnionTypeNode
+   : <memberTypeNodes-joined-by|>*
    ;
 
 UserDefinedType
@@ -344,12 +356,12 @@ Worker
    ;
 
 WorkerReceive
-   : <expressions-joined-by,>* <- <workerName.value> ;
+   : <expression.source> <- <workerName.value> ;
    ;
 
 WorkerSend
-   : <forkJoinedSend?> <expressions-joined-by,>* -> fork ;
-   |                   <expressions-joined-by,>* -> <workerName.value> ;
+   : <forkJoinedSend?> <expression.source> -> fork ;
+   |                   <expression.source> -> <workerName.value> ;
    ;
 
 XmlAttribute

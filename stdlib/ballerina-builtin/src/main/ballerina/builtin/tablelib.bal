@@ -32,29 +32,13 @@ public native function <table dt> getNext () returns (any);
 
 @Description {value:"Add record to the table."}
 @Param {value:"dt: The table object"}
-@Param {value:"data: A record with data"}
-public native function <table dt> add (any data);
+@Param {value:"data: A struct with data"}
+public native function <table dt> add (any data) returns (TableOperationError | ());
 
 @Description {value:"Remove data from the table."}
 @Param {value:"dt: The table object"}
 @Param {value:"func: The function pointer for delete crieteria"}
-public function <table dt> remove (function (any) returns (boolean) func) returns (int) {
-    int deletedCount = 0;
-    while (dt.hasNext()) {
-        any data = dt.getNext();
-        boolean satisfied = func(data);
-        if (satisfied) {
-            dt.delete(data);
-            deletedCount = deletedCount + 1;
-        }
-    }
-    return deletedCount;
-}
-
-@Description {value:"Utility function to delete data from table."}
-@Param {value:"dt: The table object"}
-@Param {value:"data: A record with data"}
-native function <table dt> delete (any data);
+public native function <table dt> remove (function (any) returns (boolean) func) returns (int|TableOperationError);
 
 @Description {value:"Execute the given sql query to fetch the records and return as a new in memory table"}
 @Param {value:"sqlQuery: The query to execute"}
@@ -72,6 +56,14 @@ native function queryTableWithJoinClause (string sqlQuery, table fromTable, tabl
 @Param {value:"retType: return type of the resultant table instance"}
 native function queryTableWithoutJoinClause (string sqlQuery, table fromTable, any parameters,
                                                     any retType) returns (table);
+
+@Description { value:"TableOperationError struct represents an error occured during a operation over a table" }
+@Field {value:"message:  An error message explaining about the error"}
+@Field {value:"cause: The error(s) that caused TableOperationError to get thrown"}
+public type TableOperationError {
+    string message,
+    error[] cause,
+};
 
 @Description { value:"TableConfig represents properties used during table initialization" }
 @Field {value:"primaryKey:  An array of primary key columns"}
