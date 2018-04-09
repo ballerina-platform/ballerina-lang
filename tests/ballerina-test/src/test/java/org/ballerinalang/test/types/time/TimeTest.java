@@ -50,6 +50,7 @@ public class TimeTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testNanoTime", args);
         Assert.assertEquals(returns[0].getClass().getSimpleName(), "BInteger");
+        Assert.assertTrue(((BInteger) returns[0]).intValue() > 0, "nanoTime returned should be greater than zero");
         Assert.assertTrue(((BInteger) returns[0]).intValue() < System.nanoTime(),
                 "nanoTime returned should be less than the current system nano time");
     }

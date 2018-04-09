@@ -24,9 +24,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the month value for the given time.
+ * Get the system time value in nano seconds.
  *
- * @since 0.970 alpha 2
+ * @since 0.970
  */
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "time",
