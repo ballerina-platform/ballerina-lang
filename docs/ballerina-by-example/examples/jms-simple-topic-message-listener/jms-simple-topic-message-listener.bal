@@ -1,26 +1,20 @@
 import ballerina/jms;
 import ballerina/log;
 
-jms:Connection conn = new ({
+// Create a simple topic listener
+endpoint jms:SimpleTopicListener subscriber {
     initialContextFactory: "wso2mbInitialContextFactory",
     providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
-    connectionFactoryName: "ConnectionFactory"
-});
-
-jms:Session jmsSession = new (conn, {
-    acknowledgementMode: "CLIENT_ACKNOWLEDGE"
-});
-
-endpoint jms:QueueConsumer consumer {
-    session: jmsSession,
-    queueName: "requestQueue"
+    acknowledgementMode: "AUTO_ACKNOWLEDGE",
+    topicPattern: "BallerinaTopic"
 };
 
-service<jms:Consumer> jmsListener bind consumer {
+// Bind the created consumer to the listener service.
+service<jms:Consumer> jmsListener bind subscriber {
 
+    // OnMessage resource get invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
         string messageText = message.getTextMessageContent();
         log:printInfo("Message : " + messageText);
-        // consumer -> acknowledge (message);
   }
 }
