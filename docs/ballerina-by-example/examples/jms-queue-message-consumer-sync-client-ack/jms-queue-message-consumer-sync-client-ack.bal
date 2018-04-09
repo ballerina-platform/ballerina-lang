@@ -30,5 +30,8 @@ public function main (string[] args) {
         () => {
             log:printInfo("Message not received");
         }
+        Error err => {
+            log:printInfo("Error receiving message. " + err.message);
+        }
     }
 }
