@@ -32,6 +32,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -51,6 +53,8 @@ import javax.jms.Session;
                    isPublic = true)
 public class CreateTextMessage extends AbstractBlockinAction {
 
+    public static final Logger LOGGER = LoggerFactory.getLogger(CreateTextMessage.class);
+
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
 
@@ -69,7 +73,10 @@ public class CreateTextMessage extends AbstractBlockinAction {
             jmsMessage = session.createTextMessage(content);
             bStruct.addNativeData(Constants.JMS_MESSAGE_OBJECT, jmsMessage);
         } catch (JMSException e) {
-            BallerinaAdapter.throwBallerinaException("Failed to create message.", context, e);
+            String errorMessage = "Failed to create message.";
+            LOGGER.error(errorMessage, e);
+            BStruct errorRecord = BallerinaAdapter.createErrorRecord(context, errorMessage, e);
+            context.setReturnValues(errorRecord);
         }
         context.setReturnValues(bStruct);
     }

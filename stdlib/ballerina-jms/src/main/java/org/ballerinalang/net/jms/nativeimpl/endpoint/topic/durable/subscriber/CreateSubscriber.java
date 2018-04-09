@@ -84,7 +84,7 @@ public class CreateSubscriber extends AbstractBlockinAction {
             consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
             consumerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT, new SessionConnector(session));
         } catch (JMSException e) {
-            BallerinaAdapter.throwBallerinaException("Error while creating Qeueu consumer", context, e);
+            BallerinaAdapter.throwBallerinaException("Error while creating queue consumer", context, e);
         }
 
     }

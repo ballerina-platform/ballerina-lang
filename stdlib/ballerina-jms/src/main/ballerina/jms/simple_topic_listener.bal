@@ -66,7 +66,7 @@ public type SimpleTopicListener object {
     public function stop () {
     }
 
-    public function createTextMessage(string message) returns (Message) {
+    public function createTextMessage(string message) returns (Message | Error) {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
