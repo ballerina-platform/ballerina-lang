@@ -133,7 +133,7 @@ public class HeaderTest {
     }
 
     @Test(description = "Test getting all header names")
-    public void testGetCopyOfAllHeaders() {
+    public void testGetHeaderNames() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetHeaderNames");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "[\"heAder1\", \"hEader2\", \"HEADER3\"]");
