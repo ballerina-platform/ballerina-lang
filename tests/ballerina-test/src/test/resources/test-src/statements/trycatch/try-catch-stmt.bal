@@ -95,7 +95,7 @@ function testErrorCallStackFrame () returns (runtime:CallStackElement, runtime:C
         testUncaughtException();
     } catch (error e) {
         trace1 = runtime:getErrorCallStackFrame(e); 
-        trace2 = runtime:getErrorCallStackFrame(e.cause[0]);
+        trace2 = runtime:getErrorCallStackFrame(e.cause);
     }
     return (trace1, trace2);
 }
