@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.PrintStream;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,10 +51,6 @@ public class LSPackageCache {
         CompilerContext tempCompilerContext = CommonUtil.prepareTempCompilerContext();
         packageCache = new ExtendedPackageCache(tempCompilerContext);
         this.loadPackagesMap(tempCompilerContext);
-        List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
-        builtInPackages.forEach(bLangPackage -> {
-            this.addPackage(bLangPackage.packageID, bLangPackage);
-        });
     }
 
     /**
@@ -82,6 +77,10 @@ public class LSPackageCache {
      */
     public void removePackage(PackageID packageID) {
         this.packageCache.remove(packageID);
+    }
+    
+    public void clearCache() {
+        this.packageCache.clearCache();
     }
 
     /**
@@ -137,6 +136,10 @@ public class LSPackageCache {
             if (packageID != null) {
                 this.packageMap.remove(packageID.bvmAlias());
             }
+        }
+        
+        public void clearCache() {
+            this.packageMap.clear();
         }
     }
 }

@@ -9,7 +9,7 @@ public function userDefinedSecureOperation (@sensitive string secureParameter) {
 
 function main (string[] args) {
     endpoint sql:Client customerDatabase {
-        database: sql:DB.MYSQL,
+        database: sql:DB_MYSQL,
         host: "localhost",
         port: 3306,
         name: "testdb",
@@ -47,6 +47,6 @@ function main (string[] args) {
 
 public function isInteger (string input) returns boolean{
     Regex reg = {pattern:"\\d+"};
-    boolean isInteger =? input.matchesWithRegex(reg);
+    boolean isInteger = check input.matchesWithRegex(reg);
     return isInteger;
 }

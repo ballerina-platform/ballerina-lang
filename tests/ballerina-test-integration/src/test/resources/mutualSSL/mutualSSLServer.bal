@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:ServiceEndpoint echo {
+endpoint http:Listener echo {
     port:9095,
     secureSocket: {
         keyStore: {
@@ -40,7 +40,7 @@ service<http:Service> helloWorld bind echo {
     }
 }
 
-endpoint http:ServiceEndpoint echoDummy {
+endpoint http:Listener echoDummy {
     port:9090
 };
 
