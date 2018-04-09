@@ -30,7 +30,7 @@ service<http:Service> sample bind sampleEP {
 
         // Create json payload with the extracted values.
         json responseJson = {"pathParam":foo, "queryParam":bar, "matrix":matrixJson};
-        http:Response res = {};
+        http:Response res = new;
         // A util method to set the json payload to the response message.
         res.setJsonPayload(responseJson);
         // Send a response to the client.

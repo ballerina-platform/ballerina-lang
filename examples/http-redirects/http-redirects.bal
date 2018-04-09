@@ -8,7 +8,7 @@ endpoint http:Client clientEP {
 };
 
 function main (string[] args) {
-    http:Request req = {};
+    http:Request req = new;
 
     //Send a GET request to the specified endpoint
     var returnResult = clientEP -> get("/v2/59d590762700000a049cd694", req);
