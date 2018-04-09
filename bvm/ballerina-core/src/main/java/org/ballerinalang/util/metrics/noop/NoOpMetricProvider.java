@@ -56,12 +56,12 @@ public class NoOpMetricProvider implements MetricProvider {
 
     @Override
     public Summary newSummary(MetricId metricId) {
-        return null;
+        return new NoOpSummary(metricId);
     }
 
     @Override
     public Timer newTimer(MetricId metricId) {
-        return null;
+        return new NoOpTimer(metricId);
     }
 
 }
