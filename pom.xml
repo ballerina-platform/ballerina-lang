@@ -25,7 +25,7 @@
     <packaging>pom</packaging>
     <groupId>org.wso2.transport.http</groupId>
     <artifactId>http-parent</artifactId>
-    <version>6.0.127-SNAPSHOT</version>
+    <version>6.0.127</version>
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
@@ -39,7 +39,7 @@
         <url>https://github.com/wso2/transport-http.git</url>
         <developerConnection>scm:git:https://github.com/wso2/transport-http.git</developerConnection>
         <connection>scm:git:https://github.com/wso2/transport-http.git</connection>
-        <tag>HEAD</tag>
+        <tag>v6.0.127</tag>
     </scm>
 
 
