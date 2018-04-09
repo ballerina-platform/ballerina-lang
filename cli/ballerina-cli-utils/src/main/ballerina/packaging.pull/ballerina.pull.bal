@@ -30,7 +30,7 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
     var result = httpEndpoint -> get("", req);
     http:Response httpResponse = check result;
 
-    http:Response res = new;   
+    http:Response res = new;
     // To be fixed with redirect
     if (httpResponse.statusCode == 302){ 
         string locationHeader;
@@ -41,10 +41,12 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
             throw err;
         }
         res = callFileServer(locationHeader);
+    } else if (httpResponse.statusCode == 404) {
+       io:println("package not found in central");   
     } else {
        error err = {message:"error occurred when pulling the package"};
-       throw err;     
-    }    
+       throw err;   
+    }
     if (res.statusCode != 200) {
         json jsonResponse = check (res.getJsonPayload());
         string message = (jsonResponse.message.toString() but {()=> "error occurred when pulling the package"});
