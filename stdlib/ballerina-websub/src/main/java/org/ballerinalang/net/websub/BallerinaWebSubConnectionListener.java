@@ -71,18 +71,26 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         try {
             HttpResource httpResource;
             if (accessed(httpCarbonMessage)) {
-                if (httpCarbonMessage.getProperty(HTTP_RESOURCE) instanceof String
-                    && httpCarbonMessage.getProperty(HTTP_RESOURCE).equals(WebSubSubscriberConstants.ANNOTATED_TOPIC)) {
-                    autoRespondToIntentVerification(httpCarbonMessage);
-                    return;
+                if (httpCarbonMessage.getProperty(HTTP_RESOURCE) instanceof String) {
+                    if (httpCarbonMessage.getProperty(HTTP_RESOURCE).equals(
+                                                                        WebSubSubscriberConstants.ANNOTATED_TOPIC)) {
+                        autoRespondToIntentVerification(httpCarbonMessage);
+                        return;
+                    } else {
+                        httpResource = WebSubDispatcher.findResource(webSubServicesRegistry, httpCarbonMessage);
+                    }
+                } else {
+                    httpResource = (HttpResource) httpCarbonMessage.getProperty(HTTP_RESOURCE);
                 }
-                httpResource = (HttpResource) httpCarbonMessage.getProperty(HTTP_RESOURCE);
                 extractPropertiesAndStartResourceExecution(httpCarbonMessage, httpResource);
                 return;
             }
             httpResource = WebSubDispatcher.findResource(webSubServicesRegistry, httpCarbonMessage);
-            if (httpCarbonMessage.getProperty(HTTP_RESOURCE) == null) { //differ for all
-                httpCarbonMessage.setProperty(HTTP_RESOURCE, httpResource);
+            if (httpCarbonMessage.getProperty(HTTP_RESOURCE) == null
+                    || httpCarbonMessage.getProperty(HTTP_RESOURCE) instanceof String) { //differ for all
+                if (httpCarbonMessage.getProperty(HTTP_RESOURCE) == null) {
+                    httpCarbonMessage.setProperty(HTTP_RESOURCE, httpResource);
+                }
                 return;
             }
             extractPropertiesAndStartResourceExecution(httpCarbonMessage, httpResource);

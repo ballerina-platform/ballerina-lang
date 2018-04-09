@@ -152,8 +152,10 @@ public type SubscriberServiceEndpointConfiguration {
     string host;
     int port;
     http:ServiceSecureSocket? secureSocket;
-    string topicHeader;
-    map topicResourceMap;
+    TopicIdentifier? topicIdentifier;
+    string? topicHeader;
+    string? topicPayloadKey;
+    map? topicResourceMap;
 };
 
 @Description {value:"The function called to discover hub and topic URLs defined by a resource URL"}

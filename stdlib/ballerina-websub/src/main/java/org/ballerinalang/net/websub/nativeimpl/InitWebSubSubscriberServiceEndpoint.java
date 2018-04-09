@@ -32,6 +32,7 @@ import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
 import org.ballerinalang.net.websub.WebSubSubscriberConstants;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Initialize the WebSub subscriber endpoint.
@@ -55,10 +56,40 @@ public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunct
                 (BStruct) ((BStruct) (subscriberServiceEndpoint.getVMValue())).getRefField(1));
         BStruct config = (BStruct) ((BStruct) context.getRefArgument(0)).getRefField(0);
         WebSubServicesRegistry webSubServicesRegistry = new WebSubServicesRegistry(new WebSocketServicesRegistry());
-        if (!(config.getStringField(1).equals(""))) {
-            webSubServicesRegistry.setTopicHeader(config.getStringField(1));
-            if (!((BMap<String, BString>) config.getRefField(1)).isEmpty()) {
-                webSubServicesRegistry.setTopicResourceMap((BMap<String, BString>) config.getRefField(1));
+        BString topicIdentifier = (BString) config.getRefField(1);
+        if (topicIdentifier != null) {
+            String stringTopicIdentifier = topicIdentifier.stringValue();
+            webSubServicesRegistry.setTopicIdentifier(stringTopicIdentifier);
+            if (WebSubSubscriberConstants.TOPIC_ID_HEADER.equals(stringTopicIdentifier)) {
+                BString topicHeader = (BString) config.getRefField(2);
+                if (topicHeader != null) {
+                    webSubServicesRegistry.setTopicHeader(topicHeader.stringValue());
+                } else {
+                    throw new BallerinaException("Topic Header not specified to dispatch by Header");
+                }
+            } else if (WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY.equals(stringTopicIdentifier)) {
+                BString topicPayloadKey = (BString) config.getRefField(3);
+                if (topicPayloadKey != null) {
+                    webSubServicesRegistry.setTopicPayloadKey(topicPayloadKey.stringValue());
+                } else {
+                    throw new BallerinaException("Payload Key not specified to dispatch by Payload Key");
+                }
+            } else {
+                BString topicHeader = (BString) config.getRefField(2);
+                BString topicPayloadKey = (BString) config.getRefField(3);
+                if (topicHeader != null && topicPayloadKey != null) {
+                    webSubServicesRegistry.setTopicHeader(topicHeader.stringValue());
+                    webSubServicesRegistry.setTopicPayloadKey(topicPayloadKey.stringValue());
+                } else {
+                    throw new BallerinaException("Topic Header and/or Payload Key not specified to dispatch by Topic"
+                                                         + " Header and Payload Key");
+                }
+            }
+            if (!((BMap<String, BString>) config.getRefField(4)).isEmpty()) {
+                webSubServicesRegistry.setTopicResourceMap((BMap<String, BString>) config.getRefField(4));
+            } else {
+                throw new BallerinaException("Topic-Resource Map not specified to dispatch by "
+                                                     + stringTopicIdentifier);
             }
         }
         serviceEndpoint.addNativeData(WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY, webSubServicesRegistry);

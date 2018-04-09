@@ -36,11 +36,21 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSubServicesRegistry.class);
 
+    private String topicIdentifier;
     private String topicHeader;
+    private String topicPayloadKey;
     private BMap<String, BString> topicResourceMap;
 
     public WebSubServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
         super(webSocketServicesRegistry);
+    }
+
+    public String getTopicIdentifier() {
+        return topicIdentifier;
+    }
+
+    public void setTopicIdentifier(String topicIdentifier) {
+        this.topicIdentifier = topicIdentifier;
     }
 
     /**
@@ -59,6 +69,14 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      */
     public void setTopicHeader(String topicHeader) {
         this.topicHeader = topicHeader;
+    }
+
+    public String getTopicPayloadKey() {
+        return topicPayloadKey;
+    }
+
+    public void setTopicPayloadKey(String topicPayloadKey) {
+        this.topicPayloadKey = topicPayloadKey;
     }
 
     /**

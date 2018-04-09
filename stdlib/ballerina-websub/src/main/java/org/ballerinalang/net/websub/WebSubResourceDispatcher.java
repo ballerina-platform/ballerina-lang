@@ -18,12 +18,21 @@
 
 package org.ballerinalang.net.websub;
 
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
+import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -35,17 +44,32 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  */
 class WebSubResourceDispatcher {
 
-    static HttpResource findResource(HttpService service, HTTPCarbonMessage inboundRequest, String topicHeader,
-                                     BMap<String, BString> topicResourceMap)
+    static HttpResource findResource(HttpService service, HTTPCarbonMessage inboundRequest,
+                                     WebSubServicesRegistry servicesRegistry)
             throws BallerinaConnectorException, ServerConnectorException {
 
         String method = (String) inboundRequest.getProperty(HttpConstants.HTTP_METHOD);
         HttpResource httpResource = null;
         String resourceName;
 
-        if (topicHeader != null && topicResourceMap != null) {
-            String topic = inboundRequest.getHeader(topicHeader);
-            resourceName = retrieveResourceName(method, topic, topicResourceMap);
+        if (WebSubSubscriberConstants.TOPIC_ID_HEADER.equals(servicesRegistry.getTopicIdentifier())) {
+            String topic = inboundRequest.getHeader(servicesRegistry.getTopicHeader());
+            resourceName = retrieveResourceName(method, topic, servicesRegistry.getTopicResourceMap());
+        } else if (servicesRegistry.getTopicIdentifier() != null && HttpConstants.HTTP_METHOD_POST.equals(method)) {
+            if (inboundRequest.getProperty(Constants.HTTP_RESOURCE) == null) {
+                inboundRequest.setProperty(Constants.HTTP_RESOURCE,
+                                           WebSubSubscriberConstants.DEFERRED_FOR_PAYLOAD_BASED_DISPATCHING);
+                return null;
+            }
+            ProgramFile programFile = service.getBalService().getServiceInfo().getPackageInfo().getProgramFile();
+            String payloadValue = retrievePayloadValueForKey(programFile, inboundRequest,
+                                                             servicesRegistry.getTopicPayloadKey());
+            if (servicesRegistry.getTopicIdentifier().equals(WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY)) {
+                resourceName = retrieveResourceName(method, payloadValue, servicesRegistry.getTopicResourceMap());
+            } else {
+                String topic = inboundRequest.getHeader(servicesRegistry.getTopicHeader()) + "::" + payloadValue;
+                resourceName = retrieveResourceName(method, topic, servicesRegistry.getTopicResourceMap());
+            }
         } else {
             resourceName = retrieveResourceName(method);
         }
@@ -90,6 +114,24 @@ class WebSubResourceDispatcher {
         }
     }
 
+    private static String retrievePayloadValueForKey(ProgramFile programFile, HTTPCarbonMessage httpCarbonMessage,
+                                               String payloadKey) {
+        BValue httpRequest = getHttpRequest(programFile, httpCarbonMessage);
+        BStruct entityStruct = MimeUtil.extractEntity((BStruct) httpRequest);
+        if (entityStruct != null) {
+            if (entityStruct.getNativeData(
+                    org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE) instanceof BJSON) {
+                BJSON jsonBody = (BJSON)
+                        (entityStruct.getNativeData(org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE));
+                return jsonBody.value().get(payloadKey).stringValue();
+            } else {
+                throw new BallerinaException("Non-JSON payload received for payload key based dispatching");
+            }
+        } else {
+            throw new BallerinaException("Error retrieving payload for payload key based dispatching");
+        }
+    }
+
     private static String retrieveResourceName(String method, String topic, BMap<String, BString> topicResourceMap) {
         switch (method) {
             case HttpConstants.HTTP_METHOD_POST:
@@ -106,5 +148,26 @@ class WebSubResourceDispatcher {
         }
     }
 
+
+    private static BStruct getHttpRequest(ProgramFile programFile, HTTPCarbonMessage httpCarbonMessage) {
+        BStruct httpRequest = createBStruct(programFile, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
+        BStruct inRequestEntity = createBStruct(programFile,
+                                                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                                                org.ballerinalang.mime.util.Constants.ENTITY);
+        BStruct mediaType = createBStruct(programFile,
+                                          org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
+                                          org.ballerinalang.mime.util.Constants.MEDIA_TYPE);
+        BStruct cacheControlStruct = createBStruct(programFile,
+                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                                   HttpConstants.REQUEST_CACHE_CONTROL);
+        RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
+        HttpUtil.populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage,
+                                        requestCacheControl);
+        return httpRequest;
+    }
+
+    private static BStruct createBStruct(ProgramFile programFile, String packagePath, String structName) {
+        return BLangConnectorSPIUtil.createBStruct(programFile, packagePath, structName);
+    }
 
 }
