@@ -95,7 +95,7 @@ $ bash permissionstore-generator.sh -s {scope name} -g {comma separated groups}
 # same directory as the secured-hello-world-service-with-basic-auth.bal file.
 $ ballerina run secured-hello-world-service-with-basic-auth.bal
 ballerina: initiating service(s) in 'secured-hello-world-service-with-basic-auth.bal'
-ballerina: started HTTPS/WSS server connector 0.0.0.0:9090
+ballerina: started HTTPS/WSS endpoint 0.0.0.0:9090
 
 # To build a compiled program file, we can use the
 # "ballerina build" command followed by
