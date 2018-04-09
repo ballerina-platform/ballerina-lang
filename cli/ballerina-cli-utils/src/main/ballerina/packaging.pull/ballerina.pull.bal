@@ -5,6 +5,8 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 
+@final int MAX_INT_VALUE = 2147483647;
+
 function pullPackage (string url, string dirPath, string pkgPath, string fileSeparator) {
     endpoint http:ClientEndpoint httpEndpoint {
         targets: [
@@ -53,14 +55,14 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
         io:println(message);
     } else {
         string contentLengthHeader;
+        int pkgSize = MAX_INT_VALUE;
         if (res.hasHeader("content-length")) {
             contentLengthHeader = res.getHeader("content-length");
+            pkgSize = check <int> contentLengthHeader;
         } else {
-            error err = {message:"package size information is missing from the remote repository"};
-            throw err;
+            io:println("warning: package size information is missing from the remote repository");
         }
-        int pkgSize = check <int> contentLengthHeader;
-    
+            
         io:ByteChannel sourceChannel = check (res.getByteChannel());
     
         string rawPathVal;
