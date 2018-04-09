@@ -755,14 +755,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void validateExprStatementExpression(BLangExpressionStmt exprStmtNode) {
         BLangExpression expr = exprStmtNode.expr;
-        while (expr.getKind() == NodeKind.MATCH_EXPRESSION || expr.getKind() == NodeKind.CHECK_EXPR
-                || expr.getKind() == NodeKind.ELVIS_EXPR) {
+        while (expr.getKind() == NodeKind.MATCH_EXPRESSION || expr.getKind() == NodeKind.CHECK_EXPR) {
             if (expr.getKind() == NodeKind.MATCH_EXPRESSION) {
                 expr = ((BLangMatchExpression) expr).expr;
             } else if (expr.getKind() == NodeKind.CHECK_EXPR) {
                 expr = ((BLangCheckedExpr) expr).expr;
-            } else {
-                expr = ((BLangElvisExpr) expr).lhsExpr;
             }
         }
         // Allowed expression kinds
