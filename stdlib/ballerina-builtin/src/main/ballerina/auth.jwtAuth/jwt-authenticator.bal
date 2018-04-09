@@ -22,6 +22,7 @@ import ballerina/config;
 import ballerina/jwt;
 import ballerina/log;
 import ballerina/runtime;
+import ballerina/time;
 
 @Description {value:"Represents a JWT Authenticator"}
 @Field {value:"jwtValidatorConfig: JWTValidatorConfig object"}
