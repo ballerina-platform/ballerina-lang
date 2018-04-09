@@ -815,6 +815,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        if (fieldAccessExpr.safeNavigate && fieldAccessExpr.lhsVar) {
+            dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_SAFE_NAVIGATION_ON_LHS);
+        }
         analyzeExpr(fieldAccessExpr.expr);
     }
 
