@@ -20,6 +20,7 @@ package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.model.types.TypeKind;
@@ -33,7 +34,6 @@ import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
 import org.ballerinalang.net.websub.WebSubSubscriberConstants;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Initialize the WebSub subscriber endpoint.
@@ -66,14 +66,14 @@ public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunct
                 if (topicHeader != null) {
                     webSubServicesRegistry.setTopicHeader(topicHeader.stringValue());
                 } else {
-                    throw new BallerinaException("Topic Header not specified to dispatch by Header");
+                    throw new BallerinaConnectorException("Topic Header not specified to dispatch by Header");
                 }
             } else if (WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY.equals(stringTopicIdentifier)) {
                 BStringArray topicPayloadKeys = (BStringArray) config.getRefField(3);
                 if (topicPayloadKeys != null) {
                     webSubServicesRegistry.setTopicPayloadKeys(topicPayloadKeys);
                 } else {
-                    throw new BallerinaException("Payload Key not specified to dispatch by Payload Key");
+                    throw new BallerinaConnectorException("Payload Key not specified to dispatch by Payload Key");
                 }
             } else {
                 BString topicHeader = (BString) config.getRefField(2);
@@ -82,15 +82,15 @@ public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunct
                     webSubServicesRegistry.setTopicHeader(topicHeader.stringValue());
                     webSubServicesRegistry.setTopicPayloadKeys(topicPayloadKeys);
                 } else {
-                    throw new BallerinaException("Topic Header and/or Payload Key not specified to dispatch by Topic"
-                                                         + " Header and Payload Key");
+                    throw new BallerinaConnectorException("Topic Header and/or Payload Key not specified to dispatch"
+                                                                  + " by Topic Header and Payload Key");
                 }
             }
             if (!((BMap<String, BMap<String, BString>>) config.getRefField(4)).isEmpty()) {
                 webSubServicesRegistry.setTopicResourceMap(
                                                     (BMap<String, BMap<String, BString>>) config.getRefField(4));
             } else {
-                throw new BallerinaException("Topic-Resource Map not specified to dispatch by "
+                throw new BallerinaConnectorException("Topic-Resource Map not specified to dispatch by "
                                                      + stringTopicIdentifier);
             }
         }

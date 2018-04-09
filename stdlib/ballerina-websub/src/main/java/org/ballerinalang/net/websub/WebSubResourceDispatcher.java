@@ -34,7 +34,6 @@ import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -146,7 +145,8 @@ class WebSubResourceDispatcher {
                 return retrieveResourceName(topicHeader, topicResourceMapForHeader);
             }
         }
-        throw new BallerinaException("Matching resource not found for dispatching based on Header and Payload Key");
+        throw new BallerinaConnectorException("Matching resource not found for dispatching based on Header and "
+                                                      + "Payload Key");
     }
 
     private static String retrieveResourceNameForPayloadBasedDispatching(ProgramFile programFile,
@@ -165,7 +165,7 @@ class WebSubResourceDispatcher {
                 }
             }
         }
-        throw new BallerinaException("Matching resource not found for dispatching based on Payload Key");
+        throw new BallerinaConnectorException("Matching resource not found for dispatching based on Payload Key");
     }
 
 
@@ -176,10 +176,10 @@ class WebSubResourceDispatcher {
                     org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE) instanceof BJSON) {
                 return (BJSON) (entityStruct.getNativeData(org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE));
             } else {
-                throw new BallerinaException("Non-JSON payload received for payload key based dispatching");
+                throw new BallerinaConnectorException("Non-JSON payload received for payload key based dispatching");
             }
         } else {
-            throw new BallerinaException("Error retrieving payload for payload key based dispatching");
+            throw new BallerinaConnectorException("Error retrieving payload for payload key based dispatching");
         }
     }
 

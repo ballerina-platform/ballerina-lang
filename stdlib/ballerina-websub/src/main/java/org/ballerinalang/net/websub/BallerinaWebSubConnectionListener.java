@@ -288,7 +288,8 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                 }
                 HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
             } catch (UnsupportedEncodingException e) {
-                throw new BallerinaException("Error responding to intent verification request: " + e.getMessage());
+                throw new BallerinaConnectorException("Error responding to intent verification request: "
+                                                              + e.getMessage());
             }
         }
     }
