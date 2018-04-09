@@ -26,7 +26,7 @@ import org.ballerinalang.util.EmbeddedExecutorProvider;
  * @since 0.95.2
  */
 public class SearchUtils {
-    private static final String BALLERINA_STAGING_URL = "https://staging.central.ballerina.io:9090/";
+    private static final String BALLERINA_STAGING_URL = "https://api.staging-central.ballerina.io/packages/";
 
     /**
      * Search for packages in central.
@@ -34,7 +34,7 @@ public class SearchUtils {
      * @param argument arguments passed
      */
     public static void searchInCentral(String argument) {
-        String query = "?keyword=" + argument;
+        String query = "?query=" + argument;
         EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
         executor.execute("packaging.search/ballerina.search.balx", BALLERINA_STAGING_URL, query);
     }
