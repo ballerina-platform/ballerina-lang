@@ -162,7 +162,7 @@ public function Listener::init (ServiceEndpointConfiguration config) {
 //////////////////////////////////
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
-public type WebSocketEndpoint object {
+public type WebSocketListener object {
     public {
         string id;
         string negotiatedSubProtocol;
