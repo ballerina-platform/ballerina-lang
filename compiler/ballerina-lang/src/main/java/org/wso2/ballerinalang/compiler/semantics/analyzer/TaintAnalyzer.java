@@ -18,7 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import javafx.concurrent.Worker;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -201,6 +200,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private List<Boolean> returnTaintedStatusList;
     private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
     private Map<BlockingNode, List<BlockedNode>> blockedNodeMap = new HashMap<>();
+    private Map<BLangIdentifier, Boolean> workerInteractionTaintedStatusMap;
     private BLangIdentifier currWorkerIdentifier;
     private BLangIdentifier currForkIdentifier;
 
@@ -1330,8 +1330,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             resetTaintedStatusOfVariables(defaultableParamsVarList);
         }
     }
-
-    Map<BLangIdentifier, Boolean> workerInteractionTaintedStatusMap;
 
     private void analyzeReturnTaintedStatus(BLangInvokableNode invokableNode, SymbolEnv symbolEnv) {
         invokableNode.endpoints.forEach(endpoint -> endpoint.accept(this));

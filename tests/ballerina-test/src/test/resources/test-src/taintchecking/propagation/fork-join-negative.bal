@@ -1,7 +1,7 @@
 function main (string[] args) {
     fork {
         worker w1 {
-            "staticData" -> fork;
+            args[0] -> fork;
         }
         worker w2 {
             "staticData" -> fork;
