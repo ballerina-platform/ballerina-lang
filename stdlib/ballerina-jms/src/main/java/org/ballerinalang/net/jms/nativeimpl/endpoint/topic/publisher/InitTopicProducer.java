@@ -80,6 +80,7 @@ public class InitTopicProducer extends AbstractBlockinAction {
             Struct topicProducerConnectorBObject
                     = topicProducerBObject.getStructField(Constants.TOPIC_PRODUCER_FIELD_CONNECTOR);
             topicProducerConnectorBObject.addNativeData(Constants.JMS_TOPIC_PRODUCER_OBJECT, producer);
+            topicProducerConnectorBObject.addNativeData(Constants.JMS_SESSION, session);
         } catch (JMSException e) {
             throw new BallerinaException("Error creating topic producer", e, context);
         }

@@ -30,6 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
+import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -80,6 +81,8 @@ public class InitQueueSender implements NativeCallableUnit {
             Struct queueSenderConnectorBObject
                     = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONNECTOR);
             queueSenderConnectorBObject.addNativeData(Constants.JMS_QUEUE_SENDER_OBJECT, producer);
+            queueSenderConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT,
+                                                      new SessionConnector(session));
         } catch (JMSException e) {
             throw new BallerinaException("Error creating Queue sender", e, context);
         }

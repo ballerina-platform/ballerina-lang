@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -61,8 +62,11 @@ public class Send extends AbstractBlockinAction {
         MessageProducer messageProducer = BallerinaAdapter.getNativeObject(queueSenderBObject,
                                                                            Constants.JMS_QUEUE_SENDER_OBJECT,
                                                                            MessageProducer.class,
-                                                                           context
-        );
+                                                                           context);
+        SessionConnector sessionConnector = BallerinaAdapter.getNativeObject(queueSenderBObject,
+                                                                    Constants.SESSION_CONNECTOR_OBJECT,
+                                                                    SessionConnector.class,
+                                                                    context);
 
         BStruct messageBObject = ((BStruct) context.getRefArgument(1));
         Message message = BallerinaAdapter.getNativeObject(messageBObject,
@@ -71,6 +75,7 @@ public class Send extends AbstractBlockinAction {
                                                            context);
 
         try {
+            sessionConnector.handleTransactionBlock(context);
             messageProducer.send(message);
         } catch (JMSException e) {
             throw new BallerinaException("Message sending failed", e, context);
