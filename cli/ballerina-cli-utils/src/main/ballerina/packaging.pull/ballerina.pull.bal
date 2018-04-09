@@ -5,7 +5,9 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 
-function pullPackage (string url, string destDirPath, string fullPkgPath, string fileSeparator) {
+@final int MAX_INT_VALUE = 2147483647;
+
+function pullPackage (string url, string dirPath, string pkgPath, string fileSeparator) {
     endpoint http:ClientEndpoint httpEndpoint {
         targets: [
         {
@@ -15,73 +17,70 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
                     filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 },
-                hostNameVerification:false,
-                sessionCreation: true
+                verifyHostname:false,
+                shareSession: true
              }
         }
         ]
+        // followRedirects : { enabled : true, maxCount : 5 }
     };
-    http:Request req = {};
-    http:Response res = {};
+    string fullPkgPath = pkgPath;
+    string destDirPath = dirPath;
+    http:Request req = new;
     req.addHeader("Accept-Encoding", "identity");
-    var httpResponse = httpEndpoint -> get("", req);
-    match httpResponse {
-     http:HttpConnectorError errRes => {
-         var errorResp = <error> errRes;
-         match errorResp {
-             error err =>  throw err;
-         }
-     }
-     http:Response response => res = response;
+    
+    var result = httpEndpoint -> get("", req);
+    http:Response httpResponse = check result;
+
+    http:Response res = new;
+    // To be fixed with redirect
+    if (httpResponse.statusCode == 302){ 
+        string locationHeader;
+        if (httpResponse.hasHeader("Location")) {
+            locationHeader = httpResponse.getHeader("Location");
+        } else {
+            error err = {message:"package location information is missing from the remote repository"};
+            throw err;
+        }
+        res = callFileServer(locationHeader);
+    } else if (httpResponse.statusCode == 404) {
+       io:println("package not found in central");   
+    } else {
+       error err = {message:"error occurred when pulling the package"};
+       throw err;   
     }
     if (res.statusCode != 200) {
-        var jsonResponse = res.getJsonPayload();
-        match jsonResponse {
-            mime:EntityError errRes => {
-                var errorResp = <error> errRes;
-                match errorResp {
-                    error err =>  throw err;
-                }
-            }
-            json jsonObj => io:println(jsonObj.msg.toString());
-        }
+        json jsonResponse = check (res.getJsonPayload());
+        string message = (jsonResponse.message.toString() but {()=> "error occurred when pulling the package"});
+        io:println(message);
     } else {
         string contentLengthHeader;
+        int pkgSize = MAX_INT_VALUE;
         if (res.hasHeader("content-length")) {
             contentLengthHeader = res.getHeader("content-length");
+            pkgSize = check <int> contentLengthHeader;
         } else {
-            error err = {message:"package size information is missing from the remote repository"};
-            throw err;
+            io:println("warning: package size information is missing from the remote repository");
         }
-        int pkgSize;
-        var conversion = <int> contentLengthHeader;
-        match conversion{
-            error conversionErr => throw conversionErr;
-            int size => pkgSize = size;
-        }
-        io:ByteChannel sourceChannel = {};
-        var srcChannel = res.getByteChannel();
-        match srcChannel {
-            mime:EntityError errRes => {
-                var errorResp = <error> errRes;
-                match errorResp {
-                    error err =>  throw err;
-                }
-            }
-            io:ByteChannel channel => sourceChannel = channel;
-        }
-
-        // Get the package version from the canonical header of the response
-        string linkHeaderVal;
-        if (res.hasHeader("Link")) {
-            linkHeaderVal = res.getHeader("Link");
-        } else {
-            error err = {message:"package version information is missing from the remote repository"};
-            throw err;
-        }
-
-        string canonicalLinkURL = linkHeaderVal.subString(linkHeaderVal.indexOf("<") + 1, linkHeaderVal.indexOf(">"));
-        string pkgVersion = canonicalLinkURL.subString(canonicalLinkURL.lastIndexOf("/") + 1, canonicalLinkURL.length());
+            
+        io:ByteChannel sourceChannel = check (res.getByteChannel());
+    
+        string rawPathVal;
+        if (res.hasHeader("raw-path")) {
+            rawPathVal = res.getHeader("raw-path");
+         } else {
+             error err = {message:"package version information is missing from the remote repository"};
+             throw err;
+         }
+        string pkgVersion;
+        string [] pathArray = rawPathVal.split("/");
+        int sizeOfArray = lengthof pathArray;
+        if (sizeOfArray > 3) {
+            pkgVersion = pathArray[sizeOfArray - 2];
+         } else {
+             error err = {message:"package version information is missing from the remote repository"};
+             throw err;
+         }
 
         string pkgName = fullPkgPath.subString(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
         fullPkgPath = fullPkgPath + ":" + pkgVersion;
@@ -97,14 +96,9 @@ function pullPackage (string url, string destDirPath, string fullPkgPath, string
         io:ByteChannel destDirChannel = getFileChannel(destArchivePath, "w");
         string toAndFrom = " [central.ballerina.io -> home repo]";
 
-        io:IOError destDirChannelCloseError = {};
-        io:IOError srcCloseError = {};
-
         copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom);
-        if (destDirChannel != null) {
-            destDirChannelCloseError = destDirChannel.close();
-        }
-        srcCloseError = sourceChannel.close();
+        _ = destDirChannel.close();
+        _ = sourceChannel.close();
     }
 }
 
@@ -121,34 +115,12 @@ function getFileChannel (string filePath, string permission) returns (io:ByteCha
 function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, int) {
     blob bytes;
     int numberOfBytesRead;
-
-    var bytesRead = channel.read(numberOfBytes);
-    match bytesRead {
-        (blob, int) byteResponse => {
-            (bytes, numberOfBytesRead) = byteResponse;
-        }
-        io:IOError errRes => {
-                var errorResp = <error> errRes;
-                match errorResp {
-                    error err =>  throw err;
-                }
-        }
-    }
+    (bytes, numberOfBytesRead) = check (channel.read(numberOfBytes));
     return (bytes, numberOfBytesRead);
 }
 
 function writeBytes (io:ByteChannel channel, blob content, int startOffset) returns (int) {
-    int numberOfBytesWritten;
-    var bytesWritten = channel.write(content, startOffset);
-    match bytesWritten {
-        io:IOError errRes => {
-                var errorResp = <error> errRes;
-                match errorResp {
-                    error err =>  throw err;
-                }
-        }
-        int noOfBytes => numberOfBytesWritten = noOfBytes;
-    }
+    int numberOfBytesWritten = check (channel.write(content, startOffset));
     return numberOfBytesWritten;
 }
 
@@ -163,12 +135,12 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
     string noOfBytesRead;
     string equals = "==========";
     string tabspaces = "          ";
-    boolean done = false;
+    boolean completed = false;
     try {
-        while (!done) {
+        while (!completed) {
             (readContent, readCount) = readBytes(src, bytesChunk);
             if (readCount <= 0) {
-                done = true;
+                completed = true;
             }
             if (dest != null) {
                 numberOfBytesWritten = writeBytes(dest, readContent, 0);
@@ -186,7 +158,9 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
     io:print("\r" + rightPad(fullPkgPath + toAndFrom, (115 + noOfBytesRead.length())) + "\n");
 }
 
-function rightPad (string msg, int length) returns (string) {
+function rightPad (string logMsg, int logMsgLength) returns (string) {
+    string msg = logMsg;
+    int length = logMsgLength;
     int i = -1;
     length = length - msg.length();
     string char = " ";
@@ -222,12 +196,31 @@ function truncateString (string text) returns (string) {
 function createDirectories(string directoryPath) returns (boolean) {
     file:Path dirPath = file:getPath(directoryPath);
     if (!file:exists(dirPath)){
-        var directoryCreationStatus = file:createDirectory(dirPath);
-        match directoryCreationStatus {
-            boolean created => return created;
-            error err => throw err;
-        }
+        boolean directoryCreationStatus = check (file:createDirectory(dirPath));
+        return directoryCreationStatus;
     } else {
         return false;
     }
+}
+
+function callFileServer(string url) returns http:Response {
+    endpoint http:ClientEndpoint httpEndpoint {
+        targets: [
+        {
+            url: url,
+            secureSocket: {
+                trustStore: {
+                    filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                    password: "ballerina"
+                },
+                verifyHostname:false,
+                shareSession: true
+             }
+        }
+        ]    
+    };
+    http:Request req = new;
+    var result = httpEndpoint -> get("", req);
+    http:Response httpResponse = check result;
+    return httpResponse;
 }
