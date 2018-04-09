@@ -1429,7 +1429,7 @@ function testTableAddInvalid () {
 
     try {
         ResultPrimitiveInt row = {INT_TYPE:443};
-        dt.add(row);
+        _ = dt.add(row);
     } finally {
         _ = testDB -> close();
     }
