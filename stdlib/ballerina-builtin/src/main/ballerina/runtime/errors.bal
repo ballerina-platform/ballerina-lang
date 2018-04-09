@@ -18,12 +18,12 @@ package ballerina.runtime;
 
 public type NullReferenceException {
     string message;
-    error[] cause;
+    error? cause;
 };
 
 public type IllegalStateException {
     string message;
-    error[] cause;
+    error? cause;
 };
 
 public type CallStackElement {
@@ -39,5 +39,6 @@ public native function getErrorCallStackFrame (error e) returns (CallStackElemen
 
 public type CallFailedException {
     string message;
-    error[] cause;
+    error? cause;
+    error[]? causes;
 };

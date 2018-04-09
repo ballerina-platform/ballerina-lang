@@ -2,19 +2,19 @@ import ballerina/runtime;
 
 public type testError {
     string message;
-    error[] cause;
+    error? cause;
     string code;
 };
 
 public type testDataError {
     string message;
-    error[] cause;
+    error? cause;
     string data;
 };
 
 public type testInputError {
     string message;
-    error[] cause;
+    error? cause;
     string input;
 };
 

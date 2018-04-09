@@ -1,20 +1,20 @@
 struct testError {
     string msg;
-    error[] cause;
+    error? cause;
     stackFrame[] stackTrace;
     string code;
 }
 
 struct testDataError {
     string msg;
-    error[] cause;
+    error? cause;
     stackFrame[] stackTrace;
     string data;
 }
 
 struct testInputError {
     string msg;
-    error[] cause;
+    error? cause;
     stackFrame[] stackTrace;
     string input;
 }

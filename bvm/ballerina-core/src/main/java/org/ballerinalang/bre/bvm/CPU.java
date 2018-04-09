@@ -746,7 +746,7 @@ public class CPU {
                     default:
                         throw new UnsupportedOperationException();
                 }
-            } catch (HandleErrorException e) { 
+            } catch (HandleErrorException e) {
                 throw e;
             } catch (Throwable e) {
                 BLangVMUtils.log("fatal error: " + e.getMessage());

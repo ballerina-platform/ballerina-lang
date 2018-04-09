@@ -248,5 +248,5 @@ public type SQLClient object {
 @Field {value:"cause: The error(s) that caused SQLConnectorError to get thrown"}
 public type SQLConnectorError {
     string message,
-    error[] cause,
+    error? cause,
 };
