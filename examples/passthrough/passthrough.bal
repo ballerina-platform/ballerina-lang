@@ -1,6 +1,6 @@
 import ballerina/http;
 
-endpoint http:ServiceEndpoint passthroughEP {
+endpoint http:Listener passthroughEP {
     port:9090
 };
 
@@ -29,7 +29,7 @@ service<http:Service> passthrough bind passthroughEP {
             }
             http:HttpConnectorError err => {
                 // If there was an error, it is used to construct a 500 response and this is sent back to the client.
-                http:Response res = {};
+                http:Response res = new;
                 res.statusCode = 500;
                 res.setStringPayload(err.message);
                 _ = outboundEP -> respond(res);
@@ -38,7 +38,7 @@ service<http:Service> passthrough bind passthroughEP {
     }
 }
 
-endpoint http:ServiceEndpoint helloEP {
+endpoint http:Listener helloEP {
     port:9092
 };
 
@@ -51,7 +51,7 @@ service<http:Service> hello bind helloEP {
         path:"/"
     }
     helloResource (endpoint outboundEP, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("Hello World!");
         _ = outboundEP -> respond(res);
     }

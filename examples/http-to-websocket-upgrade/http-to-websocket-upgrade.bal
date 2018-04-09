@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-endpoint http:ServiceEndpoint servicEp {
+endpoint http:Listener servicEp {
     port:9090
 };
 
@@ -20,7 +20,7 @@ service<http:Service> httpService bind servicEp {
         methods:["POST", "GET", "PUT", "My"]
     }
     httpResource (endpoint conn, http:Request req) {
-        http:Response resp = {};
+        http:Response resp = new;
         var payload = req.getStringPayload();
         match payload {
             http:PayloadError payloadError => {
