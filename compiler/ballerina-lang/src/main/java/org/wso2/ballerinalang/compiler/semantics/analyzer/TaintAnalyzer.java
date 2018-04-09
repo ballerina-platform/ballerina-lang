@@ -278,6 +278,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        if (funcNode.attachedOuterFunction) {
+            // Clear taint table of the interface deceleration when, declaration is found.
+            funcNode.symbol.taintTable = null;
+        }
         if (isMainFunction(funcNode)) {
             visitEntryPoint(funcNode, funcEnv);
             // Following statements are used only when main method is called from a different function (test execution).
