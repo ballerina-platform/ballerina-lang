@@ -25,6 +25,7 @@ service<http:Service> ChatAppUpgrader bind ep {
         wsEp = ep -> upgradeToWebSocket(headers);
         wsEp.attributes[NAME] = name;
         wsEp.attributes[AGE] = req.getQueryParams()["age"];
+        _ = wsEp -> pushText("Hi " + name + "! You have succesfully connected to the chat");
     }
 
 }
@@ -33,7 +34,6 @@ service<http:Service> ChatAppUpgrader bind ep {
 map<http:WebSocketEndpoint> consMap;
 
 service<http:WebSocketService> chatApp {
-
 
     onOpen (endpoint conn) {
         string msg = string `{{getAttributeStr(conn, NAME)}} with age {{getAttributeStr(conn, AGE)}} connected to chat`;
