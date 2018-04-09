@@ -30,7 +30,7 @@ service<http:Service> ChatAppUpgrader bind ep {
 }
 
 // TODO: This map should go to service level after null pointer issue is fixed.
-map<http:WebSocketEndpoint> consMap;
+map<http:WebSocketListener> consMap;
 
 service<http:WebSocketService> chatApp {
 
@@ -54,7 +54,7 @@ service<http:WebSocketService> chatApp {
     }
 }
 
-function broadcast (map<http:WebSocketEndpoint> consMap, string text) {
+function broadcast (map<http:WebSocketListener> consMap, string text) {
     endpoint http:WebSocketListener ep;
     foreach id, con in consMap {
         ep = con;
