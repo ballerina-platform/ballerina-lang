@@ -69,7 +69,7 @@ function testSetXmlPayload (xml value) returns (http:Response) {
     return res;
 }
 
-endpoint http:NonListeningServiceEndpoint mockEP {
+endpoint http:NonListener mockEP {
     port:9090
 };
 

@@ -17,7 +17,7 @@
 package ballerina.http;
 
 @Description {value:"Mock service endpoint which does not open a listening port."}
-public type NonListeningServiceEndpoint object{
+public type NonListener object{
     private {
         Connection conn;
         ServiceEndpointConfiguration config;
@@ -31,7 +31,7 @@ public type NonListeningServiceEndpoint object{
     public native function stop ();
 };
 
-public function NonListeningServiceEndpoint::init (ServiceEndpointConfiguration config) {
+public function NonListener::init (ServiceEndpointConfiguration config) {
     self.config = config;
     var err = self.initEndpoint();
     if (err != null) {
