@@ -81,7 +81,7 @@ public interface Gauge extends Metric {
 
         @Override
         public Gauge register() {
-            return register(MetricRegistry.getDefaultRegistry());
+            return register(DefaultMetricRegistry.getInstance());
         }
 
         @Override

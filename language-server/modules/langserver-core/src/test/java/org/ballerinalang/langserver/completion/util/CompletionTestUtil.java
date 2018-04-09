@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completion.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.LSPackageCache;
 import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
@@ -116,6 +117,7 @@ public class CompletionTestUtil {
         LSServiceOperationContext completionContext = new LSServiceOperationContext();
         completionContext.put(DocumentServiceKeys.POSITION_KEY, pos);
         completionContext.put(DocumentServiceKeys.FILE_URI_KEY, pos.getTextDocument().getUri());
+        LSPackageCache.getInstance().clearCache();
         BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext,
                 documentManager, false, CompletionCustomErrorStrategy.class, false)
                 .get(0);

@@ -65,7 +65,7 @@
       "label":"endpoint",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"endpoint ${1:http:ServiceEndpoint} ${2:endpointName} {\n\t${3}\n};",
+      "insertText":"endpoint ${1:http:Listener} ${2:endpointName} {\n\t${3}\n};",
       "insertTextFormat":"Snippet"
     },
     {

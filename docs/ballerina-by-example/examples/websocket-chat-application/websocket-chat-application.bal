@@ -3,7 +3,7 @@ import ballerina/http;
 
 @final string NAME = "NAME";
 @final string AGE = "AGE";
-endpoint http:WebSocketEndpoint ep {
+endpoint http:WebSocketListener ep {
     port:9090
 };
 
@@ -20,7 +20,7 @@ service<http:Service> ChatAppUpgrader bind ep {
         }
     }
     upgrader(endpoint ep, http:Request req, string name) {
-        endpoint http:WebSocketEndpoint wsEp;
+        endpoint http:WebSocketListener wsEp;
         map<string> headers;
         wsEp = ep -> upgradeToWebSocket(headers);
         wsEp.attributes[NAME] = name;
@@ -55,14 +55,14 @@ service<http:WebSocketService> chatApp {
 }
 
 function broadcast (map<http:WebSocketEndpoint> consMap, string text) {
-    endpoint http:WebSocketEndpoint ep;
+    endpoint http:WebSocketListener ep;
     foreach id, con in consMap {
         ep = con;
         _ = ep -> pushText(text);
     }
 }
 
-function getAttributeStr(http:WebSocketEndpoint ep, string key) returns (string) {
+function getAttributeStr(http:WebSocketListener ep, string key) returns (string) {
     var name = <string> ep.attributes[key];
     return name;
 }

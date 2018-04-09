@@ -70,7 +70,7 @@ import ballerina/http;
 import ballerina/io;
 
 // A service endpoint listens to HTTP request on port 9090
-endpoint http:ServiceEndpoint listener {
+endpoint http:Listener listener {
     port:9090
 };
 
@@ -142,7 +142,7 @@ Now, let’s add the code you need to run the service in Kubernetes.
    serviceType:"NodePort",
    name:"hello-world"
 }
-endpoint http:ServiceEndpoint listener {
+endpoint http:Listener listener {
   port:9090
 };
 

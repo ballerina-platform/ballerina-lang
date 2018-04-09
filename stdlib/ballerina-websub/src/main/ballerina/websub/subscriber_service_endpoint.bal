@@ -30,11 +30,11 @@ public type SubscriberServiceEndpoint object {
     }
 
     private {
-        http:ServiceEndpoint serviceEndpoint;
+        http:Listener serviceEndpoint;
     }
 
     public new () {
-        http:ServiceEndpoint httpEndpoint = new;
+        http:Listener httpEndpoint = new;
         self.serviceEndpoint = httpEndpoint;
     }
 
@@ -78,7 +78,7 @@ public type SubscriberServiceEndpoint object {
 public function SubscriberServiceEndpoint::init(SubscriberServiceEndpointConfiguration config) {
     SignatureValidationFilter sigValFilter = new(interceptWebSubRequest, interceptionPlaceholder);//TODO:rem placeholder
     http:Filter[] filters = [<http:Filter> sigValFilter];
-    http:ServiceEndpointConfiguration serviceConfig = { host:config.host, port:config.port,
+    http:ListenerConfiguration serviceConfig = { host:config.host, port:config.port,
                                                           secureSocket:config.secureSocket, filters:filters };
     serviceEndpoint.init(serviceConfig);
     initWebSubSubscriberServiceEndpoint();
@@ -158,7 +158,7 @@ public type SubscriberServiceEndpointConfiguration {
 @Param {value:"resourceUrl: The resource URL advertising hub and topic URLs"}
 @Return {value:"The (hub, topic) URLs if successful, WebSubError if not"}
 function retrieveHubAndTopicUrl (string resourceUrl) returns @tainted ((string, string) | WebSubError) {
-    endpoint http:ClientEndpoint resourceEP {targets:[{url:resourceUrl}]};
+    endpoint http:Client resourceEP {targets:[{url:resourceUrl}]};
     http:Request request = new;
     var discoveryResponse = resourceEP -> get("", request);
     WebSubError websubError = {};
