@@ -26,10 +26,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
@@ -40,18 +38,13 @@ import javax.jms.Session;
  */
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "jms",
-                   functionName = "unsubscriber",
+                   functionName = "unsubscribe",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "Session",
                                         structPackage = "ballerina.jms"),
                    args = {
                            @Argument(name = "subscriptionId",
                                      type = TypeKind.STRING)
-                   },
-                   returnType = {
-                           @ReturnType(type = TypeKind.STRUCT,
-                                       structPackage = "ballerina.jms",
-                                       structType = "Message")
                    },
                    isPublic = true)
 public class Unsubscribe extends AbstractBlockinAction {
@@ -71,7 +64,7 @@ public class Unsubscribe extends AbstractBlockinAction {
         try {
             session.unsubscribe(subscriptionId);
         } catch (JMSException e) {
-            JMSUtils.throwBallerinaException("Failed to create message.", context, e);
+            BallerinaAdapter.throwBallerinaException("Failed to create message.", context, e);
         }
     }
 }
