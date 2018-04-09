@@ -41,11 +41,3 @@ public native function getCurrentDirectory () returns (string);
 @Description {value:"Returns the charset encoding used in the runtime."}
 @Return { value:"Encoding if it is available, an empty string otherwise"}
 public native function getFileEncoding () returns (string);
-
-@Description {value:"Executes a ballerina command and returns the input stream connected to the normal and error
-output of the subprocess"}
-@Param {value:"command: The command to be executed. It should be one of run, docker, build, install, uninstall, pull,
-push, init, search, doc, grpc, swagger, test, version and encrypt"}
-@Param {value:"packageName: Name of the package"}
-@Return {value:"Data piped from the standard output and error output of the process"}
-public native function execBallerina (string command, string packageName) returns (string);
