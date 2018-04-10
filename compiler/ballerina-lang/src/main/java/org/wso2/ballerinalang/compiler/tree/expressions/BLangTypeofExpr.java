@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 /**
  * @since 0.95
  */
+@Deprecated
 public class BLangTypeofExpr extends BLangExpression implements TypeofExpressionNode {
 
     public BLangType typeNode;
