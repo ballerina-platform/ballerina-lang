@@ -395,7 +395,7 @@ function testJsonToIntArray () returns (IntArray) {
 
 
 type StringArray {
-    string[] a;
+    string[]? a;
 };
 
 function testJsonToStringArray () returns (StringArray) {
@@ -444,23 +444,11 @@ function testNullJsonToStruct () returns (Person | error) {
     return p;
 }
 
-//function testNullMapToStruct () returns (Person | error) {
-//    map|null m;
-//    var p = check <Person> m;
-//    return p;
-//}
-
 function testNullStructToJson () returns (json | error) {
     Person|() p;
     var j = check <json> p;
     return j;
 }
-
-//function testNullStructToMap () returns (map) {
-//    Person|null p;
-//    map m = <map>p;
-//    return m;
-//}
 
 function testIncompatibleJsonToStructWithErrors () returns (Person | error) {
     json j = {name:"Child",
@@ -520,22 +508,22 @@ type movie {
     person[] actors;
 };
 
-//function testStructToMapWithRefTypeArray () returns (map, int) {
-//    movie theRevenant = {title:"The Revenant",
-//                            year:2015,
-//                            released:"08 Jan 2016",
-//                            genre:["Adventure", "Drama", "Thriller"],
-//                            writers:[{fname:"Michael", lname:"Punke", age:30}],
-//                            actors:[{fname:"Leonardo", lname:"DiCaprio", age:35},
-//                                    {fname:"Tom", lname:"Hardy", age:34}]};
-//
-//    map m = <map>theRevenant;
-//
-//   any a = m["writers"];
-//    var writers = check (person[])a;
-//
-//    return (m, writers[0].age);
-//}
+function testStructToMapWithRefTypeArray () returns (map, int) {
+    movie theRevenant = {title:"The Revenant",
+                            year:2015,
+                            released:"08 Jan 2016",
+                            genre:["Adventure", "Drama", "Thriller"],
+                            writers:[{fname:"Michael", lname:"Punke", age:30}],
+                            actors:[{fname:"Leonardo", lname:"DiCaprio", age:35},
+                                    {fname:"Tom", lname:"Hardy", age:34}]};
+
+    map m = <map>theRevenant;
+
+    any a = m["writers"];
+    var writers = check <person[]> a;
+
+    return (m, writers[0].age);
+}
 
 type StructWithDefaults {
     string s = "string value";
