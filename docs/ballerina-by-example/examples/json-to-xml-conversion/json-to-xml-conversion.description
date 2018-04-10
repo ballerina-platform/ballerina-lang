@@ -3,4 +3,4 @@
 //the `attributePrefix` and the `arrayEntryTag`. The `attributePrefix` is a 
 //prefix used to identify the XML attributes. The default value of the `attributePrefix` option is `@`. 
 // The `arrayEntryTag` is the name of the tag that is to be added
-//to each entry of the JSON array.
+//to each entry of the JSON array. The default value of the `arrayEntryTag` option is `item`. 
