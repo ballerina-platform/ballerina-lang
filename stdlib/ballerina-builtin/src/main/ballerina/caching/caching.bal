@@ -32,17 +32,10 @@ map cacheMap;
 string cacheCleanupTaskID = createCacheCleanupTask();
 
 @Description {value:"Represents a cache."}
-@Field {value:"expiryTimeMillis: cache expiry time in ms"}
-@Field {value:"capacity: capacity of the cache"}
-@Field {value:"evictionFactor: eviction factor to be used for cache eviction"}
-@Field {value:"entries: map which contains the cache entries"}
 public type Cache object {
 
-    public {
-        int capacity;
-    }
-
     private {
+        int capacity;
         map entries;
         int expiryTimeMillis;
         float evictionFactor;
