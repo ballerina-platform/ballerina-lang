@@ -4,7 +4,6 @@ import ballerina/http;
 import ballerina/websub;
 
 endpoint websub:Listener websubEP {
-    host:"localhost",
     port:8181
 };
 

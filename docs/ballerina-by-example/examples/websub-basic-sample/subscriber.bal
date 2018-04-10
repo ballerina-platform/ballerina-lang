@@ -6,7 +6,6 @@ import ballerina/websub;
 
 //The endpoint to which the subscriber service is bound
 endpoint websub:Listener websubEP {
-    host:"localhost",
     port:8181
 };
 
