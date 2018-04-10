@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.symbols.VariableSymbol;
 import org.ballerinalang.model.tree.VariableNode;
 
 import java.util.List;
@@ -31,14 +30,6 @@ public interface ForeverNode extends ExpressionStatementNode {
     void addStreamingQueryStatement(StreamingQueryStatementNode streamingQueryStatementNode);
 
     List<StreamingQueryStatementNode> getStreamingQueryStatements();
-
-    void addGlobalVariable(VariableNode variable);
-
-    List<VariableNode> getGlobalVariables();
-
-    List<VariableSymbol> getFunctionVariables();
-
-    void addFunctionVariable(VariableSymbol variable);
 
     List<? extends VariableNode> getParameters();
 
