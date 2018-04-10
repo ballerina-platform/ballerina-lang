@@ -1,1 +1,1 @@
-//All arrays are unbounded in length and support 0 based indexing. Arrays may be sparse as well and they will grow to meet whatever size needed based on the index (subject to memory availability).
+//All arrays are unbounded in length and support a 0 based indexing. Arrays can be sparse and grow upto any length based on the given index, as long as there is available memory.
