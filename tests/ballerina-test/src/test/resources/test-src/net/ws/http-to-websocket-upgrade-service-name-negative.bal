@@ -9,7 +9,7 @@ port:9090
       basePath:"/test",
 webSocketUpgrade:{
 upgradePath: "/ws",
-upgradeService: typeof wsServic
+upgradeService: wsServic
 }
 }
 service<http:Service> httpService bind servicEp {

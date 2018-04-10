@@ -35,14 +35,14 @@ function testXAransactonSuccess () returns (int, int) {
     int count2;
     //check whether update action is performed
     var temp = testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 1 ",
-        (), typeof ResultCount);
+        (), ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    temp = testDB2 -> select("Select COUNT(*) as countval from Salary where id = 1", (), typeof ResultCount);
+    temp = testDB2 -> select("Select COUNT(*) as countval from Salary where id = 1", (), ResultCount);
     dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
@@ -89,14 +89,14 @@ function testXAransactonFailed1 () returns (int, int) {
     int count2;
     //check whether update action is performed
     var temp = testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 2", (),
-                                  typeof ResultCount);
+                                  ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
-    temp = testDB2 -> select("Select COUNT(*) as countval from Salary where id = 2 ", (), typeof ResultCount);
+    temp = testDB2 -> select("Select COUNT(*) as countval from Salary where id = 2 ", (), ResultCount);
     dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
@@ -140,7 +140,7 @@ function testXAransactonFailed2 () returns (int, int) {
     }
     //check whether update action is performed
     var temp = testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 2",
-        (), typeof ResultCount);
+        (), ResultCount);
     table dt = check temp;
     int count1;
     int count2;
@@ -149,7 +149,7 @@ function testXAransactonFailed2 () returns (int, int) {
         count1 = rs.COUNTVAL;
     }
 
-    temp = testDB2 -> select("Select COUNT(*) as countval from Salary where id = 2 ", (), typeof ResultCount);
+    temp = testDB2 -> select("Select COUNT(*) as countval from Salary where id = 2 ", (), ResultCount);
     dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
@@ -200,7 +200,7 @@ function testXAransactonRetry () returns (int, int) {
     }
     //check whether update action is performed
     var temp = testDB1 -> select("Select COUNT(*) as countval from Customers where customerId = 4",
-        (), typeof ResultCount);
+        (), ResultCount);
     table dt = check temp;
     int count1;
     int count2;
@@ -210,7 +210,7 @@ function testXAransactonRetry () returns (int, int) {
         count1 = rs.COUNTVAL;
     }
 
-    temp = testDB2 -> select("Select COUNT(*) as countval from Salary where id = 4", (), typeof ResultCount);
+    temp = testDB2 -> select("Select COUNT(*) as countval from Salary where id = 4", (), ResultCount);
     dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();

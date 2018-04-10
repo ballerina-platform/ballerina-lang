@@ -21,7 +21,7 @@ function getTableCount (string tablePrefix) returns (int) {
     int count;
     try {
         var temp = testDB -> select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME
-            like ?", parameters, typeof ResultCount);
+            like ?", parameters, ResultCount);
         table dt = check temp;
         while (dt.hasNext()) {
             ResultCount rs = check <ResultCount> dt.getNext();
@@ -48,7 +48,7 @@ function getSessionCount () returns (int) {
     int count;
     try {
         var temp = testDB -> select("SELECT count(*) as count FROM information_schema.sessions",
-            (), typeof ResultCount);
+            (), ResultCount);
         table dt = check temp;
         while (dt.hasNext()) {
             ResultCount rs = check <ResultCount> dt.getNext();
