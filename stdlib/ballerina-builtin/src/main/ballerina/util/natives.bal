@@ -30,7 +30,7 @@ public type Locale {
 @Field {value:"cause: The cause of the error"}
 public type Base64EncodeError {
     string message,
-    error[] cause,
+    error? cause,
 };
 
 @Description {value:"Represent errors related to base64 decoder"}
@@ -38,7 +38,7 @@ public type Base64EncodeError {
 @Field {value:"cause: The cause of the error"}
 public type Base64DecodeError {
     string message,
-    error[] cause,
+    error? cause,
 };
 
 @Description {value:"Returns a random UUID string"}

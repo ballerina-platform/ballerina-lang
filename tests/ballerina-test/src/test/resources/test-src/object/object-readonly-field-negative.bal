@@ -1,4 +1,5 @@
 import org.bar;
+import ballerina/http;
 
 public function testReadOnlyFieldAccessInDifferentPackage() returns (int, string) {
     bar:Person p = bar:createPerson();
@@ -14,6 +15,14 @@ public function testReadOnlyGlobalVarAccessInDifferentPackage() returns (int, in
     bar:globalInt = 44;
     int v2 = bar:globalInt;
     return (v1, v2, bar:globalInt);
+}
+
+@readonly function finalFunction() {
+    int i = 0;
+}
+
+@readonly service<http:Service> FooService {
+
 }
 
 
