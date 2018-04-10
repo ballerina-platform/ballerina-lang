@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
+
 /**
  * Get executed when the response is available.
  */
@@ -115,6 +117,12 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private void writeOutboundResponse(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive,
             HttpContent httpContent) {
         ChannelFuture outboundChannelFuture;
+        ChunkConfig responseChunkConfig = outboundResponseMsg.getProperty(CHUNKING_CONFIG) != null ?
+                (ChunkConfig) outboundResponseMsg.getProperty(CHUNKING_CONFIG) : null;
+        if (responseChunkConfig != null) {
+            this.setChunkConfig(responseChunkConfig);
+        }
+
         if (Util.isLastHttpContent(httpContent)) {
             if (!headerWritten) {
                 if (chunkConfig == ChunkConfig.ALWAYS
@@ -217,5 +225,13 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     @Override
     public void onError(Throwable throwable) {
         log.error("Couldn't send the outbound response", throwable);
+    }
+
+    public ChunkConfig getChunkConfig() {
+        return chunkConfig;
+    }
+
+    public void setChunkConfig(ChunkConfig chunkConfig) {
+        this.chunkConfig = chunkConfig;
     }
 }
