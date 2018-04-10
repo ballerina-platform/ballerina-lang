@@ -62,7 +62,6 @@ under the License.
             <package name="org.ballerinalang.test.endpoint.*"/>
             <package name="org.ballerinalang.test.closures.*"/>
             <!--<package name="org.ballerinalang.test.services.nativeimpl.*"/>-->
-            <package name="org.ballerinalang.test.services.session"/>
             <package name="org.ballerinalang.test.services.basics"/>
             <package name="org.ballerinalang.test.services.cors"/>
             <package name="org.ballerinalang.test.services.configuration"/>

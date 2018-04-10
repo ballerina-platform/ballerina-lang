@@ -62,7 +62,6 @@ Query/Path/Matrix Param
 Content Based Routing
 Header Based Routing
 Produces/Consumes
-HTTP Sessions
 HTTP Client Connector
 HTTP Trace Logs
 HTTP 100 Continue
