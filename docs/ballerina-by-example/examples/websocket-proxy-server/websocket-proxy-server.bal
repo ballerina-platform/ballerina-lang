@@ -23,7 +23,7 @@ service <http:Service> proxy bind serviceEndpoint {
             callbackService:typeof ClientService
         };
         endpoint http:WebSocketListener wsServerEp;
-        wsServerEp = ep -> upgradeToWebSocket({"custom":"header"});
+        wsServerEp = ep -> acceptWebSocketUpgrade({"custom":"header"});
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsServerEp;
         wsServerEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
     }
