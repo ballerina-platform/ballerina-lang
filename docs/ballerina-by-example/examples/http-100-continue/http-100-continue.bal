@@ -18,7 +18,7 @@ service<http:Service> helloWorld bind helloWorldEP{
         // Check if the client expects a 100-continue response.
         if (request.expects100Continue()) {
             // Send a 100-continue response to the client.
-            _ = outboundEP -> respondContinue();
+            _ = outboundEP -> continue();
         }
 
         // The client will start sending the payload once it receives the 100-continue response. Get this payload sent by the client.
