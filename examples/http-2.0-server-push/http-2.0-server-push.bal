@@ -116,7 +116,7 @@ function main (string[] args) {
 
         if (pushPromise.path == "/resource2") {
             // Client is not interested of getting '/resource2', So reject the promise.
-            _ = clientEP -> rejectPromise(pushPromise);
+            clientEP -> rejectPromise(pushPromise);
             io:println("Push promise for resource2 rejected");
         } else {
             // Store required promises.
