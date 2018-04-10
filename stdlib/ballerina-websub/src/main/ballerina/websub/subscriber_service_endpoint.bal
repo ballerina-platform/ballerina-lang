@@ -78,7 +78,7 @@ public type SubscriberServiceEndpoint object {
 public function SubscriberServiceEndpoint::init(SubscriberServiceEndpointConfiguration config) {
     SignatureValidationFilter sigValFilter = new(interceptWebSubRequest, interceptionPlaceholder);//TODO:rem placeholder
     http:Filter[] filters = [<http:Filter> sigValFilter];
-    http:ListenerConfiguration serviceConfig = { host:config.host, port:config.port,
+    http:ServiceEndpointConfiguration serviceConfig = { host:config.host, port:config.port,
                                                           secureSocket:config.secureSocket, filters:filters };
     serviceEndpoint.init(serviceConfig);
     initWebSubSubscriberServiceEndpoint();

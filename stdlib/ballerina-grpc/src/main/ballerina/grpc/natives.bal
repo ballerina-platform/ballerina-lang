@@ -25,7 +25,7 @@ documentation {
 public type ConnectorError object {
     public {
         string message;
-        error cause;
+        error? cause;
         int statusCode;
     }
 };
@@ -41,7 +41,7 @@ documentation {
 public type ServerError object {
     public {
         string message;
-        error cause;
+        error? cause;
         int statusCode;
     }
 };
@@ -57,7 +57,7 @@ documentation {
 public type ClientError object {
     public {
         string message;
-        error cause;
+        error? cause;
         int statusCode;
     }
 };

@@ -2,7 +2,7 @@ import ballerina/transactions;
 
 public type TrxError {
     string message;
-    error[] cause;
+    error? cause;
     string data;
 };
 
