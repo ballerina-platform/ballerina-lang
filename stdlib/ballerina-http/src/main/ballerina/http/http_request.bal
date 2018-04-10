@@ -150,7 +150,7 @@ public type Request object {
 
     @Description {value:"Set the request payload"}
     @Param {value:"payload: Payload can be of type string, xml, json, blob or byte channel"}
-    public function setPayload ((string | xml | json | blob | io:ByteChannel) payload);
+    public function setPayload ((string | xml | json | blob | io:ByteChannel | mime:Entity[]) payload);
 
     function parseCacheControlHeader();
 };
@@ -359,7 +359,7 @@ public function Request::setByteChannel (io:ByteChannel payload) {
     self.setEntity(entity);
 }
 
-public function Request::setPayload ((string | xml | json | blob | io:ByteChannel) payload) {
+public function Request::setPayload ((string | xml | json | blob | io:ByteChannel | mime:Entity[]) payload) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setBody(payload);
     self.setEntity(entity);

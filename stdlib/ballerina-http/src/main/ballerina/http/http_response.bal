@@ -150,8 +150,8 @@ public type Response object {
     public function setByteChannel (io:ByteChannel payload);
 
     @Description {value:"Set the response payload"}
-    @Param {value:"payload: Payload can be of type string, xml, json, blob or byte channel"}
-    public function setPayload ((string | xml | json | blob | io:ByteChannel) payload);
+    @Param {value:"payload: Payload can be of type string, xml, json, blob, byte channel or set of body parts"}
+    public function setPayload ((string | xml | json | blob | io:ByteChannel | mime:Entity[]) payload);
 };
 
 /////////////////////////////////
@@ -319,7 +319,7 @@ public function Response::setByteChannel (io:ByteChannel payload) {
     self.setEntity(entity);
 }
 
-public function Response::setPayload ((string | xml | json | blob | io:ByteChannel) payload) {
+public function Response::setPayload ((string | xml | json | blob | io:ByteChannel | mime:Entity[]) payload) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setBody(payload);
     self.setEntity(entity);

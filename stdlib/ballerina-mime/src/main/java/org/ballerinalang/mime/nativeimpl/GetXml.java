@@ -34,7 +34,6 @@ import org.ballerinalang.runtime.message.MessageDataSource;
 
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.Constants.JSON_SUFFIX;
 import static org.ballerinalang.mime.util.Constants.XML_SUFFIX;
 
 /**

@@ -105,23 +105,21 @@ public class MimeUtil {
      * @return content-type in 'primarytype/subtype; key=value;' format
      */
     public static String getContentTypeWithParameters(BStruct entity) {
-        if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
-            BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
-            if (mediaType != null) {
-                String contentType;
-                contentType = mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" +
-                        mediaType.getStringField(SUBTYPE_INDEX);
-                if (mediaType.getRefField(PARAMETER_MAP_INDEX) != null) {
-                    BMap map = mediaType.getRefField(PARAMETER_MAP_INDEX) != null ?
-                            (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX) : null;
-                    if (map != null && !map.isEmpty()) {
-                        contentType = contentType + SEMICOLON;
-                        return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
-                    }
-                }
+        if (entity.getRefField(MEDIA_TYPE_INDEX) == null) {
+            return HeaderUtil.getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString());
+        }
+        BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
+        String contentType = mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" +
+                mediaType.getStringField(SUBTYPE_INDEX);
+        if (mediaType.getRefField(PARAMETER_MAP_INDEX) != null) {
+            BMap map = mediaType.getRefField(PARAMETER_MAP_INDEX) != null ?
+                    (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX) : null;
+            if (map != null && !map.isEmpty()) {
+                contentType = contentType + SEMICOLON;
+                return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
             }
         }
-        return HeaderUtil.getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString());
+        return contentType;
     }
 
     /**

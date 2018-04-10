@@ -48,7 +48,7 @@ service<http:Service> test bind multipartEP {
         //Create an array to hold the parent part and set it to request.
         mime:Entity[] immediatePartsToRequest = [parentPart];
         http:Request request = new;
-        request.setMultiparts(immediatePartsToRequest, mime:MULTIPART_FORM_DATA);
+        request.setBodyParts(immediatePartsToRequest, mime:MULTIPART_FORM_DATA);
 
         var returnResponse = clientEP -> post("/nestedparts/decoder", request);
         match returnResponse {

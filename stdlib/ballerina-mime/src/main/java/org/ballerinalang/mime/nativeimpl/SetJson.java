@@ -33,7 +33,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 /**
  * Set the entity body with JSON data.
@@ -52,7 +51,7 @@ public class SetJson extends BlockingNativeCallableUnit {
         BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
         BJSON jsonContent = (BJSON) context.getRefArgument(SECOND_PARAMETER_INDEX);
         EntityBodyHandler.addMessageDataSource(entityStruct, jsonContent);
-        if(HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString()) == null) {
+        if (HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString()) == null) {
             HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
         }
         context.setReturnValues();

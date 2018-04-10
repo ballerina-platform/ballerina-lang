@@ -98,7 +98,7 @@ public function MediaType::getBaseType () returns (string) {
 }
 
 public function MediaType::toString () returns (string) {
-    string contentType = getBaseType() + "; ";
+    string contentType = self.getBaseType() + "; ";
     map<string> parameters = self.parameters;
     string[] arrKeys = self.parameters.keys();
     int size = lengthof arrKeys;
@@ -139,7 +139,7 @@ public type Entity object {
     }
 
     @Description {value:"Set the entity body with a given content"}
-    public function setBody ((string | xml | json | blob | io:ByteChannel) entityBody);
+    public function setBody ((string | xml | json | blob | io:ByteChannel | Entity[]) entityBody);
 
     @Description {value:"Set the entity body with a given file handler"}
     @Param {value:"fileHandler: Represent a file"}
@@ -245,13 +245,14 @@ public type Entity object {
     public native function hasHeader (string headerName) returns boolean;
 };
 
-public function Entity::setBody ((string | xml | json | blob | io:ByteChannel) entityBody) {
+public function Entity::setBody ((string | xml | json | blob | io:ByteChannel | Entity[]) entityBody) {
     match entityBody {
-        string textContent => setText(textContent);
-        xml xmlContent => setXml(xmlContent);
-        json jsonContent => setJson(jsonContent);
-        blob blobContent => setBlob(blobContent);
-        io:ByteChannel byteChannelContent => setByteChannel(byteChannelContent);
+        string textContent => self.setText(textContent);
+        xml xmlContent => self.setXml(xmlContent);
+        json jsonContent => self.setJson(jsonContent);
+        blob blobContent => self.setBlob(blobContent);
+        io:ByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
+        Entity[] bodyParts => self.setBodyParts(bodyParts);
     }
 }
 

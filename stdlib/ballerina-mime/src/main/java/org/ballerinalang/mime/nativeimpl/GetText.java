@@ -32,6 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 
+import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_AS_PRIMARY_TYPE;
@@ -56,7 +57,8 @@ public class GetText extends BlockingNativeCallableUnit {
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
-            if (baseType != null && baseType.startsWith(TEXT_AS_PRIMARY_TYPE)) {
+            if (baseType != null && (baseType.startsWith(TEXT_AS_PRIMARY_TYPE) ||
+                    baseType.startsWith(APPLICATION_FORM))) {
                 MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
                     result = new BString(dataSource.getMessageAsString());

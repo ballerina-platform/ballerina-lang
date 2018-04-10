@@ -51,7 +51,7 @@ service<http:Service> test bind multipartEP {
         //Set body parts to request. Here the content-type is set as multipart form data. This also works with any other
         //multipart media type. eg:- multipart/mixed, multipart/related etc... Just pass the content type that suit
         //your requirement.
-        request.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
+        request.setBodyParts(bodyParts, mime:MULTIPART_FORM_DATA);
         var returnResponse = clientEP -> post("/multiparts/decode_in_request", request);
         match returnResponse {
             http:HttpConnectorError err => {

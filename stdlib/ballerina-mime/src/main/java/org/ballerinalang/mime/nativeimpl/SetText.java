@@ -50,7 +50,7 @@ public class SetText extends BlockingNativeCallableUnit {
         BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
         String textContent = context.getStringArgument(FIRST_PARAMETER_INDEX);
         EntityBodyHandler.addMessageDataSource(entityStruct, new StringDataSource(textContent));
-        if(HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString()) == null) {
+        if (HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString()) == null) {
             HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
         }
         context.setReturnValues();
