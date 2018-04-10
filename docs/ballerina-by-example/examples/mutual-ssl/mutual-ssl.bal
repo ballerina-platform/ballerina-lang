@@ -2,6 +2,7 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
+//Create a new service endpoint to accept new connections that are secured via mutual SSL.
 endpoint http:Listener helloWorldEP {
     port:9095,
     secureSocket: {
@@ -18,6 +19,7 @@ endpoint http:Listener helloWorldEP {
             versions: ["TLSv1.2","TLSv1.1"]
         },
         ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
+        //Enable mutual SSL.
         sslVerifyClient:"require"
     }
 };
@@ -27,6 +29,7 @@ endpoint http:Listener helloWorldEP {
      basePath:"/hello"
 }
 
+//Bind the service to the endpoint that you declared above.
 service<http:Service> helloWorld bind helloWorldEP {
     @http:ResourceConfig {
         methods:["GET"],
@@ -35,13 +38,14 @@ service<http:Service> helloWorld bind helloWorldEP {
 
     sayHello (endpoint conn, http:Request req) {
         http:Response res = new;
-        //Set response payload.
+        //Set the response payload.
         res.setStringPayload("Successful");
         //Send response to client.
         _ = conn -> respond(res);
     }
 }
 
+//Create a new client endpoint to connect to the service endpoint you created above via mutual SSL.
 endpoint http:Client clientEP {
     targets: [{
         url: "https://localhost:9095",
@@ -61,9 +65,11 @@ endpoint http:Client clientEP {
         }
     }]
 };
-@Description {value:"Ballerina client connector can be used to connect to the created https server. You have to run the service before running this main function. As this is a mutual ssl connection, client also needs to provide keyStoreFile, keyStorePassword, trustStoreFile and trustStorePassword."}
+@Description {value:"The Ballerina client connector can be used to connect to the created HTTPS server. You have to run
+the service before running this main function. As this is a mutual ssl connection, the client needs to provide the
+keyStoreFile, keyStorePassword, trustStoreFile, and trustStorePassword."}
 function main (string[] args) {
-    //Creates a request.
+    //Create a request.
     http:Request req = new;
     var resp = clientEP -> get("/hello/", req);
     match resp {
