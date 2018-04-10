@@ -380,7 +380,10 @@ public class SwaggerResourceMapper {
             RefModel refModel = new RefModel();
             refModel.setReference("Request");
             messageParameter.setSchema(refModel);
-            operationAdaptor.getOperation().addParameter(messageParameter);
+            //Adding conditional check for http delete operation as it cannot have body parameter.
+            if(!operationAdaptor.getHttpOperation().equalsIgnoreCase("delete")) {
+                operationAdaptor.getOperation().addParameter(messageParameter);
+            }
         }
     
         for (int i = 2; i < resource.getParameters().size(); i++) {
