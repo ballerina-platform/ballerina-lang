@@ -4,12 +4,17 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.nativeimpl.io.channels.base.Buffer;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 /**
@@ -36,32 +41,52 @@ public class ExecBallerina extends BlockingNativeCallableUnit {
         String command = context.getStringArgument(0);
         String packageName = context.getStringArgument(1);
         String balCommand = path + "/bin/ballerina " + command + " " + packageName;
-        StringBuffer output = new StringBuffer();
 
-        Process p;
+        Process process;
+        BufferedReader reader = null;
+        BufferedReader readerEr = null;
         try {
-            p = Runtime.getRuntime().exec(balCommand);
-            p.waitFor();
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(p.getInputStream()));
-            BufferedReader readerEr =
-                    new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            StringBuilder output = new StringBuilder();
+            process = Runtime.getRuntime().exec(balCommand);
+            process.waitFor();
+            reader =
+                    new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
+            readerEr =
+                    new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
+
             String lineEr = "";
             while ((lineEr = readerEr.readLine()) != null) {
-                output.append(lineEr + "\n");
+                output.append(lineEr).append("\n");
             }
-            readerEr.close();
 
             String line = "";
             while ((line = reader.readLine()) != null) {
-                output.append(line + "\n");
+                output.append(line).append("\n");
             }
-            reader.close();
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            String adjusted = output.toString().replaceAll("(?m)^[ \t]*\r?\n", "");
+            context.setReturnValues(new BString(adjusted));
+        } catch (InterruptedException e) {
+            throw new BallerinaException(e.getMessage());
+        } catch (IOException e) {
+            throw new BallerinaException(e.getMessage());
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (readerEr != null) {
+                    readerEr.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        String adjusted = output.toString().replaceAll("(?m)^[ \t]*\r?\n", "");
-        context.setReturnValues(new BString(adjusted));
     }
 }
+
+
