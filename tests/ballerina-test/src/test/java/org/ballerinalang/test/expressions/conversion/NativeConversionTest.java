@@ -531,14 +531,6 @@ public class NativeConversionTest {
         int expected = 10;
         Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
     }
-    
-    @Test(enabled = false)
-    public void testErrorOnConversions() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorOnConversions");
-        Assert.assertNull(returns[0]);
-        Assert.assertNull(returns[1]);
-        Assert.assertNull(returns[2]);
-    }
 
     @Test
     public void structWithComplexMapToJson() {
@@ -609,6 +601,22 @@ public class NativeConversionTest {
             expectedExceptionsMessageRegExp = ".*cannot convert 'json' to type 'map<T1>'.*")
     public void testJsonToMapConstrainedFail() {
         BRunUtil.invoke(compileResult, "testJsonToMapConstrainedFail");
+    }
+    
+    @Test
+    public void testStructArrayConversion1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructArrayConversion1");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        BStruct struct = (BStruct) returns[0];
+        Assert.assertEquals(struct.getIntField(1), 1);
+    }
+    
+    @Test
+    public void testStructArrayConversion2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructArrayConversion2");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        BStruct struct = (BStruct) returns[0];
+        Assert.assertEquals(struct.getIntField(2), 2);
     }
     
 }

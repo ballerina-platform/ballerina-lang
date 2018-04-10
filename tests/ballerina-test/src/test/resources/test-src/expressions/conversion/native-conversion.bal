@@ -686,3 +686,33 @@ function testJsonToMapConstrainedFail() returns map {
     m = check <map<T1>> j2;
     return m;
 }
+
+type T2 {
+  int x;
+  int y;
+  int z;
+};
+
+function testStructArrayConversion1() returns T1 {
+    T1[] a;
+    T2[] b;
+    b[0] = {};
+    b[0].x = 5;
+    b[0].y = 1;
+    b[0].z = 2;
+    a = <T1[]> b;
+    return a[0];
+}
+
+function testStructArrayConversion2() returns T2 {
+    T1[] a;
+    T2[] b;
+    b[0] = {};
+    b[0].x = 5;
+    b[0].y = 1;
+    b[0].z = 2;
+    a = <T1[]> b;
+    b = check <T2[]> a;
+    return b[0];
+}
+
