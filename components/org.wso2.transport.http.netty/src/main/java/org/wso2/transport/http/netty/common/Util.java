@@ -36,6 +36,7 @@ import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -238,6 +239,20 @@ public class Util {
      */
     public static boolean isVersionCompatibleForChunking(String httpVersion) {
         return Float.valueOf(httpVersion) >= Constants.HTTP_1_1;
+    }
+
+    /**
+     * Returns whether to enforce chunking on HTTP 1.0 requests.
+     *
+     * @param chunkConfig Chunking configuration.
+     * @param httpVersion http version string.
+     * @return true if chunking should be enforced else false.
+     */
+    public static boolean shouldEnforceChunkingforHttpOneZero(ChunkConfig chunkConfig, String httpVersion) {
+        if (chunkConfig == ChunkConfig.ALWAYS && Float.valueOf(httpVersion) >= Constants.HTTP_1_0) {
+            return true;
+        }
+        return false;
     }
 
     public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFilePath,

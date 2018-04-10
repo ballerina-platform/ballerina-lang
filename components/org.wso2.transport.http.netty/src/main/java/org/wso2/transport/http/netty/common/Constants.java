@@ -253,6 +253,7 @@ public final class Constants {
     public static final int ENDPOINT_TIMEOUT = 5 * 60000;
     public static final String ENDPOINT_TIMEOUT_MSG = "Endpoint timed out";
     public static final String CHUNKED = "chunked";
+    public static final String CHUNKING_CONFIG = "chunking_config";
 
     public static final String LISTENER_PORT = "LISTENER_PORT";
 
