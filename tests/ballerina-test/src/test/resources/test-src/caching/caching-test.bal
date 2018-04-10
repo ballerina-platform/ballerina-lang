@@ -140,7 +140,7 @@ function testCreateCacheWithZeroExpiryTime() {
 }
 
 function testCreateCacheWithNegativeExpiryTime() {
-    caching:Cache c = new(expiryTimeMillis = 10);
+    caching:Cache c = new(expiryTimeMillis = -10);
 }
 
 function testCreateCacheWithZeroCapacity() {
