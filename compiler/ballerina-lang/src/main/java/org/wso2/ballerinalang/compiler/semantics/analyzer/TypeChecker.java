@@ -676,6 +676,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 results.add(checkExpr(bracedOrTupleExpr.expressions.get(i), env, expTypes.get(i)));
             }
             resultType = new BTupleType(results);
+            return;
         }
         List<BType> results = new ArrayList<>();
         for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
