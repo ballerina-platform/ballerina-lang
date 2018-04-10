@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/log;
 import ballerina/http;
 
 @final string NAME = "NAME";
@@ -6,7 +6,6 @@ import ballerina/http;
 endpoint http:WebSocketListener ep {
     port:9090
 };
-
 
 @http:ServiceConfig {
     basePath: "/chat"
@@ -25,6 +24,8 @@ service<http:Service> ChatAppUpgrader bind ep {
         wsEp = ep -> upgradeToWebSocket(headers);
         wsEp.attributes[NAME] = name;
         wsEp.attributes[AGE] = req.getQueryParams()["age"];
+        string msg = "Hi " + name + "! You have succesfully connected to the chat";
+        wsEp -> pushText(msg) but {error e => log:printErrorCause("Error sending message", e)};
     }
 
 }
@@ -34,7 +35,6 @@ map<http:WebSocketListener> consMap;
 
 service<http:WebSocketService> chatApp {
 
-
     onOpen (endpoint conn) {
         string msg = string `{{getAttributeStr(conn, NAME)}} with age {{getAttributeStr(conn, AGE)}} connected to chat`;
         broadcast(consMap, msg);
@@ -43,7 +43,7 @@ service<http:WebSocketService> chatApp {
 
     onText (endpoint conn, string text) {
         string msg = string `{{getAttributeStr(conn, NAME)}}: {{text}}`;
-        io:println(msg);
+        log:printInfo(msg);
         broadcast(consMap, msg);
     }
 
@@ -58,7 +58,7 @@ function broadcast (map<http:WebSocketListener> consMap, string text) {
     endpoint http:WebSocketListener ep;
     foreach id, con in consMap {
         ep = con;
-        _ = ep -> pushText(text);
+        ep -> pushText(text) but {error e => log:printErrorCause("Error sending message", e)};
     }
 }
 

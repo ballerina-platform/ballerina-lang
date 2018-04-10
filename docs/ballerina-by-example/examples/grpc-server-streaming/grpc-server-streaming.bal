@@ -10,7 +10,7 @@ endpoint grpc:Service ep {
 };
 
 @grpc:serviceConfig {generateClientConnector:false}
-service<grpc:Endpoint> HelloWorld bind ep {
+service<grpc:Listener> HelloWorld bind ep {
 
     @grpc:resourceConfig {streaming:true}
     lotsOfReplies (endpoint client, string name) {
