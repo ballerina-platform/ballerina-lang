@@ -13,7 +13,7 @@ endpoint grpc:Service ep {
     clientStreaming:true,
     serverStreaming:true,
     generateClientConnector:false}
-service<grpc:Endpoint> Chat bind ep {
+service<grpc:Listener> Chat bind ep {
     //TODO: remove temp initialization when map issue is fixed.
     map<grpc:Service> consMap = {"_":new};
 
