@@ -40,7 +40,7 @@ import java.util.Comparator;
 /**
  * Test class for Directory Listener connector.
  */
-@Test(sequential = true)
+@Test(sequential = true, enabled = false)
 public class DirectoryListenerConnectorTest {
 
     private File rootDirectory;
