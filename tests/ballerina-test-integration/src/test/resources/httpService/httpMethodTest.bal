@@ -1,10 +1,10 @@
 import ballerina/http;
 
-endpoint http:ServiceEndpoint serviceEndpoint {
+endpoint http:Listener serviceEndpoint {
     port:9090
 };
 
-endpoint http:ClientEndpoint endPoint {
+endpoint http:Client endPoint {
     targets: [
         {
             url: "http://localhost:9090"

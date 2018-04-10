@@ -26,7 +26,7 @@ package ballerina.http;
 @Field {value:"compression: The status of compression {default value : AUTO}"}
 @Field {value:"cors: The CORS configurations for the service"}
 public type HttpServiceConfig {
-    ServiceEndpoint[] endpoints,
+    Listener[] endpoints,
     HttpServiceLifeTime lifetime,
     string basePath,
     Compression compression = "AUTO",
@@ -68,8 +68,8 @@ public type Versioning {
 @Field {value:"subProtocols: Negotiable sub protocol by the service"}
 @Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
 public type WSServiceConfig {
-    ServiceEndpoint[] endpoints,
-    WebSocketEndpoint[] webSocketEndpoints,
+    Listener[] endpoints,
+    WebSocketListener[] webSocketEndpoints,
     string basePath,
     string[] subProtocols,
     int idleTimeoutInSeconds,

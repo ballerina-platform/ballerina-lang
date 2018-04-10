@@ -639,14 +639,22 @@ public class CommonUtil {
             case BOOLEAN:
                 typeString = Boolean.toString(false);
                 break;
+            case ARRAY:
             case BLOB:
                 typeString = "[]";
                 break;
             case RECORD:
+            case STRUCT:
                 typeString = "{}";
                 break;
-            case STREAM:
+            case FINITE:
+                typeString = bType.toString();
+                break;
             case UNION:
+                String[] typeNameComps = bType.toString().split(UtilSymbolKeys.PKG_DELIMITER_KEYWORD);
+                typeString = typeNameComps[typeNameComps.length - 1];
+                break;
+            case STREAM:
             default:
                 typeString = "null";
                 break;

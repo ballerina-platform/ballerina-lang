@@ -33,6 +33,7 @@ import java.nio.file.Paths;
 /**
  * Test goto definition language server feature.
  */
+@Test(groups = "broken")
 public class DefinitionTest {
     private static final String DEFINITION_TESTS_SAMPLES = "src" + File.separator + "test" + File.separator
             + "resources" + File.separator + "definition";

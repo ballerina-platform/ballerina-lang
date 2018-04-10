@@ -388,6 +388,17 @@ public class Desugar extends BLangNodeVisitor {
         serviceNode.resources = rewrite(serviceNode.resources, serviceEnv);
         serviceNode.vars = rewrite(serviceNode.vars, serviceEnv);
         serviceNode.endpoints = rewrite(serviceNode.endpoints, serviceEnv);
+        serviceNode.vars.forEach(v -> {
+            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v.var);
+            if (assignment.expr == null) {
+                assignment.expr = getInitExpr(v.var);
+            }
+            if (assignment.expr != null) {
+                serviceNode.initFunction.body.stmts.add(assignment);
+            }
+        });
+        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(serviceNode.pos, symTable.nilType);
+        serviceNode.initFunction.body.stmts.add(returnStmt);
         serviceNode.initFunction = rewrite(serviceNode.initFunction, serviceEnv);
         result = serviceNode;
     }
@@ -1103,16 +1114,16 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangInvocation iExpr) {
         BLangInvocation genIExpr = iExpr;
 
+        if (safeNavigate(iExpr)) {
+            result = rewriteExpr(getSafeNavigationMatchExpr(iExpr));
+            return;
+        }
+
         // Reorder the arguments to match the original function signature.
         reorderArguments(iExpr);
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
         iExpr.namedArgs = rewriteExprs(iExpr.namedArgs);
         iExpr.restArgs = rewriteExprs(iExpr.restArgs);
-
-        if (safeNavigate(iExpr)) {
-            result = rewriteExpr(getSafeNavigationMatchExpr(iExpr));
-            return;
-        }
 
         if (iExpr.functionPointerInvocation) {
             visitFunctionPointerInvocation(iExpr);
