@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -21,35 +21,43 @@ package org.ballerinalang.nativeimpl.file;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.file.utils.Constants;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Determines whether the user has write access to the specified file.
+ * Initializes a given file location to a path.
  *
- * @since 0.94.1
+ * @since ballerina-0.970.0-alpha3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "file",
-        functionName = "isWritable",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        functionName = "Path.init",
+        args = {
+                @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path", structPackage = "ballerina.file"),
+                @Argument(name = "link", type = TypeKind.STRING)
+        },
         isPublic = true
 )
-public class IsWritable extends BlockingNativeCallableUnit {
+public class Init extends BlockingNativeCallableUnit {
+    /**
+     * Retrieves the path from the given location.
+     *
+     * @param path the values of the path.
+     * @return reference to the path location.
+     */
+    private Path getPath(String path) {
+        return Paths.get(path);
+    }
 
     @Override
     public void execute(Context context) {
-        BStruct fileStruct = (BStruct) context.getRefArgument(0);
-        Path filePath = Paths.get(fileStruct.getStringField(0));
-        boolean isWritable = Files.isWritable(filePath);
-        context.setReturnValues(new BBoolean(isWritable));
+        String basePath = context.getStringArgument(0);
+        BStruct path = (BStruct) context.getRefArgument(0);
+        path.addNativeData(Constants.PATH_DEFINITION_NAME, getPath(basePath));
     }
 }
