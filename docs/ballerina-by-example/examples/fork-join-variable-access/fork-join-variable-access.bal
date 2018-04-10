@@ -34,7 +34,7 @@ function main (string[] args) {
         any[] r2;
         // Declare variables to receive the results from the forked workers W1 and W2.
         // The 'results' map contains a map of the results from the workers within the fork-join statement in the
-        'any' type array.
+        // 'any' type array.
         // Values received from worker W1 are assigned to the 'any' type array of r1.
         var x1 = <any[]>results["W1"];
         match x1 {

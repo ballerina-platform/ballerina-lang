@@ -13,7 +13,7 @@ function main (string[] args) {
     io:println("\nIterating over a map.");
     map words = {a:"apple", b:"banana", c:"cherry"};
     // For maps: use 1 variable to get the values defined in the map. Use 2 variables to get both the key (string) and
-    //value.
+    // value.
     foreach k, v in words {
         string|error result = <string>v;
         match result {
