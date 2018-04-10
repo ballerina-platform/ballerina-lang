@@ -59,16 +59,16 @@ public class SQLDatasource implements BValue {
 
     public SQLDatasource() {}
 
-    public boolean init(Struct options, String dbType, String hostOrPath, int port, String username, String password,
-            String dbName) {
-        buildDataSource(options, dbType, hostOrPath, dbName, port, username, password);
+    public boolean init(Struct options, String url, String dbType, String hostOrPath, int port, String username,
+            String password, String dbName) {
+        buildDataSource(options, url, dbType, hostOrPath, dbName, port, username, password);
         connectorId = UUID.randomUUID().toString();
         xaConn = isXADataSource();
         try (Connection con = getSQLConnection()) {
             databaseName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
         } catch (SQLException e) {
-            throw new BallerinaException(
-                    "error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(), e);
+            throw new BallerinaException("error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(),
+                    e);
         }
         return true;
     }
@@ -104,16 +104,27 @@ public class SQLDatasource implements BValue {
         hikariDataSource.close();
     }
 
-    private void buildDataSource(Struct options, String dbType, String hostOrPath, String dbName, int port,
+    private void buildDataSource(Struct options, String url, String dbType, String hostOrPath, String dbName, int port,
             String username, String password) {
         try {
             HikariConfig config = new HikariConfig();
             config.setUsername(username);
             config.setPassword(password);
+            String jdbcurl = "";
+            if (!url.isEmpty()) {
+                url = "jdbc:" + url;
+                jdbcurl = url;
+            }
+
             if (options != null) {
                 boolean isXA = options.getBooleanField(Constants.Options.IS_XA);
                 BMap<String, BRefType> dataSourceConfigMap = populatePropertiesMap(options);
-                String jdbcurl = options.getStringField(Constants.Options.URL);
+
+                //Construct URL
+                String optionsJdbcurl = options.getStringField(Constants.Options.URL);
+                if (!optionsJdbcurl.isEmpty()) {
+                    jdbcurl = "jdbc:" + optionsJdbcurl;
+                }
                 String dataSourceClassName = options.getStringField(Constants.Options.DATASOURCE_CLASSNAME);
                 if (!dataSourceClassName.isEmpty()) {
                     config.setDataSourceClassName(dataSourceClassName);
@@ -194,8 +205,10 @@ public class SQLDatasource implements BValue {
                 if (dataSourceConfigMap != null) {
                     setDataSourceProperties(dataSourceConfigMap, config);
                 }
+            } else if (!jdbcurl.isEmpty()) {
+                config.setJdbcUrl(jdbcurl);
             } else {
-                String jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
+                jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
                 config.setJdbcUrl(jdbcurl);
             }
             hikariDataSource = new HikariDataSource(config);
@@ -299,14 +312,14 @@ public class SQLDatasource implements BValue {
             }
             jdbcUrl.append("jdbc:db2:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
             break;
-        case Constants.DBTypes.HSQLDB_SERVER:
+        case Constants.DBTypes.HSQL_SERVER:
             if (port <= 0) {
                 port = Constants.DefaultPort.HSQLDB_SERVER;
             }
             jdbcUrl.append("jdbc:hsqldb:hsql://").append(hostOrPath).append(":").append(port).append("/")
                     .append(dbName);
             break;
-        case Constants.DBTypes.HSQLDB_FILE:
+        case Constants.DBTypes.HSQL_FILE:
             jdbcUrl.append("jdbc:hsqldb:file:").append(hostOrPath).append(File.separator).append(dbName);
             break;
         case Constants.DBTypes.H2_SERVER:
@@ -368,10 +381,12 @@ public class SQLDatasource implements BValue {
         case Constants.DBTypes.IBMDB2:
             xaDataSource = Constants.XADataSources.IBMDB2_XA_DATASOURCE;
             break;
-        case Constants.DBTypes.HSQLDB_SERVER:
-        case Constants.DBTypes.HSQLDB_FILE:
+        case Constants.DBTypes.HSQL:
+        case Constants.DBTypes.HSQL_SERVER:
+        case Constants.DBTypes.HSQL_FILE:
             xaDataSource = Constants.XADataSources.HSQLDB_XA_DATASOURCE;
             break;
+        case Constants.DBTypes.H2:
         case Constants.DBTypes.H2_SERVER:
         case Constants.DBTypes.H2_FILE:
         case Constants.DBTypes.H2_MEM:

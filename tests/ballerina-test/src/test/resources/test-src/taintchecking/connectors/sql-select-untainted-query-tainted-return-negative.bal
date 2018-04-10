@@ -1,4 +1,4 @@
-import ballerina/sql;
+import ballerina/mysql;
 
 type Employee {
     int id;
@@ -10,8 +10,7 @@ public function main (string[] args) {
 }
 
 public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(string[] args) {
-    endpoint sql:Client testDB {
-        database: sql:DB_MYSQL,
+    endpoint mysql:Client testDB {
         host: "localhost",
         port: 3306,
         name: "testdb",
@@ -31,7 +30,7 @@ public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(strin
                 }
             }
 	}
-        sql:SQLConnectorError => return;
+        mysql:SQLConnectorError => return;
     }
     var closeStatus = testDB -> close();
     return;

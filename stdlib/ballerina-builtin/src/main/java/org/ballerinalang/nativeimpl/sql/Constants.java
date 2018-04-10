@@ -64,7 +64,6 @@ public final class Constants {
      * DB Types with first class support.
      */
     public static final class DBTypes {
-        public static final String MYSQL = "MYSQL";
         public static final String SQLSERVER = "SQLSERVER";
         public static final String ORACLE = "ORACLE";
         public static final String SYBASE = "SYBASE";
@@ -72,11 +71,20 @@ public final class Constants {
         public static final String IBMDB2 = "IBMDB2";
         public static final String HSQLDB_SERVER = "HSQLDB_SERVER";
         public static final String HSQLDB_FILE = "HSQLDB_FILE";
+
+        public static final String DERBY_SERVER = "DERBY_SERVER";
+        public static final String DERBY_FILE = "DERBY_FILE";
+
+        public static final String HSQL = "HSQL";
+        public static final String HSQL_SERVER = "HSQL_SERVER";
+        public static final String HSQL_FILE = "HSQL_FILE";
+
+        public static final String MYSQL = "MYSQL";
+
+        public static final String H2 = "H2";
         public static final String H2_SERVER = "H2_SERVER";
         public static final String H2_FILE = "H2_FILE";
         public static final String H2_MEM = "H2_MEM";
-        public static final String DERBY_SERVER = "DERBY_SERVER";
-        public static final String DERBY_FILE = "DERBY_FILE";
     }
 
     /**
@@ -128,7 +136,10 @@ public final class Constants {
      */
     public static final class EndpointConfig {
         public static final String DATABASE = "database";
+        public static final String DBTYPE = "dbtype";
         public static final String HOST = "host";
+        public static final String URL = "url";
+        public static final String PATH = "path";
         public static final String PORT = "port";
         public static final String NAME = "name";
         public static final String USERNAME = "username";

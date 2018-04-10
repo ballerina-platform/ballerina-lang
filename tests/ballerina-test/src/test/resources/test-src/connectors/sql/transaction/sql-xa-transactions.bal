@@ -6,22 +6,14 @@ type ResultCount {
 
 function testXAransactonSuccess () returns (int, int) {
 	endpoint sql:Client testDB1 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_1/",
-        port: 0,
-        name: "TestDB1",
-        username: "sa",
-        password: "",
+        url: "h2:file:./target/H2_1/TestDB1",
+        username: "SA",
         options: {maximumPoolSize:1, isXA:true}
     };
 	
 	endpoint sql:Client testDB2 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_2/",
-        port: 0,
-        name: "TestDB2",
-        username: "sa",
-        password: "",
+        url: "h2:file:./target/H2_2/TestDB2",
+        username: "SA",
         options: {maximumPoolSize:1, isXA:true}
     };
 	
@@ -56,22 +48,14 @@ function testXAransactonSuccess () returns (int, int) {
 function testXAransactonFailed1 () returns (int, int) {
 
 	endpoint sql:Client testDB1 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_1/",
-        port: 0,
-        name: "TestDB1",
-        username: "sa",
-        password: "",
+        url: "h2:file:./target/H2_1/TestDB1",
+        username: "SA",
         options: {maximumPoolSize:1, isXA:true}
     };
 	
 	endpoint sql:Client testDB2 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_2/",
-        port: 0,
-        name: "TestDB2",
-        username: "sa",
-        password: "",
+        url: "h2:file:./target/H2_2/TestDB2",
+        username: "SA",
         options: {maximumPoolSize:1, isXA:true}
     };
 	
@@ -110,22 +94,14 @@ function testXAransactonFailed1 () returns (int, int) {
 function testXAransactonFailed2 () returns (int, int) {
 
 	endpoint sql:Client testDB1 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_1/",
-        port: 0,
-        name: "TestDB1",
-        username: "sa",
-        password: "",
+        url: "h2:file:./target/H2_1/TestDB1",
+        username: "SA",
         options: {maximumPoolSize:1, isXA:true}
     };
 	
 	endpoint sql:Client testDB2 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_2/",
-        port: 0,
-        name: "TestDB2",
-        username: "sa",
-        password: "",
+        url: "h2:file:./target/H2_2/TestDB2",
+        username: "SA",
         options: {maximumPoolSize:1, isXA:true}
     };
 	
@@ -163,22 +139,14 @@ function testXAransactonFailed2 () returns (int, int) {
 function testXAransactonRetry () returns (int, int) {
 
 	endpoint sql:Client testDB1 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_1/",
-        port: 0,
-        name: "TestDB1",
-        username: "sa",
-        password: "",
+        url: "h2:file:./target/H2_1/TestDB1",
+        username: "SA",
         options: {maximumPoolSize:1, isXA:true}
     };
 	
 	endpoint sql:Client testDB2 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_2/",
-        port: 0,
-        name: "TestDB2",
-        username: "sa",
-        password: "",
+        url: "h2:file:./target/H2_2/TestDB2",
+        username: "SA",
         options: {maximumPoolSize:1, isXA:true}
     };
 

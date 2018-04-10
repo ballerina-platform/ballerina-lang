@@ -47,7 +47,6 @@ public class CreateClient extends BlockingNativeCallableUnit {
         BStruct configBStruct = (BStruct) context.getRefArgument(0);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
 
-        //Extract parameters from the endpoint config
         BStruct sqlClient = SQLDatasourceUtils
                 .createServerBasedDBClient(context, Constants.DBTypes.MYSQL, clientEndpointConfig);
         context.setReturnValues(sqlClient);

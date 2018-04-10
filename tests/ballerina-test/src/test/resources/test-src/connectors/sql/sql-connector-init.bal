@@ -1,6 +1,6 @@
 import ballerina/sql;
 
-sql:ConnectionProperties properties = {url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+sql:ConnectionProperties properties = {url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
                   driverClassName:"org.hsqldb.jdbc.JDBCDriver", maximumPoolSize:1,
                   idleTimeout:600000, connectionTimeout:30000, autoCommit:true, maxLifetime:1800000,
                   minimumIdle:1, poolName:"testHSQLPool", isolateInternalQueries:false,
@@ -9,7 +9,7 @@ sql:ConnectionProperties properties = {url:"jdbc:hsqldb:file:./target/tempdb/TES
                   transactionIsolation:"TRANSACTION_READ_COMMITTED", catalog:"PUBLIC",
                   connectionTestQuery:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS"};
 
-sql:ConnectionProperties Properties2 = {url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT"};
+sql:ConnectionProperties Properties2 = {url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT"};
 
 map propertiesMap = {"loginTimeout":109, "url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT"};
 sql:ConnectionProperties properties3 = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
@@ -27,10 +27,6 @@ sql:ConnectionProperties properties6 = {dataSourceClassName:"org.hsqldb.jdbc.JDB
 
 function testConnectionPoolProperties1 () returns (json) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "",
-        port: 0,
-        name: "",
         username: "SA",
         password: "",
         options: properties
@@ -61,9 +57,7 @@ function testConnectionPoolProperties2 () returns (json) {
 
 function testConnectionPoolProperties3 () returns (json) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_INIT",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA"
     };
 
@@ -78,11 +72,8 @@ function testConnectionPoolProperties3 () returns (json) {
 
 function testConnectorWithDefaultPropertiesForListedDB () returns (json) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_INIT",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
-        password: "",
         options: {}
     };
 
@@ -96,11 +87,8 @@ function testConnectorWithDefaultPropertiesForListedDB () returns (json) {
 
 function testConnectorWithWorkers () returns (json) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_INIT",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
-        password: "",
         options: {}
     };
 
@@ -137,7 +125,6 @@ function testConnectorWithDirectUrl () returns (json) {
 
 function testConnectorWithDataSourceClass () returns (json) {
     endpoint sql:Client testDB {
-        database: sql:DB_GENERIC,
         username: "SA",
         options: properties3
     };
@@ -152,9 +139,7 @@ function testConnectorWithDataSourceClass () returns (json) {
 
 function testConnectorWithDataSourceClassAndProps () returns (json) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_INIT",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         options: properties4
@@ -170,9 +155,7 @@ function testConnectorWithDataSourceClassAndProps () returns (json) {
 
 function testConnectorWithDataSourceClassWithoutURL () returns (json) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_INIT",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         options: properties5
@@ -188,9 +171,7 @@ function testConnectorWithDataSourceClassWithoutURL () returns (json) {
 
 function testConnectorWithDataSourceClassURLPriority () returns (json) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        name: "INVALID_DB_NAME",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         options: properties6

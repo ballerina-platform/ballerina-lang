@@ -3,12 +3,8 @@ import ballerina/io;
 
 function testSelectData () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
         options: {maximumPoolSize:1}
     };
     string returnData;
@@ -33,12 +29,8 @@ function testSelectData () returns (string) {
 
 function testGeneratedKeyOnInsert () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
         options: {maximumPoolSize:1}
     };
 
@@ -67,12 +59,8 @@ function testGeneratedKeyOnInsert () returns (string) {
 
 function testCallProcedure () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
         options: {maximumPoolSize:1}
     };
     string returnData;
@@ -95,12 +83,8 @@ function testCallProcedure () returns (string) {
 
 function testBatchUpdate () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
         options: {maximumPoolSize:1}
     };
 
@@ -143,12 +127,8 @@ function testBatchUpdate () returns (string) {
 
 function testInvalidArrayofQueryParameters () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
         options: {maximumPoolSize:1}
     };
 

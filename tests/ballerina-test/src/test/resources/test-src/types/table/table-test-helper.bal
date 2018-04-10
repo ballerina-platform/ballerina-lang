@@ -6,12 +6,8 @@ type ResultCount {
 
 function getTableCount (string tablePrefix) returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB_H2_MEM,
-        host: "",
-        port: 0,
-        name: "TABLEDB",
+        url: "h2:mem:TABLEDB",
         username: "sa",
-        password: "",
         options: {maximumPoolSize:1}
     };
 
@@ -36,12 +32,8 @@ function getTableCount (string tablePrefix) returns (int) {
 function getSessionCount () returns (int) {
 
     endpoint sql:Client testDB {
-        database: sql:DB_H2_MEM,
-        host: "",
-        port: 0,
-        name: "TABLEDB",
+        url: "h2:mem:TABLEDB",
         username: "sa",
-        password: "",
         options: {maximumPoolSize:1}
     };
 

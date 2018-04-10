@@ -98,18 +98,12 @@ public type ConnectionProperties {
 };
 
 @Description {value:"The Client endpoint configuration for SQL databases."}
-@Field {value:"database: SQL database type"}
-@Field {value:"host: Host name of the database or file path for file based database"}
-@Field {value:"port: Port of the database"}
-@Field {value:"name: Name of the database to connect"}
+@Field {value:"url: URL of the database to connect"}
 @Field {value:"username: Username for the database connection"}
 @Field {value:"password: Password for the database connection"}
 @Field {value:"options: ConnectionProperties for the connection pool configuration"}
 public type ClientEndpointConfiguration {
-    DB database,
-    string host = "",
-    int port = 0,
-    string name = "",
+    string url= "",
     string username = "",
     string password = "",
     ConnectionProperties options,
