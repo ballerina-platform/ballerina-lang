@@ -2,15 +2,15 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
 
-endpoint http:ServiceEndpoint serviceEP {
+endpoint http:Listener serviceEP {
     port:9090
 };
 
-endpoint http:ClientEndpoint nasdaqEP {
+endpoint http:Client nasdaqEP {
     targets:[{url:"http://localhost:9090/nasdaqStocks"}]
 };
 
-endpoint http:ClientEndpoint nyseEP {
+endpoint http:Client nyseEP {
     targets:[{url:"http://localhost:9090/nyseStocks"}]
 };
 

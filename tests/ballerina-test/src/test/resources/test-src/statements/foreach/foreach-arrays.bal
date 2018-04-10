@@ -250,7 +250,8 @@ function testThrow1 () returns (string) {
     try {
         testThrow1Callee();
     } catch (error e) {
-        output = output + e.cause[0].message;
+        error c = e.cause but { error s => s };
+        output = output + c.message;
     }
     return output;
 }

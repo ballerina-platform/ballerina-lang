@@ -96,19 +96,7 @@ public class LSParserUtils {
      * @return BallerinaFile
      */
     public static BallerinaFile compile(String content, CompilerPhase phase) {
-        return compile(content, UNTITLED_BAL, phase);
-    }
-
-    /**
-     * Compile an unsaved Ballerina file.
-     *
-     * @param content file content
-     * @param tempFileId temp file id
-     * @param phase {CompilerPhase} CompilerPhase
-     * @return BallerinaFile
-     */
-    public static BallerinaFile compile(String content, String tempFileId, CompilerPhase phase) {
-        return compile(content, tempFileId, phase, true);
+        return compile(content, UNTITLED_BAL, phase, true);
     }
 
     /**
@@ -140,7 +128,7 @@ public class LSParserUtils {
                 }
             }
             CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
-                                         sourceDocument, preserveWhitespace, documentManager, CompilerPhase.DEFINE);
+                                         sourceDocument, preserveWhitespace, documentManager, phase);
             BallerinaFile model = compile(content, unsaved, phase, context);
             documentManager.closeFile(unsaved);
             return model;
@@ -205,7 +193,7 @@ public class LSParserUtils {
             }
         }
         CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
-                                            sourceDocument, preserveWhiteSpace, documentManager, CompilerPhase.DEFINE);
+                                            sourceDocument, preserveWhiteSpace, documentManager, phase);
         return compile(content, path, phase, context);
     }
 

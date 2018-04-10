@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListener",
                 structPackage = "ballerina.http"),
         isPublic = true
 )

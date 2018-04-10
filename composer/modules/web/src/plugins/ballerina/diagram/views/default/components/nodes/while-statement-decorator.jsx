@@ -17,7 +17,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
 import Node from '../../../../../model/tree/node';
@@ -48,9 +47,6 @@ class WhileStatementDecorator extends React.Component {
         this.onJumpToCodeLine = this.onJumpToCodeLine.bind(this);
         this.setActionVisibilityFalse = this.setActionVisibility.bind(this, false);
         this.setActionVisibilityTrue = this.setActionVisibility.bind(this, true);
-        this.openExpressionEditor = e => this.openEditor(this.props.expression, this.props.editorOptions, e);
-        this.openParameterEditor = e => this.openEditor(this.props.parameterEditorOptions.value,
-            this.props.parameterEditorOptions, e);
     }
     /**
      * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
@@ -82,13 +78,6 @@ class WhileStatementDecorator extends React.Component {
     onJumpToCodeLine() {
         const { editor } = this.context;
         editor.goToSource(this.props.model);
-    }
-
-    /**
-     * Call-back for when a new value is entered via expression editor.
-     */
-    onUpdate() {
-        // TODO: implement validate logic.
     }
 
     /**
@@ -386,7 +375,6 @@ class WhileStatementDecorator extends React.Component {
                         y={p9Y}
                         width={titleW}
                         height={titleH}
-                        onClick={this.openExpressionEditor}
                         className='invisible-rect'
                     />
                     {expression && <title> {expression.text} </title>}

@@ -3,7 +3,7 @@
 {{/apiPackage}}import ballerina/http;
 import ballerina/http.swagger;
 
-{{#servers}}endpoint http:ServiceEndpoint ep{{@index}} {
+{{#servers}}endpoint http:Listener ep{{@index}} {
     host: "{{host}}",
     port: {{port}}
 };
