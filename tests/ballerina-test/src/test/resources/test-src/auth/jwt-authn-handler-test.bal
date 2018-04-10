@@ -1,8 +1,10 @@
 import ballerina/http;
 import ballerina/mime;
+import ballerina/auth.jwtAuth;
 
 function testCanHandleHttpJwtAuthWithoutHeader () returns (boolean) {
-    http:HttpJwtAuthnHandler handler = new;
+    jwtAuth:JWTAuthenticator jwtAuthenticator = jwtAuth:createAuthenticator();
+    http:HttpJwtAuthnHandler handler = new(jwtAuthenticator);
     http:Request request = createRequest ();
     string authHeaderValue = "Basic xxxxxx";
     mime:Entity requestEntity = new;
@@ -12,7 +14,8 @@ function testCanHandleHttpJwtAuthWithoutHeader () returns (boolean) {
 }
 
 function testCanHandleHttpJwtAuth () returns (boolean) {
-    http:HttpJwtAuthnHandler handler = new;
+    jwtAuth:JWTAuthenticator jwtAuthenticator = jwtAuth:createAuthenticator();
+    http:HttpJwtAuthnHandler handler = new(jwtAuthenticator);
     http:Request request = createRequest ();
     string authHeaderValue = "Bearer xxx.yyy.zzz";
     mime:Entity requestEntity = new;
@@ -22,7 +25,8 @@ function testCanHandleHttpJwtAuth () returns (boolean) {
 }
 
 function testHandleHttpJwtAuthFailure () returns (boolean) {
-    http:HttpJwtAuthnHandler handler = new;
+    jwtAuth:JWTAuthenticator jwtAuthenticator = jwtAuth:createAuthenticator();
+    http:HttpJwtAuthnHandler handler = new(jwtAuthenticator);
     http:Request request = createRequest ();
     string authHeaderValue = "Bearer xxx.yyy.zzz";
     mime:Entity requestEntity = new;
@@ -32,7 +36,8 @@ function testHandleHttpJwtAuthFailure () returns (boolean) {
 }
 
 function testHandleHttpJwtAuth (string token) returns (boolean) {
-    http:HttpJwtAuthnHandler handler = new;
+    jwtAuth:JWTAuthenticator jwtAuthenticator = jwtAuth:createAuthenticator();
+    http:HttpJwtAuthnHandler handler = new(jwtAuthenticator);
     http:Request request = createRequest ();
     string authHeaderValue = "Bearer " + token;
     mime:Entity requestEntity = new;

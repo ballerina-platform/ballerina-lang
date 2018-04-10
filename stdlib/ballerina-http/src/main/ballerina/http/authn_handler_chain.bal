@@ -18,6 +18,7 @@ package ballerina.http;
 
 import ballerina/log;
 import ballerina/auth;
+import ballerina/auth.jwtAuth;
 
 @Description {value:"Representation of Authentication handler chain"}
 public type AuthnHandlerChain object {
@@ -37,7 +38,8 @@ public function createAuthnHandlerChain () returns (AuthnHandlerChain) {
     auth:ConfigAuthProvider configAuthProvider = new;
     auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
     HttpBasicAuthnHandler httpAuthnHandler = new(authProvider);
-    HttpJwtAuthnHandler jwtAuthnHandler = new;
+    jwtAuth:JWTAuthenticator jwtAuthenticator = jwtAuth:createAuthenticator();
+    HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthenticator);
     // add to map
     authnHandlerChain.authnHandlers[httpAuthnHandler.name] = httpAuthnHandler;
     authnHandlerChain.authnHandlers[jwtAuthnHandler.name] = jwtAuthnHandler;
