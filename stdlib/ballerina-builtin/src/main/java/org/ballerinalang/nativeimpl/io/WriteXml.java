@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
