@@ -108,7 +108,7 @@ public type ServiceEndpointConfiguration {
     int port = 9090,
     KeepAlive keepAlive = KEEPALIVE_AUTO,
     TransferEncoding transferEncoding = TRANSFERENCODE_CHUNKING,
-    Chunking chunking = CHUNKING_AUTO,
+    //Chunking chunking = CHUNKING_AUTO,
     ServiceSecureSocket? secureSocket,
     string httpVersion = "1.1",
     RequestLimits? requestLimits,
