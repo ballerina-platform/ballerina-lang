@@ -42,10 +42,12 @@ To file non-security issues:
 
 3. Fill out all sections in the issue template and submit.
 
-Contributing site changes, docs, and examples
+## Contributing site changes, docs, and examples
 
-Contributing code
-Accepting Contributor License Agreement (CLA)
+## Contributing code
+
+### Accepting Contributor License Agreement (CLA)
+
 Before you submit your first contribution please accept our Contributor License Agreement (CLA) here. When you send your first Pull Request (PR), GitHub will ask you to accept the CLA.
 
 There is no need to do this before you send your first PR.
@@ -53,12 +55,14 @@ There is no need to do this before you send your first PR.
 Subsequent PRs will not require CLA acceptance.
 
 If for some (unlikely) reason at any time CLA changes, you will get presented with the new CLA text on your first PR after the change.
-Obtaining the Source Code and Building the Project
-Build Prerequisites
+
+### Obtaining the Source Code and Building the Project
+
+#### Build Prerequisites
 
 Install a Java Development Kit (JDK) version 8
 
-​Building Ballerina requires a Java SE Development Kit (JDK) version 8 to be installed. You can download one from
+Building Ballerina requires a Java SE Development Kit (JDK) version 8 to be installed. You can download one from
 
 http://www.oracle.com/technetwork/java/javase/downloads/index.html 
 http://openjdk.java.net/install/index.html 
@@ -78,24 +82,25 @@ Make sure you have an active Internet connection to download dependencies while 
 Node (v8.9.x or latest LTS release) + npm (v5.6.0 or later)
 Docker 
 
-Building from the source
+#### Building from the source
+
 Clone this repository using the following command.
 
+`
 git clone --recursive https://github.com/ballerinalang/ballerina
+`
 
 If you download the sources, you need to update the git submodules using the following command.
 
+`
 git submodule update --init 
-
+`
 
 Run the Maven command mvn clean install from the ballerina root directory:
 
-Command
-Description
-mvn clean install
-Build and install the artifacts into the local repository.
-mvn clean install -Dmaven.test.skip=true
-Build and install the artifacts into the local repository, without running any of the unit tests.
+| Command | Description |
+| mvn clean install | Build and install the artifacts into the local repository. |
+| mvn clean install -Dmaven.test.skip=true | Build and install the artifacts into the local repository, without running any of the unit tests. |
 
 Extract the Ballerina distribution created at distribution/zip/ballerina/target/ballerina-<version>-SNAPSHOT.zip.
 
