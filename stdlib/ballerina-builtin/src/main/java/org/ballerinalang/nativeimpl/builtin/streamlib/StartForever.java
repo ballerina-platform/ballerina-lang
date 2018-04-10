@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.builtin.streamlib;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.bre.bvm.StreamingRuntimeManager;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -58,16 +59,29 @@ public class StartForever extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         context.setReturnValues();
 
-        String siddhiApp = context.getStringArgument(0);
+        StringBuilder streamDefinitionQuery = new StringBuilder();
+        String siddhiQuery = context.getStringArgument(0);
+        BRefValueArray inputStreamReferenceArray = (BRefValueArray) context.getRefArgument(0);
+
+        for (int i = 0; i < inputStreamReferenceArray.size(); i++) {
+            BStream stream = (BStream) inputStreamReferenceArray.get(i);
+            siddhiQuery = siddhiQuery.replaceFirst("\\[\\[streamName\\]\\]", stream.getStreamId());
+
+            BStructType.StructField[] structFieldArray = stream.getConstraintType().getStructFields();
+            StringBuilder streamDefinition = new StringBuilder("define stream ");
+            streamDefinition.append(stream.getStreamId()).append("( ");
+            generateStreamDefinition(structFieldArray, streamDefinition);
+            streamDefinitionQuery.append(streamDefinition).append("\n ");
+        }
+
         SiddhiAppRuntime siddhiAppRuntime =
-                StreamingRuntimeManager.getInstance().createSiddhiAppRuntime(siddhiApp);
+                StreamingRuntimeManager.getInstance().createSiddhiAppRuntime(streamDefinitionQuery + siddhiQuery);
         Set<String> streamIds = siddhiAppRuntime.getStreamDefinitionMap().keySet();
         Map<String, InputHandler> streamSpecificInputHandlerMap = new HashMap<>();
         for (String streamId : streamIds) {
             streamSpecificInputHandlerMap.put(streamId, siddhiAppRuntime.getInputHandler(streamId));
         }
 
-        BRefValueArray inputStreamReferenceArray = (BRefValueArray) context.getRefArgument(0);
         BRefValueArray functionPointerArray = (BRefValueArray) context.getRefArgument(4);
 
         for (int i = 0; i < inputStreamReferenceArray.size(); i++) {
@@ -82,5 +96,38 @@ public class StartForever extends BlockingNativeCallableUnit {
             String streamId = "stream" + functionName.replaceAll("\\$", "_");
             StreamingRuntimeManager.getInstance().addCallback(streamId, functionPointer, siddhiAppRuntime);
         }
+    }
+
+    private void generateStreamDefinition(BStructType.StructField[] structFieldArray,
+                                          StringBuilder streamDefinition) {
+        BStructType.StructField structField = structFieldArray[0];
+        if (structField != null) {
+            addTypesToStreamDefinitionQuery(streamDefinition, structField);
+        }
+
+        for (int i = 1; i < structFieldArray.length; i++) {
+            structField = structFieldArray[i];
+            streamDefinition.append(" , ");
+            addTypesToStreamDefinitionQuery(streamDefinition, structField);
+        }
+
+        if (structField != null) {
+            streamDefinition.append(" ); ");
+        }
+    }
+
+    private void addTypesToStreamDefinitionQuery(StringBuilder streamDefinition, BStructType.StructField structField) {
+        streamDefinition.append(structField.fieldName).append(" ");
+        String type = structField.fieldType.toString();
+        //even though, type defined as int, actual value is a long. To handle this case in Siddhi, type is defined
+        //as long.
+        if (type.equalsIgnoreCase("int")) {
+            type = "long";
+        } else if (type.equalsIgnoreCase("float")) {
+            type = "double";
+        } else if (type.equalsIgnoreCase("boolean")) {
+            type = "bool";
+        }
+        streamDefinition.append(type);
     }
 }

@@ -9,14 +9,14 @@ documentation {
     Represents an HTTP Retry client to be used with the HTTP client to provide retrying over HTTP requests.
 
     F{{serviceUri}} - Target service url.
-    F{{config}}  - HTTP ClientEndpointConfiguration to be used for HTTP client invocation.
+    F{{config}}  - HTTP ClientEndpointConfig to be used for HTTP client invocation.
     F{{retry}} - Retry related configuration.
     F{{httpClient}}  - HTTP client for outbound HTTP requests.
 }
 public type RetryClient object {
     public {
         string serviceUri;
-        ClientEndpointConfiguration config;
+        ClientEndpointConfig config;
         Retry retry;
         HttpClient httpClient;
     }

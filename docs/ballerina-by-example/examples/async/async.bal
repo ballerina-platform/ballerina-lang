@@ -8,30 +8,33 @@ int count;
 endpoint http:Client clientEndpoint { targets:[{url: "https://postman-echo.com" }] };
 
 function main(string[] args) {
-  // call the function "sum" asynchronously
+  // Asynchronously call the function named 'sum'.
   future<int> f1 = async sum(40, 50);
-  // future values can be passed around to get the result later
+  // You can pass around the value of the 'future' variable 
+  // and call its results later.
   int result = square_plus_cube(f1);
   io:print("SQ + CB = ");
   io:println(result);
 
-  // call "countInfinity", which will run forever in async mode
+  // Call the 'countInfinity' function, which runs forever in asynchronous mode.
   future f2 = async countInfinity();
   runtime:sleepCurrentWorker(1000);
-  // checks whether the function call is done
+  // Check whether the function call is done.
   io:println(f2.isDone());
-  // checks if someone cancelled the async execution
+  // Check whether someone cancelled the asynchronous execution.
   io:println(f2.isCancelled());
-  // cancel the async operation
+  // Cancel the asynchronous operation.
   boolean cancelled = f2.cancel();
   io:println(cancelled);
   io:print("Counting done in one second: ");
   io:println(count);
   io:println(f2.isDone());
   io:println(f2.isCancelled());
-
+  
   // async action call
   http:Request req = new;
+  
+
   future<http:Response|http:HttpConnectorError> f3 = async clientEndpoint -> get("/get?test=123", req);
   io:println(sum(25, 75));
   io:println(f3.isDone());

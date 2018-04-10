@@ -86,7 +86,7 @@ function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
     return result;
 }
 
-function createHttpClientArray (ClientEndpointConfiguration config) returns HttpClient[] {
+function createHttpClientArray (ClientEndpointConfig config) returns HttpClient[] {
     HttpClient[] httpClients = [];
     int i=0;
     boolean httpClientRequired = false;
@@ -120,8 +120,8 @@ function createHttpClientArray (ClientEndpointConfiguration config) returns Http
                     httpClients[i] = createRetryClient(uri, config);
                 }
                 () => {
-                    if (config.cacheConfig.enabled) {
-                        httpClients[i] = createHttpCachingClient(uri, config, config.cacheConfig);
+                    if (config.cache.enabled) {
+                        httpClients[i] = createHttpCachingClient(uri, config, config.cache);
                     } else {
                         httpClients[i] = createHttpClient(uri, config);
                     }

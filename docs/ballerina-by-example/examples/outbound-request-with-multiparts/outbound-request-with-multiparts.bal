@@ -33,7 +33,7 @@ service<http:Service> test bind multipartEP {
         xmlFilePart.contentDisposition = getContentDispositionForFormData("xml file part");
         //This file path is relative to where the ballerina is running. If your file is located outside, please
         //give the absolute file path instead.
-        file:Path fileHandler = file:getPath("./files/test.xml");
+        file:Path fileHandler = new("./files/test.xml");
         xmlFilePart.setFileAsEntityBody(fileHandler);
 
         //Create a xml body part.
