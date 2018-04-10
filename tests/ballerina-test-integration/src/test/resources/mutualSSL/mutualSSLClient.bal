@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
 
-endpoint http:ClientEndpoint clientEP {
+endpoint http:Client clientEP {
     targets: [{
         url: "https://localhost:9095",
         secureSocket: {

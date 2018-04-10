@@ -1,10 +1,10 @@
 import ballerina/http;
 
-endpoint http:ServiceEndpoint passthroughEP {
+endpoint http:Listener passthroughEP {
     port:9090
 };
 
-endpoint http:ClientEndpoint nyseEP {
+endpoint http:Client nyseEP {
     targets:[{url:"http://localhost:9090"}]
 };
 

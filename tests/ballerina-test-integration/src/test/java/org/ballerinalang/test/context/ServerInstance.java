@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.context;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.mina.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,6 +96,14 @@ public class ServerInstance implements Server {
     public void startBallerinaServer(String balFile) throws BallerinaTestException {
         String[] args = {balFile};
         setArguments(args);
+
+        startServer();
+    }
+
+    public void startBallerinaServer(String balFile, String[] args) throws BallerinaTestException {
+        String[] newArgs = {balFile};
+        newArgs = ArrayUtils.addAll(args, newArgs);
+        setArguments(newArgs);
 
         startServer();
     }

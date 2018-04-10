@@ -34,11 +34,10 @@ type Teacher {
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 
-function startFilterQuery() returns (Employee[]) {
+stream<Employee> employeeStream;
+stream<Teacher> teacherStream1;
 
-    stream<Employee> employeeStream;
-    stream<Teacher> teacherStream1;
-
+function testFilterQuery() {
     forever {
         from teacherStream1
         where age > 30
@@ -47,6 +46,12 @@ function startFilterQuery() returns (Employee[]) {
             employeeStream.publish(emp);
         }
     }
+}
+
+
+function startFilterQuery() returns (Employee[]) {
+
+    testFilterQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};

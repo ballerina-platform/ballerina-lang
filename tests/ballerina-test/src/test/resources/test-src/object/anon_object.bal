@@ -89,7 +89,7 @@ public type Person object {
 };
 
 public function Person::getKind() returns string {
-    return kind;
+    return self.kind;
 }
 
 function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string, string) {

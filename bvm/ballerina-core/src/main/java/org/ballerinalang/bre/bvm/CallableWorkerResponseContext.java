@@ -21,7 +21,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.program.BLangVMUtils;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -113,7 +113,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     
     protected void initWorkerErrors() {
         if (this.workerErrors == null) {
-            this.workerErrors = new HashMap<>();
+            this.workerErrors = new LinkedHashMap<>();
         }
     }
     

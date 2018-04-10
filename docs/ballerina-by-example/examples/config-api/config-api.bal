@@ -17,7 +17,7 @@ function main(string[] args) {
         string usersString => {
             users = usersString.split(",");
         }
-        int | null => { return; }
+        int | () => { return; }
     }
 
     string user1Rights;
@@ -26,7 +26,7 @@ function main(string[] args) {
         string user1RightsString => {
             user1Rights = user1RightsString;
         }
-        int | null => { return; }
+        int | () => { return; }
     }
 
     string user2Rights;
@@ -35,7 +35,7 @@ function main(string[] args) {
         string user2RightsString => {
             user2Rights = user2RightsString;
         }
-        int | null => { return; }
+        int | () => { return; }
     }
 
     io:println(users[0] + " has " + user1Rights + " access");
@@ -64,7 +64,7 @@ function getLimit() returns (string) {
         string limit => {
             return limit;
         }
-        float | null => {
+        float | () => {
             io:println("Returning default limit: 1000");
             return "1000";
         }

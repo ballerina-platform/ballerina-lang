@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.sql.Constants;
 import org.ballerinalang.nativeimpl.sql.SQLDatasource;
+import org.ballerinalang.nativeimpl.sql.SQLDatasourceUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;

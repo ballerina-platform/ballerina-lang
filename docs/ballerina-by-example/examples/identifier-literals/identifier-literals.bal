@@ -18,8 +18,8 @@ function ^"combine names" (string ^"first name",
 }
 
 @Description {value:"Struct defined using identifier literals."}
-struct ^"person record" {
+type ^"person record" {
     string ^"first name";
     string ^"last name";
     int age;
-}
+};

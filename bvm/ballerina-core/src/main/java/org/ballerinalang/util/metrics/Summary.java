@@ -81,7 +81,7 @@ public interface Summary extends Metric {
 
         @Override
         public Summary register() {
-            return register(MetricRegistry.getDefaultRegistry());
+            return register(DefaultMetricRegistry.getInstance());
         }
 
         @Override

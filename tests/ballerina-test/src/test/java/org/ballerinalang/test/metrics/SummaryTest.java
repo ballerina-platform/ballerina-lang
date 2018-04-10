@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.test.metrics;
 
-import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -32,13 +30,12 @@ import org.testng.annotations.Test;
 /**
  * Tests for summary metric.
  */
-public class SummaryTest {
+public class SummaryTest extends MetricTest {
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/metrics/summary-test.bal");
-        Metrics.globalRegistry.add(new SimpleMeterRegistry());
     }
 
     @Test

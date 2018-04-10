@@ -69,7 +69,7 @@ Service mock will look something like below,
 ````ballerina
 import ballerina/net.http;
 
-endpoint http:ServiceEndpoint paymentGWEP {
+endpoint http:Listener paymentGWEP {
 port:9094
 };
 

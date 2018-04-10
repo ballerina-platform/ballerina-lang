@@ -11,7 +11,7 @@ import ballerina/reflect;
 @Field{value:"The assert error category"}
 type AssertError {
     string message;
-    error[] cause;
+    error? cause;
     string category;
 };
 

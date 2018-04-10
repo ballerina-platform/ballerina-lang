@@ -20,7 +20,7 @@ int counter = 0;
 
 function testSuccessScenario () returns (http:Response | http:HttpConnectorError) {
 
-    endpoint http:ClientEndpoint backendClientEP {
+    endpoint http:Client backendClientEP {
     lbMode: {
         failoverCodes : [400, 404, 502],
         interval : 0
@@ -53,7 +53,7 @@ function testSuccessScenario () returns (http:Response | http:HttpConnectorError
 }
 
 function testFailureScenario () returns (http:Response | http:HttpConnectorError) {
-    endpoint http:ClientEndpoint backendClientEP {
+    endpoint http:Client backendClientEP {
     lbMode: {
         failoverCodes : [400, 404, 502],
         interval : 0
