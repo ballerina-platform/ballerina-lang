@@ -13,7 +13,7 @@ service<http:Service> test bind multipartEP {
       path:"/decoder"
     }
     nestedPartReceiver (endpoint conn, http:Request req)  {
-        http:Response res = {};
+        http:Response res = new;
         match req.getBodyParts() {
             mime:EntityError err => {
                 res.setStringPayload("Error occurred while decoding parent parts!");

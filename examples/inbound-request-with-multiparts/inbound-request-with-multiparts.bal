@@ -13,7 +13,7 @@ service<http:Service> test bind multipartEP {
         path:"/decode_in_request"
     }
     receiveMultiparts (endpoint conn, http:Request request) {
-        http:Response response = {};
+        http:Response response = new;
         match request.getBodyParts() {
             mime:EntityError err => {
                 io:println(err);
