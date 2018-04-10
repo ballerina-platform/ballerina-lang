@@ -676,19 +676,38 @@ public class TypeChecker extends BLangNodeVisitor {
                 results.add(checkExpr(bracedOrTupleExpr.expressions.get(i), env, expTypes.get(i)));
             }
             resultType = new BTupleType(results);
+        }
+        List<BType> results = new ArrayList<>();
+        for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
+            results.add(checkExpr(bracedOrTupleExpr.expressions.get(i), env, symTable.noType));
+        }
+        if (expType.tag == TypeTags.TYPEDESC) {
+            bracedOrTupleExpr.isTypedescExpr = true;
+            List<BType> actualTypes = new ArrayList<>();
+            for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
+                final BLangExpression expr = bracedOrTupleExpr.expressions.get(i);
+                if (expr.getKind() == NodeKind.TYPEDESC_EXPRESSION) {
+                    actualTypes.add(((BLangTypedescExpr) expr).resolvedType);
+                } else if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    actualTypes.add(((BLangSimpleVarRef) expr).symbol.type);
+                } else {
+                    actualTypes.add(results.get(i));
+                }
+            }
+            if (actualTypes.size() == 1) {
+                bracedOrTupleExpr.typedescType = actualTypes.get(0);
+            } else {
+                bracedOrTupleExpr.typedescType = new BTupleType(actualTypes);
+            }
+            resultType = symTable.typeDesc;
         } else if (bracedOrTupleExpr.expressions.size() > 1) {
             // This is a tuple.
-            List<BType> results = new ArrayList<>();
-            for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
-                results.add(checkExpr(bracedOrTupleExpr.expressions.get(i), env, symTable.noType));
-            }
             resultType = new BTupleType(results);
         } else {
             // This is a braced expression.
             bracedOrTupleExpr.isBracedExpr = true;
-            final BLangExpression expr = bracedOrTupleExpr.expressions.get(0);
-            final BType actualType = checkExpr(expr, env, symTable.noType);
-            types.setImplicitCastExpr(expr, actualType, expType);
+            final BType actualType = results.get(0);
+            types.setImplicitCastExpr(bracedOrTupleExpr.expressions.get(0), actualType, expType);
             resultType = actualType;
         }
     }

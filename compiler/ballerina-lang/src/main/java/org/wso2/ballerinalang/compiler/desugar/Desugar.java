@@ -1244,6 +1244,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        if (bracedOrTupleExpr.isTypedescExpr) {
+            final BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+            typedescExpr.resolvedType = bracedOrTupleExpr.typedescType;
+            typedescExpr.type = symTable.typeDesc;
+            result = rewriteExpr(typedescExpr);
+            return;
+        }
         if (bracedOrTupleExpr.isBracedExpr) {
             result = rewriteExpr(bracedOrTupleExpr.expressions.get(0));
             return;
@@ -1256,11 +1263,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
         unaryExpr.expr = rewriteExpr(unaryExpr.expr);
-        if (unaryExpr.expr.getKind() == NodeKind.TYPEOF_EXPRESSION) {
-            result = unaryExpr.expr;
-        } else {
-            result = unaryExpr;
-        }
+        result = unaryExpr;
     }
 
     @Override

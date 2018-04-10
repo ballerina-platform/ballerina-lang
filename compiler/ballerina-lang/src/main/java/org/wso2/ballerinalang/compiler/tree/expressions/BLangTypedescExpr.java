@@ -19,7 +19,6 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.TypedescExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -44,7 +43,7 @@ public class BLangTypedescExpr extends BLangExpression implements TypedescExpres
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.TYPEOF_EXPRESSION;
+        return NodeKind.TYPEDESC_EXPRESSION;
     }
 
     @Override
@@ -54,6 +53,6 @@ public class BLangTypedescExpr extends BLangExpression implements TypedescExpres
 
     @Override
     public String toString() {
-        return String.valueOf(OperatorKind.TYPEOF) + " " + resolvedType;
+        return String.valueOf(resolvedType);
     }
 }
