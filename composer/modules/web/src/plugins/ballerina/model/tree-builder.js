@@ -228,10 +228,26 @@ class TreeBuilder {
         }
 
         if (node.kind === 'TypeInitExpr') {
+            if (node.expressions.length <= 0) {
+                node.noExpressionAvailable = true;
+            }
+
             if (!node.type) {
                 node.noTypeAttached = true;
             } else {
                 node.typeName = node.type.typeName;
+            }
+        }
+
+        if (node.kind === 'Return') {
+            if (node.expression && node.expression.kind === 'Literal') {
+                if (node.expression.value === '()') {
+                    node.noExpressionAvailable = true;
+                }
+
+                if (node.expression.value === 'null') {
+                    node.emptyBrackets = true;
+                }
             }
         }
     }
