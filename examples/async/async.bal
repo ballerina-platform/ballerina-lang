@@ -5,7 +5,7 @@ import ballerina/mime;
 
 int count;
 
-endpoint http:ClientEndpoint clientEndpoint { targets:[{url: "https://postman-echo.com" }] };
+endpoint http:Client clientEndpoint { targets:[{url: "https://postman-echo.com" }] };
 
 function main(string[] args) {
   // Asynchronously call the function named 'sum'.
@@ -34,6 +34,7 @@ function main(string[] args) {
   // async action call
   http:Request req = new;
   
+
   future<http:Response|http:HttpConnectorError> f3 = async clientEndpoint -> get("/get?test=123", req);
   io:println(sum(25, 75));
   io:println(f3.isDone());

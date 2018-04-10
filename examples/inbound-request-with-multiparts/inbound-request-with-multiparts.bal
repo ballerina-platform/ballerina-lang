@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint multipartEP {
+endpoint http:Listener multipartEP {
     port:9090
 };
 
@@ -13,7 +13,7 @@ service<http:Service> test bind multipartEP {
         path:"/decode_in_request"
     }
     receiveMultiparts (endpoint conn, http:Request request) {
-        http:Response response = {};
+        http:Response response = new;
         match request.getMultiparts() {
             mime:EntityError err => {
                 io:println(err);
@@ -58,7 +58,6 @@ function handleContent (mime:Entity bodyPart) {
         match payload {
             mime:EntityError err => io:println("Error in getting string payload");
             string textContent => io:println(textContent);
-            int | null => io:println("null payload");
         }
     }
 }

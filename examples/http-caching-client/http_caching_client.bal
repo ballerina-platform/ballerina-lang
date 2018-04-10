@@ -1,23 +1,23 @@
 import ballerina/security.crypto;
 import ballerina/http;
 
-endpoint http:ServiceEndpoint proxyEP {
+endpoint http:Listener proxyEP {
     port:9090
 };
 
-endpoint http:ServiceEndpoint backendEP {
+endpoint http:Listener backendEP {
     port:8080
 };
 
 // HTTP caching is enabled by default for client endpoints. Caching can be disabled by setting 'enabled=false' in the
-// cacheConfig. Here, we have set the isShared field of cacheConfig to true, since in this particular scenario,
+// cache. Here, we have set the isShared field of cache to true, since in this particular scenario,
 // the cache will be a public cache. <br>
 // The default caching policy is to cache a response only if it contains a Cache-Control header and either an
 // ETag header or a Last-Modified header. The user can control this behaviour by setting the policy field in
-// the cacheConfig. Currently, there are only 2 policies: CACHE_CONTROL_AND_VALIDATORS (the default) and RFC_7234.
+// the cache. Currently, there are only 2 policies: CACHE_CONTROL_AND_VALIDATORS (the default) and RFC_7234.
 endpoint http:SimpleClientEndpoint cachingEP {
     url:"http://localhost:8080",
-    cacheConfig:{isShared:true}
+    cache:{isShared:true}
 };
 
 @http:ServiceConfig {basePath:"/cache"}
@@ -28,7 +28,7 @@ service<http:Service> cachingProxy bind proxyEP {
         path:"/"
     }
     cacheableResource (endpoint outboundEP, http:Request req) {
-        http:Request request = {};
+        http:Request request = new;
 
         var response = cachingEP -> forward("/hello", req);
 
@@ -40,7 +40,7 @@ service<http:Service> cachingProxy bind proxyEP {
             }
             http:HttpConnectorError err => {
             // If there was an error, it is used to construct a 500 response and this is sent back to the client.
-                http:Response res = {};
+                http:Response res = new;
                 res.statusCode = 500;
                 res.setStringPayload(err.message);
                 _ = outboundEP -> respond(res);
@@ -57,7 +57,7 @@ service<http:Service> helloWorld bind backendEP {
 
     @http:ResourceConfig {path:"/"}
     sayHello (endpoint outboundEP, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
 
         // The ResponseCacheControl struct in the Response struct can be used for setting the cache control
         // directives associated with the response. Here we have set the max-age to 15 seconds indicating that the
