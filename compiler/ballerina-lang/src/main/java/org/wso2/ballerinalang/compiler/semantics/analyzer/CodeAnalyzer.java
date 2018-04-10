@@ -669,7 +669,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     // If the stmt is declared using var, all the variable refs on lhs should be treated as inputs
                     if (assignStmt.declaredWithVar && assignStmt.varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF
                             && !inputs.contains(((BLangSimpleVarRef) assignStmt.varRef).symbol)) {
-                        inputs.add(((BLangSimpleVarRef) assignStmt.varRef).symbol);
+                        inputs.add(((BLangSimpleVarRef) assignStmt.varRef).varSymbol);
                     }
                     assignStmt.expr.accept(
                             new TransformerVarRefValidator(outputs, DiagnosticCode.TRANSFORMER_INVALID_OUTPUT_USAGE));

@@ -394,6 +394,9 @@ public class TypeChecker extends BLangNodeVisitor {
                         ((BLangFunction) env.enclInvokable).closureVarList.add(closureVar);
                     }
                 }
+            } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
+                actualType = symTable.typeDesc;
+                varRefExpr.symbol = symbol;
             } else {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
             }
