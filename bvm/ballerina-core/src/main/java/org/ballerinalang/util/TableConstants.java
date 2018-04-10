@@ -31,7 +31,7 @@ public class TableConstants {
     static final String TABLE_PREFIX = "TABLE_";
     static final String TABLE_NAME_REGEX = "\\[\\[tableName\\]\\]";
 
-    static final String SQL_SELECT = "SELECT * FROM ";
+    public static final String SQL_SELECT = "SELECT * FROM ";
     static final String SQL_CREATE = "CREATE TABLE ";
     static final String SQL_DROP = "DROP TABLE ";
     static final String SQL_INSERT_INTO = "INSERT INTO ";

@@ -66,6 +66,7 @@ documentation {
     The configurations possible with the SimpleClient endpoint. This endpoint excludes the resiliency related configurations.
 
     F{{url}} - The URL of the HTTP endpoint to connect to
+    F{{circuitBreaker}} - Circuit Breaker configuration
     F{{secureSocket}} - The SSL configurations for the endpoint
     F{{endpointTimeout}} - The maximum time to wait (in milli seconds) for a response before closing the connection
     F{{httpVersion}} - The HTTP version to be used to communicate with the endpoint
@@ -81,6 +82,7 @@ documentation {
 }
 public type SimpleClientEndpointConfiguration {
     string url,
+    CircuitBreakerConfig? circuitBreaker,
     SecureSocket? secureSocket,
     int endpointTimeout = 60000,
     string httpVersion = "1.1",
@@ -110,6 +112,7 @@ public function SimpleClient::init(SimpleClientEndpointConfiguration simpleConfi
     self.httpEP.config = {};
     self.httpEP.config.targets = [];
 
+    self.httpEP.config.circuitBreaker = simpleConfig.circuitBreaker;
     self.httpEP.config.targets[0] = {url: simpleConfig.url, secureSocket: simpleConfig.secureSocket};
     self.httpEP.config.endpointTimeout = simpleConfig.endpointTimeout;
     self.httpEP.config.httpVersion = simpleConfig.httpVersion;
@@ -122,10 +125,18 @@ public function SimpleClient::init(SimpleClientEndpointConfiguration simpleConfi
     self.httpEP.config.proxyConfig = simpleConfig.proxyConfig;
     self.httpEP.config.connectionThrottling = simpleConfig.connectionThrottling;
 
-    if (simpleConfig.cacheConfig.enabled) {
-        self.httpEP.config.cacheConfig = simpleConfig.cacheConfig;
-        self.httpEP.httpClient = createHttpCachingClient(url, self.httpEP.config, self.httpEP.config.cacheConfig);
-    } else {
-        self.httpEP.httpClient = createHttpClient(url, self.httpEP.config);
+    var cbConfig = simpleConfig.circuitBreaker;
+    match cbConfig  {
+        CircuitBreakerConfig cb => {
+            self.httpEP.httpClient = createCircuitBreakerClient(url, self.httpEP.config);
+        }
+        () => {
+            if (simpleConfig.cacheConfig.enabled) {
+                self.httpEP.config.cacheConfig = simpleConfig.cacheConfig;
+                self.httpEP.httpClient = createHttpCachingClient(url, self.httpEP.config, self.httpEP.config.cacheConfig);
+            } else {
+                self.httpEP.httpClient = createHttpClient(url, self.httpEP.config);
+            }
+        }
     }
 }
