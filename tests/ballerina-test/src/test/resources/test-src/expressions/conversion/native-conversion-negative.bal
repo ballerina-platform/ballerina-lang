@@ -27,25 +27,13 @@ function testStructToStruct () returns (Student) {
     return s;
 }
 
-function testComplexMapToJson () returns (json) {
-    map m = {name:"Supun",
-                age:25,
-                gpa:2.81,
-                status:true
-            };
-    json j2 = <json>m;
-    return j2;
-}
-
-
 type Info {
     blob infoBlob;
 };
 
-function testStructWithIncompatibleTypeMapToJson () returns (json) {
+function testStructWithIncompatibleTypeToJson () returns (json) {
     Info info = {};
     json j;
     j = check <json>info;
     return j;
-
 }

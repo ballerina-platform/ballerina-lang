@@ -245,13 +245,16 @@ public class HttpService implements Cloneable {
             matchMajorVersionAnnotValue = versioningConfig.getBooleanField(
                     HttpConstants.ANN_CONFIG_ATTR_MATCH_MAJOR_VERSION);
         }
+        patternAnnotValue = patternAnnotValue.toLowerCase();
         basePathList.add(replaceServiceVersion(basePath, packageVersion, patternAnnotValue));
 
         if (allowNoVersionAnnotValue) {
             basePathList.add(basePath.replace(HttpConstants.VERSION, "").replace("//", "/"));
         }
         if (matchMajorVersionAnnotValue) {
-            String patternWithMajor = patternAnnotValue.replace("." + HttpConstants.MINOR_VERSION, "");
+            String patternWithMajor = patternAnnotValue.replace(HttpConstants.MINOR_VERSION, "");
+            patternWithMajor = patternWithMajor.endsWith(".") ?
+                    patternWithMajor.substring(0, patternWithMajor.length() - 1) : patternWithMajor;
             basePathList.add(replaceServiceVersion(basePath, packageVersion, patternWithMajor));
         }
     }
@@ -259,8 +262,8 @@ public class HttpService implements Cloneable {
     private static String replaceServiceVersion(String basePath, String version, String pattern) {
         pattern = pattern.toLowerCase();
         String[] versionElements = version.split("\\.");
-        String majorVersion = versionElements[0] != null ? versionElements[0] : "";
-        String minorVersion = versionElements[1] != null ? versionElements[1] : "";
+        String majorVersion = versionElements[0];
+        String minorVersion = versionElements.length > 1 ? versionElements[1] : "";
 
         if (pattern.contains(HttpConstants.MAJOR_VERSION) || pattern.contains(HttpConstants.MINOR_VERSION)) {
             String patternReplaced = pattern.replace(HttpConstants.MAJOR_VERSION, majorVersion);
