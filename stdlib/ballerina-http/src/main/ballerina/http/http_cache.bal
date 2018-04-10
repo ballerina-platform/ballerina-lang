@@ -20,7 +20,7 @@ import ballerina/caching;
 
 type HttpCache object {
     private {
-        caching:Cache httpCache;
+        caching:Cache cache;
         CachingPolicy policy;
         boolean isShared;
     }
@@ -56,16 +56,16 @@ type HttpCache object {
                 blob => {int x = 0;}
                 mime:EntityError => {int x = 0;}
             }
-            addEntry(httpCache, key, inboundResponse);
+            addEntry(cache, key, inboundResponse);
         }
     }
 
     function hasKey (string key) returns boolean {
-        return httpCache.hasKey(key);
+        return cache.hasKey(key);
     }
 
     function get (string key) returns Response {
-        match <Response[]>httpCache.get(key) {
+        match <Response[]>cache.get(key) {
             Response[] cacheEntry => return cacheEntry[lengthof cacheEntry - 1];
             error err => throw err;
         }
@@ -73,7 +73,7 @@ type HttpCache object {
 
     function getAll (string key) returns Response[]|() {
         try {
-            match <Response[]>httpCache.get(key) {
+            match <Response[]>cache.get(key) {
                 Response[] cacheEntry => return cacheEntry;
                 error err => return ();
             }
@@ -124,17 +124,17 @@ type HttpCache object {
     }
 
     function remove (string key) {
-        httpCache.remove(key);
+        cache.remove(key);
     }
 };
 
-function createHttpCache (string name, CacheConfig cache) returns HttpCache {
+function createHttpCache (string name, CacheConfig cacheConfig) returns HttpCache {
     HttpCache httpCache = new;
-    caching:Cache backingCache = caching:createCache(name, cache.expiryTimeMillis, cache.capacity,
-                                                     cache.evictionFactor);
-    httpCache.httpCache = backingCache;
-    httpCache.policy = cache.policy;
-    httpCache.isShared = cache.isShared;
+    caching:Cache backingCache = caching:createCache(name, cacheConfig.expiryTimeMillis, cacheConfig.capacity,
+                                                     cacheConfig.evictionFactor);
+    httpCache.cache = backingCache;
+    httpCache.policy = cacheConfig.policy;
+    httpCache.isShared = cacheConfig.isShared;
     return httpCache;
 }
 

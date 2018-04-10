@@ -15,7 +15,7 @@ endpoint http:Listener backendEP {
 // The default caching policy is to cache a response only if it contains a Cache-Control header and either an
 // ETag header or a Last-Modified header. The user can control this behaviour by setting the policy field in
 // the cache. Currently, there are only 2 policies: CACHE_CONTROL_AND_VALIDATORS (the default) and RFC_7234.
-endpoint http:SimpleClientEndpoint cachingEP {
+endpoint http:SimpleClient cachingEP {
     url:"http://localhost:8080",
     cache:{isShared:true}
 };
