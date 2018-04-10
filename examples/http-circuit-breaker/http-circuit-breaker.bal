@@ -41,7 +41,7 @@ service<http:Service> circuitbreaker bind passthruEP {
         var backendRes = backendClientEP -> forward("/hello", request);
         match backendRes {
             http:Response res => {
-            _ = client -> forward(res);}
+            _ = client -> respond(res);}
             http:HttpConnectorError httpConnectorError => {
             http:Response response = new;
             response.statusCode = 500;
