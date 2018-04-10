@@ -10,7 +10,8 @@ endpoint http:Client clientEndpoint { targets:[{url: "https://postman-echo.com" 
 function main(string[] args) {
   // call the function "sum" asynchronously
   future<int> f1 = async sum(40, 50);
-  // future values can be passed around to get the result later
+  // You can pass around the value of the 'future' variable 
+  // and call its results later.
   int result = square_plus_cube(f1);
   io:print("SQ + CB = ");
   io:println(result);
