@@ -41,7 +41,7 @@ map<TwoPhaseCommitTransaction> participatedTransactions;
 documentation {
     This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 }
-caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache", 900000, 100, 0.1);
+caching:Cache httpClientCache = new;
 
 @final boolean scheduleInit = scheduleTimer(1000, 60000);
 
