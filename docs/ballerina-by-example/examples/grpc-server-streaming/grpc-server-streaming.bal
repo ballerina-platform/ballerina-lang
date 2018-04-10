@@ -1,9 +1,9 @@
-// This is server implementation for server streaming scenario
+// This is the server implementation for the server streaming scenario.
 import ballerina/io;
 import ballerina/log;
 import ballerina/grpc;
 
-// Server endpoint configuration
+// The server endpoint configuration.
 endpoint grpc:Service ep {
     host:"localhost",
     port:9090
@@ -23,7 +23,7 @@ service<grpc:Endpoint> HelloWorld bind ep {
                 io:println("Error at lotsOfReplies : " + err.message);
             }
         }
-        // Once all messages are sent, server send complete message to notify the client, I’m done.
+        // Once all the messages are sent, the server sends the message specified here to notify the client that its task is completed.
         _ = client -> complete();
         log:printInfo("send all responses sucessfully.");
     }

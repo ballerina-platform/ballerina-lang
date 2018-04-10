@@ -1,8 +1,8 @@
-// This is server implementation for client streaming scenario
+// This is the server implementation for the client streaming scenario.
 import ballerina/io;
 import ballerina/grpc;
 
-// Server endpoint configuration
+// The server endpoint configuration.
 endpoint grpc:Service ep {
     host:"localhost",
     port:9090

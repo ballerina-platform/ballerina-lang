@@ -1,4 +1,4 @@
-// This is client implementation for bidirectional streaming scenario
+// This is  the client implementation for the bidirectional streaming scenario.
 import ballerina/grpc;
 import ballerina/io;
 import ballerina/log;
@@ -13,7 +13,7 @@ function main (string[] args) {
     };
 
     endpoint grpc:Client ep;
-    // Executing unary non-blocking call registering server message listener.
+    // The executing unary non-blocking call registering server message listener.
     var res = chatEp -> chat(typeof ChatMessageListener);
     match res {
         grpc:error err => {
@@ -28,7 +28,7 @@ function main (string[] args) {
     if (connErr != ()) {
         io:println("Error at LotsOfGreetings : " + connErr.message);
     }
-    //this will hold forever since this is chat application
+    //This holds forever because this is a chat application.
     runtime:sleepCurrentWorker(6000);
     _ = ep -> complete();
 }

@@ -1,14 +1,14 @@
-// This is client implementation for unary non blocking scenario
+// This is the client implementation for the unary non blocking scenario.
 import ballerina/io;
 
 int total = 0;
 function main (string[] args) {
-    // Client endpoint configuration
+    // The client endpoint configuration.
     endpoint HelloWorldClient helloWorldEp {
         host:"localhost",
         port:9090
     };
-    // Executing unary non-blocking call registering server message listener.
+    // The executing unary non-blocking call registering server message listener.
     error| () result = helloWorldEp -> hello("WSO2", typeof HelloWorldMessageListener);
     match result {
         error payloadError => {
@@ -23,22 +23,22 @@ function main (string[] args) {
     io:println("Client got response successfully.");
 }
 
-// Server Message Listener.
+// The server message listener.
 service<grpc:Listener> HelloWorldMessageListener {
 
-    // Resource registered to receive server messages
+    // The resource registered to receive server messages.
     onMessage (string message) {
         io:println("Response received from server: " + message);
     }
 
-    // Resource registered to receive server error messages
+    // The resource registered to receive server error messages.
     onError (grpc:ServerError err) {
         if (err != null) {
             io:println("Error reported from server: " + err.message);
         }
     }
 
-    // Resource registered to receive server completed message.
+    // The resource registered to receive the 'server completed' message.
     onComplete () {
         io:println("Server Complete Sending Response.");
         total = 1;

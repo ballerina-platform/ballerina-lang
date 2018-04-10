@@ -1,2 +1,2 @@
-// The gRPC Server Connector can be used to expose service gRPC service over http2.
-// This sample is to demonstrate gRPC unary service secured interacting with gRPC blocking client.
+// The gRPC Server Connector exposes the 'gRPC service' service over http2.
+// This sample demonstrates how the secured gRPC unary service interacts with the gRPC blocking client.

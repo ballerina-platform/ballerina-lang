@@ -1,17 +1,17 @@
-// This is client implementation for client streaming scenario
+// This is the client implementation for the client streaming scenario.
 import ballerina/io;
 import ballerina/log;
 
 int total = 0;
 function main (string[] args) {
-    // Client endpoint configuration
+    // The client endpoint configuration.
     endpoint HelloWorldClient helloWorldEp {
         host:"localhost",
         port:9090
     };
 
     endpoint grpc:Client ep;
-    // Executing unary non-blocking call registering server message listener.
+    // The executing unary non-blocking call registering server message listener:
     var res = helloWorldEp -> lotsOfGreetings(typeof HelloWorldMessageListener);
     match res {
         grpc:error err => {
@@ -35,28 +35,28 @@ function main (string[] args) {
     }
     _ = ep -> complete();
 
-    //to hold the programme
+    //This holds the programme.
     while (total == 0) {}
     io:println("completed successfully");
 }
 
-// Server Message Listener.
+// The server message listener.
 service<grpc:Listener> HelloWorldMessageListener {
 
-    // Resource registered to receive server messages
+    // The resource registered to receive server messages.
     onMessage (string message) {
         total = 1;
         io:println("Response received from server: " + message);
     }
 
-    // Resource registered to receive server error messages
+    // The resource registered to receive server error messages.
     onError (grpc:ServerError err) {
         if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }
 
-    // Resource registered to receive server completed message.
+    // The resource registered to receive the server completed message.
     onComplete () {
         total = 1;
         io:println("Server Complete Sending Responses.");
