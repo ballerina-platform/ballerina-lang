@@ -1,8 +1,8 @@
-// This is an auto generated client stub that is used to connect to the gRPC server.
+// This is an auto generated client stub which is used to connect to gRPC server.
 import ballerina/grpc;
 import ballerina/io;
 
-// The blocking client.
+// Blocking client
 public type HelloWorldBlockingStub object {
     public {
         grpc:Client clientEndpoint;
@@ -31,7 +31,7 @@ public type HelloWorldBlockingStub object {
 };
 
 
-// The non-blocking client.
+// Non-Blocking client
 public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;
@@ -55,19 +55,19 @@ public type HelloWorldStub object {
 };
 
 
-// The blocking endpoint.
+// Blocking endpoint.
 public type HelloWorldBlockingClient object {
     public {
         grpc:Client client;
         HelloWorldBlockingStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfiguration config) {
-        // This initializes the client endpoint.
+    public function init (grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);
         self.client = client;
-        // This initializes the service stub.
+        // initialize service stub.
         HelloWorldBlockingStub stub = new;
         stub.initStub(client);
         self.stub = stub;
@@ -78,19 +78,19 @@ public type HelloWorldBlockingClient object {
     }
 };
 
-// The non-blocking endpoint.
+// Non-Blocking endpoint.
 public type HelloWorldClient object {
     public {
         grpc:Client client;
         HelloWorldStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfiguration config) {
-        // This initializes the client endpoint.
+    public function init (grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);
         self.client = client;
-        // This initializes the service stub.
+        // initialize service stub.
         HelloWorldStub stub = new;
         stub.initStub(client);
         self.stub = stub;

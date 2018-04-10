@@ -1,8 +1,8 @@
-// This is an auto generated client stub that is used to communicate with the gRPC client.
+// This is an auto generated client stub which is used to communicate between gRPC client.
 import ballerina/grpc;
 import ballerina/io;
 
-// The non-blocking client.
+// Non-blocking client
 public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;
@@ -25,19 +25,19 @@ public type HelloWorldStub object {
     }
 };
 
-// The non-blocking client endpoint.
+// Non-blocking client endpoint
 public type HelloWorldClient object {
     public {
         grpc:Client client;
         HelloWorldStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfiguration config) {
-        // This initializes the client endpoint.
+    public function init (grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);
         self.client = client;
-        // This initializes the service stub.
+        // initialize service stub.
         HelloWorldStub stub = new;
         stub.initStub(client);
         self.stub = stub;
