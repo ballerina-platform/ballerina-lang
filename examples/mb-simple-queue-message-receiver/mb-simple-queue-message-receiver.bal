@@ -2,7 +2,9 @@ import ballerina/mb;
 import ballerina/log;
 
 endpoint mb:SimpleQueueReceiver listener {
-    queueName: "myQueue"
+    host: "localhost",
+    port: 5672,
+    queueName: "MyQueue"
 };
 
 service<mb:Consumer> jmsListener bind listener {
