@@ -204,7 +204,7 @@ function createDirectories(string directoryPath) returns (boolean) {
 }
 
 function callFileServer(string url) returns http:Response {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets: [
         {
             url: url,

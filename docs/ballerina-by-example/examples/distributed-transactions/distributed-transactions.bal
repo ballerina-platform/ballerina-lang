@@ -61,7 +61,7 @@ function main (string[] args) {
             (int, string[]) output =>
                 (insertCount, generatedID) = output;
             sql:SQLConnectorError err => {
-                throw err.cause[0];
+                throw err.cause;
             }
         }
         var returnedKey = check <int>generatedID[0];
@@ -96,7 +96,7 @@ function main (string[] args) {
             io:println("CUSTOMER table drop status:" + retInt);
         }
         sql:SQLConnectorError err => {
-            throw err.cause[0];
+            throw err.cause;
         }
     }
     ret = testDBEP2 -> update("DROP TABLE SALARY", null);
@@ -105,7 +105,7 @@ function main (string[] args) {
             io:println("SALARY table drop status:" + retInt);
         }
         sql:SQLConnectorError err => {
-            throw err.cause[0];
+            throw err.cause;
         }
     }
 

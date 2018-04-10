@@ -96,7 +96,7 @@ function testUnreachableBreak() returns (string){
 
 public type testError {
     string message;
-    error[] cause;
+    error? cause;
     string code;
 };
 
