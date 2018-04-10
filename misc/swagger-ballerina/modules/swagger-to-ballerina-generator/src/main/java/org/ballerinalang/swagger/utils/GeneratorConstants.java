@@ -31,7 +31,8 @@ public class GeneratorConstants {
      * Ballerina service, mock and connector generation is available
      */
     public enum GenType {
-        MOCK("mock"), CONNECTOR("connector");
+        MOCK("mock"),
+        CONNECTOR("connector");
 
         private String name;
 
@@ -59,6 +60,8 @@ public class GeneratorConstants {
     public static final String DEFAULT_MOCK_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "mock";
     public static final String DEFAULT_CONNECTOR_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "connector";
     public static final String DEFAULT_MODEL_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "model";
+
+    public static final String GEN_SRC_DIR = "gen";
 
     public static final List<String> RESERVED_KEYWORDS = Collections.unmodifiableList(
             Arrays.asList("package", "import", "as", "public", "private", "native", "service", "resource", "function",
