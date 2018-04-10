@@ -131,7 +131,7 @@ public class SwaggerResourceMapper {
                         case HttpConstants.ANNOTATION_METHOD_OPTIONS:
                             pathObject.setOptions(operation);
                             break;
-                        case "patch":
+                        case HttpConstants.ANNOTATION_METHOD_PATCH:
                             pathObject.setPatch(operation);
                             break;
                         default:
