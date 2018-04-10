@@ -25,7 +25,7 @@ service<http:Service> passthrough bind passthroughEP {
             http:Response res => {
                 // If the request was successful, an HTTP response will be returned.
                 // Here, the received response is forwarded to the client through the outbound endpoint.
-                _ = outboundEP -> forward(res);
+                _ = outboundEP -> respond(res);
             }
             http:HttpConnectorError err => {
                 // If there was an error, it is used to construct a 500 response and this is sent back to the client.
