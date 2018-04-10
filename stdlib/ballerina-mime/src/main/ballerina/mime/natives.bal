@@ -242,8 +242,9 @@ public type Entity object {
     public native function hasHeader (string headerName) returns boolean;
 };
 
-public function Entity::setFileAsEntityBody (file:Path filePath) {
-    io:ByteChannel channel =check file:newByteChannel(fileHandler, READ_PERMISSION);
+public function Entity::setFileAsEntityBody (file:Path fileHandler) {
+    string path = fileHandler.toAbsolutePath().getPathValue();
+    io:ByteChannel channel = io:openFile(path, READ_PERMISSION);
     self.setByteChannel(channel);
 }
 
