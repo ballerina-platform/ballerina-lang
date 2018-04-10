@@ -143,7 +143,7 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
 
         @Override
         public String get(String key) {
-            return configRegistry.getConfiguration(key);
+            return configRegistry.getAsString(key);
         }
     }
 }

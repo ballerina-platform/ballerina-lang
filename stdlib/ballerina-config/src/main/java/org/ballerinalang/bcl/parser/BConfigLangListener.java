@@ -21,6 +21,7 @@ package org.ballerinalang.bcl.parser;
 import org.ballerinalang.toml.antlr4.TomlBaseListener;
 import org.ballerinalang.toml.antlr4.TomlParser;
 
+import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -40,7 +41,7 @@ public class BConfigLangListener extends TomlBaseListener {
     private BConfig configEntries;
     private String currentTableHeader;
     private StringBuilder currentKey;
-    private String currentValue;
+    private Object currentValue;
     private boolean hasEncryptedFields;
 
     public BConfigLangListener(BConfig configEntries) {
@@ -80,58 +81,83 @@ public class BConfigLangListener extends TomlBaseListener {
 
     @Override
     public void enterBasicString(TomlParser.BasicStringContext context) {
-        currentValue = context.basicStringValue().getText();
-        if (currentValue.matches(ENCRYPTED_FIELD_REGEX)) {
-            hasEncryptedFields = true;
-        } else {
-            currentValue = resolveEnvVariables(currentValue);
-        }
+        String stringVal = context.basicStringValue().getText();
+        currentValue = getResolvedStringValue(stringVal);
     }
 
     @Override
     public void enterLiteralString(TomlParser.LiteralStringContext context) {
-        currentValue = context.LITERALCHAR().stream().map(x -> x.getText()).collect(Collectors.joining());
-        if (currentValue.matches(ENCRYPTED_FIELD_REGEX)) {
-            hasEncryptedFields = true;
-        } else {
-            currentValue = resolveEnvVariables(currentValue);
-        }
+        String stringVal = context.LITERALCHAR().stream().map(x -> x.getText()).collect(Collectors.joining());
+        currentValue = getResolvedStringValue(stringVal);
     }
 
     @Override
     public void enterMlBasicString(TomlParser.MlBasicStringContext context) {
-        currentValue = context.mlBasicBody().mlBasicChar().stream().map(x -> x.getText()).collect(Collectors.joining());
-        if (currentValue.matches(ENCRYPTED_FIELD_REGEX)) {
-            hasEncryptedFields = true;
-        } else {
-            currentValue = resolveEnvVariables(currentValue);
-        }
+        String stringVal = context.mlBasicBody().mlBasicChar().stream().map(x -> x.getText()).collect(
+                Collectors.joining());
+        currentValue = getResolvedStringValue(stringVal);
     }
 
     @Override
     public void enterMlLiteralString(TomlParser.MlLiteralStringContext context) {
-        currentValue = context.mlLiteralBody().MLLITERALCHAR().stream().map(x -> x.getText()).collect(
+        String stringVal = context.mlLiteralBody().MLLITERALCHAR().stream().map(x -> x.getText()).collect(
                 Collectors.joining());
-        if (currentValue.matches(ENCRYPTED_FIELD_REGEX)) {
-            hasEncryptedFields = true;
-        } else {
-            currentValue = resolveEnvVariables(currentValue);
+        currentValue = getResolvedStringValue(stringVal);
+    }
+
+    @Override
+    public void enterDecInt(TomlParser.DecIntContext context) {
+        try {
+            currentValue = Long.parseLong(context.getText());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("invalid decimal int value: " + context.getText());
         }
     }
 
     @Override
-    public void enterInteger(TomlParser.IntegerContext context) {
-        currentValue = context.getText();
+    public void enterBinInt(TomlParser.BinIntContext context) {
+        try {
+            currentValue = Long.parseLong(context.getText(), 2);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("invalid binary int value: " + context.getText());
+        }
+    }
+
+    @Override
+    public void enterOctInt(TomlParser.OctIntContext context) {
+        try {
+            currentValue = Long.parseLong(context.getText(), 8);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("invalid octal int value: " + context.getText());
+        }
+    }
+
+    @Override
+    public void enterHexInt(TomlParser.HexIntContext context) {
+        try {
+            currentValue = Long.parseLong(context.getText(), 16);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("invalid hexadecimal int value: " + context.getText());
+        }
     }
 
     @Override
     public void enterFloatingPoint(TomlParser.FloatingPointContext context) {
-        currentValue = context.getText();
+        try {
+            currentValue = Double.parseDouble(context.getText());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("invalid float value: " + context.getText());
+        }
     }
 
     @Override
     public void enterBool(TomlParser.BoolContext context) {
-        currentValue = context.getText();
+        currentValue = Boolean.parseBoolean(context.getText());
+    }
+
+    @Override
+    public void enterTable(TomlParser.TableContext context) {
+
     }
 
     @Override
@@ -163,5 +189,14 @@ public class BConfigLangListener extends TomlBaseListener {
         String value = System.getenv(envVarMatcher.group(1));
 
         return value != null ? value : config;
+    }
+
+    private String getResolvedStringValue(String value) {
+        if (value.matches(ENCRYPTED_FIELD_REGEX)) {
+            hasEncryptedFields = true;
+        } else {
+            return resolveEnvVariables(value);
+        }
+        return value;
     }
 }

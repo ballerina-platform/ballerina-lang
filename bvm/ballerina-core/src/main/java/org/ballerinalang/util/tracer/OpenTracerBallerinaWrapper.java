@@ -46,7 +46,7 @@ public class OpenTracerBallerinaWrapper {
 
     public OpenTracerBallerinaWrapper() {
         this.enabled =
-                Boolean.parseBoolean(ConfigRegistry.getInstance().getConfiguration(CONFIG_TRACING_ENABLED));
+                Boolean.parseBoolean(ConfigRegistry.getInstance().getAsString(CONFIG_TRACING_ENABLED));
         if (enabled) {
             Map<String, String> configurations = ConfigRegistry.getInstance().getConfigTable(CONFIG_TABLE_TRACING);
             tracerStore = new TracersStore(configurations);

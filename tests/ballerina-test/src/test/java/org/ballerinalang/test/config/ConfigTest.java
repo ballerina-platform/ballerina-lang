@@ -205,7 +205,7 @@ public class ConfigTest {
         BRunUtil.invoke(compileResult, "testSetConfig", inputArgs);
 
         // The config we set in Ballerina code should overwrite the configs set from other sources
-        Assert.assertEquals(registry.getConfiguration(key.stringValue()), value.stringValue());
+        Assert.assertEquals(registry.getAsString(key.stringValue()), value.stringValue());
     }
 
     @Test(description = "Test contains() method")

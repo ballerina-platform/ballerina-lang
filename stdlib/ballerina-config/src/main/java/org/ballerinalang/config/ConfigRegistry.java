@@ -45,7 +45,7 @@ public class ConfigRegistry {
     private static final ConfigRegistry configRegistry = new ConfigRegistry();
     private static final Pattern encryptedFieldPattern = Pattern.compile("@encrypted:\\{(.*)\\}");
 
-    private Map<String, String> configEntries = new HashMap<>();
+    private Map<String, Object> configEntries = new HashMap<>();
     private AESCipherTool cipherTool;
     private PrintStream stderr = System.err;
 
@@ -158,31 +158,107 @@ public class ConfigRegistry {
         return contains(getConfigKey(tableHeader, tableField));
     }
 
+    public Object getConfiguration(String key) {
+        if (contains(key)) {
+            Object value = configEntries.get(key);
+
+            if (value instanceof String) {
+                return resolveStringValue((String) value);
+            }
+
+            return value;
+        }
+
+        return null;
+    }
+
+    public Object getConfiguration(String sectionHeader, String field) {
+        return getConfiguration(getConfigKey(sectionHeader, field));
+    }
+
+    public boolean getAsBoolean(String key) {
+        if (contains(key)) {
+            try {
+                return (Boolean) configEntries.get(key);
+            } catch (ClassCastException e) {
+                throw new IllegalArgumentException(key + " does not map to a valid boolean");
+            }
+        }
+
+        return false;
+    }
+
+    public boolean getAsBoolean(String sectionHeader, String field) {
+        return getAsBoolean(getConfigKey(sectionHeader, field));
+    }
+
+    public long getAsInt(String key) {
+        if (contains(key)) {
+            try {
+                return (Long) configEntries.get(key);
+            } catch (ClassCastException e) {
+                throw new IllegalArgumentException(key + " does not map to a valid int");
+            }
+        }
+
+        return 0;
+    }
+
+    public long getAsInt(String sectionHeader, String field) {
+        return getAsInt(getConfigKey(sectionHeader, field));
+    }
+
+    public double getAsFloat(String key) {
+        if (contains(key)) {
+            try {
+                return (Double) configEntries.get(key);
+            } catch (ClassCastException e) {
+                throw new IllegalArgumentException(key + " does not map to a valid float");
+            }
+        }
+
+        return 0.0;
+    }
+
+    public double getAsFloat(String sectionHeader, String field) {
+        return getAsFloat(getConfigKey(sectionHeader, field));
+    }
+
+    public Map<String, Object> getAsMap(String key) {
+        Map<String, Object> section = new HashMap<>();
+        int subStringIndex = key.length() + 1;
+
+        // TODO: handle tables properly at the config parsing level
+        configEntries.entrySet().forEach(entry -> {
+            if (entry.getKey().startsWith(key)) {
+                section.put(entry.getKey().substring(subStringIndex), entry.getValue());
+            }
+        });
+
+        return section;
+    }
+
+    public Map<String, Object> getAsMap(String sectionHeader, String field) {
+        return getAsMap(getConfigKey(sectionHeader, field));
+    }
+
     /**
      * Retrieve the configuration value mapped by the specified key.
      *
      * @param key The key of the configuration value
      * @return The configuration value as a string
      */
-    public String getConfiguration(String key) {
-        String config = configEntries.get(key);
-        Matcher base64Matcher = null;
-
-        try {
-            if (config != null) {
-                base64Matcher = encryptedFieldPattern.matcher(config);
-
-                if (base64Matcher.find()) {
-                    return cipherTool.decrypt(base64Matcher.group(1));
-                }
+    public String getAsString(String key) {
+        if (contains(key)) {
+            try {
+                String value = (String) configEntries.get(key);
+                return resolveStringValue(value);
+            } catch (ClassCastException e) {
+                throw new IllegalArgumentException(key + " does not map to a valid string");
             }
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("invalid base 64 value: " + base64Matcher.group(1));
-        } catch (AESCipherToolException e) {
-            throw new RuntimeException("failed to retrieve encrypted value: " + e.getMessage(), e);
         }
 
-        return config;
+        return null;
     }
 
     /**
@@ -192,8 +268,8 @@ public class ConfigRegistry {
      * @param tableField  The config key under which the config value is mapped in the table
      * @return The configuration value as a string
      */
-    public String getConfiguration(String tableHeader, String tableField) {
-        return getConfiguration(getConfigKey(tableHeader, tableField));
+    public String getAsString(String tableHeader, String tableField) {
+        return getAsString(getConfigKey(tableHeader, tableField));
     }
 
     /**
@@ -203,7 +279,7 @@ public class ConfigRegistry {
      * @return The configuration value as a char array
      */
     public char[] getConfigAsCharArray(String key) {
-        String configValue = getConfiguration(key);
+        String configValue = getAsString(key);
         return configValue != null ? configValue.toCharArray() : null;
     }
 
@@ -227,42 +303,7 @@ public class ConfigRegistry {
      */
     public String getConfigOrDefault(String key, String defaultValue) {
         String value;
-        return ((value = getConfiguration(key)) != null) ? value : defaultValue;
-    }
-
-    /**
-     * Retrieve the configuration value mapped by the specified table header and table field.
-     *
-     * @param tableHeader  The name of the TOML table which contains the configuration
-     * @param tableField   The config key under which the config value is mapped in the table
-     * @param defaultValue The value to be used if the key is not in the registry
-     * @return The configuration value as a string
-     */
-    public String getConfigOrDefault(String tableHeader, String tableField, String defaultValue) {
-        return getConfigOrDefault(getConfigKey(tableHeader, tableField), defaultValue);
-    }
-
-    /**
-     * Retrieve the configuration value mapped by the specified key as a char array.
-     *
-     * @param key          The key of the configuration value
-     * @param defaultValue The value to be used if the key is not in the registry
-     * @return The configuration value as a char array
-     */
-    public char[] getConfigOrDefaultAsCharArray(String key, String defaultValue) {
-        String configValue = getConfigOrDefault(key, defaultValue);
-        return configValue != null ? configValue.toCharArray() : null;
-    }
-
-    /**
-     * Retrieve the configuration value mapped by the specified key as a char array.
-     *
-     * @param tableHeader  The key of the configuration value
-     * @param defaultValue The value to be used if the key is not in the registry
-     * @return The configuration value as a char array
-     */
-    public char[] getConfigOrDefaultAsCharArray(String tableHeader, String tableField, String defaultValue) {
-        return getConfigAsCharArray(getConfigKey(tableHeader, tableField), defaultValue);
+        return ((value = getAsString(key)) != null) ? value : defaultValue;
     }
 
     /**
@@ -271,6 +312,7 @@ public class ConfigRegistry {
      * @param tableHeader The table name to retrieve
      * @return The config entries in the specified table
      */
+    @Deprecated
     public Map<String, String> getConfigTable(String tableHeader) {
         Map<String, String> table = new HashMap<>();
         int subStringIndex = tableHeader.length() + 1;
@@ -278,7 +320,7 @@ public class ConfigRegistry {
         // TODO: handle tables properly at the config parsing level
         configEntries.entrySet().forEach(entry -> {
             if (entry.getKey().startsWith(tableHeader)) {
-                table.put(entry.getKey().substring(subStringIndex), entry.getValue());
+                table.put(entry.getKey().substring(subStringIndex), entry.getValue().toString());
             }
         });
 
@@ -291,7 +333,7 @@ public class ConfigRegistry {
      * @param key The key for the configuration value to be removed
      * @return The removed configuration value
      */
-    public String removeConfiguration(String key) {
+    public Object removeConfiguration(String key) {
         return configEntries.remove(key);
     }
 
@@ -318,5 +360,25 @@ public class ConfigRegistry {
         }
 
         return userConfiguredPath;
+    }
+
+    private String resolveStringValue(String value) {
+        Matcher base64Matcher = null;
+
+        try {
+            if (value != null) {
+                base64Matcher = encryptedFieldPattern.matcher(value);
+
+                if (base64Matcher.find()) {
+                    return cipherTool.decrypt(base64Matcher.group(1));
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("invalid base 64 value: " + base64Matcher.group(1));
+        } catch (AESCipherToolException e) {
+            throw new RuntimeException("failed to retrieve encrypted value: " + e.getMessage(), e);
+        }
+
+        return value;
     }
 }

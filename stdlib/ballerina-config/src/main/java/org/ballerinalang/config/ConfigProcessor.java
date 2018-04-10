@@ -67,7 +67,7 @@ public class ConfigProcessor {
 
             // If there are environment variables which map to any config keys, replace their values with the value
             // of the environment variable
-            lookUpVariables(configEntries.getConfigurations());
+//            lookUpVariables(configEntries.getConfigurations());
         }
 
         if (runtimeParams != null && !runtimeParams.isEmpty()) {
