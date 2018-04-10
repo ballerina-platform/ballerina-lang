@@ -42,13 +42,11 @@ import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
@@ -406,6 +404,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         Set<BLangIdentifier> visitedAttributes = new HashSet<>();
         for (BLangDocumentationAttribute attribute : docNode.attributes) {
             if (attribute.docTag == DocTag.RETURN) {
+                attribute.type = this.env.enclInvokable.returnTypeNode.type;
                 // return params can't have names, hence can't validate
                 continue;
             }
@@ -1209,31 +1208,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangForever foreverStatement) {
         for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
             analyzeStmt((BLangStatement) streamingQueryStatement, env);
-        }
-
-        List<BLangVariable> globalVariableList = this.env.enclPkg.globalVars;
-        if (globalVariableList != null) {
-            for (BLangVariable variable : globalVariableList) {
-                if (((variable).type.tsymbol) != null) {
-                    if ("stream".equals((((variable).type.tsymbol)).name.value)) {
-                        foreverStatement.addGlobalVariable(variable);
-                    }
-                }
-            }
-        }
-
-        List<BVarSymbol> functionParameterList = ((BInvokableSymbol) this.env.scope.owner).getParameters();
-        for (BVarSymbol varSymbol : functionParameterList) {
-            if ("stream".equals((((varSymbol).type.tsymbol)).name.value)) {
-                foreverStatement.addFunctionVariable(varSymbol);
-            }
-        }
-
-        List<Scope.ScopeEntry> localVariableList = new ArrayList<>(this.env.scope.entries.values());
-        for (Scope.ScopeEntry scopeEntry : localVariableList) {
-            if ("stream".equals(((scopeEntry).symbol.type.tsymbol).name.value)) {
-                foreverStatement.addFunctionVariable((BVarSymbol) scopeEntry.symbol);
-            }
         }
 
         //Validate output attribute names with stream/struct

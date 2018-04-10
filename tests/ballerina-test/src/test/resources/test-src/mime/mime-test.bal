@@ -188,7 +188,7 @@ function testGetBlobMultipleTimes (blob blobContent) returns (string) {
 
 function testSetFileAsEntityBody (string fileLocation) returns blob | mime:EntityError {
     mime:Entity entity = new;
-    file:Path path = file:getPath(fileLocation);
+    file:Path path = new(fileLocation);
     entity.setFileAsEntityBody(path);
     return entity.getBlob();
 }

@@ -47,7 +47,7 @@ function testSetBinaryPayload (blob value) returns (http:Request) {
 
 function testSetEntityBody (string filePath, string contentType) returns (http:Request) {
     http:Request req = new;
-    file:Path path = file:getPath(filePath);
+    file:Path path = new(filePath);
     req.setFileAsPayload(path, contentType);
     return req;
 }

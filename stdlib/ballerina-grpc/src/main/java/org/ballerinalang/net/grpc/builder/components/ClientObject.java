@@ -23,11 +23,12 @@ import java.util.List;
 /**
  * Bean class of client object.
  */
-public class Client {
+public class ClientObject {
+    private String stubType;
     private String connectorId;
     private List<Stub> stubObjects = new ArrayList<>();
     
-    public Client(String connectorId) {
+    public ClientObject(String connectorId) {
         this.connectorId = connectorId;
     }
     
@@ -49,5 +50,13 @@ public class Client {
     
     public void setStubObjects(List<Stub> stubObjects) {
         this.stubObjects = stubObjects;
+    }
+    
+    public String getStubType() {
+        return stubType;
+    }
+    
+    public void setStubType(String stubType) {
+        this.stubType = stubType;
     }
 }

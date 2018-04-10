@@ -245,6 +245,12 @@ public type Entity object {
     public native function hasHeader (string headerName) returns boolean;
 };
 
+public function Entity::setFileAsEntityBody (file:Path fileHandler) {
+    string path = fileHandler.toAbsolutePath().getPathValue();
+    io:ByteChannel channel = io:openFile(path, READ_PERMISSION);
+    self.setByteChannel(channel);
+}
+
 public function Entity::setBody ((string | xml | json | blob | io:ByteChannel | Entity[]) entityBody) {
     match entityBody {
         string textContent => self.setText(textContent);
@@ -254,11 +260,6 @@ public function Entity::setBody ((string | xml | json | blob | io:ByteChannel | 
         io:ByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
         Entity[] bodyParts => self.setBodyParts(bodyParts);
     }
-}
-
-public function Entity::setFileAsEntityBody (file:Path filePath) {
-    io:ByteChannel channel =check file:newByteChannel(fileHandler, READ_PERMISSION);
-    self.setByteChannel(channel);
 }
 
 @Description {value:"Represent errors related to mime base64 encoder"}
