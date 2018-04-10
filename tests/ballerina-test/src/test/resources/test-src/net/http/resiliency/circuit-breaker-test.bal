@@ -32,7 +32,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
                 bucketSize:2000
             },
             failureThreshold:0.3,
-            resetTimeout:1000,
+            resetTimeMillies:1000,
             statusCodes:[400, 404, 500, 502]
         },
         targets:[
@@ -80,7 +80,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
                 bucketSize:2000
             },
             failureThreshold:0.3,
-            resetTimeout:1000,
+            resetTimeMillies:1000,
             statusCodes:[400, 404, 500, 502]
         },
         targets:[
@@ -128,7 +128,7 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
                 bucketSize:2000
             },
             failureThreshold:0.3,
-            resetTimeout:1000,
+            resetTimeMillies:1000,
             statusCodes:[400, 404, 500, 502]
         },
         targets:[

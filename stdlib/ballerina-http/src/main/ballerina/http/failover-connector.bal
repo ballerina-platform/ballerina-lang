@@ -36,7 +36,7 @@ public type FailoverConfig {
 @Field {value:"httpConnectorError: Array of HttpConnectorError error occurred at each endpoint."}
 public type FailoverConnectorError {
     string message,
-    error[] cause,
+    error? cause,
     int statusCode,
     HttpConnectorError[] httpConnectorError,
 };

@@ -141,7 +141,7 @@ public type LoadBalancer object {
 @Field {value:"httpConnectorError: Array of HttpConnectorError error occurred at each endpoint."}
 public type LoadBalanceConnectorError {
     string message,
-    error[] cause,
+    error? cause,
     int statusCode,
     HttpConnectorError[] httpConnectorError,
 };

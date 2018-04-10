@@ -132,7 +132,7 @@ public type HttpClient object {
 @Field {value:"statusCode: HTTP status code"}
 public type HttpConnectorError {
     string message,
-    error[] cause,
+    error? cause,
     int statusCode,
 };
 
@@ -142,6 +142,6 @@ public type HttpConnectorError {
 @Field {value:"statusCode: HTTP status code."}
 public type HttpTimeoutError {
     string message,
-    error[] cause,
+    error? cause,
     int statusCode,
 };

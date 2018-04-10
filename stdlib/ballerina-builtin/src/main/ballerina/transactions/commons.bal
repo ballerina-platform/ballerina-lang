@@ -353,7 +353,7 @@ public function registerParticipantWithRemoteInitiator (string transactionId,
         error e => {
             string msg = "Cannot register with coordinator for transaction: " + transactionId;
             log:printErrorCause(msg, e);
-            error err = {message:msg, cause:[e]};
+            error err = {message:msg, cause:e};
             return err;
         }
         RegistrationResponse regRes => {
