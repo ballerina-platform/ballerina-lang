@@ -22,7 +22,9 @@ import org.ballerinalang.util.observability.BallerinaObserver;
 import org.ballerinalang.util.observability.ObserverContext;
 
 import java.io.PrintStream;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,6 +38,8 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
     private static final String TAG_KEY_ACTION = "action";
 
     private static final PrintStream consoleError = System.err;
+
+    private static final MetricRegistry metricRegistry = DefaultMetricRegistry.getInstance();
 
     @Override
     public void startServerObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
@@ -76,15 +80,18 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
         try {
             Long startTime = (Long) observerContext.getProperty(PROPERTY_START_TIME);
             long duration = System.nanoTime() - startTime;
+            Map<String, String> tags = observerContext.getTags();
+            Set<Tag> allTags = new HashSet<>(tags.size() + additionalTags.length);
+            Tags.tags(allTags, observerContext.getTags());
+            Tags.tags(allTags, additionalTags);
             // Connector name must be a part of the metric name to make sure that every metric is unique with
             // the combination of name and tags.
             String namePrefix = observerContext.getConnectorName();
-            Map<String, String> tags = observerContext.getTags();
-            Timer responseTimer = Timer.builder(namePrefix + "_response_time").description("Response Time")
-                    .tags(tags).tags(additionalTags).register();
+            Timer responseTimer = metricRegistry.timer(new MetricId(namePrefix + "_response_time",
+                    "Response Time", allTags));
             responseTimer.record(duration, TimeUnit.NANOSECONDS);
-            Counter requestsCounter = Counter.builder(namePrefix + "_requests_total")
-                    .description("Total number of requests").tags(tags).tags(additionalTags).register();
+            Counter requestsCounter = metricRegistry.counter(new MetricId(namePrefix + "_requests_total",
+                    "Total number of requests", allTags));
             requestsCounter.increment();
         } catch (RuntimeException e) {
             // Metric Provider may throw exceptions if there is a mismatch in tags.
