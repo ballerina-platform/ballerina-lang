@@ -348,7 +348,7 @@ public class ProgramFileReader {
         packageInfo.pkgPath = pkgNameCPEntry.getValue();
 
         int pkgVersionCPIndex = dataInStream.readInt();
-        UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) programFile.getCPEntry(pkgVersionCPIndex);
+        UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgVersionCPIndex);
         packageInfo.versionCPIndex = pkgVersionCPIndex;
         packageInfo.pkgVersion = pkgVersionCPEntry.getValue();
 

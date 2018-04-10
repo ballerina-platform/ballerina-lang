@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.TransactionStatus;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -155,7 +156,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
-import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.ActionInfo;
@@ -274,11 +274,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private SymbolEnv env;
     // TODO Remove this dependency from the code generator
-    private SymbolTable symTable;
-
-    private boolean buildCompiledPackage;
-    private ProgramFile programFile;
-    private PackageFile packageFile;
+    private final SymbolTable symTable;
+    private final PackageCache packageCache;
 
     private PackageInfo currentPkgInfo;
     private PackageID currentPkgID;
@@ -324,19 +321,19 @@ public class CodeGenerator extends BLangNodeVisitor {
     public CodeGenerator(CompilerContext context) {
         context.put(CODE_GENERATOR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
+        this.packageCache = PackageCache.getInstance(context);
     }
 
     public ProgramFile generateBALX(BLangPackage pkgNode) {
-        programFile = new ProgramFile();
+        ProgramFile programFile = new ProgramFile();
+
         // TODO: Fix this. Added temporally for codegen. Load this from VM side.
-        genPackage(this.symTable.builtInPackageSymbol);
+        programFile.packageInfoMap.put(this.symTable.builtInPackageSymbol.pkgID.bvmAlias(),
+                this.symTable.builtInPackageSymbol.packageFile.packageInfo);
 
-        // Normal Flow.
-        BPackageSymbol pkgSymbol = pkgNode.symbol;
-        genPackage(pkgSymbol);
-
-        programFile.entryPkgCPIndex = addPackageRefCPEntry(programFile, pkgSymbol.pkgID);
-
+        // Add all the packages to the program file structure.
+        addPackageInfo(pkgNode.symbol, programFile);
+        programFile.entryPkgCPIndex = addPackageRefCPEntry(programFile, pkgNode.symbol.pkgID);
         setEntryPoints(programFile, pkgNode);
 
         // Add global variable indexes to the ProgramFile
@@ -348,17 +345,33 @@ public class CodeGenerator extends BLangNodeVisitor {
         return programFile;
     }
 
-    public PackageFile generateBALO(BLangPackage pkgNode) {
-        this.buildCompiledPackage = true;
-        this.packageFile = new PackageFile();
+    public void addPackageInfo(BPackageSymbol packageSymbol, ProgramFile programFile) {
+        BLangPackage pkgNode = this.packageCache.get(packageSymbol.pkgID);
+        if (pkgNode == null) {
+            // This is a package loaded from a BALO
+            if (!programFile.packageInfoMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
+                programFile.packageInfoMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile.packageInfo);
+            }
+            return;
+        }
+
+        pkgNode.imports.forEach(importPkdNode -> addPackageInfo(importPkdNode.symbol, programFile));
+        if (!programFile.packageInfoMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
+            programFile.packageInfoMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile.packageInfo);
+        }
+    }
+
+    public BLangPackage generateBALO(BLangPackage pkgNode) {
+        PackageFile packageFile = pkgNode.symbol.packageFile;
         genPackage(pkgNode.symbol);
 
         // Add global variable indexes to the ProgramFile
         prepareIndexes(pvIndexes);
 
         // Create Global variable attribute info
-        addVarCountAttrInfo(this.packageFile, this.packageFile, pvIndexes);
-        return this.packageFile;
+        addVarCountAttrInfo(packageFile, packageFile, pvIndexes);
+        packageFile.packageInfo = this.currentPkgInfo;
+        return pkgNode;
     }
 
     private void setEntryPoints(ProgramFile programFile, BLangPackage pkgNode) {
@@ -396,37 +409,20 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangPackage pkgNode) {
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_GEN)) {
-            if (!buildCompiledPackage) {
-                programFile.packageInfoMap.put(pkgNode.symbol.pkgID.bvmAlias(), pkgNode.symbol.packageInfo);
-            }
             return;
         }
 
-        // TODO Improve this design without if/else
-        PackageInfo packageInfo = new PackageInfo();
-        pkgNode.symbol.packageInfo = packageInfo;
-        if (buildCompiledPackage) {
-            // Generating the BALO
-            pkgNode.imports.forEach(impPkgNode -> {
-                int impPkgNameCPIndex = addUTF8CPEntry(packageInfo, impPkgNode.symbol.name.value);
-                // TODO Improve the import package version once it is available
-                int impPkgVersionCPIndex = addUTF8CPEntry(packageInfo, PackageID.DEFAULT.version.value);
-                ImportPackageInfo importPkgInfo = new ImportPackageInfo(impPkgNameCPIndex, impPkgVersionCPIndex);
-                packageInfo.importPkgInfoSet.add(importPkgInfo);
-                packageFile.packageInfo = packageInfo;
-            });
-        } else {
-            // Generating a BALX
-            // first visit all the imports
-            pkgNode.imports.forEach(impPkgNode -> genNode(impPkgNode, this.env));
-            // TODO We need to create identifier for both name and the version
-            programFile.packageInfoMap.put(pkgNode.symbol.pkgID.bvmAlias(), packageInfo);
-        }
+        this.currentPkgInfo = new PackageInfo();
+        pkgNode.imports.forEach(impPkgNode -> {
+            int impPkgNameCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.name.value);
+            int impPkgVersionCPIndex = addUTF8CPEntry(this.currentPkgInfo, PackageID.DEFAULT.version.value);
+            ImportPackageInfo importPkgInfo = new ImportPackageInfo(impPkgNameCPIndex, impPkgVersionCPIndex);
+            this.currentPkgInfo.importPkgInfoSet.add(importPkgInfo);
+        });
 
         // Add the current package to the program file
         BPackageSymbol pkgSymbol = pkgNode.symbol;
         currentPkgID = pkgSymbol.pkgID;
-        currentPkgInfo = packageInfo;
         currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo,
                                                     currentPkgID.bvmAlias());
         currentPkgInfo.versionCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.version.value);
@@ -464,6 +460,10 @@ public class CodeGenerator extends BLangNodeVisitor {
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
                         pkgLevelNode.getKind() != NodeKind.XMLNS)
                 .forEach(pkgLevelNode -> genNode((BLangNode) pkgLevelNode, this.env));
+
+        pkgNode.functions.forEach(funcNode -> {
+            funcNode.symbol = funcNode.originalFuncSymbol;
+        });
 
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
         currentPackageRefCPIndex = -1;
@@ -1493,26 +1493,26 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitInvokableNodeParams(invokableNode.symbol, callableUnitInfo, localVarAttributeInfo);
 
         if (Symbols.isNative(invokableNode.symbol)) {
-            this.processWorker(invokableNode, callableUnitInfo.defaultWorkerInfo, null,
-                    localVarAttributeInfo, invokableSymbolEnv, true, null);
+            this.processWorker(callableUnitInfo.defaultWorkerInfo, null,
+                    localVarAttributeInfo, invokableSymbolEnv, null);
         } else {
             // Clone lvIndex structure here. This structure contain local variable indexes of the input and
             // out parameters and they are common for all the workers.
             VariableIndex lvIndexCopy = this.copyVarIndex(lvIndexes);
-            this.processWorker(invokableNode, callableUnitInfo.defaultWorkerInfo, invokableNode.body,
-                    localVarAttributeInfo, invokableSymbolEnv, true, lvIndexCopy);
+            this.processWorker(callableUnitInfo.defaultWorkerInfo, invokableNode.body,
+                    localVarAttributeInfo, invokableSymbolEnv, lvIndexCopy);
             for (BLangWorker worker : invokableNode.getWorkers()) {
-                this.processWorker(invokableNode, callableUnitInfo.getWorkerInfo(worker.name.value),
-                        worker.body, localVarAttributeInfo, invokableSymbolEnv, false, this.copyVarIndex(lvIndexCopy));
+                this.processWorker(callableUnitInfo.getWorkerInfo(worker.name.value),
+                        worker.body, localVarAttributeInfo, invokableSymbolEnv, this.copyVarIndex(lvIndexCopy));
             }
         }
     }
 
-    private void processWorker(BLangInvokableNode invokableNode, WorkerInfo workerInfo, BLangBlockStmt body,
+    private void processWorker(WorkerInfo workerInfo, BLangBlockStmt body,
                                LocalVariableAttributeInfo localVarAttributeInfo, SymbolEnv invokableSymbolEnv,
-                               boolean defaultWorker, VariableIndex lvIndexCopy) {
-        int codeAttrNameCPIndex = this.addUTF8CPEntry(this.currentPkgInfo, AttributeInfo.Kind.CODE_ATTRIBUTE.value());
-        workerInfo.codeAttributeInfo.attributeNameIndex = codeAttrNameCPIndex;
+                               VariableIndex lvIndexCopy) {
+        workerInfo.codeAttributeInfo.attributeNameIndex = this.addUTF8CPEntry(
+                this.currentPkgInfo, AttributeInfo.Kind.CODE_ATTRIBUTE.value());
         workerInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
         if (body != null) {
             localVarAttrInfo = new LocalVariableAttributeInfo(localVarAttributeInfo.attributeNameIndex);
@@ -1710,28 +1710,18 @@ public class CodeGenerator extends BLangNodeVisitor {
             return currentIndex;
         }
 
-        PackageInfo pkgInfo = programFile.packageInfoMap.get(iExpr.symbol.pkgID.bvmAlias());
-
-        CallableUnitInfo callableUnitInfo;
-        if (iExpr.symbol.kind == SymbolKind.FUNCTION) {
-            callableUnitInfo = pkgInfo.functionInfoMap.get(iExpr.symbol.name.value);
-        } else if (iExpr.symbol.kind == SymbolKind.ACTION) {
-            ConnectorInfo connectorInfo = pkgInfo.connectorInfoMap.get(iExpr.symbol.owner.name.value);
-            callableUnitInfo = connectorInfo.actionInfoMap.get(iExpr.symbol.name.value);
-        } else {
+        BInvokableSymbol invokableSymbol = (BInvokableSymbol) iExpr.symbol;
+        if (iExpr.symbol.kind != SymbolKind.FUNCTION) {
             throw new IllegalStateException("Unsupported callable unit");
         }
-
-        ParamDefaultValueAttributeInfo defaultValAttrInfo = (ParamDefaultValueAttributeInfo) callableUnitInfo
-                .getAttributeInfo(AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE);
 
         for (int i = 0; i < iExpr.namedArgs.size(); i++) {
             BLangExpression argExpr = iExpr.namedArgs.get(i);
             // If some named parameter is not passed when invoking the function, then it will be null
             // at this point. If so, get the default value for that parameter from the function info.
             if (argExpr == null) {
-                DefaultValue defaultVal = defaultValAttrInfo.getDefaultValueInfo()[i];
-                argExpr = getDefaultValExpr(defaultVal);
+                BVarSymbol varSymbol = invokableSymbol.getDefaultableParameters().get(i);
+                argExpr = getDefaultValExpr(varSymbol.type, varSymbol.defaultValue);
             }
             operands[currentIndex++] = genNode(argExpr, this.env).regIndex;
         }
@@ -1739,16 +1729,16 @@ public class CodeGenerator extends BLangNodeVisitor {
         return currentIndex;
     }
 
-    private BLangExpression getDefaultValExpr(DefaultValue defaultVal) {
-        switch (defaultVal.desc) {
-            case TypeDescriptor.SIG_INT:
-                return getIntLiteral(defaultVal.intValue);
-            case TypeDescriptor.SIG_FLOAT:
-                return getFloatLiteral(defaultVal.floatValue);
-            case TypeDescriptor.SIG_STRING:
-                return getStringLiteral(defaultVal.stringValue);
-            case TypeDescriptor.SIG_BOOLEAN:
-                return getBooleanLiteral(defaultVal.booleanValue);
+    private BLangExpression getDefaultValExpr(BType type, Object value) {
+        switch (type.tag) {
+            case TypeTags.INT:
+                return getIntLiteral((Long) value);
+            case TypeTags.FLOAT:
+                return getFloatLiteral((Double) value);
+            case TypeTags.STRING:
+                return getStringLiteral((String) value);
+            case TypeTags.BOOLEAN:
+                return getBooleanLiteral((Boolean) value);
             default:
                 throw new IllegalStateException("Unsupported default value type");
         }
@@ -1901,12 +1891,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             // Remove the first type. The first type is always the type to which the function is attached to
             BType[] paramTypes = attachedFunc.type.paramTypes.toArray(new BType[0]);
-            if (paramTypes.length == 1) {
-                paramTypes = new BType[0];
-            } else {
-                paramTypes = attachedFunc.type.paramTypes.toArray(new BType[0]);
-                paramTypes = Arrays.copyOfRange(paramTypes, 1, paramTypes.length);
-            }
             int sigCPIndex = addUTF8CPEntry(currentPkgInfo,
                     generateFunctionSig(paramTypes, attachedFunc.type.retType));
             int flags = attachedFunc.symbol.flags;
@@ -3032,10 +3016,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
             StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
             int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
-            StructInfo errorStructInfo = this.programFile.packageInfoMap.get(packageSymbol.pkgID.bvmAlias())
-                                                                        .getStructInfo(structSymbol.name.value);
             ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, targetIP, order++, structCPEntryIndex);
-            errorTableEntry.setError(errorStructInfo);
             errorTable.addErrorTableEntry(errorTableEntry);
         }
 

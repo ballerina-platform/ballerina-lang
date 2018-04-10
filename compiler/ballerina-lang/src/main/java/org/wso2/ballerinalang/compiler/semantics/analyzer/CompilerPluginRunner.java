@@ -128,9 +128,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
         pluginList.forEach(plugin -> plugin.process(pkgNode));
 
-        // Visit all the imported packages
-        pkgNode.imports.forEach(importPkg -> importPkg.accept(this));
-
         // Then visit each top-level element sorted using the compilation unit
         pkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
 

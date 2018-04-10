@@ -238,7 +238,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         this.currPkgEnv = pkgEnv;
         this.env = pkgEnv;
 
-        pkgNode.imports.forEach(impPkgNode -> impPkgNode.accept(this));
         pkgNode.topLevelNodes.forEach(e -> ((BLangNode) e).accept(this));
         // Do table generation for blocked invokables after all the import packages are scanned.
         if (this.mainPkgEnv.equals(pkgEnv)) {

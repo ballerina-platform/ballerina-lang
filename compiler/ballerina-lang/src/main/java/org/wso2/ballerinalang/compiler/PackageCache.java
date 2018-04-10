@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -35,6 +36,7 @@ public class PackageCache {
             new CompilerContext.Key<>();
 
     protected Map<String, BLangPackage> packageMap;
+    protected Map<String, BPackageSymbol> packageSymbolMap;
 
     public static PackageCache getInstance(CompilerContext context) {
         PackageCache packageCache = context.get(PACKAGE_CACHE_KEY);
@@ -42,10 +44,6 @@ public class PackageCache {
             packageCache = new PackageCache(context);
         }
         return packageCache;
-    }
-
-    public static void setInstance(PackageCache packageCache, CompilerContext context) {
-        context.put(PACKAGE_CACHE_KEY, packageCache);
     }
 
     protected PackageCache(CompilerContext context) {
@@ -66,5 +64,13 @@ public class PackageCache {
             bLangPackage.packageID = packageID;
         }
         packageMap.put(packageID.bvmAlias(), bLangPackage);
+    }
+
+    public BPackageSymbol getSymbol(PackageID packageID) {
+        return this.packageSymbolMap.get(packageID.bvmAlias());
+    }
+
+    public void putSymbol(PackageID packageID, BPackageSymbol packageSymbol) {
+        this.packageSymbolMap.put(packageID.bvmAlias(), packageSymbol);
     }
 }

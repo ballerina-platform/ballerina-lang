@@ -26,7 +26,6 @@ import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
-import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -195,7 +194,6 @@ public class Desugar extends BLangNodeVisitor {
     private static final String CREATE_FOREVER = "startForever";
 
     private SymbolTable symTable;
-    private final PackageCache packageCache;
     private SymbolResolver symResolver;
     private IterableCodeDesugar iterableCodeDesugar;
     private AnnotationDesugar annotationDesugar;
@@ -238,7 +236,6 @@ public class Desugar extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
-        this.packageCache = PackageCache.getInstance(context);
         this.names = Names.getInstance(context);
     }
 
@@ -290,7 +287,6 @@ public class Desugar extends BLangNodeVisitor {
             pkgNode.topLevelNodes.add(struct.initFunction);
         });
 
-        pkgNode.imports = rewrite(pkgNode.imports, env);
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
         endpointDesugar.rewriteAnonymousEndpointsInPkg(pkgNode, env);
@@ -356,14 +352,19 @@ public class Desugar extends BLangNodeVisitor {
         Collections.reverse(funcNode.endpoints); // To preserve endpoint code gen order.
         funcNode.endpoints = rewrite(funcNode.endpoints, fucEnv);
 
+        // Duplicate the invokable symbol and the invokable type.
+        funcNode.originalFuncSymbol = funcNode.symbol;
+        BInvokableSymbol dupFuncSymbol = duplicateInvokableSymbol(funcNode.symbol);
+        funcNode.symbol = dupFuncSymbol;
+        BInvokableType dupFuncType = (BInvokableType) dupFuncSymbol.type;
+
         //write closure vars
         funcNode.closureVarList.stream()
                 .filter(var -> !funcNode.requiredParams.contains(var))
                 .forEach(var -> {
                     BVarSymbol closureVarSymbol = var.symbol;
-                    closureVarSymbol.closure = true;
-                    funcNode.symbol.params.add(0, closureVarSymbol);
-                    ((BInvokableType) funcNode.symbol.type).paramTypes.add(0, closureVarSymbol.type);
+                    dupFuncSymbol.params.add(0, closureVarSymbol);
+                    dupFuncType.paramTypes.add(0, closureVarSymbol.type);
                 });
 
         funcNode.body = rewrite(funcNode.body, fucEnv);
@@ -372,11 +373,8 @@ public class Desugar extends BLangNodeVisitor {
         // If the function has a receiver, we rewrite it's parameter list to have
         // the struct variable as the first parameter
         if (funcNode.receiver != null) {
-            BInvokableSymbol funcSymbol = funcNode.symbol;
-            List<BVarSymbol> params = funcSymbol.params;
-            params.add(0, funcNode.receiver.symbol);
-            BInvokableType funcType = (BInvokableType) funcSymbol.type;
-            funcType.paramTypes.add(0, funcNode.receiver.type);
+            dupFuncSymbol.params.add(0, funcNode.receiver.symbol);
+            dupFuncType.paramTypes.add(0, funcNode.receiver.type);
         }
 
         result = funcNode;
@@ -2540,5 +2538,24 @@ public class Desugar extends BLangNodeVisitor {
             return errorLiftedType.memberTypes.toArray(new BType[0])[0];
         }
         return errorLiftedType;
+    }
+
+    private BInvokableSymbol duplicateInvokableSymbol(BInvokableSymbol invokableSymbol) {
+        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name,
+                invokableSymbol.pkgID, invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist);
+        dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
+        dupFuncSymbol.retType = invokableSymbol.retType;
+        dupFuncSymbol.defaultableParams = invokableSymbol.defaultableParams;
+        dupFuncSymbol.restParam = invokableSymbol.restParam;
+        dupFuncSymbol.params = new ArrayList<>(invokableSymbol.params);
+        dupFuncSymbol.taintTable = invokableSymbol.taintTable;
+        dupFuncSymbol.tainted = invokableSymbol.tainted;
+        dupFuncSymbol.closure = invokableSymbol.closure;
+        dupFuncSymbol.scope = invokableSymbol.scope;
+
+        BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
+        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
+                prevFuncType.retType, prevFuncType.tsymbol);
+        return dupFuncSymbol;
     }
 }

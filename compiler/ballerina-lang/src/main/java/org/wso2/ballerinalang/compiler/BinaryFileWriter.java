@@ -123,7 +123,8 @@ public class BinaryFileWriter {
 
     public void writeLibraryPackage(BLangPackage packageNode) {
         String fileName = getOutputFileName(packageNode, BLANG_COMPILED_PACKAGE_FILE_SUFFIX);
-        CompiledBinaryFile.PackageFile packageFile = this.codeGenerator.generateBALO(packageNode);
+        this.codeGenerator.generateBALO(packageNode);
+        CompiledBinaryFile.PackageFile packageFile = packageNode.symbol.packageFile;
         ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
         try {
             PackageFileWriter.writePackage(packageFile, byteArrayOS);

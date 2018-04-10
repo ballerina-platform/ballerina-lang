@@ -162,7 +162,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean lastStatement;
     private int forkJoinCount;
     private int workerCount;
-    private SymbolEnter symbolEnter;
     private SymbolTable symTable;
     private Types types;
     private BLangDiagnosticLog dlog;
@@ -184,7 +183,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public CodeAnalyzer(CompilerContext context) {
         context.put(CODE_ANALYZER_KEY, this);
-        this.symbolEnter = SymbolEnter.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -216,7 +214,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
-        pkgNode.imports.forEach(impPkgNode -> analyzeNode(impPkgNode, pkgEnv));
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, pkgEnv));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
     }

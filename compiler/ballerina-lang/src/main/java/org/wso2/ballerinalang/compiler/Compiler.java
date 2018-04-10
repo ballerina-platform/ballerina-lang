@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -37,6 +38,7 @@ public class Compiler {
             new CompilerContext.Key<>();
 
     private final SourceDirectoryManager sourceDirectoryManager;
+    private final SymbolEnter symbolEnter;
     private final CompilerDriver compilerDriver;
     private final BinaryFileWriter binaryFileWriter;
     private final DependencyTree dependencyTree;
@@ -57,11 +59,13 @@ public class Compiler {
         context.put(COMPILER_KEY, this);
 
         this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
+        this.symbolEnter = SymbolEnter.getInstance(context);
         this.compilerDriver = CompilerDriver.getInstance(context);
         this.binaryFileWriter = BinaryFileWriter.getInstance(context);
         this.dependencyTree = DependencyTree.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
+
         this.listPkg = Boolean.parseBoolean(CompilerOptions.getInstance(context).get(CompilerOptionName.LIST_PKG));
         this.dryRun = Boolean.parseBoolean(CompilerOptions.getInstance(context).get(CompilerOptionName.DRY_RUN));
     }
@@ -76,27 +80,48 @@ public class Compiler {
     }
 
     public BLangPackage compile(PackageID packageID) {
+        // TODO This is hack to load the builtin package. We will fix this with BALO support
+        this.compilerDriver.loadBuiltinPackage();
+
+        // 1) Load the source package. i.e. source-code -> BLangPackageNode
         BLangPackage packageNode = this.pkgLoader.loadPackage(packageID);
         if (packageNode == null) {
             throw ProjectDirs.getPackageNotFoundError(packageID);
         }
 
+        // Check for syntax errors
         if (dlog.errorCount > 0) {
             return packageNode;
         }
-        return compile(packageNode);
-    }
 
-    public BLangPackage compile(BLangPackage packageNode) {
-        return this.compilerDriver.compilePackage(packageNode);
+        // 2) Define all package level symbols for all the packages including imported packages in the AST
+        // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
+        this.compilerDriver.define(packageNode);
+        if (dlog.errorCount > 0) {
+            return packageNode;
+        }
+
+        this.compilerDriver.compilePackage(packageNode);
+        return packageNode;
     }
 
     public void build() {
-        // TODO Check for compilation errors
+        // TODO This is hack to load the builtin package. We will fix this with BALO support
+        this.compilerDriver.loadBuiltinPackage();
+
+        // 1) Load all source packages. i.e. source-code -> BLangPackageNode
+        // 2) Define all package level symbols for all the packages including imported packages in the AST
+        // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
         Stream<BLangPackage> packages = this.sourceDirectoryManager.listSourceFilesAndPackages()
-                                                                   .map(this.pkgLoader::loadPackage)
-                                                                   .map(this.compilerDriver::compilePackage)
-                                                                   .filter(bLangPackage -> this.dlog.errorCount == 0);
+                .map(this.pkgLoader::loadPackage)
+                .map(this::define)
+                .map(this.compilerDriver::compilePackage)
+                .filter(bLangPackage -> this.dlog.errorCount == 0);
+
+        if (dlog.errorCount > 0) {
+            // Check for compilation errors if there are any compilation errors don't write BALOs or BALXs
+            return;
+        }
 
         if (!dryRun) {
             packages.forEach(this.binaryFileWriter::writeExecutableBinary);
@@ -122,5 +147,12 @@ public class Compiler {
             return null;
         }
         return this.binaryFileWriter.genExecutable(entryPackageNode);
+    }
+
+
+    // private methods
+
+    public BLangPackage define(BLangPackage packageNode) {
+        return this.symbolEnter.definePackage(packageNode);
     }
 }

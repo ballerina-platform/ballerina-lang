@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ZipRepo;
 import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -56,12 +57,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -220,17 +219,8 @@ public class PackageLoader {
         return loadAndDefinePackage(pkgId);
     }
 
-    public BLangPackage loadAndDefinePackage(BLangIdentifier orgName, List<BLangIdentifier> pkgNameComps,
-                                             BLangIdentifier version) {
-        // TODO This method is only used by the composer. Can we refactor the composer code?
-        List<Name> nameComps = pkgNameComps.stream()
-                                           .map(identifier -> names.fromIdNode(identifier))
-                                           .collect(Collectors.toList());
-        PackageID pkgID = new PackageID(names.fromIdNode(orgName), nameComps, names.fromIdNode(version));
-        return loadAndDefinePackage(pkgID);
-    }
-
     public BLangPackage loadAndDefinePackage(PackageID pkgId) {
+        // TODO this used only by the language server component and the above method.
         BLangPackage bLangPackage = loadPackage(pkgId, null);
         if (bLangPackage == null) {
             return null;
@@ -240,15 +230,8 @@ public class PackageLoader {
         return bLangPackage;
     }
 
-    /**
-     * List all the packages of packageRepo.
-     *
-     * @param maxDepth the maximum depth of directories to search in
-     * @return a set of PackageIDs
-     */
-    public Set<PackageID> listPackages(int maxDepth) {
-        return Collections.emptySet();
-//        return this.packageRepo.listPackages(maxDepth);
+    public BPackageSymbol loadPackageSymbol(PackageID packageID, PackageRepository packageRepo) {
+        return null;
     }
 
 

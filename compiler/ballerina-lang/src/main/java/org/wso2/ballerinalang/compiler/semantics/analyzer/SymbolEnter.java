@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -126,6 +127,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private final PackageLoader pkgLoader;
     private final SymbolTable symTable;
+    private final PackageCache packageCache;
     private final Names names;
     private final SymbolResolver symResolver;
     private final BLangDiagnosticLog dlog;
@@ -147,6 +149,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         this.pkgLoader = PackageLoader.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
+        this.packageCache = PackageCache.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.endpointSPIAnalyzer = EndpointSPIAnalyzer.getInstance(context);
@@ -159,6 +162,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public BLangPackage definePackage(BLangPackage pkgNode) {
         populatePackageNode(pkgNode);
         defineNode(pkgNode, null);
+//        this.packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
         return pkgNode;
     }
 
@@ -604,13 +608,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
         defineInvokableSymbol(actionNode, actionSymbol, invokableEnv);
         actionNode.endpoints.forEach(ep -> defineNode(ep, invokableEnv));
-        //TODO check below as it create a new symbol for the connector
-        BVarSymbol varSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
-                names.fromIdNode((BLangIdentifier) createIdentifier(Names.CONNECTOR.getValue())),
-                env.enclPkg.symbol.pkgID, actionSymbol.owner.type, invokableEnv.scope.owner);
-
-        actionSymbol.receiverSymbol = varSymbol;
-        ((BInvokableType) actionSymbol.type).setReceiverType(varSymbol.type);
     }
 
     @Override
@@ -941,7 +938,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<BVarSymbol> namedParamSymbols =
                 invokableNode.defaultableParams.stream()
                         .peek(varDefNode -> defineNode(varDefNode.var, invokableEnv))
-                        .map(varDefNode -> varDefNode.var.symbol)
+                        .map(varDefNode -> {
+                            BVarSymbol varSymbol = varDefNode.var.symbol;
+                            BLangLiteral literal = (BLangLiteral) varDefNode.var.expr;
+                            varSymbol.defaultValue = literal.value;
+                            return varSymbol;
+                        })
                         .collect(Collectors.toList());
 
         if (!invokableNode.desugaredReturnType) {
@@ -1135,7 +1137,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineAttachedFunctions(BLangFunction funcNode, BInvokableSymbol funcSymbol,
                                          SymbolEnv invokableEnv, boolean isValidAttachedFunc) {
-        BInvokableType funcType = (BInvokableType) funcSymbol.type;
         BTypeSymbol typeSymbol = funcNode.receiver.type.tsymbol;
 
         // Check whether there exists a struct field with the same name as the function name.
@@ -1151,7 +1152,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         defineNode(funcNode.receiver, invokableEnv);
         funcSymbol.receiverSymbol = funcNode.receiver.symbol;
-        funcType.setReceiverType(funcNode.receiver.symbol.type);
     }
 
     private void validateFunctionsAttachedToStructs(BLangFunction funcNode, BInvokableSymbol funcSymbol,
