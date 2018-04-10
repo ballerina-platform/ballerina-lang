@@ -1,4 +1,4 @@
-$ ballerina testerina-data-provider.bal
+$ ballerina test testerina-data-provider.bal
 ---------------------------------------------------------------------------
     T E S T S
 ---------------------------------------------------------------------------
