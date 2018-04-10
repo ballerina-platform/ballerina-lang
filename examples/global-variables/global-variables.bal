@@ -1,6 +1,6 @@
 import ballerina/io;
 
-@Description {value:"Global variable declaration."}
+@Description {value:"Defining the global variables."}
 int total = 98;
 
 string content = "";
