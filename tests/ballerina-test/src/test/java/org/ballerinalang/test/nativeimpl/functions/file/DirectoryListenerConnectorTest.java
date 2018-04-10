@@ -40,7 +40,7 @@ import java.util.Comparator;
 /**
  * Test class for Directory Listener connector.
  */
-@Test(sequential = true, enabled = false)
+@Test(sequential = true)
 public class DirectoryListenerConnectorTest {
 
     private File rootDirectory;
@@ -80,14 +80,14 @@ public class DirectoryListenerConnectorTest {
             Assert.fail(e.getMessage());
         }
         boolean isInvoked = false;
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
             try {
                 final BValue[] result = BRunUtil.invokeStateful(compileResult, "isInvoked");
                 if (((BBoolean) result[0]).booleanValue()) {
                     isInvoked = ((BBoolean) result[0]).booleanValue();
                     break;
                 }
-                Thread.sleep(1000);
+                Thread.sleep(1000 * i);
             } catch (InterruptedException e) {
                 // Ignore.
             }
