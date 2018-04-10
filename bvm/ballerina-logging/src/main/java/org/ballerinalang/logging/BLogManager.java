@@ -30,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
@@ -42,11 +43,9 @@ import java.util.logging.SocketHandler;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.ballerinalang.logging.util.Constants.BALLERINA_LOG_INSTANCES;
-import static org.ballerinalang.logging.util.Constants.BALLERINA_USER_LOG;
+import static org.ballerinalang.logging.util.Constants.BALLERINA_USER_LOG_LEVEL;
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG;
 import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG;
-import static org.ballerinalang.logging.util.Constants.LOG_LEVEL;
 import static org.ballerinalang.logging.util.Constants.LOG_TO;
 import static org.ballerinalang.logging.util.Constants.LOG_TO_CONSOLE;
 
@@ -59,6 +58,7 @@ import static org.ballerinalang.logging.util.Constants.LOG_TO_CONSOLE;
 public class BLogManager extends LogManager {
 
     public static final String BALLERINA_ROOT_LOGGER_NAME = "ballerina";
+    public static final String LOG_LEVEL = ".log_level";
     public static final int LOGGER_PREFIX_LENGTH = BALLERINA_ROOT_LOGGER_NAME.length() + 1; // +1 to account for the .
 
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
@@ -90,29 +90,27 @@ public class BLogManager extends LogManager {
     public void loadUserProvidedLogConfiguration() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
 
-        String instancesVal = configRegistry.getConfiguration(BALLERINA_LOG_INSTANCES);
-        if (instancesVal != null) {
-            String[] loggerInstances = instancesVal.split(",");
-
-            for (String instanceId : loggerInstances) {
-                loggerLevels.put(instanceId,
-                                 BLogLevel.toBLogLevel(configRegistry.getConfiguration(instanceId, LOG_LEVEL)));
+        Iterator<String> keys = configRegistry.keySetIterator();
+        keys.forEachRemaining(key -> {
+            if (key.endsWith(LOG_LEVEL)) {
+                loggerLevels.put(key.substring(0, key.length() - LOG_LEVEL.length()),
+                                 BLogLevel.toBLogLevel(configRegistry.getConfiguration(key)));
             }
-        }
+        });
 
         // setup Ballerina user-level log level configuration
-        String userLogLevel = configRegistry.getConfiguration(BALLERINA_USER_LOG, LOG_LEVEL);
+        String userLogLevel = configRegistry.getConfiguration(BALLERINA_USER_LOG_LEVEL);
         if (userLogLevel != null) {
             ballerinaUserLogLevel = BLogLevel.toBLogLevel(userLogLevel);
         }
 
         // setup HTTP trace log level configuration
-        String traceLogLevel = configRegistry.getConfiguration(HTTP_TRACE_LOG, LOG_LEVEL);
+        String traceLogLevel = configRegistry.getConfiguration(HTTP_TRACE_LOG, "level");
         if (traceLogLevel != null) {
             loggerLevels.put(HTTP_TRACE_LOG, BLogLevel.toBLogLevel(traceLogLevel));
         }
 
-        loggerLevels.put(BALLERINA_USER_LOG, ballerinaUserLogLevel);
+        loggerLevels.put(BALLERINA_USER_LOG_LEVEL, ballerinaUserLogLevel);
     }
 
     public BLogLevel getPackageLogLevel(String pkg) {
