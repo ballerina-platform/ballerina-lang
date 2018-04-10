@@ -591,8 +591,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangForever foreverStatement) {
-        /* ignore */
-        //TODO Implement
+        this.lastStatement = true;
     }
 
     public void visit(BLangAction actionNode) {
