@@ -1,22 +1,22 @@
-# To invoke the Load Balancer Service, use following curl command.
+# To invoke the Load Balancer Service, issue this cURL command.
 $ curl -v http://localhost:9090/loadBalancerService
-# Server response:
+# The server response:
 Mock1 Resource is invoked.
 
-# Repeat same curl command again to invoke Load Balance Service again.
-# Request will be load balanced to the second mock service.
+# Repeat the same cURL command to invoke the Load Balance Service again.
+# Request is load balanced to the second mock service.
 $ curl -v http://localhost:9090/loadBalancerService
-# Server response:
+# The server response:
 Mock2 Resource is invoked.
 
-# Invoke the Load Balancer Service one more time using same curl command.
-# Request will be load balanced to the third mock service.
+# Invoke the Load Balancer Service once more by issuing the same cURL command.
+# Request is load balanced to the third mock service.
 $ curl -v http://localhost:9090/loadBalancerService
-# Server response:
+# The server response:
 Mock3 Resource is invoked.
 
-# One last time invoke the Load Balancer Service using same curl command.
-# Request will be load balanced to the first mock service again.
+# To invoke the Load Balancer Service for the last time, issue the same cURL command.
+# Request is load balanced to the first mock service again.
 $ curl -v http://localhost:9090/loadBalancerService
-# Server response:
+# The server response:
 Mock1 Resource is invoked.

@@ -1,6 +1,6 @@
-# To run the service, put the code in `http-load-balancer.bal`
-# and execute the following command from `$BALLERINA_HOME/bin`.
+# To run the service, put the code in the 'http-load-balancer.bal' file
+# and execute the following command from the '$BALLERINA_HOME/bin' director.
 $ ballerina run http-load-balancer.bal
-# Service deployment:
+# The service deployment.
 ballerina: initiating service(s) in 'http-load-balancer.bal'
 ballerina: started HTTP/WS server connector 0.0.0.0:9090
