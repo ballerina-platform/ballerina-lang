@@ -4,16 +4,16 @@ function main (string[] args) {
     //Here's how you create an empty map.
     map m;
 
-    //Here's how you create a map with initial values.
+    //Here's how you create a map with values.
     map addrMap = {line1:"No. 20", line2:"Palm Grove",
                       city:"Colombo 03", country:"Sri Lanka"};
     io:println(addrMap);
 
-    //You can retrieve a value of a key using an index based notation as follows.
+    //Here's how you can retrieve a value of a key using an index based notation.
     var country = <string>addrMap["country"];
     io:println(country);
 
-    //Another way to retrieve a value from a map.
+    //Here's another way to retrieve a value of a key from the map.
     var city = <string>addrMap.city;
     io:println(city);
 
@@ -22,10 +22,10 @@ function main (string[] args) {
     addrMap.postalCode = "00301";
     io:println(addrMap);
 
-    //You can use 'keys' function in the 'maps' package get an array keys.
+    //You can use the 'keys' function in the 'maps' package to get an array of keys.
     io:println(addrMap.keys());
 
-    //Number of keys in the map.
+    //Print the number of keys in the map.
     io:println(lengthof addrMap);
 
     //You can remove a key using the 'remove' method.

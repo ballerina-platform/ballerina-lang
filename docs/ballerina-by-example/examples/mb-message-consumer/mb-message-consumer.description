@@ -1,1 +1,2 @@
-// Ballerina natively supports connecting to Ballerina Message Broker. Here is an example where we create a simple broker queue consumer.
+// Ballerina natively supports connecting to the Ballerina Message Broker. This is an example where you create a simple
+// broker queue consumer.

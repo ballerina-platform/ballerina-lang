@@ -9,7 +9,7 @@ endpoint mb:ConsumerEndpoint ep1 {
 service<jms:Service> jmsService bind ep1 {
 
     onMessage (endpoint client, jms:Message message) {
-        // Retrieve content of the text message.
+        // Retrieve the content of the text message.
         string messageText = message.getTextMessageContent();
         // Print the retrieved message.
         io:println("Message: " + messageText);
