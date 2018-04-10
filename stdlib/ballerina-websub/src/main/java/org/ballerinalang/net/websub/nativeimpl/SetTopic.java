@@ -41,7 +41,7 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
         orgName = "ballerina", packageName = "websub",
         functionName = "setTopic",
         args = {@Argument(name = "topic", type = TypeKind.STRING)},
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
                 structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH),
         isPublic = true
 )

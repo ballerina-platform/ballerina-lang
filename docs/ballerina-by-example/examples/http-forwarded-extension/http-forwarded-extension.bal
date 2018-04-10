@@ -29,7 +29,7 @@ service<http:Service> proxy bind serverEP {
         var response = clientEndPoint -> forward("/sample", req);
         match response {
             http:Response clientResponse => {
-                _ = conn -> forward(clientResponse);
+                _ = conn -> respond(clientResponse);
             }
             http:HttpConnectorError err => {
                 io:println("Error occurred while invoking the service");

@@ -43,7 +43,7 @@ service<http:Service> passthrough bind passthroughEP {
             var clientResponse = acceptEncodingAutoEP -> post("/", req);
             match clientResponse {
                 http:Response res => {
-                    _ = outboundEP -> forward(res);
+                    _ = outboundEP -> respond(res);
                 }
                 http:HttpConnectorError err => {
                     http:Response res = new;
@@ -56,7 +56,7 @@ service<http:Service> passthrough bind passthroughEP {
             var clientResponse = acceptEncodingEnableEP -> post("/", req);
             match clientResponse {
                 http:Response res => {
-                    _ = outboundEP -> forward(res);
+                    _ = outboundEP -> respond(res);
                 }
                 http:HttpConnectorError err => {
                     http:Response res = new;
@@ -69,7 +69,7 @@ service<http:Service> passthrough bind passthroughEP {
             var clientResponse = acceptEncodingDisableEP -> post("/", req);
             match clientResponse {
                 http:Response res => {
-                    _ = outboundEP -> forward(res);
+                    _ = outboundEP -> respond(res);
                 }
                 http:HttpConnectorError err => {
                     http:Response res = new;

@@ -37,10 +37,10 @@ service<http:Service> contentBasedRouting bind cbrEP {
                 } else {
                     clientResponse = locationEP -> post("/v2/594e026c1100004011d6d39c", new);
                 }
-                //Use the native function 'forward' to send the client response back to the caller.
+                //Use the native function 'respond' to send the client response back to the caller.
                 match clientResponse {
                     http:Response respone => {
-                        _ = outboundEP -> forward(respone);
+                        _ = outboundEP -> respond(respone);
                     }
                     http:HttpConnectorError conError => {
                         http:HttpConnectorError err = {};

@@ -37,7 +37,7 @@ service<http:Service> failover bind failoveruEP {
         var backendRes = backendClientEP -> post("/", request);
         match backendRes {
             http:Response res => {
-            _ = client -> forward(res);}
+            _ = client -> respond(res);}
         http:HttpConnectorError err1 => {
             response = new;
             response.statusCode = 500;

@@ -74,7 +74,7 @@ public function HubClientConnector::subscribe (SubscriptionChangeRequest subscri
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = httpClientEndpoint -> post("", builtSubscriptionRequest);
-    return processHubResponse(hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint);
+    return processHubResponse(self.hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint);
 }
 
 public function HubClientConnector::unsubscribe (SubscriptionChangeRequest unsubscriptionRequest) returns
@@ -82,7 +82,7 @@ public function HubClientConnector::unsubscribe (SubscriptionChangeRequest unsub
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtUnsubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
     var response = httpClientEndpoint -> post("", builtUnsubscriptionRequest);
-    return processHubResponse(hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint);
+    return processHubResponse(self.hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint);
 }
 
 public function HubClientConnector::registerTopic (string topic, string secret = "") {
@@ -129,8 +129,8 @@ public function HubClientConnector::publishUpdate (string topic, json payload,
         match (response) {
             http:Response => return;
             http:HttpConnectorError httpConnectorError => { WebSubError webSubError = {
-                      errorMessage:"Notification failed for topic [" + topic + "]", connectorError:httpConnectorError };
-                                                        return webSubError;
+                      message:"Notification failed for topic [" + topic + "]", cause:httpConnectorError };
+                                                            return webSubError;
             }
     }
 }
@@ -189,7 +189,7 @@ function processHubResponse(string hub, string mode, SubscriptionChangeRequest s
         http:HttpConnectorError httpConnectorError => {
             string errorMessage = "Error occurred for request: Mode[" + mode + "] at Hub[" + hub +"] - "
                                         + httpConnectorError.message;
-            WebSubError webSubError = {errorMessage:errorMessage, connectorError:httpConnectorError};
+            WebSubError webSubError = { message:errorMessage, cause:httpConnectorError };
             return webSubError;
         }
         http:Response httpResponse => {
@@ -206,7 +206,7 @@ function processHubResponse(string hub, string mode, SubscriptionChangeRequest s
                                                                        + "Error occurred identifying"
                                                                        + "cause: " + payloadError.message; }
                 }
-                WebSubError webSubError = {errorMessage:errorMessage};
+                WebSubError webSubError = { message:errorMessage };
                 return webSubError;
             } else {
                 SubscriptionChangeResponse subscriptionChangeResponse = {hub:hub, topic:topic, response:httpResponse};
@@ -223,7 +223,7 @@ redirection from original hub"}
 @Param {value:"subscriptionChangeRequest: The request containing subscription details"}
 function invokeClientConnectorOnRedirection (string hub, string mode,
 SubscriptionChangeRequest subscriptionChangeRequest) returns @untainted  (SubscriptionChangeResponse | WebSubError) {
-    endpoint HubClientEndpoint websubHubClientEP { url:hub };
+    endpoint Client websubHubClientEP { url:hub };
     if (mode == MODE_SUBSCRIBE) {
         var response = websubHubClientEP -> subscribe(subscriptionChangeRequest);
         return response;

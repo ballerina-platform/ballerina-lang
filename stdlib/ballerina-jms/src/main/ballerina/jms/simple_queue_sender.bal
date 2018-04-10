@@ -21,12 +21,12 @@ public type SimpleQueueSender object {
                 connectionFactoryName: config.connectionFactoryName,
                 properties: config.properties
             });
-        connection = conn;
+        self.connection = conn;
 
         Session newSession = new (conn, {
                 acknowledgementMode: config.acknowledgementMode
             });
-        session = newSession;
+        self.session = newSession;
 
         QueueSender queueSender = new;
         QueueSenderEndpointConfiguration senderConfig = {
@@ -34,7 +34,7 @@ public type SimpleQueueSender object {
             queueName: config.queueName
         };
         queueSender.init(senderConfig);
-        sender = queueSender;
+        self.sender = queueSender;
     }
 
     public function register (typedesc serviceType) {
@@ -56,7 +56,7 @@ public type SimpleQueueSender object {
     public function stop () {
     }
 
-    public function createTextMessage(string message) returns (Message) {
+    public function createTextMessage(string message) returns (Message | Error) {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
@@ -70,7 +70,7 @@ public type SimpleQueueSender object {
 
 public type SimpleQueueSenderEndpointConfiguration {
     string initialContextFactory = "wso2mbInitialContextFactory";
-    string providerUrl = "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'";
+    string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     map properties;
