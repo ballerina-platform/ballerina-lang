@@ -81,7 +81,7 @@ public type Response object {
     @Param {value:"res: The response message"}
     public function getHeaderNames () returns (string[]);
 
-    @Description {value:"Set the content-type header to request"}
+    @Description {value:"Set the content-type header to response"}
     @Param {value:"contentType: Content type value that needs to be set to Content-Type header"}
     public function setContentType (string contentType);
 
