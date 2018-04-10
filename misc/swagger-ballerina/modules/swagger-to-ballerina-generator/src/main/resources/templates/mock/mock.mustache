@@ -1,6 +1,4 @@
-{{#apiPackage}}package {{apiPackage}};
-
-{{/apiPackage}}import ballerina/http;
+import ballerina/http;
 import ballerina/http.swagger;
 
 {{#servers}}endpoint http:Listener ep{{@index}} {
@@ -51,7 +49,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:Response resp = {};
+        http:Response resp = new;
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = outboundEp -> respond(resp);
@@ -80,7 +78,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:Response resp = {};
+        http:Response resp = new;
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = outboundEp -> respond(resp);
@@ -109,7 +107,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:Response resp = {};
+        http:Response resp = new;
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = outboundEp -> respond(resp);
@@ -138,7 +136,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:Response resp = {};
+        http:Response resp = new;
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = outboundEp -> respond(resp);
@@ -167,7 +165,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:Response resp = {};
+        http:Response resp = new;
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = outboundEp -> respond(resp);
@@ -196,7 +194,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:Response resp = {};
+        http:Response resp = new;
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = outboundEp -> respond(resp);
@@ -225,7 +223,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:Response resp = {};
+        http:Response resp = new;
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = outboundEp -> respond(resp);
@@ -254,7 +252,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:Response resp = {};
+        http:Response resp = new;
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = outboundEp -> respond(resp);
