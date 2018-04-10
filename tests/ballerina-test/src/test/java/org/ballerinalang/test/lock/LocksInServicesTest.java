@@ -180,7 +180,7 @@ public class LocksInServicesTest {
         @Override
         public void run() {
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-            Services.invokeNew(compileResult,MOCK_ENDPOINT_NAME, cMsg);
+            Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
             semaphore.release();
         }
     }

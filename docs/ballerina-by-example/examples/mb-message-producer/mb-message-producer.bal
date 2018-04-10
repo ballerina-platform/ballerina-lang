@@ -1,5 +1,5 @@
-import ballerina/net.jms;
-import ballerina/net.mb;
+import ballerina/jms;
+import ballerina/mb;
 
 endpoint mb:ClientEndpoint mbEP {
     brokerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"

@@ -64,20 +64,20 @@ public type CacheConfig {
 
 @Description {value:"An HTTP caching client implementation which takes an HttpClient and wraps it with a caching layer."}
 @Field {value:"httpClient: The underlying HTTP client which will be making the actual network calls"}
-@Field {value:"cache: Caching configurations for the HTTP cache"}
+@Field {value:"cacheConfig: Caching configurations for the HTTP cache"}
 public type HttpCachingClient object {
 
     public {
         string serviceUri;
         ClientEndpointConfig config;
         HttpClient httpClient;
-        HttpCache httpCache;
-        CacheConfig cache;
+        HttpCache cache;
+        CacheConfig cacheConfig;
     }
 
-    public new(serviceUri, config, cache) {
+    public new(serviceUri, config, cacheConfig) {
         self.httpClient = createHttpClient(serviceUri, config);
-        self.httpCache = createHttpCache("http-cache", cache);
+        self.cache = createHttpCache("http-cache", cacheConfig);
     }
 
     @Description {value:"Responses returned for POST requests are not cacheable. Therefore, the requests are simply directed to the origin server. Responses received for POST requests invalidate the cached responses for the same resource."}
@@ -182,8 +182,8 @@ public type HttpCachingClient object {
 };
 
 @Description {value:"Creates an HTTP client capable of caching HTTP responses."}
-public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cache) returns HttpClient {
-    HttpCachingClient httpCachingClient = new (url, config, cache);
+public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig) returns HttpClient {
+    HttpCachingClient httpCachingClient = new (url, config, cacheConfig);
     log:printDebug("Created HTTP caching client: " + io:sprintf("%r",[httpCachingClient]));
     return httpCachingClient;
 }
@@ -191,7 +191,7 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
 public function HttpCachingClient::post (string path, Request req) returns (Response|HttpConnectorError) {
     match self.httpClient.post(path, req) {
         Response inboundResponse => {
-            invalidateResponses(self.httpCache, inboundResponse, path);
+            invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
         }
 
@@ -200,13 +200,13 @@ public function HttpCachingClient::post (string path, Request req) returns (Resp
 }
 
 public function HttpCachingClient::head (string path, Request req) returns (Response|HttpConnectorError) {
-    return getCachedResponse(self.httpCache, self.httpClient, req, HEAD, path, self.cache.isShared);
+    return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared);
 }
 
 public function HttpCachingClient::put (string path, Request req) returns (Response|HttpConnectorError) {
     match self.httpClient.put(path, req) {
         Response inboundResponse => {
-            invalidateResponses(self.httpCache, inboundResponse, path);
+            invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
         }
 
@@ -216,12 +216,12 @@ public function HttpCachingClient::put (string path, Request req) returns (Respo
 
 public function HttpCachingClient::execute (string httpMethod, string path, Request req) returns (Response|HttpConnectorError) {
     if (httpMethod == GET || httpMethod == HEAD) {
-        return getCachedResponse(self.httpCache, self.httpClient, req, httpMethod, path, self.cache.isShared);
+        return getCachedResponse(self.cache, self.httpClient, req, httpMethod, path, self.cacheConfig.isShared);
     }
 
     match self.httpClient.execute(httpMethod, path, req) {
         Response inboundResponse => {
-            invalidateResponses(self.httpCache, inboundResponse, path);
+            invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
         }
 
@@ -232,7 +232,7 @@ public function HttpCachingClient::execute (string httpMethod, string path, Requ
 public function HttpCachingClient::patch (string path, Request req) returns (Response|HttpConnectorError) {
     match self.httpClient.patch(path, req) {
         Response inboundResponse => {
-            invalidateResponses(self.httpCache, inboundResponse, path);
+            invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
         }
 
@@ -243,7 +243,7 @@ public function HttpCachingClient::patch (string path, Request req) returns (Res
 public function HttpCachingClient::delete (string path, Request req) returns (Response|HttpConnectorError) {
     match self.httpClient.delete(path, req) {
         Response inboundResponse => {
-            invalidateResponses(self.httpCache, inboundResponse, path);
+            invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
         }
 
@@ -252,13 +252,13 @@ public function HttpCachingClient::delete (string path, Request req) returns (Re
 }
 
 public function HttpCachingClient::get (string path, Request req) returns (Response|HttpConnectorError) {
-    return getCachedResponse(self.httpCache, self.httpClient, req, GET, path, self.cache.isShared);
+    return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared);
 }
 
 public function HttpCachingClient::options (string path, Request req) returns (Response|HttpConnectorError) {
     match self.httpClient.options(path, req) {
         Response inboundResponse => {
-            invalidateResponses(self.httpCache, inboundResponse, path);
+            invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
         }
 
@@ -268,12 +268,12 @@ public function HttpCachingClient::options (string path, Request req) returns (R
 
 public function HttpCachingClient::forward (string path, Request req) returns (Response|HttpConnectorError) {
     if (req.method == GET || req.method == HEAD) {
-        return getCachedResponse(self.httpCache, self.httpClient, req, req.method, path, self.cache.isShared);
+        return getCachedResponse(self.cache, self.httpClient, req, req.method, path, self.cacheConfig.isShared);
     }
 
     match self.httpClient.forward(path, req) {
         Response inboundResponse => {
-            invalidateResponses(self.httpCache, inboundResponse, path);
+            invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
         }
 
@@ -305,13 +305,13 @@ public function HttpCachingClient::rejectPromise (PushPromise promise) returns b
     return self.httpClient.rejectPromise(promise);
 }
 
-function getCachedResponse (HttpCache httpCache, HttpClient httpClient, Request req, string httpMethod, string path,
+function getCachedResponse (HttpCache cache, HttpClient httpClient, Request req, string httpMethod, string path,
                             boolean isShared) returns (Response|HttpConnectorError) {
     time:Time currentT = time:currentTime();
     req.parseCacheControlHeader();
 
-    if (httpCache.hasKey(getCacheKey(httpMethod, path))) {
-        Response cachedResponse = httpCache.get(getCacheKey(httpMethod, path));
+    if (cache.hasKey(getCacheKey(httpMethod, path))) {
+        Response cachedResponse = cache.get(getCacheKey(httpMethod, path));
         // Based on https://tools.ietf.org/html/rfc7234#section-4
         log:printDebug("Cached response found for: '" + httpMethod + " " + path + "'");
 
@@ -324,7 +324,7 @@ function getCachedResponse (HttpCache httpCache, HttpClient httpClient, Request 
                 return cachedResponse;
             } else {
                 log:printDebug("Serving a cached fresh response after validating with the origin server");
-                return getValidationResponse(httpClient, req, cachedResponse, httpCache, currentT, path, httpMethod, true);
+                return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, true);
             }
         }
 
@@ -344,7 +344,7 @@ function getCachedResponse (HttpCache httpCache, HttpClient httpClient, Request 
         }
 
         log:printDebug("Validating a stale response for '" + path + "' with the origin server.");
-        return getValidationResponse(httpClient, req, cachedResponse, httpCache, currentT, path, httpMethod, false);
+        return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, false);
     } else {
         log:printDebug("Cached response not found for: '" + httpMethod + " " + path + "'");
     }
@@ -353,10 +353,10 @@ function getCachedResponse (HttpCache httpCache, HttpClient httpClient, Request 
     var response = sendNewRequest(httpClient, req, path, httpMethod);
     match response {
         Response newResponse => {
-            if (httpCache.isAllowedToCache(newResponse)) {
+            if (cache.isAllowedToCache(newResponse)) {
                 newResponse.requestTime = currentT.time;
                 newResponse.receivedTime = time:currentTime().time;
-                httpCache.put(getCacheKey(httpMethod, path), req.cacheControl, newResponse);
+                cache.put(getCacheKey(httpMethod, path), req.cacheControl, newResponse);
             }
 
             return newResponse;
@@ -366,7 +366,7 @@ function getCachedResponse (HttpCache httpCache, HttpClient httpClient, Request 
     }
 }
 
-function getValidationResponse (HttpClient httpClient, Request req, Response cachedResponse, HttpCache httpCache,
+function getValidationResponse (HttpClient httpClient, Request req, Response cachedResponse, HttpCache cache,
                                 time:Time currentT, string path, string httpMethod, boolean isFreshResponse)
                                 returns (Response|HttpConnectorError) {
     // If the no-cache directive is set, always validate the response before serving
@@ -401,7 +401,7 @@ function getValidationResponse (HttpClient httpClient, Request req, Response cac
     log:printDebug("Response for validation request received");
     // Based on https://tools.ietf.org/html/rfc7234#section-4.3.3
     if (validationResponse.statusCode == NOT_MODIFIED_304) {
-        return handle304Response(validationResponse, cachedResponse, httpCache, path, httpMethod);
+        return handle304Response(validationResponse, cachedResponse, cache, path, httpMethod);
     } else if (validationResponse.statusCode >= 500 && validationResponse.statusCode < 600) {
         // May forward the response or act as if the origin server failed to respond and serve a
         // stored response
@@ -410,14 +410,14 @@ function getValidationResponse (HttpClient httpClient, Request req, Response cac
     } else {
         // Forward the received response and replace the stored responses
         validationResponse.requestTime = currentT.time;
-        httpCache.put(getCacheKey(httpMethod, path), req.cacheControl, validationResponse);
-        log:printDebug("Received a full response. Storing it in httpCache and forwarding to the client");
+        cache.put(getCacheKey(httpMethod, path), req.cacheControl, validationResponse);
+        log:printDebug("Received a full response. Storing it in cache and forwarding to the client");
         return validationResponse;
     }
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
-function handle304Response (Response validationResponse, Response cachedResponse, HttpCache httpCache, string path,
+function handle304Response (Response validationResponse, Response cachedResponse, HttpCache cache, string path,
                             string httpMethod) returns (Response|HttpConnectorError) {
     log:printDebug("304 response received");
 
@@ -426,7 +426,7 @@ function handle304Response (Response validationResponse, Response cachedResponse
 
         if (isAStrongValidator(etag)) {
             // Assuming ETags are the only strong validators
-            Response[] matchingCachedResponses = httpCache.getAllByETag(getCacheKey(httpMethod, path), etag);
+            Response[] matchingCachedResponses = cache.getAllByETag(getCacheKey(httpMethod, path), etag);
 
             foreach resp in matchingCachedResponses {
                 updateResponse(resp, validationResponse);
@@ -435,7 +435,7 @@ function handle304Response (Response validationResponse, Response cachedResponse
             return cachedResponse;
         } else if (hasAWeakValidator(validationResponse, etag)) {
             // The weak validator should be either an ETag or a last modified date. Precedence given to ETag
-            Response[] matchingCachedResponses = httpCache.getAllByWeakETag(getCacheKey(httpMethod, path), etag);
+            Response[] matchingCachedResponses = cache.getAllByWeakETag(getCacheKey(httpMethod, path), etag);
 
             foreach resp in matchingCachedResponses {
                 updateResponse(resp, validationResponse);
@@ -460,8 +460,8 @@ function invalidateResponses (HttpCache httpCache, Response inboundResponse, str
     // TODO: Improve this logic in accordance with the spec
     if (isCacheableStatusCode(inboundResponse.statusCode) &&
         inboundResponse.statusCode >= 200 && inboundResponse.statusCode < 400) {
-        httpCache.httpCache.remove(getCacheKey(GET, path));
-        httpCache.httpCache.remove(getCacheKey(HEAD, path));
+        httpCache.cache.remove(getCacheKey(GET, path));
+        httpCache.cache.remove(getCacheKey(HEAD, path));
     }
 }
 
