@@ -51,6 +51,7 @@ public class BLangVariable extends BLangNode implements VariableNode {
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public boolean safeAssignment = false;
     public boolean isField;
+    public boolean global;
 
     public BVarSymbol symbol;
 

@@ -305,6 +305,28 @@ public class ObjectTest {
         Assert.assertEquals(returns[1].stringValue(), "passed in name value");
     }
 
+    @Test(description = "Test initializing object in return statement with same type")
+    public void testNewAsReturnWithSameType() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_new_in_return.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateObjectInReturnSameType");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+
+    @Test(description = "Test initializing object in return statement with different type")
+    public void testNewAsReturnWithDifferentType() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_new_in_return.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateObjectInReturnDifferentType");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
+    }
+
 //
 //    @Test(description = "Test object with default initializer with default values") //TODO fix
 //    public void testObjectWithWithDefaultInitializeWithDefaultValues() {
@@ -382,18 +404,22 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 3, "undefined symbol 'age'", 39, 17);
     }
 
-//    @Test (description = "Negative test to test multiple attach functions for same function interface and " +
-//            "attached function without function interface") //TODO fix
-//    public void testObjectNegativeTestForNonInitializable() {
-//        CompileResult result = BCompileUtil.compile("test-src/object/object_with_non_defaultable_negative.bal");
-//        Assert.assertEquals(result.getErrorCount(), 2);
-//        // test duplicate matching attach function implementations
-//        BAssertUtil.validateError(result, 0, "implementation already exist for the given " +
-//                "function 'attachInterface' in same package", 24, 1);
-//
-//        // test object without matching function signature within the object
-//        BAssertUtil.validateError(result, 1, "cannot find function signature for" +
-//                " function 'attachInterfaceFunc' in object 'Employee'", 38, 1);
-//    }
+    @Test (description = "Negative test to test uninitialized object variables")
+    public void testObjectNegativeTestForNonInitializable() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_with_non_defaultable_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 5);
+        BAssertUtil.validateError(result, 0, "variable 'pp' is not initialized", 2, 1);
+        BAssertUtil.validateError(result, 1, "variable 'ee' is not initialized", 3, 1);
+        BAssertUtil.validateError(result, 2, "variable 'p' is not initialized", 6, 5);
+        BAssertUtil.validateError(result, 3, "variable 'e' is not initialized", 7, 5);
+        BAssertUtil.validateError(result, 4, "undefined function 'attachInterface' in struct 'Person'", 8, 13);
+    }
+
+    @Test (description = "Negative test to test returning different type without type name")
+    public void testObjectNegativeTestForReturnDifferentType() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_new_in_return_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 23, 12);
+    }
 
 }

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
@@ -1132,6 +1133,30 @@ public class Types {
      */
     public boolean defaultValueExists(BType type) {
         if (type.isNullable()) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.STRUCT) {
+            BStructType structType = (BStructType) type;
+
+            if (structType.tsymbol.getKind() == SymbolKind.RECORD) {
+                for (BStructField field : structType.fields) {
+                    if (!defaultValueExists(field.type)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            BStructSymbol structSymbol = (BStructSymbol) structType.tsymbol;
+            if (structSymbol.initializerFunc.symbol.params.size() > 0) {
+                return false;
+            }
+            for (BStructField field : structType.fields) {
+                if (!defaultValueExists(field.type)) {
+                    return false;
+                }
+            }
             return true;
         }
 
