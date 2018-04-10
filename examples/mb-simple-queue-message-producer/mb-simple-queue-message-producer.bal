@@ -4,9 +4,8 @@ import ballerina/log;
 
 // Create a queue sender
 endpoint mb:SimpleQueueSender queueSender {
-    initialContextFactory: "wso2mbInitialContextFactory",
-    providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
-    acknowledgementMode: "AUTO_ACKNOWLEDGE",
+    host: "localhost",
+    port: 5672,
     queueName: "MyQueue"
 };
 
