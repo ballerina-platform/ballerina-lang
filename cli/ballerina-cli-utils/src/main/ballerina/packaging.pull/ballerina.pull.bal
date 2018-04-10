@@ -43,8 +43,6 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
             throw err;
         }
         res = callFileServer(locationHeader);
-    } else if (httpResponse.statusCode == 404) {
-       io:println("package not found in central");
     } else {
        error err = {message:"error occurred when pulling the package"};
        throw err;
@@ -194,7 +192,7 @@ function truncateString (string text) returns (string) {
 }
 
 function createDirectories(string directoryPath) returns (boolean) {
-    file:Path dirPath = file:getPath(directoryPath);
+    file:Path dirPath = new(directoryPath);
     if (!file:exists(dirPath)){
         boolean directoryCreationStatus = check (file:createDirectory(dirPath));
         return directoryCreationStatus;
@@ -204,7 +202,7 @@ function createDirectories(string directoryPath) returns (boolean) {
 }
 
 function callFileServer(string url) returns http:Response {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets: [
         {
             url: url,

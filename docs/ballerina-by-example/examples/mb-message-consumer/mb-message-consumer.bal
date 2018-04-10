@@ -1,5 +1,5 @@
-import ballerina/net.jms;
-import ballerina/net.mb;
+import ballerina/jms;
+import ballerina/mb;
 import ballerina/io;
 
 endpoint mb:ConsumerEndpoint ep1 {

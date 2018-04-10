@@ -7,9 +7,9 @@ import ballerina/io;
 }
 function testAddingValues (string fValue, string sValue, string result) {
 
-    var value1 =? <int>fValue;
-    var value2 =? <int>sValue;
-    var result1 =? <int>result;
+    int value1 = check <int>fValue;
+    int value2 = check <int>sValue;
+    int result1 = check <int>result;
     io:println("Input params: ["+fValue+","+sValue+","+result+"]");
     test:assertEquals(value1 + value2, result1, msg = "The sum is not correct");
 }

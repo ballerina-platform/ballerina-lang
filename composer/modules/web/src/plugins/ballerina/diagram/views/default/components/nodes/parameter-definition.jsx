@@ -19,7 +19,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import log from 'log';
 import _ from 'lodash';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import ImageUtil from './../../../../image-util';
 import SimpleBBox from '../../../../../model/view/simple-bounding-box';
 import TreeBuilder from './../../../../../model/tree-builder';
@@ -57,23 +56,6 @@ class ParameterDefinition extends React.Component {
             this.props.model.parent.removeParameters(this.props.model);
         } else {
             this.props.model.parent.removeReturnParameters(this.props.model);
-        }
-    }
-
-    onEditRequest() {
-        this.editorOptions = {
-            propertyType: 'text',
-            key: 'ParameterDefinition',
-            model: this.props.model,
-            fontSize: 12,
-            isCustomHeight: true,
-        };
-
-        const options = this.editorOptions;
-        const packageScope = this.context.environment;
-        if (options) {
-            new ExpressionEditor(this.state.inputBox, (s) => {}, options, packageScope)
-                .render(this.context.getOverlayContainer());
         }
     }
 

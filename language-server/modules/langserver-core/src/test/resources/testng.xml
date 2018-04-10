@@ -21,6 +21,11 @@ under the License.
 
 <suite name="composer-workspace-service-test-suite">
     <test name="composer-workspace-service-tests" preserve-order="true" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <packages>
             <package name="org.ballerinalang.langserver.*"/>
         </packages>

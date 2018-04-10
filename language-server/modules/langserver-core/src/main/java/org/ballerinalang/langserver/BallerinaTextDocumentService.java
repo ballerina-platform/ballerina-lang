@@ -40,6 +40,8 @@ import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
+import org.ballerinalang.repository.PackageRepository;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CodeLensParams;
@@ -75,6 +77,7 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -424,17 +427,34 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     private void compileAndSendDiagnostics(String content, LSDocument document, Path path) {
         BallerinaFile balFile;
+
+        String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path);
+        String pkgName = TextDocumentServiceUtil.getPackageNameForGivenFile(sourceRoot, path.toString());
+        LSDocument sourceDocument = new LSDocument();
+        sourceDocument.setUri(document.getURIString());
+        sourceDocument.setSourceRoot(sourceRoot);
+
+        PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
+        if ("".equals(pkgName)) {
+            Path filePath = path.getFileName();
+            if (filePath != null) {
+                pkgName = filePath.toString();
+            }
+        }
+        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
+                                                                     sourceDocument, false,
+                                                                         documentManager, CompilerPhase.CODE_ANALYZE);
+
+        List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
+
         String tempFileId = LSParserUtils.getUnsavedFileIdOrNull(path.toString());
         if (tempFileId == null) {
-            balFile = LSParserUtils.compile(content, path, CompilerPhase.TAINT_ANALYZE, false);
+            balFile = LSParserUtils.compile(content, path, CompilerPhase.TAINT_ANALYZE, context);
         } else {
             balFile = LSParserUtils.compile(content, tempFileId, CompilerPhase.TAINT_ANALYZE, false);
         }
-        List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics;
         if (balFile.getDiagnostics() != null) {
             balDiagnostics = balFile.getDiagnostics();
-        } else {
-            balDiagnostics = new ArrayList<>();
         }
         publishDiagnostics(balDiagnostics, path);
     }

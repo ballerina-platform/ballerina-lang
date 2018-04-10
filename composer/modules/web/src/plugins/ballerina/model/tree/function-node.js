@@ -70,6 +70,9 @@ class FunctionNode extends AbstractFunctionNode {
         }
     }
 
+    getClientTitle() {
+        return 'caller';
+    }
 }
 
 export default FunctionNode;
