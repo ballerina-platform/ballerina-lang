@@ -2,9 +2,9 @@ package ballerina.jms;
 
 import ballerina/log;
 
-public type SimpleDurableTopicListener object {
+public type SimpleDurableTopicSubscriber object {
     public {
-        SimpleDurableTopicListenerEndpointConfiguration config;
+        SimpleDurableTopicSubscriberEndpointConfiguration config;
     }
 
     private {
@@ -13,7 +13,7 @@ public type SimpleDurableTopicListener object {
         DurableTopicSubscriber? subscriber;
     }
 
-    public function init(SimpleDurableTopicListenerEndpointConfiguration config) {
+    public function init(SimpleDurableTopicSubscriberEndpointConfiguration config) {
         self.config = config;
         Connection conn = new ({
                 initialContextFactory: config.initialContextFactory,
@@ -79,7 +79,7 @@ public type SimpleDurableTopicListener object {
     }
 };
 
-public type SimpleDurableTopicListenerEndpointConfiguration {
+public type SimpleDurableTopicSubscriberEndpointConfiguration {
     string initialContextFactory = "wso2mbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";

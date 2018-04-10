@@ -9,7 +9,7 @@ public type SimpleDurableTopicSubscriber object {
     }
 
     private {
-        jms:SimpleDurableTopicListener subscriber;
+        jms:SimpleDurableTopicSubscriber subscriber;
         DurableTopicSubscriberConnector? connector;
     }
 

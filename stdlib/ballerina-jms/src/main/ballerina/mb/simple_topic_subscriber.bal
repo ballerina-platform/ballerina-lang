@@ -10,7 +10,7 @@ public type SimpleTopicSubscriber object {
     }
 
     private {
-        jms:SimpleTopicListener subscriber;
+        jms:SimpleTopicSubscriber subscriber;
         TopicSubscriberConnector? connector;
     }
 
