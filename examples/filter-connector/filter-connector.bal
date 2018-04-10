@@ -21,8 +21,8 @@ connector CacheConnector<StockQuoteConnector stockC> (string j) {
             result, _ = (int)cachedKeys[ID];
         } else {
             // If the ID that was called does not match the values in the cache, which is the functionality of the
-            filter connector, the base connectors functionality is called to check for the ID and its corresponding
-            value.
+            //filter connector, the base connectors functionality is called to check for the ID and its corresponding
+            //value.
             //Once the value is found, it is stored in the 'cachedKeys' map.
             result = stockC.getStock(ID);
             cachedKeys[ID] = result;
@@ -33,21 +33,23 @@ connector CacheConnector<StockQuoteConnector stockC> (string j) {
 
 function main (string[] args) {
     // Create the 'StockQuoteConnector' that acts as the base connector and decorate it using the 'CacheConnector'
-    that acts as the filter connector.
+    // that acts as the filter connector.
     StockQuoteConnector stockQC = create StockQuoteConnector(5)
                                   with CacheConnector("Bob");
 
-    // Invoke the action of the 'StockQuoteConnector' with the 'WSO2' cached key that was defined in 'cachedKeys' of the
-     filter connector.
+    // Invoke the action of the 'StockQuoteConnector' by passing 'WSO2' as the ID. Since WSO2 is stored
+    //in the 'cachedKeys' map of the filter connector the respective price value is printed.
     int price = stockQC.getStock("WSO2");
     io:println(price);
 
-    // Invoke the action of the 'StockQuoteConnector' with the 'IBM' cached key that was defined in 'cachedKeys' of the
-    filter connector.
+    // Invoke the action of the 'StockQuoteConnector' by passing 'IBM' as the ID. Since WSO2 is stored in the
+    // 'cachedKeys' map of the filter connector the respective price value is printed.
     price = stockQC.getStock("IBM");
     io:println(price);
 
-    // Invoke the action of the 'StockQuoteConnector' with 'Ballerina', which is a non-cached key.
+    // Invoke the action of the 'StockQuoteConnector' by passing 'Ballerina' as the ID. Since 'Ballerina' is not stored
+    // in the 'cachedKeys' map of the filter connector, the base connector functionality is called and the price defined
+    //for it is printed.
     price = stockQC.getStock("Ballerina");
     io:println(price);
 }

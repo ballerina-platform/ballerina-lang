@@ -1,3 +1,3 @@
 //Filter connectors are used to decorate an existing connector with additional functionality.
 //You can extend the functionality of a native or ballerina based connector using a filter connector without altering
-the original connector.
+//the original connector.
