@@ -219,6 +219,8 @@ public interface InstructionCodes {
     int ANY2TYPE = 182;
     int S2JSONX = 183;
     int NULL2S = 184;
+    int MAP2JSON = 194;
+    int JSON2MAP = 195;
 
     int LOCK = 185;
     int UNLOCK = 186;

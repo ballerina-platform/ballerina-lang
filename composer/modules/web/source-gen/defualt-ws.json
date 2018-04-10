@@ -107,6 +107,14 @@
     "before expression": "",
     "after expression": ""
   },
+  "BracedTupleExpr": {
+    "before (": "",
+    "after (":"",
+    "before expressions":"",
+    "after expression": "",
+    "before )": "",
+    "after )": ""
+  },
   "BinaryExpr": {
     "before {{": "",
     "after {{": "",
@@ -268,22 +276,6 @@
     "after expression": "",
     "before ;": "",
     "after ;": ""
-  },
-  "Enum": {
-    "before enum\\u0020": "",
-    "after enum\\u0020": "",
-    "before name": "",
-    "after name": "",
-    "before {": "",
-    "after {": "",
-    "before enumerators": "",
-    "after enumerators": "",
-    "before }": "",
-    "after }": ""
-  },
-  "Enumerator": {
-    "before name": "",
-    "after name": ""
   },
   "FieldBasedAccessExpr": {
     "before expression": "",
@@ -478,6 +470,34 @@
     "after {": "",
     "before }": "",
     "after }": ""
+  },
+  "MatchExpression": {
+    "before expr":"",
+    "after expr": " ",
+    "before but": "",
+    "after but": " ",
+    "before {": "",
+    "after {": "",
+    "before patternClauses": "",
+    "after patternClauses": "",
+    "before }": "",
+    "after }": ""
+  },
+  "MatchExpressionPatternClause": {
+    "before variable": "",
+    "after variable": " ",
+    "before =>": "",
+    "after =>": " ",
+    "before statement": "",
+    "after statement": ""
+  },
+  "NamedArgsExpr": {
+    "before name": "",
+    "after name": "",
+    "before =":" ",
+    "after =":" ",
+    "before expression":"",
+    "after expression":""
   },
   "Next": {
     "before next": "",
@@ -715,6 +735,26 @@
     "before finallyBody": "",
     "after finallyBody": ""
   },
+  "TupleDestructure": {
+    "before var":"",
+    "after var":"",
+    "before (":"",
+    "after (":"",
+    "before variableRefs":"",
+    "after variableRefs":"",
+    "before =":"",
+    "after =":"",
+    "before expression":"",
+    "after expression":""
+  },
+  "TupleTypeNode": {
+    "before (": "",
+    "after (": "",
+    "before memberTypeNodes": "",
+    "after memberTypeNodes": "",
+    "before )":"",
+    "after )":""
+  },
   "TypeCastExpr": {
     "before (": "",
     "after (": "",
@@ -745,11 +785,29 @@
     "before typeNode": " ",
     "after typeNode": ""
   },
+  "TypeInitExpr": {
+    "before new":"",
+    "after new":"",
+    "before typeName":" ",
+    "after typeName":"",
+    "before (":" ",
+    "after (":"",
+    "before expressions":"",
+    "after expressions":"",
+    "before )": "",
+    "after )":""
+  },
   "UnaryExpr": {
     "before operatorKind": "",
     "after operatorKind": "",
     "before expression": " ",
     "after expression": ""
+  },
+  "UnionTypeNode": {
+    "before memberTypeNodes":"",
+    "after memberTypeNodes":"",
+    "before |":"",
+    "after |":""
   },
   "UserDefinedType": {
     "before anonStruct": "",
