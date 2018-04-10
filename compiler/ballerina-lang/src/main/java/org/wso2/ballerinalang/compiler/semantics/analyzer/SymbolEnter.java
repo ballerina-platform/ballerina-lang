@@ -501,7 +501,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
             //TODO check function parameters and return types
-            SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, objectEnv);
+            SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
 
             invokableEnv.scope = funcNode.symbol.scope;
             defineObjectAttachedInvokableSymbolParams(funcNode, invokableEnv);

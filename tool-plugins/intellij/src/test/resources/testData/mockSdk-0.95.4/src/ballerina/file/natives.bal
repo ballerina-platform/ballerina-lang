@@ -25,7 +25,7 @@ public struct File {
 @Field { value : "stackTrace: The stack trace of the error"}
 public struct IOError {
     string msg;
-    error[] cause;
+    error? cause;
     StackFrame[] stackTrace;
 }
 
@@ -35,7 +35,7 @@ public struct IOError {
 @Field { value : "stackTrace: The stack trace of the error"}
 public struct FileNotFoundError {
     string msg;
-    error[] cause;
+    error? cause;
     StackFrame[] stackTrace;
 }
 
@@ -45,7 +45,7 @@ public struct FileNotFoundError {
 @Field { value : "stackTrace: The stack trace of the error"}
 public struct AccessDeniedError {
     string msg;
-    error[] cause;
+    error? cause;
     StackFrame[] stackTrace;
 }
 
@@ -55,7 +55,7 @@ public struct AccessDeniedError {
 @Field { value : "stackTrace: The stack trace of the error"}
 public struct FileNotOpenedError {
     string msg;
-    error[] cause;
+    error? cause;
     StackFrame[] stackTrace;
 }
 

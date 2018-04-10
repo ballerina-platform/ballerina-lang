@@ -209,10 +209,15 @@ public enum DiagnosticCode {
     
     // Safe navigation operator related errors
     SAFE_NAVIGATION_NOT_REQUIRED("safe.navigation.not.required"),
+    INVALID_SAFE_NAVIGATION_ON_LHS("invalid.safe.navigation.on.lhs"),
 
     // Checked expression related errors
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("checked.expr.invalid.usage.no.error.type.rhs"),
     CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS("checked.expr.invalid.usage.only.error.types.rhs"),
+
+    START_REQUIRE_INVOCATION("start.require.invocation"),
+    INVALID_EXPR_STATEMENT("invalid.expr.statement"),
+    INVALID_ACTION_INVOCATION_AS_EXPR("invalid.action.invocation.as.expr"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),

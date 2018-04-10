@@ -1,5 +1,5 @@
 //In Ballerina, throwing an error means, something unexpected has happened
-//that shouldn’t occur during the normal operation. A thrown error causes
+//that shouldn’t occur during the normal operation. A thrown error? causes
 //the call stack to be unwound until a matching catcher is found.
 
 //Ballerina encourages developers, NOT to use 'throw' for handling program related

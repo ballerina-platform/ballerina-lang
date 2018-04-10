@@ -29,5 +29,5 @@ public type FileEvent {
 @Field {value:"cause: The error(s) that caused FSError to get thrown"}
 public type FSError {
     string message,
-    error[] cause,
+    error? cause,
 };
