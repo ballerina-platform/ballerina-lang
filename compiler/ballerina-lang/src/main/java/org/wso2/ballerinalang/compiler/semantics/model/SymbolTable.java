@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -76,7 +75,6 @@ public class SymbolTable {
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
     public final BSymbol notFoundSymbol;
-    public final BLangVariable notFoundVariable;
     public final Scope rootScope;
 
     public final BType noType = new BNoType(TypeTags.NONE);
@@ -129,8 +127,6 @@ public class SymbolTable {
         this.rootPkgSymbol.scope = this.rootScope;
         this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID,
                 rootPkgSymbol.pkgID, noType, rootPkgSymbol);
-        this.notFoundVariable = new BLangVariable();
-
         // Initialize built-in types in Ballerina
         initializeType(intType, TypeKind.INT.typeName());
         initializeType(floatType, TypeKind.FLOAT.typeName());

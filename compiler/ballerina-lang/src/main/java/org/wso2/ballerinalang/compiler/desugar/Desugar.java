@@ -357,13 +357,12 @@ public class Desugar extends BLangNodeVisitor {
         funcNode.endpoints = rewrite(funcNode.endpoints, fucEnv);
 
         //write closure vars
-        funcNode.closureVarList.stream()
-                .filter(var -> !funcNode.requiredParams.contains(var))
-                .forEach(var -> {
-                    BVarSymbol closureVarSymbol = var.symbol;
-                    closureVarSymbol.closure = true;
-                    funcNode.symbol.params.add(0, closureVarSymbol);
-                    ((BInvokableType) funcNode.symbol.type).paramTypes.add(0, closureVarSymbol.type);
+        funcNode.closureVarSymbols.stream()
+                .filter(symbol -> !isFunctionArgument(symbol, funcNode.symbol.params))
+                .forEach(symbol -> {
+                    symbol.closure = true;
+                    funcNode.symbol.params.add(0, symbol);
+                    ((BInvokableType) funcNode.symbol.type).paramTypes.add(0, symbol.type);
                 });
 
         funcNode.body = rewrite(funcNode.body, fucEnv);
@@ -380,6 +379,10 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         result = funcNode;
+    }
+
+    private boolean isFunctionArgument(BVarSymbol symbol, List<BVarSymbol> params) {
+        return params.stream().anyMatch(param -> (param.name.equals(symbol.name) && param.type.equals(symbol.type)));
     }
 
     @Override

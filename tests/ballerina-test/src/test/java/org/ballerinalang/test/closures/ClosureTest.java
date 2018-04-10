@@ -122,9 +122,46 @@ public class ClosureTest {
         Assert.assertEquals((returns[0]).stringValue(), "HelloBallerinaWorld!!!");
     }
 
-    @Test(description = "Test string args with a closure")
+    @Test(description = "Test tuple type as argument")
     public void testTupleArgsWithClosure() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test16");
         Assert.assertEquals((returns[0]).stringValue(), "ImBallerina15.0Program !!!Hello11.1World !!!");
+    }
+
+    @Test(description = "Test tuple type as argument with an order")
+    public void testTupleTypesOrderWithClosure() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test17");
+        Assert.assertEquals((returns[0]).stringValue(),
+                "I'mHello11.1World !!!Ballerina15.0Program!!!HelloInner44.8World Inner!!!");
+    }
+
+    @Test(description = "Test global var modify and access")
+    public void testGlobalVarModifyAndAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test18");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 16);
+    }
+
+    @Test(description = "Test closure with object attached function references")
+    public void testClosureWithObjectAttachedFuncReferences() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test19");
+        Assert.assertEquals((returns[0]).stringValue(), "Hello BallerinaK43");
+    }
+
+    @Test(description = "Test closure with object attached function pointer references")
+    public void testClosureWithObjectAttachedFuncPointerReferences() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test20");
+        Assert.assertEquals((returns[0]).stringValue(), "11Ballerina !!!");
+    }
+
+    @Test(description = "Test closure with object external attached function pointer references")
+    public void testClosureWithObjectExternalAttachedFuncPointerReferences() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test21");
+        Assert.assertEquals((returns[0]).stringValue(), "7T45Hello Ballerina3");
+    }
+
+    @Test(description = "Test closure with different type args references")
+    public void testClosureWithDifferentArgsReferences() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test22");
+        Assert.assertEquals((returns[0]).stringValue(), "7InnerInt41.2InnerFloat4.5Ballerina !!!");
     }
 }

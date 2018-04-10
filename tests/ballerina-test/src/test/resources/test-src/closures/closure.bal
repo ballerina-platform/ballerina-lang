@@ -256,3 +256,127 @@ function test16() returns string {
     string k = "Program !!!";
     return foo("Im", (i, j, k));
 }
+
+function testClosureWithTupleTypesOrder((string, float, string) g) returns (function ((string, float, string), string) returns (string)){
+    string i = "HelloInner";
+    float j = 44.8;
+    string k = "World Inner!!!";
+    var r = (i, j, k);
+
+    return ((string, float, string) y, string x) => (string) {
+       var (a, b, c) = g;
+       var (d, e, f) = y;
+       var (i1, j1, k1) = r;
+
+       return x + a + b + c + d + e + f + i1 + j1 + k1;
+    };
+}
+
+function test17() returns string {
+    string d = "Ballerina";
+    float e = 15.0;
+    string f = "Program!!!";
+
+    string a = "Hello";
+    float b = 11.1;
+    string c = "World !!!";
+
+    var foo = testClosureWithTupleTypesOrder((a, b, c));
+    return foo((d, e, f), "I'm");
+}
+
+function globalVarAccessAndModifyTest() returns (int) {
+    int a = 3;
+    a = 6;
+    globalA = 7;
+    var addFunc = (int b) => (int) {
+        return b + globalA + a;
+    };
+    return addFunc(3);
+}
+
+function test18() returns int {
+    return globalVarAccessAndModifyTest();
+}
+
+type Person object {
+    public {
+        int age = 3,
+        string name = "Hello Ballerina";
+    }
+    private {
+        int year = 5;
+        string month = "february";
+    }
+
+    function getAttachedFn() returns string {
+        int b = 4;
+        var foo = () => (string) {
+           return name + "K" + b + self.age;
+        };
+        return foo();
+    }
+
+    function getAttachedFP() returns function (int) returns (string) {
+        int b = 4;
+        var foo = (int w) => (string) {
+            string d = w + b + "Ballerina !!!";
+            return d;
+        };
+        return foo;
+    }
+
+    function externalAttachedFP() returns (function (int) returns (string));
+
+};
+
+public function Person::externalAttachedFP() returns (function (int) returns (string)) {
+     int b = 4;
+     var foo = (int w) => (string) {
+        string d = w + "T" + b + self.year + self.name + self.age;
+        return d;
+     };
+     return foo;
+}
+
+
+function test19() returns (string) {
+    Person p = new;
+    return p.getAttachedFn();
+}
+
+function test20() returns (string) {
+    Person p = new;
+    var foo = p.getAttachedFP();
+    return foo(7);
+}
+
+public function test21() returns (string) {
+    Person p = new;
+    var foo = p.externalAttachedFP();
+    return foo(7);
+}
+
+function testDifferentArgs() returns (function (float) returns (function (float) returns (string))) {
+    int outerInt = 4;
+    boolean booOuter = false;
+    var outerFoo = (float fOut) => (function (float) returns (string)) {
+        int innerInt = 7;
+        boolean booInner = true;
+        var innerFoo = (float fIn) => (string) {
+            string str = "Plain";
+            if (!booOuter && booInner) {
+                str = innerInt + "InnerInt" + outerInt + fOut + "InnerFloat" + fIn + "Ballerina !!!";
+            }
+            return str;
+        };
+        return innerFoo;
+    };
+    return outerFoo;
+}
+
+function test22() returns (string) {
+    var fooOut = testDifferentArgs();
+    var fooIn = fooOut(1.2);
+    return fooIn(4.5);
+}
