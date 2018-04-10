@@ -1,7 +1,7 @@
 import ballerina/io;
 
 function main (string[] args) {
-    //Create an integer array of length 0.
+    //Create an int array of length 0.
     int[] a = [];
     io:println(lengthof a);
 
