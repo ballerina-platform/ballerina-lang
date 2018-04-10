@@ -1,5 +1,5 @@
-#To run the program, put the code into the `.bal` file 
-# and run the `ballerina run` command. 
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command.
 $ ballerina run json-literals.bal
 {"fname":"John","lname":"Stallone","age":30}
 John
