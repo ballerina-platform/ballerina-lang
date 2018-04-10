@@ -44,6 +44,8 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
     private final boolean isSecure;
     private final URI requestedUri;
     private final String sessionId;
+    private final WebSocketBasicRemoteEndpoint basicRemoteEndpoint;
+    private final WebSocketAsyncRemoteEndpoint asyncRemoteEndpoint;
     private String negotiatedSubProtocol = null;
     private boolean isOpen = false;
     private Map<String, Object> userProperties = new HashMap<>();
@@ -54,11 +56,18 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
         this.isSecure = isSecure;
         this.requestedUri = new URI(requestedUri);
         this.sessionId = sessionId;
+        this.basicRemoteEndpoint = new WebSocketBasicRemoteEndpoint(ctx);
+        this.asyncRemoteEndpoint = new WebSocketAsyncRemoteEndpoint(ctx);
     }
 
     @Override
     public RemoteEndpoint.Async getAsyncRemote() {
-        return new WebSocketAsyncRemoteEndpoint(ctx);
+        return asyncRemoteEndpoint;
+    }
+
+    @Override
+    public RemoteEndpoint.Basic getBasicRemote() {
+        return basicRemoteEndpoint;
     }
 
     @Override
