@@ -140,8 +140,8 @@ function protocolCompatible (string coordinationType,
     return participantProtocolIsValid;
 }
 
-function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
-    endpoint http:ServiceEndpoint ep = conn;
+function respondToBadRequest (http:Listener conn, string msg) {
+    endpoint http:Listener ep = conn;
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
     RequestError err = {errorMessage:msg};
@@ -353,7 +353,7 @@ public function registerParticipantWithRemoteInitiator (string transactionId,
         error e => {
             string msg = "Cannot register with coordinator for transaction: " + transactionId;
             log:printErrorCause(msg, e);
-            error err = {message:msg, cause:[e]};
+            error err = {message:msg, cause:e};
             return err;
         }
         RegistrationResponse regRes => {

@@ -1,4 +1,4 @@
-import ballerina/net.jms;
+import ballerina/jms;
 import ballerina/io;
 
 endpoint jms:ConsumerEndpoint ep1 {

@@ -81,7 +81,7 @@ public interface Counter extends Metric {
 
         @Override
         public Counter register() {
-            return register(MetricRegistry.getDefaultRegistry());
+            return register(DefaultMetricRegistry.getInstance());
         }
 
         @Override

@@ -77,13 +77,13 @@ type person {
 
 public type myerror {
     string message;
-    error[] cause;
+    error? cause;
     int code;
 };
 
 public type customError {
     string message;
-    error[] cause;
+    error? cause;
     int code;
     string data;
 };

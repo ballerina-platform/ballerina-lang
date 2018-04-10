@@ -467,12 +467,15 @@ public class TypeChecker extends BLangNodeVisitor {
             checkActionInvocationExpr(iExpr, exprType);
             return;
         }
-        switch (iExpr.expr.type.tag) {
+
+        BType varRefType = iExpr.expr.type;
+        varRefType = getSafeType(varRefType, iExpr.safeNavigate, iExpr.pos);
+        switch (varRefType.tag) {
             case TypeTags.STRUCT:
                 // Invoking a function bound to a struct
                 // First check whether there exist a function with this name
                 // Then perform arg and param matching
-                checkFunctionInvocationExpr(iExpr, (BStructType) iExpr.expr.type);
+                checkFunctionInvocationExpr(iExpr, (BStructType) varRefType);
                 break;
             case TypeTags.CONNECTOR:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
@@ -484,7 +487,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.FLOAT:
             case TypeTags.BLOB:
             case TypeTags.XML:
-                checkFunctionInvocationExpr(iExpr, iExpr.expr.type);
+                checkFunctionInvocationExpr(iExpr, varRefType);
                 break;
             case TypeTags.JSON:
                 checkFunctionInvocationExpr(iExpr, symTable.jsonType);
@@ -1712,6 +1715,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BUnionType unionType = new BUnionType(null, new LinkedHashSet<>(), false);
         if (actualType.tag == TypeTags.UNION) {
             unionType.memberTypes.addAll(((BUnionType) actualType).memberTypes);
+            unionType.setNullable(actualType.isNullable());
         } else {
             unionType.memberTypes.add(actualType);
         }
@@ -1865,6 +1869,11 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getSafeType(BType type, boolean safeNavigate, DiagnosticPos pos) {
+        if (safeNavigate && type == symTable.errStructType) {
+            dlog.error(pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
+            return symTable.errType;
+        }
+
         if (type.tag != TypeTags.UNION) {
             return type;
         }
@@ -1876,10 +1885,17 @@ public class TypeChecker extends BLangNodeVisitor {
         if (safeNavigate) {
             if (!varRefMemberTypes.contains(symTable.errStructType)) {
                 dlog.error(pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
+                return symTable.errType;
             }
+
             lhsTypes = varRefMemberTypes.stream().filter(memberType -> {
                 return memberType != symTable.errStructType && memberType != symTable.nilType;
             }).collect(Collectors.toList());
+
+            if (lhsTypes.isEmpty()) {
+                dlog.error(pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
+                return symTable.errType;
+            }
         } else {
             lhsTypes = varRefMemberTypes.stream().filter(memberType -> {
                 return memberType != symTable.nilType;
@@ -1887,9 +1903,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (lhsTypes.size() == 1) {
-            type = lhsTypes.get(0);
+            return lhsTypes.get(0);
         }
 
-        return type;
+        return new BUnionType(null, new LinkedHashSet<>(lhsTypes), false);
     }
 }

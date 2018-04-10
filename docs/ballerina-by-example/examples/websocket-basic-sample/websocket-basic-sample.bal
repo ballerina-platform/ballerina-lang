@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/http;
 
 @Description {value:"This example gives you the basic idea of WebSocket endpoint."}
-endpoint http:ServiceEndpoint ep {
+endpoint http:Listener ep {
     host:"0.0.0.0",
     port:9090
 };

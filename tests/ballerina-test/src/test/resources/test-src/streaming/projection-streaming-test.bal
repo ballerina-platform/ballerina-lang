@@ -34,10 +34,10 @@ type Teacher {
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 
-function startProjectionQuery() returns (Employee[]) {
+stream<Employee> employeeStream2;
+stream<Teacher> teacherStream4;
 
-    stream<Employee> employeeStream2;
-    stream<Teacher> teacherStream4;
+function testProjectionQuery() {
 
     forever {
         from teacherStream4
@@ -46,6 +46,11 @@ function startProjectionQuery() returns (Employee[]) {
             employeeStream2.publish(emp);
         }
     }
+}
+
+function startProjectionQuery() returns (Employee[]) {
+
+    testProjectionQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
     Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};

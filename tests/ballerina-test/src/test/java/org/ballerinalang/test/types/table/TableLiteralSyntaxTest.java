@@ -75,13 +75,13 @@ public class TableLiteralSyntaxTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error:Unique index or primary key violation:.*")
+          expectedExceptionsMessageRegExp = ".*Unique index or primary key violation:.*")
     public void testTableAddOnConstrainedTableWithViolation() {
         BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error:Unique index or primary key violation:.*")
+          expectedExceptionsMessageRegExp = ".*Unique index or primary key violation:.*")
     public void testTableAddOnConstrainedTableWithViolation2() {
         BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation2");
     }

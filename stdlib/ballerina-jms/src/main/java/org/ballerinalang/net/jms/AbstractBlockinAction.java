@@ -27,7 +27,7 @@ import org.ballerinalang.model.NativeCallableUnit;
 public abstract class AbstractBlockinAction implements NativeCallableUnit {
 
     @Override
-    public boolean isBlocking() {
+    public final boolean isBlocking() {
         return true;
     }
 }
