@@ -157,9 +157,11 @@ public type Proxy {
 @Description { value:"This struct represents the options to be used for connection throttling" }
 @Field {value:"maxActiveConnections: Number of maximum active connections for connection throttling. Default value -1, indicates the number of connections are not restricted"}
 @Field {value:"waitTime: Maximum waiting time for a request to grab an idle connection from the client connector"}
+@Field {value:"maxActiveStreamsPerConnection: Maximum number of active streams allowed per an HTTP/2 connection"}
 public type ConnectionThrottling {
     int maxActiveConnections = -1,
     int waitTime = 60000,
+    int maxActiveStreamsPerConnection = -1,
 };
 
 public function Client::init(ClientEndpointConfiguration config) {
