@@ -26,37 +26,46 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.tracer.OpenTracerBallerinaWrapper;
 import org.ballerinalang.util.tracer.TraceConstants;
 
+import java.util.Iterator;
 import java.util.Map;
 
 /**
- * This function returns the span context of a given span.
+ * This function injects a span context and returns the spans Id.
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "injectTraceContext",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
-        args = @Argument(name = "traceGroup", type = TypeKind.STRING),
-        returnType = @ReturnType(type = TypeKind.MAP),
+        functionName = "extractSpanContext",
+        args = {
+                @Argument(name = "headers", type = TypeKind.MAP),
+                @Argument(name = "traceGroup", type = TypeKind.STRING)
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.STRUCT, structType = "SpanContext", structPackage = "ballerina.observe")
+        },
         isPublic = true
 )
-public class InjectTraceContext extends BlockingNativeCallableUnit {
+public class ExtractSpanContext extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct span = (BStruct) context.getRefArgument(0);
+
+        BMap header = (BMap) context.getRefArgument(0);
         String group = context.getStringArgument(0) == null ? TraceConstants.DEFAULT_USER_API_GROUP
                 : context.getStringArgument(0);
-        String spanId = span.getStringField(2);
+        Iterator<Map.Entry<String, String>> headerMap = Utils.toStringMap(header).entrySet().iterator();
 
-        Map<String, String> propertiesToInject = OpenTracerBallerinaWrapper.getInstance().inject(group, spanId);
+        BMap<String, BString> spanHeaders = new BMap<>();
 
-        BMap<String, BString> headerMap = new BMap<>();
-        propertiesToInject.forEach((key, value) -> headerMap.put(key, new BString(value)));
-        context.setReturnValues(headerMap);
+        while (headerMap.hasNext()) {
+            Map.Entry<String, String> headers = headerMap.next();
+            if (headers.getKey().startsWith(group)) {
+                spanHeaders.put(headers.getKey().substring(group.length()), new BString(headers.getValue()));
+            }
+        }
+        BStruct spanContextStruct = Utils.createSpanContextStruct(context, spanHeaders);
+        context.setReturnValues(spanContextStruct);
     }
 }
