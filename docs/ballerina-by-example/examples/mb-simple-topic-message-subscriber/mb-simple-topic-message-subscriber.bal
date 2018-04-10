@@ -2,7 +2,7 @@ import ballerina/mb;
 import ballerina/log;
 
 endpoint mb:SimpleTopicSubscriber subscriber {
-    topicPattern: "myTopic"
+    topicPattern: "BallerinaTopic"
 };
 
 service<mb:Consumer> jmsListener bind subscriber {
