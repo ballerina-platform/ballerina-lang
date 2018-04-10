@@ -1,6 +1,6 @@
 import ballerina/io;
 
-@Description {value:"The in scope variables can be accessed by the workers of in the fork-join statement."}
+@Description {value:"The in scope variables can be accessed by the workers in the fork-join statement."}
 function main (string[] args) {
     // These variables can be accessed by the forked workers.
     int i = 100;
@@ -10,7 +10,7 @@ function main (string[] args) {
     // Declare the fork-join statement.
     fork {
         worker W1 {
-            // Change the value of the Integer variable 'i' within the worker W1.
+            // Change the value of the integer variable 'i' within the worker W1.
             i = 23;
             // Change the value of map variable 'm' within the worker W1.
             m["name"] = "Rajasinghe";
@@ -21,7 +21,7 @@ function main (string[] args) {
         }
 
         worker W2 {
-            // Change the value of String variable 's' within the worker W2.
+            // Change the value of string variable 's' within the worker W2.
             s = "Ballerina";
             // Change the value of map variable 'm' within the worker W2.
             m["era"] = "Kandy";
@@ -33,8 +33,7 @@ function main (string[] args) {
         any[] r1;
         any[] r2;
         // Declare variables to receive the results from the forked workers W1 and W2.
-        // The 'results' map contains a map of the results from the workers within the fork-join statement in the
-        // 'any' type array.
+        // The 'results' map contains a map of any type array from each worker defined within the fork-join statement
         // Values received from worker W1 are assigned to the 'any' type array of r1.
         var x1 = <any[]>results["W1"];
         match x1 {
@@ -75,10 +74,11 @@ function main (string[] args) {
         Value of string from W2 [" + q + "]");
     }
     // Print the values after the fork-join statement to check the values of the variables.
+    // The value type variables have not changed since they are passed in as a copy of the original variable.
     io:println("[default worker] after fork-join:
         Value of integer variable is [" + i + "]
         Value of string variable is [" + s + "]");
-
+    // The reference type variables have got updated since they are passed in as a reference to the workers.
     string name;
     string era;
 

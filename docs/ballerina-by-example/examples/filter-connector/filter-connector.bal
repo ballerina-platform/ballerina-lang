@@ -42,7 +42,7 @@ function main (string[] args) {
     int price = stockQC.getStock("WSO2");
     io:println(price);
 
-    // Invoke the action of the 'StockQuoteConnector' by passing 'IBM' as the ID. Since WSO2 is stored in the
+    // Invoke the action of the 'StockQuoteConnector' by passing 'IBM' as the ID. Since IBM is stored in the
     // 'cachedKeys' map of the filter connector the respective price value is printed.
     price = stockQC.getStock("IBM");
     io:println(price);
