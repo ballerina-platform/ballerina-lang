@@ -1,8 +1,8 @@
 import ballerina/jms;
 import ballerina/log;
 
-// Create a topic producer
-endpoint jms:SimpleTopicProducer topicProducer {
+// Create a topic publisher
+endpoint jms:SimpleTopicPublisher topicPublisher {
     initialContextFactory: "wso2mbInitialContextFactory",
     providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
     acknowledgementMode: "AUTO_ACKNOWLEDGE",
@@ -11,7 +11,7 @@ endpoint jms:SimpleTopicProducer topicProducer {
 
 public function main (string[] args) {
     // Create a Text message.
-    jms:Message m = check topicProducer.createTextMessage("Test Text");
+    jms:Message m = check topicPublisher.createTextMessage("Test Text");
     // Send the Ballerina message to the JMS provider.
-    var _ = topicProducer -> send(m);
+    var _ = topicPublisher -> send(m);
 }
