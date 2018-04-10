@@ -4,7 +4,7 @@ import ballerina/io;
 function main (string[] args) {
 
     endpoint sql:Client testDBEP {
-        database:sql:DB.MYSQL,
+        database:sql:DB_MYSQL,
         host:"localhost",
         port:3306,
         name:"testdb",

@@ -1,4 +1,4 @@
-$ ballerina testerina-before-after-suite.bal
+$ ballerina test testerina-before-each.bal
     T E S T S
 ---------------------------------------------------------------------------
 ---------------------------------------------------------------------------

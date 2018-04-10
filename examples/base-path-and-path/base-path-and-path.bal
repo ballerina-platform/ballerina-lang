@@ -1,8 +1,9 @@
 import ballerina/http;
 import ballerina/mime;
 
-@Description {value:"Define the attributes associated with a service endpoint."}
-endpoint http:ServiceEndpoint echoEP {
+
+@Description {value:"Attributes associated with the service endpoint is defined here."}
+endpoint http:Listener echoEP {
     port:9090
 };
 
@@ -19,10 +20,10 @@ service<http:Service> echo bind echoEP {
     echo (endpoint conn, http:Request req) {
         // This method gets the request payload.
         var result = req.getJsonPayload();
-        http:Response res = {};
+        http:Response res = new;
         match result {
             http:PayloadError err => {
-                res = {statusCode:500};
+                res.statusCode = 500;
                 res.setStringPayload(err.message);
             }
             json value =>{
