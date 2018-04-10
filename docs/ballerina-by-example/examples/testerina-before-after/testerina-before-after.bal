@@ -16,7 +16,7 @@ function testFunction () {
     test:assertTrue(true , msg = "Failed!");
 }
 
-// after test function
+// After test function
 function afterFunc () {
     io:println("I'm the after function!");
 }
