@@ -311,28 +311,27 @@ type Person object {
 
     function getAttachedFn() returns string {
         int b = 4;
-        var foo = () => (string) {
-           return name + "K" + b + self.age;
+        var foo = (float w) => (string) {
+           return name + w + "K" + b + self.age;
         };
-        return foo();
+        return foo(7.4);
     }
 
-    function getAttachedFP() returns function (int) returns (string) {
+    function getAttachedFP() returns function (float) returns (string) {
         int b = 4;
-        var foo = (int w) => (string) {
-            string d = w + b + "Ballerina !!!";
-            return d;
+        var foo = (float w) => (string) {
+            return w + self.year + b + "Ballerina !!!";
         };
         return foo;
     }
 
-    function externalAttachedFP() returns (function (int) returns (string));
+    function externalAttachedFP() returns (function (float) returns (string));
 
 };
 
-public function Person::externalAttachedFP() returns (function (int) returns (string)) {
+public function Person::externalAttachedFP() returns (function (float) returns (string)) {
      int b = 4;
-     var foo = (int w) => (string) {
+     var foo = (float w) => (string) {
         string d = w + "T" + b + self.year + self.name + self.age;
         return d;
      };
@@ -348,13 +347,13 @@ function test19() returns (string) {
 function test20() returns (string) {
     Person p = new;
     var foo = p.getAttachedFP();
-    return foo(7);
+    return foo(7.3);
 }
 
 public function test21() returns (string) {
     Person p = new;
     var foo = p.externalAttachedFP();
-    return foo(7);
+    return foo(7.3);
 }
 
 function testDifferentArgs() returns (function (float) returns (function (float) returns (string))) {

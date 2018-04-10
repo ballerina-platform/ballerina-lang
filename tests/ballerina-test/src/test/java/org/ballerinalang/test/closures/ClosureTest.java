@@ -144,19 +144,19 @@ public class ClosureTest {
     @Test(description = "Test closure with object attached function references")
     public void testClosureWithObjectAttachedFuncReferences() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test19");
-        Assert.assertEquals((returns[0]).stringValue(), "Hello BallerinaK43");
+        Assert.assertEquals((returns[0]).stringValue(), "Hello Ballerina7.4K43");
     }
 
     @Test(description = "Test closure with object attached function pointer references")
     public void testClosureWithObjectAttachedFuncPointerReferences() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test20");
-        Assert.assertEquals((returns[0]).stringValue(), "11Ballerina !!!");
+        Assert.assertEquals((returns[0]).stringValue(), "16.3Ballerina !!!");
     }
 
     @Test(description = "Test closure with object external attached function pointer references")
     public void testClosureWithObjectExternalAttachedFuncPointerReferences() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test21");
-        Assert.assertEquals((returns[0]).stringValue(), "7T45Hello Ballerina3");
+        Assert.assertEquals((returns[0]).stringValue(), "7.3T45Hello Ballerina3");
     }
 
     @Test(description = "Test closure with different type args references")
