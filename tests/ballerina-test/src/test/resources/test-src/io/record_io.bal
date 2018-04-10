@@ -59,8 +59,7 @@ function initDefaultCsvForWriting(string filePath) returns (boolean|io:IOError){
 }
 
 function initRfcForReading(string filePath) returns (boolean|io:IOError){
-    var csvDefaultChannel = io:createCsvChannel(filePath,mode=io:MODE_R,
-        rf=io:FORMAT_RFC4180);
+    var csvDefaultChannel = io:createCsvChannel(filePath,mode=io:MODE_R, rf=io:FORMAT_RFC4180);
     match csvDefaultChannel {
        io:DelimitedRecordChannel delimChannel =>{
           txtChannel = delimChannel;

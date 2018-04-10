@@ -65,7 +65,6 @@ public class WriteXml implements NativeCallableUnit {
             context.setReturnValues(errorStruct);
             callback.notifySuccess();
         }
-
     }
 
     @Override
