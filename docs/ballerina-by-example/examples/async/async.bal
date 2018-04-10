@@ -10,7 +10,8 @@ endpoint http:ClientEndpoint clientEndpoint { targets:[{url: "https://postman-ec
 function main(string[] args) {
   // Asynchronously call the function named 'sum'.
   future<int> f1 = async sum(40, 50);
-  // Future values can be passed around to get the result later.
+  // You can pass around the value of the 'future' variable 
+  // and call its results later.
   int result = square_plus_cube(f1);
   io:print("SQ + CB = ");
   io:println(result);
@@ -29,9 +30,10 @@ function main(string[] args) {
   io:println(count);
   io:println(f2.isDone());
   io:println(f2.isCancelled());
-
-  // Asynchronous action call.
-  http:Request req = {};
+  
+  // async action call
+  http:Request req = new;
+  
   future<http:Response|http:HttpConnectorError> f3 = async clientEndpoint -> get("/get?test=123", req);
   io:println(sum(25, 75));
   io:println(f3.isDone());
