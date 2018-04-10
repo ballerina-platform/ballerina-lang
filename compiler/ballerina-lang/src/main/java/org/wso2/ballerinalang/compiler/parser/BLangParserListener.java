@@ -1534,7 +1534,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
         String invocation = ctx.invocation().anyIdentifierName().getText();
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
+        boolean safeNavigate = ctx.invocation().NOT() != null;
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable, safeNavigate);
     }
 
     /**
@@ -2773,22 +2774,25 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String contentText = ctx.deprecatedText() != null ? ctx.deprecatedText().getText() : "";
         this.pkgBuilder.createDeprecatedNode(getCurrentPos(ctx), getWS(ctx), contentText);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public void exitAwaitExpr(BallerinaParser.AwaitExprContext ctx) { 
+    public void exitAwaitExpr(BallerinaParser.AwaitExprContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
         this.pkgBuilder.createAwaitExpr(getCurrentPos(ctx), getWS(ctx));
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override 
-    public void exitFunctionInvocationReference(BallerinaParser.FunctionInvocationReferenceContext ctx) {
+
+    @Override
+    public void exitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
         if (ctx.ASYNC() != null) {
-            this.pkgBuilder.markLastInvocationAsAsync();
+            this.pkgBuilder.markLastInvocationAsAsync(getCurrentPos(ctx));
         }
     }
 

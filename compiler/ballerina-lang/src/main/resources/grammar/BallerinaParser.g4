@@ -305,7 +305,7 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN (expression | actionInvocation))? SEMICOLON
+    :   typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 recordLiteral
@@ -339,12 +339,12 @@ typeInitExpr
     ;
 
 assignmentStatement
-    :   (VAR)? variableReference ASSIGN (expression | actionInvocation) SEMICOLON
+    :   (VAR)? variableReference ASSIGN expression SEMICOLON
     ;
 
 tupleDestructuringStatement
-    :   VAR? LEFT_PARENTHESIS variableReferenceList RIGHT_PARENTHESIS ASSIGN (expression | actionInvocation) SEMICOLON
-    |   LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS ASSIGN (expression | actionInvocation) SEMICOLON
+    :   VAR? LEFT_PARENTHESIS variableReferenceList RIGHT_PARENTHESIS ASSIGN expression SEMICOLON
+    |   LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS ASSIGN expression SEMICOLON
     ;
 
 compoundAssignmentStatement
@@ -479,8 +479,7 @@ workerReply
 
 variableReference
     :   nameReference                                                           # simpleVariableReference
-    |   ASYNC? functionInvocation                                               # functionInvocationReference
-    |   awaitExpression                                                         # awaitExpressionReference
+    |   functionInvocation                                                      # functionInvocationReference
     |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
@@ -504,7 +503,7 @@ functionInvocation
     ;
 
 invocation
-    : DOT anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    : (DOT | NOT) anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocationArgList
@@ -526,7 +525,7 @@ expressionList
     ;
 
 expressionStmt
-    :   (variableReference | actionInvocation) SEMICOLON
+    :   expression SEMICOLON
     ;
 
 transactionStatement
@@ -591,7 +590,8 @@ expression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
-    |   variableReference                                                   # variableReferenceExpression
+    |   ASYNC? variableReference                                            # variableReferenceExpression
+    |   actionInvocation                                                    # actionInvocationExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   tableQuery                                                          # tableQueryExpression

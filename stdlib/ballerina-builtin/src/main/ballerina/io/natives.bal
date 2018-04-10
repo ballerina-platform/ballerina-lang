@@ -96,7 +96,7 @@ documentation {
 public type IOError object {
     public {
         string message;
-        error[] cause;
+        error? cause;
     }
 };
 
