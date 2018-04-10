@@ -52,6 +52,12 @@ function testSetEntityBody (string filePath, string contentType) returns (http:R
     return req;
 }
 
+function testSetPayloadAndGetText ((string | xml | json | blob | io:ByteChannel) payload) returns string | http:PayloadError {
+    http:Request req = new;
+    req.setPayload(payload);
+    return req.getStringPayload();
+}
+
 function testGetHeader (http:Request req, string key) returns (string) {
     return req.getHeader(key);
 }

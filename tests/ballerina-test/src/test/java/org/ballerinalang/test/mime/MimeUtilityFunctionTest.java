@@ -562,12 +562,62 @@ public class MimeUtilityFunctionTest {
     }
 
     @Test
-    public void testSetBody() {
+    public void testSetBodyAndGetText() {
         BString textContent = new BString("Hello Ballerina !");
         BValue[] args = {textContent};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetBody", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetBodyAndGetText", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
-                "Entity body is not text compatible");
+        Assert.assertEquals(returns[0].stringValue(), textContent.stringValue());
+    }
+
+    @Test
+    public void testSetBodyAndGetXml() {
+        BXML xmlContent = XMLUtils.parse("<name>ballerina</name>");
+        BValue[] args = {xmlContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetBodyAndGetXml", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "<name>ballerina</name>");
+    }
+
+    @Test
+    public void testSetBodyAndGetJson() {
+        BJSON jsonContent = new BJSON("{'code':'123'}");
+        BValue[] args = {jsonContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetBodyAndGetJson", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BJSON) returns[0]).value().get("code").asText(), "123");
+    }
+
+    @Test
+    public void testSetBodyAndGetBlob() {
+        String content = "ballerina";
+        BBlob byteContent = new BBlob(content.getBytes());
+        BValue[] args = {byteContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetBodyAndGetBlob", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), content);
+    }
+
+    @Test
+    public void testSetBodyAndGetByteChannel() {
+        try {
+            File file = File.createTempFile("testFile", ".tmp");
+            file.deleteOnExit();
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter.write("Hello Ballerina!");
+            bufferedWriter.close();
+            BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.getByteChannelForTempFile
+                    (file.getAbsolutePath()));
+            BValue[] args = {byteChannelStruct};
+            BValue[] returns = BRunUtil.invoke(compileResult, "testSetBodyAndGetByteChannel", args);
+            Assert.assertEquals(returns.length, 1);
+            BStruct returnByteChannelStruct = (BStruct) returns[0];
+            Channel byteChannel = (Channel) returnByteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+            Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()),
+                    "Hello Ballerina!");
+        } catch (IOException e) {
+            log.error("Error occurred in testSetByteChannel", e.getMessage());
+        }
     }
 }

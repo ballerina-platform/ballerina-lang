@@ -494,4 +494,13 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina",
                 "Payload is not set properly");
     }
+
+    @Test
+    public void testSetPayloadAndGetText() {
+        BString textContent = new BString("Hello Ballerina !");
+        BValue[] args = {textContent};
+        BValue[] returns = BRunUtil.invoke(result, "testSetPayloadAndGetText", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), textContent.stringValue());
+    }
 }

@@ -306,8 +306,32 @@ function testGetTextWithNonCompatibleMediaType (string textContent) returns stri
     return entity.getText();
 }
 
-function testSetBody ((string | xml | json | blob | io:ByteChannel) entityBody) returns string | mime:EntityError {
+function testSetBodyAndGetText ((string | xml | json | blob | io:ByteChannel) entityBody) returns string | mime:EntityError {
     mime:Entity entity = new;
     entity.setBody(entityBody);
     return entity.getText();
+}
+
+function testSetBodyAndGetXml ((string | xml | json | blob | io:ByteChannel) entityBody) returns xml | mime:EntityError {
+    mime:Entity entity = new;
+    entity.setBody(entityBody);
+    return entity.getXml();
+}
+
+function testSetBodyAndGetJson ((string | xml | json | blob | io:ByteChannel) entityBody) returns json | mime:EntityError {
+    mime:Entity entity = new;
+    entity.setBody(entityBody);
+    return entity.getJson();
+}
+
+function testSetBodyAndGetBlob ((string | xml | json | blob | io:ByteChannel) entityBody) returns blob | mime:EntityError {
+    mime:Entity entity = new;
+    entity.setBody(entityBody);
+    return entity.getBlob();
+}
+
+function testSetBodyAndGetByteChannel ((string | xml | json | blob | io:ByteChannel) entityBody) returns io:ByteChannel | mime:EntityError {
+    mime:Entity entity = new;
+    entity.setBody(entityBody);
+    return entity.getByteChannel();
 }

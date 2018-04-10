@@ -148,6 +148,10 @@ public type Request object {
     @Param {value:"payload: The byte channel representation of the message payload"}
     public function setByteChannel (io:ByteChannel payload);
 
+    @Description {value:"Set the request payload"}
+    @Param {value:"payload: Payload can be of type string, xml, json, blob or byte channel"}
+    public function setPayload ((string | xml | json | blob | io:ByteChannel) payload);
+
     function parseCacheControlHeader();
 };
 
@@ -352,6 +356,12 @@ public function Request::setFileAsPayload (file:Path filePath, string contentTyp
 public function Request::setByteChannel (io:ByteChannel payload) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setByteChannel(payload);
+    self.setEntity(entity);
+}
+
+public function Request::setPayload ((string | xml | json | blob | io:ByteChannel) payload) {
+    mime:Entity entity = self.getEntityWithoutBody();
+    entity.setBody(payload);
     self.setEntity(entity);
 }
 

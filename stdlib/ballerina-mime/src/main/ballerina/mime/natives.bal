@@ -246,16 +246,12 @@ public type Entity object {
 };
 
 public function Entity::setBody ((string | xml | json | blob | io:ByteChannel) entityBody) {
-    if (typeof entityBody == "string") {
-        setText(entityBody);
-    } else if (typeof entityBody == "xml") {
-        setXml(entityBody);
-    }  else if (typeof entityBody == "json") {
-        setJson(entityBody);
-    } else if (typeof entityBody == "blob") {
-        setBlob(entityBody);
-    } else if (typeof entityBody == "io:ByteChannel") {
-        setByteChannel(entityBody);
+    match entityBody {
+        string textContent => setText(textContent);
+        xml xmlContent => setXml(xmlContent);
+        json jsonContent => setJson(jsonContent);
+        blob blobContent => setBlob(blobContent);
+        io:ByteChannel byteChannelContent => setByteChannel(byteChannelContent);
     }
 }
 
