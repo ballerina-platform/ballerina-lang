@@ -28,7 +28,8 @@ public class LogDTO {
     private String headers;
     private String httpMethod;
     private String path;
-    private List<String> parsedHeader;
+    private String contentType;
+    private String payload;
 
     public void setId(String id) {
         this.id = id;
@@ -70,12 +71,19 @@ public class LogDTO {
         this.path = path;
     }
 
-    public void setParsedHeader(List<String> parsedHeader) {
-        this.parsedHeader = parsedHeader;
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
+    public String getContentType() {
+        return contentType;
+    }
 
-    public List<String> getParsedHeader() {
-        return parsedHeader;
+    public void setPayload(String payload) {
+        this.payload = payload;
+    }
+
+    public String getPayload() {
+        return payload;
     }
 }

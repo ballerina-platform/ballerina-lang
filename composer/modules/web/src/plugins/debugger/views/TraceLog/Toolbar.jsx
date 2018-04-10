@@ -64,7 +64,7 @@ class ToolBar extends React.Component {
      */
     render() {
         const { filters, messages } = this.props;
-        const keys = _.keys(filters);
+        const keys = _.keys(filters) || [];
         const groupedMessages = {};
         messages.forEach((message) => {
             keys.forEach((key) => {
@@ -86,6 +86,7 @@ class ToolBar extends React.Component {
                 </div>
                 {
                     keys.map((key) => {
+                        groupedMessages[key] = groupedMessages[key] || [];
                         const options = groupedMessages[key].map((option) => {
                             return {
                                 key: option,
@@ -118,6 +119,11 @@ class ToolBar extends React.Component {
 
 ToolBar.propTypes = {
 
+};
+
+ToolBar.defaultProps = {
+    messages: [],
+    filters: {},
 };
 
 export default ToolBar;

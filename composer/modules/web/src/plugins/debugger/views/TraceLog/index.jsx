@@ -22,6 +22,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { Grid, Icon } from 'semantic-ui-react';
 import SplitPane from 'react-split-pane';
+import ErrorBoundary from 'core/editor/views/ErrorBoundary';
 import ToolBar from './Toolbar';
 import DetailView from './DetailView';
 import './index.scss';
@@ -103,8 +104,7 @@ class LogsConsole extends React.Component {
         const { details } = this.state;
         return (
             <div id='logs-console' ref={(stickyContext) => { this.stickyContext = stickyContext; }} style={{ height }}>
-                {
-                    this.state.messages.length > 0 &&
+                <ErrorBoundary>
                     <div>
                         <ToolBar
                             messages={this.state.messages}
@@ -123,80 +123,84 @@ class LogsConsole extends React.Component {
                                 });
                             }}
                         />
-                        <div >
-                            <SplitPane
-                                split='vertical'
-                                size={details ? 450 : '100%'}
-                                allowResize={details ? true : false}
-                            >
-                                <div>
-                                    <Grid style={{ margin: 0 }}>
-                                        <Grid.Row className='table-heading'>
-                                            <Grid.Column className='summary'>
-                                                &nbsp;
-                                            </Grid.Column>
-                                            <Grid.Column className='activity'>
+                        {
+                            this.state.messages.length > 0 &&
+                            <div >
+                                <SplitPane
+                                    split='vertical'
+                                    size={details ? 450 : '100%'}
+                                    allowResize={details ? true : false}
+                                >
+                                    <div>
+                                        <Grid style={{ margin: 0 }}>
+                                            <Grid.Row className='table-heading'>
+                                                <Grid.Column className='summary'>
+                                                    &nbsp;
+                                                </Grid.Column>
+                                                <Grid.Column className='activity'>
                                                     Activity Id
-                                            </Grid.Column>
-                                            <Grid.Column className='time'>
-                                                Time
-                                            </Grid.Column>
-                                            <Grid.Column className='path'>
-                                                Path
-                                            </Grid.Column>
-                                        </Grid.Row>
-                                    </Grid>
-                                    <Grid
-                                        className='table-content'
-                                        style={{ maxHeight: height }}
-                                    >
-                                        {this.state.filteredMessages.map((message) => {
-                                            const timeString = moment(parseInt(message.message.record.millis)).format('HH:mm:ss.SSS');
-                                            return (
-                                                <Grid.Row
-                                                    className={(details && details.id === message.id) ? 'active clickable' : 'clickable'}
-                                                    onClick={() => this.toggleDetails(message)}
-                                                >
-                                                    <Grid.Column
-                                                        className='wrap-text summary'
+                                                </Grid.Column>
+                                                <Grid.Column className='time'>
+                                                    Time
+                                                </Grid.Column>
+                                                <Grid.Column className='path'>
+                                                    Path
+                                                </Grid.Column>
+                                            </Grid.Row>
+                                        </Grid>
+                                        <Grid
+                                            className='table-content'
+                                            style={{ maxHeight: height }}
+                                        >
+                                            {this.state.filteredMessages.map((message) => {
+                                                const timeString = moment(parseInt(message.message.record.millis)).format('HH:mm:ss.SSS');
+                                                return (
+                                                    <Grid.Row
+                                                        className={(details && details.id === message.id) ? 'active clickable' : 'clickable'}
+                                                        onClick={() => this.toggleDetails(message)}
                                                     >
-                                                        <Icon
-                                                            name={this.getLoggerIcon(message.message.record.logger)}
-                                                        />
-                                                        <Icon
-                                                            name={this.getDirectionIcon(message.message.meta.direction)}
-                                                        />
-                                                    </Grid.Column>
-                                                    <Grid.Column className='wrap-text activity'>
-                                                        {message.message.meta.id}
-                                                    </Grid.Column>
-                                                    <Grid.Column className='wrap-text time'>
-                                                        {timeString}
-                                                    </Grid.Column>
-                                                    <Grid.Column className='wrap-text path'>
-                                                        {message.message.meta.httpMethod}
-                                                        &nbsp;
-                                                        {message.message.meta.path}
-                                                    </Grid.Column>
-                                                </Grid.Row>
-                                            );
-                                        })}
-                                    </Grid>
-                                </div>
-                                {details &&
-                                    <div width={12} style={{ height, overflow: 'auto' }}>
-                                        <DetailView
-                                            parsedHeader={details.message.meta.parsedHeader}
-                                            rawLog={details.message.record}
-                                            hideDetailView={() => { this.setState({ details: null }); }}
-                                        />
+                                                        <Grid.Column
+                                                            className='wrap-text summary'
+                                                        >
+                                                            <Icon
+                                                                name={this.getLoggerIcon(message.message.record.logger)}
+                                                                title={message.message.record.logger}
+                                                            />
+                                                            <Icon
+                                                                name={this.getDirectionIcon(message.message.meta.direction)}
+                                                                title={message.message.meta.direction}
+                                                            />
+                                                        </Grid.Column>
+                                                        <Grid.Column className='wrap-text activity'>
+                                                            {message.message.meta.id}
+                                                        </Grid.Column>
+                                                        <Grid.Column className='wrap-text time'>
+                                                            {timeString}
+                                                        </Grid.Column>
+                                                        <Grid.Column className='wrap-text path'>
+                                                            {message.message.meta.httpMethod}
+                                                            &nbsp;
+                                                            {message.message.meta.path}
+                                                        </Grid.Column>
+                                                    </Grid.Row>
+                                                );
+                                            })}
+                                        </Grid>
                                     </div>
-                                }
-                            </SplitPane>
-                        </div>
+                                    {details &&
+                                        <div width={12} style={{ height, overflow: 'auto' }}>
+                                            <DetailView
+                                                rawLog={details.message.record}
+                                                meta={details.message.meta}
+                                                hideDetailView={() => { this.setState({ details: null }); }}
+                                            />
+                                        </div>
+                                    }
+                                </SplitPane>
+                            </div>
+                        }
                     </div>
-                }
-
+                </ErrorBoundary>
             </div>
         );
     }
