@@ -173,7 +173,7 @@ function testSelectData () returns (string) {
     };
 
     var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", (),
-                             typeof ResultCustomers);
+                             ResultCustomers);
     table dt = check dtRet;
     string firstName;
 
@@ -197,7 +197,7 @@ function testSelectIntFloatData () returns (int, int, float, float) {
     };
 
     var dtRet = testDB -> select("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
-        where row_id = 1", (), typeof ResultDataType);
+        where row_id = 1", (), ResultDataType);
     table dt = check dtRet;
     int int_type;
     int long_type;
@@ -227,7 +227,7 @@ function testCallProcedure () returns (string) {
 
     _ = testDB -> call("{call InsertPersonData(100,'James')}", (), ());
     var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 100", (),
-                             typeof ResultCustomers);
+                             ResultCustomers);
     table dt = check dtRet;
     string firstName;
     while (dt.hasNext()) {
@@ -249,7 +249,7 @@ function testCallProcedureWithResultSet () returns (string) {
         options: {maximumPoolSize:1}
     };
 
-    var dtsRet = testDB -> call("{call SelectPersonData()}", (), typeof ResultCustomers);
+    var dtsRet = testDB -> call("{call SelectPersonData()}", (), ResultCustomers);
     table[] dts = check dtsRet;
 
     string firstName;
@@ -272,7 +272,7 @@ function testCallProcedureWithMultipleResultSets () returns (string, string) {
         options: {maximumPoolSize:1}
     };
 
-    var dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", (), typeof ResultCustomers);
+    var dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", (), ResultCustomers);
     table[] dts = check dtsRet;
 
     string firstName1;
@@ -306,7 +306,7 @@ function testQueryParameters () returns (string) {
     sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:1};
     sql:Parameter[] parameters = [para1];
     var dtRet =  testDB -> select("SELECT  FirstName from Customers where registrationID = ?", parameters,
-        typeof ResultCustomers);
+        ResultCustomers);
     table dt = check dtRet;
 
     string firstName;
@@ -367,7 +367,7 @@ function testArrayofQueryParameters () returns (string) {
 
     var dtRet = testDB -> select("SELECT  FirstName from Customers where FirstName = ? or lastName = 'A' or
         lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?)", parameters,
-        typeof ResultCustomers);
+        ResultCustomers);
     table dt = check dtRet;
 
     string firstName;
@@ -395,7 +395,7 @@ function testBoolArrayofQueryParameters () returns (int) {
     boolean accepted3 = true;
     boolean[] boolDataArray = [accepted1, accepted2, accepted3];
 
-    var dt1Ret = testDB -> select("SELECT blob_type from DataTypeTable where row_id = 1", (), typeof ResultBlob);
+    var dt1Ret = testDB -> select("SELECT blob_type from DataTypeTable where row_id = 1", (), ResultBlob);
     table dt1 = check dt1Ret;
 
     blob blobData;
@@ -411,7 +411,7 @@ function testBoolArrayofQueryParameters () returns (int) {
     sql:Parameter[] parameters = [para0, para1, para2];
 
     var dtRet = testDB -> select("SELECT  int_type from DataTypeTable where row_id = ? and boolean_type in(?) and
-        blob_type in (?)", parameters, typeof ResultIntType);
+        blob_type in (?)", parameters, ResultIntType);
     table dt = check dtRet;
 
     int value;
@@ -462,7 +462,7 @@ function testArrayInParameters () returns (int, map, map, map, map, map, map) {
     insertCount = check insertCountRet;
 
     var dtRet = testDB -> select("SELECT int_array, long_array, double_array, boolean_array,
-        string_array, float_array from ArrayTypes where row_id = 2", (), typeof ResultArrayType);
+        string_array, float_array from ArrayTypes where row_id = 2", (), ResultArrayType);
     table dt = check dtRet;
 
     while (dt.hasNext()) {
@@ -862,7 +862,7 @@ function testBatchUpdateWithFailure () returns (int[], int) {
         country) values (?,?,?,?,?,?)", parameters);
     updateCount = check updateCountRet;
 
-    var dtRet = testDB -> select("SELECT count(*) as countval from Customers where customerId in (111,222,333)", (), typeof ResultCount);
+    var dtRet = testDB -> select("SELECT count(*) as countval from Customers where customerId in (111,222,333)", (), ResultCount);
     table dt = check dtRet;
 
     while (dt.hasNext()) {
@@ -970,7 +970,7 @@ function testDateTimeNullInValues () returns (string) {
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", parameters);
 
     var dtRet = testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 33", (), typeof ResultDates);
+                from DateTimeTypes where row_id = 33", (), ResultDates);
     table dt = check dtRet;
 
     string data;
@@ -1010,7 +1010,7 @@ function testDateTimeNullOutValues () returns (int) {
     _ = testDB -> call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters, ());
 
     var dtRet = testDB -> select("SELECT count(*) as countval from DateTimeTypes where row_id = 123", (),
-                             typeof ResultCount);
+                             ResultCount);
     table dt = check dtRet;
 
     int count;
@@ -1073,7 +1073,7 @@ function testDateTimeOutParams (int time, int date, int timestamp) returns (int)
     _ = testDB -> call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters, ());
 
     var dtRet = testDB -> select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", (),
-                             typeof ResultCount);
+                             ResultCount);
     table dt = check dtRet;
 
     int count;
@@ -1155,7 +1155,7 @@ function testCloseConnectionPool () returns (int) {
     };
 
     var dtRet = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", (),
-        typeof ResultCount);
+        ResultCount);
     table dt = check dtRet;
 
     int count;

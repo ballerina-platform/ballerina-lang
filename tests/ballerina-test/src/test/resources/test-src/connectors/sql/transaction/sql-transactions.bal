@@ -29,7 +29,7 @@ function testLocalTransacton () returns (int, int) {
     }
     //check whether update action is performed
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 200", (),
-                                 typeof ResultCount);
+                                 ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
@@ -66,7 +66,7 @@ function testTransactonRollback () returns (int, int) {
 
     //check whether update action is performed
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 210", (),
-                                 typeof ResultCount);
+                                 ResultCount);
     table dt = check temp;
 
     while (dt.hasNext()) {
@@ -106,7 +106,7 @@ function testTransactonAbort () returns (int, int) {
     }
     //check whether update action is performed
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 220", (),
-                                 typeof ResultCount);
+                                 ResultCount);
     var dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
@@ -147,7 +147,7 @@ function testTransactonErrorThrow () returns (int, int, int) {
     }
     //check whether update action is performed
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 260", (),
-                                 typeof ResultCount);
+                                 ResultCount);
     table dt =  check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
@@ -188,7 +188,7 @@ function testTransactionErrorThrowAndCatch () returns (int, int, int) {
     }
     //check whether update action is performed
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 250", (),
-                                 typeof ResultCount);
+                                 ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
@@ -221,7 +221,7 @@ function testTransactonCommitted () returns (int, int) {
     }
     //check whether update action is performed
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 300", (),
-                                 typeof ResultCount);
+                                 ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
@@ -264,7 +264,7 @@ function testTwoTransactons () returns (int, int, int) {
     }
     //check whether update action is performed
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 400", (),
-                                 typeof ResultCount);
+                                 ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
@@ -295,7 +295,7 @@ function testTransactonWithoutHandlers () returns (int) {
     int count;
     //check whether update action is performed
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where
-                                      registrationID = 350", (), typeof ResultCount);
+                                      registrationID = 350", (), ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
@@ -335,7 +335,7 @@ function testLocalTransactionFailed () returns (string, int) {
     }
     a = a + " afterTrx";
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 111", (),
-                                 typeof ResultCount);
+                                 ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
@@ -380,7 +380,7 @@ function testLocalTransactonSuccessWithFailed () returns (string, int) {
     }
     a = a + " afterTrx";
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 222", (),
-                                 typeof ResultCount);
+                                 ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
@@ -426,7 +426,7 @@ function testLocalTransactonFailedWithNextupdate () returns (int) {
     _ = testDB1 -> close();
 
     var temp = testDB2 -> select("Select COUNT(*) as countval from Customers where registrationID = 12343", (),
-                                  typeof ResultCount);
+                                  ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
@@ -461,7 +461,7 @@ function testNestedTwoLevelTransactonSuccess () returns (int, int) {
     }
     //check whether update action is performed
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 333", (),
-                             typeof ResultCount);
+                             ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
@@ -500,7 +500,7 @@ function testNestedThreeLevelTransactonSuccess () returns (int, int) {
     }
     //check whether update action is performed
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 444", (),
-                             typeof ResultCount);
+                             ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
@@ -543,7 +543,7 @@ function testNestedThreeLevelTransactonFailed () returns (int, int) {
     }
     //check whether update action is performed
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 555", (),
-                             typeof ResultCount);
+                             ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
@@ -602,7 +602,7 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, i
     }
     //check whether update action is performed
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 666", (),
-                             typeof ResultCount);
+                             ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
@@ -630,7 +630,7 @@ function testTransactionWithWorkers () returns (int) {
     //check whether update action is performed
     int count;
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 834", (),
-                                 typeof ResultCount);
+                                 ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
@@ -670,7 +670,7 @@ function testCloseConnectionPool () returns (int) {
 
     int count;
     var temp = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", (),
-                             typeof ResultCount);
+                             ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
