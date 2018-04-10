@@ -78,6 +78,8 @@ public type QueueSenderConnector object {
 };
 
 public type SimpleQueueSenderEndpointConfiguration {
+    string username = "admin",
+    string password = "admin",
     string host = "localhost",
     int port = 5672,
     string clientID = "ballerina",

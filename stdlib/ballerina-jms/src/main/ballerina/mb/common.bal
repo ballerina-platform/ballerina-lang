@@ -1,6 +1,8 @@
 package mb;
 
 public type BrokerURLConfig {
+    string username = "admin",
+    string password = "admin",
     string host = "localhost",
     int port = 5672,
     string clientID = "ballerina",
@@ -8,6 +10,6 @@ public type BrokerURLConfig {
 };
 
 function generateBrokerURL(BrokerURLConfig config) returns string {
-    return "amqp://admin:admin@" + config.clientID + "/" + config.virtualHost
+    return "amqp://" + config.username + ":" + config.password + "@" + config.clientID + "/" + config.virtualHost
         + "?brokerlist='tcp://" + config.host + ":" + config.port + "'";
 }
