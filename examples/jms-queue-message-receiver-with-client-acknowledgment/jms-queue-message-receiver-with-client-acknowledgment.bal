@@ -13,8 +13,8 @@ jms:Session jmsSession = new (conn, {
     acknowledgementMode: "CLIENT_ACKNOWLEDGE"
 });
 
-// Initialize a Queue consumer using the created session.
-endpoint jms:QueueConsumer consumer {
+// Initialize a Queue receiver using the created session.
+endpoint jms:QueueReceiver consumer {
     session: jmsSession,
     queueName: "MyQueue"
 };
@@ -26,7 +26,7 @@ service<jms:Consumer> jmsListener bind consumer {
     onMessage(endpoint consumer, jms:Message message) {
         string messageText = check message.getTextMessageContent();
         log:printInfo("Message : " + messageText);
-        // Acknowledge the received message using the consumer endpoint acknowledge function.
+        // Acknowledge the received message using the queue receiver endpoint acknowledge function.
         var _ = consumer -> acknowledge (message);
   }
 }

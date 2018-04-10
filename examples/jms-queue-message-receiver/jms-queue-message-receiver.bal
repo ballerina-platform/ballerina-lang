@@ -14,8 +14,8 @@ jms:Session jmsSession = new (conn, {
     acknowledgementMode: "AUTO_ACKNOWLEDGE"
 });
 
-// Initialize a Queue consumer using the created session.
-endpoint jms:QueueConsumer consumer {
+// Initialize a queue receiver using the created session.
+endpoint jms:QueueReceiver consumer {
     session: jmsSession,
     queueName: "MyQueue"
 };
