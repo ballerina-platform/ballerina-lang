@@ -194,7 +194,7 @@ function truncateString (string text) returns (string) {
 }
 
 function createDirectories(string directoryPath) returns (boolean) {
-    file:Path dirPath = file:getPath(directoryPath);
+    file:Path dirPath = new(directoryPath);
     if (!file:exists(dirPath)){
         boolean directoryCreationStatus = check (file:createDirectory(dirPath));
         return directoryCreationStatus;

@@ -82,6 +82,7 @@ public class Instruction {
         public String toString() {
             StringJoiner sj = new StringJoiner(" ");
             sj.add(String.valueOf(funcRefCPIndex));
+            sj.add(String.valueOf(flags));
             sj.add(String.valueOf(argRegs.length));
             Arrays.stream(argRegs).forEach(i -> sj.add(String.valueOf(i)));
             sj.add(String.valueOf(retRegs.length));

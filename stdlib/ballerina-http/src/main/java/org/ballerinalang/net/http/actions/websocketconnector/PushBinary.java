@@ -18,7 +18,8 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.channel.ChannelFuture;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
@@ -44,20 +45,24 @@ import javax.websocket.Session;
                 @Argument(name = "data", type = TypeKind.BLOB)
         }
 )
-public class PushBinary extends BlockingNativeCallableUnit {
+public class PushBinary implements NativeCallableUnit {
 
     @Override
-    public void execute(Context context) {
+    public void execute(Context context, CallableUnitCallback callback) {
         try {
             BStruct wsConnection = (BStruct) context.getRefArgument(0);
             Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
             byte[] binaryData = context.getBlobArgument(0);
             ChannelFuture webSocketChannelFuture = (ChannelFuture) session.getAsyncRemote().sendBinary(
                     ByteBuffer.wrap(binaryData));
-            context.setReturnValues(
-                    WebSocketUtil.getWebSocketError(context, webSocketChannelFuture, "Failed to send binary message"));
+            WebSocketUtil.getWebSocketError(context, callback, webSocketChannelFuture, "Failed to send binary message");
         } catch (Throwable e) {
             throw new BallerinaException("Cannot send the message. Error occurred.");
         }
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 }
