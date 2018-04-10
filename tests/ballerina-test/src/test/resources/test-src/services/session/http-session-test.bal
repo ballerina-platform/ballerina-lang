@@ -6,7 +6,7 @@ type Data {
     string name,
 };
 
-endpoint http:NonListeningServiceEndpoint sessionEP {
+endpoint http:NonListener sessionEP {
     port:9090
 };
 

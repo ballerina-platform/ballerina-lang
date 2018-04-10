@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.expressions.conversion;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -206,10 +205,31 @@ public class NativeConversionTest {
         Assert.assertEquals(marks.get(1).longValue(), 94);
         Assert.assertEquals(marks.get(2).longValue(), 72);
     }
+    
+    @Test
+    public void testStructToJsonConstrained1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrained1");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+    }
+    
+    @Test
+    public void testStructToJsonConstrained2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrained2");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+    }
+    
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*cannot convert 'Person2' to type 'json<Person3>'.*")
+    public void testStructToJsonConstrainedNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrainedNegative");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+    }
 
     @Test(description = "Test converting a map to json")
-    public void testMapToJsonConversionError() {
-        BAssertUtil.validateError(negativeResult, 0, "incompatible types: 'map' cannot be convert to 'json'", 36, 15);
+    public void testMapToJsonConversion() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testComplexMapToJson");
+        Assert.assertTrue(result[0] instanceof BJSON);
+        Assert.assertEquals(result[0].toString(), "{\"name\":\"Supun\",\"age\":25,\"gpa\":2.81,\"status\":true}");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
@@ -307,9 +327,11 @@ public class NativeConversionTest {
     }
 
     // TODO: certain types can be validated during the compile time. Validate those and throw semantic errors
-    @Test(description = "Test converting a struct with map of blob to a JSON", enabled = false)
+    @Test(description = "Test converting a struct with map of blob to a JSON", expectedExceptions = {
+            BLangRuntimeException.class }, 
+            expectedExceptionsMessageRegExp = ".*cannot convert 'Info' to type 'json'.*")
     public void testStructWithIncompatibleTypeToJson() {
-        BAssertUtil.validateError(negativeResult, 1, "incompatible types: 'Info' cannot be convert to 'json'", 48, 10);
+        BRunUtil.invoke(negativeResult, "testStructWithIncompatibleTypeToJson");
     }
 
     @Test(description = "Test converting a JSON array to any array")

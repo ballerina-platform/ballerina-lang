@@ -29,8 +29,8 @@ function tableReturnFunction () returns (table) {
     table <Employee> tb = table{};
     Employee e1 = {id:1, name:"Jane"};
     Employee e2 = {id:2, name:"Anne"};
-    tb.add(e1);
-    tb.add(e2);
+    _ = tb.add(e1);
+    _ = tb.add(e2);
 
     return tb;
 }

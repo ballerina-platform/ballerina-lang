@@ -3,7 +3,7 @@ package versioning.test;
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:NonListeningServiceEndpoint passthruEP {
+endpoint http:NonListener passthruEP {
     port:9090
 };
 

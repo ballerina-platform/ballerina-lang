@@ -6,20 +6,20 @@ function main (string[] args) {
     io:println(lengthof xx);
     io:println(lengthof xx[0]);
 
-    // Initialize three dimensional array with one value. In this case the value is
-    // a two dimensional array.
+    // This is how to initialize a three-dimensional array with one value. In this case, the value is
+    // a two-dimensional array.
     int[][][] xxx = [xx];
     xxx[0][0][1] = 10;
     io:println(xxx[0][0][1]);
 
-    // Initialize the outer most array of the two dimensional array with
+    // Initialize the outermost array of the two dimensional array with
     // an empty value.
     int[][] aa = [];
 
-    // Set the initialized one dimensional array to the two dimensional array.
+    // Set the initialized one-dimensional array to the two-dimensional array.
     int[] a = [9];
     aa[0] = a;
 
-    // Print the first value of two dimensional array.
+    // Print the first value of the two-dimensional array.
     io:println(xx[0][0]);
 }

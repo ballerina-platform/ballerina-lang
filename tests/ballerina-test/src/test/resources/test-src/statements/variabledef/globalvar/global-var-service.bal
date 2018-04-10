@@ -9,7 +9,7 @@ float glbVarFloatChange = 99;
 
 float glbVarFloat1 = glbVarFloat;
 
-endpoint http:ServiceEndpoint echoEP {
+endpoint http:Listener echoEP {
     port:9090
 };
 

@@ -52,12 +52,12 @@ public type Connection object {
 
     @Description {value:"Sends a upgrade request with custom headers"}
     @Param {value:"headers: a map of custom headers for handshake."}
-    public native function upgradeToWebSocket(map headers) returns WebSocketEndpoint;
+    public native function acceptWebSocketUpgrade(map headers) returns WebSocketListener;
 
     @Description {value:"Cancels the handshake"}
     @Param {value:"statusCode: Status code for closing the connection"}
     @Param {value:"reason: Reason for closing the connection"}
-    public native function cancelUpgradeToWebSocket(int status, string reason);
+    public native function cancelWebSocketUpgrade(int status, string reason);
 
     public function respondContinue() returns (HttpConnectorError | ());
 

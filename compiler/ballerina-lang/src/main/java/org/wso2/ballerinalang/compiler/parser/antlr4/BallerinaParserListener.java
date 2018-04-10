@@ -1066,18 +1066,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitSimpleVariableReference(BallerinaParser.SimpleVariableReferenceContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code awaitExpressionReference}
-	 * labeled alternative in {@link BallerinaParser#variableReference}.
-	 * @param ctx the parse tree
-	 */
-	void enterAwaitExpressionReference(BallerinaParser.AwaitExpressionReferenceContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code awaitExpressionReference}
-	 * labeled alternative in {@link BallerinaParser#variableReference}.
-	 * @param ctx the parse tree
-	 */
-	void exitAwaitExpressionReference(BallerinaParser.AwaitExpressionReferenceContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code invocationReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
@@ -1607,6 +1595,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMatchExprExpression(BallerinaParser.MatchExprExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code actionInvocationExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterActionInvocationExpression(BallerinaParser.ActionInvocationExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code actionInvocationExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitActionInvocationExpression(BallerinaParser.ActionInvocationExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code binaryCompareExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
@@ -2431,14 +2431,12 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * Enter a parse tree produced by {@link BallerinaParser#documentationTemplateAttributeDescription}.
 	 * @param ctx the parse tree
 	 */
-	void enterDocumentationTemplateAttributeDescription(
-            BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
+	void enterDocumentationTemplateAttributeDescription(BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
 	/**
 	 * Exit a parse tree produced by {@link BallerinaParser#documentationTemplateAttributeDescription}.
 	 * @param ctx the parse tree
 	 */
-	void exitDocumentationTemplateAttributeDescription(
-            BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
+	void exitDocumentationTemplateAttributeDescription(BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#docText}.
 	 * @param ctx the parse tree

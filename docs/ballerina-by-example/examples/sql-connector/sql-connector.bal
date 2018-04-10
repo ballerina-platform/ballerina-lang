@@ -2,7 +2,7 @@ import ballerina/sql;
 import ballerina/io;
 
 endpoint sql:Client testDB {
-    database:sql:DB.MYSQL,
+    database:sql:DB_MYSQL,
     host:"localhost",
     port:3306,
     name:"testdb",
@@ -47,8 +47,8 @@ function main (string[] args) {
     //Insert data using update action. If the DML statement execution
     //is success update action returns the updated row count.
     sql:Parameter[] params = [];
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:8};
-    sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:"Sam"};
+    sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:8};
+    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:"Sam"};
     params = [para1, para2];
     ret = testDB -> update("INSERT INTO STUDENT (AGE,NAME) VALUES (?,?)", params);
     match ret {
@@ -85,31 +85,33 @@ function main (string[] args) {
     //Select data using select action. Select action returns a table
     //and see tables section for more details on how to access data.
     params = [para1];
-    table dt =? testDB -> select("SELECT * FROM STUDENT WHERE AGE = ?", params, null);
-
+    var dtReturned = testDB -> select("SELECT * FROM STUDENT WHERE AGE = ?", params, null);
+    table dt = check dtReturned;
     string jsonRes;
-    var j =? <json>dt;
-    jsonRes = j.toString();
+    var j = check <json>dt;
+    jsonRes = j.toString() but {() => ""};
     io:println(jsonRes);
 
     //A Batch of data can be inserted using  batchUpdate action. Number
     //of inserted rows for each insert in the batch is returned as an array.
-    sql:Parameter p1 = {sqlType:sql:Type.INTEGER, value:10};
-    sql:Parameter p2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
+    sql:Parameter p1 = {sqlType:sql:TYPE_INTEGER, value:10};
+    sql:Parameter p2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
     sql:Parameter[] item1 = [p1, p2];
-    sql:Parameter p3 = {sqlType:sql:Type.INTEGER, value:20};
-    sql:Parameter p4 = {sqlType:sql:Type.VARCHAR, value:"John"};
+    sql:Parameter p3 = {sqlType:sql:TYPE_INTEGER, value:20};
+    sql:Parameter p4 = {sqlType:sql:TYPE_VARCHAR, value:"John"};
     sql:Parameter[] item2 = [p3, p4];
     sql:Parameter[][] bPara = [item1, item2];
-    int[] c =? testDB -> batchUpdate("INSERT INTO STUDENT (AGE,NAME) VALUES (?, ?)", bPara);
+    var insertVal = testDB -> batchUpdate("INSERT INTO STUDENT (AGE,NAME) VALUES (?, ?)", bPara);
+    int[] default = [];
+    int[] c = insertVal but {sql:SQLConnectorError => default};
     io:println("Batch item 1 status:" + c[0]);
     io:println("Batch item 2 status:" + c[1]);
 
     //A stored procedure can be invoked via call action. The direction is
     //used to specify in/out/inout parameters.
-    sql:Parameter pAge = {sqlType:sql:Type.INTEGER, value:10};
-    sql:Parameter pCount = {sqlType:sql:Type.INTEGER, direction:sql:Direction.OUT};
-    sql:Parameter pId = {sqlType:sql:Type.INTEGER, value:1, direction:sql:Direction.INOUT};
+    sql:Parameter pAge = {sqlType:sql:TYPE_INTEGER, value:10};
+    sql:Parameter pCount = {sqlType:sql:TYPE_INTEGER, direction:sql:DIRECTION_OUT};
+    sql:Parameter pId = {sqlType:sql:TYPE_INTEGER, value:1, direction:sql:DIRECTION_INOUT};
     params = [pAge, pCount, pId];
     var results = testDB -> call("{CALL GETCOUNT(?,?,?)}", params, null);
     var countValue = <int>pCount.value;

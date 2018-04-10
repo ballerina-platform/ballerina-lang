@@ -91,7 +91,7 @@ public interface CallbackGauge extends Metric {
 
         @Override
         public CallbackGauge register() {
-            return register(MetricRegistry.getDefaultRegistry());
+            return register(DefaultMetricRegistry.getInstance());
         }
 
         @Override

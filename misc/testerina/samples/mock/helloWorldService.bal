@@ -3,7 +3,7 @@ package mock;
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint helloEP {
+endpoint http:Listener helloEP {
     port: 9092
 };
 

@@ -11,6 +11,17 @@ type Person {
     Person[]|() children;
 };
 
+type Person2 {
+    string name;
+    int age;
+};
+
+type Person3 {
+    string name;
+    int age;
+    string gender;
+};
+
 type Student {
     string name;
     int age;
@@ -69,6 +80,34 @@ function testStructToJson () returns (json) {
                };
 
     json j = check <json>p;
+    return j;
+}
+
+function testStructToJsonConstrained1() returns (json) {
+    Person p = {   name:"Child",
+                   age:25,
+                   parent:{name:"Parent", age:50},
+                   address:{"city":"Colombo", "country":"SriLanka"},
+                   info:{status:"single"},
+                   marks:[87, 94, 72]
+               };
+    json<Person2> j = check <json<Person2>> p;
+    return j;
+}
+
+function testStructToJsonConstrained2() returns (json) {
+    Person2 p = {   name:"Child",
+                    age:25
+                };
+    json<Person2> j = check <json<Person2>> p;
+    return j;
+}
+
+function testStructToJsonConstrainedNegative() returns (json) {
+    Person2 p = {   name:"Child",
+                    age:25
+                };
+    json<Person3> j = check <json<Person3>> p;
     return j;
 }
 
@@ -600,4 +639,14 @@ function structWithComplexArraysToJson() returns (json | error) {
     ComplexArrayStruct t = {a:[4, 6, 9], b:[4.6, 7.5], c:[true, true, false], d:["apple", "orange"], e:[m1, m2], f:[p1, p2], g:[g]};
     var js = check <json> t;
     return js;
+}
+
+function testComplexMapToJson () returns (json) {
+    map m = {name:"Supun",
+                age:25,
+                gpa:2.81,
+                status:true
+            };
+    json j2 = check <json> m;
+    return j2;
 }

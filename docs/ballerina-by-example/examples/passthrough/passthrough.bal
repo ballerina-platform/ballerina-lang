@@ -1,6 +1,6 @@
 import ballerina/http;
 
-endpoint http:ServiceEndpoint passthroughEP {
+endpoint http:Listener passthroughEP {
     port:9090
 };
 
@@ -38,7 +38,7 @@ service<http:Service> passthrough bind passthroughEP {
     }
 }
 
-endpoint http:ServiceEndpoint helloEP {
+endpoint http:Listener helloEP {
     port:9092
 };
 
