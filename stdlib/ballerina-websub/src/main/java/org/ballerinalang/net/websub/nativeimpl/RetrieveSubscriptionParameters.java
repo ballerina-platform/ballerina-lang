@@ -42,7 +42,7 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "retrieveSubscriptionParameters",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
                 structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH),
         returnType = {@ReturnType(type = TypeKind.MAP)}
 )
