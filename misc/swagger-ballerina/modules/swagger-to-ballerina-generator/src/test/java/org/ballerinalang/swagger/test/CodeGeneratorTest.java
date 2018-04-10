@@ -44,7 +44,7 @@ public class CodeGeneratorTest {
         String outFile = testResourceRoot + File.separator + "SwaggerPetstore.bal";
         String definitionPath = testResourceRoot + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
-        generator.setApiPackage("org.ballerina.api");
+        generator.setSrcPackage("org.ballerina.api");
         generator.setModelPackage("org.ballerina.api.model");
 
         try {
@@ -69,7 +69,7 @@ public class CodeGeneratorTest {
         String outFile = testResourceRoot + File.separator + "SwaggerPetstore.bal";
         String definitionPath = testResourceRoot + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
-        generator.setApiPackage("org.ballerina.api");
+        generator.setSrcPackage("org.ballerina.api");
 
         try {
             generator.generate(GenType.CONNECTOR, definitionPath, testResourceRoot);

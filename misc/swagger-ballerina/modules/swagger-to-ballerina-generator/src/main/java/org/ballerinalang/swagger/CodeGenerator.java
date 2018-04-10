@@ -40,7 +40,7 @@ import java.io.PrintWriter;
  * This class generates Ballerina Services/Connectors for a provided OAS definition.
  */
 public class CodeGenerator {
-    private String apiPackage;
+    private String srcPackage;
     private String modelPackage;
 
     /**
@@ -60,7 +60,7 @@ public class CodeGenerator {
     public void generate(GenType type, String definitionPath, String outPath) throws IOException,
             BallerinaOpenApiException {
         OpenAPI api = new OpenAPIV3Parser().read(definitionPath);
-        BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildContext(api).apiPackage(apiPackage)
+        BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildContext(api).srcPackage(srcPackage)
                 .modelPackage(modelPackage);
         String fileName = api.getInfo().getTitle().replaceAll(" ", "") + ".bal";
         outPath = outPath == null || outPath.isEmpty() ? "." : outPath;
@@ -145,12 +145,12 @@ public class CodeGenerator {
         return handlebars.compile(templateName);
     }
 
-    public String getApiPackage() {
-        return apiPackage;
+    public String getSrcPackage() {
+        return srcPackage;
     }
 
-    public void setApiPackage(String apiPackage) {
-        this.apiPackage = apiPackage;
+    public void setSrcPackage(String srcPackage) {
+        this.srcPackage = srcPackage;
     }
 
     public String getModelPackage() {
