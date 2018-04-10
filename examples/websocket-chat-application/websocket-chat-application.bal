@@ -21,7 +21,7 @@ service<http:Service> ChatAppUpgrader bind ep {
     upgrader(endpoint ep, http:Request req, string name) {
         endpoint http:WebSocketListener wsEp;
         map<string> headers;
-        wsEp = ep -> upgradeToWebSocket(headers);
+        wsEp = ep -> acceptWebSocketUpgrade(headers);
         wsEp.attributes[NAME] = name;
         wsEp.attributes[AGE] = req.getQueryParams()["age"];
         string msg = "Hi " + name + "! You have succesfully connected to the chat";
