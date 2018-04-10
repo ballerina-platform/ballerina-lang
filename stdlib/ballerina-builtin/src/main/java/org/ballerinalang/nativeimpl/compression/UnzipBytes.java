@@ -76,6 +76,12 @@ public class UnzipBytes extends BlockingNativeCallableUnit {
             while ((entry = zin.getNextEntry()) != null) {
                 name = entry.getName();
                 if (!folderToUnzip.isEmpty() && name.startsWith(folderToUnzip)) {
+                    /*
+                      According to the .zip specification: The paths of files inside a zip
+                      should not contain a drive or device letter, or a leading slash.
+                      All slashes MUST be forward slashes '/' as opposed to backwards slashes                     *
+                      https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
+                     */
                     int index = name.lastIndexOf("/") + 1;
                     name = name.substring(index);
                 }
@@ -126,6 +132,12 @@ public class UnzipBytes extends BlockingNativeCallableUnit {
      */
     private static String getDirectoryPath(String name) {
         if (name != null) {
+            /*
+             According to the .zip specification: The paths of files inside a zip
+             should not contain a drive or device letter, or a leading slash.
+             All slashes MUST be forward slashes '/' as opposed to backwards slashes                     *
+             https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
+            */
             int s = name.lastIndexOf("/");
             return s == -1 ? null : name.substring(0, s);
         }
