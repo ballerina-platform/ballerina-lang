@@ -6,9 +6,8 @@ public type Message object {
     private {
         jms:Message message;
     }
-    
-    new (jms:Message msg) {
-        message = msg;
+
+    public new (message) {
     }
 
     documentation {Gets the internal JMS message
