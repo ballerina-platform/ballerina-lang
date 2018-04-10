@@ -81,6 +81,10 @@ public type Response object {
     @Param {value:"res: The response message"}
     public function getHeaderNames () returns (string[]);
 
+    @Description {value:"Set the content-type header to request"}
+    @Param {value:"contentType: Content type value that needs to be set to Content-Type header"}
+    public function setContentType (string contentType);
+
     @Description {value:"Gets the response payload in JSON format"}
     @Param {value:"response: The response message"}
     @Return {value:"The JSON reresentation of the message payload or 'PayloadError' in case of errors"}
@@ -196,6 +200,11 @@ public function Response::removeAllHeaders () {
 public function Response::getHeaderNames () returns (string[]) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaderNames();
+}
+
+public function Response::setContentType (string contentType) {
+    mime:Entity entity = self.getEntityWithoutBody();
+    entity.setHeader(mime:CONTENT_TYPE, contentType);
 }
 
 public function Response::getJsonPayload () returns (json | PayloadError) {

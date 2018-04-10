@@ -3,6 +3,14 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/file;
 
+function testContentType (http:Request req, string contentTypeValue) returns (string) {
+    req.setContentType(contentTypeValue);
+    if (req.hasHeader("content-type")) {
+        return req.getHeader("content-type");
+    }
+    return "Header not found!";
+}
+
 function testGetContentLength (http:Request req) returns (string) {
     return req.getHeader("content-length");
 }

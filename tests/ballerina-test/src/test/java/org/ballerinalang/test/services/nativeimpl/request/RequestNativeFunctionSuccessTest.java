@@ -99,6 +99,16 @@ public class RequestNativeFunctionSuccessTest {
     }
 
     @Test
+    public void testContentType() {
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BString contentType = new BString("application/x-custom-type+json");
+        BValue[] inputArg = {inRequest, contentType};
+        BValue[] returnVals = BRunUtil.invoke(result, "testContentType", inputArg);
+        Assert.assertNotNull(returnVals[0]);
+        Assert.assertEquals(((BString) returnVals[0]).value(), "application/x-custom-type+json");
+    }
+
+    @Test
     @SuppressWarnings("unchecked")
     public void testAddHeader() {
         String headerName = "header1";

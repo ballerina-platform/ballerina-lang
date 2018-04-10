@@ -89,6 +89,10 @@ public type Request object {
     @Return {value:"Returns true if the client expects a 100-continue response. If not, returns false."}
     public function expects100Continue () returns (boolean);
 
+    @Description {value:"Set the content-type header to request"}
+    @Param {value:"contentType: Content type value that needs to be set to Content-Type header"}
+    public function setContentType (string contentType);
+
     @Description {value:"Gets the request payload in JSON format"}
     @Return {value:"The JSON reresentation of the message payload or 'PayloadError' in case of errors"}
     public function getJsonPayload () returns (json | PayloadError);
@@ -201,6 +205,11 @@ public function Request::getHeaderNames () returns (string[]) {
 
 public function Request::expects100Continue () returns (boolean) {
     return self.hasHeader(EXPECT) ? self.getHeader(EXPECT) ==  "100-continue" : false;
+}
+
+public function Request::setContentType (string contentType) {
+    mime:Entity entity = self.getEntityWithoutBody();
+    entity.setHeader(mime:CONTENT_TYPE, contentType);
 }
 
 public function Request::getJsonPayload () returns (json | PayloadError) {
