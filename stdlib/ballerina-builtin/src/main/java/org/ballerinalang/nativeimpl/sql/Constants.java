@@ -69,8 +69,6 @@ public final class Constants {
         public static final String SYBASE = "SYBASE";
         public static final String POSTGRES = "POSTGRES";
         public static final String IBMDB2 = "IBMDB2";
-        public static final String HSQLDB_SERVER = "HSQLDB_SERVER";
-        public static final String HSQLDB_FILE = "HSQLDB_FILE";
 
         public static final String DERBY_SERVER = "DERBY_SERVER";
         public static final String DERBY_FILE = "DERBY_FILE";
@@ -135,8 +133,6 @@ public final class Constants {
      * Constants for Endpoint Configs.
      */
     public static final class EndpointConfig {
-        public static final String DATABASE = "database";
-        public static final String DBTYPE = "dbtype";
         public static final String HOST = "host";
         public static final String URL = "url";
         public static final String PATH = "path";
@@ -144,7 +140,7 @@ public final class Constants {
         public static final String NAME = "name";
         public static final String USERNAME = "username";
         public static final String PASSWORD = "password";
-        public static final String OPTIONS = "options";
+        public static final String POOL_OPTIONS = "poolOptions";
     }
 
     /**
@@ -154,18 +150,10 @@ public final class Constants {
         //String
         public static final String URL = "url";
         public static final String DATASOURCE_CLASSNAME = "dataSourceClassName";
-        public static final String CONNECTION_TEST_QUERY = "connectionTestQuery";
-        public static final String POOL_NAME = "poolName";
-        public static final String CATALOG = "catalog";
         public static final String CONNECTION_INIT_SQL = "connectionInitSql";
-        public static final String DRIVER_CLASSNAME = "driverClassName";
-        public static final String TRANSACTION_ISOLATION = "transactionIsolation";
 
         //Boolean
         public static final String AUTOCOMMIT = "autoCommit";
-        public static final String ISOLATE_INTERNAL_QUERIES = "isolateInternalQueries";
-        public static final String ALLOW_POOL_SUSPENSION = "allowPoolSuspension";
-        public static final String READ_ONLY = "readOnly";
         public static final String IS_XA = "isXA";
 
         //Int
@@ -175,7 +163,6 @@ public final class Constants {
         public static final String MINIMUM_IDLE = "minimumIdle";
         public static final String MAX_LIFE_TIME = "maxLifetime";
         public static final String VALIDATION_TIMEOUT = "validationTimeout";
-        public static final String LEAK_DETECTION_THRESHOLD = "leakDetectionThreshold";
 
         //Map
         public static final String DATASOURCE_PROPERTIES = "datasourceProperties";
@@ -193,6 +180,11 @@ public final class Constants {
     public static final String SQL_PACKAGE_PATH = "ballerina.sql";
     public static final String BUILTIN_PACKAGE_PATH = "ballerina.builtin";
     public static final String SQL_CLIENT = "SQLClient";
+
+    public static final String SQL_JDBC_PREFIX = "jdbc:";
+    public static final String SQL_SERVER_DB_POSTFIX = "_SERVER";
+    public static final String SQL_FILE_DB_POSTFIX = "_FILE";
+    public static final String SQL_MEMORY_DB_POSTFIX = "_MEMORY";
 
     public static final String SQL_CONNECTOR_ERROR = "error";
     public static final String SQL_EXCEPTION_OCCURED = "SQL Exception Occurred";

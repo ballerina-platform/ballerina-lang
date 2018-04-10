@@ -10,7 +10,7 @@ function testIterateMirrorTable () returns (Employee[], Employee[]) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> mirror("employeeItr", typeof Employee);
@@ -42,7 +42,7 @@ function testAddToMirrorTable () returns (Employee[]) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> mirror("employeeAdd", typeof Employee);
@@ -75,7 +75,7 @@ function testAddToMirrorTableNegative () returns (any) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> mirror("employeeAddNegative", typeof Employee);
@@ -95,7 +95,7 @@ function testDeleteFromMirrorTable () returns (boolean, int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:2}
+        poolOptions: {maximumPoolSize:2}
     };
 
     var temp = testDB -> mirror("employeeDel", typeof Employee);

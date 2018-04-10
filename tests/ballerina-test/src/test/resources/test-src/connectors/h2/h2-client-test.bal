@@ -6,7 +6,7 @@ function testConnecotrInit () returns (int) {
         name: "TestDBH2",
         username: "SA",
         password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var insertCountRet = testDB -> update("insert into Customers (customerId, name, creditLimit, country)

@@ -1044,7 +1044,7 @@ public class SQLDatasourceUtils {
         throw new BallerinaException(BLangVMErrors.TRANSACTION_ERROR);
     }
 
-    public static void notifyTxMarkForAbort(Context context, LocalTransactionInfo localTransactionInfo) {
+    private static void notifyTxMarkForAbort(Context context, LocalTransactionInfo localTransactionInfo) {
         String globalTransactionId = localTransactionInfo.getGlobalTransactionId();
         int transactionBlockId = localTransactionInfo.getCurrentTransactionBlockId();
 
@@ -1060,8 +1060,7 @@ public class SQLDatasourceUtils {
                 transactionBlockId);
     }
 
-    //Create Client Methods
-    public static BStruct createServerBasedDBClient(Context context, String database, //TODO:Remove this method
+    public static BStruct createServerBasedDBClient(Context context, String database,
             org.ballerinalang.connector.api.Struct clientEndpointConfig) {
         String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
         int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
@@ -1069,7 +1068,7 @@ public class SQLDatasourceUtils {
         String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
-                .getStructField(Constants.EndpointConfig.OPTIONS);
+                .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
 
         SQLDatasource datasource = new SQLDatasource();
         datasource.init(options, "", database, host, port, username, password, name);
@@ -1086,7 +1085,7 @@ public class SQLDatasourceUtils {
         String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
-                .getStructField(Constants.EndpointConfig.OPTIONS);
+                .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
 
         String dbType = url.split(":")[0].toUpperCase(Locale.getDefault());
         SQLDatasource datasource = new SQLDatasource();
@@ -1098,21 +1097,21 @@ public class SQLDatasourceUtils {
         return sqlClient;
     }
 
-    public static BStruct createAllModesDBClient(Context context, String database,
+    public static BStruct createMultiModeDBClient(Context context, String database,
             org.ballerinalang.connector.api.Struct clientEndpointConfig) {
-        String dbType = "_MEMORY";
+        String dbType = Constants.SQL_MEMORY_DB_POSTFIX;
         String hostOrPath = "";
         String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
         String path = clientEndpointConfig.getStringField(Constants.EndpointConfig.PATH);
         if (!host.isEmpty()) {
-            dbType = "_SERVER";
+            dbType = Constants.SQL_SERVER_DB_POSTFIX;
             hostOrPath = host;
         } else if (!path.isEmpty()) {
-            dbType = "_FILE";
+            dbType = Constants.SQL_FILE_DB_POSTFIX;
             hostOrPath = path;
         }
         if (!host.isEmpty() && !path.isEmpty()) {
-            throw new BallerinaException("error in creating hsql connector: Provide either host or path");
+            throw new BallerinaException("error in creating db connector: Provide either host or path");
         }
         database = database + dbType;
         int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
@@ -1120,7 +1119,7 @@ public class SQLDatasourceUtils {
         String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
-                .getStructField(Constants.EndpointConfig.OPTIONS);
+                .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
 
         SQLDatasource datasource = new SQLDatasource();
         datasource.init(options, "", database, hostOrPath, port, username, password, name);

@@ -11,7 +11,7 @@ public function testSelectWithUntaintedQuery(string[] args) {
         name: "testdb",
         username: "root",
         password: "root",
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
 
     var dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);

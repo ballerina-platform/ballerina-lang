@@ -45,7 +45,7 @@ function testInsertTableData () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var insertCountRet = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
@@ -59,7 +59,7 @@ function testCreateTable () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var returnValueRet = testDB -> update("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))",
@@ -73,7 +73,7 @@ function testUpdateTableData () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter[] parameters = [];
@@ -87,7 +87,7 @@ function testGeneratedKeyOnInsert () returns (string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     string returnVal;
@@ -115,7 +115,7 @@ function testGeneratedKeyWithColumn () returns (string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int insertCount;
@@ -145,7 +145,7 @@ function testSelectData () returns (string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", (),
@@ -165,7 +165,7 @@ function testSelectIntFloatData () returns (int, int, float, float) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
@@ -190,7 +190,7 @@ function testCallProcedure () returns (string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     _ = testDB -> call("{call InsertPersonData(100,'James')}", (), ());
@@ -210,7 +210,7 @@ function testCallProcedureWithResultSet () returns (string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var dtsRet = testDB -> call("{call SelectPersonData()}", (), typeof ResultCustomers);
@@ -229,7 +229,7 @@ function testCallProcedureWithMultipleResultSets () returns (string, string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", (), typeof ResultCustomers);
@@ -256,7 +256,7 @@ function testQueryParameters () returns (string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:1};
@@ -279,7 +279,7 @@ function testInsertTableDataWithParameters () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:"Anne", direction:sql:DIRECTION_IN};
@@ -301,7 +301,7 @@ function testArrayofQueryParameters () returns (string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int[] intDataArray = [1, 4343];
@@ -331,7 +331,7 @@ function testBoolArrayofQueryParameters () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     boolean accepted1 = false;
@@ -371,7 +371,7 @@ function testArrayInParameters () returns (int, map, map, map, map, map, map) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int[] intArray = [1];
@@ -422,7 +422,7 @@ function testOutParameters () returns (any, any, any, any, any, any, any, any, a
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:"1"};
@@ -457,7 +457,7 @@ function testNullOutParameters () returns (any, any, any, any, any, any, any, an
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:"2"};
@@ -489,7 +489,7 @@ function testINParameters () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:3};
@@ -522,7 +522,7 @@ function testNullINParameterValues () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:4};
@@ -555,7 +555,7 @@ function testINOutParameters () returns (any, any, any, any, any, any, any, any,
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:5};
@@ -587,7 +587,7 @@ function testNullINOutParameters () returns (any, any, any, any, any, any, any, 
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter paraID = {sqlType:sql:TYPE_INTEGER, value:"6"};
@@ -619,7 +619,7 @@ function testEmptySQLType () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter para1 = {value:"Anne"};
@@ -635,7 +635,7 @@ function testArrayOutParameters () returns (any, any, any, any, any, any) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     string firstName;
@@ -655,7 +655,7 @@ function testArrayInOutParameters () returns (any, any, any, any, any, any, any)
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:3};
@@ -677,7 +677,7 @@ function testBatchUpdate () returns (int[]) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     //Batch 1
@@ -710,7 +710,7 @@ function testBatchUpdateWithFailure () returns (int[], int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     //Batch 1
@@ -774,7 +774,7 @@ function testBatchUpdateWithNullParam () returns (int[]) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int[] updateCount;
@@ -790,7 +790,7 @@ function testDateTimeInParameters () returns (int[]) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     string stmt = "Insert into DateTimeTypes(row_id,date_type,time_type,datetime_type,timestamp_type) values (?,?,?,?,?)";
@@ -840,7 +840,7 @@ function testDateTimeNullInValues () returns (string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter para0 = {sqlType:sql:TYPE_INTEGER, value:33};
@@ -871,7 +871,7 @@ function testDateTimeNullOutValues () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:123};
@@ -906,7 +906,7 @@ function testDateTimeNullInOutValues () returns (any, any, any, any) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:124};
@@ -926,7 +926,7 @@ function testDateTimeOutParams (int time, int date, int timestamp) returns (int)
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:10};
@@ -961,7 +961,7 @@ function testStructOutParameters () returns (any) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_STRUCT, direction:sql:DIRECTION_OUT};
@@ -975,7 +975,7 @@ function testComplexTypeRetrieval () returns (string, string, string, string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     string s1;
@@ -1011,7 +1011,7 @@ function testCloseConnectionPool () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", (),

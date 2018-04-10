@@ -48,7 +48,7 @@ public class CreateClient extends BlockingNativeCallableUnit {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
 
         BStruct sqlClient = SQLDatasourceUtils
-                .createAllModesDBClient(context, Constants.DBTypes.H2, clientEndpointConfig);
+                .createMultiModeDBClient(context, Constants.DBTypes.H2, clientEndpointConfig);
         context.setReturnValues(sqlClient);
     }
 }

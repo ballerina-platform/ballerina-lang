@@ -42,7 +42,7 @@ function testForEachInTableWithStmt () returns (int, int, float, string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person where id = 1", (), typeof Person);
@@ -67,7 +67,7 @@ function testForEachInTable () returns (int, int, float, string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB-> select("SELECT * from Person where id = 1", (), typeof Person);
@@ -92,7 +92,7 @@ function testCountInTable () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person where id < 10", (), typeof Person);
@@ -106,7 +106,7 @@ function testFilterTable () returns (int, int, int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person", (), typeof Person);
@@ -123,7 +123,7 @@ function testFilterWithAnnonymousFuncOnTable () returns (int, int, int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person", (), typeof Person);
@@ -142,7 +142,7 @@ function testFilterTableWithCount () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person", (), typeof Person);
@@ -156,7 +156,7 @@ function testMapTable () returns (string[]) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), typeof Person);
@@ -170,7 +170,7 @@ function testMapWithFilterTable () returns (string[]) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), typeof Person);
@@ -184,7 +184,7 @@ function testFilterWithMapTable () returns (string[]) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), typeof Person);
@@ -198,7 +198,7 @@ function testFilterWithMapAndCountTable () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), typeof Person);
@@ -212,7 +212,7 @@ function testAverageWithTable () returns (float) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), typeof Person);
@@ -226,7 +226,7 @@ function testMinWithTable () returns (float) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), typeof Person);
@@ -240,7 +240,7 @@ function testMaxWithTable () returns (float) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), typeof Person);
@@ -254,7 +254,7 @@ function testSumWithTable () returns (float) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), typeof Person);
@@ -268,7 +268,7 @@ function testCloseConnectionPool () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", (),

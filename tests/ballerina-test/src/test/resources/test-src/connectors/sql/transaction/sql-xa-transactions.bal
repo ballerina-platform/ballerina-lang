@@ -8,13 +8,13 @@ function testXAransactonSuccess () returns (int, int) {
 	endpoint sql:Client testDB1 {
         url: "h2:file:./target/H2_1/TestDB1",
         username: "SA",
-        options: {maximumPoolSize:1, isXA:true}
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 	
 	endpoint sql:Client testDB2 {
         url: "h2:file:./target/H2_2/TestDB2",
         username: "SA",
-        options: {maximumPoolSize:1, isXA:true}
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 	
     transaction {
@@ -50,13 +50,13 @@ function testXAransactonFailed1 () returns (int, int) {
 	endpoint sql:Client testDB1 {
         url: "h2:file:./target/H2_1/TestDB1",
         username: "SA",
-        options: {maximumPoolSize:1, isXA:true}
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 	
 	endpoint sql:Client testDB2 {
         url: "h2:file:./target/H2_2/TestDB2",
         username: "SA",
-        options: {maximumPoolSize:1, isXA:true}
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 	
     try {
@@ -96,13 +96,13 @@ function testXAransactonFailed2 () returns (int, int) {
 	endpoint sql:Client testDB1 {
         url: "h2:file:./target/H2_1/TestDB1",
         username: "SA",
-        options: {maximumPoolSize:1, isXA:true}
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 	
 	endpoint sql:Client testDB2 {
         url: "h2:file:./target/H2_2/TestDB2",
         username: "SA",
-        options: {maximumPoolSize:1, isXA:true}
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 	
     try {
@@ -141,13 +141,13 @@ function testXAransactonRetry () returns (int, int) {
 	endpoint sql:Client testDB1 {
         url: "h2:file:./target/H2_1/TestDB1",
         username: "SA",
-        options: {maximumPoolSize:1, isXA:true}
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 	
 	endpoint sql:Client testDB2 {
         url: "h2:file:./target/H2_2/TestDB2",
         username: "SA",
-        options: {maximumPoolSize:1, isXA:true}
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 
     int i = 0;

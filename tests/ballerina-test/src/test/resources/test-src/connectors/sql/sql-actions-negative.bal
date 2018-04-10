@@ -5,7 +5,7 @@ function testSelectData () returns (string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
     string returnData;
     try {
@@ -31,7 +31,7 @@ function testGeneratedKeyOnInsert () returns (string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     string id = "";
@@ -61,7 +61,7 @@ function testCallProcedure () returns (string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
     string returnData;
     try {
@@ -85,7 +85,7 @@ function testBatchUpdate () returns (string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int[] updateCount;
@@ -129,7 +129,7 @@ function testInvalidArrayofQueryParameters () returns (string) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     string returnData;

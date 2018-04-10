@@ -8,7 +8,7 @@ function getTableCount (string tablePrefix) returns (int) {
     endpoint sql:Client testDB {
         url: "h2:mem:TABLEDB",
         username: "sa",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     sql:Parameter  p1 = {value:tablePrefix, sqlType:sql:TYPE_VARCHAR};
@@ -34,7 +34,7 @@ function getSessionCount () returns (int) {
     endpoint sql:Client testDB {
         url: "h2:mem:TABLEDB",
         username: "sa",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int count;

@@ -27,7 +27,7 @@ function testLocalTransacton () returns (int, int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
@@ -61,7 +61,7 @@ function testTransactonRollback () returns (int, int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -102,7 +102,7 @@ function testTransactonAbort () returns (int, int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int returnVal = -1;
@@ -143,7 +143,7 @@ function testTransactonErrorThrow () returns (int, int, int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -184,7 +184,7 @@ function testTransactionErrorThrowAndCatch () returns (int, int, int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -226,7 +226,7 @@ function testTransactonCommitted () returns (int, int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int returnVal = 1;
@@ -260,7 +260,7 @@ function testTwoTransactons () returns (int, int, int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int returnVal1 = 1;
@@ -305,7 +305,7 @@ function testTransactonWithoutHandlers () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp0 = testDB -> mirror("CustomersTrx", typeof CustomersTrx);
@@ -337,7 +337,7 @@ function testLocalTransactionFailed () returns (string, int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     string a = "beforetx";
@@ -381,7 +381,7 @@ function testLocalTransactonSuccessWithFailed () returns (string, int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     string a = "beforetx";
@@ -432,13 +432,13 @@ function testLocalTransactonFailedWithNextupdate () returns (int) {
     endpoint sql:Client testDB1 {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     endpoint sql:Client testDB2 {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int i = 0;
@@ -476,7 +476,7 @@ function testNestedTwoLevelTransactonSuccess () returns (int, int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -511,7 +511,7 @@ function testNestedThreeLevelTransactonSuccess () returns (int, int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -551,7 +551,7 @@ function testNestedThreeLevelTransactonFailed () returns (int, int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -599,7 +599,7 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, i
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -663,7 +663,7 @@ function testTransactionWithWorkers () returns (int) {
     endpoint sql:Client testDB {
         url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
-        options: {maximumPoolSize:2}
+        poolOptions: {maximumPoolSize:2}
     };
 
     transaction {

@@ -11,7 +11,7 @@ public function testSelectWithTaintedQueryNegative(string[] args) {
         name: "testdb",
         username: "root",
         password: "root",
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
 
     var dt = testDB -> select("SELECT  FirstName from Customers where registrationID = " + args[0], null, null);
