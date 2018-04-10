@@ -1,20 +1,20 @@
 import ballerina/io;
 
 @Description {value:"Defining Employee struct."}
-struct Employee {
+type Employee {
     string name;
     int age;
     string address;
-}
+};
 
 @Description {value:"Defining Person struct."}
-struct Person {
+type Person {
     string firstName;
     string lastName;
     int age;
     string city;
     string street;
-}
+};
 
 @Description {value:"Defining a default transformer for converting from 'Person' type to 'Employee' type."}
 transformer <Person p, Employee e> {

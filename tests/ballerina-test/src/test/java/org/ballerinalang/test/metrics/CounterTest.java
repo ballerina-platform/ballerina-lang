@@ -15,12 +15,10 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * /
+ *
  */
 package org.ballerinalang.test.metrics;
 
-import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -33,13 +31,12 @@ import org.testng.annotations.Test;
 /**
  * Tests for Counter metric.
  */
-public class CounterTest {
+public class CounterTest extends MetricTest {
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/metrics/counter-test.bal");
-        Metrics.globalRegistry.add(new SimpleMeterRegistry());
     }
 
     @Test

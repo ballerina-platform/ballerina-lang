@@ -96,7 +96,7 @@ function testUnreachableBreak () (string) {
 
 struct testError {
     string msg;
-    error[] cause;
+    error? cause;
     stackFrame[] stackTrace;
     string code;
 }

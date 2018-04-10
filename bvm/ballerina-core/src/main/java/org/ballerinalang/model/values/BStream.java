@@ -89,6 +89,10 @@ public class BStream implements BRefType<Object> {
         return null;
     }
 
+    public BStructType getConstraintType() {
+        return constraintType;
+    }
+
     /**
      * Method to publish to a topic representing the stream in the broker.
      *

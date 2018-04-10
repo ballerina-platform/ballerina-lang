@@ -21,7 +21,7 @@
     <parent>
         <artifactId>metrics-extensions</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.970.0-alpha3-SNAPSHOT</version>
+        <version>0.970.0-alpha4-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -56,6 +56,11 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

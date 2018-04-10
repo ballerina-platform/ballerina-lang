@@ -5,7 +5,7 @@ function main (string[] args) {
     //Create an endpoint for the first database named testdb1. Since this endpoint is
     //participated in a distributed transaction, the isXA property should be true.
     endpoint sql:Client testDBEP1 {
-        database: sql:DB.MYSQL,
+        database: sql:DB_MYSQL,
         host: "localhost",
         port: 3306,
         name: "testdb1",
@@ -18,7 +18,7 @@ function main (string[] args) {
     //participated in a distributed transaction, the isXA property of the
     //sql:ClientConnector should be true.
     endpoint sql:Client testDBEP2 {
-        database: sql:DB.MYSQL,
+        database: sql:DB_MYSQL,
         host: "localhost",
         port: 3306,
         name: "testdb2",
@@ -61,15 +61,15 @@ function main (string[] args) {
             (int, string[]) output =>
                 (insertCount, generatedID) = output;
             sql:SQLConnectorError err => {
-                throw err.cause[0];
+                throw err.cause;
             }
         }
-        var returnedKey =? <int>generatedID[0];
+        var returnedKey = check <int>generatedID[0];
         io:println("Inserted count to CUSTOMER table:" + insertCount);
         io:println("Generated key for the inserted row:" + returnedKey);
         //This is the second action participate in the transaction which insert the
         //salary info to the second DB along with the key generated in the first DB.
-        sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:returnedKey};
+        sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:returnedKey};
         sql:Parameter[] params = [para1];
         ret = testDBEP2 -> update("INSERT INTO SALARY (ID, VALUE) VALUES (?, 2500)", params);
         match ret {
@@ -96,7 +96,7 @@ function main (string[] args) {
             io:println("CUSTOMER table drop status:" + retInt);
         }
         sql:SQLConnectorError err => {
-            throw err.cause[0];
+            throw err.cause;
         }
     }
     ret = testDBEP2 -> update("DROP TABLE SALARY", null);
@@ -105,7 +105,7 @@ function main (string[] args) {
             io:println("SALARY table drop status:" + retInt);
         }
         sql:SQLConnectorError err => {
-            throw err.cause[0];
+            throw err.cause;
         }
     }
 
