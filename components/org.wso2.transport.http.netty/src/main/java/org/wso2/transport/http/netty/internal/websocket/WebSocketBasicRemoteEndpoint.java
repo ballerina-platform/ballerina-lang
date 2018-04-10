@@ -37,7 +37,6 @@ import javax.websocket.RemoteEndpoint;
 /**
  * This is {@link Basic} implementation for WebSocket Connection.
  */
-
 public class WebSocketBasicRemoteEndpoint implements RemoteEndpoint.Basic {
 
     private final ChannelHandlerContext ctx;
