@@ -90,7 +90,7 @@ public type ChatClient object {
         ChatStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfiguration config) {
+    public function init (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);
