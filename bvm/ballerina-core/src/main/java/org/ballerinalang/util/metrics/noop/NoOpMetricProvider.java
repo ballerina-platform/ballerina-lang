@@ -40,6 +40,11 @@ public class NoOpMetricProvider implements MetricProvider {
     }
 
     @Override
+    public void initialize() {
+        // Do nothing
+    }
+
+    @Override
     public Counter newCounter(MetricId metricId) {
         return new NoOpCounter(metricId);
     }

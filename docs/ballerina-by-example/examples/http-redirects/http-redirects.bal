@@ -2,13 +2,13 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-endpoint http:ClientEndpoint clientEP {
+endpoint http:Client clientEP {
     targets:[{url:"http://www.mocky.io"}],
     followRedirects : { enabled : true, maxCount : 5 }
 };
 
 function main (string[] args) {
-    http:Request req = {};
+    http:Request req = new;
 
     //Send a GET request to the specified endpoint
     var returnResult = clientEP -> get("/v2/59d590762700000a049cd694", req);

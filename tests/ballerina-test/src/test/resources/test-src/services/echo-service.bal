@@ -8,7 +8,7 @@ type Person {
     int age,
 };
 
-endpoint http:NonListeningServiceEndpoint echoEP {
+endpoint http:NonListener echoEP {
     port:9090
 };
 

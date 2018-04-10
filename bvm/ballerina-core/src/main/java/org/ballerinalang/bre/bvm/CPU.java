@@ -746,7 +746,7 @@ public class CPU {
                     default:
                         throw new UnsupportedOperationException();
                 }
-            } catch (HandleErrorException e) { 
+            } catch (HandleErrorException e) {
                 throw e;
             } catch (Throwable e) {
                 BLangVMUtils.log("fatal error: " + e.getMessage());
@@ -2985,7 +2985,7 @@ public class CPU {
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.RETURN, ctx.workerResult));
     }
 
-    private static boolean isAssignable(BValue rhsValue, BType lhsType) {
+    public static boolean isAssignable(BValue rhsValue, BType lhsType) {
         if (rhsValue == null) {
             return false;
         }
@@ -3262,7 +3262,7 @@ public class CPU {
 
     private static boolean isSameType(BType rhsType, BType lhsType) {
         // First check whether both references points to the same object.
-        if (rhsType == lhsType) {
+        if (rhsType == lhsType || rhsType.equals(lhsType)) {
             return true;
         }
 
@@ -3480,6 +3480,11 @@ public class CPU {
                 }
                 return true;
             case TypeTags.JSON_TAG:
+                // If target type is not constrained, any JSON is assignable.
+                if (((BJSONType) targetType).getConstrainedType() == null) {
+                    return true;
+                }
+
                 if (sourceType.getTag() != TypeTags.JSON_TAG) {
                     return false;
                 }
@@ -3538,7 +3543,9 @@ public class CPU {
 
     private static void convertStructToJSON(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
-        int j = operands[1];
+        int cpIndex = operands[1];
+        int j = operands[2];
+        BJSONType targetType = (BJSONType) ((TypeRefCPEntry) ctx.constPool[cpIndex]).getType();
 
         BStruct bStruct = (BStruct) sf.refRegs[i];
         if (bStruct == null) {
@@ -3547,9 +3554,9 @@ public class CPU {
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.convertStructToJSON(bStruct);
+            sf.refRegs[j] = JSONUtils.convertStructToJSON(bStruct, targetType);
         } catch (Exception e) {
-            String errorMsg = "cannot convert '" + bStruct.getType() + "' to type '" + BTypes.typeJSON + "': " +
+            String errorMsg = "cannot convert '" + bStruct.getType() + "' to type '" + targetType + "': " +
                     e.getMessage();
             handleTypeConversionError(ctx, sf, j, errorMsg);
         }
