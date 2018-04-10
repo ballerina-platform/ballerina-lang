@@ -1,5 +1,5 @@
-#To run the program, put the code into the `.bal` file 
-# and run the `ballerina run` command. 
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command.
 $ ballerina run json-struct-map-conversion.bal
 {"title":"The Revenant","year":"2015","released":"08 Jan 2016",
     "writer":{"fname":"Michael","lname":"Punke","age":30}}
