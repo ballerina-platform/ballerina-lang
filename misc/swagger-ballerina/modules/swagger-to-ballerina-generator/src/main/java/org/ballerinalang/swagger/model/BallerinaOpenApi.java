@@ -153,7 +153,9 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
     }
 
     public BallerinaOpenApi apiPackage(String apiPackage) {
-        this.apiPackage = apiPackage;
+        if (apiPackage != null) {
+            this.apiPackage = apiPackage.replaceFirst("\\.", "/");
+        }
         return this;
     }
 
