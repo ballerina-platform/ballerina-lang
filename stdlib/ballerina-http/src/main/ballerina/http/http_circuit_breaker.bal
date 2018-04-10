@@ -54,13 +54,14 @@ documentation {
 
     F{{failureThreshold}}  - The threshold for request failures. When this threshold is crossed, the circuit will trip.
                              The threshold should be a value between 0 and 1.
-    F{{resetTimeout}} - The time period to wait before attempting to make another request to the upstream service.
+    F{{resetTimeMillies}} - The time period(in milliseconds) to wait before attempting to make another
+                               request to the upstream service.
     F{{statusCodes}} - Array of http response status codes which considered as failure responses.
 }
 public type CircuitBreakerConfig {
     RollingWindow rollingWindow,
     float failureThreshold,
-    int resetTimeout,
+    int resetTimeMillies,
     int[] statusCodes,
 };
 
@@ -88,7 +89,7 @@ public type Bucket {
 
 public type CircuitBreakerInferredConfig {
    float failureThreshold,
-   int resetTimeout,
+   int resetTimeMillies,
    boolean[] statusCodes,
    int noOfBuckets,
    RollingWindow rollingWindow,
@@ -515,7 +516,7 @@ public function updateCircuitState (CircuitHealth circuitHealth, CircuitState cu
            time:Time currentT = time:currentTime();
            int elapsedTime = currentT.time - circuitHealth.lastErrorTime.time;
 
-           if (elapsedTime > circuitBreakerInferredConfig.resetTimeout) {
+           if (elapsedTime > circuitBreakerInferredConfig.resetTimeMillies) {
                circuitHealth.errorCount = 0;
                circuitHealth.requestCount = 0;
                currentState = CB_HALF_OPEN_STATE;
@@ -595,7 +596,7 @@ function updateCircuitHealthSuccess(CircuitHealth circuitHealth, Response inResp
 function handleOpenCircuit (CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (HttpConnectorError) {
    time:Time currentT = time:currentTime();
    int timeDif = currentT.time - circuitHealth.lastErrorTime.time;
-   int timeRemaining = circuitBreakerInferredConfig.resetTimeout - timeDif;
+   int timeRemaining = circuitBreakerInferredConfig.resetTimeMillies - timeDif;
    string errorMessage = "Upstream service unavailable. Requests to upstream service will be suspended for "
              + timeRemaining + " milliseconds.";
    HttpConnectorError httpConnectorError = {message:errorMessage};

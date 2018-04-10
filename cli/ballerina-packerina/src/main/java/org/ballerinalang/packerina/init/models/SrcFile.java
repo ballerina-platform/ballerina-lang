@@ -31,7 +31,7 @@ public class SrcFile {
                                                   "import ballerina/io;\n" +
                                                   "\n" +
                                                   "// A service endpoint represents a listener\n" +
-                                                  "endpoint http:ServiceEndpoint listener {\n" +
+                                                  "endpoint http:Listener listener {\n" +
                                                   "    port:9090\n" +
                                                   "};\n" +
                                                   "\n" +

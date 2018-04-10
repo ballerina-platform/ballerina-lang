@@ -16,9 +16,9 @@ public type userPFoo object {
 };
 
 public function userPFoo::getName () returns (string) {
-    return name + ":userPFoo";
+    return self.name + ":userPFoo";
 }
 
 public function userPFoo::getAge () returns (int) {
-    return age;
+    return self.age;
 }

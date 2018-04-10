@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
@@ -203,6 +204,16 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangRecord record) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangTypeDefinition typeDefinition) {
+        // No implementation
+    }
+
+    @Override
     public void visit(BLangEnum enumNode) {
         // No implementation
     }
@@ -313,7 +324,7 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     public void visit(BLangAbort abortNode) {
         // No implementation
     }
-    
+
     @Override
     public void visit(BLangDone doneNode) {
         // No implementation
@@ -494,10 +505,20 @@ public class LSNodeVisitor extends BLangNodeVisitor {
         // No implementation
     }
 
-    // Expressions
+    @Override
+    public void visit(BLangForever foreverStatement) {
+        // No implementation
+    }
 
+
+    // Expressions
     @Override
     public void visit(BLangLiteral literalExpr) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangTableLiteral tableLiteral) {
         // No implementation
     }
 
@@ -553,6 +574,11 @@ public class LSNodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangElvisExpr elvisExpr) {
         // No implementation
     }
 
@@ -677,12 +703,21 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangForever foreverStatement) {
+    public void visit(BLangMatchExpression bLangMatchExpression) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
         // No implementation
     }
 
     // Type nodes
-
     @Override
     public void visit(BLangValueType valueType) {
         // No implementation
@@ -723,8 +758,8 @@ public class LSNodeVisitor extends BLangNodeVisitor {
         // No implementation
     }
 
-    // expressions that will used only from the Desugar phase
 
+    // expressions that will used only from the Desugar phase
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
         // No implementation
@@ -781,11 +816,6 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableLiteral tableLiteral) {
-        // No implementation
-    }
-
-    @Override
     public void visit(BLangRecordLiteral.BLangStreamLiteral streamLiteral) {
         // No implementation
     }
@@ -832,31 +862,6 @@ public class LSNodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangRecord record) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangTypeDefinition typeDefinition) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangMatchExpression bLangMatchExpression) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangCheckedExpr checkedExpr) {
         // No implementation
     }
 

@@ -44,16 +44,21 @@ public class FinalAccessTest {
     public void testFinalFailCase() {
         CompileResult compileResultNegative = BCompileUtil
                 .compile("test-src/types/finaltypes/final-field-test-negative.bal");
-        BAssertUtil.validateError(compileResultNegative, 0, "cannot assign a value to final 'globalFinalInt'", 8, 5);
-        BAssertUtil.validateError(compileResultNegative, 1, "cannot assign a value to final 'bar:globalBarInt'", 10, 5);
+        Assert.assertEquals(compileResultNegative.getErrorCount(), 11);
+        BAssertUtil.validateError(compileResultNegative, 0, "cannot assign a value to final 'globalFinalInt'", 9, 5);
+        BAssertUtil.validateError(compileResultNegative, 1, "cannot assign a value to final 'bar:globalBarInt'", 11, 5);
         BAssertUtil
-                .validateError(compileResultNegative, 2, "cannot assign a value to final 'bar:globalBarString'", 12, 5);
-        BAssertUtil.validateError(compileResultNegative, 3, "cannot assign a value to final 'a'", 24, 5);
-        BAssertUtil.validateError(compileResultNegative, 4, "cannot assign a value to function argument 'a'", 30, 5);
-        BAssertUtil.validateError(compileResultNegative, 5, "cannot assign a value to function argument 'f'", 35, 5);
-        BAssertUtil.validateError(compileResultNegative, 6, "cannot assign a value to function argument 's'", 36, 5);
-        BAssertUtil.validateError(compileResultNegative, 7, "cannot assign a value to function argument 'b'", 37, 5);
-        BAssertUtil.validateError(compileResultNegative, 8, "cannot assign a value to function argument 'j'", 38, 5);
+                .validateError(compileResultNegative, 2, "cannot assign a value to final 'bar:globalBarString'", 13, 5);
+        BAssertUtil.validateError(compileResultNegative, 3, "cannot assign a value to final 'a'", 25, 5);
+        BAssertUtil.validateError(compileResultNegative, 4, "cannot assign a value to function argument 'a'", 31, 5);
+        BAssertUtil.validateError(compileResultNegative, 5, "cannot assign a value to function argument 'f'", 36, 5);
+        BAssertUtil.validateError(compileResultNegative, 6, "cannot assign a value to function argument 's'", 37, 5);
+        BAssertUtil.validateError(compileResultNegative, 7, "cannot assign a value to function argument 'b'", 38, 5);
+        BAssertUtil.validateError(compileResultNegative, 8, "cannot assign a value to function argument 'j'", 39, 5);
+        BAssertUtil.validateError(compileResultNegative, 9,
+                "annotation 'ballerina/builtin:final' is not allowed in function", 43, 1);
+        BAssertUtil.validateError(compileResultNegative, 10,
+                "annotation 'ballerina/builtin:final' is not allowed in service", 47, 1);
     }
 
     @Test(description = "Test final global variable")

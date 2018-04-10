@@ -25,14 +25,14 @@ import ballerina/runtime;
 
 function testTypicalScenario () returns (http:Response[] , http:HttpConnectorError[]) {
 
-    endpoint http:ClientEndpoint backendClientEP {
+    endpoint http:Client backendClientEP {
         circuitBreaker: {
             rollingWindow: {
                 timeWindow:10000,
                 bucketSize:2000
             },
             failureThreshold:0.3,
-            resetTimeout:1000,
+            resetTimeMillies:1000,
             statusCodes:[400, 404, 500, 502]
         },
         targets:[
@@ -73,14 +73,14 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
 
 function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorError[]) {
     
-    endpoint http:ClientEndpoint backendClientEP {
+    endpoint http:Client backendClientEP {
         circuitBreaker: {
             rollingWindow: {
                 timeWindow:10000,
                 bucketSize:2000
             },
             failureThreshold:0.3,
-            resetTimeout:1000,
+            resetTimeMillies:1000,
             statusCodes:[400, 404, 500, 502]
         },
         targets:[
@@ -121,14 +121,14 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
 
 function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnectorError[]) {
     
-    endpoint http:ClientEndpoint backendClientEP {
+    endpoint http:Client backendClientEP {
         circuitBreaker: {
             rollingWindow: {
                 timeWindow:10000,
                 bucketSize:2000
             },
             failureThreshold:0.3,
-            resetTimeout:1000,
+            resetTimeMillies:1000,
             statusCodes:[400, 404, 500, 502]
         },
         targets:[

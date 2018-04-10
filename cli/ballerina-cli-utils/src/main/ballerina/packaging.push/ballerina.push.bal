@@ -7,7 +7,7 @@ import ballerina/http;
 
 function pushPackage (string accessToken, string mdFileContent, string summary, string homePageURL, string repositoryURL,
     string apiDocURL, string authors, string keywords, string license, string url, string dirPath, string msg) {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets: [
         {
             url: url,
@@ -37,7 +37,7 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
     mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     filePart.contentType = contentTypeOfFilePart;
     filePart.contentDisposition = getContentDispositionForFormData("artifact");
-    file:Path filePath = file:getPath(dirPath);
+    file:Path filePath = new(dirPath);
     filePart.setFileAsEntityBody(filePath);
 
     mime:Entity[] bodyParts = [filePart, mdFileContentBodyPart, summaryBodyPart, homePageURLBodyPart, repositoryURLBodyPart,

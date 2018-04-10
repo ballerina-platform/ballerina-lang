@@ -32,10 +32,10 @@ type Teacher {
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 
-function startPassthroughQuery() returns (Employee[]) {
+stream<Employee> employeeStream3;
+stream<Teacher> teacherStream6;
 
-    stream<Employee> employeeStream3;
-    stream<Teacher> teacherStream6;
+function testPassthroughQuery() {
 
     forever {
         from teacherStream6
@@ -44,6 +44,11 @@ function startPassthroughQuery() returns (Employee[]) {
             employeeStream3.publish(emp);
         }
     }
+}
+
+function startPassthroughQuery() returns (Employee[]) {
+
+    testPassthroughQuery();
 
     Teacher t1 = {name:"Raja", age:25, status:"single"};
     Teacher t2 = {name:"Shareek", age:33, status:"single"};

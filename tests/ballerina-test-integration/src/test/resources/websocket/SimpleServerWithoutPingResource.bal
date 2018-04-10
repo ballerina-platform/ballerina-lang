@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:ServiceEndpoint ep1 {
+endpoint http:Listener ep1 {
     port:9090
 };
 

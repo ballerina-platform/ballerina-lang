@@ -1,13 +1,13 @@
 import ballerina/http;
 import ballerina/io;
 
-struct Student {
+type Student {
     string Name;
     int Grade;
     map Marks;
-}
+};
 
-endpoint http:ServiceEndpoint helloEP {
+endpoint http:Listener helloEP {
     port:9090
 };
 
@@ -24,7 +24,7 @@ service<http:Service> hello bind helloEP {
         json details = orderDetails.Details;
         io:println(details);
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload(details);
         _ = outboundEP -> respond(res);
     }
@@ -40,7 +40,7 @@ service<http:Service> hello bind helloEP {
         xml city = store.selectChildren("city");
         io:println(city);
 
-        http:Response res = {};
+        http:Response res = new;
         res.setXmlPayload(city);
         _ = outboundEP -> respond(res);
     }
@@ -62,7 +62,7 @@ service<http:Service> hello bind helloEP {
         map marks = student.Marks;
         io:println(marks);
 
-        http:Response res = {};
+        http:Response res = new;
         res.setJsonPayload({Name:name, Grade:grade});
         _ = outboundEP -> respond(res);
     }

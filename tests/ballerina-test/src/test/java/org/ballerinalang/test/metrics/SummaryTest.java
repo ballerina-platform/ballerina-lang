@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.test.metrics;
 
-import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -32,13 +30,12 @@ import org.testng.annotations.Test;
 /**
  * Tests for summary metric.
  */
-public class SummaryTest {
+public class SummaryTest extends MetricTest {
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/metrics/summary-test.bal");
-        Metrics.globalRegistry.add(new SimpleMeterRegistry());
     }
 
     @Test
@@ -63,5 +60,11 @@ public class SummaryTest {
     public void testPercentileSummary() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testPercentileSummary");
         Assert.assertNotEquals(returns[0], new BFloat(0));
+    }
+
+    @Test
+    public void testSummaryWithoutTags() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSummaryWithoutTags");
+        Assert.assertEquals(returns[0], new BFloat(3));
     }
 }

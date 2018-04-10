@@ -121,7 +121,7 @@ public function MediaType::toStringWithParameters () returns (string) {
 @Field {value:"cause: The error which caused the entity error"}
 public type EntityError  {
     string message,
-    error[] cause,
+    error? cause,
 };
 
 @Description {value:"Represent the headers and body of a message. This can be used to represent both the entity of a top
@@ -242,8 +242,9 @@ public type Entity object {
     public native function hasHeader (string headerName) returns boolean;
 };
 
-public function Entity::setFileAsEntityBody (file:Path filePath) {
-    io:ByteChannel channel =check file:newByteChannel(fileHandler, READ_PERMISSION);
+public function Entity::setFileAsEntityBody (file:Path fileHandler) {
+    string path = fileHandler.toAbsolutePath().getPathValue();
+    io:ByteChannel channel = io:openFile(path, READ_PERMISSION);
     self.setByteChannel(channel);
 }
 
@@ -252,7 +253,7 @@ public function Entity::setFileAsEntityBody (file:Path filePath) {
 @Field {value:"cause: The cause of the error"}
 public type Base64EncodeError {
     string message,
-    error[] cause,
+    error? cause,
 };
 
 @Description {value:"Represent errors related to mime base64 decoder"}
@@ -260,7 +261,7 @@ public type Base64EncodeError {
 @Field {value:"cause: The cause of the error"}
 public type Base64DecodeError {
     string message,
-    error[] cause,
+    error? cause,
 };
 
 @Description {value:"Encode a given input with MIME specific Base64 encoding scheme."}

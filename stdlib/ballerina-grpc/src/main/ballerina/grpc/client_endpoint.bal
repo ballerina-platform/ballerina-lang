@@ -108,9 +108,3 @@ public type SSL {
     int cacheValidityPeriod;
     boolean hostNameVerificationEnabled;
 };
-
-public type Listener object {
-    function getEndpoint() returns (Client) {
-        return new;
-    }
-};
