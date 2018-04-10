@@ -110,25 +110,25 @@ public class SwaggerResourceMapper {
         for (String httpMethod : httpMethods) {
             if (!httpMethod.equalsIgnoreCase("get")) {
                 operation = this.convertResourceToOperation(resource,
-                        httpMethod.toLowerCase(Locale.getDefault())).getOperation();
+                        httpMethod.toUpperCase(Locale.getDefault())).getOperation();
                 if (operation != null) {
                     switch (httpMethod.toLowerCase(Locale.getDefault())) {
-                        case "get":
+                        case HttpConstants.ANNOTATION_METHOD_GET:
                             pathObject.setGet(operation);
                             break;
-                        case "put":
+                        case HttpConstants.ANNOTATION_METHOD_PUT:
                             pathObject.setPut(operation);
                             break;
-                        case "post":
+                        case HttpConstants.ANNOTATION_METHOD_POST:
                             pathObject.setPost(operation);
                             break;
-                        case "delete":
+                        case HttpConstants.ANNOTATION_METHOD_DELETE:
                             pathObject.setDelete(operation);
                             break;
                         case "head":
                             pathObject.setHead(operation);
                             break;
-                        case "options":
+                        case HttpConstants.ANNOTATION_METHOD_OPTIONS:
                             pathObject.setOptions(operation);
                             break;
                         case "patch":
@@ -381,7 +381,7 @@ public class SwaggerResourceMapper {
             refModel.setReference("Request");
             messageParameter.setSchema(refModel);
             //Adding conditional check for http delete operation as it cannot have body parameter.
-            if(!operationAdaptor.getHttpOperation().equalsIgnoreCase("delete")) {
+            if (!operationAdaptor.getHttpOperation().equalsIgnoreCase("delete")) {
                 operationAdaptor.getOperation().addParameter(messageParameter);
             }
         }
