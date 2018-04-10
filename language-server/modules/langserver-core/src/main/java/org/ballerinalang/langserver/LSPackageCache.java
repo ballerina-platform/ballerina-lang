@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class LSPackageCache {
 
-    private ExtendedPackageCache packageCache;
+    private ExtendedPackageCache packageCache = null;
     private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
 
     private static final String[] staticPkgNames = {"http", "http.swagger", "net.uri", "mime", "auth", "auth.authz",
@@ -41,16 +41,23 @@ public class LSPackageCache {
             "collections", "config", "sql", "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os",
             "reflect", "runtime", "security.crypto", "task", "time", "transactions", "user", "util"};
 
-    private static final LSPackageCache INSTANCE = new LSPackageCache();
+    private static LSPackageCache lsPackageCache = null;
 
     public static LSPackageCache getInstance() {
-        return INSTANCE;
+        return lsPackageCache;
+    }
+    
+    public static synchronized void initiate(LSGlobalContext lsGlobalContext) {
+        if (lsPackageCache == null) {
+            lsPackageCache = new LSPackageCache();
+            CompilerContext tempCompilerContext = CommonUtil.prepareTempCompilerContext();
+            lsPackageCache.packageCache = new ExtendedPackageCache(lsGlobalContext
+                    .get(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT));
+            loadPackagesMap(tempCompilerContext);
+        }
     }
 
     private LSPackageCache() {
-        CompilerContext tempCompilerContext = CommonUtil.prepareTempCompilerContext();
-        packageCache = new ExtendedPackageCache(tempCompilerContext);
-        this.loadPackagesMap(tempCompilerContext);
     }
 
     /**
@@ -76,11 +83,11 @@ public class LSPackageCache {
      * @param packageID ballerina package id to be removed.
      */
     public void removePackage(PackageID packageID) {
-        this.packageCache.remove(packageID);
+        packageCache.remove(packageID);
     }
     
     public void clearCache() {
-        this.packageCache.clearCache();
+        packageCache.clearCache();
     }
 
     /**
@@ -91,11 +98,11 @@ public class LSPackageCache {
     void addPackage(PackageID packageID, BLangPackage bLangPackage) {
         if (bLangPackage != null) {
             bLangPackage.packageID = packageID;
-            this.packageCache.put(packageID, bLangPackage);
+            packageCache.put(packageID, bLangPackage);
         }
     }
     
-    private void loadPackagesMap(CompilerContext tempCompilerContext) {
+    private static void loadPackagesMap(CompilerContext tempCompilerContext) {
         for (String staticPkgName : LSPackageCache.staticPkgNames) {
             PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
                     new org.wso2.ballerinalang.compiler.util.Name(staticPkgName),
