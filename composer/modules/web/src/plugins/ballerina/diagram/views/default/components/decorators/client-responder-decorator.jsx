@@ -19,7 +19,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import ActionBox from './action-box';
 import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import './statement-decorator.css';
@@ -107,20 +106,6 @@ class ClientResponderDecorator extends React.Component {
     }
 
     /**
-     * renders an ExpressionEditor in the statement box.
-     */
-    openEditor() {
-        const options = this.props.editorOptions;
-        const packageScope = this.context.environment;
-        const ballerinaFileEditor = this.context.editor;
-        if (options) {
-            new ExpressionEditor(this.state.statementBox,
-                text => this.onUpdate(text), options, packageScope, ballerinaFileEditor)
-                        .render(this.context.getOverlayContainer());
-        }
-    }
-
-    /**
      * Renders breakpoint indicator
      * @return {XML} Breakpoint react element.
      */
@@ -182,19 +167,6 @@ class ClientResponderDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
-                <DropZone
-                    model={this.props.model}
-                    x={dropZone.x}
-                    y={dropZone.y}
-                    width={dropZone.w}
-                    height={dropZone.h}
-                    baseComponent='rect'
-                    dropTarget={this.props.model.parent}
-                    dropBefore={this.props.model}
-                    renderUponDragStart
-                    enableDragBg
-                    enableCenterOverlayLine
-                />
                 <g>
                     <text
                         x={viewState.components.invocation.end.x
@@ -239,13 +211,6 @@ ClientResponderDecorator.propTypes = {
     }).isRequired,
     children: PropTypes.node,
     model: PropTypes.instanceOf(Node).isRequired,
-    editorOptions: PropTypes.shape({
-        propertyType: PropTypes.string,
-        key: PropTypes.string,
-        model: PropTypes.instanceOf(Object),
-        getterMethod: PropTypes.func,
-        setterMethod: PropTypes.func,
-    }),
     onBreakpointClick: PropTypes.func.isRequired,
     isBreakpoint: PropTypes.bool.isRequired,
 };

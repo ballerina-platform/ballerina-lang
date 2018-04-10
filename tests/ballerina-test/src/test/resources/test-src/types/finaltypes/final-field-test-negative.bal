@@ -1,4 +1,5 @@
 import org.bar;
+import ballerina/http;
 
 @final public int globalFinalInt = 10;
 
@@ -37,4 +38,12 @@ function baz(float f, string s, boolean b, json j) returns (float, string, boole
     b = true;
     j = {"a":"b"};
     return (f, s, b, j);
+}
+
+@final function finalFunction() {
+    int i = 0;
+}
+
+@final service<http:Service> FooService {
+
 }

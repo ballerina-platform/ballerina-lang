@@ -3,19 +3,20 @@ import ballerina/http;
 import ballerina/log;
 
 // This is the initiator of the distributed transaction
-@http:configuration {
-    basePath:"/",
-    host:"localhost",
+endpoint http:ServiceEndpoint initiatorEP {
     port:8080
+};
+@http:ServiceConfig {
+    basePath:"/"
 }
-service<http> InitiatorService {
+service<http:Service> InitiatorService bind initiatorEP{
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource init (http:Connection conn, http:Request req) {
-        http:Response res;
+    init (http:Connection conn, http:Request req) {
+        http:Response res = new;
         log:printInfo("Initiating transaction...");
 
         // When the transaction statement starts, a distributed transaction context will be created.
@@ -42,10 +43,12 @@ service<http> InitiatorService {
     }
 }
 
-function callBusinessService () returns (boolean successful) {
+function callBusinessService () returns (boolean) {
     endpoint<BizClient> participantEP {
         create BizClient();
     }
+
+    boolean successful;
 
     float price = math:randomInRange(200, 250) + math:random();
     json bizReq = {symbol:"GOOG", price:price};
@@ -55,7 +58,7 @@ function callBusinessService () returns (boolean successful) {
     } else {
         successful = true;
     }
-    return;
+    return successful;
 }
 
 public connector BizClient () {
@@ -64,7 +67,7 @@ public connector BizClient () {
         endpoint<http:HttpClient> bizEP {
             create http:HttpClient("http://" + host + ":" + port + "/stockquote/update", {});
         }
-        http:Request req = {};
+        http:Request req = new;
         req.setJsonPayload(bizReq);
         var res, e = bizEP.post("", req);
         log:printInfo("Got response from bizservice");

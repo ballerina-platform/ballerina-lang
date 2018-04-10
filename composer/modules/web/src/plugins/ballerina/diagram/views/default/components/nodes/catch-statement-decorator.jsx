@@ -20,7 +20,6 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
@@ -58,7 +57,6 @@ class CatchStatementDecorator extends React.Component {
             getterMethod: this.getCatchCondition,
             setterMethod: this.setCatchCondition,
         };
-        this.openExpressionEditor = e => this.openEditor(this.props.expression, this.editorOptions, e);
     }
 
     /**
@@ -176,22 +174,6 @@ class CatchStatementDecorator extends React.Component {
             elm = elm.parentNode;
         }
         return isInStatement;
-    }
-
-    /**
-     * renders an ExpressionEditor in the header space.
-     * @param {string} value - Initial value.
-     * @param {object} options - options to be sent to ExpressionEditor.
-     */
-    openEditor(value, options) {
-        const packageScope = this.context.environment;
-        if (value && options) {
-            new ExpressionEditor(
-                this.conditionBox,
-                this.onUpdate.bind(this),
-                options,
-                packageScope).render(this.context.getOverlayContainer());
-        }
     }
 
     /**
@@ -341,7 +323,6 @@ class CatchStatementDecorator extends React.Component {
                         y={p2Y}
                         width={titleW}
                         height={titleH / 2}
-                        onClick={this.openExpressionEditor}
                         className='invisible-rect'
                     />
                     {expression && <title> {expression.text} </title>}

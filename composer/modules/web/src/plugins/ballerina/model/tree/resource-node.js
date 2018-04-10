@@ -277,6 +277,13 @@ class ResourceNode extends AbstractResourceNode {
             this.getBody().addStatements(node, index);
         }
     }
+
+    getClientTitle() {
+        if (this.parameters[0]) {
+            return this.parameters[0].name.value;
+        }
+        return '';
+    }
 }
 
 export default ResourceNode;

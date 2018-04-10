@@ -30,12 +30,12 @@ public type Participant2pcClientConfig {
 public type Participant2pcClientEP object {
 
     private {
-        http:ClientEndpoint httpClient;
+        http:Client httpClient;
         Participant2pcClientConfig conf;
     }
 
     public function init(Participant2pcClientConfig conf) {
-        endpoint http:ClientEndpoint httpEP {targets:[{url:conf.participantURL}],
+        endpoint http:Client httpEP {targets:[{url:conf.participantURL}],
                                             endpointTimeout:conf.endpointTimeout,
                                             retry:{count:conf.retryConfig.count,
                                                       interval:conf.retryConfig.interval}};
@@ -57,7 +57,7 @@ public type Participant2pcClient object {
     }
 
     public function prepare(string transactionId) returns string|error {
-        endpoint http:ClientEndpoint httpClient = self.clientEP.httpClient;
+        endpoint http:Client httpClient = self.clientEP.httpClient;
         http:Request req = new;
         PrepareRequest prepareReq = {transactionId:transactionId};
         json j = check <json>prepareReq;
@@ -79,7 +79,7 @@ public type Participant2pcClient object {
     }
 
     public function notify(string transactionId, string message) returns string|error {
-        endpoint http:ClientEndpoint httpClient = self.clientEP.httpClient;
+        endpoint http:Client httpClient = self.clientEP.httpClient;
         http:Request req = new;
         NotifyRequest notifyReq = {transactionId:transactionId, message:message};
         json j = check <json>notifyReq;

@@ -233,6 +233,14 @@ public type SQLClient object {
     public native function updateWithGeneratedKeys (@sensitive string sqlQuery,
         (Parameter[] | ()) parameters, (string[] | ()) keyColumns)
         returns (int, string[]) | SQLConnectorError;
+
+    @Description {value:"The mirror action implementation for SQL connector which returns a reflection of a database
+    table that allows performing select/update operations over the actual database table"}
+    @Param {value:"tableName: The name of the table to be mirrored"}
+    @Param {value:"recordType: The type which a record of the table maps with"}
+    public native function mirror (string tableName, typedesc recordType) returns
+    (table|SQLConnectorError);
+
 };
 
 @Description { value:"SQLConnectorError represents an error occured during the SQL client invocation" }
@@ -240,5 +248,5 @@ public type SQLClient object {
 @Field {value:"cause: The error(s) that caused SQLConnectorError to get thrown"}
 public type SQLConnectorError {
     string message,
-    error[] cause,
+    error? cause,
 };

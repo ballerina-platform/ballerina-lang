@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http:www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *  
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *  
- *     http:www.apache.orglicensesLICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *  
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -40,6 +40,7 @@ public class TableResourceManager {
     public TableResourceManager(Connection conn, Statement stmt) {
         this.connection = conn;
         this.statement = stmt;
+        this.resultSets = new HashSet<>(0);
     }
 
     /**
@@ -67,9 +68,6 @@ public class TableResourceManager {
      * @param rs the result set to be added
      */
     public void addResultSet(ResultSet rs) {
-        if (resultSets == null) {
-            resultSets = new HashSet<>(0);
-        }
         this.resultSets.add(rs);
     }
 
@@ -81,9 +79,6 @@ public class TableResourceManager {
      * @param resultSets the list of result sets to be added
      */
     public void addAllResultSets(List<ResultSet> resultSets) {
-        if (this.resultSets == null) {
-            this.resultSets = new HashSet<>(0);
-        }
         this.resultSets.addAll(resultSets);
     }
 

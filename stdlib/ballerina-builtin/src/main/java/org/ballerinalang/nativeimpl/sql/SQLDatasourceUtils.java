@@ -15,10 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.sql.actions;
+package org.ballerinalang.nativeimpl.sql;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
@@ -33,19 +34,18 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.sql.Constants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.transactions.BallerinaTransactionContext;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.ballerinalang.util.transactions.TransactionUtils;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -58,18 +58,25 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TimeZone;
+import javax.sql.XAConnection;
+import javax.transaction.xa.XAResource;
 
 /**
  * Class contains utility methods for SQL Connector operations.
@@ -1091,19 +1098,6 @@ public class SQLDatasourceUtils {
         return Base64.getEncoder().encode(st.getBytes(Charset.defaultCharset()));
     }
 
-    private static String getStringFromInputStream(InputStream is) {
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(is, Charset.defaultCharset()))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-        } catch (IOException e) {
-            throw new BallerinaException("failed to read binary as a string: " + e.getMessage(), e);
-        }
-        return sb.toString();
-    }
-
     private static void appendTimeZone(Calendar calendar, StringBuffer dateString) {
         int timezoneOffSet = calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET);
         int timezoneOffSetInMinits = timezoneOffSet / 60000;
@@ -1368,5 +1362,65 @@ public class SQLDatasourceUtils {
             throw new BallerinaException("invalid prefix for timezone: " + timezoneStr);
         }
         return timeZoneOffSet;
+    }
+
+    public static List<ColumnDefinition> getColumnDefinitions(ResultSet rs)
+            throws SQLException {
+        List<ColumnDefinition> columnDefs = new ArrayList<>();
+        Set<String> columnNames = new HashSet<>();
+        ResultSetMetaData rsMetaData = rs.getMetaData();
+        int cols = rsMetaData.getColumnCount();
+        for (int i = 1; i <= cols; i++) {
+            String colName = rsMetaData.getColumnLabel(i);
+            if (columnNames.contains(colName)) {
+                String tableName = rsMetaData.getTableName(i).toUpperCase(Locale.getDefault());
+                colName = tableName + "." + colName;
+            }
+            int colType = rsMetaData.getColumnType(i);
+            TypeKind mappedType = SQLDatasourceUtils.getColumnType(colType);
+            columnDefs.add(new SQLDataIterator.SQLColumnDefinition(colName, mappedType, colType));
+            columnNames.add(colName);
+        }
+        return columnDefs;
+    }
+
+    public static Connection getDatabaseConnection(Context context, SQLDatasource datasource, boolean isInTransaction)
+            throws SQLException {
+        Connection conn;
+        if (!isInTransaction) {
+            conn = datasource.getSQLConnection();
+            return conn;
+        } else {
+            //This is when there is an infected transaction block. But this is not participated to the transaction
+            //since the action call is outside of the transaction block.
+            if (!context.getLocalTransactionInfo().hasTransactionBlock()) {
+                conn = datasource.getSQLConnection();
+                return conn;
+            }
+        }
+        String connectorId = datasource.getConnectorId();
+        boolean isXAConnection = datasource.isXAConnection();
+        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+        String globalTxId = localTransactionInfo.getGlobalTransactionId();
+        int currentTxBlockId = localTransactionInfo.getCurrentTransactionBlockId();
+        BallerinaTransactionContext txContext = localTransactionInfo.getTransactionContext(connectorId);
+        if (txContext == null) {
+            if (isXAConnection) {
+                XAConnection xaConn = datasource.getXADataSource().getXAConnection();
+                XAResource xaResource = xaConn.getXAResource();
+                TransactionResourceManager.getInstance().beginXATransaction(globalTxId, currentTxBlockId, xaResource);
+                conn = xaConn.getConnection();
+                txContext = new SQLTransactionContext(conn, xaResource);
+            } else {
+                conn = datasource.getSQLConnection();
+                conn.setAutoCommit(false);
+                txContext = new SQLTransactionContext(conn);
+            }
+            localTransactionInfo.registerTransactionContext(connectorId, txContext);
+            TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, txContext);
+        } else {
+            conn = ((SQLTransactionContext) txContext).getConnection();
+        }
+        return conn;
     }
 }

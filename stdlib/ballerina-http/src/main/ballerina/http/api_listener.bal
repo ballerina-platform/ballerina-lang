@@ -16,17 +16,17 @@
 
 package ballerina.http;
 
-@Description {value:"Representation of an API Endpoint"}
+@Description {value:"Representation of an API Listener"}
 @Field {value:"config: ServiceEndpointConfiguration instance"}
-@Field {value:"httpEndpoint: ServiceEndpoint instance"}
-public type ApiEndpoint object {
+@Field {value:"httpListener: HTTP Listener instance"}
+public type APIListener object {
     public {
         ServiceEndpointConfiguration config;
-        ServiceEndpoint httpEndpoint;
+        Listener httpListener;
     }
 
     new () {
-        httpEndpoint = new;
+        httpListener = new;
     }
 
     public function init (ServiceEndpointConfiguration config);
@@ -69,23 +69,23 @@ function createAuthFilters () returns (Filter[]) {
     return authFilters;
 }
 
-public function ApiEndpoint::init (ServiceEndpointConfiguration config) {
+public function APIListener::init (ServiceEndpointConfiguration config) {
     addAuthFilters(config);
-    self.httpEndpoint.init(config);
+    self.httpListener.init(config);
 }
 
-public function ApiEndpoint::register (typedesc serviceType) {
-    self.httpEndpoint.register(serviceType);
+public function APIListener::register (typedesc serviceType) {
+    self.httpListener.register(serviceType);
 }
 
-public function ApiEndpoint::start () {
-    self.httpEndpoint.start();
+public function APIListener::start () {
+    self.httpListener.start();
 }
 
-public function ApiEndpoint::getClient () returns (Connection) {
-    return self.httpEndpoint.getClient();
+public function APIListener::getClient () returns (Connection) {
+    return self.httpListener.getClient();
 }
 
-public function ApiEndpoint::stop () {
-    self.httpEndpoint.stop();
+public function APIListener::stop () {
+    self.httpListener.stop();
 }
