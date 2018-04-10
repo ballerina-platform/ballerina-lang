@@ -2,7 +2,7 @@ import ballerina/mb;
 import ballerina/log;
 
 endpoint mb:SimpleDurableTopicSubscriber subscriber {
-    topicPattern: "myTopic",
+    topicPattern: "BallerinaTopic",
     identifier: "sub-1"
 };
 
