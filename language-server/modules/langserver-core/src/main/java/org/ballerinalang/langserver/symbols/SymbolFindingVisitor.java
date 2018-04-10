@@ -136,7 +136,6 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangConnector connectorNode) {
-        this.addSymbol(connectorNode, connectorNode.symbol, SymbolKind.Function);
     }
 
     public void visit(BLangEnum enumNode) {
@@ -330,10 +329,6 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit connectorInitExpr) {
-        // ignore
-    }
-
-    public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
         // ignore
     }
 

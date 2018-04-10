@@ -157,17 +157,17 @@ public class BallerinaDocGenerator {
                     bLangPackage.getFunctions().sort(Comparator
                             .comparing(f ->(f.getReceiver() == null
                                             ? "" : f.getReceiver().getName()) + f.getName().getValue()));
-                    bLangPackage.getConnectors().sort(Comparator.comparing(c -> c.getName().getValue()));
+//                    bLangPackage.getConnectors().sort(Comparator.comparing(c -> c.getName().getValue()));
                     bLangPackage.getStructs().sort(Comparator.comparing(s -> s.getName().getValue()));
                     bLangPackage.getAnnotations().sort(Comparator.comparing(a -> a.getName().getValue()));
                     bLangPackage.getEnums().sort(Comparator.comparing(a -> a.getName().getValue()));
 
                     // Sort connector actions
-                    if ((bLangPackage.getConnectors() != null) && (bLangPackage.getConnectors().size() > 0)) {
-                        bLangPackage.getConnectors().forEach(connector -> connector.getActions()
-                                .sort(Comparator
-                                    .comparing(a -> a.getName().getValue())));
-                    }
+//                    if ((bLangPackage.getConnectors() != null) && (bLangPackage.getConnectors().size() > 0)) {
+//                        bLangPackage.getConnectors().forEach(connector -> connector.getActions()
+//                                .sort(Comparator
+//                                    .comparing(a -> a.getName().getValue())));
+//                    }
 
                     String packagePath = refinePackagePath(bLangPackage);
 

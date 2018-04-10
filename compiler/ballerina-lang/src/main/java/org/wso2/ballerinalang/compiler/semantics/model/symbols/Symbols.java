@@ -122,16 +122,6 @@ public class Symbols {
         return symbol;
     }
 
-    public static BConnectorSymbol createConnectorSymbol(int flags,
-                                                         Name name,
-                                                         PackageID pkgID,
-                                                         BType type,
-                                                         BSymbol owner) {
-        BConnectorSymbol connectorSymbol = new BConnectorSymbol(flags, name, pkgID, type, owner);
-        connectorSymbol.kind = SymbolKind.CONNECTOR;
-        return connectorSymbol;
-    }
-
     public static BServiceSymbol createServiceSymbol(int flags,
                                                      Name name,
                                                      PackageID pkgID,

@@ -25,12 +25,10 @@ import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
-import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.DocumentationNode;
@@ -83,11 +81,9 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -267,10 +263,6 @@ public class BLangPackageBuilder {
     private Stack<EnumNode> enumStack = new Stack<>();
 
     private List<BLangEnumerator> enumeratorList = new ArrayList<>();
-
-    private Stack<ConnectorNode> connectorNodeStack = new Stack<>();
-
-    private Stack<List<ActionNode>> actionNodeStack = new Stack<>();
 
     private Stack<AnnotationNode> annotationStack = new Stack<>();
 
@@ -1733,85 +1725,6 @@ public class BLangPackageBuilder {
         enumeratorList.add(enumerator);
     }
 
-
-    public void startConnectorDef() {
-        ConnectorNode connectorNode = TreeBuilder.createConnectorNode();
-        attachAnnotations(connectorNode);
-        attachDocumentations(connectorNode);
-        attachDeprecatedNode(connectorNode);
-        this.connectorNodeStack.push(connectorNode);
-        startEndpointDeclarationScope(((BLangConnector) connectorNode).endpoints);
-    }
-
-    public void startConnectorBody() {
-        /* end of connector definition header, so let's populate
-         * the connector information before processing the body */
-        ConnectorNode connectorNode = this.connectorNodeStack.peek();
-        if (!this.varListStack.empty()) {
-            this.varListStack.pop().forEach(variableNode -> {
-                ((BLangVariable) variableNode).docTag = DocTag.PARAM;
-                connectorNode.addParameter(variableNode);
-            });
-        }
-        /* add a temporary block node to contain connector variable definitions */
-        this.blockNodeStack.add(TreeBuilder.createBlockNode());
-        /* action node list to contain the actions of the connector */
-        this.actionNodeStack.add(new ArrayList<>());
-    }
-
-    public void endConnectorDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicCon) {
-        BLangConnector connectorNode = (BLangConnector) this.connectorNodeStack.pop();
-        connectorNode.pos = pos;
-        connectorNode.addWS(ws);
-        connectorNode.setName(this.createIdentifier(identifier));
-        if (publicCon) {
-            connectorNode.flagSet.add(Flag.PUBLIC);
-        }
-        endEndpointDeclarationScope();
-        this.compUnit.addTopLevelNode(connectorNode);
-    }
-
-    public void endConnectorBody(Set<Whitespace> ws) {
-        ConnectorNode connectorNode = this.connectorNodeStack.peek();
-        connectorNode.addWS(ws);
-        this.blockNodeStack.pop().getStatements().forEach(
-                e -> connectorNode.addVariableDef((VariableDefinitionNode) e));
-        this.actionNodeStack.pop().forEach(connectorNode::addAction);
-    }
-
-    public void startActionDef() {
-        ActionNode actionNode = TreeBuilder.createActionNode();
-        this.invokableNodeStack.push(actionNode);
-        startEndpointDeclarationScope(((BLangAction) actionNode).endpoints);
-    }
-
-    public void endActionDef(DiagnosticPos pos,
-                             Set<Whitespace> ws, int annotCount,
-                             boolean nativeAction, boolean bodyExists, boolean docExists, boolean isDeprecated) {
-        BLangAction actionNode = (BLangAction) this.invokableNodeStack.pop();
-        endEndpointDeclarationScope();
-        actionNode.pos = pos;
-        actionNode.addWS(ws);
-        if (nativeAction) {
-            actionNode.flagSet.add(Flag.NATIVE);
-        }
-
-        if (!bodyExists) {
-            actionNode.body = null;
-        }
-
-        if (docExists) {
-            attachDocumentations(actionNode);
-        }
-
-        if (isDeprecated) {
-            attachDeprecatedNode(actionNode);
-        }
-
-        attachAnnotations(actionNode, annotCount);
-        this.connectorNodeStack.peek().addAction(actionNode);
-    }
-
     public void startAnnotationDef(DiagnosticPos pos) {
         BLangAnnotation annotNode = (BLangAnnotation) TreeBuilder.createAnnotationNode();
         annotNode.pos = pos;
@@ -2693,10 +2606,6 @@ public class BLangPackageBuilder {
 
     public void endFuncTypeParamList(Set<Whitespace> ws) {
         this.commaWsStack.push(ws);
-    }
-
-    public void endConnectorParamList(Set<Whitespace> ws) {
-        this.connectorNodeStack.peek().addWS(ws);
     }
 
     private Set<Whitespace> removeNthFromLast(Set<Whitespace> ws, int n) {

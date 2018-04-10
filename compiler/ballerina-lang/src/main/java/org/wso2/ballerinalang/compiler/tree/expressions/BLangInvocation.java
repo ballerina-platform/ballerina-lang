@@ -178,33 +178,6 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     }
 
     /**
-     * @since 0.94
-     */
-    public static class BLangActionInvocation extends BLangInvocation {
-
-        public BLangActionInvocation(DiagnosticPos pos,
-                                     List<BLangExpression> requiredArgs,
-                                     List<BLangExpression> namedArgs,
-                                     List<BLangExpression> restArgs,
-                                     BSymbol symbol,
-                                     BType type,
-                                     boolean async) {
-            this.pos = pos;
-            this.requiredArgs = requiredArgs;
-            this.namedArgs = namedArgs;
-            this.restArgs = restArgs;
-            this.symbol = symbol;
-            this.type = type;
-            this.async = async;
-        }
-
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
-    /**
      * @since 0.94.2
      */
     public static class BLangTransformerInvocation extends BLangInvocation {

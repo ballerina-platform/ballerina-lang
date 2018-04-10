@@ -154,22 +154,11 @@ public class PackageInfoWriter {
             writeTypeDefinitionInfo(dataOutStream, typeDefInfo);
         }
 
-        // Emit Connector info entries
-        ConnectorInfo[] connectorInfoEntries = packageInfo.getConnectorInfoEntries();
-        dataOutStream.writeShort(connectorInfoEntries.length);
-        for (ConnectorInfo connectorInfo : connectorInfoEntries) {
-            writeConnectorInfo(dataOutStream, connectorInfo);
-        }
-
         // TODO Emit service info entries
         ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
         dataOutStream.writeShort(serviceInfoEntries.length);
         for (ServiceInfo serviceInfo : serviceInfoEntries) {
             writeServiceInfo(dataOutStream, serviceInfo);
-        }
-
-        for (ConnectorInfo connectorInfo : connectorInfoEntries) {
-            writeConnectorActionInfo(dataOutStream, connectorInfo);
         }
 
         for (ServiceInfo serviceInfo : serviceInfoEntries) {
@@ -323,25 +312,6 @@ public class PackageInfoWriter {
         writeAttributeInfoEntries(dataOutStream, typeDefinitionInfo.getAttributeInfoEntries());
     }
 
-    private static void writeConnectorInfo(DataOutputStream dataOutStream,
-                                           ConnectorInfo connectorInfo) throws IOException {
-        dataOutStream.writeInt(connectorInfo.nameCPIndex);
-        dataOutStream.writeInt(connectorInfo.flags);
-//        dataOutStream.writeInt(connectorInfo.signatureCPIndex);
-    }
-
-    private static void writeConnectorActionInfo(DataOutputStream dataOutStream,
-                                                 ConnectorInfo connectorInfo) throws IOException {
-        ActionInfo[] actionInfoEntries = connectorInfo.actionInfoMap.values().toArray(new ActionInfo[0]);
-        dataOutStream.writeShort(actionInfoEntries.length);
-        for (ActionInfo actionInfo : actionInfoEntries) {
-            writeActionInfo(dataOutStream, actionInfo);
-        }
-
-        // Write attribute info entries
-        writeAttributeInfoEntries(dataOutStream, connectorInfo.getAttributeInfoEntries());
-    }
-
     private static void writeServiceInfo(DataOutputStream dataOutStream,
                                          ServiceInfo serviceInfo) throws IOException {
         dataOutStream.writeInt(serviceInfo.nameCPIndex);
@@ -359,33 +329,6 @@ public class PackageInfoWriter {
 
         // Write attribute info entries
         writeAttributeInfoEntries(dataOutStream, serviceInfo.getAttributeInfoEntries());
-    }
-
-    private static void writeActionInfo(DataOutputStream dataOutStream,
-                                        ActionInfo actionInfo) throws IOException {
-        dataOutStream.writeInt(actionInfo.nameCPIndex);
-        dataOutStream.writeInt(actionInfo.signatureCPIndex);
-        dataOutStream.writeInt(actionInfo.flags);
-
-        // TODO Temp solution
-        boolean b = (actionInfo.flags & Flags.NATIVE) == Flags.NATIVE;
-        dataOutStream.writeByte(b ? 1 : 0);
-
-        WorkerDataChannelInfo[] workerDataChannelInfos = actionInfo.getWorkerDataChannelInfo();
-        dataOutStream.writeShort(workerDataChannelInfos.length);
-        for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfos) {
-            writeWorkerDataChannelInfo(dataOutStream, dataChannelInfo);
-        }
-
-        WorkerInfo defaultWorker = actionInfo.defaultWorkerInfo;
-        WorkerInfo[] workerInfoEntries = actionInfo.getWorkerInfoEntries();
-        dataOutStream.writeShort(workerInfoEntries.length + 1);
-        writeWorkerInfo(dataOutStream, defaultWorker);
-        for (WorkerInfo workerInfo : workerInfoEntries) {
-            writeWorkerInfo(dataOutStream, workerInfo);
-        }
-
-        writeAttributeInfoEntries(dataOutStream, actionInfo.getAttributeInfoEntries());
     }
 
     private static void writeResourceInfo(DataOutputStream dataOutStream,

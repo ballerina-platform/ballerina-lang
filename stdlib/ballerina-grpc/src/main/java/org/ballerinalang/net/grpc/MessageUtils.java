@@ -30,7 +30,6 @@ import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -94,9 +93,7 @@ public class MessageUtils {
     
     public static StreamObserver<Message> getResponseObserver(BRefType refType) {
         Object observerObject = null;
-        if (refType instanceof BConnector) {
-            observerObject = ((BConnector) refType).getNativeData(MessageConstants.RESPONSE_OBSERVER);
-        } else if (refType instanceof BStruct) {
+        if (refType instanceof BStruct) {
             observerObject = ((BStruct) refType).getNativeData(MessageConstants.RESPONSE_OBSERVER);
         }
         if (observerObject instanceof StreamObserver) {

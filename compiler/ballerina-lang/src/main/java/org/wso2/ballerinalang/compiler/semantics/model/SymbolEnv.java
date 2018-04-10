@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -46,8 +45,6 @@ public class SymbolEnv {
 
     public BLangPackage enclPkg;
 
-    public BLangConnector enclConnector;
-
     public BLangObject enclObject;
 
     public BLangStruct enclStruct;
@@ -68,7 +65,6 @@ public class SymbolEnv {
         this.scope = scope;
         this.node = node;
         this.enclPkg = null;
-        this.enclConnector = null;
         this.enclObject = null;
         this.enclStruct = null;
         this.enclAnnotation = null;
@@ -81,7 +77,6 @@ public class SymbolEnv {
 
     public void copyTo(SymbolEnv target) {
         target.enclPkg = this.enclPkg;
-        target.enclConnector = this.enclConnector;
         target.enclObject = this.enclObject;
         target.enclStruct = this.enclStruct;
         target.enclAnnotation = this.enclAnnotation;
@@ -110,12 +105,6 @@ public class SymbolEnv {
         SymbolEnv funcEnv = createPkgLevelSymbolEnv(node, scope, env);
         funcEnv.enclInvokable = node;
         return funcEnv;
-    }
-
-    public static SymbolEnv createConnectorEnv(BLangConnector node, Scope scope, SymbolEnv env) {
-        SymbolEnv connectorEnv = createPkgLevelSymbolEnv(node, scope, env);
-        connectorEnv.enclConnector = node;
-        return connectorEnv;
     }
 
     public static SymbolEnv createObjectEnv(BLangObject node, Scope scope, SymbolEnv env) {

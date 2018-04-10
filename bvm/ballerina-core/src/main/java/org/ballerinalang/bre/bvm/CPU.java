@@ -19,7 +19,6 @@ package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
@@ -40,7 +39,6 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BCollection;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BFunctionPointer;
@@ -68,14 +66,11 @@ import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.TransactionStatus;
-import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
-import org.ballerinalang.util.codegen.ConnectorInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
-import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
@@ -409,14 +404,6 @@ public class CPU {
                             return;
                         }
                         break;
-                    case InstructionCodes.ACALL:
-                        InstructionACALL acallIns = (InstructionACALL) instruction;
-                        ctx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs,
-                                acallIns.flags);
-                        if (ctx == null) {
-                            return;
-                        }
-                        break;
                     case InstructionCodes.TCALL:
                         InstructionTCALL tcallIns = (InstructionTCALL) instruction;
                         ctx = BLangFunctions.invokeCallable(tcallIns.transformerInfo, ctx, tcallIns.argRegs,
@@ -618,9 +605,6 @@ public class CPU {
     
                     case InstructionCodes.NEWSTRUCT:
                         createNewStruct(ctx, operands, sf);
-                        break;
-                    case InstructionCodes.NEWCONNECTOR:
-                        createNewConnector(ctx, operands, sf);
                         break;
                     case InstructionCodes.NEWMAP:
                         i = operands[0];
@@ -2691,15 +2675,6 @@ public class CPU {
         sf.refRegs[operands[2]] = new BIntRange(startValue, endValue);
     }
 
-    private static void createNewConnector(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-        int cpIndex = operands[0];
-        int i = operands[1];
-        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) ctx.constPool[cpIndex];
-        ConnectorInfo connectorInfo = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
-        BConnector bConnector = new BConnector(connectorInfo.getType());
-        sf.refRegs[i] = bConnector;
-    }
-
     private static void createNewStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int cpIndex = operands[0];
         int i = operands[1];
@@ -2847,21 +2822,6 @@ public class CPU {
         AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries.get(virtualFuncInfo.getName());
         FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
         return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false, flags);
-    }
-
-    private static WorkerExecutionContext invokeAction(WorkerExecutionContext ctx, String actionName, int[] argRegs,
-                                                       int[] retRegs, int flags) {
-        BConnector connector = (BConnector) ctx.workerLocal.refRegs[argRegs[0]];
-        if (connector == null) {
-            ctx.setError(BLangVMErrors.createNullRefException(ctx));
-            handleError(ctx);
-            return null;
-        }
-
-        BConnectorType actualCon = (BConnectorType) connector.getConnectorType();
-        ActionInfo actionInfo = ctx.programFile.getPackageInfo(actualCon.getPackagePath())
-                .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
-        return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false, flags);
     }
 
     @SuppressWarnings("rawtypes")

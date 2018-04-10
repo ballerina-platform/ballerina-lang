@@ -21,7 +21,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
-import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
@@ -59,7 +58,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangEndpoint> globalEndpoints;
     public List<BLangVariable> globalVars;
     public List<BLangService> services;
-    public List<BLangConnector> connectors;
     public List<BLangFunction> functions;
     public List<BLangStruct> structs;
     public List<BLangObject> objects;
@@ -89,7 +87,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.globalEndpoints = new ArrayList<>();
         this.globalVars = new ArrayList<>();
         this.services = new ArrayList<>();
-        this.connectors = new ArrayList<>();
         this.functions = new ArrayList<>();
         this.structs = new ArrayList<>();
         this.objects = new ArrayList<>();
@@ -137,11 +134,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public List<BLangService> getServices() {
         return services;
-    }
-
-    @Override
-    public List<BLangConnector> getConnectors() {
-        return connectors;
     }
 
     @Override
@@ -205,12 +197,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addService(ServiceNode service) {
         this.services.add((BLangService) service);
         this.topLevelNodes.add(service);
-    }
-
-    @Override
-    public void addConnector(ConnectorNode connector) {
-        this.connectors.add((BLangConnector) connector);
-        this.topLevelNodes.add(connector);
     }
 
     @Override

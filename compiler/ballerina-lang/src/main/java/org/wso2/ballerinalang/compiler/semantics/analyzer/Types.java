@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -63,7 +62,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * This class consists of utility methods which operate on types.
@@ -372,40 +370,6 @@ public class Types {
         return Symbols.isPrivate(lhsType.tsymbol) && rhsType.tsymbol.pkgID == lhsType.tsymbol.pkgID ?
                 checkEquivalencyOfTwoPrivateStructs(lhsStructType, rhsStructType) :
                 checkEquivalencyOfPublicStructs(lhsStructType, rhsStructType);
-    }
-
-    public boolean checkConnectorEquivalency(BType actualType, BType expType) {
-        if (actualType.tag != TypeTags.CONNECTOR || expType.tag != TypeTags.CONNECTOR) {
-            return false;
-        }
-
-        if (isSameType(actualType, expType)) {
-            return true;
-        }
-
-        BConnectorType expConnectorType = (BConnectorType) expType;
-        BConnectorType actualConnectorType = (BConnectorType) actualType;
-
-        // take actions in connectors
-        List<BInvokableSymbol> expActions = symResolver.getConnectorActionSymbols(expConnectorType.tsymbol.scope);
-        List<BInvokableSymbol> actActions = symResolver.getConnectorActionSymbols(actualConnectorType.tsymbol.scope);
-
-        if (expActions.isEmpty() && actActions.isEmpty()) {
-            return true;
-        }
-
-        if (expActions.size() != actActions.size()) {
-            return false;
-        }
-
-        //check every action signatures are matching or not
-        for (BInvokableSymbol expAction : expActions) {
-            if (actActions.stream().filter(v -> checkActionTypeEquality(expAction, v))
-                    .collect(Collectors.toList()).size() != 1) {
-                return false;
-            }
-        }
-        return true;
     }
 
     List<BType> checkForeachTypes(BLangNode collection, int variableSize) {
@@ -829,17 +793,6 @@ public class Types {
         }
 
         @Override
-        public BSymbol visit(BConnectorType t, BType s) {
-            if (s == symTable.anyType) {
-                return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2C);
-            } else if (s.tag == TypeTags.CONNECTOR && checkConnectorEquivalency(s, t)) {
-                return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            }
-
-            return symTable.notFoundSymbol;
-        }
-
-        @Override
         public BSymbol visit(BEnumType t, BType s) {
             if (s == symTable.anyType) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2E);
@@ -961,11 +914,6 @@ public class Types {
 
         @Override
         public Boolean visit(BStreamType t, BType s) {
-            return t == s;
-        }
-
-        @Override
-        public Boolean visit(BConnectorType t, BType s) {
             return t == s;
         }
 

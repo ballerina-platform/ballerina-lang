@@ -268,19 +268,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         return this.lookupSymbolInPackage(pos, env, pkgAlias, annotationName, SymTag.ANNOTATION);
     }
 
-    public BSymbol resolveConnector(DiagnosticPos pos, DiagnosticCode code, SymbolEnv env,
-                                    Name pkgAlias, Name connectorName) {
-        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
-        if (pkgSymbol == symTable.notFoundSymbol) {
-            return pkgSymbol;
-        }
-        BSymbol symbol = lookupMemberSymbol(pos, pkgSymbol.scope, env, connectorName, SymTag.CONNECTOR);
-//        if (symbol == symTable.notFoundSymbol) {
-//            dlog.error(pos, code, connectorName);
-//        }
-        return symbol;
-    }
-
     public BSymbol resolveObject(DiagnosticPos pos, DiagnosticCode code, SymbolEnv env,
                                     Name pkgAlias, Name objectName) {
         BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);

@@ -63,11 +63,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
@@ -531,8 +529,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // If the variable is a package/service/connector level variable, we don't need to check types.
         // It will we done during the init-function of the respective construct is visited.
-        if ((ownerSymTag & SymTag.SERVICE) == SymTag.SERVICE ||
-                (ownerSymTag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
+        if ((ownerSymTag & SymTag.SERVICE) == SymTag.SERVICE) {
             return;
         }
 
@@ -778,40 +775,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLock lockNode) {
         analyzeStmt(lockNode.body, env);
-    }
-
-    public void visit(BLangConnector connectorNode) {
-        BSymbol connectorSymbol = connectorNode.symbol;
-        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, env);
-        connectorNode.docAttachments.forEach(doc -> analyzeDef(doc, connectorEnv));
-
-        connectorNode.params.forEach(param -> this.analyzeDef(param, connectorEnv));
-        connectorNode.varDefs.forEach(varDef -> this.analyzeDef(varDef, connectorEnv));
-        connectorNode.endpoints.forEach(e -> analyzeDef(e, connectorEnv));
-        this.analyzeDef(connectorNode.initFunction, connectorEnv);
-        connectorNode.actions.forEach(action -> this.analyzeDef(action, connectorEnv));
-        this.analyzeDef(connectorNode.initAction, connectorEnv);
-    }
-
-    public void visit(BLangAction actionNode) {
-        BSymbol actionSymbol = actionNode.symbol;
-
-        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
-        actionNode.docAttachments.forEach(doc -> analyzeDef(doc, actionEnv));
-
-        if (Symbols.isNative(actionSymbol)) {
-            return;
-        }
-
-        actionNode.requiredParams.forEach(p -> this.analyzeDef(p, actionEnv));
-        actionNode.defaultableParams.forEach(p -> this.analyzeDef(p, actionEnv));
-        if (actionNode.restParam != null) {
-            this.analyzeDef(actionNode.restParam, actionEnv);
-        }
-
-        actionNode.endpoints.forEach(e -> analyzeDef(e, actionEnv));
-        analyzeStmt(actionNode.body, actionEnv);
-        this.processWorkers(actionNode, actionEnv);
     }
 
     public void visit(BLangService serviceNode) {
