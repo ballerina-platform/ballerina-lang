@@ -24,7 +24,7 @@ import ballerina/http;
 @Description {value:"Object representing the WebSub Hub Client Endpoint"}
 @Field {value:"config: The configuration for the endpoint"}
 @Field {value:"httpClientEndpoint: The underlying HTTP client endpoint"}
-public type HubClientEndpoint object {
+public type Client object {
 
     public {
         HubClientEndpointConfiguration config;
