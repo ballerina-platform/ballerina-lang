@@ -14,7 +14,7 @@ function main (string[] args) {
         passPhrase : "helloWorld"
     };
 
-    // Checking if a specified file exists in the defined FTP server.
+    // Checking if a specified file exists in the local machine.
     file:File newDir = {path:"/ballerina-user/README.txt"};
     boolean filesExists;
     filesExists = check clientEndpoint -> exists(newDir);

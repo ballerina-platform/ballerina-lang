@@ -21,7 +21,7 @@ function main (string[] args) {
         }
 
     } join (all) (map results) {
-        // The 'all' condition makes the join blokc wait until all the workers have sent in their replies.
+        // The 'all' condition makes the join block wait until all the workers have sent in their replies.
         // Once all the workers have replied, the replies are stored in the 'result' variable as a map.
 
 

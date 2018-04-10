@@ -6,4 +6,4 @@
 // Reference type variables, such as map, json, xml, and records type variables, are passed into these workers as a
 // reference to the original data. Therefore, if you update the value of these variables within a worker, the value gets
 // updated for the entire function.
-// The Join block receives a results from the workers into a map that is of of the 'any' type array.
+// The Join block receives a map of any type array, which contains the data sent from the respective workers.
