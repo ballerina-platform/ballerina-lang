@@ -32,7 +32,7 @@ function testJsonObjects (json fValue, json sValue, json result) {
     test:assertEquals(result, c, msg = "json data provider failed");
 }
 
-// Define the JSON object as a value set. 
+// This function returns a JSON value set.
 function jsonDataProvider() returns (json[][]) {
     return [[{"a": "a"}, {"b": "b"}, {"c": "c"}]];
 }
