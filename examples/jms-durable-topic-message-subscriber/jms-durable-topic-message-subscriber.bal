@@ -16,7 +16,7 @@ jms:Session jmsSession = new (conn, {
 // Initialize a Durable topic subscriber using the created session.
 endpoint jms:DurableTopicSubscriber subscriber {
     session: jmsSession,
-    topicPattern: "MyTopic",
+    topicPattern: "BallerinaTopic",
     identifier: "sub1"
 };
 
