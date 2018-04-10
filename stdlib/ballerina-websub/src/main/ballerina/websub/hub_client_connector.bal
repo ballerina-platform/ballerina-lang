@@ -129,8 +129,8 @@ public function HubClientConnector::publishUpdate (string topic, json payload,
         match (response) {
             http:Response => return;
             http:HttpConnectorError httpConnectorError => { WebSubError webSubError = {
-                      errorMessage:"Notification failed for topic [" + topic + "]", connectorError:httpConnectorError };
-                                                        return webSubError;
+                      message:"Notification failed for topic [" + topic + "]", cause:httpConnectorError };
+                                                            return webSubError;
             }
     }
 }
@@ -189,7 +189,7 @@ function processHubResponse(string hub, string mode, SubscriptionChangeRequest s
         http:HttpConnectorError httpConnectorError => {
             string errorMessage = "Error occurred for request: Mode[" + mode + "] at Hub[" + hub +"] - "
                                         + httpConnectorError.message;
-            WebSubError webSubError = {errorMessage:errorMessage, connectorError:httpConnectorError};
+            WebSubError webSubError = { message:errorMessage, cause:httpConnectorError };
             return webSubError;
         }
         http:Response httpResponse => {
@@ -206,7 +206,7 @@ function processHubResponse(string hub, string mode, SubscriptionChangeRequest s
                                                                        + "Error occurred identifying"
                                                                        + "cause: " + payloadError.message; }
                 }
-                WebSubError webSubError = {errorMessage:errorMessage};
+                WebSubError webSubError = { message:errorMessage };
                 return webSubError;
             } else {
                 SubscriptionChangeResponse subscriptionChangeResponse = {hub:hub, topic:topic, response:httpResponse};

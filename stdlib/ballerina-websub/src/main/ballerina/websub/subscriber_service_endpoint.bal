@@ -138,7 +138,7 @@ function Listener::sendSubscriptionRequest() {
                     setTopic(retTopic);
                 }
                 WebSubError websubError => {
-                    log:printError("Error sending out subscription request on start up: " + websubError.errorMessage);
+                    log:printError("Error sending out subscription request on start up: " + websubError.message);
                     return;
                 }
             }
@@ -193,7 +193,7 @@ function retrieveHubAndTopicUrl (string resourceUrl) returns @tainted ((string, 
                             hub = url;
                         } else if (linkConstituents[1].contains("rel=\"self\"")) {
                             if (topic != "") {
-                                websubError = { errorMessage:"Link Header contains >1 self URLs" };
+                                websubError = { message:"Link Header contains >1 self URLs" };
                             } else {
                                 topic = url;
                             }
@@ -203,16 +203,16 @@ function retrieveHubAndTopicUrl (string resourceUrl) returns @tainted ((string, 
                 if (hub != "" && topic != "") {
                     return (hub, topic);
                 } else {
-                    websubError = { errorMessage:"Hub and/or Topic URL(s) not identified in link header of resource "
+                    websubError = { message:"Hub and/or Topic URL(s) not identified in link header of resource "
                                                  + "URL[" + resourceUrl + "]" };
                 }
             } else {
-                websubError = { errorMessage:"Link header unavailable for resource URL[" + resourceUrl + "]" };
+                websubError = { message:"Link header unavailable for resource URL[" + resourceUrl + "]" };
             }
         }
         http:HttpConnectorError connErr => {
-            websubError = { errorMessage:"Error occurred with WebSub discovery for Resource URL ["
-                                                     + resourceUrl + "]: " + connErr.message};
+            websubError = { message:"Error occurred with WebSub discovery for Resource URL [" + resourceUrl + "]",
+                            cause:connErr };
         }
     }
     return websubError;
@@ -312,7 +312,7 @@ function invokeClientConnectorForSubscription (string hub, map subscriptionDetai
                                                              + callback + "]");
         }
         WebSubError webSubError => { log:printError("Subscription Request failed at Hub[" + hub +"], for Topic[" + topic
-                                                    + "]: " + webSubError.errorMessage);
+                                                    + "]: " + webSubError.message);
         }
     }
 }

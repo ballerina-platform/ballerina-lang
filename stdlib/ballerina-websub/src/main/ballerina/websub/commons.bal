@@ -47,10 +47,9 @@ import ballerina/security.crypto;
 @Description {value:"Struct to represent WebSub related errors"}
 @Field {value:"errorMessage: Error message indicating an issue"}
 @Field {value:"connectorError: HttpConnectorError if occurred"}
-//TODO: fix to match error object
 public type WebSubError {
-    string errorMessage,
-    http:HttpConnectorError connectorError,
+    string message,
+    error? cause,
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -156,8 +155,8 @@ public function processWebSubNotification(http:Request request, typedesc service
         xHubSignature = request.getHeader(X_HUB_SIGNATURE);
     } else {
         if (secret != "") {
-            WebSubError webSubError = {errorMessage:X_HUB_SIGNATURE + " header not present for subscription added" +
-                                      " specifying " + HUB_SECRET};
+            WebSubError webSubError = { message:X_HUB_SIGNATURE + " header not present for subscription added" +
+                                      " specifying " + HUB_SECRET };
             return webSubError;
         } else {
             return;
@@ -169,7 +168,7 @@ public function processWebSubNotification(http:Request request, typedesc service
     match (reqJsonPayload) {
         json jsonPayload => { payload = jsonPayload; }
         mime:EntityError entityError => {
-            WebSubError webSubError = {errorMessage:"Error extracting notification payload: " + entityError.message};
+            WebSubError webSubError = { message:"Error extracting notification payload", cause: entityError };
             return webSubError;
         }
     }
@@ -188,7 +187,7 @@ public function processWebSubNotification(http:Request request, typedesc service
 @Param {value:"secret: The secret used when subscribing"}
 @Return {value:"WebSubError if an error occurs validating the signature or the signature is invalid"}
 public function validateSignature (string xHubSignature, string stringPayload, string secret) returns
-(WebSubError| ()) {
+(WebSubError | ()) {
     string[] splitSignature = xHubSignature.split("=");
     string method = splitSignature[0];
     string signature = xHubSignature.replace(method + "=", "");
@@ -201,12 +200,12 @@ public function validateSignature (string xHubSignature, string stringPayload, s
     } else if (MD5.equalsIgnoreCase(method)) {
         generatedSignature = crypto:getHmac(stringPayload, secret, crypto:MD5);
     } else {
-        WebSubError webSubError = {errorMessage:"Unsupported signature method: " + method};
+        WebSubError webSubError = { message:"Unsupported signature method: " + method };
         return webSubError;
     }
 
     if (!signature.equalsIgnoreCase(generatedSignature)) {
-        WebSubError webSubError = {errorMessage:"Signature validation failed: Invalid Signature!"};
+        WebSubError webSubError = { message:"Signature validation failed: Invalid Signature!" };
         return webSubError;
     }
     return;
@@ -293,12 +292,12 @@ public function WebSubHub::shutdownBallerinaHub () returns (boolean) {
 
 public function WebSubHub::publishUpdate (string topic, json payload) returns (WebSubError | ()) {
     if (hubUrl == "") {
-        WebSubError webSubError = { errorMessage:"Internal Ballerina Hub not initialized or incorrectly referenced" };
+        WebSubError webSubError = { message:"Internal Ballerina Hub not initialized or incorrectly referenced" };
         return webSubError;
     } else {
         string errorMessage = validateAndPublishToInternalHub(hubUrl, topic, payload);
         if (errorMessage != "") {
-            WebSubError webSubError = { errorMessage:errorMessage };
+            WebSubError webSubError = { message:errorMessage };
             return webSubError;
         }
     }
@@ -308,7 +307,7 @@ public function WebSubHub::publishUpdate (string topic, json payload) returns (W
 public function WebSubHub::registerTopic (string topic) returns (WebSubError | ()) {
     string errorMessage = registerTopicAtHub(topic, "");
     if (errorMessage != "") {
-        WebSubError webSubError = { errorMessage:errorMessage };
+        WebSubError webSubError = { message:errorMessage };
         return webSubError;
     }
     return;
@@ -317,7 +316,7 @@ public function WebSubHub::registerTopic (string topic) returns (WebSubError | (
 public function WebSubHub::unregisterTopic (string topic) returns (WebSubError | ()) {
     string errorMessage = unregisterTopicAtHub(topic, "");
     if (errorMessage != "") {
-        WebSubError webSubError = { errorMessage:errorMessage };
+        WebSubError webSubError = { message:errorMessage };
         return webSubError;
     }
     return;

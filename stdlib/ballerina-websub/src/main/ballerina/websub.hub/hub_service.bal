@@ -161,7 +161,7 @@ service<http:Service> hubService bind hubServiceEP {
                                         match (signatureValidation) {
                                             websub:WebSubError err => {
                                                 log:printWarn("Signature validation failed for publish request for "
-                                                              + "topic[" + topic + "]: " + err.errorMessage);
+                                                              + "topic[" + topic + "]: " + err.message);
                                                 done;
                                             }
                                             () => {
