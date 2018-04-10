@@ -33,6 +33,8 @@ import ballerina/security.crypto;
 @final public string MODE_REGISTER = "register";
 @final public string MODE_UNREGISTER = "unregister";
 @final public string PUBLISHER_SECRET = "publisher.secret";
+@final public string REMOTE_PUBLISHING_MODE_DIRECT = "direct";
+@final public string REMOTE_PUBLISHING_MODE_FETCH = "fetch";
 
 @final public string X_HUB_UUID = "X-Hub-Uuid";
 @final public string X_HUB_TOPIC = "X-Hub-Topic";
