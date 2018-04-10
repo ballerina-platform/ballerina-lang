@@ -24,17 +24,15 @@ import ballerina/util;
 @Description {value:"Authentication cache name"}
 @final string AUTH_CACHE = "basic_auth_cache";
 
-@Description {value:"Auth provider instance"}
-auth:ConfigAuthProvider configAuthProvider = new;
-auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
-
 @Description {value:"Representation of Basic Auth handler for HTTP traffic"}
+@Field {value:"authProvider: AuthProvider instance"}
 @Field {value:"name: Authentication handler name"}
 public type HttpBasicAuthnHandler object {
     public {
+        auth:AuthProvider authProvider;
         string name;
     }
-    new () {
+    new (authProvider) {
         name = "basic";
     }
 
@@ -63,12 +61,12 @@ public function HttpBasicAuthnHandler::handle (Request req) returns (boolean) {
     match credentials {
         (string, string) creds => {
             var (username, password) = creds;
-            boolean isAuthenticated = configAuthProvider.authenticate(username, password);
+            boolean isAuthenticated = self.authProvider.authenticate(username, password);
             if (isAuthenticated) {
                 // set username
                 runtime:getInvocationContext().authenticationContext.username = username;
                 // read scopes and set to the invocation context
-                string[] scopes = configAuthProvider.getScopes(username);
+                string[] scopes = self.authProvider.getScopes(username);
                 if (lengthof scopes > 0) {
                     runtime:getInvocationContext().authenticationContext.scopes = scopes;
                 }

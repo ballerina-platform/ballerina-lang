@@ -17,6 +17,7 @@
 package ballerina.http;
 
 import ballerina/log;
+import ballerina/auth;
 
 @Description {value:"Representation of Authentication handler chain"}
 public type AuthnHandlerChain object {
@@ -33,7 +34,9 @@ public type AuthnHandlerChain object {
 public function createAuthnHandlerChain () returns (AuthnHandlerChain) {
     AuthnHandlerChain authnHandlerChain = new;
     // TODO: read the authn handlers from a config file and load them dynamically. currently its hardcoded.
-    HttpBasicAuthnHandler httpAuthnHandler = new;
+    auth:ConfigAuthProvider configAuthProvider = new;
+    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
+    HttpBasicAuthnHandler httpAuthnHandler = new(authProvider);
     HttpJwtAuthnHandler jwtAuthnHandler = new;
     // add to map
     authnHandlerChain.authnHandlers[httpAuthnHandler.name] = httpAuthnHandler;

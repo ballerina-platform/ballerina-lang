@@ -21,10 +21,6 @@ import ballerina/runtime;
 import ballerina/log;
 import ballerina/io;
 
-@Description {value:"Auth provider instance"}
-auth:ConfigAuthProvider configAuthProvider1 = new;
-auth:AuthProvider authProvider1 = <auth:AuthProvider> configAuthProvider1;
-
 @Description {value:"Representation of AuthzHandler"}
 @Field {value:"authzCache: authorization cache instance"}
 type HttpAuthzHandler object {
@@ -62,16 +58,10 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
             // match against those.
             string[] authCtxtScopes = runtime:getInvocationContext().authenticationContext.scopes;
             if (lengthof authCtxtScopes > 0) {
-                return matchScopes(scopes, authCtxtScopes);
-            }
-            // if unable to get scopes from AuthenticationContext, use the auth provider to lookup the
-            // scopes of the user, and check for a match.
-            string[] scopesOfUser = authProvider1.getScopes(username);
-            if (lengthof scopesOfUser > 0) {
-                boolean authorized = matchScopes(scopes, scopesOfUser);
+                boolean authorized = matchScopes(scopes, authCtxtScopes);
                 if (authorized) {
                     log:printDebug("Successfully authorized to access resource: " + resourceName + ", method: " +
-                        method);
+                            method);
                 } else {
                     log:printDebug("Authorization failure for resource: " + resourceName + ", method: " + method);
                 }
@@ -80,6 +70,8 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
                 return authorized;
             } else {
                 // no scopes found for user, authorization failure
+                log:printDebug("No scopes found for user: " + username + " to access resource: " + resourceName + ",
+                                                                                                    method:" + method);
                 return false;
             }
         }
