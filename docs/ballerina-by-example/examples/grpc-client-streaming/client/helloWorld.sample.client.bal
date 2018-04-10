@@ -11,7 +11,7 @@ function main (string[] args) {
     };
 
     endpoint grpc:Client ep;
-    // The executing unary non-blocking call registering server message listener:
+    // This executes the non-blocking call and registers the server message listener:
     var res = helloWorldEp -> lotsOfGreetings(typeof HelloWorldMessageListener);
     match res {
         grpc:error err => {
@@ -35,7 +35,7 @@ function main (string[] args) {
     }
     _ = ep -> complete();
 
-    //This holds the programme.
+    //This holds the program.
     while (total == 0) {}
     io:println("completed successfully");
 }

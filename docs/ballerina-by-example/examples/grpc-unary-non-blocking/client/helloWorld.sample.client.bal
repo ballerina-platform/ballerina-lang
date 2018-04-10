@@ -8,7 +8,7 @@ function main (string[] args) {
         host:"localhost",
         port:9090
     };
-    // The executing unary non-blocking call registering server message listener.
+    // This executes the unary non-blocking call and registers the server message listener.
     error| () result = helloWorldEp -> hello("WSO2", typeof HelloWorldMessageListener);
     match result {
         error payloadError => {
