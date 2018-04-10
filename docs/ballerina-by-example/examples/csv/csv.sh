@@ -1,3 +1,0 @@
-$ ballerina run csv.bal
-
-

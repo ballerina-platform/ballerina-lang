@@ -16,6 +16,27 @@
 
 package ballerina.io;
 
+@Description {value:"Describes access mode for reading"}
+@final public string MODE_R = "r";
+
+@Description {value:"Describes access mode for writing"}
+@final public string MODE_W = "w";
+
+@Description {value:"Describes acces mode for reading and writing"}
+@final public string MODE_RW = "rw";
+
+@Description {value:"Describes access mode for append"}
+@final public string MODE_A = "a";
+
+@Description {value:"Describes default format to open CSV"}
+@final public string FORMAT_DEFAULT = "default";
+
+@Description {value:"Describes RFC4180 format to open CSV"}
+@final public string FORMAT_RFC4180 = "RFC4180";
+
+@Description {value:"Describes TDF format to open CSV"}
+@final public string FORMAT_TDF = "TDF";
+
 @Description {value:"Ballerina ByteChannel represents a channel which will allow I/O operations to be done"}
 public type ByteChannel object {
     @Description {value:"Function to read bytes"}
