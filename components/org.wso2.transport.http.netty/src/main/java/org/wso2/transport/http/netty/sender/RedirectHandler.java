@@ -466,6 +466,10 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             default:
                 return null;
         }
+        if (originalRequest != null && originalRequest.getHeader(HttpHeaderNames.USER_AGENT.toString()) != null) {
+            redirectState.put(HttpHeaderNames.USER_AGENT.toString(),
+                    originalRequest.getHeader(HttpHeaderNames.USER_AGENT.toString()));
+        }
         return redirectState;
     }
 
@@ -620,7 +624,10 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 && locationUrl.getPort() != Constants.DEFAULT_HTTPS_PORT) {
             host.append(Constants.COLON).append(locationUrl.getPort());
         }
-
+        if (redirectState.get(HttpHeaderNames.USER_AGENT.toString()) != null) {
+            httpCarbonRequest.setHeader(HttpHeaderNames.USER_AGENT.toString(),
+                    redirectState.get(HttpHeaderNames.USER_AGENT.toString()));
+        }
         httpCarbonRequest.setHeader(HttpHeaderNames.HOST.toString(), host.toString());
         httpCarbonRequest.completeMessage();
         return httpCarbonRequest;

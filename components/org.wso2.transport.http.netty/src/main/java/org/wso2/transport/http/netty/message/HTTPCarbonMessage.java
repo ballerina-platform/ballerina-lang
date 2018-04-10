@@ -104,6 +104,17 @@ public class HTTPCarbonMessage {
     }
 
     /**
+     * Count the message length till the given message length and returns.
+     * If the message length is shorter than the given length it returns with the
+     * available message size. This method is blocking function. Hence, use with care.
+     * @param maxLength is the maximum length to count
+     * @return counted length
+     */
+    public int countMessageLengthTill(int maxLength) {
+        return this.blockingEntityCollector.countMessageLengthTill(maxLength);
+    }
+
+    /**
      * Return the length of entire payload. This is a blocking method.
      * @return the length.
      */

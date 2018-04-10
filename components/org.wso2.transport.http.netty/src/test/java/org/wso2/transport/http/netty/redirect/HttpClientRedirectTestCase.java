@@ -52,6 +52,7 @@ import org.wso2.transport.http.netty.sender.channel.pool.PoolConfiguration;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
+import org.wso2.transport.http.netty.util.server.HttpsServer;
 import org.wso2.transport.http.netty.util.server.initializers.RedirectServerInitializer;
 
 import java.io.BufferedReader;
@@ -64,6 +65,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -71,6 +73,8 @@ import java.util.stream.Collectors;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
 
 /**
  * Test cases for redirection scenarios
@@ -78,6 +82,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 public class HttpClientRedirectTestCase {
 
     private HttpClientConnector httpClientConnector;
+    private HttpClientConnector httpsClientConnector;
     private HttpWsConnectorFactory connectorFactory;
     private TransportsConfiguration transportsConfiguration;
     private ConnectionManager connectionManager;
@@ -99,7 +104,7 @@ public class HttpClientRedirectTestCase {
         connectorFactory = new DefaultHttpWsConnectorFactory();
 
         SenderConfiguration senderConfiguration = HTTPConnectorUtil
-                .getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+                .getSenderConfiguration(transportsConfiguration, HTTP_SCHEME);
         senderConfiguration.setFollowRedirect(true);
         senderConfiguration.setMaxRedirectCount(5);
 
@@ -115,6 +120,19 @@ public class HttpClientRedirectTestCase {
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                         senderConfiguration);
 
+        TransportsConfiguration transportsConfigurationForHttps = TestUtil
+                .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
+        Set<SenderConfiguration> senderConfig = transportsConfigurationForHttps.getSenderConfigurations();
+        senderConfig.forEach(config -> {
+            if (config.getId().contains(Constants.HTTPS_SCHEME)) {
+                config.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
+                config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
+                config.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
+            }
+        });
+        httpsClientConnector = connectorFactory.createHttpClientConnector(HTTPConnectorUtil
+                .getTransportProperties(transportsConfigurationForHttps), HTTPConnectorUtil
+                .getSenderConfiguration(transportsConfigurationForHttps, Constants.HTTPS_SCHEME));
     }
 
     /**
@@ -399,7 +417,7 @@ public class HttpClientRedirectTestCase {
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             //Send a request to server that runs on port 9091 and it should redirect to server that runs on port 9092
             HttpResponseFuture responseFuture = httpClientConnector
-                    .send(createHttpCarbonRequest(null, DESTINATION_PORT1));
+                    .send(createHttpCarbonRequest(null, DESTINATION_PORT1, HTTP_SCHEME));
             responseFuture.setHttpConnectorListener(listener);
 
             latch.await(60, TimeUnit.SECONDS);
@@ -419,13 +437,50 @@ public class HttpClientRedirectTestCase {
     }
 
     /**
+     * Test for single redirection in cross domain situation with https protocol.
+     */
+    @Test
+    public void integrationTestForRedirectWithHttps() {
+        try {
+            //This server starts on port 9092 and give testValue as an output
+            HttpsServer httpServer = TestUtil.startHttpsServer(DESTINATION_PORT2,
+                    new RedirectServerInitializer(testValue, Constants.TEXT_PLAIN, 200, null, 0));
+            //This server starts on port 9091 and give a redirect response to 9092
+            HttpsServer redirectServer = TestUtil.startHttpsServer(DESTINATION_PORT1,
+                    new RedirectServerInitializer(testValue, Constants.TEXT_PLAIN,
+                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 0));
+
+            CountDownLatch latch = new CountDownLatch(1);
+            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
+            //Send a request to server that runs on port 9091 and it should redirect to server that runs on port 9092
+            HttpResponseFuture responseFuture = httpsClientConnector
+                    .send(createHttpCarbonRequest(null, DESTINATION_PORT1, HTTPS_SCHEME));
+            responseFuture.setHttpConnectorListener(listener);
+
+            latch.await(60, TimeUnit.SECONDS);
+
+            HTTPCarbonMessage response = listener.getHttpResponseMessage();
+            assertNotNull(response);
+            String result = new BufferedReader(
+                    new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream())).lines()
+                    .collect(Collectors.joining("\n"));
+            //Output should match with the response given by 9092 server
+            assertEquals(testValue, result);
+            redirectServer.shutdown();
+            httpServer.shutdown();
+        } catch (Exception e) {
+            TestUtil.handleException("Exception occurred while running integrationTestForRedirectWithHttps", e);
+        }
+    }
+
+    /**
      * Integration test for redirection loop.
      */
     @Test
     public void integrationTestForRedirectLoop() {
         try {
             SenderConfiguration senderConfiguration = HTTPConnectorUtil
-                    .getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+                    .getSenderConfiguration(transportsConfiguration, HTTP_SCHEME);
             senderConfiguration.setFollowRedirect(true);
             senderConfiguration.setMaxRedirectCount(1); //Max redirect count is 1
 
@@ -446,7 +501,7 @@ public class HttpClientRedirectTestCase {
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector
-                    .send(createHttpCarbonRequest(null, DESTINATION_PORT1));
+                    .send(createHttpCarbonRequest(null, DESTINATION_PORT1, HTTP_SCHEME));
             responseFuture.setHttpConnectorListener(listener);
 
             latch.await(60, TimeUnit.SECONDS);
@@ -474,7 +529,7 @@ public class HttpClientRedirectTestCase {
         try {
 
             SenderConfiguration senderConfiguration = HTTPConnectorUtil
-                    .getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+                    .getSenderConfiguration(transportsConfiguration, HTTP_SCHEME);
             senderConfiguration.setFollowRedirect(true);
             senderConfiguration.setMaxRedirectCount(5);
             senderConfiguration.setSocketIdleTimeout(2000);
@@ -495,7 +550,7 @@ public class HttpClientRedirectTestCase {
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector
-                    .send(createHttpCarbonRequest(null, DESTINATION_PORT1));
+                    .send(createHttpCarbonRequest(null, DESTINATION_PORT1, HTTP_SCHEME));
             responseFuture.setHttpConnectorListener(listener);
 
             latch.await(60, TimeUnit.SECONDS);
@@ -524,7 +579,7 @@ public class HttpClientRedirectTestCase {
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             //Send a request to server that runs on port 9092
             HttpResponseFuture responseFuture = httpClientConnector
-                    .send(createHttpCarbonRequest(null, DESTINATION_PORT3));
+                    .send(createHttpCarbonRequest(null, DESTINATION_PORT3, HTTP_SCHEME));
             responseFuture.setHttpConnectorListener(listener);
 
             latch.await(60, TimeUnit.SECONDS);
@@ -542,10 +597,10 @@ public class HttpClientRedirectTestCase {
         }
     }
 
-    private HTTPCarbonMessage createHttpCarbonRequest(String requestUrl, int destinationPort) {
+    private HTTPCarbonMessage createHttpCarbonRequest(String requestUrl, int destinationPort, String protocol) {
         HTTPCarbonMessage msg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
         msg.setProperty(Constants.HTTP_PORT, destinationPort);
-        msg.setProperty(Constants.PROTOCOL, "http");
+        msg.setProperty(Constants.PROTOCOL, protocol);
         msg.setProperty(Constants.HTTP_HOST, "localhost");
         msg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_GET_METHOD);
         if (requestUrl != null) {
