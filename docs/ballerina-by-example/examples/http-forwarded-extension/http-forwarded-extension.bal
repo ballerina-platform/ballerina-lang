@@ -5,8 +5,8 @@ endpoint http:Listener serverEP {
     port:9090
 };
 
-//Configure client connector forwarded/x-forwarded-- header behaviour by adding disable (default value), enable or transition.
-//Transition config converts available x-forwarded-- headers to forwarded header.
+//Configure the client connector 'forwarded/x-forwarded-- header behaviour' by adding 'disable' (default value), 'enable' or 'transition'.
+//Transition config converts available 'x-forwarded-- headers' to forwarded header.
 endpoint http:Client clientEndPoint {
     targets: [
        {
@@ -21,7 +21,7 @@ endpoint http:Client clientEndPoint {
 }
 service<http:Service> proxy bind serverEP {
 
-    @Description {value:"Proxy server forward the inbound request to a backend with forwarded config enabled."}
+    @Description {value:"The proxy server forwards the inbound request to a backend with forwarded config enabled."}
     @http:ResourceConfig {
         path:"/"
     }
@@ -38,7 +38,7 @@ service<http:Service> proxy bind serverEP {
     }
 }
 
-@Description {value:"Sample backend which respond with forwarded header value."}
+@Description {value:"The sample backend that responds with the forwarded header value."}
 @http:ServiceConfig {
     basePath: "/sample"
 }

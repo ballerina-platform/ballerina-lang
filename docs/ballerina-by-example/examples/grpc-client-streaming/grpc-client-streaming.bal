@@ -11,7 +11,7 @@ endpoint grpc:Service ep {
 @grpc:serviceConfig {rpcEndpoint:"lotsOfGreetings",
     clientStreaming:true,
     generateClientConnector:false}
-service<grpc:Endpoint> HelloWorld bind ep {
+service<grpc:Listener> HelloWorld bind ep {
     onOpen (endpoint client) {
         io:println("connected sucessfully.");
     }

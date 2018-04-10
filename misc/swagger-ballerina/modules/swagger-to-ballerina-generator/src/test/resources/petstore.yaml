@@ -125,6 +125,8 @@ components:
           type: string
         tag:
           type: string
+        type:
+          type: string
     Pets:
       type: array
       items:

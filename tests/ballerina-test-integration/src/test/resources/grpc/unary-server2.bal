@@ -22,7 +22,7 @@ endpoint grpc:Service ep {
 };
 
 @grpc:serviceConfig {generateClientConnector:false}
-service<grpc:Endpoint> HelloWorld bind ep {
+service<grpc:Listener> HelloWorld bind ep {
 
     testInputNestedStruct (endpoint client, Person req) {
         io:println("name: " + req.name);
@@ -96,13 +96,13 @@ service<grpc:Endpoint> HelloWorld bind ep {
 type Person {
     string name;
     Address address;
-}
+};
 
 type Address {
     int postalCode;
     string state;
     string country;
-}
+};
 
 type StockQuote {
     string symbol;
@@ -110,16 +110,16 @@ type StockQuote {
     float last;
     float low;
     float high;
-}
+};
 
 type StockRequest {
     string name;
-}
+};
 
 type StockQuotes {
     StockQuote[] stock;
-}
+};
 
 type StockNames {
     string[] names;
-}
+};

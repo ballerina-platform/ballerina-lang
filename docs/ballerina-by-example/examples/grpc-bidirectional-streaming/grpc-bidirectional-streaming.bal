@@ -1,9 +1,9 @@
-// This is the server implementation for the bidirectional streaming scenario.
+// This is server implementation for bidirectional streaming scenario
 import ballerina/io;
 import ballerina/grpc;
 import ballerina/log;
 
-// The server endpoint configuration.
+// Server endpoint configuration
 endpoint grpc:Service ep {
     host:"localhost",
     port:9090
@@ -13,8 +13,8 @@ endpoint grpc:Service ep {
     clientStreaming:true,
     serverStreaming:true,
     generateClientConnector:false}
-service<grpc:Endpoint> Chat bind ep {
-    //TODO: Remove 'the temp initialization' once map issue is fixed.
+service<grpc:Listener> Chat bind ep {
+    //TODO: remove temp initialization when map issue is fixed.
     map<grpc:Service> consMap = {"_":new};
 
     onOpen (endpoint client) {
@@ -54,7 +54,7 @@ service<grpc:Endpoint> Chat bind ep {
         var v = consMap.remove(<string>connID);
         string[] conKeys = consMap.keys();
         int len = lengthof conKeys;
-        //TODO: Set 'i' to zero once the map issue is fixed.
+        //TODO: set i to zero when map issue is fixed.
         int i = 1;
         while (i < len) {
             con = <grpc:Service>consMap[conKeys[i]];

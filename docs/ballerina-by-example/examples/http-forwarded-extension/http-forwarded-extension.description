@@ -1,1 +1,1 @@
-//Example depicts the client connector Option to enable/disable/transition the Forwarded/X-Forwarded-- headers in outbound request.
+//This example demonstrates the client connector option to enable/disable/transition the Forwarded/X-Forwarded-- headers in an outbound request.

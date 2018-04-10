@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
-import org.ballerinalang.model.symbols.VariableSymbol;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.ForeverNode;
@@ -34,10 +33,7 @@ import java.util.List;
 public class BLangForever extends BLangExpressionStmt implements ForeverNode {
 
     private List<StreamingQueryStatementNode> streamingQueryStatementNodeList = new ArrayList<>();
-    private List<VariableNode> globalVariables = new ArrayList<>();
-    private List<VariableSymbol> functionVariables = new ArrayList<>();
     private String siddhiQuery;
-    private String streamIdsAsString;
     public List<BLangVariable> params;
 
     @Override
@@ -61,27 +57,6 @@ public class BLangForever extends BLangExpressionStmt implements ForeverNode {
     }
 
     @Override
-    public void addGlobalVariable(VariableNode variable) {
-        globalVariables.add(variable);
-    }
-
-    @Override
-    public List<VariableSymbol> getFunctionVariables() {
-        return functionVariables;
-    }
-
-    @Override
-    public void addFunctionVariable(VariableSymbol variable) {
-        functionVariables.add(variable);
-    }
-
-    @Override
-    public List<VariableNode> getGlobalVariables() {
-        return globalVariables;
-    }
-
-
-    @Override
     public List<BLangVariable> getParameters() {
         return params;
     }
@@ -98,16 +73,6 @@ public class BLangForever extends BLangExpressionStmt implements ForeverNode {
 
     public void setSiddhiQuery(String siddhiQuery) {
         this.siddhiQuery = siddhiQuery;
-    }
-
-
-    public String getStreamIdsAsString() {
-        return streamIdsAsString;
-    }
-
-
-    public void setStreamIdsAsString(String streamIdsAsString) {
-        this.streamIdsAsString = streamIdsAsString;
     }
 
 }
