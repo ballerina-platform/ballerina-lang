@@ -92,7 +92,12 @@ public class BallerinaDocCmd implements BLauncherCmd {
         }
 
         String[] sources = argList.toArray(new String[argList.size()]);
-        BallerinaDocGenerator.generateApiDocs(outputDir, packageFilter, nativeSource, sources);
+        try {
+            BallerinaDocGenerator.generateApiDocs(outputDir, packageFilter, nativeSource, sources);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     @Override
