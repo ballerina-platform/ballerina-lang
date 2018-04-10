@@ -125,8 +125,10 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
         if (Util.isLastHttpContent(httpContent)) {
             if (!headerWritten) {
-                if (chunkConfig == ChunkConfig.ALWAYS
-                        && Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion())) {
+                if (chunkConfig == ChunkConfig.ALWAYS && (
+                        Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion()) || Util
+                                .shouldEnforceChunkingforHttpOneZero(chunkConfig,
+                                        requestDataHolder.getHttpVersion()))) {
                     Util.setupChunkedRequest(outboundResponseMsg);
                     writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
                     outboundChannelFuture = writeOutboundResponseBody(httpContent);
@@ -148,8 +150,9 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
             }
             resetState(outboundResponseMsg);
         } else {
-            if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO)
-                    && Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion())) {
+            if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) && (
+                    Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion()) || Util
+                            .shouldEnforceChunkingforHttpOneZero(chunkConfig, requestDataHolder.getHttpVersion()))) {
                 if (!headerWritten) {
                     Util.setupChunkedRequest(outboundResponseMsg);
                     writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
