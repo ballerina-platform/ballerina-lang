@@ -335,42 +335,24 @@ public class CodeGenerator extends BLangNodeVisitor {
         addPackageInfo(pkgNode.symbol, programFile);
         programFile.entryPkgCPIndex = addPackageRefCPEntry(programFile, pkgNode.symbol.pkgID);
         setEntryPoints(programFile, pkgNode);
-
-        // Add global variable indexes to the ProgramFile
-        prepareIndexes(pvIndexes);
-
-        // Create Global variable attribute info
-        addVarCountAttrInfo(programFile, programFile, pvIndexes);
-
         return programFile;
-    }
-
-    public void addPackageInfo(BPackageSymbol packageSymbol, ProgramFile programFile) {
-        BLangPackage pkgNode = this.packageCache.get(packageSymbol.pkgID);
-        if (pkgNode == null) {
-            // This is a package loaded from a BALO
-            if (!programFile.packageInfoMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
-                programFile.packageInfoMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile.packageInfo);
-            }
-            return;
-        }
-
-        pkgNode.imports.forEach(importPkdNode -> addPackageInfo(importPkdNode.symbol, programFile));
-        if (!programFile.packageInfoMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
-            programFile.packageInfoMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile.packageInfo);
-        }
     }
 
     public BLangPackage generateBALO(BLangPackage pkgNode) {
         PackageFile packageFile = pkgNode.symbol.packageFile;
+
+        // Reset package level variable indexes.
+        this.pvIndexes = new VariableIndex(VariableIndex.Kind.REG);
+
+        // Generate code for the given package.
         genPackage(pkgNode.symbol);
+        packageFile.packageInfo = this.currentPkgInfo;
 
         // Add global variable indexes to the ProgramFile
-        prepareIndexes(pvIndexes);
-
         // Create Global variable attribute info
-        addVarCountAttrInfo(packageFile, packageFile, pvIndexes);
-        packageFile.packageInfo = this.currentPkgInfo;
+        prepareIndexes(this.pvIndexes);
+        addVarCountAttrInfo(packageFile.packageInfo, packageFile.packageInfo, pvIndexes);
+        this.currentPkgInfo = null;
         return pkgNode;
     }
 
@@ -851,16 +833,24 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPackageVarRef packageVarRef) {
-        Operand gvIndex = packageVarRef.symbol.varIndex;
-        if (varAssignment) {
-            int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGSTORE);
-            emit(opcode, packageVarRef.regIndex, gvIndex);
-            return;
+        BPackageSymbol pkgSymbol;
+        BSymbol ownerSymbol = packageVarRef.symbol.owner;
+        if (ownerSymbol.tag == SymTag.SERVICE) {
+            pkgSymbol = (BPackageSymbol) ownerSymbol.owner;
+        } else {
+            pkgSymbol = (BPackageSymbol) ownerSymbol;
         }
 
-        int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGLOAD);
-        packageVarRef.regIndex = calcAndGetExprRegIndex(packageVarRef);
-        emit(opcode, gvIndex, packageVarRef.regIndex);
+        Operand gvIndex = packageVarRef.symbol.varIndex;
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
+        if (varAssignment) {
+            int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGSTORE);
+            emit(opcode, getOperand(pkgRefCPIndex), packageVarRef.regIndex, gvIndex);
+        } else {
+            int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGLOAD);
+            packageVarRef.regIndex = calcAndGetExprRegIndex(packageVarRef);
+            emit(opcode, getOperand(pkgRefCPIndex), gvIndex, packageVarRef.regIndex);
+        }
     }
 
     @Override
@@ -2798,7 +2788,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         BXMLNSSymbol nsSymbol = (BXMLNSSymbol) xmlnsNode.symbol;
         genNode(nsURIExpr, env);
         nsSymbol.nsURIIndex = pvIndex;
-        emit(InstructionCodes.SGSTORE, nsURIExpr.regIndex, pvIndex);
+
+        int pkgIndex = addPackageRefCPEntry(this.currentPkgInfo, this.currentPkgID);
+        emit(InstructionCodes.SGSTORE, getOperand(pkgIndex), nsURIExpr.regIndex, pvIndex);
     }
 
     @Override
@@ -3181,8 +3173,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             return (RegIndex) namespaceSymbol.nsURIIndex;
         }
 
+        int pkgIndex = addPackageRefCPEntry(this.currentPkgInfo, namespaceSymbol.owner.pkgID);
         RegIndex index = getRegIndex(TypeTags.STRING);
-        emit(InstructionCodes.SGLOAD, namespaceSymbol.nsURIIndex, index);
+        emit(InstructionCodes.SGLOAD, getOperand(pkgIndex), namespaceSymbol.nsURIIndex, index);
         return index;
     }
 
@@ -3369,4 +3362,19 @@ public class CodeGenerator extends BLangNodeVisitor {
         return opcode;
     }
 
+    private void addPackageInfo(BPackageSymbol packageSymbol, ProgramFile programFile) {
+        BLangPackage pkgNode = this.packageCache.get(packageSymbol.pkgID);
+        if (pkgNode == null) {
+            // This is a package loaded from a BALO
+            if (!programFile.packageInfoMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
+                programFile.packageInfoMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile.packageInfo);
+            }
+            return;
+        }
+
+        pkgNode.imports.forEach(importPkdNode -> addPackageInfo(importPkdNode.symbol, programFile));
+        if (!programFile.packageInfoMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
+            programFile.packageInfoMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile.packageInfo);
+        }
+    }
 }

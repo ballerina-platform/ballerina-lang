@@ -66,6 +66,5 @@ public class PackageFileWriter {
                 dataOutStream.close();
             }
         }
-
     }
 }

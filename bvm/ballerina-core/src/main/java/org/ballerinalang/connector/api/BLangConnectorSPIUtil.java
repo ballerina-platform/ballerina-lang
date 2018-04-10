@@ -130,7 +130,8 @@ public final class BLangConnectorSPIUtil {
         if (packageVarInfo == null) {
             throw new BallerinaConnectorException("Can't locate " + endpointName + " endpoint variable");
         }
-        return (BStruct) programFile.getGlobalMemoryBlock().getRefField(packageVarInfo.getGlobalMemIndex());
+        return (BStruct) programFile.globalMemArea.getRefField(packageInfo.pkgIndex,
+                packageVarInfo.getGlobalMemIndex());
     }
 
     public static Service getService(ProgramFile programFile, BServiceType serviceType) {
