@@ -11,6 +11,12 @@ public type Message object {
         message = msg;
     }
 
+    documentation {Gets the internal JMS message
+        returns JMS message}
+    function getJMSMessage() returns jms:Message {
+        return message;
+    }
+
     documentation {Gets text content of the JMS message
         returns message content as string}
     public function getTextMessageContent() returns string|Error {
@@ -27,21 +33,21 @@ public type Message object {
     documentation {Gets a JMS transport string property from the message
         P{{key}} The string property name
         returns The string property value}
-    public function getStringProperty(string key) returns string|()|jms:Error {
+    public function getStringProperty(string key) returns string|()|Error {
         return message.getStringProperty(key);
     }
 
     documentation {Sets a JMS transport integer property from the message
         P{{key}} The integer property name
         P{{value}} The integer property value}
-    public function setIntProperty(string key, int value) returns jms:Error|() {
+    public function setIntProperty(string key, int value) returns Error|() {
         return message.setIntProperty(key, value);
     }
 
     documentation {Gets a JMS transport integer property from the message
         P{{key}} The integer property name
         returns The integer property value}
-    public function getIntProperty(string key) returns int|jms:Error {
+    public function getIntProperty(string key) returns int|Error {
         return message.getIntProperty(key);
     }
 

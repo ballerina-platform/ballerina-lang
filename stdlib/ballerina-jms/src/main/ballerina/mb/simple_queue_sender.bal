@@ -1,0 +1,89 @@
+package ballerina.jms;
+
+import ballerina/log;
+
+public type SimpleQueueSender object {
+    public {
+        SimpleQueueSenderEndpointConfiguration config;
+    }
+
+    private {
+        jms:SimpleQueueSender? sender;
+        QueueSenderConnector? senderConnector;
+    }
+
+    public function init(SimpleQueueSenderEndpointConfiguration config) {
+        endpoint jms:SimpleQueueSender queueSender {
+            initialContextFactory: config.initialContextFactory,
+            providerUrl: config.providerUrl,
+            connectionFactoryName: config.connectionFactoryName,
+            acknowledgementMode: config.acknowledgementMode,
+            properties: config.properties,
+            queueName: config.queueName
+        };
+        sender = queueSender;
+        senderConnector = new QueueSenderConnector(queueSender);
+        self.config = config;
+    }
+
+    public function register (typedesc serviceType) {
+    }
+
+    public function start () {
+    }
+
+    public function getClient () returns (QueueSenderConnector) {
+        match (senderConnector) {
+            QueueSenderConnector s => return s;
+            () => {
+                error e = {message: "Queue sender connector cannot be nil"};
+                throw e;
+            }
+        }
+    }
+
+    public function stop () {
+    }
+
+    public function createTextMessage(string message) returns (Message|Error) {
+        match (sender) {
+            jms:SimpleQueueSender s => {
+                var result = s.createTextMessage(message);
+                match(result) {
+                    jms:Message m => return new Message(m);
+                    jms:Error e => return e;
+                }
+            }
+            () => {
+                error e = {message: "Session cannot be nil"};
+                throw e;
+            }
+        }
+
+    }
+};
+
+public type QueueSenderConnector object {
+    private {
+        jms:SimpleQueueSender sender;
+    }
+
+    new (sender) {}
+
+    public function send (Message m) returns (Error | ()) {
+        endpoint jms:SimpleQueueSender senderEP = sender;
+        var result = senderEP->send(m.getJMSMessage());
+        return result;
+    }
+};
+
+
+public type SimpleQueueSenderEndpointConfiguration {
+    string initialContextFactory = "wso2mbInitialContextFactory";
+    string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
+    string connectionFactoryName = "ConnectionFactory";
+    string acknowledgementMode = "AUTO_ACKNOWLEDGE";
+    map properties;
+    string queueName;
+};
+
