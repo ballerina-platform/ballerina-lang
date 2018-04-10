@@ -14,7 +14,7 @@ public type Message object {
     documentation {Gets text content of the JMS message
         returns message content as string}
     public function getTextMessageContent() returns string|Error {
-        return message.getTextMessageContent()
+        return message.getTextMessageContent();
     }
 
     documentation {Sets a JMS transport string property from the message
@@ -27,21 +27,21 @@ public type Message object {
     documentation {Gets a JMS transport string property from the message
         P{{key}} The string property name
         returns The string property value}
-    public function getStringProperty(string key) returns string|()|Error {
+    public function getStringProperty(string key) returns string|()|jms:Error {
         return message.getStringProperty(key);
     }
 
     documentation {Sets a JMS transport integer property from the message
         P{{key}} The integer property name
         P{{value}} The integer property value}
-    public function setIntProperty(string key, int value) returns Error|() {
+    public function setIntProperty(string key, int value) returns jms:Error|() {
         return message.setIntProperty(key, value);
     }
 
     documentation {Gets a JMS transport integer property from the message
         P{{key}} The integer property name
         returns The integer property value}
-    public function getIntProperty(string key) returns int|Error {
+    public function getIntProperty(string key) returns int|jms:Error {
         return message.getIntProperty(key);
     }
 
@@ -49,7 +49,7 @@ public type Message object {
         P{{key}} The boolean property name
         P{{value}} The boolean property value}
     public function setBooleanProperty(string key, boolean value) returns Error|() {
-        return message.setBooleeanProperty(key, value);
+        return message.setBooleanProperty(key, value);
     }
 
     documentation {Gets a JMS transport boolean property from the message
