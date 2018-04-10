@@ -1,2 +1,2 @@
-//To follow redirects when calling an external http server using ballerina http client connector set "followRedirect"
-//to true.
+//To follow redirects when calling an external HTTP server using the Ballerina HTTP client connector, set the 'followRedirect' property
+//to 'true'.

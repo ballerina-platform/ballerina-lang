@@ -1,1 +1,1 @@
-// With the LoadBalancer, Ballerina users can configure multiple connectors to distribute load across them with desired load balancing strategy.
+// The LoadBalancer allows you to configure multiple connectors to distribute the load across them by following the required load balancing strategy.

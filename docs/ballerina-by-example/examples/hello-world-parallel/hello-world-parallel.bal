@@ -1,6 +1,6 @@
 import ballerina/io;
 
-@Description {value:"Workers don’t need to be explicitly started. They start at the same time as the default worker."}
+@Description {value:"Workers do not need to be explicitly started. They start at the same time as the default worker."}
 function main (string[] args) {
 
     worker w1 {

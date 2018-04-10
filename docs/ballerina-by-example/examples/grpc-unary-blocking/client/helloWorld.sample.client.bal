@@ -1,14 +1,14 @@
-// This is client implementation for unary blocking scenario
+// This is the client implementation for the unary blocking scenario.
 import ballerina/io;
 
 function main (string[] args) {
-    // Client endpoint configuration
+    // The client endpoint configuration.
     endpoint HelloWorldBlockingClient helloWorldBlockingEp {
         host:"localhost",
         port:9090
     };
 
-    // Executing unary blocking call
+    // The executing unary blocking call.
     string|error unionResp = helloWorldBlockingEp -> hello("WSO2");
     match unionResp {
         string payload => {
