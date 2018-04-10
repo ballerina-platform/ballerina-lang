@@ -7,6 +7,8 @@ function beforeFunc () {
 }
 
 // Test function
+//Use the `before` and `after` attributes to define the function names
+//of the functions that need to executed before or after the test function. 
 @test:Config{
     before:"beforeFunc",
     after:"afterFunc"
