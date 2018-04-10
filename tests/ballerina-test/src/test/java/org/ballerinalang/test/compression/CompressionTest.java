@@ -238,7 +238,7 @@ public class CompressionTest {
     }
 
     /**
-     * Get files inside the zip file
+     * Get files inside the zip file.
      *
      * @param zipFilePath path of the zip file
      * @return list of files available inside the zipped file

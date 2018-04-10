@@ -23,7 +23,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -77,7 +76,7 @@ public class UnzipBytes extends BlockingNativeCallableUnit {
             while ((entry = zin.getNextEntry()) != null) {
                 name = entry.getName();
                 if (!folderToUnzip.isEmpty() && name.startsWith(folderToUnzip)) {
-                    int index = name.lastIndexOf(File.separator) + 1;
+                    int index = name.lastIndexOf("/") + 1;
                     name = name.substring(index);
                 }
                     if (entry.isDirectory()) {
@@ -127,7 +126,7 @@ public class UnzipBytes extends BlockingNativeCallableUnit {
      */
     private static String getDirectoryPath(String name) {
         if (name != null) {
-            int s = name.lastIndexOf(File.separatorChar);
+            int s = name.lastIndexOf("/");
             return s == -1 ? null : name.substring(0, s);
         }
         return null;
