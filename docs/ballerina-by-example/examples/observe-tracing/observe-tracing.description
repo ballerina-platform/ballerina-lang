@@ -1,5 +1,6 @@
 // Tracing is a part of Ballerina Observability and is available out of the box with Jaeger.
-// To try out this sample, make sure Jaeger is running locally on  port 5775. Docker container can be started by
-// docker run -d -p5775:5775/udp -p6831:6831/udp -p6832:6832/udp -p5778:5778 -p16686:16686 -p14268:14268 jaegertracing/all-in-one:latest
+// To try out this sample, make sure Jaeger is running locally on port 5775. Docker container can be started by
+// docker run -d -p5775:5775/udp -p6831:6831/udp -p6832:6832/udp -p5778:5778 -p16686:16686
+// -p14268:14268 jaegertracing/all-in-one:latest
 // Host and port configs can be overridden by running the sample as:
 // `ballerina run observe-tracing.bal --observe -t reporter.port=<port> -t reporter.hostname=<host>`

@@ -19,24 +19,36 @@ service StoreService bind storeServiceEndpoint {
         methods:["GET"],
         path:"/add"
     }
-    addStore(endpoint outboundEndpoint, http:Request req) {
-        observe:Span span = observe:startSpan("Store", "Add Item", (), observe:REFERENCE_TYPE_ROOT, ());
-        http:Response res = new;
-        http:Request outReq = span.injectTraceContextToHttpHeader(new http:Request(), "group-1");
-        var resp = clientEndpoint -> get("/store/update", outReq);
+    storeAdd(endpoint outboundEndpoint, http:Request req) {
+        observe:Span span = observe:startSpan("Store", "Add Item", {"span.kind":"server"},
+                                                                                    observe:REFERENCE_TYPE_ROOT, ());
+        observe:Span childSpan = observe:startSpan("Store", "Update Manager Connector",
+                                                        {"span.kind":"client"}, observe:REFERENCE_TYPE_CHILDOF, span);
+        http:Request outRequest = childSpan.injectTraceContextToHttpHeader(new http:Request(), "group-1");
+        var resp = clientEndpoint -> get("/store/update", outRequest);
+        http:Response outboundResponse = new;
         match resp {
-            http:HttpConnectorError err => {
-                span.logError("Connection error", err.message);
-            }
             http:Response response => {
-                var responseBody = response.getStringPayload() but {
-                    http:PayloadError payloadError => span.logError("Payload error", payloadError.message)
-                };
-                span.addTag("Response", responseBody but { () => "No response" });
+                match (response.getStringPayload()) {
+                    string payload => {
+                        childSpan.addTag("Response", payload but { () => "No response" });
+                        outboundResponse.setStringPayload("Item Added Successfully");
+                        childSpan.finishSpan();
+                    }
+                    http:PayloadError payloadError => {
+                        childSpan.logError("Payload Error", payloadError.message);
+                        outboundResponse.setStringPayload("Payload Error");
+                        childSpan.finishSpan();
+                    }
+                }
+            }
+            http:HttpConnectorError err => {
+                childSpan.logError("Connection Error", err.message);
+                outboundResponse.setStringPayload("Connection Error");
+                childSpan.finishSpan();
             }
         }
-        res.setStringPayload("Item added successfully");
-        _ = outboundEndpoint -> respond(res);
+        _ = outboundEndpoint -> respond(outboundResponse);
         span.finishSpan();
     }
 
@@ -44,13 +56,13 @@ service StoreService bind storeServiceEndpoint {
         methods:["GET"],
         path:"/update"
     }
-    updateStore(endpoint outboundEndpoint, http:Request req) {
+    storeUpdate(endpoint outboundEndpoint, http:Request req) {
         observe:SpanContext parentSpanContext = observe:extractTraceContextFromHttpHeader(req, "group-1");
-        observe:Span span = observe:startSpan("Order", "Update Item", (),
-                                                        observe:REFERENCE_TYPE_CHILDOF, parentSpanContext);
-        http:Response res = new;
-        res.setStringPayload("Updated Successfully");
-        _ = outboundEndpoint -> respond(res);
+        observe:Span span = observe:startSpan("Update Manager", "Update Item", {"span.kind":"server"},
+                                                                    observe:REFERENCE_TYPE_CHILDOF, parentSpanContext);
+        http:Response outboundResponse = new;
+        outboundResponse.setStringPayload("Updated Successfully");
+        _ = outboundEndpoint -> respond(outboundResponse);
         span.finishSpan();
     }
 }
