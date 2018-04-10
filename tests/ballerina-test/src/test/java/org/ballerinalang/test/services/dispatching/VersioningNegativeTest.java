@@ -53,4 +53,15 @@ public class VersioningNegativeTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/hello6/v1.4/go", "GET");
         Services.invokeNew(result, PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
     }
+
+    @Test(description = "Test dispatching with minor version",
+          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = ".*service registration failed: two services have the same basePath : " +
+                  "/echo/v2/bar.*")
+    public void testRegisteringTwoServicedsWithSameBasePath() {
+        CompileResult result = BServiceUtil
+                .setupProgramFile(this, "test-src/services/dispatching/versioning/negativecase3", PKG_NAME);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/v2.4/bar", "GET");
+        Services.invokeNew(result, PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
+    }
 }
