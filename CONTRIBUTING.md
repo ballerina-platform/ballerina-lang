@@ -11,10 +11,10 @@ We appreciate your help!
 * Download Ballerina at [https://ballerina.io](https://ballerina.io) and go through the getting started tutorials at [https://ballerina.io/learn](https://ballerina.io/learn)
 * Read our [Code of Conduct](CODE_OF_CONDUCT.md)
 * Join the conversations at:
-   * StackOverflow: to get help with Ballerina; use Ballerina tag for any your questions there,
-   * Slack: for real-time discussions with the team and community,
-   * Ballerina-Dev Google Group: developer team mailing list to discuss Ballerina roadmap, features and issues on the works, and so on,
-   * GitHub: file issues, comment on other issues, send your pull requests. 
+   * [StackOverflow](https://stackoverflow.com/questions/tagged/ballerina): to get help with Ballerina; use Ballerina tag for any your questions there,
+   * [Slack](https://ballerinalang.slack.com/): for real-time discussions with the team and community,
+   * [Ballerina-Dev Google Group](https://groups.google.com/forum/#!forum/ballerina-dev): developer team mailing list to discuss Ballerina roadmap, features and issues on the works, and so on,
+   * [GitHub](https://github.com/ballerina-platform/ballerina-lang/issues): file issues, comment on other issues, send your pull requests. 
 * Submit issues:
    * Found a security flaw? Please email security@ballerina.io
    * Submitting a bug is just as important as contributing code. Go to the Issues tab of the GitHub repo and click the New Issue button to file a bug report.
