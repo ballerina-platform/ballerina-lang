@@ -65,6 +65,8 @@ public class BallerinaFileBuilder {
     private byte[] rootDescriptor;
     private List<byte[]> dependentDescriptors;
     private String balOutPath;
+    private boolean isUnaryContains = false;
+    private boolean isStreamingContains = false;
     
     public BallerinaFileBuilder(List<byte[]> dependentDescriptors) {
         this.dependentDescriptors = dependentDescriptors;
@@ -91,7 +93,7 @@ public class BallerinaFileBuilder {
             String methodID;
             String packageName = EMPTY_STRING.equals(fileDescriptorSet.getPackage()) ? BalGenConstants.DEFAULT_PACKAGE :
                     fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + BalGenConstants.DEFAULT_PACKAGE;
-            ClientBuilder clientStubBal = new ClientBuilder(packageName, fileDescriptorSet
+            ClientBuilder clientStubBal = new ClientBuilder(fileDescriptorSet
                     .getService(SERVICE_INDEX).getName());
             DescriptorBuilder descriptorBuilder;
             String protoPackage = fileDescriptorSet.getPackage();
@@ -106,28 +108,15 @@ public class BallerinaFileBuilder {
             descriptorBuilder.buildMap();
             descriptorBuilder.buildKey();
             for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
-                MethodDescriptor.MethodType methodType = MessageUtils.getMethodType(methodDescriptorProto);
-                String[] outputTypes = methodDescriptorProto.getOutputType().split(PACKAGE_SEPARATOR_REGEX);
-                String typeOut = outputTypes[outputTypes.length - 1];
-                String[] inputTypes = methodDescriptorProto.getInputType().split(PACKAGE_SEPARATOR_REGEX);
-                String typeIn = inputTypes[inputTypes.length - 1];
-                methodName = methodDescriptorProto.getName();
-                if (!EMPTY_STRING.equals(fileDescriptorSet.getPackage())) {
-                    methodID = fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + fileDescriptorSet
-                            .getService(SERVICE_INDEX).getName() + FILE_SEPARATOR + methodName;
-                } else {
-                    methodID = fileDescriptorSet.getService(SERVICE_INDEX).getName() + FILE_SEPARATOR + methodName;
+                if (!methodDescriptorProto.getClientStreaming() && !methodDescriptorProto
+                        .getServerStreaming()) {
+                    isUnaryContains = true;
                 }
-                reqMessageName = getMappingBalType(typeIn);
-                resMessageName = getMappingBalType(typeOut);
-                if ((EMPTY_DATA_TYPE.equals(reqMessageName) || EMPTY_DATA_TYPE.equals(resMessageName))
-                        && !(clientStubBal.isStructContains(EMPTY_DATA_TYPE))) {
-                    clientStubBal.addStruct(EMPTY_DATA_TYPE, new String[0], new String[0]);
+                if (methodDescriptorProto.getClientStreaming() || methodDescriptorProto
+                        .getServerStreaming()) {
+                    isStreamingContains = true;
                 }
-                ActionBuilder.build(methodName, reqMessageName, resMessageName
-                        , methodID, methodType, clientStubBal);
             }
-            
             for (DescriptorProtos.DescriptorProto descriptorProto : messageTypeList) {
                 String[] attributesNameArr = new String[descriptorProto.getFieldCount()];
                 String[] attributesTypeArr = new String[descriptorProto.getFieldCount()];
@@ -152,9 +141,31 @@ public class BallerinaFileBuilder {
                 }
                 clientStubBal.addEnum(descriptorProto.getName(), attributesNameArr);
             }
-            StubBuilder.build(clientStubBal, clientStubBal.isFunctionsUnaryNotEmpty());
-            ClientStruct sampleClient = new ClientStruct(clientStubBal.isFunctionsStreamingNotEmpty(), clientStubBal
-                    .isFunctionsUnaryNotEmpty(), fileDescriptorSet.getService(SERVICE_INDEX).getName(), packageName);
+            StubBuilder.build(clientStubBal, isUnaryContains);
+            for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
+                MethodDescriptor.MethodType methodType = MessageUtils.getMethodType(methodDescriptorProto);
+                String[] outputTypes = methodDescriptorProto.getOutputType().split(PACKAGE_SEPARATOR_REGEX);
+                String typeOut = outputTypes[outputTypes.length - 1];
+                String[] inputTypes = methodDescriptorProto.getInputType().split(PACKAGE_SEPARATOR_REGEX);
+                String typeIn = inputTypes[inputTypes.length - 1];
+                methodName = methodDescriptorProto.getName();
+                if (!EMPTY_STRING.equals(fileDescriptorSet.getPackage())) {
+                    methodID = fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + fileDescriptorSet
+                            .getService(SERVICE_INDEX).getName() + FILE_SEPARATOR + methodName;
+                } else {
+                    methodID = fileDescriptorSet.getService(SERVICE_INDEX).getName() + FILE_SEPARATOR + methodName;
+                }
+                reqMessageName = getMappingBalType(typeIn);
+                resMessageName = getMappingBalType(typeOut);
+                if ((EMPTY_DATA_TYPE.equals(reqMessageName) || EMPTY_DATA_TYPE.equals(resMessageName))
+                        && !(clientStubBal.isStructContains(EMPTY_DATA_TYPE))) {
+                    clientStubBal.addStruct(EMPTY_DATA_TYPE, new String[0], new String[0]);
+                }
+                ActionBuilder.build(methodName, reqMessageName, resMessageName
+                        , methodID, methodType, clientStubBal);
+            }
+            ClientStruct sampleClient = new ClientStruct(isStreamingContains, isUnaryContains
+                    , fileDescriptorSet.getService(SERVICE_INDEX).getName(), packageName);
             if (this.balOutPath == null) {
                 String path = balOutPathGenerator(packageName + PACKAGE_SEPARATOR + fileDescriptorSet
                         .getService(SERVICE_INDEX).getName());

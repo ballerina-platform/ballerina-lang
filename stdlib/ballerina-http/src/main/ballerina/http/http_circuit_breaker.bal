@@ -109,14 +109,14 @@ public type CircuitBreakerClient object {
 
     public {
         string serviceUri;
-        ClientEndpointConfiguration config;
+        ClientEndpointConfig config;
         CircuitBreakerInferredConfig circuitBreakerInferredConfig;
         HttpClient httpClient;
         CircuitHealth circuitHealth;
         CircuitState currentCircuitState;
     }
 
-    public new (string serviceUri, ClientEndpointConfiguration config, CircuitBreakerInferredConfig circuitBreakerInferredConfig,
+    public new (string serviceUri, ClientEndpointConfig config, CircuitBreakerInferredConfig circuitBreakerInferredConfig,
                                                                             HttpClient httpClient, CircuitHealth circuitHealth) {
         self.serviceUri = serviceUri;
         self.config = config;

@@ -149,7 +149,8 @@ public class BLangVMErrors {
     public static BStruct createCallFailedException(WorkerExecutionContext context, Map<String, BStruct> errors) {
         PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
-        return generateError(context, true, errorStructInfo, MSG_CALL_FAILED, createErrorCauseArray(errors));
+        return generateError(context, true, errorStructInfo, MSG_CALL_FAILED, errors.isEmpty() ? null : 
+            errors.values().iterator().next(), createErrorCauseArray(errors));
     }
     
     public static BStruct createCallCancelledException(CallableUnitInfo callableUnitInfo) {
@@ -275,14 +276,26 @@ public class BLangVMErrors {
         return getStackFrame(context.callableUnitInfo, context.ip);
     }
     
+    private static boolean isCFE(BStruct error) {
+        return error.getType().getName().equals(STRUCT_CALL_FAILED_EXCEPTION);
+    }
+    
     public static String getPrintableStackTrace(BStruct error) {
-        BRefValueArray cause = (BRefValueArray) error.getRefField(0);
+        BRefValueArray causeArray = null;
+        BStruct causeStruct = null;
+        if (isCFE(error)) {
+            causeArray = (BRefValueArray) error.getRefField(1);
+        } else {
+            causeStruct = (BStruct) error.getRefField(0);
+        }
 
         /* skip the first call failed error, since it would be the root context that calls the
          * entry point functions (i.e. main etc..). The error at the root context will have all
          * the errors as causes of the entry point function */
-        if (cause != null) {
-            return getCauseStackTraceArray(cause);
+        if (causeArray != null) {
+            return getCauseStackTraceArray(causeArray);
+        } else if (causeStruct != null) {
+            return getCasueStackTrace(error);
         }
 
         return null;
@@ -320,9 +333,16 @@ public class BLangVMErrors {
         }
         sb.append(")");
 
-        BRefValueArray cause = (BRefValueArray) error.getRefField(0);
-        if (cause != null && cause.size() > 0) {
-            sb.append("\ncaused by ").append(getCauseStackTraceArray(cause));
+        if (isCFE(error)) {
+            BRefValueArray cause = (BRefValueArray) error.getRefField(1);
+            if (cause != null && cause.size() > 0) {
+                sb.append("\ncaused by ").append(getCauseStackTraceArray(cause));
+            }
+        } else {
+            BStruct cause = (BStruct) error.getRefField(0);
+            if (cause != null) {
+                sb.append("\ncaused by ").append(getCasueStackTrace(cause));
+            }
         }
 
         return sb.toString();
@@ -353,15 +373,24 @@ public class BLangVMErrors {
     }
     
     public static String getAggregatedRootErrorMessages(BStruct error) {
-        BRefValueArray causesArray = (BRefValueArray) error.getRefField(0);
-        if (causesArray != null && causesArray.size() > 0) {
-            List<String> messages = new ArrayList<>();
-            for (int i = 0; i < causesArray.size(); i++) {
-                messages.add(getAggregatedRootErrorMessages((BStruct) causesArray.get(i)));
+        if (isCFE(error)) {
+            BRefValueArray causesArray = (BRefValueArray) error.getRefField(1);
+            if (causesArray != null && causesArray.size() > 0) {
+                List<String> messages = new ArrayList<>();
+                for (int i = 0; i < causesArray.size(); i++) {
+                    messages.add(getAggregatedRootErrorMessages((BStruct) causesArray.get(i)));
+                }
+                return String.join(", ", messages.toArray(new String[0]));
+            } else {
+                return error.getStringField(0);
             }
-            return String.join(", ", messages.toArray(new String[0]));
         } else {
-            return error.getStringField(0);
+            BStruct cause = (BStruct) error.getRefField(0);
+            if (cause != null) {
+                return getAggregatedRootErrorMessages(cause);
+            } else {
+                return error.getStringField(0);
+            }
         }
     }
     

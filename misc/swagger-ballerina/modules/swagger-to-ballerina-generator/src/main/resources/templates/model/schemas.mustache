@@ -1,0 +1,5 @@
+{{#schemas}}{{#value}}
+{{#isArraySchema}}public type {{key}} {};{{/isArraySchema}}{{^isArraySchema}}
+public type {{key}} { {{#properties}}
+    {{#value}}{{type}}{{/value}} {{key}},{{/properties}}
+};{{/isArraySchema}}{{/value}}{{/schemas}}

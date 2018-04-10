@@ -50,4 +50,10 @@ public class CounterTest extends MetricTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCounterIncrement");
         Assert.assertEquals(returns[0], new BFloat(5.0));
     }
+
+    @Test
+    public void testCounterWithoutTags() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCounterWithoutTags");
+        Assert.assertEquals(returns[0], new BFloat(3));
+    }
 }

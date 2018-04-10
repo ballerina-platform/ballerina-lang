@@ -47,26 +47,26 @@ public type BasicAuthenticator object {
 public function BasicAuthenticator::authenticate (string username, string password) returns (boolean) {
     // check cache first
     string basicAuthCacheKey = crypto:getHash(username + "-" + password, crypto:SHA256);
-    match authenticateFromCache(basicAuthCacheKey) {
+    match self.authenticateFromCache(basicAuthCacheKey) {
         boolean isAuthenticated => {
             return isAuthenticated;
         }
         () => {
             AuthenticationInfo authInfo = createAuthenticationInfo(username,
-                userStore.authenticate(username, password));
+                self.userStore.authenticate(username, password));
             if (authInfo.isAuthenticated) {
                 log:printDebug("Successfully authenticated against the userstore");
                 // populate AuthenticationContext for this request
                 // set the username
                 runtime:getInvocationContext().authenticationContext.username = username;
                 // set the groups if available in userstore
-                string[] groupsOfUser = userStore.readGroupsOfUser(username);
+                string[] groupsOfUser = self.userStore.readGroupsOfUser(username);
                 runtime:getInvocationContext().authenticationContext.groups = groupsOfUser;
                 authInfo.groups = groupsOfUser;
             } else {
                 log:printDebug("Authentication failure");
             }
-            cacheAuthResult(basicAuthCacheKey, authInfo);
+            self.cacheAuthResult(basicAuthCacheKey, authInfo);
             return authInfo.isAuthenticated;
         }
     }
@@ -77,7 +77,7 @@ public function BasicAuthenticator::authenticate (string username, string passwo
 @Return {value:"boolean|(): cached entry, or nil in a cache miss"}
 function BasicAuthenticator::authenticateFromCache(string basicAuthCacheKey) returns (boolean|()) {
     try {
-        match authCache {
+        match self.authCache {
             caching:Cache cache => {
                 AuthenticationInfo authInfo = check <AuthenticationInfo> cache.get(basicAuthCacheKey);
                 if (authInfo.isAuthenticated) {
@@ -100,7 +100,7 @@ function BasicAuthenticator::authenticateFromCache(string basicAuthCacheKey) ret
 @Param {value:"basicAuthCacheKey: basic authentication cache key - sha256(basic auth header)"}
 @Param {value:"authInfo: AuthenticationInfo instance containing authentication decision"}
 function BasicAuthenticator::cacheAuthResult (string basicAuthCacheKey, AuthenticationInfo authInfo) {
-    match authCache {
+    match self.authCache {
         caching:Cache cache => {
             cache.put(basicAuthCacheKey, authInfo);
         }

@@ -303,7 +303,7 @@ function getInitiatorClientEP (string registerAtURL) returns InitiatorClientEP {
     } else {
         InitiatorClientEP initiatorEP = new;
         InitiatorClientConfig config = {registerAtURL:registerAtURL,
-                                           endpointTimeout:120000, retryConfig:{count:5, interval:5000}};
+                                           timeoutMillis:120000, retryConfig:{count:5, interval:5000}};
         initiatorEP.init(config);
         httpClientCache.put(registerAtURL, initiatorEP);
         return initiatorEP;
@@ -317,7 +317,7 @@ function getParticipant2pcClientEP (string participantURL) returns Participant2p
     } else {
         Participant2pcClientEP participantEP = new;
         Participant2pcClientConfig config = {participantURL:participantURL,
-                                                endpointTimeout:120000, retryConfig:{count:5, interval:5000}};
+                                                timeoutMillis:120000, retryConfig:{count:5, interval:5000}};
         participantEP.init(config);
         httpClientCache.put(participantURL, participantEP);
         return participantEP;
@@ -353,7 +353,7 @@ public function registerParticipantWithRemoteInitiator (string transactionId,
         error e => {
             string msg = "Cannot register with coordinator for transaction: " + transactionId;
             log:printErrorCause(msg, e);
-            error err = {message:msg, cause:[e]};
+            error err = {message:msg, cause:e};
             return err;
         }
         RegistrationResponse regRes => {
