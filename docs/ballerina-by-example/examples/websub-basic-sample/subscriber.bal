@@ -18,7 +18,7 @@ endpoint websub:Listener websubEP {
     leaseSeconds: 3600000,
     secret: "Kslk30SNF2AChs2"
 }
-service<websub:Service> websubSubscriber bind websubEP {
+service websubSubscriber bind websubEP {
 
     //Resource accepting intent verification requests
     onIntentVerification (endpoint client, websub:IntentVerificationRequest request) {
