@@ -158,8 +158,7 @@ public type Failover object {
 
     @Description { value:"The rejectPromise implementation of the Failover Connector."}
     @Param { value:"promise: The Push Promise need to be rejected" }
-    @Return { value:"Whether operation is successful" }
-    public function rejectPromise(PushPromise promise) returns (boolean);
+    public function rejectPromise(PushPromise promise);
 };
 
 
@@ -292,9 +291,7 @@ public function Failover::getPromisedResponse(PushPromise promise) returns (Resp
 
 @Description { value:"The rejectPromise implementation of the Failover Connector."}
 @Param { value:"promise: The Push Promise need to be rejected" }
-@Return { value:"Whether operation is successful" }
-public function Failover::rejectPromise(PushPromise promise) returns (boolean) {
-    return false;
+public function Failover::rejectPromise(PushPromise promise) {
 }
 
 // Performs execute action of the Failover connector. extract the corresponding http integer value representation

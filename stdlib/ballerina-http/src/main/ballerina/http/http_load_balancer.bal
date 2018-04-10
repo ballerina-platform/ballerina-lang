@@ -128,8 +128,7 @@ public type LoadBalancer object {
 
     @Description { value:"The rejectPromise implementation of the LoadBalancer Connector."}
     @Param { value:"promise: The Push Promise need to be rejected" }
-    @Return { value:"Whether operation is successful" }
-    public function rejectPromise (PushPromise promise) returns (boolean);
+    public function rejectPromise (PushPromise promise);
 
 };
 
@@ -276,9 +275,7 @@ public function LoadBalancer::getPromisedResponse (PushPromise promise) returns 
 
 @Description { value:"The rejectPromise implementation of the LoadBalancer Connector."}
 @Param { value:"promise: The Push Promise need to be rejected" }
-@Return { value:"Whether operation is successful" }
-public function LoadBalancer::rejectPromise (PushPromise promise) returns (boolean) {
-    return false;
+public function LoadBalancer::rejectPromise (PushPromise promise) {
 }
 
 // Performs execute action of the Load Balance connector. extract the corresponding http integer value representation

@@ -177,8 +177,7 @@ public type HttpCachingClient object {
 
     @Description {value:"Rejects a push promise."}
     @Param {value:"promise: The Push Promise need to be rejected"}
-    @Return {value:"Whether operation is successful"}
-    public function rejectPromise (PushPromise promise) returns boolean;
+    public function rejectPromise (PushPromise promise);
 };
 
 @Description {value:"Creates an HTTP client capable of caching HTTP responses."}
@@ -301,8 +300,8 @@ public function HttpCachingClient::getPromisedResponse (PushPromise promise) ret
     return self.httpClient.getPromisedResponse(promise);
 }
 
-public function HttpCachingClient::rejectPromise (PushPromise promise) returns boolean {
-    return self.httpClient.rejectPromise(promise);
+public function HttpCachingClient::rejectPromise (PushPromise promise) {
+    self.httpClient.rejectPromise(promise);
 }
 
 function getCachedResponse (HttpCache cache, HttpClient httpClient, Request req, string httpMethod, string path,
