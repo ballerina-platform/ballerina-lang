@@ -114,14 +114,26 @@ RoomKeyAction[] roomActions2 = [];
 RoomKeyAction[] roomActions3 = [];
 RoomKeyAction[] roomActions4 = [];
 
+stream<RegulatorState> regulatorStateChangeStream;
+stream<RoomKeyAction> roomKeyStream;
+stream<RoomKeyAction> regulatorActionStream;
+
+function testPatternQueryWithOr() {
+    forever {
+        from every regulatorStateChangeStream where userAction == "on" as e1
+        followed by roomKeyStream where e1.roomNo == roomNo && userAction == "removed" as e2
+        || regulatorStateChangeStream where e1.roomNo == roomNo && userAction == "off" as e3
+        select e1.roomNo as roomNo, e2 == null ? "none" : "stop" as userAction having userAction != "none"
+        => (RoomKeyAction[] keyAction) {
+            regulatorActionStream.publish(keyAction);
+        }
+    }
+}
+
 function runPatternQuery2() returns (RoomKeyAction[]) {
     index = 0;
 
-    stream<RegulatorState> regulatorStateChangeStream;
-    stream<RoomKeyAction> roomKeyStream;
-    stream<RoomKeyAction> regulatorActionStream;
-
-    addStreamingRules2(regulatorStateChangeStream, roomKeyStream, regulatorActionStream);
+    testPatternQueryWithOr();
 
     RegulatorState regulatorState1 = {deviceId:1, roomNo:2, tempSet:23.56, userAction:"on"};
     RegulatorState regulatorState2 = {deviceId:1, roomNo:2, tempSet:23.56, userAction:"off"};
@@ -150,19 +162,6 @@ function runPatternQuery2() returns (RoomKeyAction[]) {
     return roomActions;
 }
 
-function addStreamingRules2(stream<RegulatorState> regulatorStateChangeStream2, stream<RoomKeyAction> roomKeyStream2,
-        stream<RoomKeyAction> regulatorActionStream2) {
-    forever {
-        from every regulatorStateChangeStream2 where userAction == "on" as e1
-        followed by roomKeyStream2 where e1.roomNo == roomNo && userAction == "removed" as e2
-        || regulatorStateChangeStream2 where e1.roomNo == roomNo && userAction == "off" as e3
-        select e1.roomNo as roomNo, e2 == null ? "none" : "stop" as userAction having userAction != "none"
-        => (RoomKeyAction[] keyAction) {
-            regulatorActionStream2.publish(keyAction);
-        }
-    }
-}
-
 function alertRoomAction1(RoomKeyAction action) {
     io:println("alertRoomAction function invoked for Room:" + action.roomNo + " and the action :" +
         action.userAction);
@@ -175,14 +174,27 @@ function addToGlobalRoomActions(RoomKeyAction s) {
     index = index + 1;
 }
 
+stream<RegulatorState> regulatorStateChangeStream2;
+stream<RoomKeyAction> roomKeyStream2;
+stream<RoomKeyAction> regulatorActionStream2;
+
+function testPatternQueryWithAnd() {
+    forever {
+        from every regulatorStateChangeStream2 where userAction == "on" as e1
+        followed by roomKeyStream2 where e1.roomNo == roomNo && userAction == "removed" as e2
+        && regulatorStateChangeStream2 where e1.roomNo == roomNo && userAction == "off" as e3
+        select e1.roomNo as roomNo, e2 != null ? "RoomClosedWithRegulatorOff" : "other" as userAction having userAction
+        != "other"
+        => (RoomKeyAction[] keyAction) {
+            regulatorActionStream2.publish(keyAction);
+        }
+    }
+}
+
 function runPatternQuery3() returns (RoomKeyAction[]) {
     index = 0;
 
-    stream<RegulatorState> regulatorStateChangeStream2;
-    stream<RoomKeyAction> roomKeyStream2;
-    stream<RoomKeyAction> regulatorActionStream2;
-
-    addStreamingRules3(regulatorStateChangeStream2, roomKeyStream2, regulatorActionStream2);
+    testPatternQueryWithAnd();
 
     RegulatorState regulatorState1 = {deviceId:1, roomNo:2, tempSet:23.56, userAction:"on"};
     RegulatorState regulatorState2 = {deviceId:1, roomNo:2, tempSet:23.56, userAction:"off"};
@@ -207,20 +219,6 @@ function runPatternQuery3() returns (RoomKeyAction[]) {
     return roomActions2;
 }
 
-function addStreamingRules3(stream<RegulatorState> regulatorStateChangeStream3, stream<RoomKeyAction> roomKeyStream3,
-        stream<RoomKeyAction> regulatorActionStream3) {
-    forever {
-        from every regulatorStateChangeStream3 where userAction == "on" as e1
-        followed by roomKeyStream3 where e1.roomNo == roomNo && userAction == "removed" as e2
-        && regulatorStateChangeStream3 where e1.roomNo == roomNo && userAction == "off" as e3
-        select e1.roomNo as roomNo, e2 != null ? "RoomClosedWithRegulatorOff" : "other" as userAction having userAction
-        != "other"
-        => (RoomKeyAction[] keyAction) {
-            regulatorActionStream3.publish(keyAction);
-        }
-    }
-}
-
 function alertRoomAction2(RoomKeyAction action) {
     io:println("alertRoomAction function invoked for Room:" + action.roomNo + " and the action :" +
         action.userAction);
@@ -233,14 +231,27 @@ function addToGlobalRoomActions2(RoomKeyAction s) {
     index = index + 1;
 }
 
+stream<RegulatorState> regulatorStateChangeStream3;
+stream<RoomKeyAction> roomKeyStream3;
+stream<RoomKeyAction> regulatorActionStream3;
+
+function testPatternQueryWithNot() {
+    forever {
+        from every regulatorStateChangeStream3 where userAction == "on" as e1
+        followed by !roomKeyStream3 where e1.roomNo == roomNo && userAction == "removed"
+        && regulatorStateChangeStream3 where e1.roomNo == roomNo && userAction == "off" as e2
+        select e1.roomNo as roomNo, e2 != null ? "RoomNotClosedWithRegulatorNotOff" : "other" as userAction
+        having userAction != "other"
+        => (RoomKeyAction[] keyAction) {
+            regulatorActionStream3.publish(keyAction);
+        }
+    }
+}
+
 function runPatternQuery4() returns (RoomKeyAction[]) {
     index = 0;
 
-    stream<RegulatorState> regulatorStateChangeStream3;
-    stream<RoomKeyAction> roomKeyStream3;
-    stream<RoomKeyAction> regulatorActionStream3;
-
-    addStreamingRules4(regulatorStateChangeStream3, roomKeyStream3, regulatorActionStream3);
+    testPatternQueryWithNot();
 
     RegulatorState regulatorState1 = {deviceId:1, roomNo:2, tempSet:23.56, userAction:"on"};
     RegulatorState regulatorState2 = {deviceId:1, roomNo:2, tempSet:35.56, userAction:"off"};
@@ -265,20 +276,6 @@ function runPatternQuery4() returns (RoomKeyAction[]) {
     return roomActions3;
 }
 
-function addStreamingRules4(stream<RegulatorState> regulatorStateChangeStream4, stream<RoomKeyAction> roomKeyStream4,
-        stream<RoomKeyAction> regulatorActionStream4) {
-    forever {
-        from every regulatorStateChangeStream4 where userAction == "on" as e1
-        followed by !roomKeyStream4 where e1.roomNo == roomNo && userAction == "removed"
-        && regulatorStateChangeStream4 where e1.roomNo == roomNo && userAction == "off" as e2
-        select e1.roomNo as roomNo, e2 != null ? "RoomNotClosedWithRegulatorNotOff" : "other" as userAction
-        having userAction != "other"
-        => (RoomKeyAction[] keyAction) {
-            regulatorActionStream4.publish(keyAction);
-        }
-    }
-}
-
 
 function alertRoomAction3(RoomKeyAction action) {
     io:println("alertRoomAction function invoked for Room:" + action.roomNo + " and the action :" +
@@ -292,14 +289,25 @@ function addToGlobalRoomActions3(RoomKeyAction s) {
     index = index + 1;
 }
 
+stream<RegulatorState> regulatorStateChangeStream4;
+stream<RoomKeyAction> roomKeyStream4;
+stream<RoomKeyAction> regulatorActionStream4;
+
+function testPatternQueryWithFor() {
+    forever {
+        from every regulatorStateChangeStream4 where userAction == "on" as e1
+        followed by !roomKeyStream4 where e1.roomNo == roomNo && userAction == "removed" for "2 sec"
+        select e1.roomNo as roomNo, "CloseRoomAfter2Sec" as userAction
+        => (RoomKeyAction[] keyAction) {
+            regulatorActionStream4.publish(keyAction);
+        }
+    }
+}
+
 function runPatternQuery5() returns (RoomKeyAction[]) {
     index = 0;
 
-    stream<RegulatorState> regulatorStateChangeStream4;
-    stream<RoomKeyAction> roomKeyStream4;
-    stream<RoomKeyAction> regulatorActionStream4;
-
-    addStreamingRules5(regulatorStateChangeStream4, roomKeyStream4, regulatorActionStream4);
+    testPatternQueryWithFor();
 
     RegulatorState regulatorState1 = {deviceId:1, roomNo:2, tempSet:23.56, userAction:"on"};
 
@@ -318,18 +326,6 @@ function runPatternQuery5() returns (RoomKeyAction[]) {
         }
     }
     return roomActions4;
-}
-
-function addStreamingRules5(stream<RegulatorState> regulatorStateChangeStream5, stream<RoomKeyAction> roomKeyStream5,
-        stream<RoomKeyAction> regulatorActionStream5) {
-    forever {
-        from every regulatorStateChangeStream5 where userAction == "on" as e1
-        followed by !roomKeyStream5 where e1.roomNo == roomNo && userAction == "removed" for "2 sec"
-        select e1.roomNo as roomNo, "CloseRoomAfter2Sec" as userAction
-        => (RoomKeyAction[] keyAction) {
-            regulatorActionStream5.publish(keyAction);
-        }
-    }
 }
 
 

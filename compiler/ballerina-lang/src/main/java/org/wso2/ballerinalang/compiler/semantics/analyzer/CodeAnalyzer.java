@@ -1127,13 +1127,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.reportInvalidWorkerInteractionDiagnostics(workerActionSystem);
         }
     }
-    
+
     private void validateForkJoinSendsToFork(WorkerActionSystem workerActionSystem) {
         for (Map.Entry<String, WorkerActionStateMachine> entry : workerActionSystem.entrySet()) {
             this.validateForkJoinSendsToFork(entry.getValue());
         }
     }
-    
+
     private void validateForkJoinSendsToFork(WorkerActionStateMachine sm) {
         boolean sentToFork = false;
         for (BLangStatement action : sm.actions) {
