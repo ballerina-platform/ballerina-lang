@@ -27,7 +27,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
         var response = endPoint -> execute(method, "/getQuote/stocks", clientRequest);
         match response {
             http:Response httpResponse => {
-                _ = client -> forward(httpResponse);
+                _ = client -> respond(httpResponse);
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;
@@ -45,7 +45,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
         var response = endPoint -> forward("/getQuote/stocks", req);
         match response {
             http:Response httpResponse => {
-                _ = client -> forward(httpResponse);
+                _ = client -> respond(httpResponse);
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;
@@ -63,7 +63,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
         var response = endPoint -> forward("/getQuote/stocks", req);
         match response {
             http:Response httpResponse => {
-                _ = client -> forward(httpResponse);
+                _ = client -> respond(httpResponse);
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;
@@ -82,7 +82,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
         var response = endPoint -> execute(method, "/getQuote/stocks", clientRequest);
         match response {
             http:Response httpResponse => {
-                _ = client -> forward(httpResponse);
+                _ = client -> respond(httpResponse);
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;
@@ -108,7 +108,7 @@ service<http:Service> testClientConHEAD bind serviceEndpoint {
         var response = endPoint -> get("/getQuote/stocks", clientRequest);
         match response {
             http:Response httpResponse => {
-                _ = client -> forward(httpResponse);
+                _ = client -> respond(httpResponse);
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;

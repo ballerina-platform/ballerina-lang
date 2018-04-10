@@ -81,7 +81,7 @@ service<http:Service> hello bind mockEP {
     }
     echo1 (endpoint conn, http:Request req) {
         http:Response res = new;
-        _ = conn -> forward(res);
+        _ = conn -> respond(res);
     }
 
     @http:ResourceConfig {

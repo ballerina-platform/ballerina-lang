@@ -103,11 +103,10 @@ public class JMSUtils {
             InitialContext initialContext = new InitialContext(properties);
             ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup(factoryName);
             return connectionFactory.createConnection();
-        } catch (NamingException e) {
-            LOGGER.info("Error occurred while creating connection", e);
-            throw new BallerinaException("Error occurred while creating connection", e);
-        } catch (JMSException e) {
-            throw new BallerinaException("Error creating connection", e);
+        } catch (NamingException | JMSException e) {
+            String message = "Error while connecting to broker.";
+            LOGGER.error(message, e);
+            throw new BallerinaException(message + " " + e.getMessage(), e);
         }
     }
 
@@ -139,7 +138,9 @@ public class JMSUtils {
         try {
             return connection.createSession(transactedSession, sessionAckMode);
         } catch (JMSException e) {
-            throw new BallerinaException("Error creating channel", e);
+            String message = "Error while creating session.";
+            LOGGER.error(message, e);
+            throw new BallerinaException(message + " " + e.getMessage(), e);
         }
     }
 
@@ -263,7 +264,7 @@ public class JMSUtils {
         }
         if (resources.length > 1) {
             throw new BallerinaException("More than one resources found in JMS service " + service.getName()
-                    + ".JMS Service should only have one resource");
+                    + ". JMS Service should only have one resource");
         }
         return resources[0];
     }
@@ -271,4 +272,5 @@ public class JMSUtils {
     public static Topic getTopic(Session session, String topicPattern) throws JMSException {
         return session.createTopic(topicPattern);
     }
+
 }

@@ -163,7 +163,7 @@ service<http:Service> InitiatorService bind initiatorEP {
                     abort;
                 }
                 http:Response participant1Res => {
-                    var fwdResult = conn -> forward(participant1Res); 
+                    var fwdResult = conn -> respond(participant1Res);
                     match fwdResult {
                         http:HttpConnectorError err => {
                             io:print("Initiator could not forward response from participant 1 to originating client. Error:");
