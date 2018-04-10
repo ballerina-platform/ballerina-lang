@@ -9,27 +9,28 @@ jms:Connection jmsConnection = new({
 
 // Initialize a JMS session on top of the created connection
 jms:Session jmsSession = new(jmsConnection, {
-        acknowledgementMode:"AUTO_ACKNOWLEDGE"
+        acknowledgementMode:"CLIENT_ACKNOWLEDGE"
     });
 
 // Initialize a Queue sender on top of the the created sessions
-endpoint jms:QueueConsumer queueConsumer {
+endpoint jms:QueueReceiver queueReceiver {
     session:jmsSession,
     queueName:"MyQueue"
 };
 
 public function main(string[] args) {
     // Receive a message from the JMS provider.
-    var result = queueConsumer -> receive(timeoutInMilliSeconds = 5000);
+    var result = queueReceiver -> receive(timeoutInMilliSeconds = 1000);
 
     match result {
         jms:Message msg => {
             log:printInfo("Message received " + check msg.getTextMessageContent());
+            check queueReceiver -> acknowledge(msg);
         }
         () => {
             log:printInfo("Message not received");
         }
-        Error err => {
+        jms:Error err => {
             log:printInfo("Error receiving message. " + err.message);
         }
     }

@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.consumer;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.receiver;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -26,25 +26,28 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler;
+import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandler;
 
 /**
- * Close the message consumer object.
+ * Register JMS listener for a consumer endpoint.
+ *
+ * @since 0.970
  */
+
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "jms",
-        functionName = "closeConsumer",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "QueueConsumer", structPackage = "ballerina.jms"),
-        args = {
-                @Argument(name = "connector", type = TypeKind.STRUCT, structType = "QueueConsumerConnector")
+        orgName = "ballerina", packageName = "jms",
+        functionName = "registerListener",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "QueueReceiver", structPackage = "ballerina.jms"),
+        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC),
+                @Argument(name = "connector", type = TypeKind.STRUCT, structType = "QueueReceiverConnector")
         },
         isPublic = true
 )
-public class CloseConsumer implements NativeCallableUnit {
+public class RegisterMessageListener implements NativeCallableUnit {
+
     @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        CloseConsumerHandler.handle(context);
+    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+        MessageListenerHandler.createAndRegister(context);
     }
 
     @Override

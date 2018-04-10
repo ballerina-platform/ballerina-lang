@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.consumer.action;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.receiver.action;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -27,21 +27,20 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
-import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageAcknowledgementHandler;
+import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler;
 
 /**
  * {@code Send} is the send action implementation of the JMS Connector.
  */
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "jms",
-                   functionName = "acknowledge",
+                   functionName = "receive",
                    receiver = @Receiver(type = TypeKind.STRUCT,
-                                        structType = "QueueConsumerConnector",
+                                        structType = "QueueReceiverConnector",
                                         structPackage = "ballerina.jms"),
                    args = {
-                           @Argument(name = "message",
-                                     type = TypeKind.STRUCT,
-                                     structType = "Message")
+                           @Argument(name = "timeInMilliSeconds",
+                                     type = TypeKind.INT)
                    },
                    returnType = {
                            @ReturnType(type = TypeKind.STRUCT,
@@ -50,10 +49,10 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageAcknowledgeme
                    },
                    isPublic = true
 )
-public class Acknowledge extends AbstractBlockinAction {
+public class QueueReceive extends AbstractBlockinAction {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        MessageAcknowledgementHandler.handle(context);
+    public void execute(Context context, CallableUnitCallback callback) {
+        ReceiveActionHandler.handle(context);
     }
 }

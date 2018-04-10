@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.consumer;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.receiver;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -46,8 +46,8 @@ import javax.jms.Session;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "jms",
-        functionName = "createConsumer",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "QueueConsumer", structPackage = "ballerina.jms"),
+        functionName = "createQueueReceiver",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "QueueReceiver", structPackage = "ballerina.jms"),
         args = { @Argument(name = "session", type = TypeKind.STRUCT, structType = "Session"),
                  @Argument(name = "messageSelector", type = TypeKind.STRING)
         },

@@ -2,18 +2,18 @@ package ballerina.jms;
 
 import ballerina/log;
 
-public type SimpleQueueListener object {
+public type SimpleQueueReceiver object {
     public {
-        SimpleQueueListenerEndpointConfiguration config;
+        SimpleQueueReceiverEndpointConfiguration config;
     }
 
     private {
         Connection? connection;
         Session? session;
-        QueueConsumer? consumer;
+        QueueReceiver? queueReceiver;
     }
 
-    public function init(SimpleQueueListenerEndpointConfiguration config) {
+    public function init(SimpleQueueReceiverEndpointConfiguration config) {
         self.config = config;
         Connection conn = new ({
                 initialContextFactory: config.initialContextFactory,
@@ -28,23 +28,23 @@ public type SimpleQueueListener object {
             });
         self.session = newSession;
 
-        QueueConsumer queueConsumer = new;
-        QueueConsumerEndpointConfiguration consumerConfig = {
+        QueueReceiver receiver = new;
+        QueueReceiverEndpointConfiguration queueReceiverConfig = {
             session: newSession,
             queueName: config.queueName,
             messageSelector: config.messageSelector
         };
-        queueConsumer.init(consumerConfig);
-        self.consumer = queueConsumer;
+        receiver.init(queueReceiverConfig);
+        self.queueReceiver = receiver;
     }
 
     public function register (typedesc serviceType) {
-        match (consumer) {
-            QueueConsumer c => {
+        match (queueReceiver) {
+            QueueReceiver c => {
                 c.register(serviceType);
             }
             () => {
-                error e = {message: "Queue consumer cannot be nil"};
+                error e = {message: "Queue receiver cannot be nil"};
                 throw e;
             }
         }
@@ -53,11 +53,11 @@ public type SimpleQueueListener object {
     public function start () {
     }
 
-    public function getClient () returns (QueueConsumerConnector) {
-        match (consumer) {
-            QueueConsumer c => return c.getClient();
+    public function getClient () returns (QueueReceiverConnector) {
+        match (queueReceiver) {
+            QueueReceiver c => return c.getClient();
             () => {
-                error e = {message: "Queue consumer cannot be nil"};
+                error e = {message: "Queue receiver cannot be nil"};
                 throw e;
             }
         }
@@ -78,7 +78,7 @@ public type SimpleQueueListener object {
     }
 };
 
-public type SimpleQueueListenerEndpointConfiguration {
+public type SimpleQueueReceiverEndpointConfiguration {
     string initialContextFactory = "wso2mbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
