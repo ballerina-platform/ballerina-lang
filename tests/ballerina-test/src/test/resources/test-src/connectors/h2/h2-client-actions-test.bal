@@ -9,13 +9,13 @@ public type Customer {
     string country,
 };
 
-function testSelect () returns (int[]) {
+function testSelect() returns (int[]) {
     endpoint h2:Client testDB {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: {maximumPoolSize:1}
+        path:"./target/H2Client/",
+        name:"TestDBH2",
+        username:"SA",
+        password:"",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var val = testDB -> select("select * from Customers where customerId=1 OR customerId=2", (), typeof Customer);
@@ -25,7 +25,7 @@ function testSelect () returns (int[]) {
         table dt => {
             int i = 0;
             while (dt.hasNext()) {
-                Customer rs = check <Customer> dt.getNext();
+                Customer rs = check <Customer>dt.getNext();
                 customerIds[i] = rs.customerId;
                 i++;
             }
@@ -35,13 +35,13 @@ function testSelect () returns (int[]) {
     }
 }
 
-function testUpdate () returns (int) {
+function testUpdate() returns (int) {
     endpoint h2:Client testDB {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: {maximumPoolSize:1}
+        path:"./target/H2Client/",
+        name:"TestDBH2",
+        username:"SA",
+        password:"",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var insertCountRet = testDB -> update("insert into Customers (customerId, name, creditLimit, country)
@@ -52,13 +52,13 @@ function testUpdate () returns (int) {
     return insertCount;
 }
 
-function testCall () returns (string) {
+function testCall() returns (string) {
     endpoint h2:Client testDB {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: {maximumPoolSize:1}
+        path:"./target/H2Client/",
+        name:"TestDBH2",
+        username:"SA",
+        password:"",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtsRet = testDB -> call("{call JAVAFUNC('select * from Customers where customerId=1')}", (), typeof Customer);
@@ -67,19 +67,19 @@ function testCall () returns (string) {
     string name;
     while (dts[0].hasNext()) {
         Customer rs = check <Customer>dts[0].getNext();
-         name = rs.name;
+        name = rs.name;
     }
     _ = testDB -> close();
     return name;
 }
 
-function testGeneratedKeyOnInsert () returns (string) {
+function testGeneratedKeyOnInsert() returns (string) {
     endpoint h2:Client testDB {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: {maximumPoolSize:1}
+        path:"./target/H2Client/",
+        name:"TestDBH2",
+        username:"SA",
+        password:"",
+        poolOptions:{maximumPoolSize:1}
     };
 
     string returnVal;
@@ -88,13 +88,13 @@ function testGeneratedKeyOnInsert () returns (string) {
             creditLimit,country) values ('Sam', 1200, 'USA')", (), ());
 
     match x {
-        (int, string[]) y  =>{
+        (int, string[]) y => {
             int a;
             string[] b;
             (a, b) = y;
             returnVal = b[0];
         }
-        error err1 =>{
+        error err1 => {
             returnVal = err1.message;
         }
     }
@@ -103,13 +103,13 @@ function testGeneratedKeyOnInsert () returns (string) {
     return returnVal;
 }
 
-function testBatchUpdate () returns (int[]) {
+function testBatchUpdate() returns (int[]) {
     endpoint h2:Client testDB {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: {maximumPoolSize:1}
+        path:"./target/H2Client/",
+        name:"TestDBH2",
+        username:"SA",
+        password:"",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int[] updateCount;
@@ -132,10 +132,10 @@ function testBatchUpdate () returns (int[]) {
 
         var x = testDB -> batchUpdate("Insert into Customers values (?,?,?,?)", parameters);
         match x {
-            int[] data  =>{
+            int[] data => {
                 return data;
             }
-            error err1 =>{
+            error err1 => {
                 return [];
             }
         }
@@ -145,13 +145,13 @@ function testBatchUpdate () returns (int[]) {
     return [];
 }
 
-function testAddToMirrorTable () returns (Customer[]) {
+function testAddToMirrorTable() returns (Customer[]) {
     endpoint h2:Client testDB {
-        path: "./target/H2Client/",
-        name: "TestDBH2",
-        username: "SA",
-        password: "",
-        poolOptions: {maximumPoolSize:1}
+        path:"./target/H2Client/",
+        name:"TestDBH2",
+        username:"SA",
+        password:"",
+        poolOptions:{maximumPoolSize:1}
     };
 
     try {
@@ -187,13 +187,12 @@ function testAddToMirrorTable () returns (Customer[]) {
     return [];
 }
 
-function testUpdateInMemory () returns (int, string) {
-
+function testUpdateInMemory() returns (int, string) {
     endpoint h2:Client testDB {
-        name: "TestDB2H2",
-        username: "SA",
-        password: "",
-        poolOptions: {maximumPoolSize:1}
+        name:"TestDB2H2",
+        username:"SA",
+        password:"",
+        poolOptions:{maximumPoolSize:1}
     };
 
     _ = testDB -> update("CREATE TABLE IF NOT EXISTS Customers(customerId INTEGER NOT NULL IDENTITY,
@@ -204,9 +203,9 @@ function testUpdateInMemory () returns (int, string) {
     var x = testDB -> select("SELECT  * from Customers", (), typeof Customer);
     table t = check x;
 
-    json j = check <json> t;
+    json j = check <json>t;
 
-    string s = j.toString() but {() => ""};
+    string s = j.toString() but { () => "" };
 
     int insertCount = check insertCountRet;
     _ = testDB -> close();
