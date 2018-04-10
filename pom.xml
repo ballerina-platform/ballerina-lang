@@ -1060,7 +1060,7 @@
 
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-integration</module>
-
+                <module>tests/ballerina-test-compiler-plugins</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
             </modules>
