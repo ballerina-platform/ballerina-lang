@@ -746,7 +746,7 @@ public class CPU {
                     default:
                         throw new UnsupportedOperationException();
                 }
-            } catch (HandleErrorException e) { 
+            } catch (HandleErrorException e) {
                 throw e;
             } catch (Throwable e) {
                 BLangVMUtils.log("fatal error: " + e.getMessage());
@@ -3262,7 +3262,7 @@ public class CPU {
 
     private static boolean isSameType(BType rhsType, BType lhsType) {
         // First check whether both references points to the same object.
-        if (rhsType == lhsType) {
+        if (rhsType == lhsType || rhsType.equals(lhsType)) {
             return true;
         }
 

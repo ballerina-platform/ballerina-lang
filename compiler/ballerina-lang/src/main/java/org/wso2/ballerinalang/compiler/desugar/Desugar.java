@@ -1970,7 +1970,7 @@ public class Desugar extends BLangNodeVisitor {
         // Re-order the named arguments
         List<BLangExpression> args = new ArrayList<>();
         for (BVarSymbol param : invocableSymbol.defaultableParams) {
-            args.add(namedArgs.get(param.name.value));
+            args.add(namedArgs.get(param.field ? param.originalName.value : param.name.value));
         }
         iExpr.namedArgs = args;
     }
