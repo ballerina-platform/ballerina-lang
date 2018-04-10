@@ -289,14 +289,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangFunction funcNode) {
-        SymbolEnv funcEnv;
-        if (funcNode.attachedOuterFunction) {
-            BLangObject obj = findMatchingObject(env.enclPkg, funcNode.receiver.type.tsymbol.name.value).get(0);
-            SymbolEnv objectEnv = SymbolEnv.createObjectEnv(obj, funcNode.receiver.type.tsymbol.scope, env);
-            funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, objectEnv);
-        } else {
-            funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        }
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         //set function param flag to final
         funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
 
