@@ -3,7 +3,8 @@ import ballerina/io;
 io:Socket socket;
 
 function openSocketConnection (string host, int port) {
-    var result = io:openSocket(host, port, {});
+    io:SocketProperties properties = {localPort:0};
+    var result = io:openSocket(host, port, properties);
     match result {
         io:Socket s => {
             socket = s;

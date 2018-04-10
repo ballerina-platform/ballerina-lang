@@ -1,11 +1,11 @@
 import ballerina/os;
 
-const string envVar = os:getEnv("env_var");
-const string varFunc = dummyStringFunction();
-const string str = "ballerina is $$$";
-const string varNativeFunc = str.replace("$$$","awesome");
-const int varIntExpr = 10+10+10;
-const string varConcat = envVar + varFunc + varNativeFunc;
+@final string envVar = os:getEnv("env_var");
+@final string varFunc = dummyStringFunction();
+@final string str = "ballerina is $$$";
+@final string varNativeFunc = str.replace("$$$","awesome");
+@final int varIntExpr = 10+10+10;
+@final string varConcat = envVar + varFunc + varNativeFunc;
 
 function accessConstant() returns (string) {
     return envVar;

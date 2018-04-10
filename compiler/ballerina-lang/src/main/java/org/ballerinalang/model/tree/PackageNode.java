@@ -66,6 +66,10 @@ public interface PackageNode extends Node {
 
     void addObject(ObjectNode object);
 
+    List<? extends TypeDefinition> getTypeDefinitions();
+
+    void addTypeDefinition(TypeDefinition typeDefinition);
+
     List<? extends EnumNode> getEnums();
 
     void addEnum(EnumNode enumNode);

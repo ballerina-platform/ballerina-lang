@@ -1,44 +1,44 @@
-struct Person {
-    int id;
-    int age = -1;
-    float salary;
-    string name;
-    boolean married;
-}
+type Person {
+    int id,
+    int age = -1,
+    float salary,
+    string name,
+    boolean married,
+};
 
-struct Order {
-    int personId;
-    int orderId;
-    string items;
-    float amount;
-}
+type Order {
+    int personId,
+    int orderId,
+    string items,
+    float amount,
+};
 
-struct OrderDetails {
-    int orderId;
-    string personName;
-    string items;
-    float amount;
-}
+type OrderDetails {
+    int orderId,
+    string personName,
+    string items,
+    float amount,
+};
 
-struct Student {
-    string name;
-    int index;
-    int age = -1;
-}
+type Student {
+    string name,
+    int index,
+    int age = -1,
+};
 
 function testSimpleSelectAll () returns (int) {
 
-    table<Person> personTable = {};
+    table<Person> personTable = table{};
     int recordCount = 0;
     Person p1 = {id:1, age:25, salary:300.50, name:"jane", married:true};
     Person p2 = {id:2, age:26, salary:400.50, name:"kane", married:false};
     Person p3 = {id:3, age:27, salary:500.50, name:"jack", married:true};
     Person p4 = {id:4, age:28, salary:600.50, name:"alex", married:false};
 
-    personTable.add(p1);
-    personTable.add(p2);
-    personTable.add(p3);
-    personTable.add(p4);
+    _ = personTable.add(p1);
+    _ = personTable.add(p2);
+    _ = personTable.add(p3);
+    _ = personTable.add(p4);
 
     table<Person> personTableCopy = from personTable
                                          select *;
@@ -52,17 +52,17 @@ function testSimpleSelectAll () returns (int) {
 
 function testSimpleSelectFewFields () returns (int) {
 
-    table<Person> personTable = {};
+    table<Person> personTable = table{};
     int recordCount = 0;
     Person p1 = {id:1, age:25, salary:300.50, name:"jane", married:true};
     Person p2 = {id:2, age:26, salary:400.50, name:"kane", married:false};
     Person p3 = {id:3, age:27, salary:500.50, name:"jack", married:true};
     Person p4 = {id:4, age:28, salary:600.50, name:"alex", married:false};
 
-    personTable.add(p1);
-    personTable.add(p2);
-    personTable.add(p3);
-    personTable.add(p4);
+    _ = personTable.add(p1);
+    _ = personTable.add(p2);
+    _ = personTable.add(p3);
+    _ = personTable.add(p4);
 
     table<Student> studentTable = from personTable
                                        select name, id as index, age;
@@ -76,8 +76,8 @@ function testSimpleSelectFewFields () returns (int) {
 
 function testSimpleSelectWithJoin () returns (int) {
 
-    table<Person> personTable = {};
-    table<Order> orderTable = {};
+    table<Person> personTable = table{};
+    table<Order> orderTable = table{};
 
     int recordCount = 0;
     Person p1 = {id:1, age:25, salary:300.50, name:"jane", married:true};
@@ -90,15 +90,15 @@ function testSimpleSelectWithJoin () returns (int) {
     Order o3 = {personId:2, orderId:5643, items:"Macbook Pro", amount:2334.75};
     Order o4 = {personId:3, orderId:8765, items:"Tshirt", amount:20.75};
 
-    personTable.add(p1);
-    personTable.add(p2);
-    personTable.add(p3);
-    personTable.add(p4);
+    _ = personTable.add(p1);
+    _ = personTable.add(p2);
+    _ = personTable.add(p3);
+    _ = personTable.add(p4);
 
-    orderTable.add(o1);
-    orderTable.add(o2);
-    orderTable.add(o3);
-    orderTable.add(o4);
+    _ = orderTable.add(o1);
+    _ = orderTable.add(o2);
+    _ = orderTable.add(o3);
+    _ = orderTable.add(o4);
 
     table<OrderDetails> orderDetailsTable = from personTable as tempPersonTable join orderTable as tempOrderTable on
         tempPersonTable.id == tempOrderTable.personId select tempOrderTable.orderId as orderId, tempPersonTable.name as
@@ -114,8 +114,8 @@ function testSimpleSelectWithJoin () returns (int) {
 
 function testSelectWithJoinAndWhere () returns (int) {
 
-    table<Person> personTable = {};
-    table<Order> orderTable = {};
+    table<Person> personTable = table{};
+    table<Order> orderTable = table{};
 
     int recordCount = 0;
     Person p1 = {id:1, age:25, salary:300.50, name:"jane", married:true};
@@ -128,15 +128,15 @@ function testSelectWithJoinAndWhere () returns (int) {
     Order o3 = {personId:2, orderId:5643, items:"Macbook Pro", amount:2334.75};
     Order o4 = {personId:3, orderId:8765, items:"Tshirt", amount:20.75};
 
-    personTable.add(p1);
-    personTable.add(p2);
-    personTable.add(p3);
-    personTable.add(p4);
+    _ = personTable.add(p1);
+    _ = personTable.add(p2);
+    _ = personTable.add(p3);
+    _ = personTable.add(p4);
 
-    orderTable.add(o1);
-    orderTable.add(o2);
-    orderTable.add(o3);
-    orderTable.add(o4);
+    _ = orderTable.add(o1);
+    _ = orderTable.add(o2);
+    _ = orderTable.add(o3);
+    _ = orderTable.add(o4);
 
     table<OrderDetails> orderDetailsTable = from personTable where name != "jane" as tempPersonTable join orderTable
             where personId != 3 as tempOrderTable on tempPersonTable.id == tempOrderTable.personId select
@@ -153,8 +153,8 @@ function testSelectWithJoinAndWhere () returns (int) {
 
 function testSelectWithJoinAndWhereWithGroupBy () returns (int) {
 
-    table<Person> personTable = {};
-    table<Order> orderTable = {};
+    table<Person> personTable = table{};
+    table<Order> orderTable = table{};
 
     int recordCount = 0;
     Person p1 = {id:1, age:25, salary:300.50, name:"jane", married:true};
@@ -167,15 +167,15 @@ function testSelectWithJoinAndWhereWithGroupBy () returns (int) {
     Order o3 = {personId:2, orderId:5643, items:"Macbook Pro", amount:2334.75};
     Order o4 = {personId:3, orderId:8765, items:"Tshirt", amount:20.75};
 
-    personTable.add(p1);
-    personTable.add(p2);
-    personTable.add(p3);
-    personTable.add(p4);
+    _ = personTable.add(p1);
+    _ = personTable.add(p2);
+    _ = personTable.add(p3);
+    _ = personTable.add(p4);
 
-    orderTable.add(o1);
-    orderTable.add(o2);
-    orderTable.add(o3);
-    orderTable.add(o4);
+    _ = orderTable.add(o1);
+    _ = orderTable.add(o2);
+    _ = orderTable.add(o3);
+    _ = orderTable.add(o4);
 
     table<OrderDetails> orderDetailsTable = from personTable as tempPersonTable join orderTable as tempOrderTable on
             tempPersonTable.id == tempOrderTable.personId

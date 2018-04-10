@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.test.metrics;
 
-import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -26,19 +24,18 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * Tests for timer metric.
  */
-public class TimerTest {
+public class TimerTest extends MetricTest {
     private CompileResult compileResult;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/metrics/timer-test.bal");
-        Metrics.globalRegistry.add(new SimpleMeterRegistry());
     }
 
     @Test
@@ -63,5 +60,11 @@ public class TimerTest {
     public void testPercentileTimer() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testPercentileTimer");
         Assert.assertNotEquals(returns[0], new BFloat(0));
+    }
+
+    @Test
+    public void testTimerWithoutTags() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTimerWithoutTags");
+        Assert.assertEquals(returns[0], new BFloat(2500));
     }
 }

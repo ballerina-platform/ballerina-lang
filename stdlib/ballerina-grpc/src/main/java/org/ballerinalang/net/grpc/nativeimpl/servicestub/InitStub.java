@@ -79,11 +79,11 @@ public class InitStub extends BlockingNativeCallableUnit {
         BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
         BStruct clientEndpoint = (BStruct) context.getRefArgument(CLIENT_ENDPOINT_REF_INDEX);
         ManagedChannel channel = (ManagedChannel) clientEndpoint.getNativeData(CHANNEL_KEY);
-        String stubtype = context.getStringArgument(STUB_TYPE_STRING_INDEX);
+        String stubType = context.getStringArgument(STUB_TYPE_STRING_INDEX);
         String descriptorKey = context.getStringArgument(DESCRIPTOR_KEY_STRING_INDEX);
         BMap<String, BValue> descriptorMap = (BMap<String, BValue>) context.getRefArgument(DESCRIPTOR_MAP_REF_INDEX);
 
-        if (stubtype == null || descriptorKey == null || descriptorMap == null) {
+        if (stubType == null || descriptorKey == null || descriptorMap == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                     .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
                             "message descriptor keys not exist. Please check the generated sub file"))));
@@ -116,10 +116,10 @@ public class InitStub extends BlockingNativeCallableUnit {
             protoFileDefinition.setRootDescriptorData(descriptorValue);
             ClientConnectorFactory clientConnectorFactory = new ClientConnectorFactory(protoFileDefinition);
 
-            if (BLOCKING_TYPE.equalsIgnoreCase(stubtype)) {
+            if (BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
                 GrpcBlockingStub grpcBlockingStub = clientConnectorFactory.newBlockingStub(channel);
                 serviceStub.addNativeData(SERVICE_STUB, grpcBlockingStub);
-            } else if (NON_BLOCKING_TYPE.equalsIgnoreCase(stubtype)) {
+            } else if (NON_BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
                 GrpcNonBlockingStub nonBlockingStub = clientConnectorFactory.newNonBlockingStub(channel);
                 serviceStub.addNativeData(SERVICE_STUB, nonBlockingStub);
             } else {

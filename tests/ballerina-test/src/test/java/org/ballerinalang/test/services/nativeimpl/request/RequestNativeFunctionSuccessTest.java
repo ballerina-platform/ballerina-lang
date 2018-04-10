@@ -86,8 +86,6 @@ public class RequestNativeFunctionSuccessTest {
     private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
     private final String reqCacheControlStruct = REQUEST_CACHE_CONTROL;
-    public static final String PROTOCOL_PACKAGE_FILE = "ballerina.file";
-    public static final String FILE = "File";
     private static final String MOCK_ENDPOINT_NAME = "mockEP";
 
     @BeforeClass
@@ -178,7 +176,7 @@ public class RequestNativeFunctionSuccessTest {
                 jsonString);
         inRequestMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(length));
 
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -584,9 +582,7 @@ public class RequestNativeFunctionSuccessTest {
         bufferedWriter.write("{'name':'wso2'}");
         bufferedWriter.close();
 
-        BStruct fileStruct = BCompileUtil.createAndGetStruct(result.getProgFile(), PROTOCOL_PACKAGE_FILE, FILE);
-        fileStruct.setStringField(0, file.getAbsolutePath());
-        BValue[] inputArg = {fileStruct, new BString(APPLICATION_JSON)};
+        BValue[] inputArg = {new BString(file.getAbsolutePath()), new BString(APPLICATION_JSON)};
         BValue[] returnVals = BRunUtil.invoke(result, "testSetEntityBody", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");

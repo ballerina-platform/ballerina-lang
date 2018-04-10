@@ -11,7 +11,7 @@ options {
 compilationUnit
     :   packageDeclaration?
         (importDeclaration | namespaceDeclaration)*
-        (annotationAttachment* documentationAttachment? deprecatedAttachment? definition)*
+        (documentationAttachment? deprecatedAttachment? annotationAttachment* definition)*
         EOF
     ;
 
@@ -38,10 +38,7 @@ orgName
 definition
     :   serviceDefinition
     |   functionDefinition
-    |   structDefinition
     |   typeDefinition
-    |   enumDefinition
-    |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
     |   globalEndpointDefinition
@@ -88,20 +85,8 @@ callableUnitSignature
     :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
     ;
 
-structDefinition
-    :   (PUBLIC)? STRUCT Identifier structBody
-    ;
-
-structBody
-    :   LEFT_BRACE fieldDefinition* privateStructBody? RIGHT_BRACE
-    ;
-
-privateStructBody
-    :   PRIVATE COLON fieldDefinition*
-    ;
-
 typeDefinition
-    :   (PUBLIC)? TYPE_TYPE Identifier typeName
+    :   (PUBLIC)? TYPE Identifier finiteType SEMICOLON
     ;
 
 objectBody
@@ -109,11 +94,11 @@ objectBody
     ;
 
 publicObjectFields
-    :   PUBLIC LEFT_BRACE objectFieldDefinition* RIGHT_BRACE
+    :   PUBLIC LEFT_BRACE fieldDefinition* RIGHT_BRACE
     ;
 
 privateObjectFields
-    :   PRIVATE LEFT_BRACE objectFieldDefinition* RIGHT_BRACE
+    :   PRIVATE LEFT_BRACE fieldDefinition* RIGHT_BRACE
     ;
 
 objectInitializer
@@ -129,8 +114,8 @@ objectFunctions
     ;
 
 // TODO merge with fieldDefinition later
-objectFieldDefinition
-    :   typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
+fieldDefinition
+    :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
 // TODO try to merge with formalParameterList later
@@ -164,33 +149,20 @@ annotationDefinition
     : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
 
-enumDefinition
-    : (PUBLIC)? ENUM Identifier LEFT_BRACE enumerator (COMMA enumerator)* RIGHT_BRACE
-    ;
-
-enumerator
-    : Identifier
-    ;
-
 globalVariableDefinition
-    :   (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
+    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     ;
 
 attachmentPoint
      : SERVICE
      | RESOURCE
      | FUNCTION
-     | STRUCT
-     | ENUM
+     | OBJECT
+     | TYPE
      | ENDPOINT
-     | CONST
      | PARAMETER
      | ANNOTATION
      ;
-
-constantDefinition
-    :   (PUBLIC)? CONST valueTypeName Identifier (ASSIGN | SAFE_ASSIGNMENT) expression SEMICOLON
-    ;
 
 workerDeclaration
     :   workerDefinition LEFT_BRACE statement* RIGHT_BRACE
@@ -217,6 +189,15 @@ endpointInitlization
     |   ASSIGN variableReference
     ;
 
+finiteType
+    :  finiteTypeUnit (PIPE finiteTypeUnit)*
+    ;
+
+finiteTypeUnit
+    :   simpleLiteral
+    |   typeName
+    ;
+
 typeName
     :   simpleTypeName                                                      # simpleTypeNameLabel
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
@@ -225,12 +206,16 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
+    |   LEFT_BRACE fieldDefinitionList RIGHT_BRACE                          # recordTypeNameLabel
+    ;
+
+fieldDefinitionList
+    :   fieldDefinition*
     ;
 
 // Temporary production rule name
 simpleTypeName
-    :   NullLiteral
-    |   TYPE_ANY
+    :   TYPE_ANY
     |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
@@ -248,15 +233,10 @@ builtInTypeName
 referenceTypeName
     :   builtInReferenceTypeName
     |   userDefineTypeName
-    |   anonStructTypeName
     ;
 
 userDefineTypeName
     :   nameReference
-    ;
-
-anonStructTypeName
-    : STRUCT structBody
     ;
 
 valueTypeName
@@ -321,10 +301,11 @@ statement
     |   namespaceDeclarationStatement
     |   foreverStatement
     |   streamingQueryStatement
+    |   doneStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation))? SEMICOLON
+    :   typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 recordLiteral
@@ -340,6 +321,14 @@ recordKey
     |   expression
     ;
 
+tableLiteral
+    :   TYPE_TABLE tableInitialization
+    ;
+
+tableInitialization
+    :   recordLiteral
+    ;
+
 arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
@@ -350,12 +339,12 @@ typeInitExpr
     ;
 
 assignmentStatement
-    :   (VAR)? variableReference (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
+    :   (VAR)? variableReference ASSIGN expression SEMICOLON
     ;
 
 tupleDestructuringStatement
-    :   VAR? LEFT_PARENTHESIS variableReferenceList RIGHT_PARENTHESIS ASSIGN (expression | actionInvocation) SEMICOLON
-    |   LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS ASSIGN (expression | actionInvocation) SEMICOLON
+    :   VAR? LEFT_PARENTHESIS variableReferenceList RIGHT_PARENTHESIS ASSIGN expression SEMICOLON
+    |   LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS ASSIGN expression SEMICOLON
     ;
 
 compoundAssignmentStatement
@@ -479,19 +468,18 @@ workerInteractionStatement
 
 // below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER
 triggerWorker
-    :   expressionList RARROW Identifier SEMICOLON #invokeWorker
-    |   expressionList RARROW FORK SEMICOLON     #invokeFork
+    :   expression RARROW Identifier SEMICOLON        #invokeWorker
+    |   expression RARROW FORK SEMICOLON              #invokeFork
     ;
 
 // below left Identifier is of type WORKER and the right Identifier is of type message
 workerReply
-    :   expressionList LARROW Identifier SEMICOLON
+    :   expression LARROW Identifier SEMICOLON
     ;
 
 variableReference
     :   nameReference                                                           # simpleVariableReference
-    |   ASYNC? functionInvocation                                               # functionInvocationReference
-    |   awaitExpression                                                         # awaitExpressionReference
+    |   functionInvocation                                                      # functionInvocationReference
     |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
@@ -499,7 +487,7 @@ variableReference
     ;
 
 field
-    : DOT (Identifier | MUL)
+    : (DOT | NOT) (Identifier | MUL)
     ;
 
 index
@@ -515,7 +503,7 @@ functionInvocation
     ;
 
 invocation
-    : DOT anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    : (DOT | NOT) anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocationArgList
@@ -537,7 +525,7 @@ expressionList
     ;
 
 expressionStmt
-    :   (variableReference | actionInvocation) SEMICOLON
+    :   expression SEMICOLON
     ;
 
 transactionStatement
@@ -598,10 +586,12 @@ expression
     |   arrayLiteral                                                        # arrayLiteralExpression
     |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
+    |   tableLiteral                                                        # tableLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
-    |   variableReference                                                   # variableReferenceExpression
+    |   ASYNC? variableReference                                            # variableReferenceExpression
+    |   actionInvocation                                                    # actionInvocationExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   tableQuery                                                          # tableQueryExpression
@@ -620,6 +610,7 @@ expression
     |   awaitExpression                                                     # awaitExprExpression
     |	expression matchExpression										    # matchExprExpression
     |	CHECK expression										            # checkedExpression
+    |   expression ELVIS expression                                         # elvisExpression
     ;
 
 awaitExpression
@@ -676,10 +667,6 @@ restParameter
 formalParameterList
     :   (parameter | defaultableParameter) (COMMA (parameter | defaultableParameter))* (COMMA restParameter)?
     |   restParameter
-    ;
-
-fieldDefinition
-    :   typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 simpleLiteral
@@ -819,6 +806,10 @@ foreverStatement
     :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
     ;
 
+doneStatement
+    :   DONE SEMICOLON
+    ;
+
 streamingQueryStatement
     :   FROM (streamingInput (joinStreamingInput)? | patternClause)
         selectClause?
@@ -889,8 +880,7 @@ outputRateLimit
 patternStreamingInput
     :   patternStreamingEdgeInput FOLLOWED BY patternStreamingInput
     |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
-    |   FOREACH patternStreamingInput
-    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR StringTemplateText)
+    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR simpleLiteral)
     |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput
     |   patternStreamingEdgeInput
     ;
@@ -974,7 +964,7 @@ documentationTemplateContent
     ;
 
 documentationTemplateAttributeDescription
-    :   DocumentationTemplateAttributeStart Identifier DocumentationTemplateAttributeEnd docText?
+    :   DocumentationTemplateAttributeStart Identifier? DocumentationTemplateAttributeEnd docText?
     ;
 
 docText

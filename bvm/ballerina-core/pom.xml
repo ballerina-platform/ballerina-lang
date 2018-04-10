@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha1-SNAPSHOT</version>
+        <version>0.970.0-alpha4-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -144,9 +144,44 @@
             <artifactId>siddhi-annotations</artifactId>
         </dependency>
 
+        <!-- Observability dependencies -->
+        <dependency>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-util</artifactId>
+        </dependency>
     </dependencies>
-    <properties>
-        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
-    </properties>
 
+    <build>
+        <plugins>
+            <!-- For ballerina annotation processing -->
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>${mvn.processor.plugin.version}</version>
+                <configuration>
+                    <processors>
+                        <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
+                    </processors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <properties>
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
+        <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
+    </properties>
 </project>

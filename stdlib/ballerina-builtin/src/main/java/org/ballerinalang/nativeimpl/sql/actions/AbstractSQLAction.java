@@ -24,18 +24,17 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
-import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BNewArray;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -44,15 +43,13 @@ import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
+import org.ballerinalang.nativeimpl.sql.BMirrorTable;
 import org.ballerinalang.nativeimpl.sql.Constants;
 import org.ballerinalang.nativeimpl.sql.SQLDataIterator;
 import org.ballerinalang.nativeimpl.sql.SQLDatasource;
-import org.ballerinalang.nativeimpl.sql.SQLTransactionContext;
+import org.ballerinalang.nativeimpl.sql.SQLDatasourceUtils;
 import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.transactions.BallerinaTransactionContext;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
-import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 import java.math.BigDecimal;
 import java.sql.Array;
@@ -74,13 +71,9 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.TimeZone;
-import javax.sql.XAConnection;
-import javax.transaction.xa.XAResource;
 
 /**
  * {@code AbstractSQLAction} is the base class for all SQL Action.
@@ -105,7 +98,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         ResultSet rs = null;
         boolean isInTransaction = context.isInTransaction();
         try {
-            conn = getDatabaseConnection(context, datasource, isInTransaction);
+            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
             String processedQuery = createProcessedQueryString(query, parameters);
             stmt = getPreparedStatement(conn, datasource, processedQuery);
             createProcessedStatement(conn, stmt, parameters);
@@ -124,7 +117,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         PreparedStatement stmt = null;
         boolean isInTransaction = context.isInTransaction();
         try {
-            conn = getDatabaseConnection(context, datasource, isInTransaction);
+            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
             String processedQuery = createProcessedQueryString(query, parameters);
             stmt = conn.prepareStatement(processedQuery);
             createProcessedStatement(conn, stmt, parameters);
@@ -144,7 +137,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         ResultSet rs = null;
         boolean isInTransaction = context.isInTransaction();
         try {
-            conn = getDatabaseConnection(context, datasource, isInTransaction);
+            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
             String processedQuery = createProcessedQueryString(query, parameters);
             int keyColumnCount = 0;
             if (keyColumns != null) {
@@ -188,7 +181,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         List<ResultSet> resultSets;
         boolean isInTransaction = context.isInTransaction();
         try {
-           conn = getDatabaseConnection(context, datasource, isInTransaction);
+           conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
             stmt = getPreparedCall(conn, datasource, query, parameters);
             createProcessedStatement(conn, stmt, parameters, datasource.getDatabaseName());
             resultSets = executeStoredProc(stmt);
@@ -270,9 +263,18 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         context.setReturnValues(countArray);
     }
 
-    protected BStructType getStructType(Context context) {
+    protected void createMirroredTable(Context context, SQLDatasource datasource, String tableName,
+            BStructType structType) {
+        try {
+            context.setReturnValues(constructTable(context, structType, datasource, tableName));
+        } catch (SQLException e) {
+            throw new BallerinaException("Mirror table creation failed: " + e.getMessage(), e);
+        }
+    }
+
+    protected BStructType getStructType(Context context, int index) {
         BStructType structType = null;
-        BTypeDescValue type = (BTypeDescValue) context.getNullableRefArgument(2);
+        BTypeDescValue type = (BTypeDescValue) context.getNullableRefArgument(index);
         if (type != null) {
             structType = (BStructType) type.value();
         }
@@ -397,26 +399,6 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             stmt = conn.prepareCall(query);
         }
         return stmt;
-    }
-
-    private List<ColumnDefinition> getColumnDefinitions(ResultSet rs)
-            throws SQLException {
-        List<ColumnDefinition> columnDefs = new ArrayList<>();
-        Set<String> columnNames = new HashSet<>();
-        ResultSetMetaData rsMetaData = rs.getMetaData();
-        int cols = rsMetaData.getColumnCount();
-        for (int i = 1; i <= cols; i++) {
-            String colName = rsMetaData.getColumnLabel(i);
-            if (columnNames.contains(colName)) {
-                String tableName = rsMetaData.getTableName(i).toUpperCase();
-                colName = tableName + "." + colName;
-            }
-            int colType = rsMetaData.getColumnType(i);
-            TypeKind mappedType = SQLDatasourceUtils.getColumnType(colType);
-            columnDefs.add(new SQLDataIterator.SQLColumnDefinition(colName, mappedType, colType));
-            columnNames.add(colName);
-        }
-        return columnDefs;
     }
 
     private BStringArray getGeneratedKeys(ResultSet rs) throws SQLException {
@@ -836,61 +818,26 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return resultSets;
     }
 
-    private Connection getDatabaseConnection(Context context, SQLDatasource datasource, boolean isInTransaction)
-            throws SQLException {
-        Connection conn;
-        if (!isInTransaction) {
-            conn = datasource.getSQLConnection();
-            return conn;
-        } else {
-            //This is when there is an infected transaction block. But this is not participated to the transaction
-            //since the action call is outside of the transaction block.
-            if (!context.getLocalTransactionInfo().hasTransactionBlock()) {
-                conn = datasource.getSQLConnection();
-                return conn;
-            }
-        }
-        String connectorId = datasource.getConnectorId();
-        boolean isXAConnection = datasource.isXAConnection();
-        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-        String globalTxId = localTransactionInfo.getGlobalTransactionId();
-        int currentTxBlockId = localTransactionInfo.getCurrentTransactionBlockId();
-        BallerinaTransactionContext txContext = localTransactionInfo.getTransactionContext(connectorId);
-        if (txContext == null) {
-            if (isXAConnection) {
-                XAConnection xaConn = datasource.getXADataSource().getXAConnection();
-                XAResource xaResource = xaConn.getXAResource();
-                TransactionResourceManager.getInstance().beginXATransaction(globalTxId, currentTxBlockId, xaResource);
-                conn = xaConn.getConnection();
-                txContext = new SQLTransactionContext(conn, xaResource);
-            } else {
-                conn = datasource.getSQLConnection();
-                conn.setAutoCommit(false);
-                txContext = new SQLTransactionContext(conn);
-            }
-            localTransactionInfo.registerTransactionContext(connectorId, txContext);
-            TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, txContext);
-        } else {
-            conn = ((SQLTransactionContext) txContext).getConnection();
-        }
-        return conn;
-    }
-
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructType structType)
             throws SQLException {
-        List<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
+        List<ColumnDefinition> columnDefinitions = SQLDatasourceUtils.getColumnDefinitions(rs);
         return new BTable(new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType,
                 Utils.getTimeStructInfo(context), Utils.getTimeZoneStructInfo(context)));
     }
 
+    private BMirrorTable constructTable(Context context, BStructType structType, SQLDatasource dataSource,
+            String tableName) throws SQLException {
+       return new BMirrorTable(dataSource, tableName, structType, Utils.getTimeStructInfo(context),
+                Utils.getTimeZoneStructInfo(context), utcCalendar);
+    }
+
     private String getSQLType(BStruct parameter) {
         String sqlType = "";
-        BEnumerator typeEnum = (BEnumerator) parameter.getRefField(0);
-        if (typeEnum != null) {
-            sqlType = typeEnum.getName();
+        BRefType refType = parameter.getRefField(0);
+        if (refType != null) {
+            sqlType = refType.stringValue();
         }
         return sqlType;
-
     }
 
     private BStructType getStructType(BStruct parameter) {
@@ -904,9 +851,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private int getParameterDirection(BStruct parameter) {
         int direction = 0;
-        BEnumerator dirEnum = (BEnumerator) parameter.getRefField(2);
-        if (dirEnum != null) {
-            String sqlType = dirEnum.getName();
+        BRefType dir = parameter.getRefField(2);
+        if (dir != null) {
+            String sqlType = dir.stringValue();
             switch (sqlType) {
             case Constants.QueryParamDirection.DIR_OUT:
                 direction = Constants.QueryParamDirection.OUT;

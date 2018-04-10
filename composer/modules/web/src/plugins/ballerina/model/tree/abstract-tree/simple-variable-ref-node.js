@@ -17,9 +17,9 @@
  */
 
 import _ from 'lodash';
-import ExpressionNode from '../expression-node';
+import Node from '../node';
 
-class AbstractSimpleVariableRefNode extends ExpressionNode {
+class AbstractSimpleVariableRefNode extends Node {
 
 
     setPackageAlias(newValue, silent, title) {

@@ -22,6 +22,7 @@ import org.ballerinalang.composer.service.ballerina.parser.service.BLangFragment
 import org.ballerinalang.composer.service.ballerina.parser.service.BLangJSONModelConstants;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BLangSourceFragment;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.LSParserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -90,12 +91,15 @@ public class BLangFragmentParser {
             case BLangFragmentParserConstants.TRANSACTION_FAILED:
             case BLangFragmentParserConstants.EXPRESSION:
             case BLangFragmentParserConstants.STATEMENT:
-            case BLangFragmentParserConstants.ENDPOINT_VAR_DEF:
                 // For Expression - 0th child is the var ref expression of var def stmt
                 // For Statement - 0 & 1 are function args and return types, 2 is the statement came from source
                 // fragment
                 fragmentNode = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY)
                         .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
+                break;
+            case BLangFragmentParserConstants.ENDPOINT_VAR_DEF:
+                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.ENDPOINT_NODES)
+                        .get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.JOIN_CONDITION:
                 JsonObject bodyJsonObj = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY);
@@ -119,7 +123,7 @@ public class BLangFragmentParser {
     }
 
     protected static JsonElement getJsonModel(String source) throws IOException {
-        BLangCompilationUnit compilationUnit = ParserUtils.compileFragment(source);
+        BLangCompilationUnit compilationUnit = LSParserUtils.compileFragment(source);
         return CommonUtil.generateJSON(compilationUnit, new HashMap<>());
     }
 

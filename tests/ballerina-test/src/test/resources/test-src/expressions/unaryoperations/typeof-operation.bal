@@ -76,9 +76,9 @@ function refTypeAccessTestAnyTypePositiveCase() returns (int) {
 }
 
 function refTypeAccessTestMapAccessCase() returns (int) {
-    map int_map = {};
+    map int_map;
     int_map["index"] = 2;
-    map string_map = {};
+    map string_map;
     string_map["index"] = "dummy";
     if ((typeof int_map["index"]) == (typeof string_map["index"])) {
         return 1;
@@ -223,16 +223,16 @@ function getType(any variable)returns (typedesc){
     return (typeof variable);
 }
 
-struct Person {
-    string name;
+type Person {
+    string name,
     int age;
-}
+};
 
-struct Animal {
-    string name;
-    int size;
+type Animal {
+    string name,
+    int size,
     int age;
-}
+};
 
 function refTypeAccessTestMultiArrayNegativeCase() returns (int) {
     json[][][][][][][] jsonMulti = [];
@@ -300,7 +300,7 @@ function typeToAnyExplicitCast() returns (any, typedesc, any) {
 function anyToTypeExplicitCast() returns (typedesc, any) {
     int i = 5;
     any typeOfInt = (typeof i);
-    var t =? <typedesc>typeOfInt;
+    var t = check <typedesc>typeOfInt;
     return (t, typeOfInt);
 }
 
@@ -419,25 +419,25 @@ function testCheckTypeOfJson() returns (json, json[], string, int, float, boolea
     io:println(typeof j2);
     io:println(typeof json[]);
     if (typeof j2 == typeof json[]) {
-        ja =? <json[]> j2;
+        ja = check <json[]> j2;
     } else {
         io:println("error on json[] cast");
     }
 
     if (typeof j3 == typeof string) {
-        s =? <string> j3;
+        s = check <string> j3;
     }
 
     if (typeof j4 == typeof int) {
-        a =? <int> j4;
+        a = check <int> j4;
     }
 
     if (typeof j5 == typeof float) {
-        f =? <float> j5;
+        f = check <float> j5;
     }
 
     if (typeof j6 == typeof boolean) {
-        b =? <boolean> j6;
+        b = check <boolean> j6;
     }
 
     return (j, ja, s, a, f, b);
@@ -448,14 +448,14 @@ function testTypeOfStructArray() returns (typedesc, typedesc, typedesc) {
     return (typeof p, typeof Person[], typeof Person[][]);
 }
 
-struct Software {
-    string name;
+type Software {
+    string name,
     string des;
-}
+};
 
-struct Middleware {
+type Middleware {
     string name;
-}
+};
 
 function getTypePreserveWhenCast() returns (int){
     Software s = {name:"WSO2", des:"ESB"};

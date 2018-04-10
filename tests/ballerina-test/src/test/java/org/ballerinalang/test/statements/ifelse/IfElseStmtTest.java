@@ -230,8 +230,8 @@ public class IfElseStmtTest {
     public void ifStmtNegativeTest() {
         Assert.assertEquals(negativeResult.getErrorCount(), 4);
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'boolean', found 'int'", 2, 7);
-        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'boolean', found 'string'", 22, 16);
-        BAssertUtil.validateError(negativeResult, 3, "this function must return a result", 19, 1);
-        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'boolean', found 'string'", 28, 9);
+        BAssertUtil.validateError(negativeResult, 1, "this function must return a result", 19, 1);
+        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'boolean', found 'string'", 22, 16);
+        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'boolean', found 'string'", 28, 9);
     }
 }

@@ -31,16 +31,25 @@ import org.ballerinalang.net.grpc.builder.BallerinaFileBuilder;
 import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.definition.EmptyMessage;
+import org.ballerinalang.net.grpc.proto.definition.EnumField;
 import org.ballerinalang.net.grpc.proto.definition.Field;
 import org.ballerinalang.net.grpc.proto.definition.File;
 import org.ballerinalang.net.grpc.proto.definition.Message;
 import org.ballerinalang.net.grpc.proto.definition.MessageKind;
 import org.ballerinalang.net.grpc.proto.definition.Method;
 import org.ballerinalang.net.grpc.proto.definition.Service;
+import org.ballerinalang.net.grpc.proto.definition.StandardDescriptorBuilder;
+import org.ballerinalang.net.grpc.proto.definition.StructMessage;
+import org.ballerinalang.net.grpc.proto.definition.UserDefinedEnumMessage;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedMessage;
 import org.ballerinalang.net.grpc.proto.definition.WrapperMessage;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -52,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -59,12 +69,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.ballerinalang.net.grpc.MessageConstants.ANN_ATTR_RESOURCE_SERVER_STREAM;
 import static org.ballerinalang.net.grpc.MessageConstants.ANN_RESOURCE_CONFIG;
 import static org.ballerinalang.net.grpc.MessageConstants.ON_COMPLETE_RESOURCE;
 import static org.ballerinalang.net.grpc.MessageConstants.ON_MESSAGE_RESOURCE;
-
+import static org.ballerinalang.net.grpc.proto.definition.StandardDescriptorBuilder.GOOGLE_PROTOBUF_PACKAGE_PREFIX;
 
 /**
  * Utility class providing proto file based of the Ballerina service.
@@ -72,12 +83,14 @@ import static org.ballerinalang.net.grpc.MessageConstants.ON_MESSAGE_RESOURCE;
  * @since 1.0.0
  */
 public class ServiceProtoUtils {
-    
+
+    private static final String NO_PACKAGE_PATH = ".";
+
     static File generateProtoDefinition(ServiceNode serviceNode) throws GrpcServerException {
         // Protobuf file definition builder.
         String packageName = serviceNode.getPosition().getSource().getPackageName();
         File.Builder fileBuilder;
-        if (!".".equals(packageName)) {
+        if (!NO_PACKAGE_PATH.equals(packageName)) {
             fileBuilder = File.newBuilder(serviceNode.getName() + ServiceProtoConstants.PROTO_FILE_EXTENSION)
                     .setSyntax(ServiceProtoConstants.PROTOCOL_SYNTAX).setPackage(serviceNode.getPosition().getSource()
                             .getPackageName());
@@ -117,7 +130,7 @@ public class ServiceProtoUtils {
                     
                     switch (attributeName) {
                         case ServiceProtoConstants.SERVICE_CONFIG_RPC_ENDPOINT: {
-                            rpcEndpoint = attributeValue != null ? attributeValue : null;
+                            rpcEndpoint = attributeValue;
                             break;
                         }
                         case ServiceProtoConstants.SERVICE_CONFIG_CLIENT_STREAMING: {
@@ -151,13 +164,11 @@ public class ServiceProtoUtils {
         for (ResourceNode resourceNode : serviceNode.getResources()) {
             Message requestMessage = getRequestMessage(resourceNode);
             if (requestMessage.getMessageKind() == MessageKind.USER_DEFINED) {
-                if (!fileBuilder.getRegisteredMessages().contains(requestMessage.getDescriptorProto())) {
-                    fileBuilder.setMessage(requestMessage);
-                }
+                updateFileBuilder(fileBuilder, requestMessage);
             }
             if (requestMessage.getDependency() != null) {
                 if (!fileBuilder.getRegisteredDependencies().contains(requestMessage.getDependency())) {
-                    fileBuilder.setDependeny(requestMessage.getDependency());
+                    fileBuilder.setDependency(requestMessage.getDependency());
                 }
             }
             Message responseMessage = getResponseMessage(resourceNode);
@@ -167,13 +178,11 @@ public class ServiceProtoUtils {
             }
             
             if (responseMessage.getMessageKind() == MessageKind.USER_DEFINED) {
-                if (!fileBuilder.getRegisteredMessages().contains(responseMessage.getDescriptorProto())) {
-                    fileBuilder.setMessage(responseMessage);
-                }
+                updateFileBuilder(fileBuilder, responseMessage);
             }
             if (responseMessage.getDependency() != null) {
                 if (!fileBuilder.getRegisteredDependencies().contains(responseMessage.getDependency())) {
-                    fileBuilder.setDependeny(responseMessage.getDependency());
+                    fileBuilder.setDependency(responseMessage.getDependency());
                 }
             }
             
@@ -181,14 +190,38 @@ public class ServiceProtoUtils {
             Method resourceMethod = Method.newBuilder(resourceNode.getName().getValue())
                     .setClientStreaming(false)
                     .setServerStreaming(serverStreaming)
-                    .setInputType(requestMessage.getMessageType())
-                    .setOutputType(responseMessage.getMessageType())
+                    .setInputType(requestMessage.getCanonicalName())
+                    .setOutputType(responseMessage.getCanonicalName())
                     .build();
             serviceBuilder.addMethod(resourceMethod);
         }
         return serviceBuilder.build();
     }
-    
+
+    private static boolean isNewMessageDefinition(File.Builder fileBuilder, Message message) {
+        for (DescriptorProtos.DescriptorProto messageProto : fileBuilder.getRegisteredMessages()) {
+            if (messageProto.getName() == null) {
+                continue;
+            }
+            if (messageProto.getName().equals(message.getSimpleName())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isNewEnumDefinition(File.Builder fileBuilder, Message enumMsg) {
+        for (DescriptorProtos.EnumDescriptorProto enumDescriptorProto : fileBuilder.getRegisteredEnums()) {
+            if (enumDescriptorProto.getName() == null) {
+                continue;
+            }
+            if (enumDescriptorProto.getName().equals(enumMsg.getSimpleName())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static Service getStreamingServiceDefinition(ServiceNode serviceNode, ServiceConfiguration serviceConfig,
                                                          File.Builder fileBuilder) throws GrpcServerException {
         // Protobuf service definition builder.
@@ -200,7 +233,7 @@ public class ServiceProtoUtils {
                 requestMessage = getRequestMessage(resourceNode);
                 Message respMsg = getResponseMessage(resourceNode);
                 if (respMsg != null && !(MessageKind.EMPTY.equals(respMsg.getMessageKind()))) {
-                    responseMessage = getResponseMessage(resourceNode);
+                    responseMessage = respMsg;
                     break;
                 }
             }
@@ -212,44 +245,59 @@ public class ServiceProtoUtils {
                 }
             }
         }
-        
+        // if we cannot retrieve request/response messages. assuming it is empty type.
         if (requestMessage == null) {
-            throw new GrpcServerException("Cannot find request message definition for streaming service: " +
-                    serviceNode.getName().getValue());
+            requestMessage = generateMessageDefinition(new BNilType());
         }
         if (responseMessage == null) {
             responseMessage = generateMessageDefinition(new BNilType());
-            /*throw new GrpcServerException("Cannot find response message definition for streaming service: " +
-                    serviceNode.getName().getValue());*/
         }
-        
+        // update file builder with request/response messages.
         if (requestMessage.getMessageKind() == MessageKind.USER_DEFINED) {
-            if (!fileBuilder.getRegisteredMessages().contains(requestMessage.getDescriptorProto())) {
-                fileBuilder.setMessage(requestMessage);
-            }
+            updateFileBuilder(fileBuilder, requestMessage);
         }
         if (requestMessage.getDependency() != null) {
             if (!fileBuilder.getRegisteredDependencies().contains(requestMessage.getDependency())) {
-                fileBuilder.setDependeny(requestMessage.getDependency());
+                fileBuilder.setDependency(requestMessage.getDependency());
             }
         }
-        
+
+        if (responseMessage.getMessageKind() == MessageKind.USER_DEFINED) {
+            updateFileBuilder(fileBuilder, responseMessage);
+        }
         if (responseMessage.getDependency() != null) {
             if (!fileBuilder.getRegisteredDependencies().contains(responseMessage.getDependency())) {
-                fileBuilder.setDependeny(responseMessage.getDependency());
+                fileBuilder.setDependency(responseMessage.getDependency());
             }
         }
         
         Method resourceMethod = Method.newBuilder(serviceConfig.getRpcEndpoint())
                 .setClientStreaming(serviceConfig.isClientStreaming())
                 .setServerStreaming(serviceConfig.isServerStreaming())
-                .setInputType(requestMessage.getMessageType())
-                .setOutputType(responseMessage.getMessageType())
+                .setInputType(requestMessage.getCanonicalName())
+                .setOutputType(responseMessage.getCanonicalName())
                 .build();
         serviceBuilder.addMethod(resourceMethod);
         return serviceBuilder.build();
     }
-    
+
+    private static void updateFileBuilder(File.Builder fileBuilder, Message message) {
+
+        if (isNewMessageDefinition(fileBuilder, message)) {
+            fileBuilder.setMessage(message);
+        }
+        for (UserDefinedMessage msg : message.getNestedMessageList()) {
+            if (isNewMessageDefinition(fileBuilder, msg)) {
+                fileBuilder.setMessage(msg);
+            }
+        }
+        for (UserDefinedEnumMessage enumMessage : message.getNestedEnumList()) {
+            if (isNewEnumDefinition(fileBuilder, enumMessage)) {
+                fileBuilder.setEnum(enumMessage);
+            }
+        }
+    }
+
     private static boolean isServerStreaming(ResourceNode resourceNode) {
         boolean serverStreaming = false;
         for (AnnotationAttachmentNode annotationNode : resourceNode.getAnnotationAttachments()) {
@@ -340,8 +388,20 @@ public class ServiceProtoUtils {
                 }
                 break;
             }
+            case ENUM: {
+                if (messageType instanceof org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType) {
+                    org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType enumType = (org
+                            .wso2.ballerinalang.compiler.semantics.model.types.BEnumType) messageType;
+                    message = getEnumMessage(enumType);
+                }
+                break;
+            }
             case NIL: {
                 message = EmptyMessage.newBuilder().build();
+                break;
+            }
+            case ARRAY: {
+                message = StructMessage.newBuilder(ServiceProtoConstants.STRUCT_LIST_MESSAGE).build();
                 break;
             }
             default: {
@@ -352,18 +412,48 @@ public class ServiceProtoUtils {
         return message;
     }
     
-    private static Message getStructMessage(
-            org.wso2.ballerinalang.compiler.semantics.model.types.BStructType messageType) throws GrpcServerException {
+    private static Message getStructMessage(BStructType messageType) throws
+            GrpcServerException {
         UserDefinedMessage.Builder messageBuilder = UserDefinedMessage.newBuilder(messageType.toString());
         int fieldIndex = 0;
-        for (org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField structField :
-                messageType.fields) {
+        for (BStructType.BStructField structField : messageType.fields) {
             Field messageField;
             String fieldName = structField.getName().getValue();
-            String sfieldtype = structField.getType().getKind().typeName();
+            String fieldType = structField.getType().toString();
+            String fieldLabel = null;
+            BType type = structField.getType();
+            if (type instanceof BEnumType) {
+                BEnumType enumType = (BEnumType) type;
+                messageBuilder.addMessageDefinition(getEnumMessage(enumType));
+            } else if (type instanceof BStructType) {
+                BStructType structType = (BStructType) type;
+                messageBuilder.addMessageDefinition(getStructMessage(structType));
+            } else if (type instanceof BArrayType) {
+                BArrayType arrayType = (BArrayType) type;
+                BType elementType = arrayType.getElementType();
+                if (elementType instanceof BStructType) {
+                    messageBuilder.addMessageDefinition(getStructMessage((BStructType) elementType));
+                }
+                fieldType = elementType.toString();
+                fieldLabel = "repeated";
+            }
+
             messageField = Field.newBuilder(fieldName)
                     .setIndex(++fieldIndex)
-                    .setType(sfieldtype).build();
+                    .setLabel(fieldLabel)
+                    .setType(fieldType).build();
+            messageBuilder.addFieldDefinition(messageField);
+        }
+        return messageBuilder.build();
+    }
+
+    private static UserDefinedEnumMessage getEnumMessage(BEnumType messageType) throws GrpcServerException {
+        UserDefinedEnumMessage.Builder messageBuilder = UserDefinedEnumMessage.newBuilder(messageType.toString());
+        int fieldIndex = 0;
+        Map<Name, Scope.ScopeEntry> enumField = (messageType.tsymbol.scope.entries);
+        for (Map.Entry<Name, Scope.ScopeEntry> field : enumField.entrySet()) {
+            String fieldName = field.getKey().getValue();
+            EnumField messageField = EnumField.newBuilder().setName(fieldName).setIndex(fieldIndex++).build();
             messageBuilder.addFieldDefinition(messageField);
         }
         return messageBuilder.build();
@@ -459,9 +549,8 @@ public class ServiceProtoUtils {
             Path path = Paths.get(service.getName() + ServiceProtoConstants.DESC_FILE_EXTENSION);
             byte[] descriptor = Files.readAllBytes(path);
             DescriptorProtos.FileDescriptorProto proto = DescriptorProtos.FileDescriptorProto.parseFrom(descriptor);
-            Descriptors.FileDescriptor fileDescriptor = Descriptors.FileDescriptor.buildFrom(proto, new com.google
-                    .protobuf.Descriptors.FileDescriptor[] {com.google.protobuf.WrappersProto.getDescriptor(), com
-                    .google.protobuf.EmptyProto.getDescriptor()});
+            Descriptors.FileDescriptor fileDescriptor = Descriptors.FileDescriptor.buildFrom(proto,
+                    StandardDescriptorBuilder.getFileDescriptors(proto.getDependencyList().toArray()));
             Files.delete(path);
             return fileDescriptor;
         } catch (IOException | Descriptors.DescriptorValidationException e) {
@@ -489,12 +578,15 @@ public class ServiceProtoUtils {
             byte[] fileDescriptor = protoFileDefinition.getFileDescriptorProto().toByteArray();
             Path descFilePath = Paths.get(filename + ServiceProtoConstants.DESC_FILE_EXTENSION);
             Files.write(descFilePath, fileDescriptor);
-            
             if (generateClientConnector) {
                 List<byte[]> dependentDescriptorsList = new ArrayList<>();
-                dependentDescriptorsList.add(com.google.protobuf.WrappersProto.getDescriptor
-                        ().toProto().toByteArray());
-                //Path path = Paths.get("");
+                for (String libName : protoFileDefinition.getFileDescriptorProto().getDependencyList()) {
+                    if (libName.startsWith(GOOGLE_PROTOBUF_PACKAGE_PREFIX)) {
+                        dependentDescriptorsList.add(StandardDescriptorBuilder.getFileDescriptor(libName)
+                                .toProto().toByteArray());
+                    }
+                }
+
                 BallerinaFileBuilder ballerinaFileBuilder = new BallerinaFileBuilder(dependentDescriptorsList);
                 ballerinaFileBuilder.setRootDescriptor(fileDescriptor);
                 ballerinaFileBuilder.build();

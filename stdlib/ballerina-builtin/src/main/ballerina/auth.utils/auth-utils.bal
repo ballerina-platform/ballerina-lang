@@ -19,40 +19,42 @@ package ballerina.auth.utils;
 import ballerina/config;
 import ballerina/caching;
 import ballerina/util;
+import ballerina/io;
 
 @Description {value:"Configuration entry to check if a cache is enabled"}
-const string CACHE_ENABLED = "enabled";
+@final string CACHE_ENABLED = "enabled";
 @Description {value:"Configuration entry for cache expiry time"}
-const string CACHE_EXPIRY_TIME = "expiryTime";
+@final string CACHE_EXPIRY_TIME = "expiryTime";
 @Description {value:"Configuration entry for cache capacity"}
-const string CACHE_CAPACITY = "capacity";
+@final string CACHE_CAPACITY = "capacity";
 @Description {value:"Configuration entry for eviction factor"}
-const string CACHE_EVICTION_FACTOR = "evictionFactor";
+@final string CACHE_EVICTION_FACTOR = "evictionFactor";
 @Description {value:"Authentication header name"}
-const string AUTH_HEADER = "Authorization";
+@final string AUTH_HEADER = "Authorization";
 @Description {value:"Basic authentication scheme"}
-const string AUTH_SCHEME = "Basic";
+@final string AUTH_SCHEME = "Basic";
 
 @Description {value:"Default value for enabling cache"}
-const boolean CACHE_ENABLED_DEFAULT_VALUE = true;
+@final boolean CACHE_ENABLED_DEFAULT_VALUE = true;
 @Description {value:"Default value for cache expiry"}
-const int CACHE_EXPIRY_DEFAULT_VALUE = 300000;
+@final int CACHE_EXPIRY_DEFAULT_VALUE = 300000;
 @Description {value:"Default value for cache capacity"}
-const int CACHE_CAPACITY_DEFAULT_VALUE = 100;
+@final int CACHE_CAPACITY_DEFAULT_VALUE = 100;
 @Description {value:"Default value for cache eviction factor"}
-const float CACHE_EVICTION_FACTOR_DEFAULT_VALUE = 0.25;
+@final float CACHE_EVICTION_FACTOR_DEFAULT_VALUE = 0.25;
 
 @Description {value:"Creates a cache to store authentication results against basic auth headers"}
 @Return {value:"cache: authentication cache instance"}
-public function createCache (string cacheName) returns (caching:Cache|null) {
+public function createCache (string cacheName) returns (caching:Cache|()) {
     if (isCacheEnabled(cacheName)) {
         int expiryTime;
         int capacity;
         float evictionFactor;
         (expiryTime, capacity, evictionFactor) = getCacheConfigurations(cacheName);
-        return caching:createCache(cacheName, expiryTime, capacity, evictionFactor);
+        caching:Cache cache = new (expiryTimeMillis = expiryTime, capacity = capacity, evictionFactor = evictionFactor);
+        return cache;
     }
-    return null;
+    return ();
 }
 
 @Description {value:"Checks if the specified cache is enalbed"}
@@ -62,7 +64,7 @@ function isCacheEnabled (string cacheName) returns (boolean) {
     // by default we enable the cache
     match config:getAsString(cacheName + "." + CACHE_ENABLED) {
         string value => return value == "true" ? true : false;
-        int|null => return CACHE_ENABLED_DEFAULT_VALUE;
+        () => return CACHE_ENABLED_DEFAULT_VALUE;
     }
 }
 
@@ -87,7 +89,7 @@ function getExpiryTime (string cacheName) returns (int) {
                 error typeConversionErr => return CACHE_EXPIRY_DEFAULT_VALUE;
             }
         }
-        any|null => return CACHE_EXPIRY_DEFAULT_VALUE;
+        () => return CACHE_EXPIRY_DEFAULT_VALUE;
     }
 }
 
@@ -102,7 +104,7 @@ function getCapacity (string cacheName) returns (int) {
                 error typeConversionErr => return CACHE_CAPACITY_DEFAULT_VALUE;
             }
         }
-        any|null => return CACHE_EXPIRY_DEFAULT_VALUE;
+        () => return CACHE_EXPIRY_DEFAULT_VALUE;
     }
 }
 
@@ -117,7 +119,7 @@ function getEvictionFactor (string cacheName) returns (float) {
                 error typeConversionErr => return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
             }
         }
-        any|null => return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
+        () => return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
     }
 }
 
@@ -130,7 +132,7 @@ public function extractBasicAuthCredentials (string authHeader) returns (string,
     // extract user credentials from basic auth header
     string decodedBasicAuthHeader;
     try {
-        decodedBasicAuthHeader = util:base64Decode(authHeader.subString(5, authHeader.length()).trim());
+        decodedBasicAuthHeader =check util:base64DecodeString(authHeader.subString(5, authHeader.length()).trim());
     } catch (error err) {
         return err;
     }

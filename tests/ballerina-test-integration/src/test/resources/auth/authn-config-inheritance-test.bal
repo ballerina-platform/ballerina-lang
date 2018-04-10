@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/auth;
 
-endpoint http:ApiEndpoint ep {
+endpoint http:APIListener listener {
     port:9090
 };
 
@@ -14,7 +14,7 @@ endpoint http:ApiEndpoint ep {
     authentication:{enabled:false},
     scopes:["xxx", "aaa"]
 }   
-service<http:Service> echo bind ep {
+service<http:Service> echo bind listener {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test"
@@ -23,7 +23,7 @@ service<http:Service> echo bind ep {
         authentication:{enabled:true}
     }
     echo (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         _ = client -> respond(res);
     }
 }

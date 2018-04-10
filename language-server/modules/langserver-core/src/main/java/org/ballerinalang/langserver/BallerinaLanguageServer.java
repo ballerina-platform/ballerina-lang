@@ -46,13 +46,9 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
 
     public BallerinaLanguageServer() {
         LSGlobalContext lsGlobalContext = new LSGlobalContext();
-        LSPackageCache packageCache = new LSPackageCache();
-        LSAnnotationCache annotationCache = new LSAnnotationCache(packageCache);
-        
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
-        lsGlobalContext.put(LSGlobalContextKeys.PKG_CACHE_KEY, packageCache);
-        lsGlobalContext.put(LSGlobalContextKeys.ANNOTATION_CACHE_KEY, annotationCache);
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, WorkspaceDocumentManagerImpl.getInstance());
+        LSAnnotationCache.initiate();
         
         textService = new BallerinaTextDocumentService(lsGlobalContext);
         workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
@@ -69,7 +65,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
                 CommandConstants.CMD_ADD_DOCUMENTATION, CommandConstants.CMD_ADD_ALL_DOC));
         final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
         final CompletionOptions completionOptions = new CompletionOptions();
-        completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">"));
+        completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));
         
         res.getCapabilities().setCompletionProvider(completionOptions);
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);

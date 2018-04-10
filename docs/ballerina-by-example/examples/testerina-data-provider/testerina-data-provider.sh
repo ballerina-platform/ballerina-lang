@@ -1,4 +1,6 @@
-$ ballerina testerina-data-provider.bal
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina test` command.
+$ ballerina test testerina-data-provider.bal
 ---------------------------------------------------------------------------
     T E S T S
 ---------------------------------------------------------------------------

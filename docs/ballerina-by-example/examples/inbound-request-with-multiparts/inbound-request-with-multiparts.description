@@ -1,3 +1,3 @@
-//Ballerina server connector supports handling of multipart requests. When you request multiparts from
-//the http inbound request, you will get an array of body parts (An array of entities). Then loop through
-//this array to handle the received body parts according to your requirement.
+// Multipart request handling is supported by the Ballerina server connector.
+// When you request multiparts from the HTTP inbound request, you get an array of body parts (an array of entities).
+// You can loop through this array and handle the received body parts according to your requirement.

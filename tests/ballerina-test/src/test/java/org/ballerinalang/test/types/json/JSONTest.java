@@ -30,7 +30,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,6 +38,7 @@ import org.testng.annotations.Test;
  * Test Native functions in ballerina.model.json.
  */
 @SuppressWarnings("javadoc")
+@Test
 public class JSONTest {
 
     private CompileResult compileResult;
@@ -466,10 +466,10 @@ public class JSONTest {
         Assert.assertEquals(returns[0].stringValue(), "[{\"a\":\"b\"},{\"c\":\"d\"}]");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
+    @Test
     public void testFieldAccessOfNullableJSON() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/jsontype/nullable-json-test.bal");
-        BRunUtil.invoke(compileResult, "testFieldAccessOfNullableJSON");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFieldAccessOfNullableJSON");
+        Assert.assertNull(returns[0]);
     }
 }

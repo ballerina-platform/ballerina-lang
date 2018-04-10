@@ -1,6 +1,6 @@
 import ballerina/io;
 
-io:CharacterChannel|null characterChannel;
+io:CharacterChannel characterChannel;
 
 function initCharacterChannel (string filePath, string permission, string encoding) returns (boolean|io:IOError) {
     io:ByteChannel channel = io:openFile(filePath, permission);
@@ -17,93 +17,68 @@ function initCharacterChannel (string filePath, string permission, string encodi
 }
 
 function readCharacters (int numberOfCharacters) returns (string|io:IOError) {
-    string empty = "";
-    match characterChannel {
-        io:CharacterChannel ch =>{
-            var result = ch.readCharacters(numberOfCharacters);
-            match result {
-                string characters =>{
-                    return characters;
-                }
-                io:IOError err =>{
-                    return err;
-                }
-            }
+    var result = characterChannel.readCharacters(numberOfCharacters);
+    match result {
+        string characters =>{
+            return characters;
         }
-        (any|null) =>{
-            return empty;
+        io:IOError err =>{
+            return err;
         }
     }
 }
 
-function writeCharacters (string content, int startOffset) returns (int|io:IOError) {
-    int blank = -1;
-    match characterChannel {
-        io:CharacterChannel ch =>{
-            var result = ch.writeCharacters(content, startOffset);
-            io:println(result);
-            match result {
-                int numberOfCharsWritten =>{
-                    return numberOfCharsWritten;
-                }
-                io:IOError err =>{
-                    return err;
-                }
-            }
+function readAllCharacters() returns (string|io:IOError){
+    int fixedSize = 500;
+    boolean isDone = false;
+    string result;
+    while(!isDone){
+        string value = check readCharacters(fixedSize);
+        if(lengthof value == 0){
+            isDone = true;
+        }else{
+            result = result + value;
         }
-        (any|null) =>{
-            return blank;
+    }
+    return result;
+}
+
+function writeCharacters (string content, int startOffset) returns (int|io:IOError) {
+    var result = characterChannel.writeCharacters(content, startOffset);
+    match result {
+        int numberOfCharsWritten =>{
+            return numberOfCharsWritten;
+        }
+        io:IOError err =>{
+            return err;
         }
     }
 }
 
 function readJson () returns (json|io:IOError) {
-    json empty = "";
-    match characterChannel {
-        io:CharacterChannel ch =>{
-            var result = ch.readJson();
-            match result {
-                json characters =>{
-                    return characters;
-                }
-                io:IOError err =>{
-                    return err;
-                }
-            }
+    var result = characterChannel.readJson();
+    match result {
+        json characters =>{
+            return characters;
         }
-        (any|null) =>{
-            return empty;
+        io:IOError err =>{
+            return err;
         }
     }
 }
 
 function readXml () returns (xml|io:IOError) {
-    xml empty = xml `<name/>`;
-    match characterChannel {
-        io:CharacterChannel ch =>{
-            var result = ch.readXml();
-            match result {
-                xml characters =>{
-                    return characters;
-                }
-                io:IOError err =>{
-                    return err;
-                }
-            }
+    var result = characterChannel.readXml();
+    match result {
+        xml characters =>{
+            return characters;
         }
-        (any|null) =>{
-            return empty;
+        io:IOError err =>{
+            return err;
         }
     }
 }
 
 function close () {
-    match characterChannel {
-        io:CharacterChannel ch =>{
-            io:IOError err = ch.closeCharacterChannel();
-        }
-        (any|null) =>{
-            io:println("Channel cannot be closed");
-        }
-    }
+    var err = characterChannel.closeCharacterChannel();
 }

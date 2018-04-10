@@ -1,63 +1,68 @@
-import ballerina/io;
+import ballerina/log;
 import ballerina/http;
 
-const string NAME = "NAME";
-const string AGE = "AGE";
-endpoint http:WebSocketEndpoint ep {
+@final string NAME = "NAME";
+@final string AGE = "AGE";
+endpoint http:WebSocketListener ep {
     port:9090
 };
 
-@http:WebSocketServiceConfig {
-    basePath:"/chat/{name}"
+@http:ServiceConfig {
+    basePath: "/chat"
 }
-service<http:WebSocketService> ChatApp bind ep {
-    string msg;
-    map<http:WebSocketEndpoint> consMap = {};
-    onUpgrade (endpoint conn, http:Request req, string name) {
-        var params = req.getQueryParams();
-        conn.attributes[NAME] = name;
-        msg = string `{{untaint name}} connected to chat`;
-        string age = untaint <string>params.age;
+service<http:Service> ChatAppUpgrader bind ep {
 
-        if (age != null) {
-            conn.attributes[AGE] = age;
-            msg = string `{{untaint name}} with age {{age}} connected to chat`;
+    @http:ResourceConfig {
+        webSocketUpgrade: {
+            upgradePath: "/{name}",
+            upgradeService: typeof chatApp
         }
-
     }
+    upgrader(endpoint ep, http:Request req, string name) {
+        endpoint http:WebSocketListener wsEp;
+        map<string> headers;
+        wsEp = ep -> acceptWebSocketUpgrade(headers);
+        wsEp.attributes[NAME] = name;
+        wsEp.attributes[AGE] = req.getQueryParams()["age"];
+        string msg = "Hi " + name + "! You have succesfully connected to the chat";
+        wsEp -> pushText(msg) but {error e => log:printErrorCause("Error sending message", e)};
+    }
+
+}
+
+// TODO: This map should go to service level after null pointer issue is fixed.
+map<http:WebSocketListener> consMap;
+
+service<http:WebSocketService> chatApp {
+
     onOpen (endpoint conn) {
-        io:println(msg);
+        string msg = string `{{getAttributeStr(conn, NAME)}} with age {{getAttributeStr(conn, AGE)}} connected to chat`;
+        broadcast(consMap, msg);
         consMap[conn.id] = conn;
+    }
+
+    onText (endpoint conn, string text) {
+        string msg = string `{{getAttributeStr(conn, NAME)}}: {{text}}`;
+        log:printInfo(msg);
         broadcast(consMap, msg);
     }
 
-    onTextMessage (endpoint conn, http:TextFrame frame) {
-        msg = untaint string `{{untaint <string>conn.attributes[NAME]}}: {{frame.text}}`;
-        io:println(msg);
-        broadcast(consMap, msg);
-    }
-
-    onClose (endpoint conn, http:CloseFrame frame) {
-        msg = string `{{untaint <string>conn.attributes[NAME]}} left the chat`;
+    onClose (endpoint conn, int statusCode, string reason) {
         _ = consMap.remove(conn.id);
+        string msg = string `{{getAttributeStr(conn, NAME)}} left the chat`;
         broadcast(consMap, msg);
     }
 }
 
-function broadcast (map<http:WebSocketEndpoint> consMap, string text) {
-    endpoint http:WebSocketEndpoint con;
-    string[] conKeys = consMap.keys();
-    int len = lengthof conKeys;
-    int i = 0;
-    while (i < len) {
-        con = consMap[conKeys[i]];
-        var val = con -> pushText(text);
-        match val {
-            http:WebSocketConnectorError err => {io:println("Error: " + err.message);}
-            any|null err => {//ignore x
-                var x = err;
-            }
-        }
-        i = i + 1;
+function broadcast (map<http:WebSocketListener> consMap, string text) {
+    endpoint http:WebSocketListener ep;
+    foreach id, con in consMap {
+        ep = con;
+        ep -> pushText(text) but {error e => log:printErrorCause("Error sending message", e)};
     }
+}
+
+function getAttributeStr(http:WebSocketListener ep, string key) returns (string) {
+    var name = <string> ep.attributes[key];
+    return name;
 }

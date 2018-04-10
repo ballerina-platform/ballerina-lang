@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-endpoint http:ServiceEndpoint servicEp {
+endpoint http:Listener servicEp {
     port:9090
 };
 
@@ -20,7 +20,7 @@ service<http:Service> httpService bind servicEp {
         methods:["POST", "GET", "PUT", "My"]
     }
     httpResource (endpoint conn, http:Request req) {
-        http:Response resp = {};
+        http:Response resp = new;
         var payload = req.getStringPayload();
         match payload {
             http:PayloadError payloadError => {
@@ -50,9 +50,9 @@ service<http:WebSocketService> wsService {
         io:println("New WebSocket connection: " + ep.id);
     }
 
-    onTextMessage (endpoint ep, http:TextFrame frame) {
-        io:println(frame.text);
-        _ = ep -> pushText(frame.text);
+    onText (endpoint ep, string text) {
+        io:println(text);
+        _ = ep -> pushText(text);
     }
 
     onIdleTimeout (endpoint ep) {

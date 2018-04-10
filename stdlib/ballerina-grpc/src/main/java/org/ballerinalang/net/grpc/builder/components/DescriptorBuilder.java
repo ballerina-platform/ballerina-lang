@@ -49,7 +49,7 @@ public class DescriptorBuilder {
         InputStream targetStream = new ByteArrayInputStream(rootDescriptor);
         DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                 .parseFrom(targetStream);
-        BMap<String, BString> descriptorMap = new BMap<String, BString>();
+        BMap<String, BString> descriptorMap = new BMap<>();
         if (!"".equals(fileDescriptorSet.getPackage())) {
             descriptorMap.put(fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + fileDescriptorSet.getName()
                     , new BString(bytesToHex(rootDescriptor)));

@@ -1,11 +1,11 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint helloWorldEP {
+endpoint http:Listener helloWorldEP {
     port:9090
 };
 
-endpoint http:ClientEndpoint clientEP {
+endpoint http:Client clientEP {
     targets:[{url: "http://httpstat.us"}]
 };
 
@@ -19,7 +19,7 @@ service<http:Service> helloWorld bind helloWorldEP{
         var resp = clientEP -> forward("/200", req);
         match resp {
             http:HttpConnectorError err => io:println(err.message);
-            http:Response response => _ = conn -> forward(response);
+            http:Response response => _ = conn -> respond(response);
         }
     }
 }

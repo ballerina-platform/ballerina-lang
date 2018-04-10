@@ -35,7 +35,7 @@ class PackageScopedEnvironment {
         }
         this._packages = _.union(this._packages, Environment.getPackages());
         this._types = _.union(this._types, Environment.getTypes());
-        this._currentPackage = new Package({ name: 'Current Package' });
+        this._currentPackage = new Package({name: 'Current Package'});
         this._packages.push(this._currentPackage);
         this._annotationAttachmentTypes = Environment.getAnnotationAttachmentTypes();
         this._typeLattice = Environment.getTypeLattice();
@@ -53,11 +53,11 @@ class PackageScopedEnvironment {
     }
 
     getCurrentPackage() {
-        return this._currentPackage || new Package({ name: 'Current Package' });
+        return this._currentPackage || new Package({name: 'Current Package'});
     }
 
     resetCurrentPackage() {
-        this._currentPackage = new Package({ name: 'Current Package' });
+        this._currentPackage = new Package({name: 'Current Package'});
         this._builtInCurrentPackage = null;
     }
 
@@ -104,7 +104,7 @@ class PackageScopedEnvironment {
      * @memberof PackageScopedEnvironment
      */
     getBuiltInPackage() {
-        return this._builtInPackage || new Package({ name: 'ballerina.builtin' });
+        return this._builtInPackage || new Package({name: 'ballerina.builtin'});
     }
 
     /**
@@ -113,7 +113,7 @@ class PackageScopedEnvironment {
      */
     getBuiltInCurrentPackage() {
         if (!this._builtInCurrentPackage) {
-            this._builtInCurrentPackage = new Package({ name: 'Current BuiltIn Package' });
+            this._builtInCurrentPackage = new Package({name: 'Current BuiltIn Package'});
             this._builtInCurrentPackage = this.mergePackages(this.getBuiltInPackage(), this._builtInCurrentPackage);
             this._builtInCurrentPackage = this.mergePackages(this.getCurrentPackage(), this._builtInCurrentPackage);
         }
@@ -189,6 +189,14 @@ class PackageScopedEnvironment {
         const pkg1AnnotationDefinitions = package1.getAnnotationDefinitions();
         const pkg2AnnotationDefinitions = package2.getAnnotationDefinitions();
         package2.setAnnotationDefinitions(this.mergePackageItems(pkg1AnnotationDefinitions, pkg2AnnotationDefinitions));
+
+        const pkg1ObjectDefinitions = package1.getObjects();
+        const pkg2ObjectDefinitions = package2.getObjects();
+        package2.setObjects(this.mergePackageItems(pkg1ObjectDefinitions, pkg2ObjectDefinitions));
+
+        const pkg1EndpointDefintions = package1.getEndpoints();
+        const pkg2EndpointDefintions = package2.getEndpoints();
+        package2.setEndpoints(this.mergePackageItems(pkg1EndpointDefintions, pkg2EndpointDefintions));
 
         return package2;
     }

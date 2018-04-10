@@ -106,11 +106,11 @@ public class EndpointUtils {
         }
         if ((trustStoreFile == null) && sslVerifyClient != null) {
             //TODO get from language pack, and add location
-            throw new BallerinaException("Truststore location must be provided to enable Mutual SSL");
+            throw new BallerinaException("Trust store location must be provided to enable Mutual SSL");
         }
         if ((trustStorePassword == null) && sslVerifyClient != null) {
             //TODO get from language pack, and add location
-            throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
+            throw new BallerinaException("Trust store password value must be provided to enable Mutual SSL");
         }
         
         SSLConfig config = new SSLConfig();
@@ -148,7 +148,7 @@ public class EndpointUtils {
         StringBuffer sb = new StringBuffer();
         do {
             String sysPropKey = matcher.group(1);
-            String sysPropValue = getSystemVariableValue(sysPropKey, null);
+            String sysPropValue = getSystemVariableValue(sysPropKey);
             if (sysPropValue == null || sysPropValue.length() == 0) {
                 throw new RuntimeException("System property " + sysPropKey + " is not specified");
             }
@@ -160,14 +160,12 @@ public class EndpointUtils {
         return sb.toString();
     }
     
-    private static String getSystemVariableValue(String variableName, String defaultValue) {
-        String value;
+    private static String getSystemVariableValue(String variableName) {
+        String value = null;
         if (System.getProperty(variableName) != null) {
             value = System.getProperty(variableName);
         } else if (System.getenv(variableName) != null) {
             value = System.getenv(variableName);
-        } else {
-            value = defaultValue;
         }
         
         return value;

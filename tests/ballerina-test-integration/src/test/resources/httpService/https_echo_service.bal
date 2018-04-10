@@ -1,14 +1,14 @@
 import ballerina/http;
 
-endpoint http:ServiceEndpoint echoDummyEP {
+endpoint http:Listener echoDummyEP {
     port:9090
 };
 
-endpoint http:ServiceEndpoint echoHttpEP {
+endpoint http:Listener echoHttpEP {
     port: 9094
 };
 
-endpoint http:ServiceEndpoint echoEP {
+endpoint http:Listener echoEP {
     port:9095,
     secureSocket: {
         keyStore: {
@@ -28,7 +28,7 @@ service<http:Service> echo bind echoEP {
         path:"/"
     }
     echo (endpoint outboundEP, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("hello world");
         _ = outboundEP -> respond(res);
     }
@@ -43,7 +43,7 @@ service<http:Service> echoOne bind echoEP, echoHttpEP {
         path:"/abc"
     }
     echoAbc (endpoint outboundEP, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("hello world");
         _ = outboundEP -> respond(res);
     }
@@ -59,7 +59,7 @@ service<http:Service> echoDummy bind echoDummyEP {
         path:"/"
     }
     echoDummy (endpoint outboundEP, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("hello world");
         _ = outboundEP -> respond(res);
     }

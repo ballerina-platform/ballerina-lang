@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * {@code BLangMatchExpression} represents a type switch expression in Ballerina.
@@ -39,7 +40,6 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
 
     public BLangExpression expr;
     public List<BLangMatchExprPatternClause> patternClauses = new ArrayList<>();
-    public List<BType> exprTypes;
 
     @Override
     public NodeKind getKind() {
@@ -94,5 +94,17 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
+        
+        @Override
+        public String toString() {
+            return variable + " => " + expr.toString();
+        }
+    }
+    
+    @Override
+    public String toString() {
+        StringJoiner sj = new StringJoiner(",");
+        patternClauses.forEach(pattern -> sj.add(pattern.toString()));
+        return expr.toString() + " but {" + sj.toString() + "}";
     }
 }

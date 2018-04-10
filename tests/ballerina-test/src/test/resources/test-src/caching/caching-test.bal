@@ -1,36 +1,33 @@
-import ballerina / caching;
-import ballerina / runtime;
+import ballerina/caching;
+import ballerina/runtime;
 
-function testCreateCache (string name, int timeOut, int capacity, float evictionFactor) returns (string, int, int, float) {
-    caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
-    return (cache.name, cache.expiryTimeMillis, cache.capacity, cache.evictionFactor);
+function testCreateCache(int timeOut, int capacity, float evictionFactor) returns int {
+    caching:Cache cache = new(expiryTimeMillis = timeOut, capacity = capacity, evictionFactor = evictionFactor);
+    return cache.size();
 }
 
-function testPut (string name, int timeOut, int capacity, float evictionFactor, string key, string value) returns (int) {
-    caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
+function testPut(string key, string value) returns (int) {
+    caching:Cache cache = new;
     cache.put(key, value);
     return cache.size();
 }
 
-function testGet (string name, int timeOut, int capacity, float evictionFactor, string key, string value) returns (int, string) {
-    caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
+function testGet(string key, string value) returns (int, string) {
+    caching:Cache cache = new;
     cache.put(key, value);
-    var returnValue = <string>cache.get(key);
-    match returnValue {
-        string s => return (cache.size(), s);
-        error => return (-1, "");
-    }
+    string returnValue = <string>cache.get(key);
+    return (cache.size(), returnValue);
 }
 
-function testRemove (string name, int timeOut, int capacity, float evictionFactor, string key, string value) returns (int) {
-    caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
+function testRemove(string key, string value) returns (int) {
+    caching:Cache cache = new;
     cache.put(key, value);
     cache.remove(key);
     return cache.size();
 }
 
-function testCacheEviction1 (string name, int timeOut, int capacity, float evictionFactor) returns (string[], int) {
-    caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
+function testCacheEviction1() returns (string[], int) {
+    caching:Cache cache = new (expiryTimeMillis = 20000, capacity = 10, evictionFactor = 0.2);
     cache.put("A", "A");
     runtime:sleepCurrentWorker(20);
     cache.put("B", "B");
@@ -52,11 +49,11 @@ function testCacheEviction1 (string name, int timeOut, int capacity, float evict
     cache.put("J", "J");
     runtime:sleepCurrentWorker(20);
     cache.put("K", "K");
-    return (cache.entries.keys(), cache.size());
+    return (cache.keys(), cache.size());
 }
 
-function testCacheEviction2 (string name, int timeOut, int capacity, float evictionFactor) returns (string[], int) {
-    caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
+function testCacheEviction2() returns (string[], int) {
+    caching:Cache cache = new (expiryTimeMillis = 20000, capacity = 10, evictionFactor = 0.2);
     cache.put("A", "A");
     runtime:sleepCurrentWorker(20);
     cache.put("B", "B");
@@ -80,11 +77,11 @@ function testCacheEviction2 (string name, int timeOut, int capacity, float evict
     cache.put("J", "J");
     runtime:sleepCurrentWorker(20);
     cache.put("K", "K");
-    return (cache.entries.keys(), cache.size());
+    return (cache.keys(), cache.size());
 }
 
-function testCacheEviction3 (string name, int timeOut, int capacity, float evictionFactor) returns (string[], int) {
-    caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
+function testCacheEviction3() returns (string[], int) {
+    caching:Cache cache = new (expiryTimeMillis = 20000, capacity = 10, evictionFactor = 0.2);
     cache.put("A", "A");
     runtime:sleepCurrentWorker(20);
     cache.put("B", "B");
@@ -110,11 +107,11 @@ function testCacheEviction3 (string name, int timeOut, int capacity, float evict
     cache.put("J", "J");
     runtime:sleepCurrentWorker(20);
     cache.put("K", "K");
-    return (cache.entries.keys(), cache.size());
+    return (cache.keys(), cache.size());
 }
 
-function testCacheEviction4 (string name, int timeOut, int capacity, float evictionFactor) returns (string[], int) {
-    caching:Cache cache = caching:createCache(name, timeOut, capacity, evictionFactor);
+function testCacheEviction4() returns (string[], int) {
+    caching:Cache cache = new (expiryTimeMillis = 20000, capacity = 5, evictionFactor = 0.2);
     cache.put("A", "A");
     runtime:sleepCurrentWorker(20);
     cache.put("B", "B");
@@ -135,29 +132,29 @@ function testCacheEviction4 (string name, int timeOut, int capacity, float evict
     runtime:sleepCurrentWorker(20);
     cache.put("F", "F");
     runtime:sleepCurrentWorker(20);
-    return (cache.entries.keys(), cache.size());
+    return (cache.keys(), cache.size());
 }
 
-function testCreateCacheWithZeroExpiryTime () {
-    _ = caching:createCache("test", 0, 10, 0.1);
+function testCreateCacheWithZeroExpiryTime() {
+    caching:Cache c = new(expiryTimeMillis = 0);
 }
 
-function testCreateCacheWithNegativeExpiryTime () {
-    _ = caching:createCache("test", -10, 10, 0.1);
+function testCreateCacheWithNegativeExpiryTime() {
+    caching:Cache c = new(expiryTimeMillis = -10);
 }
 
-function testCreateCacheWithZeroCapacity () {
-    _ = caching:createCache("test", 10000, 0, 0.1);
+function testCreateCacheWithZeroCapacity() {
+    caching:Cache c = new(capacity = 0);
 }
 
-function testCreateCacheWithNegativeCapacity () {
-    _ = caching:createCache("test", 10000, -10, 0.1);
+function testCreateCacheWithNegativeCapacity() {
+    caching:Cache c = new(capacity = -95);
 }
 
-function testCreateCacheWithZeroEvictionFactor () {
-    _ = caching:createCache("test", 10000, 10, 0);
+function testCreateCacheWithZeroEvictionFactor() {
+    caching:Cache c = new(evictionFactor = 0);
 }
 
-function testCreateCacheWithInvalidEvictionFactor () {
-    _ = caching:createCache("test", 10000, 10, 1.1);
+function testCreateCacheWithInvalidEvictionFactor() {
+    caching:Cache c = new(evictionFactor = 1.1);
 }

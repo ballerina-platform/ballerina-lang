@@ -6,6 +6,7 @@ $white:#fff;
       &.ballerina-design-view {
         background-color: #e7eaeb;
         color: #7D7D7D;
+        height: 40px;
         .close-tab {
           color: #7D7D7D;
           background-color: #e7eaeb;
@@ -29,6 +30,15 @@ $white:#fff;
   }
 }
 
+.client-line-header, .client-life-line,
+.worker-life-line, .client-invocation-arrow,
+.action-arrow .statement-title-rect, .statement-title-rect, .action-arrow,
+.action-arrow-head, .action-dash-line, .flowchart-action-arrow,
+.default-worker-life-line, .worker-life-line, .action-invocation-statement-rect
+.flowchart-background-empty-rect, .connector-life-line {
+  stroke-width: 0.75;
+}
+
 /*---------------------------
       Default lines
 ---------------------------*/
@@ -39,18 +49,15 @@ $white:#fff;
 .client-invocation-arrow,
 .action-arrow .statement-title-rect {
   stroke: $primary-line-bgcolor;
-  stroke-width: 0.75;
 }
 
 .statement-title-rect {
   fill: $white;
   stroke:$primary-line-bgcolor;
-  stroke-width: 0.75;
 }
 
 .flowchart-true-text,
-.flowchart-false-text,
-.action-invocation-text {
+.flowchart-false-text {
   fill: $primary-line-bgcolor;
   font-weight: 300;
 }
@@ -70,7 +77,6 @@ $white:#fff;
 .action-dash-line {
   stroke: $primary-line-bgcolor;
   fill: $primary-line-bgcolor;
-  stroke-width: 0.75;
 }
 
 /*---------------------------
@@ -88,7 +94,6 @@ $white:#fff;
 .worker-life-line,
 .flowchart-background-empty-rect {
   stroke: $worker-color;
-  stroke-width: 0.75;
 }
 
 .flowchart-action-arrow-head {
@@ -107,12 +112,10 @@ $white:#fff;
 
 .connector-life-line {
   stroke: $connector-color;
-  stroke-width: 0.5;
 }
 
 .action-invocation-statement-rect {
   fill: $connector-color;
-  stroke-width: 1;
 }
 
 
@@ -125,23 +128,32 @@ $white:#fff;
     .panel {
       /* -- Service herder Styles -- */
       .panel-header {
-        fill: $white;
         .text-placeholder {
           shape-rendering: crispEdges;
           stroke: #a5a5a5;
           stroke-width: 1;
           stroke-dasharray: 4, 2;
         }
+        .headingRect, .panel-body-rect{
+          fill: $white;
+        }
         .editable-text-label {
           fill: #333;
-          stroke-width: 0.5px;
-          stroke: #333;
+          stroke: #2b2b2b;
+          font-weight: 300;
+          stroke-width: 0;
         }
+        
         .panel-header-controls-wrapper {
           fill: rgba(255, 255, 255, 0.1);
         }
-        text, .title-text {
-          fill: #333 !important;
+        .control-icons {
+          fill: #636363;
+          font-size: 11px;
+        }
+
+        .title-icon{
+          fill: #636363;        
         }
 
         .parameter-text,
@@ -153,19 +165,24 @@ $white:#fff;
           cursor: default;
         }
         .editor-area {
-          color: #333 !important;
+          color: #333;
           border: 1px solid #333;
         }
       }
       .panel-body {
-        fill: #fff;
+        .panel-body-rect{
+          fill:$white;
+        }
         .client-line-group {
           .client-line-text {
             text-anchor: middle;
             dominant-baseline: central;
-            text-transform: lowercase;
             fill: $primary-line-bgcolor;
             font-weight: 300;
+          }
+          text, .title-text {
+            fill: #333;
+            font-weight: 300px;
           }
         }
         .action-dash-line {
@@ -202,6 +219,13 @@ $white:#fff;
           fill: #dcdcdc;
           stroke: #ccc;
           stroke-dasharray: 0, 150, 50;
+        }
+
+        .match-expression{
+          dominant-baseline: central;
+        }
+        .match-pattern-clause{
+          font-style: italic;
         }
         
         .statement-title-text,
@@ -273,7 +297,7 @@ $white:#fff;
       }
     }
     .title-text, .condition-text{
-      fill: #555 !important;
+      fill: #555;
     }
   }
   .bottom-right-controls-container {
@@ -288,19 +312,19 @@ $white:#fff;
     .bottom-label-icon-wrapper {
       height: 30px;
       width: 30px;
-      background-color: #e8e8e8;
+      background-color: #3c3c3c;
       margin: 0 5px;
       float: left;
       padding: 2px 8px;
-      border: 1px solid #c1c1c1;
-      color: #333;
+      color: #fff;
+      line-height: 26px; 
     }
     .bottom-label-icon-wrapper:hover {
       position: relative;
       cursor: pointer;
-      background-color: #333;
-      border: 1px solid #333;
-      color: #f1f1f1;
+      background-color: #1e1e1e;
+      color: #e7eaeb;
+      font-weight: 400;
     }
     .bottom-view-label {
       display: none;
@@ -480,85 +504,85 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 }
 
 .title-bg {
-  fill: #f8f8f8;
+  
+}
+
+.panel-header-title text{
+  font-weight: 500 !important;
+}
+
+.title-icon{
+  fill: #636363;
 }
 
 .top-menu {
   position: fixed;
   padding: 3px 26px 6px !important;
+  height: 40px;
 }
 
 .top-bar {
-  height: 30px !important;
-  overflow: hidden;
-  margin-top: 5px !important;
-  width: 500px !important;
-  background: $white !important;
-  
-  .divided{
-    width: 500px !important;
+  height: 30px;
+  margin-top: 5px;
+  width: auto;
+  .row{
+    background-color:$white !important;
+    padding: 0 !important;
+    width: 160px;
+    margin-top: 20px; 
     height: 30px !important;
-    overflow: hidden;
-    margin-top: 0px !important;
+    .column {
+      min-width: 150px;
+      width   : 50%;
+      padding : 0 !important;
+      background: $white;
+      .row{
+       margin-top: 0px !important; 
+        .label{
+          background: $white !important;
+        }
+      }
+    }
   }
   
-  .ui[class*="left pointing"].label:before {
-    border: 0;
-  }
-  .column{
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    background: #fff !important;
-  }
-  .column:not(.row) {
-    padding-top: 0rem !important;
-    padding-bottom: 0rem !important;
-  
-    button {
-      background: $white !important;
-      color: #555 !important;
-      margin: 0 !important;
-    }
-    a.ui.left.pointing.basic.label{
-      margin: 0 !important;
-    }
-    .ui.label {
-      background: $white !important;
-      border: 0 !important;
-      margin: 0 !important;
-    }
-  }
 }
-.ui.right.labeled.button.top-bar{
-  background: #fff !important;
+
+.ui.bottom.right.popup{
+  margin-right: -1em !important;
+}
+
+.ui.bottom.center.popup {
+  transform-origin: center top;
+  background: #f8f8f8;
+  border: 1px solid #e7eaeb;
+}
+
+.ui.bottom.popup:before{
+  background: #f8f8f8 !important;
+}
+
+.ui.bottom.center.popup:before{
+  box-shadow:-1px -1px 0px 0px #e7eaeb !important;
 }
 
 .title-text {
-  fill: #333 !important;
+  fill: #333;
 }
 
 .menu-pop-content{
-  width: 484px !important;
-  background: white !important;
-  margin-right: -2px !important;
-}
-
-.ui.header{
-  font-weight: 300;
-  font-size: 12px;
-  color: #555;
-
-  .icon{
-    font-size: 13px !important;
-    color: #555 !important;
-  }
-  .content{
-    font-size: 12px !important;
-    font-weight: 300 !important;
-    color: #555 !important;
-  
+  background: #f8f8f8 !important;
+  margin-right: 2px !important;
+  .ui.header{
+    .content{
+      font-weight: 400;
+      color: #3c3c3c;
+    }
+    .icon{ 
+      font-size: 15px !important;
+    }
   }
 }
+
 .definition-icon {
   opacity: 0 !important;
 }
@@ -580,7 +604,7 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 }
 
 a.item.menu-button.ui.button.primary {
-  background: #2fb8b0;
+  background: $brand-primary;
   color: #fff;
   padding: 7px 10px !important;
   margin-top: 3px;
@@ -595,4 +619,14 @@ a.item.menu-button.ui.button.primary {
   .icon {
     padding-right: 25px !important;
   }
+}
+.composer-logo{
+  font-size: 15px;
+}
+.aboutWrapper{
+  margin: 0em 0em 1em;
+  line-height: 1em;
+  font-weight: 300;
+  line-height: 1.3em;
+  color: #ccc;
 }

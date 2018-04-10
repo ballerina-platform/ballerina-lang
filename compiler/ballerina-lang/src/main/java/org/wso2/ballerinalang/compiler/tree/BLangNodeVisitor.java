@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
@@ -71,7 +72,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
@@ -80,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
@@ -103,6 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -183,6 +185,14 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangObject objectNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangRecord record) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangTypeDefinition typeDefinition) {
         throw new AssertionError();
     }
 
@@ -273,6 +283,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangAbort abortNode) {
+        throw new AssertionError();
+    }
+    
+    public void visit(BLangDone doneNode) {
         throw new AssertionError();
     }
 
@@ -427,6 +441,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangTableLiteral tableLiteral) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangArrayLiteral arrayLiteral) {
         throw new AssertionError();
     }
@@ -468,6 +486,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangElvisExpr elvisExpr) {
         throw new AssertionError();
     }
 
@@ -657,10 +679,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangStructLiteral structLiteral) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangTableLiteral tableLiteral) {
         throw new AssertionError();
     }
 

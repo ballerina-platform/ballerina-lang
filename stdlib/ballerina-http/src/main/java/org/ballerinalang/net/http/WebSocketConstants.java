@@ -23,10 +23,10 @@ package org.ballerinalang.net.http;
  */
 public class WebSocketConstants {
 
-    public static final String WEBSOCKET_ENDPOINT_NAME = "ballerina.http:WebSocketEndpoint";
+    public static final String WEBSOCKET_ENDPOINT_NAME = "ballerina.http:WebSocketListener";
     public static final String WEBSOCKET_CLIENT_ENDPOINT_NAME = "ballerina.http:WebSocketClient";
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
-    public static final String WEBSOCKET_ENDPOINT = "WebSocketEndpoint";
+    public static final String WEBSOCKET_ENDPOINT = "WebSocketListener";
     public static final String WEBSOCKET_CONNECTOR_ERROR = "WebSocketConnectorError";
 
     public static final String WEBSOCKET_ANNOTATION_CONFIGURATION = "WebSocketServiceConfig";
@@ -36,8 +36,8 @@ public class WebSocketConstants {
 
     public static final String RESOURCE_NAME_ON_UPGRADE = "onUpgrade";
     public static final String RESOURCE_NAME_ON_OPEN = "onOpen";
-    public static final String RESOURCE_NAME_ON_TEXT_MESSAGE = "onTextMessage";
-    public static final String RESOURCE_NAME_ON_BINARY_MESSAGE = "onBinaryMessage";
+    public static final String RESOURCE_NAME_ON_TEXT = "onText";
+    public static final String RESOURCE_NAME_ON_BINARY = "onBinary";
     public static final String RESOURCE_NAME_ON_PING = "onPing";
     public static final String RESOURCE_NAME_ON_PONG = "onPong";
     public static final String RESOURCE_NAME_ON_CLOSE = "onClose";
@@ -65,4 +65,5 @@ public class WebSocketConstants {
     public static final String CLIENT_CONNECTOR_CONFIGS = "clientEndpointConfigs";
     public static final String WEBSOCKET_UPGRADE_SERVICE_CONFIG = "upgradeService";
     public static final String WEBSOCKET_SERVICE = "webSocketService";
+    public static final String WEBSOCKET_CONNECTION_MANAGER = "WEBSOCKET_CONNECTION_MANAGER";
 }

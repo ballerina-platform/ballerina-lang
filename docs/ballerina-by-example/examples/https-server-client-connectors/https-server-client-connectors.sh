@@ -1,9 +1,4 @@
-#Run the service
-$ ballerina run https-server-client-connectors.bal -s
-ballerina: initiating service(s) in 'https-server-client-connectors.bal'
-ballerina: started HTTPS/WSS server connector http-9095
-
-#Run the main function containing ballerina client
 $ ballerina run https-server-client-connectors.bal
-Response code: 200
-Response: Successful
+ballerina: started HTTPS/WSS endpoint 0.0.0.0:9095
+Successful
+ballerina: stopped HTTPS/WSS endpoint 0.0.0.0:9095

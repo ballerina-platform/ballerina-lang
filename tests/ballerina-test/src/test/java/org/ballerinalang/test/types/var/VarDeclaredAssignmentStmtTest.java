@@ -137,19 +137,6 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(((BString) returns[3]).stringValue(), "name_4");
     }
 
-    @Test(description = "Test var with at least non declared ref in LHS expr.")
-    public void testVarDeclarationWithAtLeaseOneNonDeclaredSymbol() {
-        BValue[] returns = BRunUtil.invoke(result, "testVarDeclarationWithAtLeaseOneNonDeclaredSymbol",
-                new BValue[]{});
-
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BStruct.class);
-
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
-        Assert.assertEquals(returns[1].stringValue(), "{message:\"\", cause:[]}");
-    }
-
     @Test(description = "Test boolean to var assignment.")
     public void testBooleanToVarAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testBooleanToVarAssignment",
@@ -162,7 +149,7 @@ public class VarDeclaredAssignmentStmtTest {
         //var type is not not allowed in variable def statements
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-type-variable-def-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting {'.', '[', '=', '@', '=?'}", 2, 12);
+        BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting {'.', '[', '=', '!', '@'}", 2, 12);
     }
 
     @Test(description = "Test var in global variable def.")
@@ -206,8 +193,10 @@ public class VarDeclaredAssignmentStmtTest {
     @Test
     public void testVarDeclarationWithAllDeclaredSymbols() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-declared-symbols-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "no new variables on left side", 4, 5);
+        Assert.assertEquals(res.getErrorCount(), 3);
+        BAssertUtil.validateError(res, 0, "redeclared symbol 'a'", 4, 10);
+        BAssertUtil.validateError(res, 1, "redeclared symbol 's'", 4, 13);
+        BAssertUtil.validateError(res, 2, "redeclared symbol 'a'", 14, 10);
     }
 
     @Test

@@ -12,7 +12,7 @@ servers:
         default: 0.0.0.0
         description: this value is assigned by the service provider
       port:
-        default: '9090'
+        default: '9095'
 tags:
   - name: pets
     description: Pets Tag

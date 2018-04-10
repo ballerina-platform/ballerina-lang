@@ -1,12 +1,11 @@
-//Ballerina Websub Subscriber service which subscribes to notifications at a Hub.
+//Ballerina WebSub Subscriber service which subscribes to notifications at a Hub.
 import ballerina/log;
 import ballerina/mime;
 import ballerina/http;
-import ballerina/net.websub;
+import ballerina/websub;
 
 //The endpoint to which the subscriber service is bound
-endpoint websub:SubscriberServiceEndpoint websubEP {
-    host:"localhost",
+endpoint websub:Listener websubEP {
     port:8181
 };
 
@@ -19,35 +18,30 @@ endpoint websub:SubscriberServiceEndpoint websubEP {
     leaseSeconds: 3600000,
     secret: "Kslk30SNF2AChs2"
 }
-service<websub:SubscriberService> websubSubscriber bind websubEP {
+service websubSubscriber bind websubEP {
 
     //Resource accepting intent verification requests
-    onVerifyIntent (endpoint client, http:Request request) {
+    onIntentVerification (endpoint client, websub:IntentVerificationRequest request) {
         //Build the response for the subscription intent verification request received
-        var subscriptionVerificationResponse = websub:buildSubscriptionVerificationResponse(request);
-        http:Response response = {};
-        match (subscriptionVerificationResponse) {
+        http:Response response = new;
+        match (request.buildSubscriptionVerificationResponse()) {
             http:Response httpResponse => {
                 log:printInfo("Intent verified for subscription request");
                 response = httpResponse;
             }
-            null => {
-                log:printInfo("Intent verification for subscription request denied");
-                response = { statusCode:404 };
+            () => {
+                log:printWarn("Intent verification for subscription request denied");
+                response.statusCode = 404;
             }
         }
         _ = client -> respond(response);
     }
 
     //Resource accepting content delivery requests
-    onNotification (endpoint client, http:Request request) {
-        http:Response response = { statusCode:202 };
-        _ = client -> respond(response);
-        var reqPayload = request.getJsonPayload();
-        match (reqPayload) {
-            json jsonPayload => { log:printInfo("WebSub Notification Received: " + jsonPayload.toString()); }
-            http:PayloadError error => { log:printInfo("Error occurred processing WebSub Notification"); }
-        }
+    onNotification (websub:NotificationRequest notification) {
+        json notificationPayload = notification.payload;
+        string notificationString = notificationPayload.toString() but {() => ""};
+        log:printInfo("WebSub Notification Received: " + notificationString);
     }
 
 }

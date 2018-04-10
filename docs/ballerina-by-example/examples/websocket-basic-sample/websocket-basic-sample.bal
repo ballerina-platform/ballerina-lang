@@ -1,8 +1,9 @@
 import ballerina/io;
+import ballerina/log;
 import ballerina/http;
 
 @Description {value:"This example gives you the basic idea of WebSocket endpoint."}
-endpoint http:ServiceEndpoint ep {
+endpoint http:Listener ep {
     host:"0.0.0.0",
     port:9090
 };
@@ -17,15 +18,6 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
     string ping = "ping";
     blob pingData = ping.toBlob("UTF-8");
 
-    @Description {value:"This resource is responsible for handling user logic on handshake time. Note that the connection is not yet established while this code is running."}
-    onUpgrade (endpoint conn, http:Request req) {
-        io:println("\nNew client is going to connect");
-        io:println("Is connection secure: " + conn.isSecure);
-
-        io:println("pre upgrade headers -> ");
-        printHeaders(conn.upgradeHeaders);
-    }
-
     @Description {value:"This resource is triggered after a successful client connection."}
     onOpen (endpoint conn) {
         io:println("\nNew client connected");
@@ -34,42 +26,37 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
         io:println("Is connection open: " + conn.isOpen);
         io:println("Is connection secured: " + conn.isSecure);
         io:println("Upgrade headers -> ");
-        printHeaders(conn.upgradeHeaders);
     }
 
     @Description {value:"This resource is triggered when a new text frame is received from a client."}
-    onTextMessage (endpoint conn, http:TextFrame frame) {
-        io:println("\ntext message: " + frame.text + " & is final fragment: " + frame.isFinalFragment);
-        string text = frame.text;
+    onText (endpoint conn, string text, boolean more) {
+        io:println("\ntext message: " + text + " & more fragments: " + more);
 
         if (text == "ping") {
             io:println("Pinging...");
-            conn -> ping(pingData);
+            conn -> ping(pingData) but {error e => log:printErrorCause("Error sending ping", e)};
         } else if (text == "closeMe") {
-            var val = conn -> closeConnection(1001, "You asked me to close connection");
-            handleError(val);
+            conn -> close(1001, "You asked me to close the connection")
+                         but {error e => log:printErrorCause("Error occured when closing the connection", e)};
         } else {
-            var val = conn -> pushText("You said: " + frame.text);
-            handleError(val);
+            conn -> pushText("You said: " + text) but {error e => log:printErrorCause("Error occured when sending text", e)};
         }
     }
 
     @Description {value:"This resource is triggered when a new binary frame is received from a client."}
-    onBinaryMessage (endpoint conn, http:BinaryFrame frame) {
+    onBinary (endpoint conn, blob b) {
         io:println("\nNew binary message received");
-        blob b = frame.data;
         io:println("UTF-8 decoded binary message: " + b.toString("UTF-8"));
-        var val = conn -> pushBinary(b);
-        handleError(val);
+        conn -> pushBinary(b) but {error e => log:printErrorCause("Error occured when sending binary", e)};
     }
 
     @Description {value:"This resource is triggered when a ping message is received from the client. If this resource is not implemented then pong message will be sent automatically to the connected endpoint when a ping is received."}
-    onPing (endpoint conn, http:PingFrame frame) {
-        conn -> pong(frame.data);
+    onPing (endpoint conn, blob data) {
+        conn -> pong(data) but {error e => log:printErrorCause("Error occured when closing the connection", e)};
     }
 
     @Description {value:"This resource is triggered when a pong message is received"}
-    onPong (endpoint conn, http:PongFrame frame) {
+    onPong (endpoint conn, blob data) {
         io:println("Pong received");
     }
 
@@ -78,33 +65,11 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
         // This resource will be triggered after 180 seconds if there is no activity in a given channel.
         io:println("\nReached idle timeout");
         io:println("Closing connection " + conn.id);
-        var val = conn -> closeConnection(1001, "Connection timeout");
-        handleError(val);
+        conn -> close(1001, "Connection timeout") but {error e => log:printErrorCause("Error occured when closing the connection", e)};
     }
 
     @Description {value:"This resource is triggered when a client connection is closed from the client side."}
-    onClose (endpoint conn, http:CloseFrame closeFrame) {
-        io:println("\nClient left with status code " + closeFrame.statusCode + " because " + closeFrame.reason);
-    }
-}
-
-function printHeaders (map<string> headers) {
-    string[] headerKeys = headers.keys();
-    int len = lengthof headerKeys;
-    int i = 0;
-    while (i < len) {
-        string key = headerKeys[i];
-        var value = headers[key];
-        io:println(key + ": " + value);
-        i = i + 1;
-    }
-}
-
-function handleError(http:WebSocketConnectorError|null val){
-    match val {
-        http:WebSocketConnectorError err => {io:println("Error: " + err.message);}
-        any|null err => {//ignore x
-            var x = err;
-        }
+    onClose (endpoint conn, int statusCode, string reason) {
+        io:println("\nClient left with status code " + statusCode + " because " + reason);
     }
 }

@@ -2,30 +2,30 @@ import ballerina/http;
 import ballerina/runtime;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint passthruEP {
+endpoint http:Listener passthruEP {
     port:9090
 };
 
-endpoint http:ServiceEndpoint backendEP {
+endpoint http:Listener backendEP {
     port:8080
 };
 
-endpoint http:ClientEndpoint backendClientEP {
+endpoint http:Client backendClientEP {
     circuitBreaker: {
         rollingWindow: {
                             timeWindow:10000,
                             bucketSize:2000
                        },
         failureThreshold:0.2,
-        resetTimeout:10000,
+        resetTimeMillies:10000,
         statusCodes:[400, 404, 500]
     },
     targets: [
                  {
-                     uri: "http://localhost:8080"
+                     url: "http://localhost:8080"
                  }
              ],
-    endpointTimeout:2000
+    timeoutMillis:2000
 };
 
 @http:ServiceConfig {
@@ -38,16 +38,14 @@ service<http:Service> circuitbreaker bind passthruEP {
         path:"/"
     }
     passthru (endpoint client, http:Request request) {
-        http:Response response = {};
-        http:HttpConnectorError err = {};
         var backendRes = backendClientEP -> forward("/hello", request);
         match backendRes {
             http:Response res => {
-            _ = client -> forward(res);}
-            http:HttpConnectorError err1 => {
-             response = {};
+            _ = client -> respond(res);}
+            http:HttpConnectorError httpConnectorError => {
+            http:Response response = new;
             response.statusCode = 500;
-            response.setStringPayload(err1.message);
+            response.setStringPayload(httpConnectorError.message);
             _ = client -> respond(response);}
         }
     }
@@ -68,18 +66,18 @@ service<http:Service> helloWorld bind backendEP {
         if (counter % 5 == 0) {
             runtime:sleepCurrentWorker(5000);
             counter = counter + 1;
-            http:Response res = {};
+            http:Response res = new;
             res.setStringPayload("Hello World!!!");
             _ = client -> respond(res);
         } else if (counter % 5 == 3) {
             counter = counter + 1;
-            http:Response res = {};
+            http:Response res = new;
             res.statusCode = 500;
-            res.setStringPayload("Internal erro r occurred while processing the request.");
+            res.setStringPayload("Internal error occurred while processing the request.");
             _ = client -> respond(res);
         } else {
             counter = counter + 1;
-            http:Response res = {};
+            http:Response res = new;
             res.setStringPayload("Hello World!!!");
             _ = client -> respond(res);
         }

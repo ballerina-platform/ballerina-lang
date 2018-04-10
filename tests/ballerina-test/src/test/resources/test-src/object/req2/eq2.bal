@@ -12,12 +12,12 @@ public type userPB object {
     public function getName () returns (string);
 
     public function getAge () returns (int);
-}
+};
 
 public function userPB::getName () returns (string) {
-    return name;
+    return self.name;
 }
 
 public function userPB::getAge () returns (int) {
-    return age;
+    return self.age;
 }

@@ -68,12 +68,6 @@
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
-        <fileSet>
-            <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-trace-jar/META-INF/natives
-            </directory>
-            <outputDirectory>src</outputDirectory>
-        </fileSet>
     </fileSets>
 
     <files>
@@ -136,6 +130,8 @@
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
                 <include>org.ballerinalang:ballerina-mime:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
+                <include>org.ballerinalang:ballerina-jms:jar</include>
+                <include>org.ballerinalang:strip-bouncycastle:jar</include>
                 <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:toml-parser:jar</include>
@@ -193,10 +189,9 @@
                 <include>io.ballerina.messaging:broker-coordination</include>
                 <include>com.google.guava:guava</include>
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
+                <include>io.netty:netty-tcnative-boringssl-static</include>
 
                 <!-- Observability Dependencies -->
-                <include>org.ballerinalang:ballerina-observe:jar</include>
-                <include>org.ballerinalang:ballerina-trace:jar</include>
                 <include>org.ballerinalang:ballerina-jaeger-extension:jar</include>
                 <include>io.opentracing:opentracing-api</include>
                 <include>io.opentracing:opentracing-util</include>
@@ -225,6 +220,12 @@
                 <include>io.dropwizard.metrics:metrics-core:jar</include>
                 <include>io.ballerina.messaging:broker-common:jar</include>
                 <include>io.ballerina.messaging:broker-core:jar</include>
+                <include>org.wso2.transport.file:org.wso2.transport.local-file-system</include>
+
+                <!-- JMS connector dependencies -->
+                <include>javax.jms:javax.jms-api:jar</include>
+                <include>org.wso2.andes.wso2:andes-client:jar</include>
+                <include>org.wso2.securevault:org.wso2.securevault:jar</include>
 
             </includes>
         </dependencySet>

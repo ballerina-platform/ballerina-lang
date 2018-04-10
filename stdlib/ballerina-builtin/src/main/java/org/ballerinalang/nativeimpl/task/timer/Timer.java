@@ -64,6 +64,7 @@ public class Timer {
         
         executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
         TaskRegistry.getInstance().addTimer(this);
+        //BLangScheduler.workerCountUp();
     }
 
     /**
@@ -85,9 +86,8 @@ public class Timer {
     }
 
     public void stop() throws TaskException {
+        //BLangScheduler.workerCountDown();
         executorService.shutdown();
         TaskRegistry.getInstance().remove(id);
     }
-
-
 }

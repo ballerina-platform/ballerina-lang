@@ -1,7 +1,7 @@
 import ballerina/io;
 
-@Description {value:"A const declaration can appear only as a top-level construct in Ballerina."}
-const float PI = 3.14159;
+@Description {value:"The final declaration can be specified only as a top-level construct in Ballerina."}
+@final float PI = 3.14159;
 
 function main (string[] args) {
     float circumference = 10.4;

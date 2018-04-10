@@ -24,29 +24,50 @@ import ballerina/io;
 @Description {value:"Represents an HTTP client endpoint"}
 @Field {value:"epName: The name of the endpoint"}
 @Field {value:"config: The configurations associated with the endpoint"}
-public struct ClientEndpoint {
-    string epName;
-    ClientEndpointConfiguration config;
-    HttpClient httpClient;
-}
+public type Client object {
+    public {
+        string epName;
+        ClientEndpointConfig config;
+        HttpClient httpClient;
+    }
 
-public enum Algorithm {
-    NONE, // defaults to no algorithm as single URL is default
-    LOAD_BALANCE,
-    FAIL_OVER
-}
+    @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
+    @Param {value:"ep: The endpoint to be initialized"}
+    @Param {value:"epName: The endpoint name"}
+    @Param {value:"config: The ClientEndpointConfig of the endpoint"}
+    public function init(ClientEndpointConfig config);
+
+    public function register(typedesc serviceType) {
+    }
+
+    public function start() {
+    }
+
+    @Description { value:"Returns the connector that client code uses"}
+    @Return { value:"The connector that client code uses" }
+    public function getClient() returns HttpClient {
+        return self.httpClient;
+    }
+
+    @Description { value:"Stops the registered service"}
+    @Return { value:"Error occured during registration" }
+    public function stop() {
+    }
+};
+
+public type Algorithm "NONE" | "LOAD_BALANCE" | "FAIL_OVER";
 
 @Description {value:"Represents the configurations applied to a particular service."}
 @Field {value:"url: Target service URI"}
 @Field {value:"secureSocket: SSL/TLS related options"}
-public struct TargetService {
-    string url;
-    SecureSocket|null secureSocket;
-}
+public type TargetService {
+    string url,
+    SecureSocket? secureSocket,
+};
 
-@Description { value:"ClientEndpointConfiguration struct represents options to be used for HTTP client invocation" }
+@Description { value:"ClientEndpointConfig struct represents options to be used for HTTP client invocation" }
 @Field {value:"circuitBreaker: Circuit Breaker configuration"}
-@Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
+@Field {value:"timeoutMillis: Endpoint timeout value in millisecond"}
 @Field {value:"keepAlive: Specifies whether to reuse a connection for multiple requests"}
 @Field {value:"transferEncoding: The types of encoding applied to the request"}
 @Field {value:"chunking: The chunking behaviour of the request"}
@@ -59,212 +80,174 @@ public struct TargetService {
 @Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
 @Field {value:"algorithm: The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default."}
 @Field {value:"failoverConfig: Failover configuration"}
-@Field {value:"cacheConfig: HTTP caching related configurations"}
+@Field {value:"cache: HTTP caching related configurations"}
 @Field {value:"acceptEncoding: Specifies the way of handling accept-encoding header."}
-public struct ClientEndpointConfiguration {
-    CircuitBreakerConfig|null circuitBreaker;
-    int endpointTimeout;
-    boolean keepAlive;
-    TransferEncoding transferEncoding;
-    Chunking chunking;
-    string httpVersion;
-    string forwarded;
-    FollowRedirects|null followRedirects;
-    Retry|null retry;
-    Proxy|null proxy;
-    ConnectionThrottling|null connectionThrottling;
-    TargetService[] targets;
-    string|FailoverConfig lbMode;
-    CacheConfig cacheConfig;
-    string acceptEncoding;
-}
+public type ClientEndpointConfig {
+    CircuitBreakerConfig? circuitBreaker,
+    int timeoutMillis = 60000,
+    boolean keepAlive = true,
+    TransferEncoding transferEncoding = "CHUNKING",
+    Chunking chunking = "AUTO",
+    string httpVersion = "1.1",
+    string forwarded = "disable",
+    FollowRedirects? followRedirects,
+    Retry? retry,
+    Proxy? proxyConfig,
+    ConnectionThrottling? connectionThrottling,
+    TargetService[] targets,
+    string|FailoverConfig lbMode = ROUND_ROBIN,
+    CacheConfig cache,
+    string acceptEncoding = "auto",
+};
 
-@Description {value:"Initializes the ClientEndpointConfiguration struct with default values."}
-@Param {value:"config: The ClientEndpointConfiguration struct to be initialized"}
-public function <ClientEndpointConfiguration config> ClientEndpointConfiguration() {
-    config.chunking = Chunking.AUTO;
-    config.transferEncoding = TransferEncoding.CHUNKING;
-    config.httpVersion = "1.1";
-    config.forwarded = "disable";
-    config.endpointTimeout = 60000;
-    config.keepAlive = true;
-    config.lbMode = ROUND_ROBIN;
-    config.cacheConfig = {};
-    config.acceptEncoding = "auto";
-}
-
-@Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
-@Param {value:"ep: The endpoint to be initialized"}
-@Param {value:"epName: The endpoint name"}
-@Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
-public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
-    boolean httpClientRequired = false;
-    string uri = config.targets[0].url;
-    match config.lbMode {
-        FailoverConfig failoverConfig => {
-            if (lengthof config.targets > 1) {
-                ep.config = config;
-                ep.httpClient = createFailOverClient(config, failoverConfig);
-            } else {
-                if (uri.hasSuffix("/")) {
-                    int lastIndex = uri.length() - 1;
-                    uri = uri.subString(0, lastIndex);
-                }
-                ep.config = config;
-
-                if (config.cacheConfig.enabled) {
-                    ep.httpClient = createHttpCachingClient(uri, config, config.cacheConfig);
-                } else{
-                    ep.httpClient = createHttpClient(uri, config);
-                }
-            }
-        }
-
-        string lbAlgorithm => {
-            if (lengthof config.targets > 1) {
-                ep.httpClient = createLoadBalancerClient(config, lbAlgorithm);
-            } else {
-                if (uri.hasSuffix("/")) {
-                    int lastIndex = uri.length() - 1;
-                    uri = uri.subString(0, lastIndex);
-                }
-                ep.config = config;
-                var cbConfig = config.circuitBreaker;
-                match cbConfig {
-                    CircuitBreakerConfig cb => {
-                        if (uri.hasSuffix("/")) {
-                            int lastIndex = uri.length() - 1;
-                            uri = uri.subString(0, lastIndex);
-                        }
-                        httpClientRequired = false;
-                    }
-                    int | null => {
-                        httpClientRequired = true;
-                    }
-                }   
-                if (httpClientRequired) {
-                    if (config.cacheConfig.enabled) {
-                        ep.httpClient = createHttpCachingClient(uri, config, config.cacheConfig);
-                    } else{
-                        ep.httpClient = createHttpClient(uri, config);
-                    }
-                } else {
-                    ep.httpClient = createCircuitBreakerClient(uri, config);                    
-                }
-            }
-        }
-    }
-}
-
-public function <ClientEndpoint ep> register(typedesc serviceType) {
-
-}
-
-public function <ClientEndpoint ep> start() {
-
-}
-
-@Description { value:"Returns the connector that client code uses"}
-@Return { value:"The connector that client code uses" }
-public function <ClientEndpoint ep> getClient() returns HttpClient {
-    return ep.httpClient;
-}
-
-@Description { value:"Stops the registered service"}
-@Return { value:"Error occured during registration" }
-public function <ClientEndpoint ep> stop() {
-
-}
-
-public native function createHttpClient(string uri, ClientEndpointConfiguration config) returns HttpClient;
+public native function createHttpClient(string uri, ClientEndpointConfig config) returns HttpClient;
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
 @Field {value:"interval: Retry interval in milliseconds"}
-public struct Retry {
-    int count;
-    int interval;
-}
+@Field {value:"backOffFactor: Multiplier of the retry interval to exponentailly increase retry interval"}
+@Field {value:"maxWaitInterval: Maximum time of the retry interval in milliseconds"}
+public type Retry {
+    int count,
+    int interval,
+    float backOffFactor,
+    int maxWaitInterval,
+};
 
 @Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP client invocation" }
 @Field {value: "trustStore: TrustStore related options"}
 @Field {value: "keyStore: KeyStore related options"}
 @Field {value: "protocols: SSL/TLS protocol related options"}
-@Field {value: "validateCert: Certificate validation against CRL or OCSP related options"}
+@Field {value: "certValidation: Certificate validation against CRL or OCSP related options"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
-@Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
-@Field {value:"sessionCreationEnabled: Enable/disable new ssl session creation"}
-public struct SecureSocket {
-    TrustStore|null trustStore;
-    KeyStore|null keyStore;
-    Protocols|null protocols;
-    ValidateCert|null validateCert;
-    string ciphers;
-    boolean hostNameVerification;
-    boolean sessionCreation;
-}
-
-@Description {value:"Initializes the SecureSocket struct with default values."}
-@Param {value:"config: The SecureSocket struct to be initialized"}
-public function <SecureSocket config> SecureSocket() {
-    config.hostNameVerification = true;
-    config.sessionCreation = true;
-}
+@Field {value:"verifyHostname: Enable/disable host name verification"}
+@Field {value:"shareSession: Enable/disable new ssl session creation"}
+@Field {value:"ocspStapling: Enable/disable ocsp stapling"}
+public type SecureSocket {
+    TrustStore? trustStore,
+    KeyStore? keyStore,
+    Protocols? protocol,
+    ValidateCert? certValidation,
+    string[] ciphers,
+    boolean verifyHostname = true,
+    boolean shareSession = true,
+    boolean ocspStapling,
+};
 
 @Description { value:"FollowRedirects struct represents HTTP redirect related options to be used for HTTP client invocation" }
 @Field {value:"enabled: Enable redirect"}
 @Field {value:"maxCount: Maximun number of redirects to follow"}
-public struct FollowRedirects {
-    boolean enabled;
-    int maxCount;
-}
-
-@Description {value:"Initializes the FollowRedirects struct with default values."}
-@Param {value:"config: The FollowRedirects struct to be initialized"}
-public function <FollowRedirects config> FollowRedirects() {
-    config.enabled = false;
-    config.maxCount = 5;
-}
+public type FollowRedirects {
+    boolean enabled = false,
+    int maxCount = 5,
+};
 
 @Description { value:"Proxy struct represents proxy server configurations to be used for HTTP client invocation" }
 @Field {value:"proxyHost: host name of the proxy server"}
 @Field {value:"proxyPort: proxy server port"}
 @Field {value:"proxyUserName: Proxy server user name"}
 @Field {value:"proxyPassword: proxy server password"}
-public struct Proxy {
-    string host;
-    int port;
-    string userName;
-    string password;
-}
+public type Proxy {
+    string host,
+    int port,
+    string userName,
+    string password,
+};
 
 @Description { value:"This struct represents the options to be used for connection throttling" }
 @Field {value:"maxActiveConnections: Number of maximum active connections for connection throttling. Default value -1, indicates the number of connections are not restricted"}
 @Field {value:"waitTime: Maximum waiting time for a request to grab an idle connection from the client connector"}
-public struct ConnectionThrottling {
-    int maxActiveConnections;
-    int waitTime;
+public type ConnectionThrottling {
+    int maxActiveConnections = -1,
+    int waitTime = 60000,
+};
+
+public function Client::init(ClientEndpointConfig config) {
+    boolean httpClientRequired = false;
+    string url = config.targets[0].url;
+    match config.lbMode {
+        FailoverConfig failoverConfig => {
+            if (lengthof config.targets > 1) {
+                self.config = config;
+                self.httpClient = createFailOverClient(config, failoverConfig);
+            } else {
+                if (url.hasSuffix("/")) {
+                    int lastIndex = url.length() - 1;
+                    url = url.subString(0, lastIndex);
+                }
+                self.config = config;
+
+                if (config.cache.enabled) {
+                    self.httpClient = createHttpCachingClient(url, config, config.cache);
+                } else{
+                    self.httpClient = createHttpClient(url, config);
+                }
+            }
+        }
+
+        string lbAlgorithm => {
+            if (lengthof config.targets > 1) {
+                self.httpClient = createLoadBalancerClient(config, lbAlgorithm);
+            } else {
+                if (url.hasSuffix("/")) {
+                    int lastIndex = url.length() - 1;
+                    url = url.subString(0, lastIndex);
+                }
+                self.config = config;
+                var cbConfig = config.circuitBreaker;
+                match cbConfig {
+                    CircuitBreakerConfig cb => {
+                        if (url.hasSuffix("/")) {
+                            int lastIndex = url.length() - 1;
+                            url = url.subString(0, lastIndex);
+                        }
+                        httpClientRequired = false;
+                    }
+                    () => {
+                        httpClientRequired = true;
+                    }
+                }
+                if (httpClientRequired) {
+                    var retryConfig = config.retry;
+                    match retryConfig {
+                        Retry retry => {
+                            self.httpClient = createRetryClient(url, config);
+                        }
+                        () => {
+                            if (config.cache.enabled) {
+                                self.httpClient = createHttpCachingClient(url, config, config.cache);
+                            } else{
+                                self.httpClient = createHttpClient(url, config);
+                            }
+                        }
+                    }
+                } else {
+                    self.httpClient = createCircuitBreakerClient(url, config);
+                }
+            }
+        }
+    }
 }
 
-@Description {value:"Initializes the ConnectionThrottling struct with default values."}
-@Param {value:"config: The ConnectionThrottling struct to be initialized"}
-public function <ConnectionThrottling config> ConnectionThrottling() {
-    config.maxActiveConnections = -1;
-    config.waitTime = 60000;
-}
-
-function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) returns HttpClient {
+function createCircuitBreakerClient (string uri, ClientEndpointConfig configuration) returns HttpClient {
     var cbConfig = configuration.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
             validateCircuitBreakerConfiguration(cb);
             boolean [] statusCodes = populateErrorCodeIndex(cb.statusCodes);
-
-            HttpClient cbHttpClient = {};
-            if (configuration.cacheConfig.enabled) {
-                cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cacheConfig);
-            } else{
-                cbHttpClient = createHttpClient(uri, configuration);
+            HttpClient cbHttpClient = new;
+            var retryConfig = configuration.retry;
+            match retryConfig {
+                Retry retry => {
+                    cbHttpClient = createRetryClient(uri, configuration);
+                }
+                () => {
+                    if (configuration.cache.enabled) {
+                        cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cache);
+                    } else{
+                        cbHttpClient = createHttpClient(uri, configuration);
+                    }
+                }
             }
 
             time:Time circuitStartTime = time:currentTime();
@@ -278,27 +261,18 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
 
             CircuitBreakerInferredConfig circuitBreakerInferredConfig = {
                                                                 failureThreshold:cb.failureThreshold,
-                                                                resetTimeout:cb.resetTimeout,
+                                                                resetTimeMillies:cb.resetTimeMillies,
                                                                 statusCodes:statusCodes,
                                                                 noOfBuckets:numberOfBuckets,
                                                                 rollingWindow:cb.rollingWindow
                                                             };
-
-            CircuitBreakerClient cbClient = {
-                                                serviceUri:uri,
-                                                config:configuration,
-                                                circuitBreakerInferredConfig:circuitBreakerInferredConfig,
-                                                httpClient:cbHttpClient,
-                                                circuitHealth:{startTime:circuitStartTime, totalBuckets: bucketArray},
-                                                currentCircuitState:CircuitState.CLOSED
-                                            };
-            HttpClient httpClient =  cbClient;
-            return httpClient;
+            CircuitHealth circuitHealth = {startTime:circuitStartTime, totalBuckets: bucketArray};
+            return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
         }
-        int | null => {
+        () => {
             //remove following once we can ignore
-            if (configuration.cacheConfig.enabled) {
-                return createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+            if (configuration.cache.enabled) {
+                return createHttpCachingClient(uri, configuration, configuration.cache);
             } else {
                 return createHttpClient(uri, configuration);
             }
@@ -306,20 +280,12 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
     }
 }
 
-function createLoadBalancerClient(ClientEndpointConfiguration config, string lbAlgorithm) returns HttpClient {
+function createLoadBalancerClient(ClientEndpointConfig config, string lbAlgorithm) returns HttpClient {
     HttpClient[] lbClients = createHttpClientArray(config);
-
-    LoadBalancer lb = {
-                        serviceUri: config.targets[0].url,
-                        config: config,
-                        loadBalanceClientsArray: lbClients,
-                        algorithm: lbAlgorithm
-                      };
-    HttpClient lbClient = lb;
-    return lbClient;
+    return new LoadBalancer(config.targets[0].url, config, lbClients, lbAlgorithm, 0);
 }
 
-public function createFailOverClient(ClientEndpointConfiguration config, FailoverConfig foConfig) returns HttpClient {
+public function createFailOverClient(ClientEndpointConfig config, FailoverConfig foConfig) returns HttpClient {
         HttpClient[] clients = createHttpClientArray(config);
 
         boolean[] failoverCodes = populateErrorCodeIndex(foConfig.failoverCodes);
@@ -327,8 +293,26 @@ public function createFailOverClient(ClientEndpointConfiguration config, Failove
                                                             failoverCodesIndex : failoverCodes,
                                                             failoverInterval : foConfig.interval};
 
-        Failover failover = {serviceUri:config.targets[0].url, config:config,
-                                failoverInferredConfig:failoverInferredConfig};
-        HttpClient foClient = failover;
-        return foClient;
+        return new Failover(config.targets[0].url, config, failoverInferredConfig);
+}
+
+function createRetryClient (string url, ClientEndpointConfig configuration) returns HttpClient {
+    var retryConfig = configuration.retry;
+    match retryConfig {
+        Retry retry => {
+            if (configuration.cache.enabled) {
+                return new RetryClient(url, configuration, retry, createHttpCachingClient(url, configuration, configuration.cache));
+            } else{
+                return new RetryClient(url, configuration, retry, createHttpClient(url, configuration));
+            }
+        }
+        () => {
+            //remove following once we can ignore
+            if (configuration.cache.enabled) {
+                return createHttpCachingClient(url, configuration, configuration.cache);
+            } else {
+                return createHttpClient(url, configuration);
+            }
+        }
+    }
 }

@@ -30,8 +30,8 @@ public class ResourceDefinition extends CompletionTest {
         return new Object[][] {
                 {"emptyLinePrimitiveDataTypes.json", "resource"},
                 {"nonEmptyLinePrimitiveDataTypes.json", "resource"},
-                {"userDefinedStructEmptyLine.json", "resource"},
-                {"userDefinedStructNonEmptyLine.json", "resource"},
+                {"userDefinedRecordEmptyLine.json", "resource"},
+                {"userDefinedRecordNonEmptyLine.json", "resource"},
                 {"userDefinedFunctionsEmptyLine.json", "resource"},
                 {"userDefinedFunctionsNonEmptyLine.json", "resource"},
                 {"importPackagesEmptyLine.json", "resource"},
@@ -40,12 +40,12 @@ public class ResourceDefinition extends CompletionTest {
                 {"allVisibleSymbolsEmptyLine.json", "resource"},
                 {"languageConstructsEmptyLine.json", "resource"},
                 {"languageConstructsNonEmptyLine.json", "resource"},
-                {"enumSuggestAssignment1.json", "resource"},
-                {"enumSuggestAssignment2.json", "resource"},
-                {"enumSuggestVarDef1.json", "resource"},
-                {"enumSuggestVarDef2.json", "resource"},
-                {"structFields.json", "resource"},
-                {"structBoundFunctionsAndFields.json", "resource"},
+//                {"enumSuggestAssignment1.json", "resource"},
+//                {"enumSuggestAssignment2.json", "resource"},
+//                {"enumSuggestVarDef1.json", "resource"},
+//                {"enumSuggestVarDef2.json", "resource"},
+//                {"structFields.json", "resource"},
+//                {"structBoundFunctionsAndFields.json", "resource"},
 //                {"packageContentWithSucceedingCharacter1.json", "resource"}
         };
     }

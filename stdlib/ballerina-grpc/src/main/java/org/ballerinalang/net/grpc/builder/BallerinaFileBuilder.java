@@ -40,13 +40,14 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_DATA_TYPE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_STRING;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR_REGEX;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_FILE_PRIFIX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_FILE_PREFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SERVICE_INDEX;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.STUB_FILE_PRIFIX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.STUB_FILE_PREFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.DEFAULT_SAMPLE_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.DEFAULT_SKELETON_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.SAMPLE_TEMPLATE_NAME;
@@ -64,6 +65,8 @@ public class BallerinaFileBuilder {
     private byte[] rootDescriptor;
     private List<byte[]> dependentDescriptors;
     private String balOutPath;
+    private boolean isUnaryContains = false;
+    private boolean isStreamingContains = false;
     
     public BallerinaFileBuilder(List<byte[]> dependentDescriptors) {
         this.dependentDescriptors = dependentDescriptors;
@@ -83,13 +86,14 @@ public class BallerinaFileBuilder {
             List<DescriptorProtos.DescriptorProto> messageTypeList = fileDescriptorSet.getMessageTypeList();
             List<DescriptorProtos.MethodDescriptorProto> methodList = fileDescriptorSet
                     .getService(SERVICE_INDEX).getMethodList();
+            List<DescriptorProtos.EnumDescriptorProto> enumDescriptorProtos = fileDescriptorSet.getEnumTypeList();
             String methodName;
             String reqMessageName;
             String resMessageName;
             String methodID;
             String packageName = EMPTY_STRING.equals(fileDescriptorSet.getPackage()) ? BalGenConstants.DEFAULT_PACKAGE :
                     fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + BalGenConstants.DEFAULT_PACKAGE;
-            ClientBuilder clientStubBal = new ClientBuilder(packageName, fileDescriptorSet
+            ClientBuilder clientStubBal = new ClientBuilder(fileDescriptorSet
                     .getService(SERVICE_INDEX).getName());
             DescriptorBuilder descriptorBuilder;
             String protoPackage = fileDescriptorSet.getPackage();
@@ -104,24 +108,15 @@ public class BallerinaFileBuilder {
             descriptorBuilder.buildMap();
             descriptorBuilder.buildKey();
             for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
-                MethodDescriptor.MethodType methodType = MessageUtils.getMethodType(methodDescriptorProto);
-                String[] outputTypes = methodDescriptorProto.getOutputType().split(PACKAGE_SEPARATOR_REGEX);
-                String typeOut = outputTypes[outputTypes.length - 1];
-                String[] inputTypes = methodDescriptorProto.getInputType().split(PACKAGE_SEPARATOR_REGEX);
-                String typeIn = inputTypes[inputTypes.length - 1];
-                methodName = methodDescriptorProto.getName();
-                if (!EMPTY_STRING.equals(fileDescriptorSet.getPackage())) {
-                    methodID = fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + fileDescriptorSet
-                            .getService(SERVICE_INDEX).getName() + FILE_SEPARATOR + methodName;
-                } else {
-                    methodID = fileDescriptorSet.getService(SERVICE_INDEX).getName() + FILE_SEPARATOR + methodName;
+                if (!methodDescriptorProto.getClientStreaming() && !methodDescriptorProto
+                        .getServerStreaming()) {
+                    isUnaryContains = true;
                 }
-                reqMessageName = getMappingBalType(typeIn);
-                resMessageName = getMappingBalType(typeOut);
-                ActionBuilder.build(methodName, reqMessageName, resMessageName
-                        , methodID, methodType, clientStubBal);
+                if (methodDescriptorProto.getClientStreaming() || methodDescriptorProto
+                        .getServerStreaming()) {
+                    isStreamingContains = true;
+                }
             }
-            
             for (DescriptorProtos.DescriptorProto descriptorProto : messageTypeList) {
                 String[] attributesNameArr = new String[descriptorProto.getFieldCount()];
                 String[] attributesTypeArr = new String[descriptorProto.getFieldCount()];
@@ -137,27 +132,58 @@ public class BallerinaFileBuilder {
                 }
                 clientStubBal.addStruct(descriptorProto.getName(), attributesNameArr, attributesTypeArr);
             }
-            StubBuilder.build(clientStubBal, clientStubBal.isFunctionsUnaryNotEmpty());
-            ClientStruct sampleClient = new ClientStruct(clientStubBal.isFunctionsStremingNotEmpty(), clientStubBal
-                    .isFunctionsUnaryNotEmpty(), fileDescriptorSet.getService(SERVICE_INDEX).getName(), packageName);
+            for (DescriptorProtos.EnumDescriptorProto descriptorProto : enumDescriptorProtos) {
+                String[] attributesNameArr = new String[descriptorProto.getValueCount()];
+                int j = 0;
+                for (DescriptorProtos.EnumValueDescriptorProto fieldDescriptorProto : descriptorProto.getValueList()) {
+                    attributesNameArr[j] = fieldDescriptorProto.getName();
+                    j++;
+                }
+                clientStubBal.addEnum(descriptorProto.getName(), attributesNameArr);
+            }
+            StubBuilder.build(clientStubBal, isUnaryContains);
+            for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
+                MethodDescriptor.MethodType methodType = MessageUtils.getMethodType(methodDescriptorProto);
+                String[] outputTypes = methodDescriptorProto.getOutputType().split(PACKAGE_SEPARATOR_REGEX);
+                String typeOut = outputTypes[outputTypes.length - 1];
+                String[] inputTypes = methodDescriptorProto.getInputType().split(PACKAGE_SEPARATOR_REGEX);
+                String typeIn = inputTypes[inputTypes.length - 1];
+                methodName = methodDescriptorProto.getName();
+                if (!EMPTY_STRING.equals(fileDescriptorSet.getPackage())) {
+                    methodID = fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + fileDescriptorSet
+                            .getService(SERVICE_INDEX).getName() + FILE_SEPARATOR + methodName;
+                } else {
+                    methodID = fileDescriptorSet.getService(SERVICE_INDEX).getName() + FILE_SEPARATOR + methodName;
+                }
+                reqMessageName = getMappingBalType(typeIn);
+                resMessageName = getMappingBalType(typeOut);
+                if ((EMPTY_DATA_TYPE.equals(reqMessageName) || EMPTY_DATA_TYPE.equals(resMessageName))
+                        && !(clientStubBal.isStructContains(EMPTY_DATA_TYPE))) {
+                    clientStubBal.addStruct(EMPTY_DATA_TYPE, new String[0], new String[0]);
+                }
+                ActionBuilder.build(methodName, reqMessageName, resMessageName
+                        , methodID, methodType, clientStubBal);
+            }
+            ClientStruct sampleClient = new ClientStruct(isStreamingContains, isUnaryContains
+                    , fileDescriptorSet.getService(SERVICE_INDEX).getName(), packageName);
             if (this.balOutPath == null) {
                 String path = balOutPathGenerator(packageName + PACKAGE_SEPARATOR + fileDescriptorSet
                         .getService(SERVICE_INDEX).getName());
                 writeBallerina(clientStubBal, DEFAULT_SKELETON_DIR,
-                        SKELETON_TEMPLATE_NAME, path + STUB_FILE_PRIFIX);
+                        SKELETON_TEMPLATE_NAME, path + STUB_FILE_PREFIX);
                 writeBallerina(sampleClient, DEFAULT_SAMPLE_DIR,
-                        SAMPLE_TEMPLATE_NAME, path + SAMPLE_FILE_PRIFIX);
+                        SAMPLE_TEMPLATE_NAME, path + SAMPLE_FILE_PREFIX);
             } else {
                 String path = this.balOutPath + FILE_SEPARATOR + fileDescriptorSet
                         .getService(SERVICE_INDEX).getName();
                 writeBallerina(clientStubBal, DEFAULT_SKELETON_DIR,
-                        SKELETON_TEMPLATE_NAME, path + STUB_FILE_PRIFIX);
-                File sampleFile = new File(path + SAMPLE_FILE_PRIFIX);
+                        SKELETON_TEMPLATE_NAME, path + STUB_FILE_PREFIX);
+                File sampleFile = new File(path + SAMPLE_FILE_PREFIX);
                 if (!sampleFile.isFile()) {
                     Files.createFile(Paths.get(sampleFile.getAbsolutePath()));
                 }
                 writeBallerina(sampleClient, DEFAULT_SAMPLE_DIR,
-                        SAMPLE_TEMPLATE_NAME, path + SAMPLE_FILE_PRIFIX);
+                        SAMPLE_TEMPLATE_NAME, path + SAMPLE_FILE_PREFIX);
             }
         } catch (IOException e) {
             throw new BalGenerationException("Error while generating .bal file.", e);
@@ -166,8 +192,8 @@ public class BallerinaFileBuilder {
     
     private String balOutPathGenerator(String packageName) throws IOException {
         String pathString = packageName.replace(PACKAGE_SEPARATOR, FILE_SEPARATOR);
-        File stubFile = new File(pathString + STUB_FILE_PRIFIX);
-        File sampleFile = new File(pathString + SAMPLE_FILE_PRIFIX);
+        File stubFile = new File(pathString + STUB_FILE_PREFIX);
+        File sampleFile = new File(pathString + SAMPLE_FILE_PREFIX);
         Path path = Paths.get(stubFile.getAbsolutePath()).getParent();
         if (path != null) {
             Files.createDirectories(path);

@@ -22,9 +22,11 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.nativeimpl.io.csv.Format;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
@@ -39,7 +41,19 @@ import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordReadEvent;
 import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
@@ -51,7 +65,6 @@ import static org.ballerinalang.nativeimpl.io.IOConstants.IO_PACKAGE;
  * Represents the util functions of IO operations.
  */
 public class IOUtils {
-
     /**
      * Returns the error struct for the corresponding message.
      *
@@ -295,6 +308,102 @@ public class IOUtils {
         CloseDelimitedRecordEvent closeEvent = new CloseDelimitedRecordEvent(charChannel, eventContext);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
         future.thenApply(function);
+    }
+
+    /**
+     * Creates a directory at the specified path.
+     *
+     * @param path the file location url
+     */
+    private static void createDirs(Path path) {
+        Path parent = path.getParent();
+        if (parent != null && !Files.exists(parent)) {
+            try {
+                Files.createDirectories(parent);
+            } catch (IOException e) {
+                throw new BallerinaException("Error in creating directory.", e);
+            }
+        }
+    }
+
+    /**
+     * Open a file channel from the given path.
+     *
+     * @param path       path to the file.
+     * @param accessMode file access mode.
+     * @return the filechannel which will hold the reference.
+     * @throws IOException during i/o error.
+     */
+    public static FileChannel openFileChannel(Path path, String accessMode) throws IOException {
+        String accessLC = accessMode.toLowerCase(Locale.getDefault());
+        Set<OpenOption> opts = new HashSet<>();
+        if (accessLC.contains("r")) {
+            if (!Files.exists(path)) {
+                throw new BallerinaException("file not found: " + path);
+            }
+            if (!Files.isReadable(path)) {
+                throw new BallerinaException("file is not readable: " + path);
+            }
+            opts.add(StandardOpenOption.READ);
+        }
+        boolean write = accessLC.contains("w");
+        boolean append = accessLC.contains("a");
+        if (write || append) {
+            if (Files.exists(path) && !Files.isWritable(path)) {
+                throw new BallerinaException("file is not writable: " + path);
+            }
+            createDirs(path);
+            opts.add(StandardOpenOption.CREATE);
+            if (append) {
+                opts.add(StandardOpenOption.APPEND);
+            } else {
+                opts.add(StandardOpenOption.WRITE);
+            }
+        }
+        return FileChannel.open(path, opts);
+    }
+
+    /**
+     * Creates a delimited record channel to read from CSV file.
+     *
+     * @param filePath path to the CSV file.
+     * @param encoding the encoding of CSV file.
+     * @param mode     permission to access the file.
+     * @param format   format of the CSV file.
+     * @return delimited record channel to read from CSV.
+     * @throws IOException during I/O error.
+     */
+    public static DelimitedRecordChannel createDelimitedRecordChannel(String filePath, String encoding, String mode,
+                                                                      Format format)
+            throws IOException {
+        Path path = Paths.get(filePath);
+        FileChannel sourceChannel = openFileChannel(path, mode);
+        FileIOChannel fileIOChannel = new FileIOChannel(sourceChannel);
+        CharacterChannel characterChannel = new CharacterChannel(fileIOChannel, Charset.forName(encoding).name());
+        return new DelimitedRecordChannel(characterChannel, format);
+    }
+
+    /**
+     * Creates a delimited record channel to read from CSV file.
+     *
+     * @param filePath path to the CSV file.
+     * @param encoding the encoding of CSV file.
+     * @param rs       record separator.
+     * @param fs       field separator.
+     * @return delimited record channel to read from CSV.
+     * @throws IOException during I/O error.
+     */
+    public static DelimitedRecordChannel createDelimitedRecordChannel(String filePath, String encoding, String rs,
+                                                                      String fs) throws IOException {
+        Path path = Paths.get(filePath);
+        if (Files.notExists(path)) {
+            String msg = "Unable to find a file in given path: " + filePath;
+            throw new IOException(msg);
+        }
+        FileChannel sourceChannel = FileChannel.open(path, StandardOpenOption.READ);
+        FileIOChannel fileIOChannel = new FileIOChannel(sourceChannel);
+        CharacterChannel characterChannel = new CharacterChannel(fileIOChannel, Charset.forName(encoding).name());
+        return new DelimitedRecordChannel(characterChannel, rs, fs);
     }
 
 }

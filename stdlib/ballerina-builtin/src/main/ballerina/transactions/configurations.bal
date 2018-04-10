@@ -18,43 +18,18 @@ package ballerina.transactions;
 
 import ballerina/config;
 
-const string basePath = "/balcoordinator";
-const string initiatorCoordinatorBasePath = basePath + "/initiator";
-const string initiator2pcCoordinatorBasePath = basePath + "/initiator/2pc";
-const string participant2pcCoordinatorBasePath = basePath + "/participant/2pc";
-const string registrationPath = "/register";
-const string registrationPathPattern = "/{transactionBlockId}" + registrationPath;
+@final string basePath = "/balcoordinator";
+@final string initiatorCoordinatorBasePath = basePath + "/initiator";
+@final string initiator2pcCoordinatorBasePath = basePath + "/initiator/2pc";
+@final string participant2pcCoordinatorBasePath = basePath + "/participant/2pc";
+@final string registrationPath = "/register";
+@final string registrationPathPattern = "/{transactionBlockId}" + registrationPath;
 
-const string coordinatorHost = getCoordinatorHost();
-const int coordinatorPort = getCoordinatorPort();
+@final string coordinatorHost = config:getAsString("http.coordinator.host") ?: getHostAddress();
+@final int coordinatorPort = (<int>(config:getAsString("http.coordinator.port") but { () => getAvailablePort()}))
+                             but { error => getAvailablePort()};
 
-function getCoordinatorHost () returns string {
-    string host;
-    var result = config:getAsString("http.coordinator.host");
-    match result {
-        string h => host = h;
-        null => host = getHostAddress();
-    }
-    return host;
-}
-
-function getCoordinatorPort () returns int {
-    int port;
-    var result = config:getAsString("http.coordinator.port");
-    match result {
-        string p => {
-            var result2 = <int>p;
-            match result2 {
-                error e => port = getAvailablePort();
-                int p2 => port = p2;
-            }
-        }
-        null => port = getAvailablePort();
-    }
-    return port;
-}
-
-endpoint http:ServiceEndpoint coordinatorServerEP {
+endpoint http:Listener coordinatorListener {
     host:coordinatorHost,
     port:coordinatorPort
 };

@@ -31,8 +31,8 @@ class DebuggerConsole extends View {
      * Creates an instance of DebuggerConsole.
      * @memberof DebuggerConsole
      */
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             messages: [],
         };
@@ -40,33 +40,17 @@ class DebuggerConsole extends View {
             this.setState({ messages: nextState });
         },
         400);
-    }
-    /**
-     * React.Component lifecycle hook
-     *
-     * @memberof DebuggerConsole
-     */
-    componentDidMount() {
         let messageCache = [];
-        this.props.LaunchManager.on('execution-started', () => {
+        props.LaunchManager.on('execution-started', () => {
             messageCache = [];
             this.setState({
                 messages: [],
             });
         });
-        this.props.LaunchManager.on('print-message', (message) => {
+        props.LaunchManager.on('print-message', (message) => {
             messageCache.push(message);
             this.debouncedSetState(messageCache);
         });
-    }
-    /**
-     * React.Component lifecycle hook
-     *
-     * @memberof DebuggerConsole
-     */
-    componentDidUnMount() {
-        this.props.LaunchManager.off('execution-started');
-        this.props.LaunchManager.off('print-message');
     }
 
     /**

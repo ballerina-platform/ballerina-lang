@@ -22,10 +22,12 @@ import StatementNode from '../statement-node';
 class AbstractWorkerReceiveNode extends StatementNode {
 
 
-    setExpressions(newValue, silent, title) {
-        const oldValue = this.expressions;
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expressions = newValue;
+        this.expression = newValue;
+
+        this.expression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class AbstractWorkerReceiveNode extends StatementNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'expressions',
+                    attributeName: 'expression',
                     newValue,
                     oldValue,
                 },
@@ -41,104 +43,10 @@ class AbstractWorkerReceiveNode extends StatementNode {
         }
     }
 
-    getExpressions() {
-        return this.expressions;
+    getExpression() {
+        return this.expression;
     }
 
-
-    addExpressions(node, i = -1, silent) {
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.expressions.push(node);
-            index = this.expressions.length;
-        } else {
-            this.expressions.splice(i, 0, node);
-        }
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeExpressions(node, silent) {
-        const index = this.getIndexOfExpressions(node);
-        this.removeExpressionsByIndex(index, silent);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeExpressionsByIndex(index, silent) {
-        this.expressions.splice(index, 1);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceExpressions(oldChild, newChild, silent) {
-        const index = this.getIndexOfExpressions(oldChild);
-        this.expressions[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceExpressionsByIndex(index, newChild, silent) {
-        this.expressions[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    getIndexOfExpressions(child) {
-        return _.findIndex(this.expressions, ['id', child.id]);
-    }
-
-    filterExpressions(predicateFunction) {
-        return _.filter(this.expressions, predicateFunction);
-    }
 
 
     setWorkerName(newValue, silent, title) {

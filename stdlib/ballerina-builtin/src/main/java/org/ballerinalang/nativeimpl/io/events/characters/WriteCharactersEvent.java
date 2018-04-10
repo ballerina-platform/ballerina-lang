@@ -77,6 +77,10 @@ public class WriteCharactersEvent implements Event {
             log.error("Error occurred while writing characters", e);
             context.setError(e);
             result = new NumericResult(context);
+        } catch (Throwable e) {
+            log.error("Unidentified error occurred while writing characters", e);
+            context.setError(e);
+            result = new NumericResult(context);
         }
         return result;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -21,55 +21,62 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.file.utils.Constants;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
 
 /**
- * Deletes a file from a given location.
+ * Deletes a given file or a directory.
+ *
+ * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "file",
         functionName = "delete",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File",
-                             structPackage = "ballerina.file"),
-        args = {@Argument(name = "target", type = TypeKind.STRUCT, structType = "File",
-                structPackage = "ballerina.file")},
+        args = {
+                @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path", structPackage = "ballerina.file")
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.BOOLEAN),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.file")
+        },
         isPublic = true
 )
 public class Delete extends BlockingNativeCallableUnit {
 
-    @Override 
+    @Override
     public void execute(Context context) {
-
-        BStruct target = (BStruct) context.getRefArgument(0);
-        File targetFile = new File(target.getStringField(0));
-        if (!targetFile.exists()) {
-            throw new BallerinaException("failed to delete file: file not found: " + targetFile.getPath());
-        }
-        if (!delete(targetFile)) {
-            throw new BallerinaException("failed to delete file: " + targetFile.getPath());
+        BStruct pathStruct = (BStruct) context.getRefArgument(0);
+        Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
+        try {
+            if (!Files.exists(path)) {
+                throw new BallerinaException("failed to delete file: file not found: " + path);
+            }
+            if (!delete(path)) {
+                throw new BallerinaException("failed to delete file: " + path);
+            }
+        } catch (IOException ex) {
+            BStruct errorStruct = IOUtils.createError(context, ex.getMessage());
+            context.setReturnValues(errorStruct);
         }
         context.setReturnValues();
     }
 
-    private boolean delete(File targetFile) {
-
-        String[] entries = targetFile.list();
-        if (entries != null && entries.length != 0) {
-            for (String s : entries) {
-                File currentFile = new File(targetFile.getPath(), s);
-                if (currentFile.isDirectory()) {
-                    delete(currentFile);
-                } else if (!currentFile.delete()) {
-                    return false;
-                }
-            }
-        }
-        return targetFile.delete();
+    private boolean delete(Path path) throws IOException {
+        Files.walk(path)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
+        return !Files.exists(path);
     }
 
 }

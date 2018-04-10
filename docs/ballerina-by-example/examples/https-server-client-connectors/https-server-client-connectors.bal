@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-endpoint http:ServiceEndpoint helloWorldEP {
+endpoint http:Listener helloWorldEP {
     port:9095,
     secureSocket: {
         keyStore: {
@@ -25,15 +25,15 @@ service<http:Service> helloWorld bind helloWorldEP {
     }
 
     sayHello (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("Successful");
         _ = conn -> respond(res);
     }
 }
 
-endpoint http:ClientEndpoint clientEP {
+endpoint http:Client clientEP {
     targets: [{
-        uri: "https://localhost:9095",
+        url: "https://localhost:9095",
         secureSocket: {
             trustStore: {
                 filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -45,7 +45,7 @@ endpoint http:ClientEndpoint clientEP {
 @Description {value:"Ballerina client connector can be used to connect to the created https server. You have to run the service before running this main function. As this is a 1-way ssl connection, client needs to provide trustStoreFile and trustStorePassword."}
 function main (string[] args) {
     //Creates an outbound request.
-    http:Request req = {};
+    http:Request req = new;
     var resp = clientEP -> get("/hello/", req);
     match resp {
         http:HttpConnectorError err => io:println(err.message);

@@ -7,7 +7,7 @@ function setErrorResponse(http:Response response,  mime:EntityError err) {
     response.setStringPayload(err.message);
 }
 
-endpoint http:NonListeningServiceEndpoint mockEP {
+endpoint http:NonListener mockEP {
     port:9090
 };
 
@@ -19,7 +19,7 @@ service<http:Service> test bind mockEP {
         path:"/textbodypart"
     }
     multipart1 (endpoint client, http:Request request) {
-        http:Response response = {};
+        http:Response response = new;
         match request.getMultiparts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
@@ -30,7 +30,7 @@ service<http:Service> test bind mockEP {
                          setErrorResponse(response, err);
                     }
                     string textPayload => {
-                            mime:Entity entity = {};
+                            mime:Entity entity = new;
                             entity.setText(textPayload);
                             response.setEntity(entity);
                     }
@@ -45,7 +45,7 @@ service<http:Service> test bind mockEP {
         path:"/jsonbodypart"
     }
     multipart2 (endpoint client, http:Request request) {
-        http:Response response = {};
+        http:Response response = new;
         match request.getMultiparts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
@@ -67,7 +67,7 @@ service<http:Service> test bind mockEP {
         path:"/xmlbodypart"
     }
     multipart3 (endpoint client, http:Request request) {
-        http:Response response = {};
+        http:Response response = new;
         match request.getMultiparts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
@@ -89,7 +89,7 @@ service<http:Service> test bind mockEP {
         path:"/binarybodypart"
     }
     multipart4 (endpoint client, http:Request request) {
-        http:Response response = {};
+        http:Response response = new;
         match request.getMultiparts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
@@ -111,7 +111,7 @@ service<http:Service> test bind mockEP {
         path:"/multipleparts"
     }
     multipart5 (endpoint client, http:Request request) {
-        http:Response response = {};
+        http:Response response = new;
         match request.getMultiparts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
@@ -135,7 +135,7 @@ service<http:Service> test bind mockEP {
         path:"/emptyparts"
     }
     multipart6 (endpoint client, http:Request request) {
-        http:Response response = {};
+        http:Response response = new;
         match (request.getMultiparts()) {
             mime:EntityError err => {
                 response.setStringPayload(err.message);
@@ -152,7 +152,7 @@ service<http:Service> test bind mockEP {
         path:"/nestedparts"
     }
     multipart7 (endpoint client, http:Request request) {
-        http:Response response = {};
+        http:Response response = new;
         match request.getMultiparts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
@@ -231,7 +231,6 @@ function extractFieldValue(json fieldValue) returns string {
         int i => return "error";
         string s => return s;
         boolean b => return "error";
-        null  => return "error";
         json j => return "error";
     }
 }

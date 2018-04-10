@@ -24,14 +24,17 @@ import static java.util.Objects.requireNonNull;
 /**
  * Tag representing key/value pair.
  */
-public final class Tag {
+public final class Tag implements Comparable<Tag> {
 
     private final String key;
     private final String value;
+    private final int hashCode;
 
     public Tag(String key, String value) {
         this.key = requireNonNull(key);
         this.value = requireNonNull(value);
+        // Compute hash of this immutable Tag
+        this.hashCode = Objects.hash(key, value);
     }
 
     static Tag of(String key, String value) {
@@ -44,6 +47,11 @@ public final class Tag {
 
     public String getValue() {
         return value;
+    }
+
+    @Override
+    public int compareTo(Tag o) {
+        return key.compareTo(o.key);
     }
 
     @Override
@@ -61,7 +69,7 @@ public final class Tag {
 
     @Override
     public int hashCode() {
-        return Objects.hash(key, value);
+        return hashCode;
     }
 
     @Override

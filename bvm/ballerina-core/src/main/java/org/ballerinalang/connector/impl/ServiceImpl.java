@@ -36,6 +36,7 @@ public class ServiceImpl extends AnnotatableNode implements Service {
     private String packagePath;
     private String endPointName;
     private ServiceInfo serviceInfo;
+    private String packageVersion;
 
     //key - resourceName, value - resource
     private Map<String, Resource> resourceMap = new HashMap<>();
@@ -44,6 +45,7 @@ public class ServiceImpl extends AnnotatableNode implements Service {
         this.serviceInfo = serviceInfo;
         this.name = serviceInfo.getName();
         this.packagePath = serviceInfo.getPackagePath();
+        this.packageVersion = serviceInfo.getPackageInfo().getPackageVersion();
         this.endPointName = serviceInfo.getEndpointName();
     }
 
@@ -84,5 +86,10 @@ public class ServiceImpl extends AnnotatableNode implements Service {
 
     public ServiceInfo getServiceInfo() {
         return serviceInfo;
+    }
+
+    @Override
+    public String getPackageVersion() {
+        return packageVersion;
     }
 }

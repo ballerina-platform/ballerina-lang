@@ -23,8 +23,10 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMText;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.TableJSONDataSource;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -88,6 +90,10 @@ public class JSONUtils {
         JsonNode jsonNode = json.value();
         return jsonNode.has(elementName);
     }
+    
+    public static BJSON convertMapToJSON(BMap<String, BValue> map) {
+        return convertMapToJSON(map, null);
+    }
 
     /**
      * Convert {@link BMap} to {@link BJSON}.
@@ -96,7 +102,7 @@ public class JSONUtils {
      * @return JSON representation of the provided map
      */
     @SuppressWarnings("unchecked")
-    public static BJSON convertMapToJSON(BMap<String, BValue> map) {
+    public static BJSON convertMapToJSON(BMap<String, BValue> map, BJSONType targetType) {
         Set<String> keys = map.keySet();
         BJSON bjson = new BJSON(new JsonNode(Type.OBJECT));
         JsonNode jsonNode = bjson.value();
@@ -129,6 +135,14 @@ public class JSONUtils {
                 handleError(e, key);
             }
         }
+        
+        if (targetType != null) {
+            if (!CPU.isAssignable(bjson, targetType)) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON, 
+                        targetType, bjson.getType());
+            }
+        }
+        
         return bjson;
     }
 
@@ -248,15 +262,26 @@ public class JSONUtils {
         }
         return bjson;
     }
-
+    
     /**
      * Convert {@link BStruct} to {@link BJSON}.
      *
      * @param struct {@link BStruct} to be converted to {@link BJSON}
      * @return JSON representation of the provided array
      */
-    @SuppressWarnings("unchecked")
     public static BJSON convertStructToJSON(BStruct struct) {
+        return convertStructToJSON(struct, null);
+    }
+
+    /**
+     * Convert {@link BStruct} to {@link BJSON}.
+     *
+     * @param struct {@link BStruct} to be converted to {@link BJSON}
+     * @param targetType the target JSON type to be convert to
+     * @return JSON representation of the provided array
+     */
+    @SuppressWarnings("unchecked")
+    public static BJSON convertStructToJSON(BStruct struct, BJSONType targetType) {
         BJSON bjson = new BJSON(new JsonNode(Type.OBJECT));
         JsonNode jsonNode = bjson.value();
         BStructType structType = (BStructType) struct.getType();
@@ -307,8 +332,19 @@ public class JSONUtils {
                 handleError(e, key);
             }
         }
+        
+        if (targetType != null) {
+            if (!CPU.isAssignable(bjson, targetType)) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON, 
+                        targetType, bjson.getType());
+            }
+        }
 
         return bjson;
+    }
+    
+    public static BMap<String, ?> convertJSONToMap(BJSON json, BMapType targetType) {
+        return null;
     }
     
     /**

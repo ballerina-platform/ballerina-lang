@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha1-SNAPSHOT</version>
+        <version>0.970.0-alpha4-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -78,6 +78,10 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.transport.file</groupId>
+            <artifactId>org.wso2.transport.local-file-system</artifactId>
+        </dependency>
     </dependencies>
     
     <build>
@@ -125,7 +129,7 @@
 
     <properties>
         <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
-        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
     </properties>
     

@@ -15,31 +15,28 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * /
+ *
  */
 package org.ballerinalang.test.metrics;
 
-import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * Tests for Counter metric.
  */
-public class CounterTest {
+public class CounterTest extends MetricTest {
     private CompileResult compileResult;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/metrics/counter-test.bal");
-        Metrics.globalRegistry.add(new SimpleMeterRegistry());
     }
 
     @Test
@@ -52,5 +49,11 @@ public class CounterTest {
     public void testCounterIncrement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCounterIncrement");
         Assert.assertEquals(returns[0], new BFloat(5.0));
+    }
+
+    @Test
+    public void testCounterWithoutTags() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCounterWithoutTags");
+        Assert.assertEquals(returns[0], new BFloat(3));
     }
 }

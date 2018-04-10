@@ -17,45 +17,43 @@
 package ballerina.transactions;
 import ballerina/io;
 
-const string PROTOCOL_COMPLETION = "completion";
-const string PROTOCOL_VOLATILE = "volatile";
-const string PROTOCOL_DURABLE = "durable";
+@final string PROTOCOL_COMPLETION = "completion";
+@final string PROTOCOL_VOLATILE = "volatile";
+@final string PROTOCOL_DURABLE = "durable";
 
-enum Protocols {
-    COMPLETION, DURABLE, VOLATILE
-}
+type TransactionState "active" | "prepared" | "committed" | "aborted";
+@final TransactionState TXN_STATE_ACTIVE = "active";
+@final TransactionState TXN_STATE_PREPARED = "prepared";
+@final TransactionState TXN_STATE_COMMITTED = "committed";
+@final TransactionState TXN_STATE_ABORTED = "aborted";
 
-public enum TransactionState {
-    ACTIVE, PREPARED, COMMITTED, ABORTED
-}
+@final string TRANSACTION_CONTEXT_VERSION = "1.0";
 
-const string TRANSACTION_CONTEXT_VERSION = "1.0";
+@final public string COMMAND_PREPARE = "prepare";
+@final public string COMMAND_COMMIT = "commit";
+@final public string COMMAND_ABORT = "abort";
 
-public const string COMMAND_PREPARE = "prepare";
-public const string COMMAND_COMMIT = "commit";
-public const string COMMAND_ABORT = "abort";
+@final public string OUTCOME_PREPARED = "prepared";
+@final public string OUTCOME_NOT_PREPARED = "Not-Prepared";
+@final public string OUTCOME_MIXED = "mixed";
+@final public string OUTCOME_ABORTED = "aborted";
+@final public string OUTCOME_COMMITTED = "committed";
+@final public string OUTCOME_HAZARD = "Hazard-Outcome";
+@final public string OUTCOME_FAILED_EOT = "Failed-EOT";
+@final public string OUTCOME_READ_ONLY = "read-only";
 
-public const string OUTCOME_PREPARED = "prepared";
-public const string OUTCOME_NOT_PREPARED = "Not-Prepared";
-public const string OUTCOME_MIXED = "mixed";
-public const string OUTCOME_ABORTED = "aborted";
-public const string OUTCOME_COMMITTED = "committed";
-public const string OUTCOME_HAZARD = "Hazard-Outcome";
-public const string OUTCOME_FAILED_EOT = "Failed-EOT";
-public const string OUTCOME_READ_ONLY = "read-only";
+public type TransactionContext {
+    @readonly string contextVersion = "1.0";
+    @readonly string transactionId;
+    @readonly int transactionBlockId;
+    @readonly string coordinationType;
+    @readonly string registerAtURL;
+};
 
-public struct TransactionContext {
-    string contextVersion = "1.0";
-    string transactionId;
-    int transactionBlockId;
-    string coordinationType;
-    string registerAtURL;
-}
-
-struct Participant {
+type Participant {
     string participantId;
     Protocol[] participantProtocols;
-}
+};
 
 documentation {
     This represents the protocol associated with the coordination type.
@@ -65,46 +63,45 @@ documentation {
                 the `protocolFn` will be called
     F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
 }
-public struct Protocol {
-    string name;
-    string url;
-    int transactionBlockId;
-    (function (string transactionId,
-               int transactionBlockId,
-               string protocolAction) returns boolean)|null protocolFn;
-}
+public type Protocol {
+    @readonly string name;
+    @readonly string url;
+    @readonly int transactionBlockId;
+    @readonly (function (string transactionId,
+                           int transactionBlockId,
+                           string protocolAction) returns boolean)? protocolFn;
+};
 
-public struct RegistrationRequest {
+public type RegistrationRequest {
     string transactionId;
     string participantId;
     Protocol[] participantProtocols;
-}
+};
 
 public function regRequestToJson (RegistrationRequest req) returns json {
-    json j;
+    json j = {};
     j.transactionId = req.transactionId;
     j.participantId = req.participantId;
     json[] protocols = [];
     foreach proto in req.participantProtocols {
-        json j2 = {name:proto.name, url:proto.url};
+        json j2 = {name: proto.name, url:proto.url};
         protocols[lengthof protocols] = j2;
     }
     j.participantProtocols = protocols;
-    //j.participantProtocols = [{name:req.participantProtocols[0].name, url:req.participantProtocols[0].url}];
     return j;
 }
 
-public struct RegistrationResponse {
+public type RegistrationResponse {
     string transactionId;
     Protocol[] coordinatorProtocols;
-}
+};
 
 public function regResponseToJson (RegistrationResponse res) returns json {
-    json j;
+    json j = {};
     j.transactionId = res.transactionId;
     json[] protocols;
     foreach proto in res.coordinatorProtocols {
-        json j2 = {name:proto.name, url:proto.url};
+        json j2 = {name: proto.name, url:proto.url};
         protocols[lengthof protocols] = j2;
     }
     j.coordinatorProtocols = protocols;
@@ -112,16 +109,12 @@ public function regResponseToJson (RegistrationResponse res) returns json {
 }
 
 public function jsonToRegResponse (json j) returns RegistrationResponse {
-    io:println(j.transactionId);
-    //string transactionId =? <string>j.transactionId; //TODO: Fix
     string transactionId = <string>jsonToAny(j.transactionId);
     RegistrationResponse res = {transactionId:transactionId};
     Protocol[] protocols;
     foreach proto in j.coordinatorProtocols {
         string name = <string>jsonToAny(proto.name);
         string url = <string>jsonToAny(proto.url);
-        //string name =? <string>proto.name; //TODO: Fix
-        //string url =? <string>proto.url; //TODO: Fix
         Protocol p = {name:name, url:url};
         protocols[lengthof protocols] = p;
     }
@@ -135,28 +128,28 @@ function jsonToAny(json j) returns any {
         int i => return i;
         string s => return s;
         boolean b => return b;
-        null => return null;
+        () => return null;
         json j2 => return j2;
     }
 }
 
-public struct RequestError {
+public type RequestError {
     string errorMessage;
-}
+};
 
-public struct PrepareRequest {
+public type PrepareRequest {
     string transactionId;
-}
+};
 
-public struct PrepareResponse {
+public type PrepareResponse {
     string message;
-}
+};
 
-public struct NotifyRequest {
+public type NotifyRequest {
     string transactionId;
     string message;
-}
+};
 
-public struct NotifyResponse {
+public type NotifyResponse {
     string message;
-}
+};

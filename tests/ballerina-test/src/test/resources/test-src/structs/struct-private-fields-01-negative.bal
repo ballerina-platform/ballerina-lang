@@ -1,18 +1,18 @@
 
 import org.foo;
 
-public struct userA {
+public type userA {
     int age;
     string name;
-}
+};
 
-public struct userB {
+public type userB {
     int age;
     string name;
     string address;
     private:
         string zipcode;
-}
+};
 
 public function testRuntimeStructEqNegative() returns (string) {
     foo:user u = foo:newUser();

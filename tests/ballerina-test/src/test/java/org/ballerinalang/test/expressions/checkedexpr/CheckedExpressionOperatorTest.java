@@ -168,5 +168,40 @@ public class CheckedExpressionOperatorTest {
     public void testCheckExprInBinaryExpr5() {
         BRunUtil.invoke(result, "testCheckExprInBinaryExpr5", new BValue[]{});
     }
+
+    @Test(description = "Test basics of safe assignment statement")
+    public void testCheckExprInBinaryExpr6() {
+        BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr6", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStruct.class);
+        BStruct errorStruct = (BStruct) returns[0];
+        Assert.assertEquals(errorStruct.getStringField(0),
+                "custom io error", "Invalid error message value returned.");
+        Assert.assertEquals(errorStruct.getStringField(1),
+                "foo.txt", "Invalid error message value returned.");
+    }
+
+    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: myerror, message: io error.*")
+    public void testCheckExprInBinaryExpr7() {
+        BRunUtil.invoke(result, "testCheckExprInBinaryExpr7", new BValue[]{});
+    }
+
+    @Test(description = "Test basics of safe assignment statement")
+    public void testCheckExprInBinaryExpr8() {
+        BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr8", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "hello, Hello, World!!!", "Invalid string value returned.");
+    }
+
+    @Test(description = "Test basics of safe assignment statement")
+    public void testCheckedExprAsFuncParam1() {
+        BValue[] returns = BRunUtil.invoke(result, "testCheckedExprAsFuncParam1", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "((((S|S)|(S|S))|((S|S)|(S|S)))|(((S|S)|(S|S))|" +
+                "((S|S)|(S|S)))) ((A|A)|(A|A)) (((M|M)|(M|M))|((M|M)|(M|M))) done", "Invalid string value returned.");
+    }
 }
 

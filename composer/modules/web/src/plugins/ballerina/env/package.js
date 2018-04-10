@@ -36,6 +36,95 @@ class Package {
         this.addTypeDefinitions(_.get(args, 'typeDefinitions', []));
         this.addConstantDefinitions(_.get(args, 'constantDefinitions', []));
         this.addAnnotationDefinitions(_.get(args, 'annotationDefinitions', []));
+        this.addEndpoints(_.get(args, 'endpoints',[]));
+        this.addObjects(_.get(args,'objects',[]));
+    }
+
+    /**
+     * Add objects to the package.
+     *
+     * @param objects objects to be added to the package
+     */
+    addObjects(objects) {
+        this._objects = this._objects || [];
+        this._objects = _.concat(this._objects, objects);
+    }
+
+    /**
+     * Get objects available in the package.
+     *
+     * @returns {objects} objects available in the package
+     */
+    getObjects() {
+        return this._objects;
+    }
+
+    /**
+     * Set objects to the package.
+     *
+     * @param objects objects to be added to the package
+     */
+    setObjects(objects) {
+        this._objects = null;
+        this.addObjects(objects);
+    }
+
+    /**
+     * Add records to the package.
+     *
+     * @param records records to be added to the package
+     */
+    addRecords(records) {
+        this._records = this._records || [];
+        this._records = _.concat(this._records, records);
+    }
+
+    /**
+     * Get objects available in the package.
+     *
+     * @returns {objects} objects available in the package
+     */
+    getRecords() {
+        return this._records;
+    }
+
+    /**
+     * Set objects to the package.
+     *
+     * @param records objects to be added to the package
+     */
+    setRecords(records) {
+        this._records = null;
+        this.addRecords(records);
+    }
+
+    /**
+     * Add the endpoints to the package.
+     *
+     * @param endpoints - endpoints to be added.
+     */
+    addEndpoints(endpoints) {
+        this._endpoints = this._endpoints || [];
+        this._endpoints = _.concat(this._endpoints, endpoints);
+    }
+
+    /**
+     * Get the endpoints available for the package.
+     *
+     * @returns {endpoints} endpoints of the package
+     */
+    getEndpoints() {
+        return this._endpoints;
+    }
+
+    /**
+     * Set endpoint to the package.
+     *
+     * @param endpoints endpoints to be added to the package
+     */
+    setEndpoints(endpoints) {
+        this._endpoints = null;
+        this.addEndpoints(endpoints);
     }
 
     setName(name) {
@@ -407,6 +496,24 @@ class Package {
             const annotationDef = BallerinaEnvFactory.createAnnotationDefinition();
             annotationDef.initFromJson(annotationNode);
             this.addAnnotationDefinitions(annotationDef);
+        });
+
+        _.each(jsonNode.endpoints, (endpointNode) => {
+            const endpointDef = BallerinaEnvFactory.createEndpoint();
+            endpointDef.initFromJson(endpointNode);
+            this.addEndpoints(endpointDef);
+        });
+
+        _.each(jsonNode.objects, (objectNode) => {
+            const objectDef = BallerinaEnvFactory.createObject();
+            objectDef.initFromJson(objectNode);
+            this.addObjects(objectDef);
+        });
+
+        _.each(jsonNode.records, (recordNode) => {
+            const recordDef = BallerinaEnvFactory.createRecord();
+            recordDef.initFromJson(recordNode);
+            this.addRecords(recordDef);
         });
     }
 

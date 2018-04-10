@@ -1,28 +1,44 @@
 package mock;
 
-import ballerina/lang.messages;
-import ballerina/mock;
-import ballerina/test;
 import ballerina/http;
-import ballerina/lang.system;
+import ballerina/io;
+import ballerina/test;
+import ballerina/config;
 
-function testMain () {
-    message response = {};
-    message request = {};
-    string responseString;
 
-    string myURL = test:startService("helloWorld");
-    string mockURL = test:startService("mockService");
+string url = "http://0.0.0.0:9092/hello";
+boolean isHelloServiceStarted;
 
-    mock:setValue("helloWorld.testConnector.param1", "new parameter2");
-    mock:setValue("helloWorld.testConnector.terminalCon.param1", mockURL);
+function startMock () {
+    isHelloServiceStarted = test:startServices("mock");
+}
 
-    http:ClientConnector varEP = create http:ClientConnector(myURL);
-    messages:setStringPayload(request, mockURL);
-    response = varEP.get("/", request);
+function stopMock () {
+    test:stopServices("mock");
+}
 
-    responseString = messages:getStringPayload(response);
-    system:println("hello response: " + responseString);
+@test:Config{
+    before: "startMock",
+    after:"stopMock"
+}
+function testService () {
+    endpoint http:Client httpEndpoint {
+        targets:[{ uri:url }]
+    };
 
-    test:assertStringEquals(responseString, "You invoked mockService!", "");
+    // Check whether the service is started
+    test:assertTrue(isHelloServiceStarted, msg = "Hello service failed to start");
+
+    http:Request req = {};
+    // Send a GET request to the specified endpoint
+    io:println("GET request:");
+    var response = httpEndpoint -> get("/hello", req);
+    match response {
+        http:Response resp => {
+            var jsonRes = resp.getJsonPayload();
+            json expected = {"Hello":"World"};
+            test:assertEquals(jsonRes, expected);
+        }
+        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint: " +url);
+    }
 }

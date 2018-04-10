@@ -33,18 +33,18 @@ type Person object {
 
     function getNameWrapperOutside2() returns string;
 
-}
+};
 
 function Person::getNameOut() returns string {
-    return name;
+    return self.name;
 }
 
 function Person::getNameWrapperOutside1() returns string {
-    return getName();
+    return self.getName();
 }
 
 function Person::getNameWrapperOutside2() returns string {
-    return getNameOut();
+    return self.getNameOut();
 }
 
 

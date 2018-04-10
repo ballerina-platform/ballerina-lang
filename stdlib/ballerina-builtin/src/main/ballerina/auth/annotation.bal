@@ -19,21 +19,16 @@ package ballerina.auth;
 @Description {value:"Representation of Auth Config"}
 @Field {value:"authentication: Authentication struct instance"}
 @Field {value:"scopes: scope names"}
-public struct AuthConfig {
-    Authentication|null authentication;
-    string[] scopes;
-}
+public type AuthConfig {
+    Authentication? authentication,
+    string[]? scopes,
+};
 
 @Description {value:"Representation of Authentation Config"}
 @Field {value:"enabled: flag to enable/disable authentication"}
-public struct Authentication {
-    boolean enabled;
-}
-
-public function <AuthConfig authConfig> AuthConfig() {
-    authConfig.authentication = null;
-    authConfig.scopes = [];
-}
+public type Authentication {
+    boolean enabled,
+};
 
 @Description {value:"Authentication config annotation for a Service"}
 public annotation <service,resource> Config AuthConfig;

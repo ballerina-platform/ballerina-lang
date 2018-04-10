@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.util.metrics;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A monotonically increasing counter metric. Use {@link Gauge} Gauge to track a value that goes up and down.
@@ -39,10 +39,11 @@ public interface Counter extends Metric {
     /**
      * Builder for {@link Counter}s.
      */
-    class Builder extends Metric.Builder<Builder, Counter> {
+    class Builder implements Metric.Builder<Builder, Counter> {
 
         private final String name;
-        private final List<Tag> tags = new ArrayList<>();
+        // Expecting at least 10 tags
+        private final Set<Tag> tags = new HashSet<>(10);
         private String description;
 
         private Builder(String name) {
@@ -57,26 +58,31 @@ public interface Counter extends Metric {
 
         @Override
         public Builder tags(String... keyValues) {
-            this.tags.addAll(Tags.tags(keyValues));
+            Tags.tags(this.tags, keyValues);
             return this;
         }
 
         @Override
         public Builder tags(Iterable<Tag> tags) {
-            this.tags.addAll(Tags.tags(tags));
+            Tags.tags(this.tags, tags);
             return this;
         }
 
         @Override
         public Builder tag(String key, String value) {
-            this.tags.addAll(Tags.tags(key, value));
+            Tags.tags(this.tags, key, value);
             return this;
         }
 
         @Override
         public Builder tags(Map<String, String> tags) {
-            this.tags.addAll(Tags.tags(tags));
+            Tags.tags(this.tags, tags);
             return this;
+        }
+
+        @Override
+        public Counter register() {
+            return register(DefaultMetricRegistry.getInstance());
         }
 
         @Override

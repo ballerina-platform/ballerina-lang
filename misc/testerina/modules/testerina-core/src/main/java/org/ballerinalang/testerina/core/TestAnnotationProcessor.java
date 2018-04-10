@@ -165,14 +165,16 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                             shouldSkip.set(true);
                             return;
                         }
-                        // Check whether user has provided a group list
-                        if (groups != null && !groups.isEmpty()) {
-                            // check if groups attribute is present in the annotation
-                            if (GROUP_ANNOTATION_NAME.equals(name)) {
-                                if (attributeNode.getValue() instanceof BLangArrayLiteral) {
-                                    BLangArrayLiteral values = (BLangArrayLiteral) attributeNode.getValue();
-                                    boolean isGroupPresent = isGroupAvailable(groups, values.exprs.stream().map(node
-                                            -> node.toString()).collect(Collectors.toList()));
+
+                        // check if groups attribute is present in the annotation
+                        if (GROUP_ANNOTATION_NAME.equals(name)) {
+                            if (attributeNode.getValue() instanceof BLangArrayLiteral) {
+                                BLangArrayLiteral values = (BLangArrayLiteral) attributeNode.getValue();
+                                test.setGroups(values.exprs.stream().map(node -> node.toString())
+                                                           .collect(Collectors.toList()));
+                                // Check whether user has provided a group list
+                                if (groups != null && !groups.isEmpty()) {
+                                    boolean isGroupPresent = isGroupAvailable(groups, test.getGroups());
                                     if (shouldIncludeGroups) {
                                         // include only if the test belong to one of these groups
                                         if (!isGroupPresent) {
@@ -250,8 +252,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         Arrays.stream(programFile.getEntryPackage().getFunctionInfoEntries()).forEach(functionInfo -> {
             suite.addTestUtilityFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.UTIL));
         });
-        int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         resolveFunctions(suite);
+        int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
         suite.setTests(sortedTests);
         suite.setProgramFile(programFile);
@@ -343,14 +345,27 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                         .getTestName())).findFirst().get());
             }
 
-            if (test.getBeforeTestFunction() != null && functionNames.contains(test.getBeforeTestFunction())) {
-                test.setBeforeTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
+            if (test.getBeforeTestFunction() != null) {
+                if (functionNames.contains(test.getBeforeTestFunction())) {
+                    test.setBeforeTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
                         .getBeforeTestFunction())).findFirst().get());
+                } else {
+                    String msg = String
+                        .format("Cannot find the specified before function : [%s] for testerina function" +
+                                " : [%s]", test.getBeforeTestFunction(), test.getTestName());
+                    throw new BallerinaException(msg);
+                }
             }
-
-            if (test.getAfterTestFunction() != null && functionNames.contains(test.getAfterTestFunction())) {
-                test.setAfterTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
+            if (test.getAfterTestFunction() != null) {
+                if (functionNames.contains(test.getAfterTestFunction())) {
+                    test.setAfterTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
                         .getAfterTestFunction())).findFirst().get());
+                } else {
+                    String msg = String
+                        .format("Cannot find the specified after function : [%s] for testerina function" +
+                                " : [%s]", test.getBeforeTestFunction(), test.getTestName());
+                    throw new BallerinaException(msg);
+                }
             }
 
             if (test.getDataProvider() != null && functionNames.contains(test.getDataProvider())) {
@@ -386,9 +401,11 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 }
             }
             for (String dependsOnFn : test.getDependsOnTestFunctions()) {
-                //TODO handle missing func case
+                if (!functions.stream().parallel().anyMatch(func -> func.getName().equals(dependsOnFn))) {
+                    throw new BallerinaException("Cannot find the specified dependsOn function : " + dependsOnFn);
+                }
                 test.addDependsOnTestFunction(functions.stream().filter(e -> e.getName().equals(dependsOnFn))
-                        .findFirst().get());
+                                                       .findFirst().get());
             }
         }
 

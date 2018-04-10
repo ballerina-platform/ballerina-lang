@@ -1,7 +1,6 @@
 import ballerina/http;
-import ballerina/http;
 
-endpoint http:NonListeningServiceEndpoint helloEP {
+endpoint http:NonListener helloEP {
     port:9090
 };
 
@@ -18,7 +17,7 @@ service<http:Service> helloWorldResourceConfig bind helloEP {
         methods:["POST"]
     }
     sayHello (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("Hello World !!!");
         _ = conn -> respond(res);
     }

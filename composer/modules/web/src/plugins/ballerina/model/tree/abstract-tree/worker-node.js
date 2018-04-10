@@ -22,10 +22,12 @@ import Node from '../node';
 class AbstractWorkerNode extends Node {
 
 
-    setReturnParameters(newValue, silent, title) {
-        const oldValue = this.returnParameters;
+    setReturnTypeNode(newValue, silent, title) {
+        const oldValue = this.returnTypeNode;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.returnParameters = newValue;
+        this.returnTypeNode = newValue;
+
+        this.returnTypeNode.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class AbstractWorkerNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'returnParameters',
+                    attributeName: 'returnTypeNode',
                     newValue,
                     oldValue,
                 },
@@ -41,19 +43,44 @@ class AbstractWorkerNode extends Node {
         }
     }
 
-    getReturnParameters() {
-        return this.returnParameters;
+    getReturnTypeNode() {
+        return this.returnTypeNode;
     }
 
 
-    addReturnParameters(node, i = -1, silent) {
+
+    setReturnTypeAnnotationAttachments(newValue, silent, title) {
+        const oldValue = this.returnTypeAnnotationAttachments;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.returnTypeAnnotationAttachments = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'returnTypeAnnotationAttachments',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getReturnTypeAnnotationAttachments() {
+        return this.returnTypeAnnotationAttachments;
+    }
+
+
+    addReturnTypeAnnotationAttachments(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.returnParameters.push(node);
-            index = this.returnParameters.length;
+            this.returnTypeAnnotationAttachments.push(node);
+            index = this.returnTypeAnnotationAttachments.length;
         } else {
-            this.returnParameters.splice(i, 0, node);
+            this.returnTypeAnnotationAttachments.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -68,9 +95,9 @@ class AbstractWorkerNode extends Node {
         }
     }
 
-    removeReturnParameters(node, silent) {
-        const index = this.getIndexOfReturnParameters(node);
-        this.removeReturnParametersByIndex(index, silent);
+    removeReturnTypeAnnotationAttachments(node, silent) {
+        const index = this.getIndexOfReturnTypeAnnotationAttachments(node);
+        this.removeReturnTypeAnnotationAttachmentsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -84,8 +111,8 @@ class AbstractWorkerNode extends Node {
         }
     }
 
-    removeReturnParametersByIndex(index, silent) {
-        this.returnParameters.splice(index, 1);
+    removeReturnTypeAnnotationAttachmentsByIndex(index, silent) {
+        this.returnTypeAnnotationAttachments.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -99,9 +126,9 @@ class AbstractWorkerNode extends Node {
         }
     }
 
-    replaceReturnParameters(oldChild, newChild, silent) {
-        const index = this.getIndexOfReturnParameters(oldChild);
-        this.returnParameters[index] = newChild;
+    replaceReturnTypeAnnotationAttachments(oldChild, newChild, silent) {
+        const index = this.getIndexOfReturnTypeAnnotationAttachments(oldChild);
+        this.returnTypeAnnotationAttachments[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -116,8 +143,8 @@ class AbstractWorkerNode extends Node {
         }
     }
 
-    replaceReturnParametersByIndex(index, newChild, silent) {
-        this.returnParameters[index] = newChild;
+    replaceReturnTypeAnnotationAttachmentsByIndex(index, newChild, silent) {
+        this.returnTypeAnnotationAttachments[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -132,12 +159,12 @@ class AbstractWorkerNode extends Node {
         }
     }
 
-    getIndexOfReturnParameters(child) {
-        return _.findIndex(this.returnParameters, ['id', child.id]);
+    getIndexOfReturnTypeAnnotationAttachments(child) {
+        return _.findIndex(this.returnTypeAnnotationAttachments, ['id', child.id]);
     }
 
-    filterReturnParameters(predicateFunction) {
-        return _.filter(this.returnParameters, predicateFunction);
+    filterReturnTypeAnnotationAttachments(predicateFunction) {
+        return _.filter(this.returnTypeAnnotationAttachments, predicateFunction);
     }
 
 
@@ -842,125 +869,6 @@ class AbstractWorkerNode extends Node {
     }
 
 
-    setDocumentationAttachments(newValue, silent, title) {
-        const oldValue = this.documentationAttachments;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.documentationAttachments = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'documentationAttachments',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getDocumentationAttachments() {
-        return this.documentationAttachments;
-    }
-
-
-    addDocumentationAttachments(node, i = -1, silent) {
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.documentationAttachments.push(node);
-            index = this.documentationAttachments.length;
-        } else {
-            this.documentationAttachments.splice(i, 0, node);
-        }
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeDocumentationAttachments(node, silent) {
-        const index = this.getIndexOfDocumentationAttachments(node);
-        this.removeDocumentationAttachmentsByIndex(index, silent);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeDocumentationAttachmentsByIndex(index, silent) {
-        this.documentationAttachments.splice(index, 1);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceDocumentationAttachments(oldChild, newChild, silent) {
-        const index = this.getIndexOfDocumentationAttachments(oldChild);
-        this.documentationAttachments[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceDocumentationAttachmentsByIndex(index, newChild, silent) {
-        this.documentationAttachments[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    getIndexOfDocumentationAttachments(child) {
-        return _.findIndex(this.documentationAttachments, ['id', child.id]);
-    }
-
-    filterDocumentationAttachments(predicateFunction) {
-        return _.filter(this.documentationAttachments, predicateFunction);
-    }
-
-
     setDeprecatedAttachments(newValue, silent, title) {
         const oldValue = this.deprecatedAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -1077,6 +985,125 @@ class AbstractWorkerNode extends Node {
 
     filterDeprecatedAttachments(predicateFunction) {
         return _.filter(this.deprecatedAttachments, predicateFunction);
+    }
+
+
+    setDocumentationAttachments(newValue, silent, title) {
+        const oldValue = this.documentationAttachments;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.documentationAttachments = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'documentationAttachments',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getDocumentationAttachments() {
+        return this.documentationAttachments;
+    }
+
+
+    addDocumentationAttachments(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.documentationAttachments.push(node);
+            index = this.documentationAttachments.length;
+        } else {
+            this.documentationAttachments.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeDocumentationAttachments(node, silent) {
+        const index = this.getIndexOfDocumentationAttachments(node);
+        this.removeDocumentationAttachmentsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeDocumentationAttachmentsByIndex(index, silent) {
+        this.documentationAttachments.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceDocumentationAttachments(oldChild, newChild, silent) {
+        const index = this.getIndexOfDocumentationAttachments(oldChild);
+        this.documentationAttachments[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceDocumentationAttachmentsByIndex(index, newChild, silent) {
+        this.documentationAttachments[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfDocumentationAttachments(child) {
+        return _.findIndex(this.documentationAttachments, ['id', child.id]);
+    }
+
+    filterDocumentationAttachments(predicateFunction) {
+        return _.filter(this.documentationAttachments, predicateFunction);
     }
 
 

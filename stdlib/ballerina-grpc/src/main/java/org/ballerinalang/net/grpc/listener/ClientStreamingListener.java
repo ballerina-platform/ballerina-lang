@@ -22,14 +22,10 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
-import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,25 +75,7 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
             @Override
             public void onError(Throwable t) {
                 Resource onError = resourceMap.get(MessageConstants.ON_ERROR_RESOURCE);
-                if (onError == null) {
-                    String message = "Error in listener service definition. onError resource does not exists";
-                    LOG.error(message);
-                    throw new RuntimeException(message);
-                }
-                List<ParamDetail> paramDetails = onError.getParamDetails();
-                BValue[] signatureParams = new BValue[paramDetails.size()];
-                signatureParams[0] = getConnectionParameter(onError, responseObserver);
-                if (paramDetails.size() != 2) {
-                    String message = "Error in onError resource definition. It must have two input params, but have "
-                            + paramDetails.size();
-                    LOG.error(message);
-                    throw new RuntimeException(message);
-                }
-                BType errorType = paramDetails.get(1).getVarType();
-                BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
-                signatureParams[1] = errorStruct;
-                CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
-                Executor.submit(onError, callback, null, null, signatureParams);
+                onErrorInvoke(onError, responseObserver, t);
             }
 
             @Override

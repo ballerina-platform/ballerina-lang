@@ -74,7 +74,6 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,6 +82,7 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
+import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -231,14 +231,13 @@ public class HttpUtil {
             try {
                 contentLength = lengthStr != null ? Integer.parseInt(lengthStr) : contentLength;
                 if (contentLength == NO_CONTENT_LENGTH_FOUND) {
-                    contentLength = httpCarbonMessage.getFullMessageLength();
+                    contentLength = httpCarbonMessage.countMessageLengthTill(BYTE_LIMIT);
                 }
-                MimeUtil.setContentLength(entity, contentLength);
             } catch (NumberFormatException e) {
                 throw new BallerinaException("Invalid content length");
             }
-            EntityBodyHandler.setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer
-                    .getInputStream());
+            EntityBodyHandler.setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer.getInputStream(),
+                    contentLength);
         }
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
@@ -747,7 +746,7 @@ public class HttpUtil {
         if (contentEncoding != null) {
             return;
         }
-        String compressionValue = configAnnot.getValue().getEnumField(ANN_CONFIG_ATTR_COMPRESSION);
+        String compressionValue = configAnnot.getValue().getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
         String acceptEncodingValue = requestMsg.getHeaders().get(HttpHeaderNames.ACCEPT_ENCODING);
         if (ALWAYS.equalsIgnoreCase(compressionValue)) {
             if (acceptEncodingValue == null || HTTP_TRANSFER_ENCODING_IDENTITY.equals(acceptEncodingValue)) {
@@ -757,31 +756,6 @@ public class HttpUtil {
             outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING,
                     HTTP_TRANSFER_ENCODING_IDENTITY);
         }
-    }
-
-    /**
-     * Extract the listener configurations from the config annotation.
-     *
-     * @param annotationInfo configuration annotation info.
-     * @return the set of {@link ListenerConfiguration} which were extracted from config annotation.
-     */
-    public static Set<ListenerConfiguration> getDefaultOrDynamicListenerConfig(Annotation annotationInfo) {
-
-        if (annotationInfo == null) {
-            return HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
-        }
-
-        //key - listenerId, value - listener config property map
-        Set<ListenerConfiguration> listenerConfSet = new HashSet<>();
-
-        extractBasicConfig(annotationInfo, listenerConfSet);
-        extractHttpsConfig(annotationInfo, listenerConfSet);
-
-        if (listenerConfSet.isEmpty()) {
-            listenerConfSet = HttpConnectionManager.getInstance().getDefaultListenerConfiugrationSet();
-        }
-
-        return listenerConfSet;
     }
 
     public static String getListenerInterface(String host, int port) {

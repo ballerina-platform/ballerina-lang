@@ -18,72 +18,138 @@
 
 package org.ballerinalang.util.tracer;
 
-import java.util.List;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.config.ConfigRegistry;
+
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
+import java.util.stream.Collectors;
+
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
+import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
 
 /**
- * {@link TraceManager} api acts as a bridge between
- * ballerina core and the ballerina tracing modules.
- * This will remove OpenTracing dependencies from
- * the ballerina core.
+ * {@link TraceManager} loads {@link TraceManager} implementation
+ * and wraps it's functionality.
  *
  * @since 0.964.1
  */
-public interface TraceManager {
+public class TraceManager {
+    private static final TraceManager instance = new TraceManager();
+    private TracersStore tracerStore;
+    private Stack<BSpan> bSpanStack;
 
-    boolean isEnabled();
+    private TraceManager() {
+        Map<String, String> configurations = ConfigRegistry.getInstance().getConfigTable(CONFIG_TABLE_TRACING);
+        tracerStore = new TracersStore(configurations);
+        bSpanStack = new Stack<>();
+    }
 
-    /**
-     * Starts a new spans for each loaded tracer.
-     *
-     * @param spanName       to denote the name of the span.
-     * @param spanContextMap of the parent span.
-     * @param tags           to be included in the span.
-     * @param serviceName    of the invoked resource.
-     * @return {@link Map} of spans per tracer.
-     */
-    Map<String, Object> startSpan(String spanName, Map<String, ?> spanContextMap,
-                                  Map<String, String> tags, String serviceName);
+    public static TraceManager getInstance() {
+        return instance;
+    }
 
-    /**
-     * Finishes the given list of spans.
-     *
-     * @param spans list to be finish.
-     */
-    void finishSpan(List<?> spans);
+    public void startSpan(WorkerExecutionContext ctx) {
+        BSpan activeBSpan = TraceUtil.getBSpan(ctx);
+        if (activeBSpan != null) {
+            BSpan parentBSpan = !bSpanStack.empty() ? bSpanStack.peek() : null;
+            String service = activeBSpan.getConnectorName();
+            String resource = activeBSpan.getActionName();
 
-    /**
-     * Logs provided fields in given list of spans.
-     *
-     * @param spans  to include the logs.
-     * @param fields to log.
-     */
-    void log(List<?> spans, Map<String, ?> fields);
+            Map<String, Span> spanList;
+            if (parentBSpan != null) {
+                spanList = startSpan(resource, parentBSpan.getSpans(),
+                        activeBSpan.getTags(), service, false);
+            } else {
+                Map<String, String> spanHeaders = activeBSpan.getProperties()
+                        .entrySet().stream().collect(
+                                Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))
+                        );
+                spanList = startSpan(resource, extractSpanContext(spanHeaders, service),
+                        activeBSpan.getTags(), service, true);
+            }
 
-    /**
-     * Adds tags to the given list of spans.
-     *
-     * @param spanList to add tags.
-     * @param tags     to be added.
-     */
-    void addTags(List<?> spanList, Map<String, String> tags);
+            activeBSpan.setSpans(spanList);
+            bSpanStack.push(activeBSpan);
+        }
+    }
 
-    /**
-     * Extract span context from transport.
-     *
-     * @param headers     map.
-     * @param serviceName of the invoked resource.
-     * @return the {@link Map} of extracted context.
-     */
-    Map<String, Object> extract(Map<String, String> headers, String serviceName);
+    public void finishSpan(BSpan bSpan) {
+        bSpan.getSpans().values().forEach(Span::finish);
+        if (!bSpanStack.empty()) {
+            bSpanStack.pop();
+        }
+    }
 
-    /**
-     * Returns the map of context to be injected into the transport.
-     *
-     * @param activeSpanMap of current spans per tracer (zipkin, jaeger, etc..)
-     * @param serviceName   of the invoked resource.
-     * @return the map of context to be injected into the transport.
-     */
-    Map<String, String> inject(Map<String, ?> activeSpanMap, String serviceName);
+    public void log(BSpan bSpan, Map<String, Object> fields) {
+        bSpan.getSpans().values().forEach(span -> span.log(fields));
+    }
+
+    public void addTags(BSpan bSpan, Map<String, String> tags) {
+        bSpan.getSpans().values().forEach(span -> {
+            tags.forEach((key, value) -> span.setTag(key, String.valueOf(value)));
+        });
+    }
+
+    public BSpan getParentBSpan() {
+        return !bSpanStack.empty() ? bSpanStack.peek() : null;
+    }
+
+    public Map<String, String> extractTraceContext(Map<String, Span> activeSpanMap, String serviceName) {
+        Map<String, String> carrierMap = new HashMap<>();
+        for (Map.Entry<String, Span> activeSpanEntry : activeSpanMap.entrySet()) {
+            Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
+            Tracer tracer = tracers.get(activeSpanEntry.getKey());
+            if (tracer != null) {
+                Span span = activeSpanEntry.getValue();
+                if (span != null) {
+                    tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS,
+                            new RequestInjector(TRACE_PREFIX, carrierMap));
+                }
+            }
+        }
+        return carrierMap;
+    }
+
+    private Map<String, Span> startSpan(String spanName, Map<String, ?> spanContextMap,
+                                        Map<String, String> tags, String serviceName, boolean isParent) {
+        Map<String, Span> spanMap = new HashMap<>();
+        Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
+        for (Map.Entry spanContextEntry : spanContextMap.entrySet()) {
+            Tracer tracer = tracers.get(spanContextEntry.getKey().toString());
+            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(spanName);
+
+            for (Map.Entry<String, String> tag : tags.entrySet()) {
+                spanBuilder = spanBuilder.withTag(tag.getKey(), tag.getValue());
+            }
+
+            if (spanContextEntry.getValue() != null) {
+                if (isParent) {
+                    spanBuilder = spanBuilder.asChildOf((SpanContext) spanContextEntry.getValue());
+                } else {
+                    spanBuilder = spanBuilder.asChildOf((Span) spanContextEntry.getValue());
+                }
+            }
+
+            Span span = spanBuilder.start();
+            spanMap.put(spanContextEntry.getKey().toString(), span);
+        }
+        return spanMap;
+    }
+
+    private Map<String, Object> extractSpanContext(Map<String, String> headers, String serviceName) {
+        Map<String, Object> spanContext = new HashMap<>();
+        Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
+        for (Map.Entry<String, Tracer> tracerEntry : tracers.entrySet()) {
+            spanContext.put(tracerEntry.getKey(), tracerEntry.getValue()
+                    .extract(Format.Builtin.HTTP_HEADERS, new RequestExtractor(headers)));
+        }
+        return spanContext;
+    }
 
 }

@@ -70,6 +70,11 @@ public class DelimitedRecordReadAllEvent implements Event {
             context.setError(e);
             result = new ListResult(context);
             return result;
+        } catch (Throwable e) {
+            log.error("Unidentified error occurred while reading all delimited records", e);
+            context.setError(e);
+            result = new ListResult(context);
+            return result;
         } finally {
             try {
                 channel.close();

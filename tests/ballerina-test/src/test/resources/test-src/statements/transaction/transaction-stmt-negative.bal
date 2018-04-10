@@ -70,3 +70,18 @@ function testReturnWithinTransaction () returns (string) {
     }
     return "done";
 }
+
+function testInvalidDoneWithinTransaction () {
+    string workerTest = "";
+
+    int i = 0;
+    transaction {
+        workerTest = workerTest + " withinTx";
+        if (i == 0) {
+            workerTest = workerTest + " beforeDone";
+            done;
+        }
+    }
+    workerTest = workerTest + " beforeReturn";
+    return;
+}

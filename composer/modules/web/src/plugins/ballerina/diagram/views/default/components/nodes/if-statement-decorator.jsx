@@ -19,7 +19,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
@@ -48,9 +47,6 @@ class IfStatementDecorator extends React.Component {
         this.onJumpToCodeLine = this.onJumpToCodeLine.bind(this);
         this.setActionVisibilityFalse = this.setActionVisibility.bind(this, false);
         this.setActionVisibilityTrue = this.setActionVisibility.bind(this, true);
-        this.openExpressionEditor = e => this.openEditor(this.props.expression, this.props.editorOptions, e);
-        this.openParameterEditor = e => this.openEditor(this.props.parameterEditorOptions.value,
-            this.props.parameterEditorOptions, e);
     }
     /**
      * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
@@ -141,22 +137,6 @@ class IfStatementDecorator extends React.Component {
             elm = elm.parentNode;
         }
         return isInStatement;
-    }
-
-    /**
-     * renders an ExpressionEditor in the header space.
-     * @param {string} value - Initial value.
-     * @param {object} options - options to be sent to ExpressionEditor.
-     */
-    openEditor(value, options) {
-        const packageScope = this.context.environment;
-        if (value && options) {
-            new ExpressionEditor(
-                this.conditionBox,
-                this.onUpdate.bind(this),
-                options,
-                packageScope).render(this.context.getOverlayContainer());
-        }
     }
 
     /**
@@ -343,23 +323,12 @@ class IfStatementDecorator extends React.Component {
                 >
                     false
                 </text>
-                <DropZone
-                    x={p11X}
-                    y={p11Y}
-                    width={statementBBox.w}
-                    height={statementBBox.h}
-                    baseComponent='rect'
-                    dropTarget={this.props.model.body}
-                    enableDragBg
-                    enableCenterOverlayLine={!this.props.disableDropzoneMiddleLineOverlay}
-                />
                 <g>
                     <rect
                         x={p2X}
                         y={p9Y}
                         width={titleW}
                         height={titleH}
-                        onClick={this.openExpressionEditor}
                         className='invisible-rect'
                     />
                     {expression && <title> {expression.text} </title>}

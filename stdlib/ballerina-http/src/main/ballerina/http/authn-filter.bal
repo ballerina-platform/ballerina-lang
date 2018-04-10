@@ -25,24 +25,26 @@ AuthnHandlerChain authnHandlerChain;
 @Description {value:"Representation of the Authentication filter"}
 @Field {value:"filterRequest: request filter method which attempts to authenticated the request"}
 @Field {value:"filterRequest: response filter method (not used this scenario)"}
-public struct AuthnFilter {
-    function (Request request, FilterContext context) returns (FilterResult) filterRequest;
-    function (Response response, FilterContext context) returns (FilterResult) filterResponse;
-}
+public type AuthnFilter object {
+    public {
+        function (Request request, FilterContext context) returns (FilterResult) filterRequest;
+        function (Response response, FilterContext context) returns (FilterResult) filterResponse;
+    }
 
-@Description {value:"Initializer for AuthnFilter"}
-public function <AuthnFilter filter> AuthnFilter() {
-    filter.filterRequest = authnRequestFilterFunc;
-    filter.filterResponse = responseFilterFunc;
-}
+    public new (filterRequest, filterResponse) {
+    }
+
+    public function init ();
+    public function terminate ();
+};
 
 @Description {value:"Initializes the AuthnFilter"}
-public function <AuthnFilter filter> init () {
+public function AuthnFilter::init () {
     authnHandlerChain = createAuthnHandlerChain();
 }
 
 @Description {value:"Stops the AuthnFilter"}
-public function <AuthnFilter filter> terminate () {
+public function AuthnFilter::terminate () {
 }
 
 @Description {value:"Filter function implementation which tries to authenticate the request"}
@@ -80,22 +82,22 @@ function createAuthnResult (boolean authenticated) returns (FilterResult) {
 @Return {value:"boolean: true if the resource is secured, else false"}
 function isResourceSecured (FilterContext context) returns (boolean) {
     // get authn details from the resource level
-    auth:Authentication|null authAnn = getAuthnAnnotation(
+    auth:Authentication|() authAnn = getAuthnAnnotation(
                                   internal:getResourceAnnotations(context.serviceType, context.resourceName));
     match authAnn {
         auth:Authentication authAnnotation => {
             return authAnnotation.enabled;
         }
-        any => {
+        () => {
             // if not found at resource level, check in the service level
-            auth:Authentication|null serviceLevelAuthAnn = getAuthnAnnotation(internal:getServiceAnnotations(context
+            auth:Authentication|() serviceLevelAuthAnn = getAuthnAnnotation(internal:getServiceAnnotations(context
                                                                                                    .serviceType));
             match serviceLevelAuthAnn {
                 auth:Authentication authAnnotation => {
                     return authAnnotation.enabled;
                 }
-                any => {
-                    // if still authentication annotation is null, means the user has not specified that the service
+                () => {
+                    // if still authentication annotation is nil, means the user has not specified that the service
                     // should be secured. However since the authn filter has been engaged, need to authenticate.
                     return true;
                 }
@@ -108,12 +110,12 @@ function isResourceSecured (FilterContext context) returns (boolean) {
 level
 and then from the service level, if its not there in the resource level"}
 @Param {value:"annData: array of annotationData instances"}
-@Return {value:"Authentication: Authentication instance if its defined, else null"}
-function getAuthnAnnotation (internal:annotationData[] annData) returns (auth:Authentication|null) {
+@Return {value:"Authentication: Authentication instance if its defined, else nil"}
+function getAuthnAnnotation (internal:annotationData[] annData) returns (auth:Authentication|()) {
     if (lengthof annData == 0) {
-        return null;
+        return ();
     }
-    internal:annotationData|null authAnn;
+    internal:annotationData|() authAnn;
     foreach ann in annData {
         if (ann.name == AUTH_ANN_NAME && ann.pkgName == AUTH_ANN_PACKAGE) {
             authAnn = ann;
@@ -122,11 +124,11 @@ function getAuthnAnnotation (internal:annotationData[] annData) returns (auth:Au
     }
     match authAnn {
         internal:annotationData annData1 => {
-            var authConfig =? <auth:AuthConfig> annData1.value;
+            var authConfig = check <auth:AuthConfig> annData1.value;
             return authConfig.authentication;
         }
-        any|null => {
-            return null;
+        () => {
+            return ();
         }
     }
 }

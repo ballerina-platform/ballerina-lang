@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:ServiceEndpoint servicEp {
+endpoint http:Listener servicEp {
     port:9090
 };
 
@@ -21,7 +21,7 @@ service<http:Service> httpService bind servicEp {
     }
     testResource(endpoint conn, http:Request req) {
         http:Response resp = {};
-        var payload =? req.getStringPayload();
+        var payload = check req.getStringPayload();
         io:println(payload);
         resp.setStringPayload("I received");
         _ = conn->respond(resp);

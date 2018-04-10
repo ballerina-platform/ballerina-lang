@@ -1,6 +1,6 @@
 import ballerina/http;
 
-endpoint http:ServiceEndpoint helloWorldEP {
+endpoint http:Listener helloWorldEP {
     port:9095,
     secureSocket: {
         keyStore: {
@@ -22,7 +22,7 @@ service<http:Service> helloWorld bind helloWorldEP {
     }
 
     sayHello (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         res.setStringPayload("Successful");
         _ = conn -> respond(res);
     }

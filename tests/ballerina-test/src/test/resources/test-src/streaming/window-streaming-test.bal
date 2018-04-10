@@ -17,37 +17,38 @@
 import ballerina/runtime;
 import ballerina/io;
 
-struct StatusCount {
+type StatusCount {
     string status;
     int totalCount;
-}
+};
 
-struct Teacher {
+type Teacher {
     string name;
     int age;
     string status;
     string batch;
     string school;
-}
+};
 
 StatusCount[] globalStatusCountArray = [];
 int index = 0;
-stream<StatusCount> statusCountStream1 = {};
-stream<Teacher> teacherStream5 = {};
 
-function testWindowQuery () {
+stream<StatusCount> statusCountStream1;
+stream<Teacher> teacherStream5;
 
-    forever{
+function testWindowQuery() {
+
+    forever {
         from teacherStream5 where age > 18 window lengthBatch(3)
         select status, count(status) as totalCount
         group by status
-        => (StatusCount [] emp) {
-                statusCountStream1.publish(emp);
+        => (StatusCount[] emp) {
+            statusCountStream1.publish(emp);
         }
     }
 }
 
-function startWindowQuery () returns (StatusCount []) {
+function startWindowQuery() returns (StatusCount[]) {
 
     testWindowQuery();
 
@@ -65,12 +66,12 @@ function startWindowQuery () returns (StatusCount []) {
     return globalStatusCountArray;
 }
 
-function printStatusCount (StatusCount s) {
-    io:println("printStatusCount function invoked for status:" + s.status +" and count :"+s.totalCount);
+function printStatusCount(StatusCount s) {
+    io:println("printStatusCount function invoked for status:" + s.status + " and count :" + s.totalCount);
     addToGlobalStatusCountArray(s);
 }
 
-function addToGlobalStatusCountArray (StatusCount s) {
+function addToGlobalStatusCountArray(StatusCount s) {
     globalStatusCountArray[index] = s;
     index = index + 1;
 }

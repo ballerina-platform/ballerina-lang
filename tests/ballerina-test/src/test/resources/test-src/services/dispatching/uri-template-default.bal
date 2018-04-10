@@ -1,7 +1,6 @@
 import ballerina/http;
-import ballerina/http;
 
-endpoint http:NonListeningServiceEndpoint testEP {
+endpoint http:NonListener testEP {
     port:9090
 };
 
@@ -17,7 +16,7 @@ service<http:Service> serviceName bind testEP {
         path:""
     }
     test1 (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"dispatched to service name"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -30,7 +29,7 @@ service<http:Service> serviceName bind testEP {
 service<http:Service> serviceEmptyName bind testEP {
 
     test1 (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"dispatched to empty service name"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -40,7 +39,7 @@ service<http:Service> serviceEmptyName bind testEP {
         path:"/*"
     }
     proxy (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"dispatched to a proxy service"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -50,7 +49,7 @@ service<http:Service> serviceEmptyName bind testEP {
 service<http:Service> serviceWithNoAnnotation bind testEP {
 
     test1 (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"dispatched to a service without an annotation"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);

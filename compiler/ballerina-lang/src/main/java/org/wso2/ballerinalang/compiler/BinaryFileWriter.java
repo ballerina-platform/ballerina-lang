@@ -67,7 +67,6 @@ public class BinaryFileWriter {
 
     private BinaryFileWriter(CompilerContext context) {
         context.put(BINARY_FILE_WRITER_KEY, this);
-
         this.codeGenerator = CodeGenerator.getInstance(context);
         this.sourceDirectory = context.get(SourceDirectory.class);
         if (this.sourceDirectory == null) {
@@ -89,7 +88,7 @@ public class BinaryFileWriter {
             ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(path);
             Patten packageIDPattern = projectSourceRepo.calculate(packageNode.packageID);
             Stream<Path> pathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance());
-            pathStream = Stream.concat(pathStream, packageIDPattern.sibling(path("Ballerina.md")).convert
+            pathStream = Stream.concat(pathStream, packageIDPattern.sibling(path("Package.md")).convert
                     (projectSourceRepo.getConverterInstance()));
             String prjPath = projectSourceRepo.getConverterInstance().toString();
             ZipUtils.generateBalo(packageNode, prjPath, pathStream);

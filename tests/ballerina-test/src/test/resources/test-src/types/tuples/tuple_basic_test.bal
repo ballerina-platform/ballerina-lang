@@ -42,9 +42,9 @@ function basicTupleTest () returns (string) {
     return exFlow;
 }
 
-struct FooStruct {
+type FooStruct {
     string x;
-}
+};
 
 function addValue (string value) {
     exFlow += value;
@@ -90,7 +90,6 @@ function testIgnoredValue1 () returns string {
 
 function testIgnoredValue2 () returns string {
     (string, int, int) x = ("foo", 1, 2);
-    string a;
     var (a, _, c) = x;
     return a;
 }

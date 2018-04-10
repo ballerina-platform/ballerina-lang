@@ -1,7 +1,6 @@
 import ballerina/http;
-import ballerina/http;
 
-endpoint http:NonListeningServiceEndpoint testEP {
+endpoint http:NonListener testEP {
     host: "localhost",
     port: 9090
 };
@@ -28,7 +27,7 @@ service<http:Service> echo1 bind testEP {
         }
     }
     info1 (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"resCors"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -39,7 +38,7 @@ service<http:Service> echo1 bind testEP {
          path : "/test2"
     }
     info2 (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"serCors"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -54,7 +53,7 @@ service<http:Service> echo1 bind testEP {
         }
     }
     info3 (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"moreOrigins"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -72,7 +71,7 @@ service<http:Service> hello2 bind testEP {
         }
     }
     info1 (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"resOnlyCors"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -88,7 +87,7 @@ service<http:Service> hello2 bind testEP {
         }
     }
     info2 (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"optionsOnly"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -111,7 +110,7 @@ service<http:Service> echo3 bind testEP {
         methods:["POST", "PUT"]
     }
     info1 (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"cors"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -123,7 +122,7 @@ service<http:Service> echo4 bind testEP {
         methods:["POST"]
     }
     info1 (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"noCors"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -133,7 +132,7 @@ service<http:Service> echo4 bind testEP {
         methods:["OPTIONS"]
     }
     info2 (endpoint conn, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"echo":"noCorsOPTIONS"};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);

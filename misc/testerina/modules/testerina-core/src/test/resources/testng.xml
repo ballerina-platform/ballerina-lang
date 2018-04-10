@@ -22,7 +22,7 @@ under the License.
 <suite name="ballerina-testerina-test-suite">
 
     <!-- ballerina.test Related Test Cases. -->
-    <test name="ballerina-test-functions-unit-tests" preserve-order="true" parallel="false">
+    <test name="ballerina-test-functions-unit-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.testerina.test.AssertTest"/>
             <class name="org.ballerinalang.testerina.test.ConfigAnnotationTest"/>
@@ -32,8 +32,11 @@ under the License.
             <class name="org.ballerinalang.testerina.test.GroupFilterTest"/>
             <class name="org.ballerinalang.testerina.test.DisableFunctionsTest"/>
             <class name="org.ballerinalang.testerina.test.TesterinaSamplesTest"/>
-            <class name="org.ballerinalang.testerina.test.ServiceSkeletonTest"/>
+            <!--<class name="org.ballerinalang.testerina.test.ServiceSkeletonTest"/>-->
+            <class name="org.ballerinalang.testerina.test.ListGroupsTest"/>
+            <class name="org.ballerinalang.testerina.test.DependsOnTest"/>
+            <class name="org.ballerinalang.testerina.test.SkipTest"/>
+            <class name="org.ballerinalang.testerina.test.BeforeAfterTest"/>
         </classes>
     </test>
-
 </suite>

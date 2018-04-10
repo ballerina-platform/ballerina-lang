@@ -22,7 +22,7 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 
 import java.util.HashMap;
 
-import static org.ballerinalang.util.tracer.TraceConstants.KEY_TRACER;
+import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
 
 /**
  * Utility call to perform trace related functions.
@@ -33,34 +33,20 @@ public class TraceUtil {
     private TraceUtil() {
     }
 
-    public static void finishTraceSpan(BTracer tracer) {
-        tracer.finishSpan();
+    public static void finishBSpan(BSpan bSpan) {
+        bSpan.finishSpan();
     }
 
-    public static BTracer getParentTracer(WorkerExecutionContext ctx) {
-        if (TraceManagerWrapper.getInstance().isTraceEnabled() && ctx != null) {
-            WorkerExecutionContext parent = ctx;
-            do {
-                BTracer t = getTracer(parent);
-                if (t != null) {
-                    return t;
-                }
-                parent = parent.parent;
-            } while (parent != null);
-        }
-        return null;
-    }
-
-    public static void setTracer(WorkerExecutionContext ctx, BTracer tracer) {
+    public static void setBSpan(WorkerExecutionContext ctx, BSpan span) {
         if (ctx.localProps == null) {
             ctx.localProps = new HashMap<>();
         }
-        ctx.localProps.put(KEY_TRACER, tracer);
+        ctx.localProps.put(KEY_SPAN, span);
     }
 
-    public static BTracer getTracer(WorkerExecutionContext ctx) {
-        if (TraceManagerWrapper.getInstance().isTraceEnabled() && ctx.localProps != null) {
-            return (BTracer) ctx.localProps.get(KEY_TRACER);
+    public static BSpan getBSpan(WorkerExecutionContext ctx) {
+        if (ctx.localProps != null) {
+            return (BSpan) ctx.localProps.get(KEY_SPAN);
         }
         return null;
     }

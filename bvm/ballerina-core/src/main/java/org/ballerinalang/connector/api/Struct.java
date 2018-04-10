@@ -121,6 +121,14 @@ public interface Struct {
      */
     Value getTypeField(String fieldName);
 
+    /**
+     * Returns value of an Ref field.
+     *
+     * @param fieldName given field name
+     * @return value
+     */
+    Value getRefField(String fieldName);
+
     // TODO Implement XML and JSON
 
     /**

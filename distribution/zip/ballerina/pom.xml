@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha1-SNAPSHOT</version>
+        <version>0.970.0-alpha4-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -70,15 +70,27 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jms</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.jms</groupId>
+            <artifactId>javax.jms-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.andes.wso2</groupId>
+            <artifactId>andes-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.securevault</groupId>
+            <artifactId>org.wso2.securevault</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>strip-bouncycastle</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>toml-parser</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-observe</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-trace</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -236,6 +248,10 @@
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_httpserver</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.transport.file</groupId>
+            <artifactId>org.wso2.transport.local-file-system</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -253,7 +269,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina-builtin,ballerina-http,ballerina-grpc,ballerina-mime,ballerina-logging,ballerina-trace,ballerina-observe
+                                ballerina-builtin,ballerina-http,ballerina-grpc,ballerina-mime,ballerina-logging,strip-bouncycastle
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>

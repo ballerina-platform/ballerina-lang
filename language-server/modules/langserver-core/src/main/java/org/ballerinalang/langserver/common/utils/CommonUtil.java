@@ -29,21 +29,27 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSDocument;
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.workspace.repository.NullSourceDirectory;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -52,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.lang.reflect.InvocationTargetException;
@@ -220,9 +227,12 @@ public class CommonUtil {
     }
 
     private static Token getDefaultTokenToLeftOrRight(TokenStream tokenStream, int startIndex, int direction) {
-        Token token;
+        Token token = null;
         while (true) {
             startIndex += direction;
+            if (startIndex < 0) {
+                break;
+            }
             token = tokenStream.get(startIndex);
             if (token.getChannel() == Token.DEFAULT_CHANNEL) {
                 break;
@@ -546,5 +556,109 @@ public class CommonUtil {
         context.put(SourceDirectory.class, new NullSourceDirectory());
 
         return context;
+    }
+
+    /**
+     * Get the Annotation completion Item.
+     * @param packageID                 Package Id
+     * @param annotation                BLang annotation to extract the completion Item
+     * @return {@link CompletionItem}   Completion item for the annotation
+     */
+    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BLangAnnotation annotation) {
+        String label = getAnnotationLabel(packageID, annotation);
+        String insertText = getAnnotationInsertText(packageID, annotation);
+        CompletionItem annotationItem = new CompletionItem();
+        annotationItem.setLabel(label);
+        annotationItem.setInsertText(insertText);
+        annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
+        
+        return annotationItem;
+    }
+
+    /**
+     * Get the annotation Insert text.
+     * @param packageID         Package ID
+     * @param annotation        Annotation to get the insert text
+     * @return {@link String}   Insert text
+     */
+    private static String getAnnotationInsertText(PackageID packageID, BLangAnnotation annotation) {
+        String pkgAlias = packageID.getNameComps().get(packageID.getNameComps().size() - 1).getValue();
+        String annotationStart = "";
+        if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
+            annotationStart = pkgAlias + UtilSymbolKeys.PKG_DELIMITER_KEYWORD;
+        }
+        annotationStart += annotation.getName().getValue() + " " + UtilSymbolKeys.OPEN_BRACE_KEY;
+        List<String> fieldEntries = new ArrayList<>();
+
+        if (annotation.typeNode.type instanceof BStructType) {
+            ((BStructType) annotation.typeNode.type).fields.forEach(bStructField -> {
+                String defaultFieldEntry = System.lineSeparator() + "\t" + bStructField.getName().getValue()
+                        + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + getDefaultValueForType(bStructField.getType());
+                fieldEntries.add(defaultFieldEntry);
+            });
+        }
+        
+        return annotationStart + String.join(",", fieldEntries)
+                + System.lineSeparator() + UtilSymbolKeys.CLOSE_BRACE_KEY;
+    }
+
+    /**
+     * Get the completion Label for the annotation.
+     * @param packageID         Package ID
+     * @param annotation        BLang annotation
+     * @return {@link String}          Label string
+     */
+    private static String getAnnotationLabel(PackageID packageID, BLangAnnotation annotation) {
+        String pkgComponent = UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY;
+        if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
+            
+            pkgComponent += packageID.getNameComps().get(packageID.getNameComps().size() - 1).getValue()
+                    + UtilSymbolKeys.PKG_DELIMITER_KEYWORD;
+        }
+        
+        return pkgComponent + annotation.getName().getValue();
+    }
+
+    /**
+     * Get the default value for the given BType.
+     * @param bType             BType to get the default value
+     * @return {@link String}   Default value as a String
+     */
+    public static String getDefaultValueForType(BType bType) {
+        String typeString;
+        switch (bType.getKind()) {
+            case INT:
+                typeString = Integer.toString(0);
+                break;
+            case FLOAT:
+                typeString = Float.toString(0);
+                break;
+            case STRING:
+                typeString = "\"\"";
+                break;
+            case BOOLEAN:
+                typeString = Boolean.toString(false);
+                break;
+            case ARRAY:
+            case BLOB:
+                typeString = "[]";
+                break;
+            case RECORD:
+            case STRUCT:
+                typeString = "{}";
+                break;
+            case FINITE:
+                typeString = bType.toString();
+                break;
+            case UNION:
+                String[] typeNameComps = bType.toString().split(UtilSymbolKeys.PKG_DELIMITER_KEYWORD);
+                typeString = typeNameComps[typeNameComps.length - 1];
+                break;
+            case STREAM:
+            default:
+                typeString = "null";
+                break;
+        }
+        return typeString;
     }
 }

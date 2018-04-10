@@ -1,15 +1,15 @@
-struct Person {
+type Person  {
     string name;
     int age;
     string address;
-}
+};
 
-struct Student {
+type Student {
     string name;
     int age;
     string address;
     string class;
-}
+};
 
 function testJsonStructConstraint() returns (json, json, json, string|error, int|error, string|error) {
     json<Person> j = {};
@@ -62,24 +62,24 @@ function getStudent() returns (json<Student>){
     return j;
 }
 
-struct Employee {
+type Employee {
     string first_name;
     string last_name;
     int age;
     Address address;
-}
+};
 
-struct Address {
+type Address {
     string number;
     string street;
     string city;
     PhoneNumber phoneNumber;
-}
+};
 
-struct PhoneNumber {
+type PhoneNumber {
     string areaCode;
     string number;
-}
+};
 
 function testContrainingWithNestedStructs() returns (json, json, json) {
     json<Employee> e = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};
@@ -99,7 +99,7 @@ function testJSONToConstraintJsonUnsafeCast() returns (json | error) {
 
 function testJSONToConstraintJsonUnsafeCastPositive() returns (json, json, json) {
     json<Person> j;
-    j =? <json<Person>>getPersonEquivalentPlainJson();
+    j =check <json<Person>>getPersonEquivalentPlainJson();
     return (j.name, j.age, j.address);
 }
 
@@ -162,12 +162,12 @@ function testMixedTypeJSONArrayToCJsonArrayCastNegative() returns (json<Student>
     return j3;
 }
 
-function testConstrainedJsonWithFunctions() returns (string){
+function testConstrainedJsonWithFunctions() returns (string | ()){
     json<Person> j = {name:"John Doe", age:30, address:"London"};
     return j.toString();
 }
 
-function testConstrainedJsonWithFunctionGetKeys() returns (string[]){
+function testConstrainedJsonWithFunctionGetKeys() returns (string[] | ()){
     json<Person> j = {name:"John Doe", age:30, address:"London"};
     return j.getKeys();
 }

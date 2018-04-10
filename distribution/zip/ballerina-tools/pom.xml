@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha1-SNAPSHOT</version>
+        <version>0.970.0-alpha4-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -44,10 +44,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>testerina-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-packerina</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -128,6 +124,7 @@
                 </executions>
             </plugin>
 
+            <!-- TODO: Temporary removed, need to include fix NPE issue
             <plugin>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>docerina-maven-plugin</artifactId>
@@ -164,6 +161,7 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            -->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

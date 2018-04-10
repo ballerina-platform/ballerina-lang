@@ -2,11 +2,10 @@ import ballerina/io;
 import ballerina/file;
 
 function main (string[] args) {
-    file:File target = {path:"/tmp/result.txt"};
-    target.open(args[0]);
-
-    io:ByteChannel bchannel = target.openChannel(args[0]);
-    int intArg =? <int> args[0];
+    file:Path target = new("/tmp/result.txt");
+    string absolutePath = target.toAbsolutePath().getPathValue();
+    io:ByteChannel bchannel = io:openFile(absolutePath, args[0]);
+    int intArg = check <int> args[0];
     
     var readOutput = bchannel.read(intArg);
     match readOutput {

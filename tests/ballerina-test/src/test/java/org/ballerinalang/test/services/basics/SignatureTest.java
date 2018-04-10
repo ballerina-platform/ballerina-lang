@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.95.6
  */
+@Test(groups = {"broken"})
 public class SignatureTest {
 
     private CompileResult compileResult;

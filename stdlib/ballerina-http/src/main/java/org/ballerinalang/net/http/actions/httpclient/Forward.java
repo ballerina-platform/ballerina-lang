@@ -38,7 +38,6 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.util.Locale;
 import java.util.Map;
 
-import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
 
 /**
  * {@code Forward} action can be used to invoke an http call with incoming request httpVerb.
@@ -93,8 +92,8 @@ public class Forward extends AbstractHTTPAction {
 
         ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
                 getParentWorkerExecutionContext());
-        HttpUtil.injectHeaders(outboundRequestMsg, (Map<String, String>) observerContext.
-                getProperty(PROPERTY_TRACE_PROPERTIES));
+        Map<String, String> traceContext = ObservabilityUtils.getTraceContext();
+        HttpUtil.injectHeaders(outboundRequestMsg, traceContext);
         observerContext.addTags(HttpUtil.extractTags(outboundRequestMsg));
 
         return outboundRequestMsg;

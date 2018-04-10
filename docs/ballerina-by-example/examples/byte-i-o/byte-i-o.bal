@@ -1,13 +1,13 @@
 import ballerina/io;
 
-@Description {value:"This function returns a ByteChannel from a given file location according to the specified file permission (whether the file should be opened for reading/writing)."}
+@Description {value:"This function returns a ByteChannel from a given file location according to the specified file permission (i.e., whether the file should be opened for read or write)."}
 function getFileChannel (string filePath, string permission) returns (io:ByteChannel) {
     // Here is how the ByteChannel is retrieved from the file.
     io:ByteChannel channel = io:openFile(filePath, permission);
     return channel;
 }
 
-@Description {value:"This function reads the specified number of bytes from the given channel."}
+@Description {value:"This function reads a specified number of bytes from the given channel."}
 function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, int) {
 
     // Here is how the bytes are read from the channel.
@@ -45,15 +45,15 @@ function copy (io:ByteChannel src, io:ByteChannel dst) {
     int readCount = 0;
     int offset = 0;
     blob readContent;
-    boolean done = false;
+    boolean doneCoping = false;
     try {
-        // Here is how to specify to read all the content from
+        // Here is how to read all the content from
         // the source and copy it to the destination.
-        while (!done) {
+        while (!doneCoping) {
         (readContent, readCount) = readBytes(src,1000);
             if (readCount <= 0) {
-                //If no content is read we end the loop
-                done = true;
+                //If no content is read, the loop is ended.
+                doneCoping = true;
             }
             numberOfBytesWritten = writeBytes(dst, readContent);
         }
@@ -63,7 +63,7 @@ function copy (io:ByteChannel src, io:ByteChannel dst) {
 }
 
 function main (string[] args) {
-    // Read specified number of bytes from the given channel and write.
+    // Read the specified number of bytes from the given channel and write.
     string srcFilePath = "./files/ballerina.jpg";
     string dstFilePath = "./files/ballerinaCopy.jpg";
     io:ByteChannel sourceChannel = getFileChannel(srcFilePath, "r");

@@ -38,6 +38,7 @@ public enum DiagnosticCode {
     UNDEFINED_FUNCTION_IN_STRUCT("undefined.function.in.struct"),
     UNDEFINED_CONNECTOR("undefined.connector"),
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
+    UNDEFINED_OBJECT_FIELD("undefined.field.in.object"),
     ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
     UNDEFINED_PARAMETER("undefined.parameter"),
     CANNOT_FIND_MATCHING_FUNCTION("cannot.find.function.sig.for.function.in.object"),
@@ -57,6 +58,7 @@ public enum DiagnosticCode {
     INCOMPATIBLE_TYPE_CONSTRAINT("incompatible.type.constraint"),
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
+    INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
     ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
@@ -65,19 +67,25 @@ public enum DiagnosticCode {
     UNREACHABLE_CODE("unreachable.code"),
     NEXT_CANNOT_BE_OUTSIDE_LOOP("next.cannot.be.outside.loop"),
     BREAK_CANNOT_BE_OUTSIDE_LOOP("break.cannot.be.outside.loop"),
+
+    //Transaction related error codes
     ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
     FAIL_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("fail.cannot.be.outside.transaction.block"),
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
     NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION("next.statement.cannot.be.used.to.exit.from.a.transaction"),
     RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION("return.statement.cannot.be.used.to.exit.from.a.transaction"),
+    DONE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("done.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
+    INVALID_TRANSACTION_HANDLER_ARGS("invalid.transaction.handler.args"),
+    LAMBDA_REQUIRED_FOR_TRANSACTION_HANDLER("lambda.required.for.transaction.handler"),
 
     // Service, endpoint related errors codes
-    SERVICE_STRUCT_TYPE_REQUIRED("service.struct.type.required"),
-    SERVICE_INVALID_STRUCT_TYPE("service.invalid.struct.type"),
+    SERVICE_OBJECT_TYPE_REQUIRED("service.object.type.required"),
+    SERVICE_INVALID_OBJECT_TYPE("service.invalid.object.type"),
     SERVICE_INVALID_ENDPOINT_TYPE("service.invalid.endpoint.type"),
     SERVICE_SERVICE_TYPE_REQUIRED_ANONYMOUS("service.service.type.required.anonymous"),
-    ENDPOINT_STRUCT_TYPE_REQUIRED("endpoint.struct.type.required"),
+    ENDPOINT_OBJECT_TYPE_REQUIRED("endpoint.object.type.required"),
+    ENDPOINT_OBJECT_NEW_HAS_PARAM("endpoint.object.new.has.param"),
     ENDPOINT_INVALID_TYPE("endpoint.invalid.type"),
     ENDPOINT_INVALID_TYPE_NO_FUNCTION("endpoint.invalid.type.no.function"),
     ENDPOINT_SPI_INVALID_FUNCTION("endpoint.spi.invalid.function"),
@@ -142,7 +150,9 @@ public enum DiagnosticCode {
 
     NO_NEW_VARIABLES_VAR_ASSIGNMENT("no.new.variables.var.assignment"),
     INVALID_VARIABLE_ASSIGNMENT("invalid.variable.assignment"),
-    CANNOT_ASSIGN_VALUE_CONSTANT("cannot.assign.value.to.constant"),
+    CANNOT_ASSIGN_VALUE_READONLY("cannot.assign.value.to.readonly.field"),
+    CANNOT_ASSIGN_VALUE_FINAL("cannot.assign.value.to.final.field"),
+    CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT("cannot.assign.value.to.function.argument"),
     CANNOT_ASSIGN_VALUE_ENDPOINT("cannot.assign.value.to.endpoint"),
     UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
@@ -151,6 +161,10 @@ public enum DiagnosticCode {
     INVALID_ENUM_EXPR("invalid.enum.expr"),
     INVALID_EXPR_IN_MATCH_STMT("invalid.expr.in.match.stmt"),
     UNINITIALIZED_VARIABLE("uninitialized.variable"),
+    INVALID_ANY_VAR_DEF("invalid.any.var.def"),
+    INVALID_RECORD_LITERAL("invalid.record.literal"),
+    INVALID_ARRAY_LITERAL("invalid.array.literal"),
+    INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
@@ -192,10 +206,18 @@ public enum DiagnosticCode {
 
     // Safe Assignment operator related errors
     SAFE_ASSIGN_STMT_INVALID_USAGE("safe.assign.stmt.invalid.usage"),
+    
+    // Safe navigation operator related errors
+    SAFE_NAVIGATION_NOT_REQUIRED("safe.navigation.not.required"),
+    INVALID_SAFE_NAVIGATION_ON_LHS("invalid.safe.navigation.on.lhs"),
 
     // Checked expression related errors
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("checked.expr.invalid.usage.no.error.type.rhs"),
     CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS("checked.expr.invalid.usage.only.error.types.rhs"),
+
+    START_REQUIRE_INVOCATION("start.require.invocation"),
+    INVALID_EXPR_STATEMENT("invalid.expr.statement"),
+    INVALID_ACTION_INVOCATION_AS_EXPR("invalid.action.invocation.as.expr"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),
@@ -205,11 +227,17 @@ public enum DiagnosticCode {
     FAILED_PREDICATE("failed.predicate"),
     SYNTAX_ERROR("syntax.error"),
 
+    // Streaming related codes
+    UNDEFINED_STREAM_REFERENCE("undefined.stream.reference"),
+    UNDEFINED_STREAM_ATTRIBUTE("undefined.stream.attribute"),
+    INCOMPATIBLE_STREAM_ACTION_ARGUMENT("incompatible.stream.action.argument"),
+    INVALID_STREAM_ACTION_ARGUMENT_COUNT("invalid.stream.action.argument.count"),
+    INVALID_STREAM_ACTION_ARGUMENT_TYPE("invalid.stream.action.argument.type"),
+
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
     TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER("tainted.value.passed.to.sensitive.parameter"),
     TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE("tainted.value.passed.to.global.variable"),
-    PARTIAL_TAINT_CHECKING_DONE_WITH_RETURN_ANNOTATIONS("partial.taint.checking.done.with.return.annotations"),
     UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion")
     ;
 

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>ballerina-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.970.0-alpha1-SNAPSHOT</version>
+        <version>0.970.0-alpha4-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -46,13 +46,14 @@
             <artifactId>toml-parser</artifactId>
         </dependency>
     </dependencies>
-    
+
     <properties>
-        <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>
             **/antlr4/**,
             **/generated/**
         </maven.checkstyleplugin.excludes>
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
+        <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
     </properties>
 
 </project>

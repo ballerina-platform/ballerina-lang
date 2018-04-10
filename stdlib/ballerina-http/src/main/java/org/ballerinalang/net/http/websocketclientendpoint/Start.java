@@ -43,6 +43,8 @@ import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 
 import javax.websocket.Session;
 
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+
 /**
  * Get the ID of the connection.
  *
@@ -79,7 +81,12 @@ public class Start extends BlockingNativeCallableUnit {
         HandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
         handshakeFuture.setHandshakeListener(
                 new WsHandshakeListener(context, wsService, clientConnectorListener));
-        context.setReturnValues();
+        try {
+            handshakeFuture.sync();
+        } catch (InterruptedException e) {
+            throw new BallerinaConnectorException("Error occurred: " + e.getMessage());
+
+        }
     }
 
     static class WsHandshakeListener implements HandshakeListener {
@@ -98,15 +105,17 @@ public class Start extends BlockingNativeCallableUnit {
         @Override
         public void onSuccess(Session session) {
             //using only one service endpoint in the client as there can be only one connection.
-            BStruct serviceEndpoint = ((BStruct) context.getRefArgument(0));
-            BStruct wsConnection = WebSocketUtil.createAndGetBStruct(wsService.getResources()[0]);
-            wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-            serviceEndpoint.setRefField(2, new BMap());
-            WebSocketUtil.populateEndpoint(session, serviceEndpoint);
+            BStruct webSocketClientEndpoint = ((BStruct) context.getRefArgument(0));
+            BStruct webSocketConnector = BLangConnectorSPIUtil.createBStruct(
+                    wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                    PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
+            webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
+            webSocketClientEndpoint.setRefField(0, new BMap());
+            WebSocketUtil.populateEndpoint(session, webSocketClientEndpoint);
             WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
-                                                                                         serviceEndpoint);
+                                                                                         webSocketClientEndpoint);
             clientConnectorListener.setConnectionInfo(connectionInfo);
-            serviceEndpoint.setRefField(0, wsConnection);
+            webSocketClientEndpoint.setRefField(1, webSocketConnector);
             context.setReturnValues();
         }
 
