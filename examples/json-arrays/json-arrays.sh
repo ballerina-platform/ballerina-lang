@@ -1,5 +1,5 @@
-#To run the program, put the code into the `json-arrays.bal` file 
-# and run the `ballerina run $filename` command. 
+#To run the program, put the code into the `.bal` file 
+# and run the `ballerina run` command. 
 $ ballerina run json-arrays.bal
 [1,false,null,"foo",{"first":"John","last":"Pala"}]
 John
