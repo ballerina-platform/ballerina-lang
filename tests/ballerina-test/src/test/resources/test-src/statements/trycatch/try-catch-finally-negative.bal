@@ -23,7 +23,7 @@ function funcReturnInt() returns (int){
 
 public type TestError {
     string message;
-    error[] cause;
+    error? cause;
     string code;
 };
 

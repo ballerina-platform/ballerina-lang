@@ -84,7 +84,8 @@ public class Start extends BlockingNativeCallableUnit {
         try {
             handshakeFuture.sync();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            throw new BallerinaConnectorException("Error occurred: " + e.getMessage());
+
         }
     }
 
@@ -120,7 +121,7 @@ public class Start extends BlockingNativeCallableUnit {
 
         @Override
         public void onError(Throwable t) {
-            throw new BallerinaConnectorException("Error occurred: " + t.getMessage());
+            throw new BallerinaConnectorException("Error occured: " + t.getMessage());
         }
     }
 }

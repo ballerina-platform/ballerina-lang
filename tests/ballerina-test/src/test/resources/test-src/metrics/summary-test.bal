@@ -4,10 +4,12 @@ map tags1 = {"method":"GET"};
 map tags2 = {"method":"POST"};
 map tags3 = {"method":"UPDATE"};
 map tags4 = {"method":"DELETE"};
+
 observe:Summary summary1 = new("response_size", "Size of a response.", tags1);
 observe:Summary summary2 = new("response_size", "Size of a response.", tags2);
 observe:Summary summary3 = new("response_size", "Size of a response.", tags3);
 observe:Summary summary4 = new("response_size", "Size of a response.", tags4);
+observe:Summary summary5 = new("new_response_size", "Size of a response.", ());
 
 function testCountSummary() returns (int) {
     summary1.record(1);
@@ -41,4 +43,11 @@ function testPercentileSummary() returns (float) {
     summary4.record(5);
     summary4.record(6);
     return summary4.percentile(0.5);
+}
+
+function testSummaryWithoutTags() returns (float) {
+     summary5.record(1);
+     summary5.record(3);
+     summary5.record(5);
+     return summary5.mean();
 }

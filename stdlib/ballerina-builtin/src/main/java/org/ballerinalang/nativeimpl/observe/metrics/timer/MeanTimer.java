@@ -59,7 +59,7 @@ public class MeanTimer extends BlockingNativeCallableUnit {
 
         TimeUnit timeUnit = TimeUnit.valueOf(timeUnitType.stringValue());
 
-        if (!tagsMap.isEmpty()) {
+        if (tagsMap != null) {
             List<Tag> tags = new ArrayList<>();
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));

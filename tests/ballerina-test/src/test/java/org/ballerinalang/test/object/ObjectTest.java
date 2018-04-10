@@ -278,6 +278,33 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
         Assert.assertEquals(returns[3].stringValue(), "");
     }
+
+    @Test(description = "Test passing value to a defaultable object field")
+    public void testPassingValueForDefaultableObjectField() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_values_for_defaultable_field.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "passValueForDefaultableObjectField");
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+        Assert.assertEquals(returns[1].stringValue(), "passed in name value");
+    }
+
+//    @Test(description = "Test shadowing object field")
+//    public void testShadowingObjectField() {
+//        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_shadow_field.bal");
+//        BValue[] returns = BRunUtil.invoke(compileResult, "testShadowingObjectField");
+//
+//        Assert.assertEquals(returns.length, 2);
+//        Assert.assertSame(returns[0].getClass(), BInteger.class);
+//        Assert.assertSame(returns[1].getClass(), BString.class);
+//
+//        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+//        Assert.assertEquals(returns[1].stringValue(), "passed in name value");
+//    }
+
 //
 //    @Test(description = "Test object with default initializer with default values") //TODO fix
 //    public void testObjectWithWithDefaultInitializeWithDefaultValues() {
@@ -339,14 +366,20 @@ public class ObjectTest {
             "attached function without function interface")
     public void testObjectNegativeTestForAttachFunctions() {
         CompileResult result = BCompileUtil.compile("test-src/object/object-with-interface-and-impl-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 2);
+        Assert.assertEquals(result.getErrorCount(), 4);
+
+        // test accessing object fields without "self" keyword in attached functions.
+        BAssertUtil.validateError(result, 0, "undefined symbol 'age'", 20, 17);
         // test duplicate matching attach function implementations
-        BAssertUtil.validateError(result, 0, "implementation already exist for the given " +
+        BAssertUtil.validateError(result, 1, "implementation already exist for the given " +
                 "function 'attachInterface' in same package", 24, 1);
 
         // test object without matching function signature within the object
-        BAssertUtil.validateError(result, 1, "cannot find function signature for" +
+        BAssertUtil.validateError(result, 2, "cannot find function signature for" +
                 " function 'attachInterfaceFunc' in object 'Employee'", 38, 1);
+
+        // test accessing object fields without "self" keyword in attached functions.
+        BAssertUtil.validateError(result, 3, "undefined symbol 'age'", 39, 17);
     }
 
 //    @Test (description = "Negative test to test multiple attach functions for same function interface and " +
