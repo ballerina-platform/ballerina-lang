@@ -155,7 +155,6 @@ public class BlockingEntityCollector implements EntityCollector {
                     LOG.warn("Error while getting full message length", e);
                 }
             }
-            size = 0;
             httpContentQueue.addAll(contentList);
             state = EntityBodyState.CONSUMABLE;
         } catch (Exception e) {
