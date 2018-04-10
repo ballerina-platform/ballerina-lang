@@ -43,8 +43,6 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
             throw err;
         }
         res = callFileServer(locationHeader);
-    } else if (httpResponse.statusCode == 404) {
-       io:println("package not found in central");
     } else {
        error err = {message:"error occurred when pulling the package"};
        throw err;
