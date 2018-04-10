@@ -10,12 +10,12 @@ function main (string[] args) {
     string s2 = statement.toLowerCase();
     io:println("ToLower: " + s2);
 
-    //Compares two strings, ignoring the case. Returns True if the strings are equal; false otherwise.
+    //Compares two strings, ignoring the case. Returns True if the strings are equal and False otherwise.
     boolean isEqual = statement.equalsIgnoreCase("lion in town. catch the lion ");
     io:println("EqualsIgnoreCase: " + isEqual);
 
-    //Returns a new string that is the substring of the specified string. The original string, starting index and
-    //ending index should be specified.
+    //Returns a new string that is a substring of the specified string. You should give the original string 
+    //and the starting and ending indexes of the substring.
     string s3 = statement.subString(0, 4);
     io:println("SubString: " + s3);
 
@@ -30,7 +30,7 @@ function main (string[] args) {
     int lastIndex = statement.lastIndexOf("on");
     io:println("LastIndexOf: " + lastIndex);
 
-    //Converts a float type into a string.
+    //Converts a value of type float to a string.
     float value = 5.8;
     string s4 = <string>value;
     io:println("ValueOf: " + s4);
@@ -39,7 +39,7 @@ function main (string[] args) {
     string s5 = statement.replaceFirst("Lion", "Tiger");
     io:println("ReplaceFirst: " + s5);
 
-    //This replaces the replacePattern string with the replacement string.
+    //Replaces the replacePattern string with the replacement string.
     string s6 = statement.replace("Lion", "Tiger");
     io:println("Replace: " + s6);
 
@@ -51,7 +51,7 @@ function main (string[] args) {
     int length = statement.length();
     io:println("Length: " + length);
 
-    //Remove any leading and trailing white spaces
+    //Removes any leading and trailing white spaces.
     string s8 = statement.trim();
     io:println("Trim: " + s8);
 
@@ -73,14 +73,14 @@ function main (string[] args) {
     io:println("Split: " + array[1]);
     io:println("Split: " + array[2]);
 
-    //Converts string to a BLOB.
+    //Converts a string to a BLOB.
     blob blobValue = statement.toBlob("UTF-8");
 
-    //Converts the BLOB to the string.
+    //Converts a value of type BLOB to a string.
     string s10 = blobValue.toString("UTF-8");
     io:println("Blob: " + s10);
 
-    // Format string according to format arguments
+    //Formats a string according to given format arguments.
     string s11 = io:sprintf("%s %f", [array[0], value]);
     io:println("Sprintf: " + s11);
 }
