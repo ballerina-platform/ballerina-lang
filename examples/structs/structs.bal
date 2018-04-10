@@ -1,12 +1,12 @@
 import ballerina/io;
 
 @Description {value : "Defining a Person struct. Contains field names and their types. <br/>Optionally, for value type fields, can define the default value. Otherwise, the default value will be set to the zero-value."}
-struct Person {
+type Person {
     string name;
     int age = -1;
     Person parent;
     string status;
-}
+};
 
 function main (string[] args) {
     //Create a person with default values.
