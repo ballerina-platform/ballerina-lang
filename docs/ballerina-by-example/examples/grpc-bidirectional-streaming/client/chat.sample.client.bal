@@ -13,7 +13,7 @@ function main (string[] args) {
     };
 
     endpoint grpc:Client ep;
-    // The executing unary non-blocking call registering server message listener.
+    // This sets up the bidirectional connection and registers the server message listener.
     var res = chatEp -> chat(typeof ChatMessageListener);
     match res {
         grpc:error err => {
