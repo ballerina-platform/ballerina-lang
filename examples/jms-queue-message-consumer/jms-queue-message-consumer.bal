@@ -1,4 +1,5 @@
 import ballerina/jms;
+import ballerina/mb;
 import ballerina/log;
 
 // Initialize a JMS connection with the provider.
