@@ -25,7 +25,7 @@ endpoint http:Client backendClientEP {
                      url: "http://localhost:8080"
                  }
              ],
-    timeoutMillies:2000
+    timeoutMillis:2000
 };
 
 @http:ServiceConfig {

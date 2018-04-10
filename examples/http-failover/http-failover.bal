@@ -19,7 +19,7 @@ endpoint http:Client backendClientEP {
              {url: "http://localhost:300000/mock"},
              {url: "http://localhost:8080/echo"},
              {url: "http://localhost:8080/mock"}],
-    timeoutMillies:5000
+    timeoutMillis:5000
 };
 
 @http:ServiceConfig {
