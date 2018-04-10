@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +39,7 @@ import java.util.Comparator;
 /**
  * Test class for Directory Listener connector.
  */
-@Test(sequential = true)
+//@Test(sequential = true)
 public class DirectoryListenerConnectorTest {
 
     private File rootDirectory;
@@ -70,7 +69,7 @@ public class DirectoryListenerConnectorTest {
         }
     }
 
-    @Test
+//    @Test
     public void testValidLocalFileSystemServerConnectorSyntax() {
         CompileResult compileResult = BCompileUtil.compileAndSetup("test-src/file/file-system.bal");
         BServiceUtil.runService(compileResult);
