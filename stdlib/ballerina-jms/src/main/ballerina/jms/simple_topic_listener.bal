@@ -21,12 +21,12 @@ public type SimpleTopicListener object {
                 connectionFactoryName: config.connectionFactoryName,
                 properties: config.properties
             });
-        connection = conn;
+        self.connection = conn;
 
         Session newSession = new (conn, {
                 acknowledgementMode: config.acknowledgementMode
             });
-        session = newSession;
+        self.session = newSession;
 
         TopicSubscriber topicSubscriber = new;
         TopicSubscriberEndpointConfiguration consumerConfig = {
@@ -35,7 +35,7 @@ public type SimpleTopicListener object {
             messageSelector: config.messageSelector
         };
         topicSubscriber.init(consumerConfig);
-        subscriber = topicSubscriber;
+        self.subscriber = topicSubscriber;
     }
 
     public function register (typedesc serviceType) {

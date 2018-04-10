@@ -21,12 +21,12 @@ public type SimpleQueueListener object {
                 connectionFactoryName: config.connectionFactoryName,
                 properties: config.properties
             });
-        connection = conn;
+        self.connection = conn;
 
         Session newSession = new (conn, {
                 acknowledgementMode: config.acknowledgementMode
             });
-        session = newSession;
+        self.session = newSession;
 
         QueueConsumer queueConsumer = new;
         QueueConsumerEndpointConfiguration consumerConfig = {
@@ -35,7 +35,7 @@ public type SimpleQueueListener object {
             messageSelector: config.messageSelector
         };
         queueConsumer.init(consumerConfig);
-        consumer = queueConsumer;
+        self.consumer = queueConsumer;
     }
 
     public function register (typedesc serviceType) {

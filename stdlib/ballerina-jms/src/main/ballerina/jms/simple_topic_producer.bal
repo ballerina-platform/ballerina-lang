@@ -21,12 +21,12 @@ public type SimpleTopicProducer object {
                 connectionFactoryName: config.connectionFactoryName,
                 properties: config.properties
             });
-        connection = conn;
+        self.connection = conn;
 
         Session newSession = new (conn, {
                 acknowledgementMode: config.acknowledgementMode
             });
-        session = newSession;
+        self.session = newSession;
 
         TopicProducer topicProducer = new;
         TopicProducerEndpointConfiguration producerConfig = {
@@ -34,7 +34,7 @@ public type SimpleTopicProducer object {
             topicPattern: config.topicPattern
         };
         topicProducer.init(producerConfig);
-        producer = topicProducer;
+        self.producer = topicProducer;
     }
 
     public function register (typedesc serviceType) {

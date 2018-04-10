@@ -21,12 +21,12 @@ public type SimpleQueueSender object {
                 connectionFactoryName: config.connectionFactoryName,
                 properties: config.properties
             });
-        connection = conn;
+        self.connection = conn;
 
         Session newSession = new (conn, {
                 acknowledgementMode: config.acknowledgementMode
             });
-        session = newSession;
+        self.session = newSession;
 
         QueueSender queueSender = new;
         QueueSenderEndpointConfiguration senderConfig = {
@@ -34,7 +34,7 @@ public type SimpleQueueSender object {
             queueName: config.queueName
         };
         queueSender.init(senderConfig);
-        sender = queueSender;
+        self.sender = queueSender;
     }
 
     public function register (typedesc serviceType) {
