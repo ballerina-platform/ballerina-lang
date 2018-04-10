@@ -90,6 +90,10 @@ public class JSONUtils {
         JsonNode jsonNode = json.value();
         return jsonNode.has(elementName);
     }
+    
+    public static BJSON convertMapToJSON(BMap<String, BValue> map) {
+        return convertMapToJSON(map, null);
+    }
 
     /**
      * Convert {@link BMap} to {@link BJSON}.
@@ -98,7 +102,7 @@ public class JSONUtils {
      * @return JSON representation of the provided map
      */
     @SuppressWarnings("unchecked")
-    public static BJSON convertMapToJSON(BMap<String, BValue> map) {
+    public static BJSON convertMapToJSON(BMap<String, BValue> map, BJSONType targetType) {
         Set<String> keys = map.keySet();
         BJSON bjson = new BJSON(new JsonNode(Type.OBJECT));
         JsonNode jsonNode = bjson.value();
@@ -131,6 +135,14 @@ public class JSONUtils {
                 handleError(e, key);
             }
         }
+        
+        if (targetType != null) {
+            if (!CPU.isAssignable(bjson, targetType)) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON, 
+                        targetType, bjson.getType());
+            }
+        }
+        
         return bjson;
     }
 
@@ -329,6 +341,10 @@ public class JSONUtils {
         }
 
         return bjson;
+    }
+    
+    public static BMap<String, ?> convertJSONToMap(BJSON json, BMapType targetType) {
+        return null;
     }
     
     /**
