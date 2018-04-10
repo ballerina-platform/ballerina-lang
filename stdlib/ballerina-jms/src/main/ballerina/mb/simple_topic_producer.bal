@@ -36,7 +36,7 @@ public function getClient () returns (TopicProducerConnector) {
     match (senderConnector) {
         TopicProducerConnector s => return s;
         () => {
-            error e = {message: "Queue sender connector cannot be nil"};
+            error e = {message: "Topic producer connector cannot be nil"};
             throw e;
         }
     }
@@ -55,7 +55,7 @@ public function createTextMessage(string message) returns (Message|Error) {
             }
         }
         () => {
-            error e = {message: "Session cannot be nil"};
+            error e = {message: "topic sender cannot be nil"};
             throw e;
         }
     }
