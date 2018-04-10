@@ -191,8 +191,9 @@ public final class Constants {
     public static final String PASSWORD = "password";
 
     public static final String SQL_PACKAGE_PATH = "ballerina.sql";
+    public static final String BUILTIN_PACKAGE_PATH = "ballerina.builtin";
     public static final String SQL_CLIENT = "SQLClient";
 
-    public static final String SQL_CONNECTOR_ERROR = "SQLConnectorError";
+    public static final String SQL_CONNECTOR_ERROR = "error";
     public static final String SQL_EXCEPTION_OCCURED = "SQL Exception Occurred";
 }

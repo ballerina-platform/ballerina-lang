@@ -1024,8 +1024,7 @@ public class SQLDatasourceUtils {
     }
 
     public static BStruct getSQLConnectorError(Context context, Throwable throwable) {
-        PackageInfo sqlPackageInfo = context.getProgramFile()
-                .getPackageInfo(Constants.SQL_PACKAGE_PATH);
+        PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(Constants.BUILTIN_PACKAGE_PATH);
         StructInfo errorStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_CONNECTOR_ERROR);
         BStruct sqlConnectorError = new BStruct(errorStructInfo.getType());
         if (throwable.getMessage() == null) {

@@ -102,7 +102,7 @@ function testGeneratedKeyOnInsert () returns (string) {
             (a, b) = y;
             returnVal = b[0];
         }
-        sql:SQLConnectorError err1 =>{
+        error err1 =>{
             returnVal = err1.message;
         }
     }
@@ -132,7 +132,7 @@ function testGeneratedKeyWithColumn () returns (string) {
             (a, b) = y;
             returnVal = b[0];
         }
-        sql:SQLConnectorError err1 =>{
+        error err1 =>{
             returnVal = err1.message;
         }
     }

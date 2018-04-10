@@ -30,7 +30,7 @@ public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(strin
                 }
             }
 	}
-        mysql:SQLConnectorError => return;
+        error => return;
     }
     var closeStatus = testDB -> close();
     return;

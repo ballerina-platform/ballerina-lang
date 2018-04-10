@@ -17,7 +17,7 @@ package ballerina.mysql;
 
 import ballerina/sql;
 
-@Description {value:"Represents an SQL client endpoint"}
+@Description {value:"Represents an MySQL client endpoint"}
 @Field {value:"epName: The name of the endpoint"}
 @Field {value:"config: The configurations associated with the endpoint"}
 public type Client object {

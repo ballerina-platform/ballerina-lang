@@ -147,7 +147,7 @@ public type SQLClient object {
     @Return {value:"Result set(s) for the given query"}
     @Return {value:"The Error occured during SQL client invocation"}
     public native function call (@sensitive string sqlQuery, (Parameter[] | ()) parameters,
-        (typedesc | ()) recordType) returns @tainted (table[] | SQLConnectorError);
+        (typedesc | ()) recordType) returns @tainted (table[] | error);
 
     @Description {value:"The select action implementation for SQL connector to select data from tables."}
     @Param {value:"sqlQuery: SQL query to execute"}
@@ -155,11 +155,11 @@ public type SQLClient object {
     @Return {value:"Result set for the given query"}
     @Return {value:"The Error occured during SQL client invocation"}
     public native function select (@sensitive string sqlQuery, (Parameter[] | ()) parameters,
-        (typedesc | ()) recordType) returns @tainted (table | SQLConnectorError);
+        (typedesc | ()) recordType) returns @tainted (table | error);
 
     @Description {value:"The close action implementation for SQL connector to shutdown the connection pool."}
     @Return {value:"The Error occured during SQL client invocation"}
-    public native function close() returns (SQLConnectorError | ());
+    public native function close() returns (error | ());
 
     @Description {value:"The update action implementation for SQL connector to update data and schema of the database."}
     @Param {value:"sqlQuery: SQL query to execute"}
@@ -167,7 +167,7 @@ public type SQLClient object {
     @Return {value:"Updated row count"}
     @Return {value:"The Error occured during SQL client invocation"}
     public native function update (@sensitive string sqlQuery, (Parameter [] | ()) parameters)
-        returns (int | SQLConnectorError);
+        returns (int | error);
 
     @Description {value:"The batchUpdate action implementation for SQL connector to batch data insert."}
     @Param {value:"sqlQuery: SQL query to execute"}
@@ -175,7 +175,7 @@ public type SQLClient object {
     @Return {value:"Array of update counts"}
     @Return {value:"The Error occured during SQL client invocation"}
     public native function batchUpdate (@sensitive string sqlQuery, (Parameter[][]|()) parameters)
-        returns (int[] | SQLConnectorError);
+        returns (int[] | error);
 
     @Description {value:"The updateWithGeneratedKeys action implementation for SQL connector which returns the auto
         generated keys during the update action."}
@@ -187,21 +187,13 @@ public type SQLClient object {
     @Return {value:"The Error occured during SQL client invocation"}
     public native function updateWithGeneratedKeys (@sensitive string sqlQuery,
         (Parameter[] | ()) parameters, (string[] | ()) keyColumns)
-        returns (int, string[]) | SQLConnectorError;
+        returns (int, string[]) | error;
 
     @Description {value:"The mirror action implementation for SQL connector which returns a reflection of a database
     table that allows performing select/update operations over the actual database table"}
     @Param {value:"tableName: The name of the table to be mirrored"}
     @Param {value:"recordType: The type which a record of the table maps with"}
     public native function mirror (string tableName, typedesc recordType) returns
-    (table|SQLConnectorError);
+    (table|error);
 
-};
-
-@Description { value:"SQLConnectorError represents an error occured during the SQL client invocation" }
-@Field {value:"message:  An error message explaining about the error"}
-@Field {value:"cause: The error(s) that caused SQLConnectorError to get thrown"}
-public type SQLConnectorError {
-    string message,
-    error[] cause,
 };

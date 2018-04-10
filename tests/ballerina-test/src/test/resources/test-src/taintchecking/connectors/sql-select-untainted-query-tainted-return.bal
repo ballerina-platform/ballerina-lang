@@ -30,7 +30,7 @@ public function testSelectWithUntaintedQueryProducingTaintedReturn(string[] args
                 }
             }
 	}
-        sql:SQLConnectorError => return;
+        error => return;
     }
     var closeStatus = testDB -> close();
     return;

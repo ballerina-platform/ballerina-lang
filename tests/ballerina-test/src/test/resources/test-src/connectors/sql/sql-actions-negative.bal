@@ -16,7 +16,7 @@ function testSelectData () returns (string) {
                 var j = check <json>dt;
                 returnData = io:sprintf("%j", [j]);
             }
-            sql:SQLConnectorError err1 => {
+            error err1 => {
                 returnData = err1.message;
             }
         }
@@ -46,7 +46,7 @@ function testGeneratedKeyOnInsert () returns (string) {
             (int, string[] ) =>{
                 id = generatedID[0];
             }
-                sql:SQLConnectorError err1 =>{
+                error err1 =>{
                 id = err1.message;
             }
         }
@@ -71,7 +71,7 @@ function testCallProcedure () returns (string) {
                 var j = check <json>dt[0];
                 returnData = io:sprintf("%j", [j]);
             }
-            sql:SQLConnectorError err1 =>{
+            error err1 =>{
                 returnData = err1.message;
             }
         }
@@ -115,7 +115,7 @@ function testBatchUpdate () returns (string) {
                 updateCount = data;
                 returnVal = "success";
             }
-            sql:SQLConnectorError err1 =>{
+            error err1 =>{
                 returnVal = err1.message;
             }
         }
@@ -146,7 +146,7 @@ function testInvalidArrayofQueryParameters () returns (string) {
                 var j =  check <json>dt;
                 returnData = io:sprintf("%j", [j]);
             }
-            sql:SQLConnectorError err1 =>{
+            error err1 =>{
                 returnData = err1.message;
             }
         }

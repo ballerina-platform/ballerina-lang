@@ -221,6 +221,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-h2</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>strip-bouncycastle</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1033,7 +1038,9 @@
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/strip-bouncycastle</module>
-                <module>stdlib/ballerina-mysql</module>
+
+                <module>stdlib/database/ballerina-mysql</module>
+                <module>stdlib/database/ballerina-h2</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -1083,8 +1090,10 @@
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
-                <module>stdlib/ballerina-mysql</module>
                 <module>stdlib/strip-bouncycastle</module>
+
+                <module>stdlib/database/ballerina-mysql</module>
+                <module>stdlib/database/ballerina-h2</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -1126,8 +1135,10 @@
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
-                <module>stdlib/ballerina-mysql</module>
                 <module>stdlib/strip-bouncycastle</module>
+
+                <module>stdlib/database/ballerina-mysql</module>
+                <module>stdlib/database/ballerina-h2</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
