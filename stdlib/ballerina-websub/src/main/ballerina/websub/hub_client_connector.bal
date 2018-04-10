@@ -74,7 +74,7 @@ public function HubClientConnector::subscribe (SubscriptionChangeRequest subscri
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = httpClientEndpoint -> post("", builtSubscriptionRequest);
-    return processHubResponse(hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint);
+    return processHubResponse(self.hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint);
 }
 
 public function HubClientConnector::unsubscribe (SubscriptionChangeRequest unsubscriptionRequest) returns
@@ -82,7 +82,7 @@ public function HubClientConnector::unsubscribe (SubscriptionChangeRequest unsub
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtUnsubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
     var response = httpClientEndpoint -> post("", builtUnsubscriptionRequest);
-    return processHubResponse(hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint);
+    return processHubResponse(self.hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint);
 }
 
 public function HubClientConnector::registerTopic (string topic, string secret = "") {

@@ -289,15 +289,15 @@ public type WebSubHub object {
 
 public function WebSubHub::shutdownBallerinaHub () returns (boolean) {
     //TODO: fix to stop
-    return stopHubService(hubUrl);
+    return stopHubService(self.hubUrl);
 }
 
 public function WebSubHub::publishUpdate (string topic, json payload) returns (WebSubError | ()) {
-    if (hubUrl == "") {
+    if (self.hubUrl == "") {
         WebSubError webSubError = { message:"Internal Ballerina Hub not initialized or incorrectly referenced" };
         return webSubError;
     } else {
-        string errorMessage = validateAndPublishToInternalHub(hubUrl, topic, payload);
+        string errorMessage = validateAndPublishToInternalHub(self.hubUrl, topic, payload);
         if (errorMessage != "") {
             WebSubError webSubError = { message:errorMessage };
             return webSubError;

@@ -80,31 +80,31 @@ public function Listener::init(SubscriberServiceEndpointConfiguration config) {
     http:Filter[] filters = [<http:Filter> sigValFilter];
     http:ServiceEndpointConfiguration serviceConfig = { host:config.host, port:config.port,
                                                           secureSocket:config.secureSocket, filters:filters };
-    serviceEndpoint.init(serviceConfig);
-    initWebSubSubscriberServiceEndpoint();
+    self.serviceEndpoint.init(serviceConfig);
+    self.initWebSubSubscriberServiceEndpoint();
 }
 
 public function Listener::register(typedesc serviceType) {
-    serviceEndpoint.register(serviceType);
-    registerWebSubSubscriberServiceEndpoint(serviceType);
+    self.serviceEndpoint.register(serviceType);
+    self.registerWebSubSubscriberServiceEndpoint(serviceType);
 }
 
 public function Listener::start() {
-    serviceEndpoint.start();//TODO:not needed?
-    startWebSubSubscriberServiceEndpoint();
-    sendSubscriptionRequest();
+    self.serviceEndpoint.start();//TODO:not needed?
+    self.startWebSubSubscriberServiceEndpoint();
+    self.sendSubscriptionRequest();
 }
 
 public function Listener::getClient() returns (http:Connection) {
-    return serviceEndpoint.getClient();
+    return self.serviceEndpoint.getClient();
 }
 
 public function Listener::stop () {
-    serviceEndpoint.stop();
+    self.serviceEndpoint.stop();
 }
 
 function Listener::sendSubscriptionRequest() {
-    map subscriptionDetails = retrieveSubscriptionParameters();
+    map subscriptionDetails = self.retrieveSubscriptionParameters();
     if (lengthof subscriptionDetails.keys() == 0) {
         return;
     }
@@ -135,7 +135,7 @@ function Listener::sendSubscriptionRequest() {
                     subscriptionDetails["hub"] = retHub;
                     hub = retHub;
                     subscriptionDetails["topic"] = retTopic;
-                    setTopic(retTopic);
+                    self.setTopic(retTopic);
                 }
                 WebSubError websubError => {
                     log:printError("Error sending out subscription request on start up: " + websubError.message);
