@@ -58,7 +58,6 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) throws Exception {
         if (frame instanceof TextWebSocketFrame) {
-            System.out.println("Text frame received");
             // Echos the same text
             String text = ((TextWebSocketFrame) frame).text();
             if (PING.equals(text)) {
@@ -68,7 +67,6 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
             }
             ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
         } else if (frame instanceof BinaryWebSocketFrame) {
-            System.out.println("Binary frame received");
             ByteBuffer originalBuffer = frame.content().nioBuffer();
             ByteBuffer bufferCopy = ByteBuffer.allocate(originalBuffer.capacity());
             originalBuffer.rewind();
@@ -87,7 +85,6 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         log.error("Exception Caught: " + cause.getMessage());
-        cause.printStackTrace();
         ctx.close();
     }
 }

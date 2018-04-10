@@ -32,10 +32,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
 
+/**
+ * Test WebSocket Path and Query Parameters.
+ */
 public class WebSocketQueryAndPathParamSupportTestCase {
 
     private ServerInstance ballerinaServerInstance;
-    private static final String URL = "ws://localhost:9090/proxy/ws";
 
     @BeforeClass
     public void setup() throws InterruptedException, BallerinaTestException {

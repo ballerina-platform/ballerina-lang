@@ -25,7 +25,6 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
-import io.netty.handler.ssl.SslContext;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -48,6 +47,5 @@ public class WebSocketRemoteServerInitializer extends ChannelInitializer<SocketC
         WebSocketRemoteServerFrameHandler frameHandler = new WebSocketRemoteServerFrameHandler();
 //        FRAME_HANDLERS.add(frameHandler);
         pipeline.addLast(frameHandler);
-        System.out.println("Remote server initialized");
     }
 }

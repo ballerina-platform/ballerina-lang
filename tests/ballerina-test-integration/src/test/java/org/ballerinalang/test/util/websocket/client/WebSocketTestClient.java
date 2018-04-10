@@ -38,9 +38,6 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +48,6 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import javax.net.ssl.SSLException;
 
 /**
  * WebSocket client class for test
@@ -88,36 +84,7 @@ public class WebSocketTestClient {
      * @throws URISyntaxException throws if there is an error in the URI syntax.
      * @throws InterruptedException throws if the connecting the server is interrupted.
      */
-    public boolean handshake() throws InterruptedException, URISyntaxException, SSLException {
-        String scheme = uri.getScheme() == null ? "ws" : uri.getScheme();
-        final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
-        final int port;
-        if (uri.getPort() == -1) {
-            if ("ws".equalsIgnoreCase(scheme)) {
-                port = 80;
-            } else if ("wss".equalsIgnoreCase(scheme)) {
-                port = 443;
-            } else {
-                port = -1;
-            }
-        } else {
-            port = uri.getPort();
-        }
-
-        if (!"ws".equalsIgnoreCase(scheme) && !"wss".equalsIgnoreCase(scheme)) {
-            logger.error("Only WS(S) is supported.");
-            return false;
-        }
-
-        final boolean ssl = "wss".equalsIgnoreCase(scheme);
-        final SslContext sslCtx;
-        if (ssl) {
-            sslCtx = SslContextBuilder.forClient()
-                    .trustManager(InsecureTrustManagerFactory.INSTANCE).build();
-        } else {
-            sslCtx = null;
-        }
-
+    public void handshake() {
         group = new NioEventLoopGroup();
         try {
             // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
@@ -131,9 +98,6 @@ public class WebSocketTestClient {
                         @Override
                         protected void initChannel(SocketChannel ch) {
                             ChannelPipeline p = ch.pipeline();
-                            if (sslCtx != null) {
-                                p.addLast(sslCtx.newHandler(ch.alloc(), host, port));
-                            }
                             p.addLast(
                                     new HttpClientCodec(),
                                     new HttpObjectAggregator(8192),
@@ -142,11 +106,10 @@ public class WebSocketTestClient {
                         }
                     });
 
-            channel = b.connect(uri.getHost(), port).sync().channel();
-            return handler.handshakeFuture().sync().isSuccess();
+            channel = b.connect(uri.getHost(), uri.getPort()).sync().channel();
+            handler.handshakeFuture().sync();
         } catch (Exception e) {
             logger.error("Handshake unsuccessful : " + e.getMessage(), e);
-            return false;
         }
     }
 
