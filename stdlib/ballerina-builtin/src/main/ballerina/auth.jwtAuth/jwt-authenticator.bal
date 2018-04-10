@@ -87,6 +87,7 @@ public function JWTAuthenticator::authenticate (string jwtToken) returns (boolea
         jwt:Payload authResult => {
             boolean isAuthenticated = true;
             setAuthContext(authResult, jwtToken);
+            self.addToAuthenticationCache(jwtToken, authResult.exp, authResult);
             return isAuthenticated;
         }
         boolean isInvalid => return isInvalid;
