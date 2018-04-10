@@ -1105,6 +1105,12 @@
             </modules>
         </profile>
         <profile>
+            <id>benchmark</id>
+            <modules>
+                <module>performance-benchmarks</module>
+            </modules>
+        </profile>
+        <profile>
             <id>default</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
