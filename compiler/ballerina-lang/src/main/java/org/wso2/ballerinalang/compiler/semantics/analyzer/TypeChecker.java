@@ -722,35 +722,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangUnaryExpr unaryExpr) {
         BType exprType;
         BType actualType = symTable.errType;
-        if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
-            // Handle typeof operator separately
-            if (unaryExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                BLangSimpleVarRef varRef = (BLangSimpleVarRef) unaryExpr.expr;
-                Name varRefName = names.fromIdNode((varRef).variableName);
-                Name pkgAlias = names.fromIdNode((varRef).pkgAlias);
-                // Resolve symbol for BLangSimpleVarRef
-                BSymbol varRefSybmol = symResolver.lookupSymbolInPackage(unaryExpr.pos, env, pkgAlias,
-                        varRefName, SymTag.VARIABLE);
-                if (varRefSybmol == symTable.notFoundSymbol) {
-                    // Resolve symbol for User Defined Type ( converted from BLangSimpleVarRef )
-                    BLangTypedescExpr typeAccessExpr = getTypeAccessExpression(varRef);
-                    unaryExpr.expr = typeAccessExpr;
-                    actualType = typeAccessExpr.type;
-                    resultType = types.checkType(unaryExpr, actualType, expType);
-                    return;
-                } else {
-                    // Check type if resolved as BLangSimpleVarRef
-                    exprType = checkExpr(unaryExpr.expr, env);
-                }
-            } else {
-                // Check type if resolved as non BLangSimpleVarRef Expression
-                exprType = checkExpr(unaryExpr.expr, env);
-            }
-            if (exprType != symTable.errType) {
-                unaryExpr.opSymbol = Symbols.createTypeofOperatorSymbol(exprType, types, symTable, names);
-                actualType = unaryExpr.opSymbol.type.getReturnType();
-            }
-        } else if (OperatorKind.UNTAINT.equals(unaryExpr.operator)) {
+        if (OperatorKind.UNTAINT.equals(unaryExpr.operator)) {
             exprType = checkExpr(unaryExpr.expr, env);
             if (exprType != symTable.errType) {
                 actualType = exprType;

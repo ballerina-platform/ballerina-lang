@@ -895,9 +895,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangUnaryExpr unaryExpr) {
         switch (unaryExpr.operator) {
-        case TYPEOF:
-            setTaintedStatusList(false);
-            break;
         case LENGTHOF:
             setTaintedStatusList(false);
             break;

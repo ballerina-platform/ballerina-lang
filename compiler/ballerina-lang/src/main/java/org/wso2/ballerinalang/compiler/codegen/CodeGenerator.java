@@ -1284,15 +1284,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         int opcode;
         genNode(unaryExpr.expr, this.env);
-        if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
-            opcode = unaryExpr.opSymbol.opcode;
-            if (opcode == InstructionCodes.TYPEOF) {
-                emit(opcode, unaryExpr.expr.regIndex, exprIndex);
-            } else {
-                Operand typeCPIndex = getTypeCPIndex(unaryExpr.expr.type);
-                emit(opcode, typeCPIndex, exprIndex);
-            }
-        } else if (OperatorKind.LENGTHOF.equals(unaryExpr.operator)) {
+        if (OperatorKind.LENGTHOF.equals(unaryExpr.operator)) {
             Operand typeCPIndex = getTypeCPIndex(unaryExpr.expr.type);
             opcode = unaryExpr.opSymbol.opcode;
             emit(opcode, unaryExpr.expr.regIndex, typeCPIndex, exprIndex);
