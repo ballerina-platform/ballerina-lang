@@ -6,11 +6,11 @@ $ curl -v http://localhost:9090/sessionTest/sayHello
 
 Say hello to a new session
 
-# Copy the BSESSIONID of session cookie in above response.
-# Now invoke doTask resource as follows.
+# Copy the 'BSESSIONID' of the session cookie in the above response.
+# Then invoke the 'doTask' resource as follows.
 $ curl -v http://localhost:9090/sessionTest/doTask -H "Cookie: BSESSIONID=..(use given BSESSIONID).."
 Session sample
 
-# Finally invoke sayBye using same BSESSIONID.
+# Finally, invoke 'sayBye' with the same 'BSESSIONID'.
 $ curl -v http://localhost:9090/sessionTest/sayBye -H "Cookie: BSESSIONID=..(use same BSESSIONID).."
 Session: ..(same BSESSIONID).. invalidated

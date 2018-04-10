@@ -14,16 +14,16 @@ service<http:Service> sessionTest bind sessionTestEP {
         path:"/sayHello"
     }
     sayHello (endpoint outboundEP, http:Request req) {
-        //createSessionIfAbsent() function returns an existing session for a valid session id, otherwise it returns a new session.
+        //The 'createSessionIfAbsent()' function returns an existing session for a valid session ID. If the session ID does not exist, it returns a new session.
         http:Session session = req.createSessionIfAbsent();
         string result;
-        //Session status(new or already existing) is informed by isNew() as boolean value.
+        //This returns the session status (i.e., new or already existing) as a boolean value via the 'isNew()' function.
         if (session.isNew()) {
             result = "Say hello to a new session";
         } else {
             result = "Say hello to an existing session";
         }
-        //Binds a string attribute to this session with a key(string).
+        //This binds a string attribute to this session with a key(string).
         session.setAttribute(key, "Session sample");
         http:Response res = new;
         res.setStringPayload(result);
@@ -39,7 +39,7 @@ service<http:Service> sessionTest bind sessionTestEP {
         http:Session session = req.getSession();
         string attributeValue;
         if (session != null) {
-            //Returns the object bound with the specified key.
+            //This returns the object bound with the specified key.
             attributeValue = <string>session.getAttribute(key);
         } else {
             attributeValue = "Session unavailable";
@@ -57,9 +57,9 @@ service<http:Service> sessionTest bind sessionTestEP {
         http:Session session = req.getSession();
         http:Response res = new;
         if (session != null) {
-            //Returns session id.
+            //This returns the session ID.
             string id = session.getId();
-            //Invalidates this session.
+            //This invalidates this session.
             session.invalidate();
             res.setStringPayload("Session: " + id + " invalidated");
         } else {
