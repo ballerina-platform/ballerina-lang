@@ -34,6 +34,7 @@ public class PoolConfiguration {
     private int executorServiceThreads = 20;
     private int eventGroupExecutorThreads = 15;
     private long maxWaitTime = 60000L;
+    private int http2MaxActiveStreamsPerConnection = Integer.MAX_VALUE;
 
     public PoolConfiguration() {
     }
@@ -132,5 +133,13 @@ public class PoolConfiguration {
 
     public void setMaxWaitTime(long maxWaitTime) {
         this.maxWaitTime = maxWaitTime;
+    }
+
+    public int getHttp2MaxActiveStreamsPerConnection() {
+        return http2MaxActiveStreamsPerConnection;
+    }
+
+    public void setHttp2MaxActiveStreamsPerConnection(int http2MaxActiveStreamsPerConnection) {
+        this.http2MaxActiveStreamsPerConnection = http2MaxActiveStreamsPerConnection;
     }
 }

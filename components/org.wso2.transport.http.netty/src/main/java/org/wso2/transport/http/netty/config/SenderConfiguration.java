@@ -94,9 +94,6 @@ public class SenderConfiguration {
     private boolean isKeepAlive = true;
 
     @XmlAttribute
-    private int http2MaxActiveStreams = Integer.MAX_VALUE;
-
-    @XmlAttribute
     private boolean forceHttp2 = false;
 
     private String tlsStoreType;
@@ -277,14 +274,6 @@ public class SenderConfiguration {
         if (!httpVersion.isEmpty()) {
             this.httpVersion = httpVersion;
         }
-    }
-
-    public int getHttp2MaxActiveStreams() {
-        return http2MaxActiveStreams;
-    }
-
-    public void setHttp2MaxActiveStreams(int http2MaxActiveStreams) {
-        this.http2MaxActiveStreams = http2MaxActiveStreams;
     }
 
     public boolean isForceHttp2() {
