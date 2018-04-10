@@ -1114,16 +1114,16 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangInvocation iExpr) {
         BLangInvocation genIExpr = iExpr;
 
+        if (safeNavigate(iExpr)) {
+            result = rewriteExpr(getSafeNavigationMatchExpr(iExpr));
+            return;
+        }
+
         // Reorder the arguments to match the original function signature.
         reorderArguments(iExpr);
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
         iExpr.namedArgs = rewriteExprs(iExpr.namedArgs);
         iExpr.restArgs = rewriteExprs(iExpr.restArgs);
-
-        if (safeNavigate(iExpr)) {
-            result = rewriteExpr(getSafeNavigationMatchExpr(iExpr));
-            return;
-        }
 
         if (iExpr.functionPointerInvocation) {
             visitFunctionPointerInvocation(iExpr);

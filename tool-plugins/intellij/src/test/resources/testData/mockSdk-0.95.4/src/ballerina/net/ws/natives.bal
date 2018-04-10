@@ -140,7 +140,7 @@ public struct ClientConnectorConfig {
 @Field {value:"stackTrace: Represents the invocation stack if WsConnectorError is thrown"}
 public struct WsConnectorError {
     string msg;
-    error[] cause;
+    error? cause;
     StackFrame[] stackTrace;
 }
 

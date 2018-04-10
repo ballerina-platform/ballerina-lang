@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.970.0-alpha3-SNAPSHOT</version>
+    <version>0.970.0-alpha4-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -1060,7 +1060,7 @@
 
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-integration</module>
-
+                <module>tests/ballerina-test-compiler-plugins</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
             </modules>
@@ -1469,7 +1469,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.970.0-alpha3-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.970.0-alpha4-SNAPSHOT</ballerina.version>
         <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 

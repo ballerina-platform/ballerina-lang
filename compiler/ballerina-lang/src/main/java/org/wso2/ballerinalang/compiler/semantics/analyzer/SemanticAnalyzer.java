@@ -406,6 +406,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         Set<BLangIdentifier> visitedAttributes = new HashSet<>();
         for (BLangDocumentationAttribute attribute : docNode.attributes) {
             if (attribute.docTag == DocTag.RETURN) {
+                attribute.type = this.env.enclInvokable.returnTypeNode.type;
                 // return params can't have names, hence can't validate
                 continue;
             }
