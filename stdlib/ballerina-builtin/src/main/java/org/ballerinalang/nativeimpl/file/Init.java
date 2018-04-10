@@ -32,7 +32,7 @@ import java.nio.file.Paths;
 /**
  * Initializes a given file location to a path.
  *
- * @since 0.970.0-alpha1
+ * @since ballerina-0.970.0-alpha3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "file",
