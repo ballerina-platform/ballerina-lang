@@ -37,10 +37,14 @@ string cacheCleanupTaskID = createCacheCleanupTask();
 @Field {value:"evictionFactor: eviction factor to be used for cache eviction"}
 @Field {value:"entries: map which contains the cache entries"}
 public type Cache object {
+
+    public {
+        int capacity;
+    }
+
     private {
         map entries;
         int expiryTimeMillis;
-        int capacity;
         float evictionFactor;
     }
 
