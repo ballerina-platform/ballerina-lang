@@ -99,6 +99,7 @@ git submodule update --init
 Run the Maven command mvn clean install from the ballerina root directory:
 
 Command | Description 
+--- | ---
 mvn clean install | Build and install the artifacts into the local repository.
 mvn clean install -Dmaven.test.skip=true | Build and install the artifacts into the local repository, without running any of the unit tests.
 
