@@ -1,13 +1,12 @@
-import ballerina/io;
+import ballerina/log;
 import ballerina/http;
 
 @final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
 @final string REMOTE_BACKEND = "wss://echo.websocket.org";
 
-endpoint http:ServiceEndpoint serviceEndpoint {
+endpoint http:Listener serviceEndpoint {
     port:9090
 };
-
 
 service <http:Service> proxy bind serviceEndpoint {
 
@@ -23,8 +22,8 @@ service <http:Service> proxy bind serviceEndpoint {
             url:REMOTE_BACKEND,
             callbackService:typeof ClientService
         };
-        endpoint http:WebSocketEndpoint wsServerEp;
-        wsServerEp = ep -> upgradeToWebSocket({"custom":"header"});
+        endpoint http:WebSocketListener wsServerEp;
+        wsServerEp = ep -> acceptWebSocketUpgrade({"custom":"header"});
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsServerEp;
         wsServerEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
     }
@@ -37,17 +36,17 @@ service<http:WebSocketService> SimpleProxyServer bind serviceEndpoint {
 
     onText (endpoint ep, string text) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(ep);
-        var val = clientEp -> pushText(text);
+        clientEp -> pushText(text) but {error e => log:printErrorCause("Error occured when sending text message", e)};
     }
 
     onBinary (endpoint ep, blob data) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(ep);
-        var val = clientEp -> pushBinary(data);
+        clientEp -> pushBinary(data) but {error e => log:printErrorCause("Error occured when sending binary message", e)};
     }
 
     onClose (endpoint ep, int statusCode, string reason) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(ep);
-        var val = clientEp -> close(statusCode, reason);
+        clientEp -> close(statusCode, reason) but {error e => log:printErrorCause("Error occured when closing the connection", e)};
         _ = ep.attributes.remove(ASSOCIATED_CONNECTION);
     }
 }
@@ -57,31 +56,29 @@ service<http:WebSocketService> SimpleProxyServer bind serviceEndpoint {
 service<http:WebSocketClientService> ClientService {
 
     onText (endpoint ep, string text) {
-        endpoint http:WebSocketEndpoint parentEp = getAssociatedServerEndpoint(ep);
-        var val = parentEp -> pushText(text);
+        endpoint http:WebSocketListener parentEp = getAssociatedServerEndpoint(ep);
+        parentEp -> pushText(text) but {error e => log:printErrorCause("Error occured when sending text message", e)};
     }
 
     onBinary (endpoint ep, blob data) {
-        endpoint http:WebSocketEndpoint parentEp = getAssociatedServerEndpoint(ep);
-        var val = parentEp -> pushBinary(data);
+        endpoint http:WebSocketListener parentEp = getAssociatedServerEndpoint(ep);
+        parentEp -> pushBinary(data) but {error e => log:printErrorCause("Error occured when sending binary message", e)};
     }
 
     onClose (endpoint ep, int statusCode, string reason) {
-        endpoint http:WebSocketEndpoint parentEp = getAssociatedServerEndpoint(ep);
-        var val = parentEp -> close(statusCode, reason);
+        endpoint http:WebSocketListener parentEp = getAssociatedServerEndpoint(ep);
+        parentEp -> close(statusCode, reason) but {error e => log:printErrorCause("Error occured when closing the connection", e)};
         _ = ep.attributes.remove(ASSOCIATED_CONNECTION);
     }
 
 }
 
-
-function getAssociatedClientEndpoint (http:WebSocketEndpoint ep) returns (http:WebSocketClient) {
+function getAssociatedClientEndpoint (http:WebSocketListener ep) returns (http:WebSocketClient) {
     http:WebSocketClient client = check <http:WebSocketClient> ep.attributes[ASSOCIATED_CONNECTION];
     return client;
 }
 
-
-function getAssociatedServerEndpoint (http:WebSocketClient ep) returns (http:WebSocketEndpoint) {
-    http:WebSocketEndpoint wsEndpoint = check <http:WebSocketEndpoint> ep.attributes[ASSOCIATED_CONNECTION];
+function getAssociatedServerEndpoint (http:WebSocketClient ep) returns (http:WebSocketListener) {
+    http:WebSocketListener wsEndpoint = check <http:WebSocketListener> ep.attributes[ASSOCIATED_CONNECTION];
     return wsEndpoint;
 }

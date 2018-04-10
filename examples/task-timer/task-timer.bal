@@ -8,20 +8,18 @@ function main (string[] args) {
     io:println("Timer task demo");
 
     // the cleanup function will be called every time the timer goes off.
-    function () returns (error|null) onTriggerFunction = cleanup;
+    function () returns (error|()) onTriggerFunction = cleanup;
 
     // the cleanup error function will be called if an error occurs while cleaning up.
     function (error e) onErrorFunction = cleanupError;
 
     // Schedule a timer task which initially runs 500ms from now and there
     //onwards runs every 1000ms.
-    match task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:500, interval:1000}) {
-        string taskId => io:println("Task ID:" + taskId);
-        error schedulerError => io:println("Timer scheduling failed: " + schedulerError.message);
-    }
+    string taskId = task:scheduleTimer(onTriggerFunction, onErrorFunction, {delay:500, interval:1000});
+    io:println("Task ID:" + taskId);
 }
 
-function cleanup () returns (error|null) {
+function cleanup () returns (error|()) {
     count = count + 1;
     io:println("Cleaning up...");
     io:println(count);
@@ -32,7 +30,7 @@ function cleanup () returns (error|null) {
         error e = {message:"Cleanup error"};
         return e;
     }
-    return null;
+    return ();
 }
 
 function cleanupError (error e) {

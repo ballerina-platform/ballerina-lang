@@ -1,49 +1,49 @@
 import ballerina/io;
 
 // struct to represent a person in the example.
-struct Person {
+type Person {
     int id;
     int age = -1;
     float salary;
     string name;
     boolean married;
-}
+};
 
 // struct to represent an order in this example.
-struct Order {
+type Order {
     int personId;
     int orderId;
     string items;
     float amount;
-}
+};
 
 // struct to represent summed order details.
-struct SummedOrder {
+type SummedOrder {
     int personId;
     float amount;
-}
+};
 
 // struct to represent order details (this is derived by joining person details and order details
-struct OrderDetails {
+type OrderDetails {
     int orderId;
     string personName;
     string items;
     float amount;
-}
+};
 
 
-struct PersonPublicProfile {
+type PersonPublicProfile {
     string knownName;
     int age = -1;
-}
+};
 
 // main function
 public function main (string[] args) {
 
     // The in memory table which is constrained by struct "Person"
-    table<Person> personTable = {};
+    table<Person> personTable = table{};
     // The in memory table which is constrained by struct "Order"
-    table<Order> orderTable = {};
+    table<Order> orderTable = table{};
 
     // few sample values which represents different persons
     Person p1 = {id:1, age:25, salary:1000.50, name:"jane", married:true};

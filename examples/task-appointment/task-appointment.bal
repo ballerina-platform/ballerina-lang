@@ -9,13 +9,13 @@ function main (string[] args) {
     worker w1 {
         log:printInfo("------- Scheduling Appointments ----------------");
 
-        function () returns (error|null) onTriggerFunction = function () returns (error|null) { return null;};
-        function (error e) onErrorFunction = function (error e) {};
+        function () returns (error|()) onTriggerFunction =  () => (error|()) { return ();};
+        function (error e) onErrorFunction = (error e) => () {};
 
         // job 1 will run every 20 seconds
         onTriggerFunction = appointment1Cleanup;
         onErrorFunction = cleanupError;
-        app1Tid =? task:scheduleAppointment(onTriggerFunction, onErrorFunction,
+        app1Tid = task:scheduleAppointment(onTriggerFunction, onErrorFunction,
                                             "0/20 * * * * ?");
 
         // job 2 will run every other minute (at 15 seconds past the minute)
@@ -56,7 +56,7 @@ function main (string[] args) {
     }
 }
 
-function appointment1Cleanup () returns (error|null) {
+function appointment1Cleanup () returns (error|()) {
     log:printInfo("Appointment#1 cleanup running...");
     app1Count = app1Count + 1;
     if (app1Count == 5) {
@@ -67,43 +67,43 @@ function appointment1Cleanup () returns (error|null) {
     return cleanup();
 }
 
-function appointment2Cleanup () returns (error|null) {
+function appointment2Cleanup () returns (error|()) {
     log:printInfo("Appointment#2 cleanup running...");
     return cleanup();
 }
 
-function appointment3Cleanup () returns (error|null) {
+function appointment3Cleanup () returns (error|()) {
     log:printInfo("Appointment#3 cleanup running...");
     return cleanup();
 }
 
-function appointment4Cleanup () returns (error|null) {
+function appointment4Cleanup () returns (error|()) {
     log:printInfo("Appointment#4 cleanup running...");
     return cleanup();
 }
 
-function appointment5Cleanup () returns (error|null) {
+function appointment5Cleanup () returns (error|()) {
     log:printInfo("Appointment#5 cleanup running...");
     return cleanup();
 }
 
-function appointment6Cleanup () returns (error|null) {
+function appointment6Cleanup () returns (error|()) {
     log:printInfo("Appointment#6 cleanup running...");
     return cleanup();
 }
 
-function appointment7Cleanup () returns (error|null) {
+function appointment7Cleanup () returns (error|()) {
     log:printInfo("Appointment#7 cleanup running...");
     return cleanup();
 }
 
-function cleanup () returns (error|null) {
+function cleanup () returns (error|()) {
     log:printInfo("Cleaning up");
     if (math:randomInRange(0, 10) == 5) {
         error e = {message:"Cleanup error"};
         throw e;
     }
-    return null;
+    return ();
 }
 
 function cleanupError (error e) {
