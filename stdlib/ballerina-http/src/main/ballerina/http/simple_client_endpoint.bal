@@ -68,7 +68,7 @@ documentation {
     F{{url}} - The URL of the HTTP endpoint to connect to
     F{{circuitBreaker}} - Circuit Breaker configuration
     F{{secureSocket}} - The SSL configurations for the endpoint
-    F{{timeoutMillies}} - The maximum time to wait (in milli seconds) for a response before closing the connection
+    F{{timeoutMillis}} - The maximum time to wait (in milli seconds) for a response before closing the connection
     F{{httpVersion}} - The HTTP version to be used to communicate with the endpoint
     F{{forwarded}} - The choice of setting forwarded/x-forwarded header
     F{{keepAlive}} - Specifies whether to keep the connection alive (or not) for multiple request/response pairs
@@ -84,7 +84,7 @@ public type SimpleClientEndpointConfiguration {
     string url,
     CircuitBreakerConfig? circuitBreaker,
     SecureSocket? secureSocket,
-    int timeoutMillies = 60000,
+    int timeoutMillis = 60000,
     string httpVersion = "1.1",
     string forwarded = "disable",
     boolean keepAlive = true,
@@ -114,7 +114,7 @@ public function SimpleClient::init(SimpleClientEndpointConfiguration simpleConfi
 
     self.httpEP.config.circuitBreaker = simpleConfig.circuitBreaker;
     self.httpEP.config.targets[0] = {url: simpleConfig.url, secureSocket: simpleConfig.secureSocket};
-    self.httpEP.config.timeoutMillies = simpleConfig.timeoutMillies;
+    self.httpEP.config.timeoutMillis = simpleConfig.timeoutMillis;
     self.httpEP.config.httpVersion = simpleConfig.httpVersion;
     self.httpEP.config.forwarded = simpleConfig.forwarded;
     self.httpEP.config.keepAlive = simpleConfig.keepAlive;

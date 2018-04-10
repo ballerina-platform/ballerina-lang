@@ -40,7 +40,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
                 url: "http://localhost:8080"
             }
         ],
-        timeoutMillies:2000
+        timeoutMillis:2000
     };
 
     http:Response[] responses = [];
@@ -88,7 +88,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
                 url: "http://localhost:8080"
             }
         ],
-        timeoutMillies:2000
+        timeoutMillis:2000
     };
 
     http:Response[] responses = [];
@@ -136,7 +136,7 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
                 url: "http://localhost:8080"
             }
         ],
-        timeoutMillies:2000
+        timeoutMillis:2000
     };
 
     http:Response[] responses = [];

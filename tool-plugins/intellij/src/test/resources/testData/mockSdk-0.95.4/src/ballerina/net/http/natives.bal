@@ -378,7 +378,7 @@ struct Proxy {
 
 @Description { value:"Options struct represents options to be used for HTTP client invocation" }
 @Field {value:"port: Port number of the remote service"}
-@Field {value:"timeoutMillies: Endpoint timeout value in millisecond"}
+@Field {value:"timeoutMillis: Endpoint timeout value in millisecond"}
 @Field {value:"enableChunking: Enable/disable chunking"}
 @Field {value:"keepAlive: Keep the connection or close it (default value: true)"}
 @Field {value:"followRedirects: Redirect related options"}
@@ -387,7 +387,7 @@ struct Proxy {
 @Field {value:"proxy: Proxy server related options"}
 public struct Options {
     int port;
-    int timeoutMillies = 60000;
+    int timeoutMillis = 60000;
     boolean enableChunking = true;
     boolean keepAlive = true;
     FollowRedirects followRedirects;
