@@ -3,50 +3,50 @@ package ballerina.mb;
 import ballerina/jms;
 import ballerina/log;
 
-public type SimpleQueueReceiver object {
+public type SimpleTopicSubscriber object {
 
     public {
-        SimpleQueueListenerEndpointConfiguration config;
+        SimpleTopicSubscriberEndpointConfiguration config;
     }
 
     private {
         jms:Connection? connection;
         jms:Session? session;
-        jms:QueueConsumer? consumer;
+        jms:TopicSubscriber? subscriber;
     }
 
-    public function init(SimpleQueueListenerEndpointConfiguration config) {
+    public function init(SimpleTopicSubscriberEndpointConfiguration config) {
         self.config = config;
-        jms:Connection conn = new({
+        jms:Connection conn = new ({
                 initialContextFactory: "wso2mbInitialContextFactory",
                 providerUrl: generateBrokerURL(config),
                 connectionFactoryName: config.connectionFactoryName,
                 properties: config.properties
             });
-        connection = conn;
+        self.connection = conn;
 
-        jms:Session newSession = new(conn, {
-                acknowledgementMode:config.acknowledgementMode
+        jms:Session newSession = new (conn, {
+                acknowledgementMode: config.acknowledgementMode
             });
-        session = newSession;
+        self.session = newSession;
 
-        jms:QueueConsumer queueConsumer = new;
-        jms:QueueConsumerEndpointConfiguration consumerConfig = {
-            session:newSession,
-            queueName:config.queueName,
-            messageSelector:config.messageSelector
+        jms:TopicSubscriber topicSubscriber = new;
+        jms:TopicSubscriberEndpointConfiguration consumerConfig = {
+            session: newSession,
+            topicPattern: config.topicPattern,
+            messageSelector: config.messageSelector
         };
-        queueConsumer.init(consumerConfig);
-        consumer = queueConsumer;
+        topicSubscriber.init(consumerConfig);
+        self.subscriber = topicSubscriber;
     }
 
     public function register (typedesc serviceType) {
-        match (consumer) {
-            jms:QueueConsumer c => {
+        match (subscriber) {
+            jms:TopicSubscriber c => {
                 c.register(serviceType);
             }
             () => {
-                error e = {message:"Queue consumer cannot be nil"};
+                error e = {message: "Topic Subscriber cannot be nil"};
                 throw e;
             }
         }
@@ -55,11 +55,11 @@ public type SimpleQueueReceiver object {
     public function start () {
     }
 
-    public function getClient() returns QueueConsumerConnector {
-        match (consumer) {
-            jms:QueueConsumer c => { return new QueueConsumerConnector(c.getClient()); }
+    public function getClient () returns (TopicSubscriberConnector) {
+        match (subscriber) {
+            jms:TopicSubscriber c => return new TopicSubscriberConnector(c.getClient());
             () => {
-                error e = {message:"Queue consumer cannot be nil"};
+                error e = {message: "Topic subscriber cannot be nil"};
                 throw e;
             }
         }
@@ -68,7 +68,7 @@ public type SimpleQueueReceiver object {
     public function stop () {
     }
 
-    public function createTextMessage(string message) returns (Message|Error) {
+    public function createTextMessage(string message) returns (Message | Error) {
         match (session) {
             jms:Session s => {
                 var result = s.createTextMessage(message);
@@ -85,7 +85,7 @@ public type SimpleQueueReceiver object {
     }
 };
 
-public type SimpleQueueListenerEndpointConfiguration {
+public type SimpleTopicSubscriberEndpointConfiguration {
     string username = "admin",
     string password = "admin",
     string host = "localhost",
@@ -96,23 +96,23 @@ public type SimpleQueueListenerEndpointConfiguration {
     string acknowledgementMode = "AUTO_ACKNOWLEDGE",
     string messageSelector,
     map properties,
-    string queueName,
+    string topicPattern,
 };
 
-public type QueueConsumerConnector object {
+public type TopicSubscriberConnector object {
 
     public {
-        jms:QueueConsumerConnector helper;
+        jms:TopicSubscriberConnector helper;
     }
 
     public new(helper) {}
 
     public function acknowledge (Message message) returns Error|() {
-        return helper.acknowledge(message.getJMSMessage());
+        return self.helper.acknowledge(message.getJMSMessage());
     }
 
     public function receive (int timeoutInMilliSeconds = 0) returns Message|Error|() {
-        var result = helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
+        var result = self.helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
         match (result) {
             jms:Message m => {
                 return new Message(m);
@@ -122,4 +122,5 @@ public type QueueConsumerConnector object {
         }
     }
 };
+
 
