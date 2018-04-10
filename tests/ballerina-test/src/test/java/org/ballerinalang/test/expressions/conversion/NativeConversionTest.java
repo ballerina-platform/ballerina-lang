@@ -92,7 +92,7 @@ public class NativeConversionTest {
         Assert.assertEquals(marksArray.get(2), 91);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMapToStruct() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMapToStruct");
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -239,7 +239,7 @@ public class NativeConversionTest {
         BRunUtil.invoke(compileResult, "testIncompatibleMapToStruct");
     }
 
-    @Test(description = "Test converting a map with missing field to a struct", enabled = false)
+    @Test(description = "Test converting a map with missing field to a struct")
     public void testMapWithMissingFieldsToStruct() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMapWithMissingFieldsToStruct");
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -254,7 +254,6 @@ public class NativeConversionTest {
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = ".*cannot convert 'map' to type 'Person: error while mapping 'marks': " +
                   "incompatible types: expected 'int\\[\\]', found 'float\\[\\]'.*", enabled = false)
-    //TODO Enable test
     public void testMapWithIncompatibleArrayToStruct() {
         BRunUtil.invoke(compileResult, "testMapWithIncompatibleArrayToStruct");
     }
@@ -595,4 +594,39 @@ public class NativeConversionTest {
         Assert.assertEquals(addressStruct.getStringField(1), "Colombo 03");
         Assert.assertEquals(addressStruct.getStringField(2), "Sri Lanka");
     }
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testJsonToMapUnconstrained() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToMapUnconstrained");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, ?> map = (BMap<String, ?>) returns[0];
+        Assert.assertEquals(map.stringValue(), 
+                "{\"x\":5, \"y\":10, \"z\":3.14, \"o\":{\"a\":\"A\",\"b\":\"B\",\"c\":true}}");
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testJsonToMapConstrained1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToMapConstrained1");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, ?> map = (BMap<String, ?>) returns[0];
+        Assert.assertEquals(map.stringValue(), "{\"x\":\"A\", \"y\":\"B\"}");
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testJsonToMapConstrained2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToMapConstrained2");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, ?> map = (BMap<String, ?>) returns[0];
+        Assert.assertEquals(map.stringValue(), "{\"a\":{x:5, y:10}}");
+    }
+    
+    @Test(description = "Test converting a null Struct to map", expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*cannot convert 'json' to type 'map<T1>'.*")
+    public void testJsonToMapConstrainedFail() {
+        BRunUtil.invoke(compileResult, "testJsonToMapConstrainedFail");
+    }
+    
 }

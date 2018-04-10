@@ -40,7 +40,7 @@ function testStructToMap () returns (map) {
 }
 
 
-function testMapToStruct () returns (Person | error) {
+function testMapToStruct () returns (Person) {
     int[] marks = [87, 94, 72];
     Person parent = {
                         name:"Parent",
@@ -649,4 +649,52 @@ function testComplexMapToJson () returns (json) {
             };
     json j2 = check <json> m;
     return j2;
+}
+
+function testJsonToMapUnconstrained() returns map {
+    json jx = {};
+    jx.x = 5;
+    jx.y = 10;
+    jx.z = 3.14;
+    jx.o = {};
+    jx.o.a = "A";
+    jx.o.b = "B";
+    jx.o.c = true;
+    map m = check <map> jx;
+    return m;
+}
+
+function testJsonToMapConstrained1() returns map {
+    json j = {};
+    j.x = "A";
+    j.y = "B";
+  
+    return check <map<string>> j;
+}
+
+type T1 {
+    int x;
+    int y;
+};
+
+function testJsonToMapConstrained2() returns map {
+    json j1 = {};
+    j1.x = 5;
+    j1.y = 10;
+    json j2 = {};
+    j2.a = j1;
+    map<T1> m;
+    m = check <map<T1>> j2;
+    return m;
+}
+
+function testJsonToMapConstrainedFail() returns map {
+    json j1 = {};
+    j1.x = 5;
+    j1.y = 10.5;
+    json j2 = {};
+    j2.a = j1;
+    map<T1> m;
+    m = check <map<T1>> j2;
+    return m;
 }
