@@ -18,7 +18,8 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.channel.ChannelFuture;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
@@ -43,20 +44,24 @@ import javax.websocket.Session;
                 @Argument(name = "text", type = TypeKind.STRING)
         }
 )
-public class PushText extends BlockingNativeCallableUnit {
+public class PushText implements NativeCallableUnit {
 
     @Override
-    public void execute(Context context) {
+    public void execute(Context context, CallableUnitCallback callback) {
         try {
             BStruct wsConnection = (BStruct) context.getRefArgument(0);
             Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
             String text = context.getStringArgument(0);
             ChannelFuture future = (ChannelFuture) session.getAsyncRemote().sendText(text);
-            context.setReturnValues(
-                    WebSocketUtil.getWebSocketError(context, future, "Failed to send text message"));
+                    WebSocketUtil.getWebSocketError(context, callback, future, "Failed to send text message");
         } catch (Throwable e) {
             throw new BallerinaException("Cannot send the message. Error occurred.");
         }
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 
 }

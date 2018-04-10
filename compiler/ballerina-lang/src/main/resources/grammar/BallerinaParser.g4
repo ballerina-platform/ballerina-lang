@@ -964,7 +964,7 @@ documentationTemplateContent
     ;
 
 documentationTemplateAttributeDescription
-    :   DocumentationTemplateAttributeStart Identifier DocumentationTemplateAttributeEnd docText?
+    :   DocumentationTemplateAttributeStart Identifier? DocumentationTemplateAttributeEnd docText?
     ;
 
 docText
