@@ -14,9 +14,9 @@ public type SimpleQueueSender object {
 
     public function init(SimpleQueueSenderEndpointConfiguration config) {
         endpoint jms:SimpleQueueSender queueSender {
-            initialContextFactory: config.initialContextFactory,
-            providerUrl: config.providerUrl,
-            connectionFactoryName: config.connectionFactoryName,
+            initialContextFactory: "wso2mbInitialContextFactory",
+            providerUrl: generateBrokerURL(config),
+            connectionFactoryName: "ConnectionFactory",
             acknowledgementMode: config.acknowledgementMode,
             properties: config.properties,
             queueName: config.queueName
@@ -77,13 +77,13 @@ public type QueueSenderConnector object {
     }
 };
 
-
 public type SimpleQueueSenderEndpointConfiguration {
-    string initialContextFactory = "wso2mbInitialContextFactory";
-    string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
-    string connectionFactoryName = "ConnectionFactory";
-    string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    map properties;
-    string queueName;
+    string host = "localhost",
+    int port = 5672,
+    string clientID = "ballerina",
+    string virtualHost = "default",
+    string acknowledgementMode = "AUTO_ACKNOWLEDGE",
+    map properties,
+    string queueName,
 };
 
