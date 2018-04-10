@@ -36,8 +36,8 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
 
 
-// TODO: Enable test case after non blocking actions are implemented.
-@Test(enabled = false)
+// TODO: Enable test case after intermittent test failure is found.
+//@Test(enabled = false)
 public class WebSocketSimpleProxyTestCase {
 
     private WebSocketRemoteServer remoteServer;
@@ -58,8 +58,8 @@ public class WebSocketSimpleProxyTestCase {
     @Test(priority = 1)
     public void testSendText() throws URISyntaxException, InterruptedException, SSLException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
-        client.handshake();
-//        Thread.sleep(5000);
+        handshakeAndAck(client);
+//        Thread.sleep(1000);
         String textSent = "hi all";
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
@@ -72,8 +72,8 @@ public class WebSocketSimpleProxyTestCase {
     @Test(priority = 2)
     public void testSendBinary() throws URISyntaxException, InterruptedException, IOException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
-        client.handshake();
-//        Thread.sleep(5000);
+        handshakeAndAck(client);
+//        Thread.sleep(1000);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
@@ -87,5 +87,18 @@ public class WebSocketSimpleProxyTestCase {
     public void cleanup() throws BallerinaTestException {
         ballerinaServerInstance.stopServer();
         remoteServer.stop();
+    }
+
+    private void handshakeAndAck(WebSocketTestClient client)
+            throws InterruptedException, URISyntaxException, SSLException {
+        CountDownLatch ackCountDownLatch = new CountDownLatch(1);
+        client.setCountDownLatch(ackCountDownLatch);
+        client.handshake();
+        ackCountDownLatch.await(10, TimeUnit.SECONDS);
+        if ("send".equals(client.getTextReceived())) {
+            return;
+        } else {
+            throw new IllegalArgumentException("Could not receive acknowledgment");
+        }
     }
 }

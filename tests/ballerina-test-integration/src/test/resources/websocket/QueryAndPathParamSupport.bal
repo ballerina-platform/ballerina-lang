@@ -19,7 +19,7 @@ service <http:Service> simple bind ep {
     }
     websocketProxy (endpoint httpEp, http:Request req, string path1, string path2) {
         endpoint http:WebSocketListener wsServiceEp;
-        wsServiceEp = httpEp -> upgradeToWebSocket({"some-header":"some-header-value"});
+        wsServiceEp = httpEp -> acceptWebSocketUpgrade({"some-header":"some-header-value"});
         wsServiceEp.attributes[PATH1] = path1;
         wsServiceEp.attributes[PATH2] = path2;
         wsServiceEp.attributes[QUERY1] = req.getQueryParams()["q1"];

@@ -62,18 +62,21 @@ public class WebSocketTestClient {
 
     private Channel channel = null;
     private WebSocketTestClientHandler handler;
-    private final Map<String, String> headers;
-    private final String url;
+    private final URI uri;
     private EventLoopGroup group;
 
-    public WebSocketTestClient(String url) {
-        this.url = url;
-        this.headers = new HashMap<>();
+    public WebSocketTestClient(String url) throws URISyntaxException {
+        this(url, new HashMap<>());
     }
 
-    public WebSocketTestClient(String url, Map<String, String> headers) {
-        this.url = url;
-        this.headers = headers;
+    public WebSocketTestClient(String url, Map<String, String> headers) throws URISyntaxException {
+        this.uri = new URI(url);
+        // Creating handler
+        URI uri = new URI(url);
+        DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
+        headers.forEach(httpHeaders::add);
+        handler = new WebSocketTestClientHandler(WebSocketClientHandshakerFactory.
+                newHandshaker(uri, WebSocketVersion.V13, null, true, httpHeaders));
     }
 
     public void setCountDownLatch(CountDownLatch countdownLatch) {
@@ -86,7 +89,6 @@ public class WebSocketTestClient {
      * @throws InterruptedException throws if the connecting the server is interrupted.
      */
     public boolean handshake() throws InterruptedException, URISyntaxException, SSLException {
-        URI uri = new URI(url);
         String scheme = uri.getScheme() == null ? "ws" : uri.getScheme();
         final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
         final int port;
@@ -117,21 +119,10 @@ public class WebSocketTestClient {
         }
 
         group = new NioEventLoopGroup();
-        DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
-        headers.entrySet().forEach(
-                header -> {
-                    httpHeaders.add(header.getKey(), header.getValue());
-                }
-        );
         try {
             // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
             // If you change it to V00, ping is not supported and remember to change
             // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
-            handler =
-                    new WebSocketTestClientHandler(
-                            WebSocketClientHandshakerFactory.newHandshaker(
-                                    uri, WebSocketVersion.V13, null,
-                                    true, httpHeaders));
 
             Bootstrap b = new Bootstrap();
             b.group(group)
