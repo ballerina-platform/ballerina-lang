@@ -47,24 +47,18 @@ import javax.jms.Topic;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "jms",
-        functionName = "initTopicProducer",
-        receiver = @Receiver(type = TypeKind.STRUCT,
-                             structType = "TopicProducer",
-                             structPackage = "ballerina.jms"),
-        args = {
-                @Argument(name = "session",
-                          type = TypeKind.STRUCT,
-                          structType = "Session")
-        },
+        functionName = "initTopicPublisher",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "TopicPublisher", structPackage = "ballerina.jms"),
+        args = { @Argument(name = "session", type = TypeKind.STRUCT, structType = "Session") },
         isPublic = true
 )
-public class InitTopicProducer extends AbstractBlockinAction {
+public class InitTopicPublisher extends AbstractBlockinAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         Struct topicProducerBObject = BallerinaAdapter.getReceiverObject(context);
-        Struct topicProducerConfig = topicProducerBObject.getStructField(Constants.TOPIC_PRODUCER_FIELD_CONFIG);
-        String topicPattern = topicProducerConfig.getStringField(Constants.TOPIC_PRODUCER_FIELD_TOPIC_PATTERN);
+        Struct topicProducerConfig = topicProducerBObject.getStructField(Constants.TOPIC_PUBLISHER_FIELD_CONFIG);
+        String topicPattern = topicProducerConfig.getStringField(Constants.TOPIC_PUBLISHER_FIELD_TOPIC_PATTERN);
 
         if (JMSUtils.isNullOrEmptyAfterTrim(topicPattern)) {
             throw new BallerinaException("Topic pattern cannot be null", context);
@@ -83,7 +77,7 @@ public class InitTopicProducer extends AbstractBlockinAction {
             }
             MessageProducer producer = session.createProducer(topic);
             Struct topicProducerConnectorBObject
-                    = topicProducerBObject.getStructField(Constants.TOPIC_PRODUCER_FIELD_CONNECTOR);
+                    = topicProducerBObject.getStructField(Constants.TOPIC_PUBLISHER_FIELD_CONNECTOR);
             topicProducerConnectorBObject.addNativeData(Constants.JMS_PRODUCER_OBJECT, producer);
             topicProducerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT,
                                                         new SessionConnector(session));

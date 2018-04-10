@@ -2,25 +2,25 @@ package ballerina.jms;
 
 import ballerina/log;
 
-public type TopicProducer object {
+public type TopicPublisher object {
     public {
-        TopicProducerConnector connector;
-        TopicProducerEndpointConfiguration config;
+        TopicPublisherConnector connector;
+        TopicPublisherEndpointConfiguration config;
     }
 
     new () {
         self.connector = new ();
     }
 
-    public function init(TopicProducerEndpointConfiguration config) {
+    public function init(TopicPublisherEndpointConfiguration config) {
         self.config = config;
         match (config.session) {
-            Session s => self.initTopicProducer(s);
+            Session s => self.initTopicPublisher(s);
             () => {}
         }
     }
 
-    public native function initTopicProducer(Session session);
+    public native function initTopicPublisher(Session session);
 
     public function register (typedesc serviceType) {
     }
@@ -28,7 +28,7 @@ public type TopicProducer object {
     public function start () {
     }
 
-    public function getClient () returns (TopicProducerConnector) {
+    public function getClient () returns (TopicPublisherConnector) {
         return self.connector;
     }
 
@@ -36,12 +36,12 @@ public type TopicProducer object {
     }
 };
 
-public type TopicProducerEndpointConfiguration {
+public type TopicPublisherEndpointConfiguration {
     Session? session;
     string topicPattern;
 };
 
-public type TopicProducerConnector object {
+public type TopicPublisherConnector object {
     public native function send (Message m) returns (Error | ());
 };
 

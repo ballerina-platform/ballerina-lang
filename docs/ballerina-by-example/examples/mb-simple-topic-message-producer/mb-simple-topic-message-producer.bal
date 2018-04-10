@@ -2,8 +2,8 @@ import ballerina/jms;
 import ballerina/mb;
 import ballerina/log;
 
-// Create a topic producer
-endpoint mb:SimpleTopicProducer topicProducer {
+// Create a topic publisher
+endpoint mb:SimpleTopicPublisher topicPublisher {
     host: "localhost",
     port: 5672,
     topicPattern: "BallerinaTopic"
@@ -12,7 +12,7 @@ endpoint mb:SimpleTopicProducer topicProducer {
 
 public function main (string[] args) {
     // Create a Text message.
-    mb:Message m = check topicProducer.createTextMessage("Test Text");
+    mb:Message m = check topicPublisher.createTextMessage("Test Text");
     // Send the Ballerina message to the JMS provider.
-    var _ = topicProducer -> send(m);
+    var _ = topicPublisher -> send(m);
 }

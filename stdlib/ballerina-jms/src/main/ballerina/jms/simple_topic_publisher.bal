@@ -2,18 +2,18 @@ package ballerina.jms;
 
 import ballerina/log;
 
-public type SimpleTopicProducer object {
+public type SimpleTopicPublisher object {
     public {
-        SimpleTopicProducerEndpointConfiguration config;
+        SimpleTopicPublisherEndpointConfiguration config;
     }
 
     private {
         Connection? connection;
         Session? session;
-        TopicProducer? producer;
+        TopicPublisher? publisher;
     }
 
-    public function init(SimpleTopicProducerEndpointConfiguration config) {
+    public function init(SimpleTopicPublisherEndpointConfiguration config) {
         self.config = config;
         Connection conn = new ({
                 initialContextFactory: config.initialContextFactory,
@@ -28,13 +28,13 @@ public type SimpleTopicProducer object {
             });
         self.session = newSession;
 
-        TopicProducer topicProducer = new;
-        TopicProducerEndpointConfiguration producerConfig = {
+        TopicPublisher topicPublisher = new;
+        TopicPublisherEndpointConfiguration publisherConfig = {
             session: newSession,
             topicPattern: config.topicPattern
         };
-        topicProducer.init(producerConfig);
-        self.producer = topicProducer;
+        topicPublisher.init(publisherConfig);
+        self.publisher = topicPublisher;
     }
 
     public function register (typedesc serviceType) {
@@ -43,11 +43,11 @@ public type SimpleTopicProducer object {
     public function start () {
     }
 
-    public function getClient () returns (TopicProducerConnector) {
-        match (producer) {
-            TopicProducer s => return s.getClient();
+    public function getClient () returns (TopicPublisherConnector) {
+        match (publisher) {
+            TopicPublisher s => return s.getClient();
             () => {
-                error e = {message: "Topic producer cannot be nil"};
+                error e = {message: "Topic publisher cannot be nil"};
                 throw e;
             }
         }
@@ -68,7 +68,7 @@ public type SimpleTopicProducer object {
     }
 };
 
-public type SimpleTopicProducerEndpointConfiguration {
+public type SimpleTopicPublisherEndpointConfiguration {
     string initialContextFactory = "wso2mbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";

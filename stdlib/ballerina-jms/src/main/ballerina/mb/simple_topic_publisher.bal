@@ -2,18 +2,18 @@ package ballerina.jms;
 
 import ballerina/log;
 
-public type SimpleTopicProducer object {
+public type SimpleTopicPublisher object {
     public {
-        SimpleTopicProducerEndpointConfiguration config;
+        SimpleTopicPublisherEndpointConfiguration config;
     }
 
     private {
-        jms:SimpleTopicProducer? sender;
-        TopicProducerConnector? senderConnector;
+        jms:SimpleTopicPublisher? publisher;
+        TopicPublisherConnector? publisherConnector;
     }
 
-    public function init(SimpleTopicProducerEndpointConfiguration config) {
-    endpoint jms:SimpleTopicProducer topicProducer {
+    public function init(SimpleTopicPublisherEndpointConfiguration config) {
+    endpoint jms:SimpleTopicPublisher topicPublisher {
         initialContextFactory: "wso2mbInitialContextFactory",
         providerUrl: generateBrokerURL(config),
         connectionFactoryName: "ConnectionFactory",
@@ -21,8 +21,8 @@ public type SimpleTopicProducer object {
         properties: config.properties,
         topicPattern: config.topicPattern
     };
-    self.sender = topicProducer;
-    self.senderConnector = new TopicProducerConnector(topicProducer);
+    self.publisher = topicPublisher;
+    self.publisherConnector = new TopicPublisherConnector(topicPublisher);
     self.config = config;
 }
 
@@ -32,11 +32,11 @@ public type SimpleTopicProducer object {
     public function start () {
     }
 
-    public function getClient () returns (TopicProducerConnector) {
-        match (self.senderConnector) {
-            TopicProducerConnector s => return s;
+    public function getClient () returns (TopicPublisherConnector) {
+        match (self.publisherConnector) {
+            TopicPublisherConnector s => return s;
             () => {
-                error e = {message:"Topic producer connector cannot be nil"};
+                error e = {message:"Topic publisher connector cannot be nil"};
                 throw e;
             }
         }
@@ -46,16 +46,16 @@ public type SimpleTopicProducer object {
     }
 
     public function createTextMessage(string message) returns (Message|Error) {
-        match (self.sender) {
-            jms:SimpleTopicProducer s => {
+        match (self.publisher) {
+            jms:SimpleTopicPublisher s => {
                 var result = s.createTextMessage(message);
                 match (result) {
-                    jms:Message m => return newMessage(m);
+                    jms:Message m => return new Message(m);
                     jms:Error e => return e;
                 }
             }
             () => {
-                error e = {message:"topic sender cannot be nil"};
+                error e = {message:"topic publisher cannot be nil"};
                 throw e;
             }
         }
@@ -63,21 +63,21 @@ public type SimpleTopicProducer object {
     }
 };
 
-public type TopicProducerConnector object {
+public type TopicPublisherConnector object {
     private {
-        jms:SimpleTopicProducer sender;
+        jms:SimpleTopicPublisher publisher;
     }
 
-    new (sender) {}
+    new (publisher) {}
 
     public function send (Message m) returns (Error | ()) {
-        endpoint jms:SimpleTopicProducer senderEP = self.sender;
-        var result = senderEP->send(m.getJMSMessage());
+        endpoint jms:SimpleTopicPublisher publisherEP = self.publisher;
+        var result = publisherEP->send(m.getJMSMessage());
         return result;
     }
 };
 
-public type SimpleTopicProducerEndpointConfiguration {
+public type SimpleTopicPublisherEndpointConfiguration {
     string username = "admin",
     string password = "admin",
     string host = "localhost",
