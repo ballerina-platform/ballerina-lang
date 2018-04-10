@@ -21,7 +21,7 @@ import ballerina/io;
 @Description { value: "Represents an I/O error which could occur when processing a file."}
 public type IOError {
     string message;
-    error[] cause;
+    error? cause;
 };
 
 @Description { value: "Derives a file path from the given location"}
