@@ -22,7 +22,7 @@ public type HttpClient object {
     //for retry and other few places.
     public {
         string serviceUri;
-        ClientEndpointConfiguration config;
+        ClientEndpointConfig config;
     }
 
     @Description {value:"The POST action implementation of the HTTP Connector."}

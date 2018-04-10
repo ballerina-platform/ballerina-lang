@@ -69,7 +69,7 @@ public type HttpCachingClient object {
 
     public {
         string serviceUri;
-        ClientEndpointConfiguration config;
+        ClientEndpointConfig config;
         HttpClient httpClient;
         HttpCache cache;
         CacheConfig cacheConfig;
@@ -181,7 +181,7 @@ public type HttpCachingClient object {
 };
 
 @Description {value:"Creates an HTTP client capable of caching HTTP responses."}
-public function createHttpCachingClient(string url, ClientEndpointConfiguration config, CacheConfig cacheConfig) returns HttpClient {
+public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig) returns HttpClient {
     HttpCachingClient httpCachingClient = new (url, config, cacheConfig);
     log:printDebug("Created HTTP caching client: " + io:sprintf("%r",[httpCachingClient]));
     return httpCachingClient;

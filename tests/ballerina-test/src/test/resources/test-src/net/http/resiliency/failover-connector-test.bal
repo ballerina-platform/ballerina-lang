@@ -28,7 +28,7 @@ function testSuccessScenario () returns (http:Response | http:HttpConnectorError
     targets: [
              {url: "http://invalidEP"},
              {url: "http://localhost:8080"}],
-    endpointTimeout:5000
+    timeoutMillis:5000
     };
 
     http:Response clientResponse = new;
@@ -61,7 +61,7 @@ function testFailureScenario () returns (http:Response | http:HttpConnectorError
     targets: [
              {url: "http://invalidEP"},
              {url: "http://localhost:50000000"}],
-    endpointTimeout:5000
+    timeoutMillis:5000
     };
 
     http:HttpConnectorError err = {};
@@ -88,7 +88,7 @@ function testFailureScenario () returns (http:Response | http:HttpConnectorError
 public type MockClient object {
     public {
         string serviceUri;
-        http:ClientEndpointConfiguration config;
+        http:ClientEndpointConfig config;
     }
 
     public function post (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {

@@ -17,11 +17,11 @@ public type WebSocketConnector object {
 
     @Description {value:"Ping the connection"}
     @Param {value:"data: Binary data to be sent"}
-    public native function ping(blob data);
+    public native function ping(blob data) returns WebSocketConnectorError|();
 
     @Description {value:"Send pong message to the connection"}
     @Param {value:"data: Binary data to be sent"}
-    public native function pong(blob data);
+    public native function pong(blob data) returns WebSocketConnectorError|();
 
     @Description {value:"Close the connection"}
     @Param {value:"statusCode: Status code for closing the connection"}

@@ -640,3 +640,13 @@ function structWithComplexArraysToJson() returns (json | error) {
     var js = check <json> t;
     return js;
 }
+
+function testComplexMapToJson () returns (json) {
+    map m = {name:"Supun",
+                age:25,
+                gpa:2.81,
+                status:true
+            };
+    json j2 = check <json> m;
+    return j2;
+}

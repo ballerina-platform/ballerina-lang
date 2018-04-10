@@ -60,7 +60,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
         orgName = "ballerina", packageName = "http",
         functionName = "createHttpClient",
         args = {@Argument(name = "uri", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
+                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfig")},
         isPublic = true
 )
 public class CreateHttpClient extends BlockingNativeCallableUnit {
@@ -256,11 +256,11 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         String chunking = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_CHUNKING).getStringValue();
         senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
 
-        long endpointTimeout = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
-        if (endpointTimeout < 0 || !isInteger(endpointTimeout)) {
-            throw new BallerinaConnectorException("invalid idle timeout: " + endpointTimeout);
+        long timeoutMillis = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
+        if (timeoutMillis < 0 || !isInteger(timeoutMillis)) {
+            throw new BallerinaConnectorException("invalid idle timeout: " + timeoutMillis);
         }
-        senderConfiguration.setSocketIdleTimeout((int) endpointTimeout);
+        senderConfiguration.setSocketIdleTimeout((int) timeoutMillis);
 
         boolean isKeepAlive = clientEndpointConfig.getBooleanField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE);
         senderConfiguration.setKeepAlive(isKeepAlive);
