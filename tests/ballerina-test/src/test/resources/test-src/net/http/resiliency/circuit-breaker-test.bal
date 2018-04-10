@@ -32,7 +32,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
                 bucketSize:2000
             },
             failureThreshold:0.3,
-            resetTimeout:1000,
+            resetTimeMillies:1000,
             statusCodes:[400, 404, 500, 502]
         },
         targets:[
@@ -40,7 +40,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
                 url: "http://localhost:8080"
             }
         ],
-        endpointTimeout:2000
+        timeoutMillis:2000
     };
 
     http:Response[] responses = [];
@@ -80,7 +80,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
                 bucketSize:2000
             },
             failureThreshold:0.3,
-            resetTimeout:1000,
+            resetTimeMillies:1000,
             statusCodes:[400, 404, 500, 502]
         },
         targets:[
@@ -88,7 +88,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
                 url: "http://localhost:8080"
             }
         ],
-        endpointTimeout:2000
+        timeoutMillis:2000
     };
 
     http:Response[] responses = [];
@@ -128,7 +128,7 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
                 bucketSize:2000
             },
             failureThreshold:0.3,
-            resetTimeout:1000,
+            resetTimeMillies:1000,
             statusCodes:[400, 404, 500, 502]
         },
         targets:[
@@ -136,7 +136,7 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
                 url: "http://localhost:8080"
             }
         ],
-        endpointTimeout:2000
+        timeoutMillis:2000
     };
 
     http:Response[] responses = [];
@@ -168,7 +168,7 @@ int actualRequestNumber = 0;
 public type MockClient object {
     public {
         string serviceUri;
-        http:ClientEndpointConfiguration config;
+        http:ClientEndpointConfig config;
     }
 
     public function post (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {

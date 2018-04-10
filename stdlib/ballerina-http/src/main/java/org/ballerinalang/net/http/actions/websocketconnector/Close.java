@@ -46,6 +46,7 @@ import javax.websocket.Session;
                 @Argument(name = "reason", type = TypeKind.STRING)
         }
 )
+//Todo: Fix this: It is blocking because of the limitations in the transport where close does not return a Future
 public class Close extends BlockingNativeCallableUnit {
 
     @Override
@@ -56,6 +57,7 @@ public class Close extends BlockingNativeCallableUnit {
         Session session = (Session) webSocketConnector.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
         try {
             session.close(new CloseReason(() -> statusCode, reason));
+            context.setReturnValues();
         } catch (IOException e) {
             context.setReturnValues(BLangConnectorSPIUtil.createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
                                                                         WebSocketConstants.WEBSOCKET_CONNECTOR_ERROR,
@@ -69,6 +71,5 @@ public class Close extends BlockingNativeCallableUnit {
                 connectionManager.removeConnectionInfo(session.getId());
             }
         }
-        context.setReturnValues();
     }
 }

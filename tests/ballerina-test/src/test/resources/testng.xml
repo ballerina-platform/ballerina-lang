@@ -37,9 +37,7 @@ under the License.
         <packages>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.annotations.*"/>
-            <package name="org.ballerinalang.test.expressions.*">
-                <exclude name="org.ballerinalang.test.expressions.identifierliteral.*"/>
-            </package>
+            <package name="org.ballerinalang.test.expressions.*"/>
             <package name="org.ballerinalang.test.documentation.*"/>
             <package name="org.ballerinalang.test.statements.*">
                 <exclude name="org.ballerinalang.test.statements.transform.*"/>

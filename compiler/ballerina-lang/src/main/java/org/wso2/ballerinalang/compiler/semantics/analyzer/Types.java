@@ -671,7 +671,15 @@ public class Types {
         return type.memberTypes.stream()
                 .anyMatch(memberType -> conversionVisitor.visit(memberType, target) == symTable.notFoundSymbol);
     }
-
+    
+    private boolean checkJsonToMapConvertibility(BJSONType src, BMapType target) {
+        return true;
+    }
+    
+    private boolean checkMapToJsonConvertibility(BMapType src, BJSONType target) {
+        return true;
+    }
+    
     private BTypeVisitor<BType, BSymbol> conversionVisitor = new BTypeVisitor<BType, BSymbol>() {
 
         @Override
@@ -717,6 +725,11 @@ public class Types {
                 }
             } else if (s.tag == TypeTags.STRUCT) {
                 return createConversionOperatorSymbol(s, t, true, InstructionCodes.T2MAP);
+            } else if (s.tag == TypeTags.JSON) {
+                if (!checkJsonToMapConvertibility((BJSONType) s, t)) {
+                    return symTable.notFoundSymbol;
+                }
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.JSON2MAP);
             } else if (t.constraint.tag != TypeTags.ANY) {
                 // Semantically fail rest of the casts for Constrained Maps.
                 // Eg:- ANY2MAP cast is undefined for Constrained Maps.
@@ -760,6 +773,11 @@ public class Types {
                     return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECK_CONVERSION);
                 }
                 return symTable.notFoundSymbol;
+            } else if (s.tag == TypeTags.MAP) {
+                if (!checkMapToJsonConvertibility((BMapType) s, t)) {
+                    return symTable.notFoundSymbol;
+                }
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.MAP2JSON);
             } else if (t.constraint.tag != TypeTags.NONE) {
                 return symTable.notFoundSymbol;
             }
@@ -850,7 +868,6 @@ public class Types {
 
         @Override
         public BSymbol visit(BFutureType t, BType s) {
-            // TODO FUTUREX
             return null;
         }
     };

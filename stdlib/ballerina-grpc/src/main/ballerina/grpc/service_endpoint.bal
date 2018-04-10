@@ -111,7 +111,7 @@ public type SslConfiguration {
     int cacheValidityPeriod;
 };
 
-public type Endpoint object {
+public type Listener object {
     function getEndpoint() returns (Service) {
         return new;
     }

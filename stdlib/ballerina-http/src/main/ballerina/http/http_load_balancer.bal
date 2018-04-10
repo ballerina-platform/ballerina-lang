@@ -23,7 +23,7 @@ package ballerina.http;
 public type LoadBalancer object {
    public {
        string serviceUri;
-       ClientEndpointConfiguration config;
+       ClientEndpointConfig config;
        HttpClient[] loadBalanceClientsArray;
        string algorithm;
        int nextIndex; // Keeps to index which needs to be take the next load balance endpoint.
@@ -141,7 +141,7 @@ public type LoadBalancer object {
 @Field {value:"httpConnectorError: Array of HttpConnectorError error occurred at each endpoint."}
 public type LoadBalanceConnectorError {
     string message,
-    error[] cause,
+    error? cause,
     int statusCode,
     HttpConnectorError[] httpConnectorError,
 };
