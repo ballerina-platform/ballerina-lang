@@ -90,14 +90,14 @@ public class UnzipBytes extends BlockingNativeCallableUnit {
                     extractFile(zin, outdir, name);
             }
         } catch (IOException e) {
-            throw new BLangRuntimeException("I/O Exception when processing files");
+            throw new BLangRuntimeException("Error occurred when decompressing");
         } finally {
             try {
                 if (zin != null) {
                     zin.close();
                 }
             } catch (IOException e) {
-                throw new BLangRuntimeException("I/O Exception when closing the input stream " + e.getMessage());
+                throw new BLangRuntimeException("Error occurred when completing the decompression process");
             }
         }
     }
@@ -114,7 +114,7 @@ public class UnzipBytes extends BlockingNativeCallableUnit {
             Path resourcePath = Paths.get(outdir.toString()).resolve(name);
             Files.copy(in, resourcePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            throw new BLangRuntimeException("I/O Exception when closing the input stream " + outdir);
+            throw new BLangRuntimeException("Error occurred when copying the files during decompression" + outdir);
         }
     }
 
