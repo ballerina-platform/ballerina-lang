@@ -261,7 +261,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
 
             CircuitBreakerInferredConfig circuitBreakerInferredConfig = {
                                                                 failureThreshold:cb.failureThreshold,
-                                                                resetTimeout:cb.resetTimeout,
+                                                                resetTimeMillies:cb.resetTimeMillies,
                                                                 statusCodes:statusCodes,
                                                                 noOfBuckets:numberOfBuckets,
                                                                 rollingWindow:cb.rollingWindow

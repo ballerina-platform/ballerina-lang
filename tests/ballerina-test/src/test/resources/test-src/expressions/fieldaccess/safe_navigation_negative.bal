@@ -40,3 +40,23 @@ function testFunctionInvocReturnType () {
     string s = j.toString();
     string[] keys = j.getKeys();
 }
+
+function testErrorLiftingOnRHS() {
+    Person|error p;
+    p!info1!address1!city = "Colombo";
+}
+
+function testErrorLiftingOnArray() returns Person|error {
+    Person[]|error p;
+    return p[0];
+}
+
+function testSafeNavigateOnErrorOrNull_1() returns string{
+    error|() e;
+    return e!message;
+}
+
+function testSafeNavigateOnErrorOrNull_3() returns string {
+    error e;
+    return e!message;
+}
