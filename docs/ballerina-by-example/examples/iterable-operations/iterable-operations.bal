@@ -28,7 +28,7 @@ public function main (string[] args) {
                     return s;
                 })
     // Foreach operation applies the given function to each item of the iterable collection
-            .foreach((string s) => (){
+            .foreach((string s) => {
                     io:println("-- foreach operation's value :" + s);
                 });
 

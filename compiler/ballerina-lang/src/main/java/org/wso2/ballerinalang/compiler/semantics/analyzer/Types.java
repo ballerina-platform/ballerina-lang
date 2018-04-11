@@ -584,6 +584,14 @@ public class Types {
         if (s == t) {
             return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
         }
+        
+        if (s.tag == TypeTags.STRUCT && t.tag == TypeTags.STRUCT) {
+            if (checkStructEquivalency(s, t)) {
+                return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
+            } else {
+                return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
+            }
+        }
 
         // In this case, target type should be of type 'any' and the source type cannot be a value type
         if (t == symTable.anyType && !isValueType(s)) {
@@ -1152,7 +1160,7 @@ public class Types {
             return true;
         }
 
-        if (type.tag == TypeTags.INVOKABLE || type.tag == TypeTags.FINITE) {
+        if (type.tag == TypeTags.INVOKABLE || type.tag == TypeTags.FINITE || type.tag == TypeTags.TYPEDESC) {
             return false;
         }
 

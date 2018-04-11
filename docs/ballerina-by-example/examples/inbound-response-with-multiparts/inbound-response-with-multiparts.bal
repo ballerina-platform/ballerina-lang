@@ -2,26 +2,32 @@ import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
+//Creating an endpoint for the client.
 endpoint http:Client clientEP {
     targets:[{url:"http://localhost:9092"}]
 };
 
+// Creating a listener for the service.
 endpoint http:Listener multipartEP {
     port:9090
 };
 
+// Binding the listener to the service.
 @http:ServiceConfig {basePath:"/multiparts"}
 service<http:Service> test bind multipartEP {
 @http:ResourceConfig {
         methods:["GET"],
         path:"/decode_in_response"
     }
+    // This resource accepts multipart responses.
      receiveMultiparts (endpoint conn, http:Request request) {
         http:Request outRequest = new;
         http:Response inResponse = new;
+        // Extract the bodyparts from the response.
         var returnResult = clientEP -> get("/multiparts/encode_out_response", outRequest);
         http:Response res = new;
         match returnResult {
+            // Setting the error response in-case of an error
             http:HttpConnectorError connectionErr => {
                 res.statusCode = 500;
                 res.setStringPayload("Connection error");
@@ -49,7 +55,7 @@ service<http:Service> test bind multipartEP {
     }
 }
 
-//Given a parent part, get it's child parts.
+//Get the child parts that is nested within a parent.
 function handleNestedParts (mime:Entity parentPart) {
     string contentTypeOfParent = parentPart.contentType.toString();
     if (contentTypeOfParent.hasPrefix("multipart/")) {
@@ -70,7 +76,7 @@ function handleNestedParts (mime:Entity parentPart) {
     }
 }
 
-@Description {value:"Handling body part content logic varies according to user's requirement.."}
+@Description {value:"The content logic that handles the body parts vary based on your requirement."}
 function handleContent (mime:Entity bodyPart) {
     string contentType = bodyPart.contentType.toString();
     if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {

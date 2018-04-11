@@ -1,20 +1,20 @@
 /*
-*   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.test.caching;
 
 import org.apache.commons.logging.Log;
@@ -31,7 +31,6 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import java.util.Arrays;
 
 /**
@@ -56,42 +55,25 @@ public class CachingTest {
 
     @Test
     public void testCreateCache() {
-        String cacheName = "userCache";
         int expiryTime = 20000;
         int capacity = 10;
         float evictionFactor = 0.1f;
-        BValue[] args = new BValue[4];
-        args[0] = new BString(cacheName);
-        args[1] = new BInteger(expiryTime);
-        args[2] = new BInteger(capacity);
-        args[3] = new BFloat(evictionFactor);
+        BValue[] args = new BValue[3];
+        args[0] = new BInteger(expiryTime);
+        args[1] = new BInteger(capacity);
+        args[2] = new BFloat(evictionFactor);
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreateCache", args);
-        Assert.assertTrue(returns.length == 4);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertTrue(returns[2] instanceof BInteger);
-        Assert.assertTrue(returns[3] instanceof BFloat);
-        Assert.assertEquals(returns[0].stringValue(), cacheName);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), expiryTime);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), capacity);
-        Assert.assertEquals(((BFloat) returns[3]).floatValue(), evictionFactor, DELTA);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
     }
 
     @Test
     public void testPut() {
-        String cacheName = "userCache";
-        int expiryTime = 20000;
-        int capacity = 10;
-        float evictionFactor = 0.1f;
         String key = "Ballerina";
         String value = "Rocks";
-        BValue[] args = new BValue[6];
-        args[0] = new BString(cacheName);
-        args[1] = new BInteger(expiryTime);
-        args[2] = new BInteger(capacity);
-        args[3] = new BFloat(evictionFactor);
-        args[4] = new BString(key);
-        args[5] = new BString(value);
+        BValue[] args = new BValue[2];
+        args[0] = new BString(key);
+        args[1] = new BString(value);
         BValue[] returns = BRunUtil.invoke(compileResult, "testPut", args);
         Assert.assertTrue(returns.length == 1);
         Assert.assertTrue(returns[0] instanceof BInteger);
@@ -100,19 +82,11 @@ public class CachingTest {
 
     @Test
     public void testGet() {
-        String cacheName = "userCache";
-        int expiryTime = 20000;
-        int capacity = 10;
-        float evictionFactor = 0.1f;
         String key = "Ballerina";
         String value = "Rocks";
-        BValue[] args = new BValue[6];
-        args[0] = new BString(cacheName);
-        args[1] = new BInteger(expiryTime);
-        args[2] = new BInteger(capacity);
-        args[3] = new BFloat(evictionFactor);
-        args[4] = new BString(key);
-        args[5] = new BString(value);
+        BValue[] args = new BValue[2];
+        args[0] = new BString(key);
+        args[1] = new BString(value);
         BValue[] returns = BRunUtil.invoke(compileResult, "testGet", args);
         Assert.assertTrue(returns.length == 2);
         Assert.assertTrue(returns[0] instanceof BInteger);
@@ -123,19 +97,11 @@ public class CachingTest {
 
     @Test
     public void testRemove() {
-        String cacheName = "userCache";
-        int expiryTime = 20000;
-        int capacity = 10;
-        float evictionFactor = 0.1f;
         String key = "Ballerina";
         String value = "Rocks";
-        BValue[] args = new BValue[6];
-        args[0] = new BString(cacheName);
-        args[1] = new BInteger(expiryTime);
-        args[2] = new BInteger(capacity);
-        args[3] = new BFloat(evictionFactor);
-        args[4] = new BString(key);
-        args[5] = new BString(value);
+        BValue[] args = new BValue[2];
+        args[0] = new BString(key);
+        args[1] = new BString(value);
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemove", args);
         Assert.assertTrue(returns.length == 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
@@ -143,15 +109,7 @@ public class CachingTest {
 
     @Test
     public void testCacheEviction1() {
-        String cacheName = "userCache";
-        int expiryTime = 20000;
-        int capacity = 10;
-        float evictionFactor = 0.2f;
-        BValue[] args = new BValue[4];
-        args[0] = new BString(cacheName);
-        args[1] = new BInteger(expiryTime);
-        args[2] = new BInteger(capacity);
-        args[3] = new BFloat(evictionFactor);
+        BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEviction1", args);
         Assert.assertTrue(returns.length == 2);
         Assert.assertTrue(returns[0] instanceof BStringArray);
@@ -169,15 +127,7 @@ public class CachingTest {
 
     @Test
     public void testCacheEviction2() {
-        String cacheName = "userCache";
-        int expiryTime = 20000;
-        int capacity = 10;
-        float evictionFactor = 0.2f;
-        BValue[] args = new BValue[4];
-        args[0] = new BString(cacheName);
-        args[1] = new BInteger(expiryTime);
-        args[2] = new BInteger(capacity);
-        args[3] = new BFloat(evictionFactor);
+        BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEviction2", args);
         Assert.assertTrue(returns.length == 2);
         Assert.assertTrue(returns[0] instanceof BStringArray);
@@ -195,15 +145,7 @@ public class CachingTest {
 
     @Test
     public void testCacheEviction3() {
-        String cacheName = "userCache";
-        int expiryTime = 20000;
-        int capacity = 10;
-        float evictionFactor = 0.2f;
-        BValue[] args = new BValue[4];
-        args[0] = new BString(cacheName);
-        args[1] = new BInteger(expiryTime);
-        args[2] = new BInteger(capacity);
-        args[3] = new BFloat(evictionFactor);
+        BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEviction3", args);
         Assert.assertTrue(returns.length == 2);
         Assert.assertTrue(returns[0] instanceof BStringArray);
@@ -221,15 +163,7 @@ public class CachingTest {
 
     @Test
     public void testCacheEviction4() {
-        String cacheName = "userCache";
-        int expiryTime = 20000;
-        int capacity = 5;
-        float evictionFactor = 0.2f;
-        BValue[] args = new BValue[4];
-        args[0] = new BString(cacheName);
-        args[1] = new BInteger(expiryTime);
-        args[2] = new BInteger(capacity);
-        args[3] = new BFloat(evictionFactor);
+        BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEviction4", args);
         Assert.assertTrue(returns.length == 2);
         Assert.assertTrue(returns[0] instanceof BStringArray);

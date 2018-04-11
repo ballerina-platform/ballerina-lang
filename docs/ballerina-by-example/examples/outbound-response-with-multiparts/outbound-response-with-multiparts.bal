@@ -37,13 +37,13 @@ service<http:Service> test bind multipartEP {
         //Create an array to hold child parts.
         mime:Entity[] childParts = [childPart1, childPart2];
 
-        //Set the child parts to parent part.
+        //Set the child parts to the parent part.
         parentPart.setBodyParts(childParts);
 
         //Create an array to hold the parent part and set it to response.
         mime:Entity[] immediatePartsToResponse = [parentPart];
         http:Response outResponse = new;
-        outResponse.setMultiparts(immediatePartsToResponse, mime:MULTIPART_FORM_DATA);
+        outResponse.setBodyParts(immediatePartsToResponse, mime:MULTIPART_FORM_DATA);
 
         _ = conn -> respond(outResponse);
     }

@@ -53,7 +53,7 @@ public class InitEndpoint implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct sessionBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct sessionBObject = BallerinaAdapter.getReceiverObject(context);
 
         Struct sessionConfig = sessionBObject.getStructField(Constants.SESSION_CONFIG);
 

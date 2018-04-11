@@ -15,7 +15,7 @@ endpoint http:Listener backendEP {
 // The default caching policy is to cache a response only if it contains a Cache-Control header and either an
 // ETag header or a Last-Modified header. The user can control this behaviour by setting the policy field in
 // the cache. Currently, there are only 2 policies: CACHE_CONTROL_AND_VALIDATORS (the default) and RFC_7234.
-endpoint http:SimpleClientEndpoint cachingEP {
+endpoint http:SimpleClient cachingEP {
     url:"http://localhost:8080",
     cache:{isShared:true}
 };
@@ -36,7 +36,7 @@ service<http:Service> cachingProxy bind proxyEP {
             http:Response res => {
             // If the request was successful, an HTTP response will be returned.
             // Here, the received response is forwarded to the client through the outbound endpoint.
-                _ = outboundEP -> forward(res);
+                _ = outboundEP -> respond(res);
             }
             http:HttpConnectorError err => {
             // If there was an error, it is used to construct a 500 response and this is sent back to the client.

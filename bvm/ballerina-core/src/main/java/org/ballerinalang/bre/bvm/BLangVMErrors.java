@@ -20,7 +20,6 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -249,8 +248,6 @@ public class BLangVMErrors {
         String parentScope = "";
         if (callableUnitInfo instanceof ResourceInfo) {
             parentScope = ((ResourceInfo) callableUnitInfo).getServiceInfo().getName() + ".";
-        } else if (callableUnitInfo instanceof ActionInfo) {
-            parentScope = ((ActionInfo) callableUnitInfo).getConnectorInfo().getName() + ".";
         }
 
         values[0] = parentScope + callableUnitInfo.getName();

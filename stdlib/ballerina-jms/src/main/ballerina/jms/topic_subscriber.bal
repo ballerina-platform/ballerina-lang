@@ -13,7 +13,7 @@ public type TopicSubscriber object {
         self.config = config;
         match (config.session) {
             Session s => {
-                createSubscriber(s);
+                self.createSubscriber(s, config.messageSelector);
                 log:printInfo("Subscriber created for topic " + config.topicPattern);
             }
             () => {}
@@ -21,12 +21,12 @@ public type TopicSubscriber object {
     }
 
     public function register (typedesc serviceType) {
-        registerListener(serviceType, connector);
+        self.registerListener(serviceType, connector);
     }
 
     native function registerListener(typedesc serviceType, TopicSubscriberConnector connector);
 
-    native function createSubscriber (Session session);
+    native function createSubscriber (Session session, string messageSelector);
 
     public function start () {
     }
@@ -36,7 +36,7 @@ public type TopicSubscriber object {
     }
 
     public function stop () {
-        closeSubscriber(connector);
+        self.closeSubscriber(connector);
     }
 
     native function closeSubscriber(TopicSubscriberConnector connector);
@@ -45,11 +45,12 @@ public type TopicSubscriber object {
 public type TopicSubscriberEndpointConfiguration {
     Session? session;
     string topicPattern;
+    string messageSelector;
     string identifier;
 };
 
 public type TopicSubscriberConnector object {
-    public native function acknowledge (Message message);
+    public native function acknowledge (Message message) returns (Error | ());
 
-    public native function receive (int timeoutInMilliSeconds = 0) returns (Message | ());
+    public native function receive (int timeoutInMilliSeconds = 0) returns (Message | Error | ());
 };

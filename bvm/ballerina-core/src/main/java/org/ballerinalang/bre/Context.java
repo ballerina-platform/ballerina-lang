@@ -22,7 +22,6 @@ import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -88,18 +87,4 @@ public interface Context extends ObservableContext {
 
     BValue[] getReturnValues();
 
-    /**
-     * Data holder for Non-Blocking Action invocation.
-     *
-     * @since 0.96.0
-     */
-    public static class NonBlockingContext {
-        public ActionInfo actionInfo;
-        public int[] retRegs;
-
-        public NonBlockingContext(ActionInfo actionInfo, int[] retRegs) {
-            this.actionInfo = actionInfo;
-            this.retRegs = retRegs;
-        }
-    }
 }

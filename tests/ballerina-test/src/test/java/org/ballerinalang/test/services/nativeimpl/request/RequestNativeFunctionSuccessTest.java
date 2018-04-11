@@ -99,6 +99,16 @@ public class RequestNativeFunctionSuccessTest {
     }
 
     @Test
+    public void testContentType() {
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BString contentType = new BString("application/x-custom-type+json");
+        BValue[] inputArg = {inRequest, contentType};
+        BValue[] returnVals = BRunUtil.invoke(result, "testContentType", inputArg);
+        Assert.assertNotNull(returnVals[0]);
+        Assert.assertEquals(((BString) returnVals[0]).value(), "application/x-custom-type+json");
+    }
+
+    @Test
     @SuppressWarnings("unchecked")
     public void testAddHeader() {
         String headerName = "header1";
@@ -176,7 +186,7 @@ public class RequestNativeFunctionSuccessTest {
                 jsonString);
         inRequestMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(length));
 
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -596,5 +606,14 @@ public class RequestNativeFunctionSuccessTest {
 
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
 
+    }
+
+    @Test
+    public void testSetPayloadAndGetText() {
+        BString textContent = new BString("Hello Ballerina !");
+        BValue[] args = {textContent};
+        BValue[] returns = BRunUtil.invoke(result, "testSetPayloadAndGetText", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), textContent.stringValue());
     }
 }
