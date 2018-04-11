@@ -26,8 +26,8 @@
     <name>Ballerina - Examples</name>
     <scm>
         <url>https://github.com/ballerina-platform/ballerina-examples.git</url>
-        <developerConnection>scm:git:https://github.com/ballerina-platform/ballerina-examples.git.git</developerConnection>
-        <connection>scm:git:https://github.com/ballerina-platform/ballerina-examples.git.git</connection>
+        <developerConnection>scm:git:https://github.com/ballerina-platform/ballerina-examples.git</developerConnection>
+        <connection>scm:git:https://github.com/ballerina-platform/ballerina-examples.git</connection>
         <tag>HEAD</tag>
     </scm>
     <build>
