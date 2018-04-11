@@ -10,77 +10,52 @@ public type SimpleTopicSubscriber object {
     }
 
     private {
-        jms:Connection? connection;
-        jms:Session? session;
-        jms:TopicSubscriber? subscriber;
+        jms:SimpleTopicSubscriber subscriber;
+        TopicSubscriberConnector? connector;
     }
 
     public function init(SimpleTopicSubscriberEndpointConfiguration config) {
         self.config = config;
-        jms:Connection conn = new ({
-                initialContextFactory: "wso2mbInitialContextFactory",
-                providerUrl: generateBrokerURL(config),
-                connectionFactoryName: config.connectionFactoryName,
-                properties: config.properties
-            });
-        self.connection = conn;
-
-        jms:Session newSession = new (conn, {
-                acknowledgementMode: config.acknowledgementMode
-            });
-        self.session = newSession;
-
-        jms:TopicSubscriber topicSubscriber = new;
-        jms:TopicSubscriberEndpointConfiguration consumerConfig = {
-            session: newSession,
-            topicPattern: config.topicPattern,
-            messageSelector: config.messageSelector
-        };
-        topicSubscriber.init(consumerConfig);
-        self.subscriber = topicSubscriber;
+        self.subscriber.init({
+                initialContextFactory:"wso2mbInitialContextFactory",
+                providerUrl:generateBrokerURL(config),
+                connectionFactoryName:config.connectionFactoryName,
+                acknowledgementMode:config.acknowledgementMode,
+                messageSelector:config.messageSelector,
+                properties:config.properties,
+                topicPattern:config.topicPattern
+            }
+        );
+        self.connector = new TopicSubscriberConnector(self.subscriber.getClient());
     }
 
     public function register (typedesc serviceType) {
-        match (subscriber) {
-            jms:TopicSubscriber c => {
-                c.register(serviceType);
-            }
-            () => {
-                error e = {message: "Topic Subscriber cannot be nil"};
-                throw e;
-            }
-        }
+        self.subscriber.register(serviceType);
     }
 
     public function start () {
+        self.subscriber.start();
     }
 
     public function getClient () returns (TopicSubscriberConnector) {
-        match (subscriber) {
-            jms:TopicSubscriber c => return new TopicSubscriberConnector(c.getClient());
+        match (self.connector) {
+            TopicSubscriberConnector c => return c;
             () => {
-                error e = {message: "Topic subscriber cannot be nil"};
+                error e = {message:"Topic subscriber connector cannot be nil."};
                 throw e;
             }
         }
     }
 
     public function stop () {
+        self.subscriber.stop();
     }
 
     public function createTextMessage(string message) returns (Message | Error) {
-        match (session) {
-            jms:Session s => {
-                var result = s.createTextMessage(message);
-                match (result) {
-                    jms:Message m => return new Message(m);
-                    Error err => return err;
-                }
-            }
-            () => {
-                error e = {message:"Session cannot be null"};
-                throw e;
-            }
+        var result = self.subscriber.createTextMessage(message);
+        match (result) {
+            jms:Message m => return new Message(m);
+            Error e => return e;
         }
     }
 };

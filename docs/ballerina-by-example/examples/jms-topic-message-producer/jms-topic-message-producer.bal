@@ -13,7 +13,7 @@ jms:Session jmsSession = new (jmsConnection, {
 });
 
 // Initialize a Queue sender on top of the the created sessions
-endpoint jms:TopicProducer topicProducer {
+endpoint jms:TopicPublisher topicPublisher {
     session: jmsSession,
     topicPattern: "BallerinaTopic"
 };
@@ -22,5 +22,5 @@ public function main (string[] args) {
     // Create a Text message.
     jms:Message m = check jmsSession.createTextMessage("Test Text");
     // Send the Ballerina message to the JMS provider.
-    var _ = topicProducer -> send(m);
+    var _ = topicPublisher -> send(m);
 }

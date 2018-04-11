@@ -45,10 +45,10 @@ public class Constants {
     public static final String QUEUE_SENDER_FIELD_QUEUE_NAME = "queueName";
     public static final String QUEUE_SENDER_FIELD_CONNECTOR = B_OBJECT_FIELD_CONNECTOR;
 
-    // Topic Producer fields
-    public static final String TOPIC_PRODUCER_FIELD_CONFIG = B_OBJECT_FIELD_CONFIG;
-    public static final String TOPIC_PRODUCER_FIELD_TOPIC_PATTERN = "topicPattern";
-    public static final String TOPIC_PRODUCER_FIELD_CONNECTOR = B_OBJECT_FIELD_CONNECTOR;
+    // Topic publisher fields
+    public static final String TOPIC_PUBLISHER_FIELD_CONFIG = B_OBJECT_FIELD_CONFIG;
+    public static final String TOPIC_PUBLISHER_FIELD_TOPIC_PATTERN = "topicPattern";
+    public static final String TOPIC_PUBLISHER_FIELD_CONNECTOR = B_OBJECT_FIELD_CONNECTOR;
 
     // Consumer fields
     public static final String CONSUMER_CONFIG = "config";

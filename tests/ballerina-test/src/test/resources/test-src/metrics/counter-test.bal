@@ -5,7 +5,7 @@ map tags2 = {"method":"POST"};
 
 observe:Counter counter1 = new("requests_total", "Total requests.", tags1);
 observe:Counter counter2 = new("requests_total", "Total requests.", tags2);
-observe:Counter counter3 = new("requests_total", "Total requests.", ());
+observe:Counter counter3 = new("new_requests_total", "Total requests.", ());
 
 function testCounterIncrementByOne() returns (float) {
     counter1.incrementByOne();

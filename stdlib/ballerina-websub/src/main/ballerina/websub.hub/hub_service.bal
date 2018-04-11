@@ -67,10 +67,17 @@ service<http:Service> hubService bind hubServiceEP {
         }
 
         string mode = <string> params[websub:HUB_MODE];
+        string topic;
+        if (params.hasKey(websub:HUB_TOPIC)) {
+            string topicFromParams = <string> params[websub:HUB_TOPIC];
+            topic = http:decode(topicFromParams, "UTF-8") but { error => topicFromParams };
+        }
 
         if (mode == websub:MODE_SUBSCRIBE || mode == websub:MODE_UNSUBSCRIBE) {
             boolean validSubscriptionRequest = false;
-            match (validateSubscriptionChangeRequest(mode, params)) {
+            string callbackFromParams = <string> params[websub:HUB_CALLBACK];
+            string callback = http:decode(callbackFromParams, "UTF-8") but { error => callbackFromParams };
+            match (validateSubscriptionChangeRequest(mode, topic, callback)) {
                 string errorMessage => {
                     response.statusCode = http:BAD_REQUEST_400;
                     response.setStringPayload(errorMessage);
@@ -82,12 +89,7 @@ service<http:Service> hubService bind hubServiceEP {
             }
             _ = client -> respond(response);
             if (validSubscriptionRequest) {
-                string callback = <string> params[websub:HUB_CALLBACK];
-                match (http:decode(callback, "UTF-8")) {
-                    string decodedCallback => callback = decodedCallback;
-                    error => {}
-                }
-                verifyIntent(callback, params);
+                verifyIntent(callback, topic, params);
             }
             done;
         } else if (mode == websub:MODE_REGISTER) {
@@ -99,7 +101,6 @@ service<http:Service> hubService bind hubServiceEP {
                 done;
             }
 
-            string topic = <string> params[websub:HUB_TOPIC];
             string secret = "";
             if (params.hasKey(websub:PUBLISHER_SECRET)) {
                 secret = <string> params[websub:PUBLISHER_SECRET];
@@ -123,7 +124,6 @@ service<http:Service> hubService bind hubServiceEP {
                 done;
             }
 
-            string topic = <string> params[websub:HUB_TOPIC];
             string secret = "";
             if (params.hasKey(websub:PUBLISHER_SECRET)) {
                 secret = <string> params[websub:PUBLISHER_SECRET];
@@ -139,13 +139,28 @@ service<http:Service> hubService bind hubServiceEP {
             }
             _ = client -> respond(response);
         } else {
-            params = request.getQueryParams();
-            mode = <string> params[websub:HUB_MODE];
+            if (mode != websub:MODE_PUBLISH) {
+                params = request.getQueryParams();
+                mode = <string> params[websub:HUB_MODE];
+                string topicFromParams = <string> params[websub:HUB_TOPIC];
+                topic = http:decode(topicFromParams, "UTF-8") but { error => topicFromParams };
+            }
 
             if (mode == websub:MODE_PUBLISH && hubRemotePublishingEnabled) {
-                string topic = <string> params[websub:HUB_TOPIC];
                 if (!hubTopicRegistrationRequired || websub:isTopicRegistered(topic)) {
                     var reqJsonPayload = request.getJsonPayload(); //TODO: allow others
+                    if (hubRemotePublishingMode == websub:REMOTE_PUBLISHING_MODE_FETCH) {
+                        match (fetchTopicUpdate(topic)) {
+                            http:Response fetchResp => { reqJsonPayload = fetchResp.getJsonPayload(); }
+                            http:HttpConnectorError err => {
+                                log:printError("Error fetching updates for topic URL [" + topic + "]: " + err.message);
+                                response.statusCode = http:BAD_REQUEST_400;
+                                _ = client -> respond(response);
+                                done;
+                            }
+                        }
+                    }
+
                     match (reqJsonPayload) {
                         json payload => {
                             response.statusCode = http:ACCEPTED_202;
@@ -161,7 +176,7 @@ service<http:Service> hubService bind hubServiceEP {
                                         match (signatureValidation) {
                                             websub:WebSubError err => {
                                                 log:printWarn("Signature validation failed for publish request for "
-                                                              + "topic[" + topic + "]: " + err.errorMessage);
+                                                              + "topic[" + topic + "]: " + err.message);
                                                 done;
                                             }
                                             () => {
@@ -188,7 +203,6 @@ service<http:Service> hubService bind hubServiceEP {
                 }
                 response.statusCode = http:BAD_REQUEST_400;
                 _ = client -> respond(response);
-                done;
             } else {
                 response.statusCode = http:BAD_REQUEST_400;
                 _ = client -> respond(response);
@@ -199,17 +213,12 @@ service<http:Service> hubService bind hubServiceEP {
 
 @Description {value:"Function to validate a subscription/unsubscription request, by validating the mode, topic and
                     callback specified."}
-@Param {value:"mode: Mode of the subscription change request parameters"}
-@Param {value:"params: Form params specifying subscription request parameters"}
+@Param {value:"mode: Mode specified in the subscription change request parameters"}
+@Param {value:"topic: Topic specified in the subscription change request parameters"}
+@Param {value:"callback: Callback specified in the subscription change request parameters"}
 @Return {value:"Whether the subscription/unsubscription request is valid"}
 @Return {value:"If invalid, the error with the subscription/unsubscription request"}
-function validateSubscriptionChangeRequest(string mode, map params) returns (boolean|string) {
-    string topic = <string> params[websub:HUB_TOPIC];
-    string callback = <string> params[websub:HUB_CALLBACK];
-    match (http:decode(callback, "UTF-8")) {
-        string decodedCallback => callback = decodedCallback;
-        error => {}
-    }
+function validateSubscriptionChangeRequest(string mode, string topic, string callback) returns (boolean | string) {
     if (topic != "" && callback != "") {
         PendingSubscriptionChangeRequest pendingRequest = new (mode, topic, callback);
         pendingRequests[generateKey(topic, callback)] = pendingRequest;
@@ -227,13 +236,12 @@ function validateSubscriptionChangeRequest(string mode, map params) returns (boo
 @Description {value:"Function to initiate intent verification for a valid subscription/unsubscription request received."}
 @Param {value:"callback: The callback URL of the new subscription/unsubscription request"}
 @Param {value:"params: Parameters specified in the new subscription/unsubscription request"}
-function verifyIntent(string callback, map params) {
+function verifyIntent(string callback, string topic, map params) {
     endpoint http:Client callbackEp {
         targets:[{url:callback, secureSocket: secureSocket }]
     };
 
     string mode = <string> params[websub:HUB_MODE];
-    string topic = <string> params[websub:HUB_TOPIC];
     string secret = <string> params[websub:HUB_SECRET];
     int leaseSeconds;
 
@@ -466,6 +474,19 @@ function addSubscriptionsOnStartup() {
         }
     }
     _ = subscriptionDbEp -> close();
+}
+
+@Description {value:"Function to fetch updates for a particular topic."}
+@Param {value:"topic: The topic URL to be fetched to retrieve updates"}
+function fetchTopicUpdate(string topic) returns (http:Response | http:HttpConnectorError) {
+    endpoint http:Client topicEp {
+        targets:[{url:topic, secureSocket: secureSocket }]
+    };
+
+    http:Request request = new;
+
+    var fetchResponse = topicEp -> get("", request);
+    return fetchResponse;
 }
 
 @Description {value:"Function to distribute content to a subscriber on notification from publishers."}

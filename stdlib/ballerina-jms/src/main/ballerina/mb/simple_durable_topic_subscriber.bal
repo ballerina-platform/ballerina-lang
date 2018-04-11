@@ -9,7 +9,8 @@ public type SimpleDurableTopicSubscriber object {
     }
 
     private {
-        jms:SimpleDurableTopicListener subscriber;
+        jms:SimpleDurableTopicSubscriber subscriber;
+        DurableTopicSubscriberConnector? connector;
     }
 
     public function init(SimpleDurableTopicSubscriberEndpointConfiguration config) {
@@ -23,6 +24,7 @@ public type SimpleDurableTopicSubscriber object {
                 messageSelector:config.messageSelector,
                 topicPattern:config.topicPattern
             });
+        self.connector = new DurableTopicSubscriberConnector(self.subscriber.getClient());
     }
 
     public function register (typedesc serviceType) {
@@ -34,7 +36,13 @@ public type SimpleDurableTopicSubscriber object {
     }
 
     public function getClient () returns (DurableTopicSubscriberConnector) {
-        return new DurableTopicSubscriberConnector(subscriber.getClient());
+        match (self.connector) {
+            DurableTopicSubscriberConnector c => return c;
+            () => {
+                error e = {message:"Durable topic subscriber connector cannot be nil."};
+                throw e;
+            }
+        }
     }
 
     public function stop () {

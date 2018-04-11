@@ -1,13 +1,13 @@
 import ballerina/io;
 
 
-@Description {value:"This function returns a CharacterChannel from a given file location according to the specified permissions and encoding."}
+@Description {value:"This function returns a CharacterChannel from a given file location, according to the permissions and encoding that you specify."}
 function getFileCharacterChannel (string filePath, string permission, string encoding) returns
 io:CharacterChannel {
 
-    // First we get the ByteChannel representation of the file.
+    // First, get the ByteChannel representation of the file.
     io:ByteChannel channel = io:openFile(filePath, permission);
-    // Then we create a character channel from the byte channel to read content as text.
+    // Then, create an instance of the CharacterChannel from the ByteChannel to read content as text.
     var result = io:createCharacterChannel(channel, encoding);
     match result {
         io:CharacterChannel charChannel => {
@@ -19,7 +19,7 @@ io:CharacterChannel {
     }
 }
 
-@Description {value:"This function reads characters from channel"}
+@Description {value:"This function reads characters from 'channel', which is an instance of CharacterChannel."}
 function readCharacters (io:CharacterChannel channel, int numberOfChars) returns string {
 
     //This is how the characters are read.
@@ -35,7 +35,7 @@ function readCharacters (io:CharacterChannel channel, int numberOfChars) returns
     }
 }
 
-@Description {value:"This function wrties characters to channel"}
+@Description {value:"This function wrties characters to 'channel'"}
 function writeCharacters (io:CharacterChannel channel, string content, int startOffset) {
     //This is how the characters are written.
     var result = channel.writeCharacters(content, startOffset);
@@ -49,7 +49,7 @@ function writeCharacters (io:CharacterChannel channel, string content, int start
     }
 }
 
-@Description {value:"This function reads content from a file, appends the additional string, and writes content."}
+@Description {value:"This function reads content from a file, appends the additional string, and writes the content."}
 function process (io:CharacterChannel sourceChannel,
                   io:CharacterChannel destinationChannel) {
     string greetingText;
@@ -57,7 +57,7 @@ function process (io:CharacterChannel sourceChannel,
     try {
         // Here is the string that is appended in-between.
         string intermediateCharacterString = " my name is ";
-        // The first 5 characters in the source file contains the greeting.
+        // The first five characters in the source file contain the greeting.
         greetingText = readCharacters(sourceChannel, 5);
         // This is a request for the next set of characters in the file.
         name = readCharacters(sourceChannel, 15);

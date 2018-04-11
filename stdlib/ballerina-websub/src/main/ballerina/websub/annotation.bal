@@ -31,7 +31,7 @@ specified."}
 @Field {value:"secret: The secret to be used for authenticated content distribution."}
 @Field {value:"callback: The callback to use when registering, if unspecified host:port/path will be used."}
 public type SubscriberServiceConfiguration {
-    SubscriberServiceEndpoint[] endpoints,
+    Listener[] endpoints,
     string basePath,
     boolean subscribeOnStartUp,
     string resourceUrl,

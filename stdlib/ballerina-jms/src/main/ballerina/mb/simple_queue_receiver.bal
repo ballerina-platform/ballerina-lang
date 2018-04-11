@@ -10,77 +10,52 @@ public type SimpleQueueReceiver object {
     }
 
     private {
-        jms:Connection? connection;
-        jms:Session? session;
-        jms:QueueConsumer? consumer;
+        jms:SimpleQueueListener receiver;
+        QueueReceiverConnector? connector;
     }
 
     public function init(SimpleQueueListenerEndpointConfiguration config) {
         self.config = config;
-        jms:Connection conn = new({
-                initialContextFactory: "wso2mbInitialContextFactory",
-                providerUrl: generateBrokerURL(config),
-                connectionFactoryName: config.connectionFactoryName,
-                properties: config.properties
+        self.receiver.init({
+                initialContextFactory:"wso2mbInitialContextFactory",
+                providerUrl:generateBrokerURL(config),
+                connectionFactoryName:config.connectionFactoryName,
+                acknowledgementMode:config.acknowledgementMode,
+                messageSelector:config.messageSelector,
+                properties:config.properties,
+                queueName:config.queueName
             });
-        connection = conn;
 
-        jms:Session newSession = new(conn, {
-                acknowledgementMode:config.acknowledgementMode
-            });
-        session = newSession;
-
-        jms:QueueConsumer queueConsumer = new;
-        jms:QueueConsumerEndpointConfiguration consumerConfig = {
-            session:newSession,
-            queueName:config.queueName,
-            messageSelector:config.messageSelector
-        };
-        queueConsumer.init(consumerConfig);
-        consumer = queueConsumer;
+        self.connector = new QueueReceiverConnector(self.receiver.getClient());
     }
 
     public function register (typedesc serviceType) {
-        match (consumer) {
-            jms:QueueConsumer c => {
-                c.register(serviceType);
-            }
-            () => {
-                error e = {message:"Queue consumer cannot be nil"};
-                throw e;
-            }
-        }
+        self.receiver.register(serviceType);
     }
 
     public function start () {
+        self.receiver.start();
     }
 
-    public function getClient() returns QueueConsumerConnector {
-        match (consumer) {
-            jms:QueueConsumer c => { return new QueueConsumerConnector(c.getClient()); }
+    public function getClient() returns QueueReceiverConnector {
+        match (self.connector) {
+            QueueReceiverConnector c => return c;
             () => {
-                error e = {message:"Queue consumer cannot be nil"};
+                error e = {message:"Queue receiver connector cannot be nil."};
                 throw e;
             }
         }
     }
 
     public function stop () {
+        receiver.stop();
     }
 
     public function createTextMessage(string message) returns (Message|Error) {
-        match (session) {
-            jms:Session s => {
-                var result = s.createTextMessage(message);
-                match (result) {
-                    jms:Message m => return new Message(m);
-                    Error err => return err;
-                }
-            }
-            () => {
-                error e = {message:"Session cannot be null"};
-                throw e;
-            }
+        var result = self.receiver.createTextMessage(message);
+        match (result) {
+            jms:Message m => return new Message(m);
+            Error e => return e;
         }
     }
 };
@@ -99,10 +74,10 @@ public type SimpleQueueListenerEndpointConfiguration {
     string queueName,
 };
 
-public type QueueConsumerConnector object {
+public type QueueReceiverConnector object {
 
     public {
-        jms:QueueConsumerConnector helper;
+        jms:QueueReceiverConnector helper;
     }
 
     public new(helper) {}

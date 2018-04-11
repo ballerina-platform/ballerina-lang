@@ -26,12 +26,12 @@ package ballerina.sql;
 public type Client object {
     public {
         string epName;
-        ClientEndpointConfiguration config;
+        ClientEndpointConfig config;
         SQLClient sqlClient;
     }
 
     @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
-    public function init(ClientEndpointConfiguration config);
+    public function init(ClientEndpointConfig config);
 
     public function register(typedesc serviceType) {
     }
@@ -105,7 +105,7 @@ public type ConnectionProperties {
 @Field {value:"username: Username for the database connection"}
 @Field {value:"password: Password for the database connection"}
 @Field {value:"options: ConnectionProperties for the connection pool configuration"}
-public type ClientEndpointConfiguration {
+public type ClientEndpointConfig {
     DB database,
     string host = "",
     int port = 0,
@@ -115,8 +115,8 @@ public type ClientEndpointConfiguration {
     ConnectionProperties options,
 };
 
-public native function createSQLClient(ClientEndpointConfiguration config) returns SQLClient;
+public native function createSQLClient(ClientEndpointConfig config) returns SQLClient;
 
-public function Client::init(ClientEndpointConfiguration config) {
+public function Client::init(ClientEndpointConfig config) {
     self.sqlClient = createSQLClient(config);
 }
