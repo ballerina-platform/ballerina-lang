@@ -30,6 +30,13 @@ import java.net.URISyntaxException;
  */
 public interface SystemPackageRepositoryProvider {
 
+    /**
+     * Temp workaround to order the jar repos. until we have ship system code as balo
+     *
+     * @return more dependent jars should have higher dependentLevel
+     */
+    int dependentLevel();
+
     static URI getClassUri(Object obj) {
         try {
             return obj.getClass().getProtectionDomain().getCodeSource().getLocation().toURI();

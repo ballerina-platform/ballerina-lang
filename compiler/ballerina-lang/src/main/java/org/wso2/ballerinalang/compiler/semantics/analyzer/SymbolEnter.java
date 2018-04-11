@@ -322,7 +322,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // Attempt to load the imported package.
-        BLangPackage pkgNode = pkgLoader.loadPackage(pkgId, env.enclPkg.packageRepository);
+        BLangPackage pkgNode = pkgLoader.loadPackage(pkgId, env.enclPkg.repos);
         if (pkgNode == null) {
             dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());

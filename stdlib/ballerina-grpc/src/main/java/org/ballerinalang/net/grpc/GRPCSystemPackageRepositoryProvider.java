@@ -28,6 +28,11 @@ import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 @JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
 public class GRPCSystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
 
+    @Override
+    public int dependentLevel() {
+        return 0;
+    }
+
     public Repo loadRepository() {
         return new JarRepo(SystemPackageRepositoryProvider.getClassUri(this));
     }
