@@ -203,6 +203,7 @@ public class TextDocumentServiceUtil {
                                                          WorkspaceDocumentManager documentManager,
                                                          CompilerPhase compilerPhase, LSGlobalContext lsGlobalContext) {
         CompilerContext context = lsGlobalContext.get(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT);
+        LSParserUtils.setGlobalPackageCache(packageID, context);
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot.getSourceRoot());
