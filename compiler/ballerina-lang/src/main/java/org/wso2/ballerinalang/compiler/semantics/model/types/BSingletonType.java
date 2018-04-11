@@ -18,7 +18,9 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.SingletonType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
@@ -29,9 +31,10 @@ public class BSingletonType extends BType implements SingletonType {
     public BLangLiteral valueSpace;
     public BType superSetType;
 
-    public BSingletonType(BLangLiteral valueSpace,
+    public BSingletonType(BTypeSymbol tsymbol,
+                          BLangLiteral valueSpace,
                           BType superSetType) {
-        super(TypeTags.SINGLETON, null);
+        super(TypeTags.SINGLETON, tsymbol);
         this.valueSpace = valueSpace;
         this.superSetType = superSetType;
     }
@@ -64,7 +67,7 @@ public class BSingletonType extends BType implements SingletonType {
 
     @Override
     public String getDesc() {
-        return superSetType.getDesc();
+        return TypeDescriptor.SIG_SINGLETON + getQualifiedTypeName() + ";";
     }
 
 }

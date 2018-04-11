@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSingleton;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -199,6 +200,10 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeDefinition typeDefinition) {
+        //TODO
+    }
+
+    public void visit(BLangSingleton singleton) {
         //TODO
     }
 

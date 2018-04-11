@@ -36,6 +36,7 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.SingletonNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.TypeDefinition;
@@ -155,6 +156,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSingleton;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -467,6 +469,10 @@ public class TreeBuilder {
 
     public static TypeDefinition createTypeDefinition() {
         return new BLangTypeDefinition();
+    }
+
+    public static SingletonNode createSingletonNode() {
+        return new BLangSingleton();
     }
 
     public static EnumNode createEnumNode() {

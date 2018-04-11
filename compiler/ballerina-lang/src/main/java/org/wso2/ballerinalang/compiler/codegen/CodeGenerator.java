@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSingleton;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -174,6 +175,7 @@ import org.wso2.ballerinalang.programfile.PackageInfo;
 import org.wso2.ballerinalang.programfile.PackageVarInfo;
 import org.wso2.ballerinalang.programfile.ResourceInfo;
 import org.wso2.ballerinalang.programfile.ServiceInfo;
+import org.wso2.ballerinalang.programfile.SingletonInfo;
 import org.wso2.ballerinalang.programfile.StructFieldInfo;
 import org.wso2.ballerinalang.programfile.StructInfo;
 import org.wso2.ballerinalang.programfile.TransformerInfo;
@@ -437,6 +439,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         pkgNode.services.forEach(this::createServiceInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
         pkgNode.transformers.forEach(this::createTransformerInfoEntry);
+        pkgNode.singletons.forEach(this::createSingletonInfoEntry);
 
         // Visit package builtin function
         visitBuiltinFunctions(pkgNode.initFunction);
@@ -1914,6 +1917,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         //TODO
     }
 
+    public void visit(BLangSingleton singleton) {
+        //TODO
+    }
+
     /**
      * Creates a {@code FunctionInfo} from the given function node in AST.
      *
@@ -1941,6 +1948,17 @@ public class CodeGenerator extends BLangNodeVisitor {
         addParameterDefaultValues(funcNode, funcInfo);
 
         this.currentPkgInfo.functionInfoMap.put(funcSymbol.name.value, funcInfo);
+    }
+
+    private void createSingletonInfoEntry(BLangSingleton singleton) {
+        BTypeSymbol singletonDefSymbol = (BTypeSymbol) singleton.symbol;
+
+        int singletonNameCPIndex = addUTF8CPEntry(currentPkgInfo, singletonDefSymbol.name.value);
+        SingletonInfo singletonDefInfo = new SingletonInfo(currentPackageRefCPIndex,
+                singletonNameCPIndex, singletonDefSymbol.flags);
+        currentPkgInfo.addSingletonInfo(singletonDefSymbol.name.value, singletonDefInfo);
+        singletonDefInfo.singletonType = singletonDefSymbol.type;
+        singletonDefInfo.valueSpace = getDefaultValue((BLangLiteral) singleton.valueSpace);
     }
 
     private void createTransformerInfoEntry(BLangInvokableNode invokable) {

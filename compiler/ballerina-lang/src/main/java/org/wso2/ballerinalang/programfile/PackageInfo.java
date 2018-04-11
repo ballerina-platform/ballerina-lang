@@ -62,6 +62,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public Map<String, TransformerInfo> transformerInfoMap = new LinkedHashMap<>();
 
+    public Map<String, SingletonInfo> singletonInfoMap = new LinkedHashMap<>();
+
     public int addCPEntry(ConstantPoolEntry cpEntry) {
         if (constantPoolEntries.contains(cpEntry)) {
             return constantPoolEntries.indexOf(cpEntry);
@@ -115,6 +117,15 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     public void addServiceInfo(String serviceName, ServiceInfo serviceInfo) {
         serviceInfoMap.put(serviceName, serviceInfo);
         structureTypeInfoMap.put(serviceName, serviceInfo);
+    }
+
+    public void addSingletonInfo(String singletonDefName, SingletonInfo singletonDefInfo) {
+        singletonInfoMap.put(singletonDefName, singletonDefInfo);
+        structureTypeInfoMap.put(singletonDefName, singletonDefInfo);
+    }
+
+    public SingletonInfo[] getSingletonInfoEntries() {
+        return singletonInfoMap.values().toArray(new SingletonInfo[0]);
     }
 
     @Override

@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSingleton;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -504,6 +505,10 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
         if (typeDefinition.valueSpace != null) {
             typeDefinition.valueSpace.forEach(this::acceptNode);
         }
+    }
+
+    public void visit(BLangSingleton singleton) {
+        /* ignore */
     }
 
     /**

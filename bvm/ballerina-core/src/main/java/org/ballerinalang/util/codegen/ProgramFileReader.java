@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BServiceType;
+import org.ballerinalang.model.types.BSingletonType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTableType;
@@ -351,6 +352,9 @@ public class ProgramFileReader {
         // Read struct info entries
         readStructInfoEntries(dataInStream, packageInfo);
 
+        // Read Singleton info entries
+        readSingletonInfoEntries(dataInStream, packageInfo);
+
         // Read service info entries
         readServiceInfoEntries(dataInStream, packageInfo);
 
@@ -463,6 +467,33 @@ public class ProgramFileReader {
             // Read attributes of the struct info
             readAttributeInfoEntries(dataInStream, packageInfo, structInfo);
         }
+    }
+
+    private void readSingletonInfoEntries(DataInputStream dataInStream,
+                                          PackageInfo packageInfo) throws IOException {
+        int singletonDefCount = dataInStream.readShort();
+        for (int i = 0; i < singletonDefCount; i++) {
+
+            int singletonDefNameCPIndex = dataInStream.readInt();
+            int flags = dataInStream.readInt();
+            UTF8CPEntry typeDefNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(singletonDefNameCPIndex);
+            String singletonDefName = typeDefNameUTF8Entry.getValue();
+            SingletonInfo singletonInfo = new SingletonInfo(packageInfo.getPkgNameCPIndex(),
+                    packageInfo.getPkgPath(),
+                    singletonDefNameCPIndex, singletonDefName, flags);
+            packageInfo.addSingletonInfo(singletonDefName, singletonInfo);
+
+            int defaultValueCount = dataInStream.readShort();
+            if (defaultValueCount == 1) {
+                BValue value = getDefaultValueToBValue(getDefaultValue(dataInStream, packageInfo));
+                singletonInfo.setType(new BSingletonType(value.getType(), value));
+            } else {
+                singletonInfo.setType(BTypes.typeNull);
+            }
+
+            readAttributeInfoEntries(dataInStream, packageInfo, singletonInfo);
+        }
+
     }
 
     private void readServiceInfoEntries(DataInputStream dataInStream,
@@ -780,6 +811,7 @@ public class ProgramFileReader {
             case 'E':
             case 'D':
             case 'H':
+            case 'K':
             case 'Z':
                 char typeChar = chars[index];
                 // TODO Improve this logic
@@ -824,6 +856,8 @@ public class ProgramFileReader {
                     } else {
                         typeStack.push(new BStreamType(packageInfoOfType.getStructInfo(name).getType()));
                     }
+                } else if (typeChar == 'K') {
+                    typeStack.push(packageInfoOfType.getSingletonInfo(name).getType());
                 } else {
                     // This is a struct type
                     typeStack.push(packageInfoOfType.getStructInfo(name).getType());
@@ -913,6 +947,7 @@ public class ProgramFileReader {
             case 'E':
             case 'H':
             case 'Z':
+            case 'K':
             case 'D':
                 String typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
@@ -938,6 +973,8 @@ public class ProgramFileReader {
                     return new BTableType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'H') {
                     return new BStreamType(packageInfoOfType.getStructInfo(name).getType());
+                } else if (ch == 'K') {
+                    return packageInfoOfType.getSingletonInfo(name).getType();
                 } else {
                     return packageInfoOfType.getStructInfo(name).getType();
                 }

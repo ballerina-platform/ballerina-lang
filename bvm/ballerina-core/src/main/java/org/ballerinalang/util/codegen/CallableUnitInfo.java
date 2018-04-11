@@ -18,6 +18,7 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.types.BSingletonType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
@@ -69,11 +70,18 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     
     private WorkerSet workerSet = new WorkerSet();
 
+    private BType resolveToSuperType(BType bType) {
+        if (bType.getTag() == TypeTags.SINGLETON_TAG) {
+            return ((BSingletonType) bType).superSetType;
+        }
+        return bType;
+    }
+
     private WorkerDataIndex calculateWorkerDataIndex(BType[] retTypes) {
         WorkerDataIndex index = new WorkerDataIndex();
         index.retRegs = new int[retTypes.length];
         for (int i = 0; i < retTypes.length; i++) {
-            BType retType = retTypes[i];
+            BType retType = resolveToSuperType(retTypes[i]);
             switch (retType.getTag()) {
             case TypeTags.INT_TAG:
                 index.retRegs[i] = index.longRegCount++;

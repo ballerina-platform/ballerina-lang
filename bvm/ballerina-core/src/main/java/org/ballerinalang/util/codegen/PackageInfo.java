@@ -65,6 +65,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private Map<String, TransformerInfo> transformerInfoMap = new LinkedHashMap<>();
 
+    public Map<String, SingletonInfo> singletonInfoMap = new LinkedHashMap<>();
+
     // cache values.
     ProgramFile programFile;
 
@@ -162,6 +164,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return serviceInfoMap.get(serviceName);
     }
 
+
+
     public void addServiceInfo(String serviceName, ServiceInfo serviceInfo) {
         serviceInfo.setPackageInfo(this);
         serviceInfoMap.put(serviceName, serviceInfo);
@@ -182,6 +186,19 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public TransformerInfo getTransformerInfo(String transformerName) {
         return transformerInfoMap.get(transformerName);
+    }
+
+    public void addSingletonInfo(String singletonDefName, SingletonInfo singletonDefInfo) {
+        singletonInfoMap.put(singletonDefName, singletonDefInfo);
+        structureTypeInfoMap.put(singletonDefName, singletonDefInfo);
+    }
+
+    public SingletonInfo[] getSingletonInfoEntries() {
+        return singletonInfoMap.values().toArray(new SingletonInfo[0]);
+    }
+
+    public SingletonInfo getSingletonInfo(String singletonName) {
+        return singletonInfoMap.get(singletonName);
     }
 
     public int addInstruction(Instruction instruction) {

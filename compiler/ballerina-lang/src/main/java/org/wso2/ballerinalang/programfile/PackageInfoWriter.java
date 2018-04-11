@@ -140,6 +140,13 @@ public class PackageInfoWriter {
             writeStructInfo(dataOutStream, structInfo);
         }
 
+        // Emit Singleton info entries
+        SingletonInfo[] singletonInfoEntries = packageInfo.getSingletonInfoEntries();
+        dataOutStream.writeShort(singletonInfoEntries.length);
+        for (SingletonInfo singletonInfo : singletonInfoEntries) {
+            writeSingletonInfo(dataOutStream, singletonInfo);
+        }
+
         // TODO Emit service info entries
         ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
         dataOutStream.writeShort(serviceInfoEntries.length);
@@ -262,6 +269,22 @@ public class PackageInfoWriter {
 
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, structInfo.getAttributeInfoEntries());
+    }
+
+    private static void writeSingletonInfo(DataOutputStream dataOutStream,
+                                                SingletonInfo singletonInfo) throws IOException {
+        dataOutStream.writeInt(singletonInfo.nameCPIndex);
+        dataOutStream.writeInt(singletonInfo.flags);
+
+        if (singletonInfo.valueSpace == null) {
+            dataOutStream.writeShort(0);
+        } else {
+            dataOutStream.writeShort(1);
+            writeDefaultValue(dataOutStream, singletonInfo.valueSpace);
+        }
+
+        // Write attribute info
+        writeAttributeInfoEntries(dataOutStream, singletonInfo.getAttributeInfoEntries());
     }
 
     private static void writeServiceInfo(DataOutputStream dataOutStream,

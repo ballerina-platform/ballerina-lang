@@ -91,6 +91,16 @@ public class Symbols {
         return typeSymbol;
     }
 
+    public static BTypeSymbol createSingletonTypeSymbol(int flags,
+                                                        Name name,
+                                                        PackageID pkgID,
+                                                        BType type,
+                                                        BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SINGLETON, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.SINGLETON;
+        return typeSymbol;
+    }
+
     @Deprecated
     public static BAnnotationAttributeSymbol createAnnotationAttributeSymbol(Name name,
                                                                              PackageID pkgID,

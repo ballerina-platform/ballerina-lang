@@ -198,6 +198,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangSingleton singleton) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangEnum enumNode) {
         throw new AssertionError();
     }

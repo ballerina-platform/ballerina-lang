@@ -70,6 +70,10 @@ public interface PackageNode extends Node {
 
     void addTypeDefinition(TypeDefinition typeDefinition);
 
+    List<? extends SingletonNode> getSingletons();
+
+    void addSingleton(SingletonNode singleton);
+
     List<? extends EnumNode> getEnums();
 
     void addEnum(EnumNode enumNode);

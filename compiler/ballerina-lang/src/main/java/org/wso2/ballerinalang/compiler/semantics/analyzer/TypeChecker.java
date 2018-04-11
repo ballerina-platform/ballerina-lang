@@ -223,7 +223,7 @@ public class TypeChecker extends BLangNodeVisitor {
     // Expressions
 
     public void visit(BLangLiteral literalExpr) {
-        BType literalType = new BSingletonType(literalExpr,
+        BType literalType = new BSingletonType(null, literalExpr,
                 this.symTable.getTypeFromTag(literalExpr.typeTag));
         resultType = types.checkType(literalExpr, literalType, expType);
     }

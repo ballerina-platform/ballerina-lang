@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.types;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.SingletonTypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 
@@ -30,6 +31,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 public class BLangSingletonTypeNode extends BLangType implements SingletonTypeNode {
 
     public BLangLiteral literal;
+    public BLangIdentifier name;
+    public BLangIdentifier pkgAlias;
 
     @Override
     public BLangLiteral getValueSpace() {

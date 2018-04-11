@@ -102,6 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSingleton;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -395,10 +396,24 @@ public class BLangPackageBuilder {
     }
 
     public void addSingletonType(DiagnosticPos pos, Set<Whitespace> ws) {
+        // Create Anonymous Singleton Node
+        String genName = anonymousModelHelper.getNextAnonymousSingletonKey(pos.src.pkgID);
+        IdentifierNode anonSingletonGenName = createIdentifier(genName);
+        BLangSingleton singletonNode = (BLangSingleton) TreeBuilder.createSingletonNode();
+        singletonNode.name = (BLangIdentifier) anonSingletonGenName;
+        singletonNode.addFlag(Flag.PUBLIC);
+        this.compUnit.addTopLevelNode(singletonNode);
+
+
+        // Create Singleton Type Node
         BLangSingletonTypeNode typeNode = (BLangSingletonTypeNode) TreeBuilder.createSingletonTypeNode();
         typeNode.addWS(ws);
         typeNode.pos = pos;
         typeNode.literal = (BLangLiteral) exprNodeStack.pop();
+        typeNode.name = (BLangIdentifier) anonSingletonGenName;
+        typeNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        singletonNode.valueSpace = typeNode.literal;
 
         addType(typeNode);
     }

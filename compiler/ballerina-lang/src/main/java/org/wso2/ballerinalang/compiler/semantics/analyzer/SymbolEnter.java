@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSingletonType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -77,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSingleton;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -210,6 +212,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
+
+        // Define Singleton type definitions.
+        pkgNode.singletons.forEach(singleton -> defineNode(singleton, pkgEnv));
 
         // Define type definitions.
         pkgNode.typeDefinitions.forEach(typeDefinition -> defineNode(typeDefinition, pkgEnv));
@@ -415,6 +420,25 @@ public class SymbolEnter extends BLangNodeVisitor {
 
 
         defineSymbol(typeDefinition.pos, typeDefSymbol);
+    }
+
+    @Override
+    public void visit(BLangSingleton singleton) {
+        BSymbol singletonDefSymbol = Symbols.createSingletonTypeSymbol(Flags.asMask(singleton.flagSet),
+                names.fromIdNode(singleton.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        singleton.symbol = singletonDefSymbol;
+
+
+        BLangLiteral valueSpace = (BLangLiteral) singleton.valueSpace;
+        if (this.symTable.getTypeFromTag(valueSpace.typeTag) == this.symTable.nilType) {
+            singleton.symbol.type = this.symTable.nilType;
+
+        } else {
+            singleton.symbol.type = new BSingletonType((BTypeSymbol) singleton.symbol, valueSpace,
+                    this.symTable.getTypeFromTag(valueSpace.typeTag));
+        }
+        valueSpace.type = singleton.symbol.type;
+        defineSymbol(singleton.pos, singletonDefSymbol);
     }
 
     @Override
@@ -794,6 +818,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case TYPE_DEFINITION:
                 pkgNode.typeDefinitions.add((BLangTypeDefinition) node);
+                break;
+            case SINGLETON:
+                pkgNode.singletons.add((BLangSingleton) node);
                 break;
             case CONNECTOR:
                 pkgNode.connectors.add((BLangConnector) node);

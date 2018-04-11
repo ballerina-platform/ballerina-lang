@@ -51,6 +51,7 @@ public enum NodeKind {
     WORKER,
     XMLNS,
     TRANSFORMER,
+    SINGLETON,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,

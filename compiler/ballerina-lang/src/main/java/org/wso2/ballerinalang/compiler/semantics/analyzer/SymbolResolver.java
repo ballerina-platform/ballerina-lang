@@ -533,14 +533,25 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangSingletonTypeNode singletonTypeNode) {
-        if (this.symTable.getTypeFromTag(singletonTypeNode.literal.typeTag)
-                == this.symTable.nilType) {
-            resultType = this.symTable.nilType;
+        BSymbol pkgSymbol = resolvePkgSymbol(singletonTypeNode.pos, this.env,
+                names.fromIdNode(singletonTypeNode.pkgAlias));
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            resultType = symTable.errType;
             return;
         }
 
-        resultType = new BSingletonType(singletonTypeNode.literal,
-                this.symTable.getTypeFromTag(singletonTypeNode.literal.typeTag));
+        Name typeName = names.fromIdNode(singletonTypeNode.name);
+        BSymbol symbol = lookupMemberSymbol(singletonTypeNode.pos, pkgSymbol.scope,
+                this.env, typeName, SymTag.VARIABLE_NAME);
+
+
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(singletonTypeNode.pos, diagCode, typeName);
+            resultType = symTable.errType;
+            return;
+        }
+
+        resultType = symbol.type;
     }
 
     public void visit(BLangConstrainedType constrainedTypeNode) {

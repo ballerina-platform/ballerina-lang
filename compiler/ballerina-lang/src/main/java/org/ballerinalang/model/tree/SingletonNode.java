@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,39 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.symbols;
+package org.ballerinalang.model.tree;
+
+
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
- * @since 0.94
+ * Singleton Node Top level Node.
  */
-public enum SymbolKind {
-    PACKAGE,
-    STRUCT,
-    OBJECT,
-    RECORD,
-    ENUM,
-    CONNECTOR,
-    ACTION,
-    SERVICE,
-    RESOURCE,
-    FUNCTION,
-    WORKER,
-    ANNOTATION,
-    ANNOTATION_ATTRIBUTE,
-    CONSTANT,
-    PACKAGE_VARIABLE,
-    TRANSFORMER,
-    TYPE_DEF,
-    SINGLETON,
+public interface SingletonNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
 
-    PARAMETER,
-    LOCAL_VARIABLE,
-    SERVICE_VARIABLE,
-    CONNECTOR_VARIABLE,
+    IdentifierNode getName();
 
-    CAST_OPERATOR,
-    CONVERSION_OPERATOR,
+    void setName(IdentifierNode name);
 
-    XMLNS,
-    OTHER
+    void setValueSpace(ExpressionNode value);
+
+    ExpressionNode getValueSpace();
+
 }
