@@ -47,7 +47,7 @@ public class BallerinaTracingObserver implements BallerinaObserver {
         Map<String, String> httpHeaders = (Map<String, String>) observerContext.getProperty(PROPERTY_TRACE_PROPERTIES);
         if (httpHeaders != null) {
             httpHeaders.entrySet().stream()
-                    .filter(c -> c.getKey().equals(TraceConstants.TRACE_HEADER))
+                    .filter(c -> TraceConstants.TRACE_HEADER.equals(c.getKey()))
                     .forEach(e -> span.addProperty(e.getKey(), e.getValue()));
         }
         TraceUtil.setBSpan(executionContext, span);
