@@ -4,7 +4,7 @@ endpoint http:Listener passthroughEP {
     port:9090
 };
 
-endpoint http:SimpleClientEndpoint clientEP {
+endpoint http:SimpleClient clientEP {
     url:"http://localhost:9092/hello"
 };
 

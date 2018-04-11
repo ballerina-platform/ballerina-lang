@@ -1,38 +1,38 @@
+import ballerina/mysql;
 import ballerina/sql;
 import ballerina/io;
 
 function main (string[] args) {
     //Create an endpoint for the first database named testdb1. Since this endpoint is
     //participated in a distributed transaction, the isXA property should be true.
-    endpoint sql:Client testDBEP1 {
-        database: sql:DB_MYSQL,
+    endpoint mysql:Client testDBEP1 {
         host: "localhost",
         port: 3306,
         name: "testdb1",
         username: "root",
         password: "root",
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
 
     //Create an endpoint for the second database named testdb2. Since this endpoint is
     //participated in a distributed transaction, the isXA property of the
     //sql:ClientConnector should be true.
-    endpoint sql:Client testDBEP2 {
-        database: sql:DB_MYSQL,
+    endpoint mysql:Client testDBEP2 {
         host: "localhost",
         port: 3306,
         name: "testdb2",
         username: "root",
         password: "root",
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
+
 
     //Create the table named CUSTOMER in the first database.
     var ret = testDBEP1 -> update("CREATE TABLE CUSTOMER (ID INT AUTO_INCREMENT PRIMARY KEY,
                                     NAME VARCHAR(30))", null);
     match ret {
         int retInt =>  io:println("CUSTOMER table create status in first DB:" + retInt);
-        sql:SQLConnectorError err => {
+        error err => {
             io:println("CUSTOMER table Creation failed:" + err.message);
             return;
         }
@@ -43,7 +43,7 @@ function main (string[] args) {
         int retInt =>  {
             io:println("SALARY table create status in second DB:" + retInt);
         }
-        sql:SQLConnectorError err => {
+        error err => {
             io:println("SALARY table Creation failed:" + err.message);
             return;
         }
@@ -60,8 +60,8 @@ function main (string[] args) {
         match out {
             (int, string[]) output =>
                 (insertCount, generatedID) = output;
-            sql:SQLConnectorError err => {
-                throw err.cause;
+            error err => {
+                throw err.cause but {() => err};
             }
         }
         var returnedKey = check <int>generatedID[0];
@@ -76,7 +76,7 @@ function main (string[] args) {
             int retInt =>  {
                 io:println("Inserted count to SALARY table:" + retInt);
             }
-            sql:SQLConnectorError err => {
+            error err => {
                 fail;
             }
         }
@@ -95,8 +95,8 @@ function main (string[] args) {
         int retInt =>  {
             io:println("CUSTOMER table drop status:" + retInt);
         }
-        sql:SQLConnectorError err => {
-            throw err.cause;
+        error err => {
+            throw err.cause but {() => err};
         }
     }
     ret = testDBEP2 -> update("DROP TABLE SALARY", null);
@@ -104,8 +104,8 @@ function main (string[] args) {
         int retInt =>  {
             io:println("SALARY table drop status:" + retInt);
         }
-        sql:SQLConnectorError err => {
-            throw err.cause;
+        error err => {
+            throw err.cause but {() => err};
         }
     }
 
