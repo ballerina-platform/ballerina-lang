@@ -54,8 +54,8 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
         returnType = {
                 @ReturnType(type = TypeKind.INT),
                 @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
-                @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
-                            structPackage = "ballerina.sql")
+                @ReturnType(type = TypeKind.STRUCT, structType = "error",
+                            structPackage = "ballerina.builtin")
         }
 )
 public class UpdateWithGeneratedKeys extends AbstractSQLAction {
@@ -69,8 +69,7 @@ public class UpdateWithGeneratedKeys extends AbstractSQLAction {
             BStringArray keyColumns = (BStringArray) context.getNullableRefArgument(2);
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
 
-            ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
-                    getParentWorkerExecutionContext());
+            ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context);
             observerContext.addTag(TAG_KEY_DB_STATEMENT, query);
             observerContext.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
 

@@ -52,8 +52,8 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
         },
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),
-                @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
-                            structPackage = "ballerina.sql")
+                @ReturnType(type = TypeKind.STRUCT, structType = "error",
+                            structPackage = "ballerina.builtin")
         }
 )
 public class Select extends AbstractSQLAction {
@@ -67,8 +67,7 @@ public class Select extends AbstractSQLAction {
             BStructType structType = getStructType(context, 2);
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
 
-            ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
-                    getParentWorkerExecutionContext());
+            ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context);
             observerContext.addTag(TAG_KEY_DB_STATEMENT, query);
             observerContext.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
 

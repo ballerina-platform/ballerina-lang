@@ -17,7 +17,6 @@
 package ballerina.jwt;
 
 import ballerina/util;
-import ballerina/jwt.signature;
 import ballerina/io;
 
 @Description {value:"Represents JWT issuer configurations"}
@@ -40,7 +39,7 @@ public function issue (Header header, Payload payload, JWTIssuerConfig config) r
         string result => jwtPayload = result;
     }
     string jwtAssertion = jwtHeader + "." + jwtPayload;
-    string signature = signature:sign(jwtAssertion, header.alg, config.certificateAlias, config.keyPassword);
+    string signature = sign(jwtAssertion, header.alg, config.certificateAlias, config.keyPassword);
     return (jwtAssertion + "." + signature);
 }
 
@@ -76,21 +75,13 @@ function createPayload (Payload payload) returns (string|error) {
 function addMapToJson (json inJson, map mapToConvert) returns (json) {
     if (lengthof mapToConvert != 0) {
         foreach key in mapToConvert.keys() {
-            if (typeof mapToConvert[key] == typeof string[]) {
-                string[] value = check (<string[]>mapToConvert[key]);
-                inJson[key] = convertStringArrayToJson(value);
-            } else if (typeof mapToConvert[key] == typeof int[]) {
-                int[] value = check (<int[]>mapToConvert[key]);
-                inJson[key] = convertIntArrayToJson(value);
-            } else if (typeof mapToConvert[key] == typeof string) {
-                string value = <string>mapToConvert[key];
-                inJson[key] = value;
-            } else if (typeof mapToConvert[key] == typeof int) {
-                int value = check (<int>mapToConvert[key]);
-                inJson[key] = value;
-            } else if (typeof mapToConvert[key] == typeof boolean) {
-                boolean value = check (<boolean>mapToConvert[key]);
-                inJson[key] = value;
+            match mapToConvert[key]{
+                string[] value => inJson[key] = convertStringArrayToJson(value);
+                int[] value => inJson[key] = convertIntArrayToJson(value);
+                string value => inJson[key] = value;
+                int value => inJson[key] = value;
+                boolean value => inJson[key] = value;
+                any => {}
             }
         }
     }

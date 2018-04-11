@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.tracer.OpenTracerBallerinaWrapper;
 import org.ballerinalang.util.tracer.ReferenceType;
+import org.ballerinalang.util.tracer.TraceConstants;
 
 import java.io.PrintStream;
 import java.util.Collections;
@@ -70,7 +71,8 @@ public class StartSpanWithParentContext extends BlockingNativeCallableUnit {
 
             Map<String, String> parentSpanContextMap =
                     Utils.toStringMap((BMap) parentSpanContextStruct.getRefField(0));
-            extractedSpanContextMap = OpenTracerBallerinaWrapper.getInstance().extract(parentSpanContextMap);
+            extractedSpanContextMap = OpenTracerBallerinaWrapper.getInstance()
+                    .extract(parentSpanContextMap.get(TraceConstants.USER_TRACE_HEADER));
         } else {
             extractedSpanContextMap = Collections.emptyMap();
         }

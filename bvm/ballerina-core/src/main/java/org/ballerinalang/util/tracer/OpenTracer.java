@@ -29,15 +29,22 @@ import java.util.Map;
 public interface OpenTracer {
 
     /**
+     * Initializes the {@link Tracer} implementation with configurations.
+     *
+     * @param configProperties properties used to initialize the {@link Tracer} implementation
+     */
+    void init(Map<String, String> configProperties);
+
+    /**
      * Returns the specific tracer implementation of the analytics engine based
      * on the configuration provided.
      *
-     * @param tracerName       name of the tracer
-     * @param configProperties The configuration of the tracer
+     * @param tracerName name of the tracer
+     * @param serviceName name of the service of the trace
      * @return Specific {@link Tracer} instance throws {@link InvalidConfigurationException}
      * if the configuration or tracer name is invalid.
      */
-    Tracer getTracer(String tracerName, Map<String, String> configProperties, String serviceName)
+    Tracer getTracer(String tracerName, String serviceName)
             throws InvalidConfigurationException;
 
     /**

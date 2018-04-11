@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -329,10 +330,11 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             return;
         }
         DefinitionID[] definitions = Arrays.stream(endpointTypes)
-                .map(endpointType -> new DefinitionID(endpointType.packageName(), endpointType.name()))
+                .map(endpointType -> new DefinitionID(endpointType.orgName(), endpointType.packageName(),
+                        endpointType.name()))
                 .toArray(DefinitionID[]::new);
         for (DefinitionID definitionID : definitions) {
-            if (isValidEndpoints(definitionID, plugin)) {
+            if (isValidEndpoints(definitionID)) {
                 List<CompilerPlugin> processorList = endpointProcessorMap.computeIfAbsent(
                         definitionID, k -> new ArrayList<>());
                 processorList.add(plugin);
@@ -340,8 +342,9 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         }
     }
 
-    private boolean isValidEndpoints(DefinitionID endpoint, CompilerPlugin plugin) {
-        PackageID pkdID = new PackageID(Names.ANON_ORG, names.fromString(endpoint.pkgName), Names.EMPTY);
+    private boolean isValidEndpoints(DefinitionID endpoint) {
+        Name orgName = endpoint.orgName == null ? Names.ANON_ORG : names.fromString(endpoint.orgName);
+        PackageID pkdID = new PackageID(orgName, names.fromString(endpoint.pkgName), Names.EMPTY);
         BLangPackage pkgNode = this.packageCache.get(pkdID);
         if (pkgNode == null) {
             return false;
@@ -371,10 +374,17 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private static class DefinitionID {
         String pkgName;
         String name;
+        String orgName;
 
         DefinitionID(String pkgName, String name) {
             this.pkgName = pkgName;
             this.name = name;
+        }
+
+        DefinitionID(String orgName, String pkgName, String name) {
+            this.pkgName = pkgName;
+            this.name = name;
+            this.orgName = orgName;
         }
 
         @Override

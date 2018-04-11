@@ -22,7 +22,6 @@ import org.ballerinalang.connector.api.StructField;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
@@ -134,15 +133,6 @@ public class StructImpl extends AnnotatableNode implements Struct {
             valueMap.put(next[0].stringValue(), ValueImpl.createValue(next[1]));
         }
         return valueMap;
-    }
-
-    @Override
-    public String getEnumField(String fieldName) {
-        final BEnumerator refField = (BEnumerator) value.getRefField(getFieldIndex(fieldName));
-        if (refField == null) {
-            return null;
-        }
-        return refField.getName();
     }
 
     @Override

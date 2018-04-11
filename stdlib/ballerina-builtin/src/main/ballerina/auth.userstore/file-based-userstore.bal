@@ -59,12 +59,7 @@ public function readUserId (string username) returns (string) {
 }
 
 function getUserstoreConfigValue (string instanceId, string property) returns (string) {
-    match config:getAsString(instanceId + "." + property) {
-        string value => {
-            return value == () ? "" : value;
-        }
-        () => { return ""; }
-    }
+    return config:getAsString(instanceId + "." + property, default = "");
 }
 
 @Description {value:"Construct an array of groups from the comma separed group string passed"}

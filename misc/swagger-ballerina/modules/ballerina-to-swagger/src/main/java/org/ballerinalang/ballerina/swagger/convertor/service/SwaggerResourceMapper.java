@@ -41,9 +41,15 @@ import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNod
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.net.http.HttpConstants;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -87,7 +93,8 @@ public class SwaggerResourceMapper {
     protected Map<String, Path> convertResourceToPath(List<? extends ResourceNode> resources) {
         Map<String, Path> pathMap = new HashMap<>();
         for (ResourceNode resource : resources) {
-            if (this.getHttpMethods(resource, false).size() == 0 || this.getHttpMethods(resource, false).size() > 1) {
+            if (this.getHttpMethods(resource, false).size() == 0 ||
+                    this.getHttpMethods(resource, false).size() > 1) {
                 useMultiResourceMapper(pathMap, resource);
             } else {
                 useDefaultResourceMapper(pathMap, resource);
@@ -104,27 +111,13 @@ public class SwaggerResourceMapper {
     private void useMultiResourceMapper(Map<String, Path> pathMap, ResourceNode resource) {
         List<String> httpMethods = this.getHttpMethods(resource, true);
         String path = this.getPath(resource);
+        Path pathObject = new Path();
         Operation operation = null;
-        for (String httpMethod : httpMethods) {
-            // If operation is still not assigned and has GET method, then get the operation for GET. This is because
-            // GET operations have an extra param.
-            if (null == operation && httpMethod.equalsIgnoreCase("get")) {
-                operation = this.convertResourceToOperation(resource,
-                        httpMethod.toLowerCase(Locale.getDefault())).getOperation();
-            }
-            // But if there are other http methods, their operation will be used.
-            if (!httpMethod.equalsIgnoreCase("get")) {
-                operation = this.convertResourceToOperation(resource,
-                        httpMethod.toLowerCase(Locale.getDefault())).getOperation();
-                break;
-            }
-        }
-    
+        //Iterate through http methods and fill path map.
+        operation = this.convertResourceToOperation(resource, null).getOperation();
         if (operation != null) {
             operation.setVendorExtension(X_HTTP_METHODS, httpMethods);
         }
-    
-        Path pathObject = new Path();
         pathObject.setVendorExtension(X_MULTI_OPERATIONS, operation);
         pathMap.put(path, pathObject);
     }
@@ -136,13 +129,15 @@ public class SwaggerResourceMapper {
      */
     private void useDefaultResourceMapper(Map<String, Path> pathMap, ResourceNode resource) {
         OperationAdaptor operationAdaptor = this.convertResourceToOperation(resource, null);
+        String httpOperation = getHttpMethods(resource , true).get(0);
+        operationAdaptor.setHttpOperation(httpOperation);
         Path path = pathMap.get(operationAdaptor.getPath());
         //TODO this check need to be improve to avoid repetition checks and http head support need to add.
         if (path == null) {
             path = new Path();
             pathMap.put(operationAdaptor.getPath(), path);
         }
-        String httpOperation = operationAdaptor.getHttpOperation();
+        //String httpOperation = operationAdaptor.getHttpOperation();
         Operation operation = operationAdaptor.getOperation();
         switch (httpOperation) {
             case HttpConstants.ANNOTATION_METHOD_GET:
@@ -190,13 +185,12 @@ public class SwaggerResourceMapper {
             op.getOperation().response(200, response);
             op.getOperation().setOperationId(resource.getName().getValue());
             op.getOperation().setParameters(null);
-    
             // Parsing annotations.
             this.parseHttpResourceConfig(resource, op);
             if (null != httpMethod) {
                 op.setHttpOperation(httpMethod);
             }
-            
+
             this.parseResourceConfigAnnotationAttachment(resource, op.getOperation());
             this.parseResourceInfoAnnotationAttachment(resource, op.getOperation());
             this.addResourceParameters(resource, op);
@@ -349,6 +343,25 @@ public class SwaggerResourceMapper {
      * @param operationAdaptor The swagger operation.
      */
     private void addResourceParameters(ResourceNode resource, OperationAdaptor operationAdaptor) {
+        //Set Path
+        Optional<? extends AnnotationAttachmentNode> responsesAnnotationAttachment =
+                resource.getAnnotationAttachments().stream()
+                        .filter(a ->
+                                "ResourceConfig".equals(a.getAnnotationName().getValue()))
+                        .findFirst();
+        List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues =
+                ((BLangRecordLiteral) ((BLangAnnotationAttachment) responsesAnnotationAttachment.get()).
+                        getExpression()).getKeyValuePairs();
+        if (responsesAnnotationAttachment.isPresent()) {
+            Map<String, BLangExpression> recordsMap = listToMapBLangRecords(recordKeyValues);
+            if (recordsMap.containsKey("path") && recordsMap.get("path") != null) {
+                String path =  recordsMap.get("path").toString().trim();
+                operationAdaptor.setPath(path);
+            } else {
+                operationAdaptor.setPath("/");
+            }
+        }
+
         if (!"get".equalsIgnoreCase(operationAdaptor.getHttpOperation())) {
         
             // Creating request body - required.
@@ -366,7 +379,10 @@ public class SwaggerResourceMapper {
             RefModel refModel = new RefModel();
             refModel.setReference("Request");
             messageParameter.setSchema(refModel);
-            operationAdaptor.getOperation().addParameter(messageParameter);
+            //Adding conditional check for http delete operation as it cannot have body parameter.
+            if (!operationAdaptor.getHttpOperation().equalsIgnoreCase("delete")) {
+                operationAdaptor.getOperation().addParameter(messageParameter);
+            }
         }
     
         for (int i = 2; i < resource.getParameters().size(); i++) {
@@ -528,7 +544,7 @@ public class SwaggerResourceMapper {
                 .filter(a -> null != swaggerAlias && this.swaggerAlias.equals(a.getPackageAlias().getValue()) &&
                              "ResourceConfig".equals(a.getAnnotationName().getValue()))
                 .findFirst();
-    
+
         if (resourceConfigAnnotation.isPresent()) {
             Map<String, AnnotationAttachmentAttributeValueNode> configAttributes =
                     this.listToMap(resourceConfigAnnotation.get());
@@ -547,44 +563,48 @@ public class SwaggerResourceMapper {
             // .get("authorizations"), operation);
         }
     }
-    
+
     /**
      * Gets the http methods of a resource.
-     * @param resource The ballerina resource.
+     *
+     * @param resource    The ballerina resource.
      * @param useDefaults True to add default http methods, else false.
      * @return A list of http methods.
      */
     private List<String> getHttpMethods(ResourceNode resource, boolean useDefaults) {
         Optional<? extends AnnotationAttachmentNode> responsesAnnotationAttachment =
-                                                                            resource.getAnnotationAttachments().stream()
-                .filter(a -> null != this.httpAlias && this.httpAlias.equals(a.getPackageAlias().getValue()) &&
-                             "resourceConfig".equals(a.getAnnotationName().getValue()))
-                .findFirst();
+                resource.getAnnotationAttachments().stream()
+                        .filter(a ->
+                                "ResourceConfig".equals(a.getAnnotationName().getValue()))
+                        .findFirst();
         Set<String> httpMethods = new LinkedHashSet<>();
+        List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues =
+                ((BLangRecordLiteral) ((BLangAnnotationAttachment) responsesAnnotationAttachment.get()).
+                        getExpression()).getKeyValuePairs();
         if (responsesAnnotationAttachment.isPresent()) {
-            Map<String, AnnotationAttachmentAttributeValueNode> responsesAttributes =
-                    this.listToMap(responsesAnnotationAttachment.get());
-            if (responsesAttributes.containsKey("methods") &&
-                                                        responsesAttributes.get("methods").getValueArray().size() > 0) {
-                for (AnnotationAttachmentAttributeValueNode methodsValue :
-                                                                responsesAttributes.get("methods").getValueArray()) {
-                    httpMethods.add(this.getStringLiteralValue(methodsValue));
+            Map<String, BLangExpression> recordsMap = listToMapBLangRecords(recordKeyValues);
+            if (recordsMap.containsKey("methods") && recordsMap.get("methods") != null) {
+                BLangExpression methodsValue = ((BLangArrayLiteral) recordsMap.get("methods")).exprs.get(0);
+                if (methodsValue != null) {
+                    String[] values = methodsValue.toString().split(",");
+                    httpMethods = new HashSet<String>(Arrays.asList(values));
                 }
+
             }
         }
-        
         if (httpMethods.isEmpty() && useDefaults) {
-            // By default http methods is supported.
-            httpMethods.add("GET");
-            httpMethods.add("POST");
+            // By default all http methods are supported.
+            httpMethods.add(HttpConstants.ANNOTATION_METHOD_GET);
+            httpMethods.add(HttpConstants.ANNOTATION_METHOD_PUT);
+            httpMethods.add(HttpConstants.ANNOTATION_METHOD_POST);
+            httpMethods.add(HttpConstants.ANNOTATION_METHOD_DELETE);
+            httpMethods.add(HttpConstants.ANNOTATION_METHOD_PATCH);
+            httpMethods.add(HttpConstants.ANNOTATION_METHOD_OPTIONS);
             httpMethods.add("HEAD");
-            httpMethods.add("OPTIONS");
-            httpMethods.add("DELETE");
-            httpMethods.add("PUT");
         }
         return Lists.reverse(new ArrayList<>(httpMethods));
     }
-    
+
     /**
      * Gets the path value of the @http:resourceConfig.
      * @param resource The ballerina resource.
@@ -619,6 +639,23 @@ public class SwaggerResourceMapper {
                 Collectors.toMap(attribute -> attribute.getName().getValue(), AnnotationAttachmentAttributeNode
                         ::getValue));
     }
+
+
+    /**
+     * Convert BLangRecordKeyValue to Map which contains  BLangExpression
+     *
+     * @param recordKeyValues BLangRecordKeyValue list which contains multiple record values
+     * @return Map which contains BLangExpression generated from passed list.
+     */
+    private Map<String, BLangExpression> listToMapBLangRecords
+    (List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues) {
+        Map<String, BLangExpression> map = new HashMap<>();
+        for (BLangRecordLiteral.BLangRecordKeyValue attribute : recordKeyValues) {
+            map.put(attribute.getKey().toString(), attribute.getValue());
+        }
+        return map;
+    }
+
     
     /**
      * Coverts the string value of an annotation attachment to a string.

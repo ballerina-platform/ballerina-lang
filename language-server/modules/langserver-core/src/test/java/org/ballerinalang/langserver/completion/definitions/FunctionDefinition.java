@@ -19,10 +19,12 @@ package org.ballerinalang.langserver.completion.definitions;
 
 import org.ballerinalang.langserver.completion.CompletionTest;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 /**
  * Completion item tests for function definition.
  */
+@Test(groups = "broken")
 public class FunctionDefinition extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
     @Override
