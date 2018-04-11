@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.util.metrics;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.ObservableContext;
 import org.ballerinalang.util.observability.BallerinaObserver;
 import org.ballerinalang.util.observability.ObserverContext;
 
@@ -42,12 +42,12 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
     private static final MetricRegistry metricRegistry = DefaultMetricRegistry.getInstance();
 
     @Override
-    public void startServerObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
+    public void startServerObservation(ObserverContext observerContext, ObservableContext observableContext) {
         startObservation(observerContext);
     }
 
     @Override
-    public void startClientObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
+    public void startClientObservation(ObserverContext observerContext, ObservableContext observableContext) {
         startObservation(observerContext);
     }
 
@@ -56,7 +56,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
     }
 
     @Override
-    public void stopServerObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
+    public void stopServerObservation(ObserverContext observerContext, ObservableContext observableContext) {
         if (!observerContext.isStarted()) {
             // Do not collect metrics if the observation hasn't started
             return;
@@ -67,7 +67,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
     }
 
     @Override
-    public void stopClientObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
+    public void stopClientObservation(ObserverContext observerContext, ObservableContext observableContext) {
         if (!observerContext.isStarted()) {
             // Do not collect metrics if the observation hasn't started
             return;

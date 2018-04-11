@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
@@ -495,6 +496,8 @@ public class CPU {
                     case InstructionCodes.ANY2S:
                     case InstructionCodes.ANY2B:
                     case InstructionCodes.ANY2L:
+                    case InstructionCodes.ARRAY2JSON:
+                    case InstructionCodes.JSON2ARRAY:
                     case InstructionCodes.ANY2JSON:
                     case InstructionCodes.ANY2XML:
                     case InstructionCodes.ANY2MAP:
@@ -2135,6 +2138,10 @@ public class CPU {
                 j = operands[1];
                 sf.stringRegs[j] = null;
                 break;
+            case InstructionCodes.ARRAY2JSON:
+                break;
+            case InstructionCodes.JSON2ARRAY:
+                break;
             case InstructionCodes.CHECK_CONVERSION:
                 i = operands[0];
                 j = operands[1];
@@ -2980,6 +2987,10 @@ public class CPU {
         if (rhsValue == null) {
             return false;
         }
+        
+        if (lhsType.getTag() == TypeTags.UNION_TAG) {
+            return checkUnionCast(rhsValue, lhsType);
+        }
 
         BType rhsType = rhsValue.getType();
         if (rhsType.equals(lhsType)) {
@@ -3033,8 +3044,11 @@ public class CPU {
                 lhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
             return true;
         }
-
-        // TODO Union types, tuple types
+        
+        if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
+            return checkTupleCast(rhsValue, lhsType);
+        }
+        
         return false;
     }
     
@@ -3085,6 +3099,11 @@ public class CPU {
         if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
             return checkMapCast(rhsType, lhsType);
         }
+        
+        // Check tuple casting
+        if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
+            return checkTupleCast(rhsValue, lhsType);
+        } 
 
         return false;
     }
@@ -3121,6 +3140,21 @@ public class CPU {
         }
 
         return sourceType.equals(targetType);
+    }
+    
+    private static boolean checkTupleCast(BValue sourceValue, BType targetType) {
+        BRefValueArray source = (BRefValueArray) sourceValue;
+        BTupleType target = (BTupleType) targetType;
+        List<BType> targetTupleTypes = target.getTupleTypes();
+        if (source.size() != targetTupleTypes.size()) {
+            return false;
+        }
+        for (int i = 0; i < source.size(); i++) {
+            if (!checkCast(source.getBValue(i), targetTupleTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static BType getElementType(BType type) {

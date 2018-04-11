@@ -16,30 +16,18 @@
  * under the License.
  */
 
-package org.ballerinalang.util.tracer;
-
-import org.ballerinalang.bre.bvm.ObservableContext;
-
-import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
+package org.ballerinalang.bre.bvm;
 
 /**
- * Utility call to perform trace related functions.
+ * {@link ObservableContext} exposes API to set and retrieve
+ * observability related properties.
  *
- * @since 0.964.1
+ * @since 0.970.0
  */
-public class TraceUtil {
-    private TraceUtil() {
-    }
+public interface ObservableContext {
 
-    public static void finishBSpan(BSpan bSpan) {
-        bSpan.finishSpan();
-    }
+    void setLocalProperty(String key, Object val);
 
-    public static void setBSpan(ObservableContext ctx, BSpan span) {
-        ctx.setLocalProperty(KEY_SPAN, span);
-    }
+    Object getLocalProperty(String key);
 
-    public static BSpan getBSpan(ObservableContext ctx) {
-        return (BSpan) ctx.getLocalProperty(KEY_SPAN);
-    }
 }

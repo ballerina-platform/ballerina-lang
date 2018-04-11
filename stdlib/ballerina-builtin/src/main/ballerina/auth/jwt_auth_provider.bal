@@ -31,7 +31,6 @@ public type JWTAuthProvider object {
         JWTAuthProviderConfig jwtAuthProviderConfig;
         caching:Cache? authCache;
     }
-
     public new (jwtAuthProviderConfig, authCache) {
         config:setConfig("trustStore.location", jwtAuthProviderConfig.trustStoreFilePath );
         config:setConfig("trustStore.type","pkcs12");
@@ -69,18 +68,13 @@ public type CachedJWTAuthContext {
 @Return {value:"boolean: true if authentication is a success, else false"}
 @Return {value:"error: If error occured in authentication"}
 public function JWTAuthProvider::authenticate (string jwtToken) returns (boolean|error) {
-    match self.authCache {
-        caching:Cache cache => {
-            match self.authenticateFromCache(jwtToken) {
-                (boolean, jwt:Payload) authResult => {
-                    var (isAuthenticated, jwtPayload) = authResult;
-                    match jwtPayload {
-                        jwt:Payload payload => setAuthContext(payload, jwtToken);
-                    }
-                    return isAuthenticated;
-                }
-                () => log:printDebug("Auth cache not initialized.");
+    match self.authenticateFromCache(jwtToken) {
+        (boolean, jwt:Payload) authResult => {
+            var (isAuthenticated, jwtPayload) = authResult;
+            match jwtPayload {
+                jwt:Payload payload => setAuthContext(payload, jwtToken);
             }
+            return isAuthenticated;
         }
         () => log:printDebug("Auth cache not initialized.");
     }
@@ -91,12 +85,7 @@ public function JWTAuthProvider::authenticate (string jwtToken) returns (boolean
               match jwtPayload {
                 jwt:Payload payload => {
                     setAuthContext(payload, jwtToken);
-                    match self.authCache {
-                        caching:Cache cache => {
-                            self.addToAuthenticationCache(jwtToken, payload. exp, payload);
-                        }
-                        () => log:printDebug("Auth cache not initialized.");
-                    }
+                    self.addToAuthenticationCache(jwtToken, payload. exp, payload);
                 }
               }
             }
@@ -110,15 +99,9 @@ function JWTAuthProvider::authenticateFromCache (string jwtToken) returns (boole
     boolean isCacheHit;
     CachedJWTAuthContext cachedAuthContext = {};
     try {
-        match self.authCache {
-            caching:Cache cache => {
-                match <CachedJWTAuthContext> cache.get(jwtToken) {
-                    CachedJWTAuthContext context => cachedAuthContext = context;
-                    error => isCacheHit = false;
-                }
-            }
-
-            () => log:printWarn("Auth cache not initialized.");
+        match <CachedJWTAuthContext> self.authCache.get(jwtToken) {
+            CachedJWTAuthContext context => cachedAuthContext = context;
+            error => isCacheHit = false;
         }
     } catch (error e) {
         isCacheHit = false;
@@ -139,10 +122,7 @@ function JWTAuthProvider::addToAuthenticationCache (string jwtToken, int exp, jw
     CachedJWTAuthContext cachedContext = {};
     cachedContext.jwtPayload = payload;
     cachedContext.expiryTime = exp;
-    match self.authCache {
-        caching:Cache cache => cache.put(jwtToken, cachedContext);
-        () => log:printWarn("Auth cache not initialized.");
-    }
+    self.authCache.put(jwtToken, cachedContext);
     log:printDebug("Add authenticated user :" + payload.sub + " to the cache");
 }
 

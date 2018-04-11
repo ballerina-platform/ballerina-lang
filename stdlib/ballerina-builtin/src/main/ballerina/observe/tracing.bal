@@ -125,7 +125,7 @@ public function extractSpanContextFromHttpHeader (http:Request req, string trace
     string[] headerNames = req.getHeaderNames();
     foreach headerName in headerNames {
         if (req.hasHeader(headerName)) {
-            string[] headerValues = req.getHeaders(headerName);
+            string[] headerValues = req.getHeaders(untaint headerName);
             headers[headerName] = headerValues;
         }
     }
