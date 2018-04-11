@@ -61,6 +61,7 @@
             <class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingHeaderTestCase"/>
         </classes>
     </test>
 

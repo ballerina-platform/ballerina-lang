@@ -104,29 +104,43 @@ public class SwaggerResourceMapper {
     private void useMultiResourceMapper(Map<String, Path> pathMap, ResourceNode resource) {
         List<String> httpMethods = this.getHttpMethods(resource, true);
         String path = this.getPath(resource);
+        Path pathObject = new Path();
         Operation operation = null;
+        //Iterate through http methods and fill path map.
         for (String httpMethod : httpMethods) {
-            // If operation is still not assigned and has GET method, then get the operation for GET. This is because
-            // GET operations have an extra param.
-            if (null == operation && httpMethod.equalsIgnoreCase("get")) {
-                operation = this.convertResourceToOperation(resource,
-                        httpMethod.toLowerCase(Locale.getDefault())).getOperation();
-            }
-            // But if there are other http methods, their operation will be used.
             if (!httpMethod.equalsIgnoreCase("get")) {
                 operation = this.convertResourceToOperation(resource,
-                        httpMethod.toLowerCase(Locale.getDefault())).getOperation();
-                break;
+                        httpMethod.toUpperCase(Locale.getDefault())).getOperation();
+                if (operation != null) {
+                    switch (httpMethod.toLowerCase(Locale.getDefault())) {
+                        case HttpConstants.ANNOTATION_METHOD_GET:
+                            pathObject.setGet(operation);
+                            break;
+                        case HttpConstants.ANNOTATION_METHOD_PUT:
+                            pathObject.setPut(operation);
+                            break;
+                        case HttpConstants.ANNOTATION_METHOD_POST:
+                            pathObject.setPost(operation);
+                            break;
+                        case HttpConstants.ANNOTATION_METHOD_DELETE:
+                            pathObject.setDelete(operation);
+                            break;
+                        case "head":
+                            pathObject.setHead(operation);
+                            break;
+                        case HttpConstants.ANNOTATION_METHOD_OPTIONS:
+                            pathObject.setOptions(operation);
+                            break;
+                        case HttpConstants.ANNOTATION_METHOD_PATCH:
+                            pathObject.setPatch(operation);
+                            break;
+                        default:
+                            break;
+                    }
+                    pathMap.put(path, pathObject);
+                }
             }
         }
-    
-        if (operation != null) {
-            operation.setVendorExtension(X_HTTP_METHODS, httpMethods);
-        }
-    
-        Path pathObject = new Path();
-        pathObject.setVendorExtension(X_MULTI_OPERATIONS, operation);
-        pathMap.put(path, pathObject);
     }
     
     /**
@@ -366,7 +380,10 @@ public class SwaggerResourceMapper {
             RefModel refModel = new RefModel();
             refModel.setReference("Request");
             messageParameter.setSchema(refModel);
-            operationAdaptor.getOperation().addParameter(messageParameter);
+            //Adding conditional check for http delete operation as it cannot have body parameter.
+            if (!operationAdaptor.getHttpOperation().equalsIgnoreCase("delete")) {
+                operationAdaptor.getOperation().addParameter(messageParameter);
+            }
         }
     
         for (int i = 2; i < resource.getParameters().size(); i++) {

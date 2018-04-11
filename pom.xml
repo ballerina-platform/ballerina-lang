@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.970.0-alpha4-SNAPSHOT</version>
+    <version>0.970.0-alpha5-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -1054,7 +1054,6 @@
                 <module>tests/ballerina-test</module>
 
                 <module>cli/ballerina-cli-utils</module>
-                <module>docs/ballerina-by-example</module>
 
                 <module>language-server</module>
                 <module>misc/docerina</module>
@@ -1103,11 +1102,11 @@
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
-                <module>docs/ballerina-by-example</module>
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
                 <module>cli/ballerina-cli-utils</module>
 
+                <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/toml-parser</module>
@@ -1153,7 +1152,6 @@
                 <module>tests/ballerina-test-compiler-plugins</module>
 
                 <module>cli/ballerina-cli-utils</module>
-                <module>docs/ballerina-by-example</module>
 
                 <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>
@@ -1488,7 +1486,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.970.0-alpha4-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.970.0-alpha5-SNAPSHOT</ballerina.version>
         <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
@@ -1513,7 +1511,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.129</transport.http.version>
+        <transport.http.version>6.0.132</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
