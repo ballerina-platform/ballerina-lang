@@ -19,6 +19,7 @@
 package org.ballerinalang.util.tracer;
 
 import io.opentracing.Tracer;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
 import static org.ballerinalang.util.tracer.TraceConstants.ENABLED_CONFIG;
 import static org.ballerinalang.util.tracer.TraceConstants.JAEGER;
 import static org.ballerinalang.util.tracer.TraceConstants.TRACER_NAME_CONFIG;
@@ -40,7 +42,14 @@ class TracersStore {
     private List<TracerGenerator> tracers;
     private Map<String, Map<String, Tracer>> tracerStore;
 
-    TracersStore(Map<String, String> tracingConfigs) {
+    private static TracersStore instance = new TracersStore();
+
+    public static TracersStore getInstance() {
+        return instance;
+    }
+
+    private TracersStore() {
+        Map<String, String> tracingConfigs = ConfigRegistry.getInstance().getConfigTable(CONFIG_TABLE_TRACING);
         if (Boolean.parseBoolean(tracingConfigs.get(ENABLED_CONFIG))) {
 
             this.tracers = new ArrayList<>();
@@ -54,6 +63,7 @@ class TracersStore {
 
             OpenTracer tracer = tracerMap.get(tracerName);
             if (tracer != null) {
+                tracer.init(tracingConfigs);
                 this.tracers.add(new TracerGenerator(tracer.getName(), tracer, tracingConfigs));
             }
         } else {
@@ -102,7 +112,7 @@ class TracersStore {
         }
 
         Tracer generate(String serviceName) throws InvalidConfigurationException {
-            return tracer.getTracer(name, properties, serviceName);
+            return tracer.getTracer(name, serviceName);
         }
     }
 }
