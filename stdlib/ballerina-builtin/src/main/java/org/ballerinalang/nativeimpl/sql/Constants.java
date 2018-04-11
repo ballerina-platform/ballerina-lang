@@ -141,6 +141,7 @@ public final class Constants {
         public static final String USERNAME = "username";
         public static final String PASSWORD = "password";
         public static final String POOL_OPTIONS = "poolOptions";
+        public static final String DB_OPTIONS = "dbOptions";
     }
 
     /**
@@ -166,6 +167,17 @@ public final class Constants {
 
         //Map
         public static final String DATASOURCE_PROPERTIES = "datasourceProperties";
+    }
+
+    /**
+     * Constants used when appending JDBC driver properties for the connection URL.
+     */
+    public static final class JDBCUrlSeparators {
+        public static final String H2_SEPARATOR = ";";
+        public static final String H2_PROPERTY_BEGIN_SYMBOL = ";";
+        public static final String MYSQL_SEPARATOR = "&";
+        public static final String MYSQL_PROPERTY_BEGIN_SYMBOL = "?";
+        public static final String EQUAL_SYMBOL = "=";
     }
 
     public static final String CONNECTOR_NAME = "ClientConnector";

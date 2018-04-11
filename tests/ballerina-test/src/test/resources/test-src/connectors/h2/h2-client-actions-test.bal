@@ -1,6 +1,7 @@
 import ballerina/h2;
-import ballerina/io;
 import ballerina/sql;
+import ballerina/mysql;
+import ballerina/io;
 
 public type Customer {
     int customerId,
@@ -15,7 +16,8 @@ function testSelect() returns (int[]) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1}
+        poolOptions:{maximumPoolSize:1},
+        dbOptions: ()
     };
 
     var val = testDB -> select("select * from Customers where customerId=1 OR customerId=2", (), Customer);
@@ -41,7 +43,8 @@ function testUpdate() returns (int) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1}
+        poolOptions:{maximumPoolSize:1},
+        dbOptions: ()
     };
 
     var insertCountRet = testDB -> update("insert into Customers (customerId, name, creditLimit, country)
@@ -58,7 +61,8 @@ function testCall() returns (string) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1}
+        poolOptions:{maximumPoolSize:1},
+        dbOptions: ()
     };
 
     var dtsRet = testDB -> call("{call JAVAFUNC('select * from Customers where customerId=1')}", (), Customer);
@@ -79,7 +83,8 @@ function testGeneratedKeyOnInsert() returns (string) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1}
+        poolOptions:{maximumPoolSize:1},
+        dbOptions: ()
     };
 
     string returnVal;
@@ -109,7 +114,8 @@ function testBatchUpdate() returns (int[]) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1}
+        poolOptions:{maximumPoolSize:1},
+        dbOptions: ()
     };
 
     int[] updateCount;
@@ -151,7 +157,8 @@ function testAddToMirrorTable() returns (Customer[]) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1}
+        poolOptions:{maximumPoolSize:1},
+        dbOptions: ()
     };
 
     try {
@@ -192,7 +199,8 @@ function testUpdateInMemory() returns (int, string) {
         name:"TestDB2H2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1}
+        poolOptions:{maximumPoolSize:1},
+        dbOptions: ()
     };
 
     _ = testDB -> update("CREATE TABLE IF NOT EXISTS Customers(customerId INTEGER NOT NULL IDENTITY,
@@ -210,4 +218,66 @@ function testUpdateInMemory() returns (int, string) {
     int insertCount = check insertCountRet;
     _ = testDB -> close();
     return (insertCount, s);
+}
+
+function testInitWithNilDbOptions() returns (int[]) {
+    endpoint h2:Client testDB {
+        path:"./target/H2Client/",
+        name:"TestDBH2",
+        username:"SA",
+        password:"",
+        poolOptions:{maximumPoolSize:1},
+        dbOptions: ()
+    };
+    return selectFunction(testDB);
+}
+
+function testInitWithDbOptions() returns (int[]) {
+    endpoint h2:Client testDB {
+        path:"./target/H2Client/",
+        name:"TestDBH2",
+        username:"SA",
+        password:"",
+        poolOptions:{maximumPoolSize:1},
+        dbOptions:{"IFEXISTS":true, "DB_CLOSE_ON_EXIT":false, "AUTO_RECONNECT":true, "ACCESS_MODE_DATA":"rw",
+            "PAGE_SIZE":512}
+    };
+    return selectFunction(testDB);
+}
+
+function testInitWithInvalidDbOptions() returns (int[]) {
+    endpoint h2:Client testDB {
+        path:"./target/H2Client/",
+        name:"TestDBH2",
+        username:"SA",
+        password:"",
+        poolOptions:{maximumPoolSize:1},
+        dbOptions:{"IFEXISTS":true, "DB_CLOSE_ON_EXIT":false, "AUTO_RECONNECT":true, "ACCESS_MODE_DATA":"rw",
+            "PAGE_SIZE":512, "INVALID_PARAM":-1}
+    };
+    return selectFunction(testDB);
+}
+
+function selectFunction(h2:Client testDBClient) returns (int[]) {
+    endpoint h2:Client testDB = testDBClient;
+    try {
+        var val = testDB -> select("select * from Customers where customerId=1 OR customerId=2", (), Customer);
+
+        int[] customerIds;
+        match (val) {
+            table dt => {
+                int i = 0;
+                while (dt.hasNext()) {
+                    Customer rs = check <Customer>dt.getNext();
+                    customerIds[i] = rs.customerId;
+                    i++;
+                }
+                return customerIds;
+            }
+            error err => return [];
+        }
+    } finally {
+        _ = testDB -> close();
+    }
+    return [];
 }
