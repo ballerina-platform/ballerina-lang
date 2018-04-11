@@ -43,7 +43,7 @@ service echoService bind ep1 {
     }
 
     resourceTwo (endpoint outboundEP, http:Request clientRequest) {
-        observe:SpanContext spanContext = observe:extractTraceContextFromHttpHeader(clientRequest, "test-group");
+        observe:SpanContext spanContext = observe:extractSpanContextFromHttpHeader(clientRequest, "test-group");
         observe:Span span = observe:startSpan("testService", "resource two", (), observe:REFERENCE_TYPE_CHILDOF, spanContext);
         string | () baggageItem = span.getBaggageItem("BaggageItem");
         http:Response res = new;
@@ -67,7 +67,7 @@ function callNextResource(observe:Span parentSpan) returns (http:Response | ()) 
     observe:Span span = observe:startSpan("testService", "calling next resource", (), observe:REFERENCE_TYPE_CHILDOF, parentSpan);
     span.setBaggageItem("BaggageItem", "Baggage message");
     http:Request request = new;
-    request = span.injectTraceContextToHttpHeader(request, "test-group");
+    request = span.injectSpanContextToHttpHeader(request, "test-group");
     var resp = httpEndpoint -> get("/resourceTwo", request);
     span.finishSpan();
     match resp {

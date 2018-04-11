@@ -38,17 +38,21 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
     filePart.contentType = contentTypeOfFilePart;
     filePart.contentDisposition = getContentDispositionForFormData("artifact");
     file:Path filePath = new(dirPath);
-    filePart.setFileAsEntityBody(filePath);
+    filePart.setFileAsEntityBody(untaint filePath);
 
     mime:Entity[] bodyParts = [filePart, mdFileContentBodyPart, summaryBodyPart, homePageURLBodyPart, repositoryURLBodyPart,
                                            apiDocURLBodyPart, authorsBodyPart, keywordsBodyPart, licenseBodyPart];
     http:Request req = new;
     req.addHeader("Authorization", "Bearer " + accessToken);
-    req.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
+    req.setBodyParts(bodyParts, mime:MULTIPART_FORM_DATA);
     
     var result = httpEndpoint -> post("", req);
     http:Response httpResponse = check result;
-    if (httpResponse.statusCode != 200) {
+    string statusCode = <string> httpResponse.statusCode;
+    if (statusCode.hasPrefix("5")) {
+        error err = {message:"remote registry failed for url :" + url};
+        throw err;
+    } else if (statusCode != "200") {
         json jsonResponse = check (httpResponse.getJsonPayload());
         string message = (jsonResponse.message.toString() but {()=> "error occurred when pushing the package"});
         io:println(message);

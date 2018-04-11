@@ -51,7 +51,8 @@ public function createCache (string cacheName) returns (caching:Cache|()) {
         int capacity;
         float evictionFactor;
         (expiryTime, capacity, evictionFactor) = getCacheConfigurations(cacheName);
-        return caching:createCache(cacheName, expiryTime, capacity, evictionFactor);
+        caching:Cache cache = new (expiryTimeMillis = expiryTime, capacity = capacity, evictionFactor = evictionFactor);
+        return cache;
     }
     return ();
 }
@@ -61,10 +62,7 @@ public function createCache (string cacheName) returns (caching:Cache|()) {
 @Return {value:"boolean: true of the cache is enabled, else false"}
 function isCacheEnabled (string cacheName) returns (boolean) {
     // by default we enable the cache
-    match config:getAsString(cacheName + "." + CACHE_ENABLED) {
-        string value => return value == "true" ? true : false;
-        () => return CACHE_ENABLED_DEFAULT_VALUE;
-    }
+    return config:getAsBoolean(cacheName + "." + CACHE_ENABLED, default = CACHE_ENABLED_DEFAULT_VALUE);
 }
 
 @Description {value:"Reads the cache configurations"}
@@ -81,45 +79,21 @@ function getCacheConfigurations (string cacheName) returns (int, int, float) {
 @Return {value:"int: cache expiry time read from ballerina.conf, default value if no configuration entry found"}
 function getExpiryTime (string cacheName) returns (int) {
     // expiry time
-    match config:getAsString(cacheName + "." + CACHE_EXPIRY_TIME) {
-        string value => {
-            match <int>value {
-                int intExpiryTime => return intExpiryTime;
-                error typeConversionErr => return CACHE_EXPIRY_DEFAULT_VALUE;
-            }
-        }
-        () => return CACHE_EXPIRY_DEFAULT_VALUE;
-    }
+    return config:getAsInt(cacheName + "." + CACHE_EXPIRY_TIME, default = CACHE_EXPIRY_DEFAULT_VALUE);
 }
 
 @Description {value:"Reads the cache capacity"}
 @Param {value:"cacheName: cache name"}
 @Return {value:"int: cache capacity read from ballerina.conf, default value if no configuration entry found"}
 function getCapacity (string cacheName) returns (int) {
-    match config:getAsString(cacheName + "." + CACHE_CAPACITY) {
-        string value => {
-            match <int>value {
-                int intCapacity => return intCapacity;
-                error typeConversionErr => return CACHE_CAPACITY_DEFAULT_VALUE;
-            }
-        }
-        () => return CACHE_EXPIRY_DEFAULT_VALUE;
-    }
+    return config:getAsInt(cacheName + "." + CACHE_CAPACITY, default = CACHE_CAPACITY_DEFAULT_VALUE);
 }
 
 @Description {value:"Reads the cache eviction factor"}
 @Param {value:"cacheName: cache name"}
 @Return {value:"float: cache eviction factor read from ballerina.conf, default value if no configuration entry found"}
 function getEvictionFactor (string cacheName) returns (float) {
-    match config:getAsString(cacheName + "." + CACHE_EVICTION_FACTOR) {
-        string value => {
-            match <float>value {
-                float floatEvictionFactor => return floatEvictionFactor;
-                error typeConversionErr => return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
-            }
-        }
-        () => return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
-    }
+    return config:getAsFloat(cacheName + "." + CACHE_EVICTION_FACTOR, default = CACHE_EVICTION_FACTOR_DEFAULT_VALUE);
 }
 
 @Description {value:"Extracts the basic authentication credentials from the header value"}

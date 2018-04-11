@@ -70,30 +70,24 @@ public function createAuthenticator () returns (JWTAuthenticator) {
 @Return {value:"boolean: true if authentication is a success, else false"}
 @Return {value:"error: If error occured in authentication"}
 public function JWTAuthenticator::authenticate (string jwtToken) returns (boolean|error) {
-    int size = self.authCache.capacity ?: 0;
-    if (size > 0) {
-        match self.authenticateFromCache(jwtToken) {
-            (boolean, boolean) cacheHit => {
-                var (isCacheHit, isAuthenticated) = cacheHit;
-                if (isCacheHit) {
-                    return isAuthenticated;
-                }
-            }
-            (boolean, boolean, jwt:Payload) authResult => {
-                var (_, isAuthenticated, jwtPayload) = authResult;
-                setAuthContext(jwtPayload, jwtToken);
+    match self.authenticateFromCache(jwtToken) {
+        (boolean, boolean) cacheHit => {
+            var (isCacheHit, isAuthenticated) = cacheHit;
+            if (isCacheHit) {
                 return isAuthenticated;
             }
+        }
+        (boolean, boolean, jwt:Payload) authResult => {
+            var (_, isAuthenticated, jwtPayload) = authResult;
+            setAuthContext(jwtPayload, jwtToken);
+            return isAuthenticated;
         }
     }
     match jwt:validate(jwtToken, self.jwtValidatorConfig) {
         jwt:Payload authResult => {
             boolean isAuthenticated = true;
             setAuthContext(authResult, jwtToken);
-            size = self.authCache.capacity ?: 0;
-            if (size > 0) {
-                self.addToAuthenticationCache(jwtToken, authResult.exp, authResult);
-            }
+            self.addToAuthenticationCache(jwtToken, authResult.exp, authResult);
             return isAuthenticated;
         }
         boolean isInvalid => return isInvalid;
@@ -188,8 +182,5 @@ function setAuthContext (jwt:Payload jwtPayload, string jwtToken) {
 }
 
 function getAuthenticatorConfigValue (string instanceId, string property) returns (string) {
-    match config:getAsString(instanceId + "." + property) {
-        string value => return value;
-        () => return "";
-    }
+    return config:getAsString(instanceId + "." + property, default = "");
 }

@@ -36,7 +36,6 @@ public class BTypes {
     public static BType typeDesc = new BTypeDesc(TypeConstants.TYPEDESC_TNAME, null);
     public static BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null);
     public static BType typeFuture = new BFutureType(TypeConstants.FUTURE_TNAME, null);
-    public static BType typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null);
     public static BType typeNull = new BNullType(TypeConstants.NULL_TNAME, null);
     public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, null);
     public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, null);
