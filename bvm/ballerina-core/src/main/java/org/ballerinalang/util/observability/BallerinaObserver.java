@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.util.observability;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.ObservableContext;
 
 /**
  * Observe Ballerina Server and Client execution code.
@@ -28,32 +28,32 @@ public interface BallerinaObserver {
      * Start observing server execution code.
      *
      * @param observerContext  The {@link ObserverContext}
-     * @param executionContext The {@link WorkerExecutionContext}
+     * @param observableContext The {@link ObservableContext}
      */
-    void startServerObservation(ObserverContext observerContext, WorkerExecutionContext executionContext);
+    void startServerObservation(ObserverContext observerContext, ObservableContext observableContext);
 
     /**
      * Start observing client execution code.
      *
      * @param observerContext  The {@link ObserverContext}
-     * @param executionContext The {@link WorkerExecutionContext}
+     * @param observableContext The {@link ObservableContext}
      */
-    void startClientObservation(ObserverContext observerContext, WorkerExecutionContext executionContext);
+    void startClientObservation(ObserverContext observerContext, ObservableContext observableContext);
 
     /**
      * Stop observing server execution code.
      *
      * @param observerContext  The {@link ObserverContext}
-     * @param executionContext The {@link WorkerExecutionContext}
+     * @param observableContext The {@link ObservableContext}
      */
-    void stopServerObservation(ObserverContext observerContext, WorkerExecutionContext executionContext);
+    void stopServerObservation(ObserverContext observerContext, ObservableContext observableContext);
 
     /**
      * Stop observing client execution code.
      *
      * @param observerContext  The {@link ObserverContext}
-     * @param executionContext The {@link WorkerExecutionContext}
+     * @param observableContext The {@link ObservableContext}
      */
-    void stopClientObservation(ObserverContext observerContext, WorkerExecutionContext executionContext);
+    void stopClientObservation(ObserverContext observerContext, ObservableContext observableContext);
 
 }

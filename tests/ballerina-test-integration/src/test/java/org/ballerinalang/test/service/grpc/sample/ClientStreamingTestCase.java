@@ -45,14 +45,14 @@ public class ClientStreamingTestCase extends IntegrationTestCase {
     @BeforeClass
     private void setup() throws Exception {
         ballerinaServer = ServerInstance.initBallerinaServer(9090);
-        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "client-streaming-service.bal");
+        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "client_streaming_service.bal");
         ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
     }
 
     @Test
     public void testNonBlockingBallerinaClient() {
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "client-streaming-client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "client_streaming_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BStringArray stringArray = new BStringArray();
         stringArray.add(0, "Hi Sam");

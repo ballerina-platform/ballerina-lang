@@ -31,6 +31,8 @@ public class TraceConstants {
     static final String DEFAULT_CONNECTOR_NAME = "BallerinaConnector";
     static final String DEFAULT_ACTION_NAME = "BallerinaAction";
     public static final String TRACE_PREFIX = "trace___";
+    public static final String TRACE_HEADER = "x-b7a-trace";
+    public static final String USER_TRACE_HEADER = "x-b7a-utrace-";
     public static final String KEY_SPAN = "_span_";
 
     public static final String TAG_KEY_SPAN_KIND = "span.kind";
@@ -47,10 +49,7 @@ public class TraceConstants {
     public static final String LOG_ERROR_KIND_EXCEPTION = "Exception";
     public static final String LOG_EVENT_TYPE_ERROR = "error";
 
-    public static final int TRACE_PREFIX_LENGTH = TRACE_PREFIX.length();
-
-    public static final String BALLERINA_TRACE_CONFIG_KEY = "trace.config";
-    public static final String DEFAULT_USER_API_GROUP = "user_trace_";
+    public static final String DEFAULT_USER_API_GROUP = "default-group";
 
     public static final String JAEGER = "jaeger";
     public static final String ENABLED_CONFIG = "enabled";

@@ -24,7 +24,6 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.ResourceInfo;
-import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.program.BLangVMUtils;
@@ -66,10 +65,7 @@ public class ResourceExecutor {
                         properties.get(Constants.TRANSACTION_URL).toString(), "2pc"));
             }
         }
-
-        ObservabilityUtils.continueServerObservation(observerContext, resource.getServiceName(), resource.getName(),
-                context);
         BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
-        BLangFunctions.invokeServiceCallable(resourceInfo, context, bValues, responseCallback);
+        BLangFunctions.invokeServiceCallable(resourceInfo, context, observerContext, bValues, responseCallback);
     }
 }
