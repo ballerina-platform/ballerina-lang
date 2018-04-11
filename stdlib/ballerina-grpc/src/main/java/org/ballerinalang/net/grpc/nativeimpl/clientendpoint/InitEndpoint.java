@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
-import io.grpc.Channel;
-import io.grpc.ClientInterceptors;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.NettyChannelBuilder;
@@ -35,7 +33,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.EndpointConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.config.EndpointConfiguration;
-import org.ballerinalang.net.grpc.interceptor.ClientHeaderInterceptor;
 import org.ballerinalang.net.grpc.nativeimpl.EndpointUtils;
 import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
 
@@ -89,10 +86,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                         .maxInboundMessageSize(MAX_MESSAGE_SIZE)
                         .sslContext(sslContext).build();
             }
-            // attach header interceptor to read/write headers.
-            ClientHeaderInterceptor headerInterceptor = new ClientHeaderInterceptor();
-            Channel channelWithHeader = ClientInterceptors.intercept(channel, headerInterceptor);
-            clientEndpoint.addNativeData(CHANNEL_KEY, channelWithHeader);
+            clientEndpoint.addNativeData(CHANNEL_KEY, channel);
 
         } catch (Throwable throwable) {
             BStruct errorStruct = MessageUtils.getConnectorError(context, throwable);

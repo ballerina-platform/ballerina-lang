@@ -1,17 +1,13 @@
 // Generated from BallerinaLexer.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
-import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Lexer;
-import org.antlr.v4.runtime.RuleContext;
-import org.antlr.v4.runtime.RuntimeMetaData;
-import org.antlr.v4.runtime.Vocabulary;
-import org.antlr.v4.runtime.VocabularyImpl;
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ATNDeserializer;
-import org.antlr.v4.runtime.atn.LexerATNSimulator;
-import org.antlr.v4.runtime.atn.PredictionContextCache;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.misc.Utils;
+import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class BallerinaLexer extends Lexer {
@@ -36,7 +32,7 @@ public class BallerinaLexer extends Lexer {
 		ELSE=80, FOREACH=81, WHILE=82, NEXT=83, BREAK=84, FORK=85, JOIN=86, SOME=87, 
 		ALL=88, TIMEOUT=89, TRY=90, CATCH=91, FINALLY=92, THROW=93, RETURN=94, 
 		TRANSACTION=95, ABORT=96, FAIL=97, ONRETRY=98, RETRIES=99, ONABORT=100, 
-		ONCOMMIT=101, LENGTHOF=102, WITH=103, IN=104, LOCK=105, UNTAINT=106, ASYNC=107, 
+		ONCOMMIT=101, LENGTHOF=102, WITH=103, IN=104, LOCK=105, UNTAINT=106, START=107, 
 		AWAIT=108, BUT=109, CHECK=110, DONE=111, SEMICOLON=112, COLON=113, DOUBLE_COLON=114, 
 		DOT=115, COMMA=116, LEFT_BRACE=117, RIGHT_BRACE=118, LEFT_PARENTHESIS=119, 
 		RIGHT_PARENTHESIS=120, LEFT_BRACKET=121, RIGHT_BRACKET=122, QUESTION_MARK=123, 
@@ -99,7 +95,7 @@ public class BallerinaLexer extends Lexer {
 		"WHILE", "NEXT", "BREAK", "FORK", "JOIN", "SOME", "ALL", "TIMEOUT", "TRY", 
 		"CATCH", "FINALLY", "THROW", "RETURN", "TRANSACTION", "ABORT", "FAIL", 
 		"ONRETRY", "RETRIES", "ONABORT", "ONCOMMIT", "LENGTHOF", "WITH", "IN", 
-		"LOCK", "UNTAINT", "ASYNC", "AWAIT", "BUT", "CHECK", "DONE", "SEMICOLON", 
+		"LOCK", "UNTAINT", "START", "AWAIT", "BUT", "CHECK", "DONE", "SEMICOLON", 
 		"COLON", "DOUBLE_COLON", "DOT", "COMMA", "LEFT_BRACE", "RIGHT_BRACE", 
 		"LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", "LEFT_BRACKET", "RIGHT_BRACKET", 
 		"QUESTION_MARK", "ASSIGN", "ADD", "SUB", "MUL", "DIV", "POW", "MOD", "NOT", 
@@ -163,7 +159,7 @@ public class BallerinaLexer extends Lexer {
 		"'break'", "'fork'", "'join'", "'some'", "'all'", "'timeout'", "'try'", 
 		"'catch'", "'finally'", "'throw'", "'return'", "'transaction'", "'abort'", 
 		"'fail'", "'onretry'", "'retries'", "'onabort'", "'oncommit'", "'lengthof'", 
-		"'with'", "'in'", "'lock'", "'untaint'", "'async'", "'await'", "'but'", 
+		"'with'", "'in'", "'lock'", "'untaint'", "'start'", "'await'", "'but'", 
 		"'check'", "'done'", "';'", "':'", "'::'", "'.'", "','", "'{'", "'}'", 
 		"'('", "')'", "'['", "']'", "'?'", "'='", "'+'", "'-'", "'*'", "'/'", 
 		"'^'", "'%'", "'!'", "'=='", "'!='", "'>'", "'<'", "'>='", "'<='", "'&&'", 
@@ -189,7 +185,7 @@ public class BallerinaLexer extends Lexer {
 		"ELSE", "FOREACH", "WHILE", "NEXT", "BREAK", "FORK", "JOIN", "SOME", "ALL", 
 		"TIMEOUT", "TRY", "CATCH", "FINALLY", "THROW", "RETURN", "TRANSACTION", 
 		"ABORT", "FAIL", "ONRETRY", "RETRIES", "ONABORT", "ONCOMMIT", "LENGTHOF", 
-		"WITH", "IN", "LOCK", "UNTAINT", "ASYNC", "AWAIT", "BUT", "CHECK", "DONE", 
+		"WITH", "IN", "LOCK", "UNTAINT", "START", "AWAIT", "BUT", "CHECK", "DONE", 
 		"SEMICOLON", "COLON", "DOUBLE_COLON", "DOT", "COMMA", "LEFT_BRACE", "RIGHT_BRACE", 
 		"LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", "LEFT_BRACKET", "RIGHT_BRACKET", 
 		"QUESTION_MARK", "ASSIGN", "ADD", "SUB", "MUL", "DIV", "POW", "MOD", "NOT", 
@@ -1291,8 +1287,8 @@ public class BallerinaLexer extends Lexer {
 		"\7n\2\2\u0543\u0544\7q\2\2\u0544\u0545\7e\2\2\u0545\u0546\7m\2\2\u0546"+
 		"\u00e0\3\2\2\2\u0547\u0548\7w\2\2\u0548\u0549\7p\2\2\u0549\u054a\7v\2"+
 		"\2\u054a\u054b\7c\2\2\u054b\u054c\7k\2\2\u054c\u054d\7p\2\2\u054d\u054e"+
-		"\7v\2\2\u054e\u00e2\3\2\2\2\u054f\u0550\7c\2\2\u0550\u0551\7u\2\2\u0551"+
-		"\u0552\7{\2\2\u0552\u0553\7p\2\2\u0553\u0554\7e\2\2\u0554\u00e4\3\2\2"+
+		"\7v\2\2\u054e\u00e2\3\2\2\2\u054f\u0550\7u\2\2\u0550\u0551\7v\2\2\u0551"+
+		"\u0552\7c\2\2\u0552\u0553\7t\2\2\u0553\u0554\7v\2\2\u0554\u00e4\3\2\2"+
 		"\2\u0555\u0556\7c\2\2\u0556\u0557\7y\2\2\u0557\u0558\7c\2\2\u0558\u0559"+
 		"\7k\2\2\u0559\u055a\7v\2\2\u055a\u00e6\3\2\2\2\u055b\u055c\7d\2\2\u055c"+
 		"\u055d\7w\2\2\u055d\u055e\7v\2\2\u055e\u00e8\3\2\2\2\u055f\u0560\7e\2"+
