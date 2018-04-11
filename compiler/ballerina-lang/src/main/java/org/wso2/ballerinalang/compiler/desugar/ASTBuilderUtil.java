@@ -47,7 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -299,8 +299,8 @@ public class ASTBuilderUtil {
         return unaryExpr;
     }
 
-    static BLangTypeofExpr createTypeofExpr(DiagnosticPos pos, BType type, BType resolvedType) {
-        final BLangTypeofExpr typeofExpr = (BLangTypeofExpr) TreeBuilder.createTypeAccessNode();
+    static BLangTypedescExpr createTypeofExpr(DiagnosticPos pos, BType type, BType resolvedType) {
+        final BLangTypedescExpr typeofExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
         typeofExpr.pos = pos;
         typeofExpr.type = type;
         typeofExpr.resolvedType = resolvedType;

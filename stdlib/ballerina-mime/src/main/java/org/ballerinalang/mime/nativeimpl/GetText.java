@@ -57,8 +57,8 @@ public class GetText extends BlockingNativeCallableUnit {
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
-            if (baseType != null && (baseType.startsWith(TEXT_AS_PRIMARY_TYPE) ||
-                    baseType.startsWith(APPLICATION_FORM))) {
+            if (baseType != null && (baseType.toLowerCase().startsWith(TEXT_AS_PRIMARY_TYPE) ||
+                    baseType.toLowerCase().startsWith(APPLICATION_FORM))) {
                 MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
                     result = new BString(dataSource.getMessageAsString());
@@ -71,7 +71,8 @@ public class GetText extends BlockingNativeCallableUnit {
                 }
                 context.setReturnValues(result);
             } else {
-                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not text compatible"));
+                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not text " +
+                        "compatible since the received content-type is : " + baseType));
             }
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createEntityError(context,

@@ -57,7 +57,6 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_BODY_PART_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
 
 /**
  * Entity body related operations are included here.
@@ -72,16 +71,17 @@ public class EntityBodyHandler {
      * a file channel. After that delete the temp file. If the size does not exceed, then wrap the inputstream with an
      * EntityBodyChannel.
      *
-     * @param entityStruct Represent an 'Entity'
-     * @param inputStream  Represent input stream coming from the request/response
+     * @param entityStruct      Represent an 'Entity'
+     * @param inputStream       Represent input stream coming from the request/response
+     * @param numberOfBytesRead Number of bytes read
      */
-    public static void setDiscreteMediaTypeBodyContent(BStruct entityStruct, InputStream inputStream) {
-        long contentLength = entityStruct.getIntField(SIZE_INDEX);
-        if (contentLength > Constants.BYTE_LIMIT) {
+    public static void setDiscreteMediaTypeBodyContent(BStruct entityStruct, InputStream inputStream,
+                                                       int numberOfBytesRead) {
+        if (numberOfBytesRead < Constants.BYTE_LIMIT) {
+            entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(new EntityBodyChannel(inputStream)));
+        } else {
             String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEMP_FILE);
             entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, getByteChannelForTempFile(temporaryFilePath));
-        } else {
-            entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(new EntityBodyChannel(inputStream)));
         }
     }
 

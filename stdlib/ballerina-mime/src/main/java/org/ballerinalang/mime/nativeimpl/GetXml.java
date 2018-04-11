@@ -56,7 +56,7 @@ public class GetXml extends BlockingNativeCallableUnit {
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
-            if (baseType != null && baseType.endsWith(XML_SUFFIX)) {
+            if (baseType != null && baseType.toLowerCase().endsWith(XML_SUFFIX)) {
                 MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
                     if (dataSource instanceof BXML) {
@@ -73,7 +73,8 @@ public class GetXml extends BlockingNativeCallableUnit {
                 }
                 context.setReturnValues(result);
             } else {
-                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not xml compatible"));
+                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not xml " +
+                        "compatible since the received content-type is : " + baseType));
             }
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createEntityError(context,

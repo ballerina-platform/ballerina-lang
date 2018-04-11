@@ -56,8 +56,8 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
-            if (baseType != null && (baseType.startsWith(MULTIPART_AS_PRIMARY_TYPE) ||
-                    baseType.startsWith(MESSAGE_AS_PRIMARY_TYPE))) {
+            if (baseType != null && (baseType.toLowerCase().startsWith(MULTIPART_AS_PRIMARY_TYPE) ||
+                    baseType.toLowerCase().startsWith(MESSAGE_AS_PRIMARY_TYPE))) {
                 //Get the body parts from entity's multipart data field, if they've been already been decoded
                 partsArray = EntityBodyHandler.getBodyPartArray(entityStruct);
                 if (partsArray == null || partsArray.size() < 1) {
@@ -74,8 +74,8 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
                 }
                 context.setReturnValues(partsArray);
             } else {
-                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not compatible " +
-                        "with a composite media type"));
+                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not a type of " +
+                        "composite media type. Received content-type : " + baseType));
             }
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createEntityError(context,

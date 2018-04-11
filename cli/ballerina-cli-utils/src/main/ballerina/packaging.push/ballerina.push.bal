@@ -38,7 +38,7 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
     filePart.contentType = contentTypeOfFilePart;
     filePart.contentDisposition = getContentDispositionForFormData("artifact");
     file:Path filePath = new(dirPath);
-    filePart.setFileAsEntityBody(filePath);
+    filePart.setFileAsEntityBody(untaint filePath);
 
     mime:Entity[] bodyParts = [filePart, mdFileContentBodyPart, summaryBodyPart, homePageURLBodyPart, repositoryURLBodyPart,
                                            apiDocURLBodyPart, authorsBodyPart, keywordsBodyPart, licenseBodyPart];

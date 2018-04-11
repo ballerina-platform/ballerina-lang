@@ -55,7 +55,7 @@ public class GetJson extends BlockingNativeCallableUnit {
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
-            if (baseType != null && baseType.endsWith(JSON_SUFFIX)) {
+            if (baseType != null && baseType.toLowerCase().endsWith(JSON_SUFFIX)) {
                 MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
                     if (dataSource instanceof BJSON) {
@@ -72,7 +72,8 @@ public class GetJson extends BlockingNativeCallableUnit {
                 }
                 context.setReturnValues(result);
             } else {
-                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not json compatible"));
+                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not json " +
+                        "compatible since the received content-type is : " + baseType));
             }
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createEntityError(context,
