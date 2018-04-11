@@ -272,11 +272,6 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-container-support</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
                 <artifactId>docerina</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -543,11 +538,6 @@
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars</artifactId>
                 <version>${handlebars.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-client</artifactId>
-                <version>${docker.client.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -1065,8 +1055,6 @@
                 <module>misc/tracing-extensions</module>
 
                 <module>composer</module>
-
-                <module>distribution/docker</module>
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
@@ -1164,7 +1152,6 @@
 
                 <module>composer</module>
 
-                <module>distribution/docker</module>
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
@@ -1503,7 +1490,6 @@
 
 
 
-        <docker.client.version>1.2.1</docker.client.version>
         <testng.version>6.9.4</testng.version>
         <commons.io.version>2.5</commons.io.version>
         <handlebars.version>4.0.6</handlebars.version>
