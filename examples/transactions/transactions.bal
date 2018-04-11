@@ -37,21 +37,21 @@ function main (string[] args) {
             return;
         }
     }
-    //Here is the transaction block. You can use a Try catch here since update action can
-    //throw errors due to SQL errors, connection pool errors etc. The retry count is the
-    //number of times the transaction is tried before aborting. By default a transaction
-    //is tried three times before aborting. Only integer literals or constants are
-    //allowed for retry count.
+    //Here is the transaction block. Since the update action may throw errors due to SQL errors, 
+    //connection pool errors, etc., you can use a `try-catch` here to handle any exceptions. 
+    // The `retry count` is the number of times the transaction is retried before aborting it. 
+    // By default, a transaction is tried three times before aborting. Only integer literals 
+    // or constants are allowed for `retry count`.
     boolean transactionSuccess = false;
     transaction with retries=4 {
-        //This is the first action participate in the transaction.
+        //This is the first action participant in the transaction.
         var result = testDBEP -> update("INSERT INTO CUSTOMER(ID,NAME) VALUES (1, 'Anne')", null);
-        //This is the second action participate in the transaction.
+        //This is the second action participant in the transaction.
         result = testDBEP -> update("INSERT INTO SALARY (ID, MON_SALARY) VALUES (1, 2500)", null);
         match result {
             int c => {
                 io:println("Inserted count:" + c);
-                //Anytime the transaction can be forcefully aborted using the abort keyword.
+                // The transaction can be force aborted using the `abort` keyword at any time.
                 if (c == 0) {
                     abort;
                 }
@@ -65,9 +65,9 @@ function main (string[] args) {
         //The end curly bracket marks the end of the transaction and the transaction will
         //be committed or rolled back at this point.
     } onretry {
-        //The failed block will be executed if the transaction is failed due to an
+        //The failed block will be executed if the transaction fails due to an
         //exception or a throw statement. This block will execute each time
-        //transaction is failed until retry count is reached.
+        //the transaction fails until it reaches the retry count.
         io:println("Transaction failed");
         transactionSuccess = false;
     }

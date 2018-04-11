@@ -1,13 +1,13 @@
 import ballerina/io;
 
-@Description {value:"Defining Employee struct."}
+@Description {value:"Define an `Employee` struct."}
 type Employee {
     string name;
     int age;
     string address;
 };
 
-@Description {value:"Defining Person struct."}
+@Description {value:"Define a `Person` struct."}
 type Person {
     string firstName;
     string lastName;
@@ -16,21 +16,21 @@ type Person {
     string street;
 };
 
-@Description {value:"Defining a default transformer for converting from 'Person' type to 'Employee' type."}
+@Description {value:"Define a default transformer to converting from `Person` type to `Employee` type."}
 transformer <Person p, Employee e> {
     e.name = p.firstName + " " + p.lastName;
     e.age = p.age;
     e.address = p.street + "," + p.city.toUpperCase();
 }
 
-@Description {value:"Defining a named transformer for converting from 'Person' type to 'Employee' type."}
+@Description {value:"Define a named transformer for converting from `Person` type to `Employee` type."}
 transformer <Person p, Employee e> setCityToNewYork() {
     e.name = p.firstName + " " + p.lastName;
     e.age = p.age;
     e.address = p.street + ", " + "New York";
 }
 
-@Description {value:"Defining a named transformer which takes input parameters for converting from 'Person' type to 'Employee' type."}
+@Description {value:"Define a named transformer which takes input parameters for converting from `Person` type to `Employee` type."}
 transformer <Person p, Employee e> insertCountry(string country) {
     e.name = p.firstName + " " + p.lastName;
     e.age = p.age;
@@ -38,18 +38,18 @@ transformer <Person p, Employee e> insertCountry(string country) {
 }
 
 function main (string[] args) {
-    //Initialize Person variable person.
+    //Initialize`Person` variable person.
     Person person = {firstName:"John", lastName:"Doe", age:30, city:"London"};
 
-    //Using default transformer to convert from type Person to Employee is similar to the conversion syntax.
+    //Using the default transformer to convert from type `Person` to type `Employee` is similar to the conversion syntax.
     Employee employee = <Employee>person;
     io:println(employee);
 
-    //Named transformer can be explicitly provided inside the conversion syntax, to convert person to employee.
+    //The named transformer can be explicitly provided inside the conversion syntax, to convert `Person` to `Employee`.
     employee = <Employee, setCityToNewYork()>person;
     io:println(employee);
 
-    //Using the named transformer to convert person to employee, by passing parameters.
+    //Using the named transformer to convert `Person` to `Employee` by passing parameters.
     employee = <Employee, insertCountry("UK")>person;
     io:println(employee);
 }
