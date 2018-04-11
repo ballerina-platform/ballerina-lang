@@ -15,6 +15,11 @@ public type HelloWorldBlockingStub object {
         self.serviceStub = navStub;
     }
 
+    function getContext () returns (grpc:MessageContext) {
+        grpc:MessageContext context = new;
+        return context;
+    }
+
 
     function hello (string req) returns (string|error) {
         any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/hello", req);
@@ -42,6 +47,11 @@ public type HelloWorldStub object {
         grpc:ServiceStub navStub = new;
         navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
         self.serviceStub = navStub;
+    }
+
+    function getContext () returns (grpc:MessageContext) {
+        grpc:MessageContext context = new;
+        return context;
     }
 
     function hello (string req, typedesc listener) returns (error| ()) {
