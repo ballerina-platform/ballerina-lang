@@ -79,13 +79,19 @@ public class DirectoryListenerConnectorTest {
         } catch (IOException e) {
             Assert.fail(e.getMessage());
         }
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            // Ignore.
+        boolean isInvoked = false;
+        for (int i = 0; i < 20; i++) {
+            try {
+                final BValue[] result = BRunUtil.invokeStateful(compileResult, "isInvoked");
+                if (((BBoolean) result[0]).booleanValue()) {
+                    isInvoked = ((BBoolean) result[0]).booleanValue();
+                    break;
+                }
+                Thread.sleep(1000 * i);
+            } catch (InterruptedException e) {
+                // Ignore.
+            }
         }
-        final BValue[] result = BRunUtil.invokeStateful(compileResult, "isInvoked");
-        BBoolean isInvoked = (BBoolean) result[0];
-        Assert.assertTrue(isInvoked.booleanValue(), "Resource didn't invoke for the file create.");
+        Assert.assertTrue(isInvoked, "Resource didn't invoke for the file create.");
     }
 }

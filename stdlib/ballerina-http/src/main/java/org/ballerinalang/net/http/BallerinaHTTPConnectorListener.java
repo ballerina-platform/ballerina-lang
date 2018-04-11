@@ -115,10 +115,10 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
         CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage);
         //TODO handle BallerinaConnectorException
-        Executor.submit(balResource, callback, properties, ctx, signatureParams);
+        Executor.submit(balResource, callback, properties, ctx, parentCtx, signatureParams);
     }
 
-    private BValue getRequestFilterContext(HttpResource httpResource) {
+    protected BValue getRequestFilterContext(HttpResource httpResource) {
         BStruct filterCtxtStruct = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, "FilterContext");
@@ -168,7 +168,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
      * @param parentCtx         WorkerExecutionContext instance, which corresponds to the current worker execution
      *                          context
      */
-    private void invokeRequestFilters(HTTPCarbonMessage httpCarbonMessage, BValue requestObject, BValue filterCtxt,
+    protected void invokeRequestFilters(HTTPCarbonMessage httpCarbonMessage, BValue requestObject, BValue filterCtxt,
             WorkerExecutionContext parentCtx) {
 
         if (!hasFilters()) {

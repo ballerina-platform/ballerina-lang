@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.CustomErrorStrategyFactory;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.LSParserUtils;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.workspace.repository.LangServerFSProgramDirectory;
 import org.ballerinalang.langserver.workspace.repository.LangServerFSProjectDirectory;
@@ -30,13 +31,16 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.io.File;
 import java.io.IOException;
@@ -180,9 +184,10 @@ public class TextDocumentServiceUtil {
      */
     public static CompilerContext prepareCompilerContext(String packageName, PackageRepository packageRepository,
                                                          LSDocument sourceRoot, boolean preserveWhitespace,
-                                                         WorkspaceDocumentManager documentManager) {
+                                                         WorkspaceDocumentManager documentManager,
+                                                         LSGlobalContext lsGlobalContext) {
         return prepareCompilerContext(packageName, packageRepository, sourceRoot, preserveWhitespace, documentManager,
-                CompilerPhase.CODE_ANALYZE);
+                CompilerPhase.TAINT_ANALYZE, lsGlobalContext);
     }
 
     /**
@@ -197,8 +202,8 @@ public class TextDocumentServiceUtil {
     public static CompilerContext prepareCompilerContext(String packageName, PackageRepository packageRepository,
                                                          LSDocument sourceRoot, boolean preserveWhitespace,
                                                          WorkspaceDocumentManager documentManager,
-                                                         CompilerPhase compilerPhase) {
-        CompilerContext context = new CompilerContext();
+                                                         CompilerPhase compilerPhase, LSGlobalContext lsGlobalContext) {
+        CompilerContext context = lsGlobalContext.get(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT);
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot.getSourceRoot());
@@ -218,8 +223,13 @@ public class TextDocumentServiceUtil {
                     new LangServerFSProgramDirectory(sourceRoot.getSourceRootPath(), documentManager));
         }
         LSPackageCache globalPackageCache = LSPackageCache.getInstance();
-        globalPackageCache.removePackage(new PackageID(packageName));
-//        PackageCache.setInstance(globalPackageCache.getPackageCache(), context);
+        if (packageName.endsWith(".bal")) {
+            globalPackageCache.removePackage(new PackageID(""));
+        } else {
+            globalPackageCache.removePackage(new PackageID(Names.ANON_ORG,
+                    new Name(packageName), new Name("0.0.0")));
+        }
+        PackageCache.setInstance(globalPackageCache.getPackageCache(), context);
         return context;
     }
 
@@ -235,8 +245,14 @@ public class TextDocumentServiceUtil {
      */
     public static List<BLangPackage> getBLangPackage(LSContext context, WorkspaceDocumentManager docManager,
                                                      boolean preserveWhitespace, Class customErrorStrategy,
-                                                     boolean compileFullProject) {
+                                                     boolean compileFullProject, LSGlobalContext lsGlobalContext) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String unsavedFileId = LSParserUtils.getUnsavedFileIdOrNull(uri);
+        if (unsavedFileId != null) {
+            // if it is an unsaved file; overrides the file path
+            uri = LSParserUtils.createAndGetTempFile(unsavedFileId).toUri().toString();
+            context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
+        }
         LSDocument document = new LSDocument(uri);
         Path filePath = CommonUtil.getPath(document);
         Path fileNamePath = filePath.getFileName();
@@ -244,7 +260,6 @@ public class TextDocumentServiceUtil {
         if (fileNamePath != null) {
             fileName = fileNamePath.toString();
         }
-
 
         String sourceRoot = TextDocumentServiceUtil.getSourceRoot(filePath);
         String pkgName = TextDocumentServiceUtil.getPackageNameForGivenFile(sourceRoot, filePath.toString());
@@ -263,7 +278,8 @@ public class TextDocumentServiceUtil {
                         if ((file.isDirectory() && !file.getName().startsWith(".")) ||
                                 (!file.isDirectory() && file.getName().endsWith(".bal"))) {
                             Compiler compiler = getCompiler(context, fileName, file.getName(), packageRepository,
-                                                sourceDocument, preserveWhitespace, customErrorStrategy, docManager);
+                                    sourceDocument, preserveWhitespace, customErrorStrategy, docManager,
+                                    lsGlobalContext);
                             packages.add(compiler.compile(file.getName()));
                         }
                     }
@@ -272,7 +288,7 @@ public class TextDocumentServiceUtil {
         } else {
             pkgName = ("".equals(pkgName)) ? fileName : pkgName;
             Compiler compiler = getCompiler(context, fileName, pkgName, packageRepository, sourceDocument,
-                                            preserveWhitespace, customErrorStrategy, docManager);
+                    preserveWhitespace, customErrorStrategy, docManager, lsGlobalContext);
             packages.add(compiler.compile(pkgName));
         }
         return packages;
@@ -293,18 +309,16 @@ public class TextDocumentServiceUtil {
     private static Compiler getCompiler(LSContext context, String fileName, String packageName,
                                         PackageRepository packageRepository, LSDocument sourceRoot,
                                         boolean preserveWhitespace, Class customErrorStrategy,
-                                        WorkspaceDocumentManager documentManager) {
+                                        WorkspaceDocumentManager documentManager, LSGlobalContext lsGlobalContext) {
         CompilerContext compilerContext =
                 TextDocumentServiceUtil.prepareCompilerContext(packageName, packageRepository, sourceRoot,
-                        preserveWhitespace, documentManager);
+                        preserveWhitespace, documentManager, lsGlobalContext);
         context.put(DocumentServiceKeys.FILE_NAME_KEY, fileName);
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
         context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new LSServiceOperationContext());
-        List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
-        CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
-        compilerContext.put(DiagnosticListener.class, diagnosticListener);
         compilerContext.put(DefaultErrorStrategy.class,
                 CustomErrorStrategyFactory.getCustomErrorStrategy(customErrorStrategy, context));
+        BLangDiagnosticLog.getInstance(compilerContext).errorCount = 0;
         return Compiler.getInstance(compilerContext);
     }
 }

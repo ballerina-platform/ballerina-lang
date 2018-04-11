@@ -50,10 +50,10 @@ import java.util.logging.LogManager;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.websub",
+        orgName = "ballerina", packageName = "websub",
         functionName = "startWebSubSubscriberServiceEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
-                structPackage = "ballerina.net.websub"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
+                structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH),
         isPublic = true
 )
 public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunction {

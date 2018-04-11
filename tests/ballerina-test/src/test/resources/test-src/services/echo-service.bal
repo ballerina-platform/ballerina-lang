@@ -1,5 +1,6 @@
 import ballerina/mime;
 import ballerina/http;
+import ballerina/io;
 
 @final string constPath = getConstPath();
 
@@ -8,7 +9,7 @@ type Person {
     int age,
 };
 
-endpoint http:NonListeningServiceEndpoint echoEP {
+endpoint http:NonListener echoEP {
     port:9090
 };
 
@@ -127,12 +128,10 @@ service<http:Service> echo bind echoEP {
                 team = <string>p.team;
             }
             http:PayloadError err => {
-                done;
+                io:print(err);
             }
         }
-
         json responseJson = {"Name":name , "Team":team};
-
         http:Response res = new;
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);

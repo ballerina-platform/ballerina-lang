@@ -19,12 +19,10 @@ package org.ballerinalang.net.http.actions.httpclient;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -43,9 +41,6 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
                 @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
                         structPackage = "ballerina.http")
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.BOOLEAN)
         }
 )
 public class RejectPromise extends AbstractHTTPAction {
@@ -62,7 +57,6 @@ public class RejectPromise extends AbstractHTTPAction {
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.rejectPushResponse(http2PushPromise);
-        context.setReturnValues(new BBoolean(true)); // TODO: Implement a listener to see the progress
         callback.notifySuccess();
     }
 }

@@ -145,6 +145,39 @@ public class IOUtils {
     }
 
     /**
+     * <p>
+     * Writes the whole payload to the channel.
+     * </p>
+     *
+     * @param characterChannel the character channel the payload should be written.
+     * @param payload          the content.
+     * @param eventContext     the context of the event.
+     * @throws BallerinaException during i/o error.
+     */
+    public static void writeFull(CharacterChannel characterChannel, String payload, EventContext eventContext) throws
+            BallerinaException {
+        try {
+            int totalNumberOfCharsWritten = 0;
+            int numberOfCharsWritten;
+            final int lengthOfPayload = payload.length();
+            do {
+                WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, payload, 0, eventContext);
+                CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
+                EventResult eventResult = future.get();
+                numberOfCharsWritten = (Integer) eventResult.getResponse();
+                totalNumberOfCharsWritten = totalNumberOfCharsWritten + numberOfCharsWritten;
+            } while (totalNumberOfCharsWritten != lengthOfPayload && numberOfCharsWritten != 0);
+            if (totalNumberOfCharsWritten != lengthOfPayload) {
+                String message = "JSON payload was partially written expected:" + lengthOfPayload + ",written : " +
+                        totalNumberOfCharsWritten;
+                throw new BallerinaException(message);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new BallerinaException(e);
+        }
+    }
+
+    /**
      * Asynchronously reads bytes from the channel.
      *
      * @param content the initialized array which should be filled with the content.

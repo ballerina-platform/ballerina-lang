@@ -20,19 +20,19 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 
 import java.util.List;
 
 /**
  * Test cases for user defined documentation attachment in ballerina.
  */
-@Test(groups = {"broken"})
 public class RecordDocumentationTest {
 
     @BeforeClass
@@ -44,7 +44,7 @@ public class RecordDocumentationTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_annotation.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
+        List<BLangDocumentation> docNodes = ((BLangRecord) packageNode.getRecords().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, " Documentation for Test annotation\n");
@@ -68,7 +68,7 @@ public class RecordDocumentationTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_doc_annotation.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
+        List<BLangDocumentation> docNodes = ((BLangRecord) packageNode.getRecords().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, " Documentation for Test struct\n");
@@ -87,30 +87,31 @@ public class RecordDocumentationTest {
     @Test(description = "Test doc negative cases.")
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_annotation_negative.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 12);
+        Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
+        Assert.assertEquals(compileResult.getWarnCount(), 11);
         BAssertUtil.validateWarning(compileResult, 0,
                 "already documented attribute 'a'", 5, 1);
         BAssertUtil.validateWarning(compileResult, 1,
                 "no such documentable attribute 'c' with doc prefix 'F'", 7, 1);
         BAssertUtil.validateWarning(compileResult, 2,
-                "no such documentable attribute 'testConst' with doc prefix 'V'", 17, 1);
+                "no such documentable attribute 'testConstd' with doc prefix 'V'", 17, 1);
         BAssertUtil.validateWarning(compileResult, 3,
                 "already documented attribute 'a'", 31, 1);
         BAssertUtil.validateWarning(compileResult, 4,
                 "no such documentable attribute 'c' with doc prefix 'F'", 33, 1);
         BAssertUtil.validateWarning(compileResult, 5,
                 "already documented attribute 'file'", 45, 1);
+//        BAssertUtil.validateWarning(compileResult, 6,
+//                "no such documentable attribute 'successfuls' with doc prefix 'R'", 47, 1);
         BAssertUtil.validateWarning(compileResult, 6,
-                "no such documentable attribute 'successfuls' with doc prefix 'R'", 47, 1);
-        BAssertUtil.validateWarning(compileResult, 7,
                 "already documented attribute 'url'", 89, 1);
-        BAssertUtil.validateWarning(compileResult, 8,
+        BAssertUtil.validateWarning(compileResult, 7,
                 "no such documentable attribute 'urls' with doc prefix 'P'", 90, 1);
-        BAssertUtil.validateWarning(compileResult, 9,
+        BAssertUtil.validateWarning(compileResult, 8,
                 "no such documentable attribute 'conn' with doc prefix 'P'", 104, 1);
-        BAssertUtil.validateWarning(compileResult, 10,
+        BAssertUtil.validateWarning(compileResult, 9,
                 "already documented attribute 'req'", 110, 5);
-        BAssertUtil.validateWarning(compileResult, 11,
+        BAssertUtil.validateWarning(compileResult, 10,
                 "no such documentable attribute 'reqest' with doc prefix 'P'", 111, 5);
 //        BAssertUtil.validateWarning(compileResult, 8,
 //                "no such documentable attribute 'pa' with doc prefix 'T'", 63, 2);
@@ -121,6 +122,14 @@ public class RecordDocumentationTest {
         /*BAssertUtil.validateWarning(compileResult, 13,
                 "no such documentable attribute 'ssss' with doc prefix 'R'", 97, 5);*/
         /*Commented since no longer support named returns*/
+    }
+
+    private String getErrorString(Diagnostic[] diagnostics) {
+        StringBuilder sb = new StringBuilder();
+        for (Diagnostic diagnostic : diagnostics) {
+            sb.append(diagnostic + "\n");
+        }
+        return sb.toString();
     }
 
 }

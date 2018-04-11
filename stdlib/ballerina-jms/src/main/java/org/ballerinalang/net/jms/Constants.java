@@ -30,52 +30,44 @@ import javax.naming.Context;
  * @since 0.8.0
  */
 public class Constants {
+    // Common fields
+    public static final String B_OBJECT_FIELD_CONNECTOR = "connector";
+    public static final String B_OBJECT_FIELD_CONFIG = "config";
 
     // Connection fields
-    public static final String CONNECTION_CONNECTOR = "connector";
     public static final String CONNECTION_CONFIG = "config";
 
     // Session fields
-    public static final String SESSION_FIELD_CONNECTOR = "connector";
     public static final String SESSION_CONFIG = "config";
 
     // Queue Sender fields
-    public static final String QUEUE_SENDER_FIELD_CONFIG = "config";
+    public static final String QUEUE_SENDER_FIELD_CONFIG = B_OBJECT_FIELD_CONFIG;
     public static final String QUEUE_SENDER_FIELD_QUEUE_NAME = "queueName";
-    public static final String QUEUE_SENDER_FIELD_CONNECTOR = "connector";
+    public static final String QUEUE_SENDER_FIELD_CONNECTOR = B_OBJECT_FIELD_CONNECTOR;
+
+    // Topic publisher fields
+    public static final String TOPIC_PUBLISHER_FIELD_CONFIG = B_OBJECT_FIELD_CONFIG;
+    public static final String TOPIC_PUBLISHER_FIELD_TOPIC_PATTERN = "topicPattern";
+    public static final String TOPIC_PUBLISHER_FIELD_CONNECTOR = B_OBJECT_FIELD_CONNECTOR;
 
     // Consumer fields
     public static final String CONSUMER_CONFIG = "config";
     public static final String QUEUE_NAME = "queueName";
+    public static final String TOPIC_PATTERN = "topicPattern";
+    public static final String CONSUMER_IDENTIFIER = "identifier";
     public static final String CONSUMER_CONNECTOR = "connector";
     public static final String QUEUE_CONSUMER_ENDPOINT = "QueueConsumer";
 
     // Native objects
     public static final String JMS_CONNECTION = "jms_connection_object";
     public static final String JMS_SESSION = "jms_session_object";
-    public static final String JMS_QUEUE_SENDER_OBJECT = "jms_queue_sender_object";
+    public static final String JMS_PRODUCER_OBJECT = "jms_producer_object";
     public static final String JMS_MESSAGE_OBJECT = "jms_message_object";
     public static final String JMS_CONSUMER_OBJECT = "jms_consumer_object";
-
-    public static final String SERVER_CONNECTOR = "serverConnector";
-
-    public static final String SERVICE_ENDPOINT = "ConsumerEndpoint";
-
-    public static final String ENDPOINT_CONFIG_KEY = "config";
-
-    /**
-     * JMSSource annotation name which is used to define a JMS server connector.
-     */
-    public static final String ANNOTATION_JMS_CONFIGURATION = "ServiceConfig";
-    // jms protocol name
+    // Used to keep the session wrapper
+    public static final String SESSION_CONNECTOR_OBJECT = "jms_session_connector_object";
 
     public static final String BALLERINA_PACKAGE_JMS = "ballerina.jms";
-    public static final String PROTOCOL_JMS = "jms";
-    public static final String PROTOCOL_PACKAGE_JMS = "ballerina.net.jms";
-    public static final String JMS_SERVICE_ID = "JMS_SERVICE_ID";
-    public static final String JMS_PACKAGE = "ballerina.net.jms";
-    public static final String CLIENT_CONNECTOR = "ClientConnector";
-    public static final String B_CLIENT_CONNECTOR = "BClientConnector";
     public static final String CONFIG_FILE_PATH = "configFilePath";
 
     public static final String PROPERTIES_MAP = "properties";
@@ -111,6 +103,8 @@ public class Constants {
 
     public static final String MB_ICF_NAME = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory";
     public static final String MB_CF_NAME_PREFIX = "connectionfactory.";
+    public static final String ERROR_STRUCT = "Error";
+
     private static Map<String, String> mappingParameters;
 
     public static final String PARAM_CONNECTION_FACTORY_JNDI_NAME = "transport.jms.ConnectionFactoryJNDIName";
@@ -135,34 +129,7 @@ public class Constants {
 
     public static final Map<String, String> MAPPING_PARAMETERS = Collections.unmodifiableMap(mappingParameters);
 
-    /* There are some operation that can be done only on inbound jms messages. eg: acknowledgement, rollback etc.
-    * This property will identify whether the message is coming from the server connector or not. Please note that
-    * When creating a new JMS message inside a native function/action, this property has be set to false
-    * */
-
-    public static final String INBOUND_REQUEST = "INBOUND_REQUEST";
-    /* Constant to represent key of the JMS Message inside the JMSMessage Struct */
-
-    public static final String JMS_API_MESSAGE = "JMS_API_MESSAGE";
-    /* Constant to represent key of the cached JMS Client Connector */
-
-    public static final String JMS_TRANSPORT_CLIENT_CONNECTOR = "JMS_TRANSPORT_CLIENT_CONNECTOR";
     public static final String JMS_MESSAGE_STRUCT_NAME = "Message";
-
-    public static final String CONNECTOR_NAME = "JmsClient";
-
-    /*
-     * Session acknowledgement mode of the particular message.
-     */
-
-    public static final String JMS_SESSION_ACKNOWLEDGEMENT_MODE = "JMS_SESSION_ACKNOWLEDGEMENT_MODE";
-    // Delivery statuses
-
-    public static final String JMS_MESSAGE_DELIVERY_ERROR = "ERROR";
-    public static final String JMS_MESSAGE_DELIVERY_SUCCESS = "SUCCESS";
-    public static final String EMPTY_STRING = "";
-
-    public static final int CLIENT_CONFIG_ACK_FIELD_INDEX = 4;
 
     /**
      * Acknowledge Modes.

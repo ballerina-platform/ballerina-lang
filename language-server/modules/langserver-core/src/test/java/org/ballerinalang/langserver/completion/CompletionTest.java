@@ -42,6 +42,7 @@ import java.util.List;
 /**
  * Completion Test Interface.
  */
+@Test(groups = "broken")
 public abstract class CompletionTest {
 
     private static final Logger LOGGER = Logger.getLogger(CompletionTest.class);

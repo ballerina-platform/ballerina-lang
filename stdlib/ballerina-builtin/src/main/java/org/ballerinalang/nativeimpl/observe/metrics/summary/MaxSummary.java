@@ -54,7 +54,7 @@ public class MaxSummary extends BlockingNativeCallableUnit {
         String description = summaryStruct.getStringField(1);
         BMap tagsMap = (BMap) summaryStruct.getRefField(0);
 
-        if (!tagsMap.isEmpty()) {
+        if (tagsMap != null) {
             List<Tag> tags = new ArrayList<>();
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));

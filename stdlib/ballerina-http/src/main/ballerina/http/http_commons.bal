@@ -65,7 +65,7 @@ public type ServiceOcspStapling {
 @Field {value:"cause: The error which caused the entity error"}
 public type PayloadError {
     string message,
-    error[] cause,
+    error? cause,
 };
 
 //////////////////////////////

@@ -27,6 +27,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.server.core.ServerConstants;
 import org.ballerinalang.composer.server.spi.ComposerService;
 import org.ballerinalang.composer.server.spi.ServiceInfo;
@@ -34,11 +35,15 @@ import org.ballerinalang.composer.server.spi.ServiceType;
 import org.ballerinalang.composer.service.ballerina.parser.Constants;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BFile;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BLangSourceFragment;
-import org.ballerinalang.composer.service.ballerina.parser.service.model.BallerinaFile;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ModelPackage;
 import org.ballerinalang.composer.service.ballerina.parser.service.util.BLangFragmentParser;
 import org.ballerinalang.composer.service.ballerina.parser.service.util.ParserUtils;
+import org.ballerinalang.langserver.LSGlobalContext;
+import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
+import org.ballerinalang.langserver.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.LSParserUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -57,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -77,6 +83,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import static org.ballerinalang.langserver.common.utils.LSParserUtils.UNTITLED_BAL;
 
 /**
  * Micro service for ballerina parser.
@@ -412,12 +420,21 @@ public class BallerinaParserService implements ComposerService {
      * @return List of errors if any
      */
     private JsonObject validateAndParse(BFile bFileRequest) throws InvocationTargetException, IllegalAccessException {
-        final java.nio.file.Path filePath = Paths.get(bFileRequest.getFilePath(), bFileRequest.getFileName());
         final String fileName = bFileRequest.getFileName();
         final String content = bFileRequest.getContent();
 
-        BallerinaFile bFile = ParserUtils.compile(content, filePath);
-        String programDir = TextDocumentServiceUtil.getSourceRoot(filePath);
+        BallerinaFile bFile;
+        String programDir = "";
+        LSGlobalContext lsGlobalContext = new LSGlobalContext();
+        CompilerContext globalCompilationContext = CommonUtil.prepareTempCompilerContext();
+        lsGlobalContext.put(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT, globalCompilationContext);
+        if (UNTITLED_BAL.equals(fileName)) {
+            bFile = LSParserUtils.compile(content, CompilerPhase.CODE_ANALYZE, lsGlobalContext);
+        } else {
+            java.nio.file.Path filePath = Paths.get(bFileRequest.getFilePath(), bFileRequest.getFileName());
+            bFile = LSParserUtils.compile(content, filePath, CompilerPhase.CODE_ANALYZE, lsGlobalContext);
+            programDir = TextDocumentServiceUtil.getSourceRoot(filePath);
+        }
 
         final BLangPackage model = bFile.getBLangPackage();
         final List<Diagnostic> diagnostics = bFile.getDiagnostics();
@@ -474,9 +491,7 @@ public class BallerinaParserService implements ComposerService {
             JsonElement packageInfo = gson.toJsonTree(packageInfoJson.get());
             result.add("packageInfo", packageInfo);
         }
-        if (programDir != null) {
-            result.addProperty("programDirPath", programDir);
-        }
+        result.addProperty("programDirPath", programDir);
         return result;
     }
 

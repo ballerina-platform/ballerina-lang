@@ -2,15 +2,15 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
 
-endpoint http:ServiceEndpoint serviceEP {
+endpoint http:Listener serviceEP {
     port:9090
 };
 
-endpoint http:ClientEndpoint nasdaqEP {
+endpoint http:Client nasdaqEP {
     targets:[{url:"http://localhost:9090/nasdaqStocks"}]
 };
 
-endpoint http:ClientEndpoint nyseEP {
+endpoint http:Client nyseEP {
     targets:[{url:"http://localhost:9090/nyseStocks"}]
 };
 
@@ -41,7 +41,7 @@ service<http:Service> contentBasedRouting bind serviceEP{
                     clientResponse.setStringPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
-                http:Response returnResponse => _ = conn -> forward(returnResponse);
+                http:Response returnResponse => _ = conn -> respond(returnResponse);
             }
         } else {
             var result = nasdaqEP -> post("/stocks", clientRequest);
@@ -51,7 +51,7 @@ service<http:Service> contentBasedRouting bind serviceEP{
                     clientResponse.setStringPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
-                http:Response returnResponse => _ = conn -> forward(returnResponse);
+                http:Response returnResponse => _ = conn -> respond(returnResponse);
             }
         }
     }
@@ -78,7 +78,7 @@ service<http:Service> headerBasedRouting bind serviceEP{
                     clientResponse.setStringPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
-                http:Response returnResponse => _ = conn -> forward(returnResponse);
+                http:Response returnResponse => _ = conn -> respond(returnResponse);
             }
         } else {
             var result = nasdaqEP -> post("/stocks", clientRequest);
@@ -88,7 +88,7 @@ service<http:Service> headerBasedRouting bind serviceEP{
                     clientResponse.setStringPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
-                http:Response returnResponse => _ = conn -> forward(returnResponse);
+                http:Response returnResponse => _ = conn -> respond(returnResponse);
             }
         }
     }

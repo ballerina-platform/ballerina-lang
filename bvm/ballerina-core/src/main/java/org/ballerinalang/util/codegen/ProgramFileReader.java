@@ -19,8 +19,6 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BConnectorType;
-import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
@@ -37,13 +35,11 @@ import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeUnitLoader;
-import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
@@ -89,9 +85,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
 
@@ -358,23 +352,14 @@ public class ProgramFileReader {
         // Read struct info entries
         readStructInfoEntries(dataInStream, packageInfo);
 
-        // Read enum info entries
-        readEnumInfoEntries(dataInStream, packageInfo);
-
         // Read type definition info entries
         readTypeDefinitionInfoEntries(dataInStream, packageInfo);
-
-        // Read connector info entries
-        readConnectorInfoEntries(dataInStream, packageInfo);
 
         // Read service info entries
         readServiceInfoEntries(dataInStream, packageInfo);
 
         // Resolve user-defined type i.e. structs and connectors
         resolveUserDefinedTypes(packageInfo);
-
-        // Read connector action info entries
-        readConnectorActionInfoEntries(dataInStream, packageInfo);
 
         // Read resource info entries.
         readResourceInfoEntries(dataInStream, packageInfo);
@@ -397,8 +382,6 @@ public class ProgramFileReader {
         resolveCPEntries();
 
         resolveTypeDefinitionEntries(packageInfo);
-
-        resolveConnectorMethodTables(packageInfo);
 
         // Read attribute info entries
         readAttributeInfoEntries(dataInStream, packageInfo, packageInfo);
@@ -530,119 +513,6 @@ public class ProgramFileReader {
                 finiteType.memberTypes.add(typeRefCPEntry.getType());
             });
             finiteType.memberCPEntries.clear();
-        }
-    }
-
-    private void readEnumInfoEntries(DataInputStream dataInStream,
-                                     PackageInfo packageInfo) throws IOException {
-        int enumCount = dataInStream.readShort();
-        for (int i = 0; i < enumCount; i++) {
-
-            // Create enum info entry
-            int enumNameCPIndex = dataInStream.readInt();
-            int flags = dataInStream.readInt();
-            UTF8CPEntry enumNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(enumNameCPIndex);
-            String enumName = enumNameUTF8Entry.getValue();
-            EnumInfo enumInfo = new EnumInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    enumNameCPIndex, enumName, flags);
-            packageInfo.addEnumInfo(enumName, enumInfo);
-
-            // Set enum type
-            BEnumType enumType = new BEnumType(enumName, packageInfo.getPkgPath());
-            enumInfo.setType(enumType);
-
-            int enumeratorCount = dataInStream.readShort();
-            BEnumerator[] enumerators = new BEnumerator[enumeratorCount];
-            for (int j = 0; j < enumeratorCount; j++) {
-                int enumeratorNameCPIndex = dataInStream.readInt();
-                UTF8CPEntry enumeratorNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(enumeratorNameCPIndex);
-                String enumeratorName = enumeratorNameUTF8Entry.getValue();
-                BEnumerator enumerator = new BEnumerator(enumeratorName, enumType);
-                enumerators[j] = enumerator;
-            }
-            enumType.setEnumerators(enumerators);
-
-            // Read attributes of the struct info
-            readAttributeInfoEntries(dataInStream, packageInfo, enumInfo);
-        }
-    }
-
-    private void readConnectorInfoEntries(DataInputStream dataInStream,
-                                          PackageInfo packageInfo) throws IOException {
-        int connectorCount = dataInStream.readShort();
-        for (int i = 0; i < connectorCount; i++) {
-            // Read connector name cp index
-            int connectorNameCPIndex = dataInStream.readInt();
-            UTF8CPEntry connectorNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(connectorNameCPIndex);
-
-            int flags = dataInStream.readInt();
-
-            // Create connector info
-            String connectorName = connectorNameUTF8Entry.getValue();
-            ConnectorInfo connectorInfo = new ConnectorInfo(packageInfo.getPkgNameCPIndex(),
-                    packageInfo.getPkgPath(), connectorNameCPIndex, connectorName, flags);
-            packageInfo.addConnectorInfo(connectorName, connectorInfo);
-
-            // Set connector type
-            BConnectorType bConnectorType = new BConnectorType(connectorName, packageInfo.getPkgPath());
-            connectorInfo.setType(bConnectorType);
-        }
-
-    }
-
-    private void readConnectorActionInfoEntries(DataInputStream dataInStream,
-                                                PackageInfo packageInfo) throws IOException {
-        for (ConnectorInfo connectorInfo : packageInfo.getConnectorInfoEntries()) {
-            // Read action info entries
-            int actionCount = dataInStream.readShort();
-            for (int j = 0; j < actionCount; j++) {
-                // Read action name;
-                int actionNameCPIndex = dataInStream.readInt();
-                UTF8CPEntry actionNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(actionNameCPIndex);
-                String actionName = actionNameUTF8Entry.getValue();
-                ActionInfo actionInfo = new ActionInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                        actionNameCPIndex, actionName, connectorInfo);
-                actionInfo.setPackageInfo(packageInfo);
-                connectorInfo.addActionInfo(actionName, actionInfo);
-
-                // Read action signature
-                int actionSigCPIndex = dataInStream.readInt();
-                UTF8CPEntry actionSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(actionSigCPIndex);
-                actionInfo.setSignatureCPIndex(actionSigCPIndex);
-                actionInfo.setSignature(actionSigUTF8Entry.getValue());
-                int flags = dataInStream.readInt();
-//                actionInfo.setflags(flags);
-                setCallableUnitSignature(actionInfo, actionSigUTF8Entry.getValue(), packageInfo);
-
-                // TODO Temp solution.
-                boolean nativeAction = dataInStream.readByte() == 1;
-                actionInfo.setNative(nativeAction);
-
-                int workerDataChannelsLength = dataInStream.readShort();
-                for (int k = 0; k < workerDataChannelsLength; k++) {
-                    readWorkerDataChannelEntries(dataInStream, packageInfo, actionInfo);
-                }
-
-                // Read worker info entries
-                readWorkerInfoEntries(dataInStream, packageInfo, actionInfo);
-
-                if (nativeAction) {
-                    NativeCallableUnit nativeActionObj = NativeUnitLoader.getInstance().loadNativeAction(
-                            actionInfo.getPkgPath(), actionInfo.getConnectorInfo().getName(), actionInfo.getName());
-                    if (nativeActionObj == null && !actionInfo.name.equals("<init>")) {
-                        throw new BLangRuntimeException("native action not available " +
-                                actionInfo.getPkgPath() + ":" + actionInfo
-                                .getConnectorInfo().getName() + "." + actionName);
-                    }
-                    actionInfo.setNativeCallableUnit(nativeActionObj);
-                }
-
-                // Read attributes of the struct info
-                readAttributeInfoEntries(dataInStream, packageInfo, actionInfo);
-            }
-
-            // Read attributes of the struct info
-            readAttributeInfoEntries(dataInStream, packageInfo, connectorInfo);
         }
     }
 
@@ -988,9 +858,7 @@ public class ProgramFileReader {
                     packageInfoOfType = packageInfo;
                 }
 
-                if (typeChar == 'C') {
-                    typeStack.push(packageInfoOfType.getConnectorInfo(name).getType());
-                } else if (typeChar == 'J') {
+                if (typeChar == 'J') {
                     if (name.isEmpty()) {
                         typeStack.push(BTypes.typeJSON);
                     } else {
@@ -1008,8 +876,6 @@ public class ProgramFileReader {
                     } else {
                         typeStack.push(new BStreamType(packageInfoOfType.getStructInfo(name).getType()));
                     }
-                } else if (typeChar == 'E') {
-                    typeStack.push(packageInfoOfType.getEnumInfo(name).getType());
                 } else if (typeChar == 'G') {
                     typeStack.push(packageInfoOfType.getTypeDefinitionInfo(name).getType());
                 } else {
@@ -1121,16 +987,12 @@ public class ProgramFileReader {
                 PackageInfo packageInfoOfType = programFile.getPackageInfo(pkgPath);
                 if (ch == 'J') {
                     return new BJSONType(packageInfoOfType.getStructInfo(name).getType());
-                } else if (ch == 'C') {
-                    return packageInfoOfType.getConnectorInfo(name).getType();
                 } else if (ch == 'X') {
                     return packageInfoOfType.getServiceInfo(name).getType();
                 } else if (ch == 'D') {
                     return new BTableType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'H') {
                     return new BStreamType(packageInfoOfType.getStructInfo(name).getType());
-                } else if (ch == 'E') {
-                    return packageInfoOfType.getEnumInfo(name).getType();
                 } else if (ch == 'G') {
                     return packageInfoOfType.getTypeDefinitionInfo(name).getType();
                 } else {
@@ -1502,7 +1364,6 @@ public class ProgramFileReader {
                 case InstructionCodes.RNEWARRAY:
                 case InstructionCodes.JSONNEWARRAY:
                 case InstructionCodes.NEWSTRUCT:
-                case InstructionCodes.NEWCONNECTOR:
                 case InstructionCodes.ITR_NEW:
                 case InstructionCodes.ITR_HAS_NEXT:
                 case InstructionCodes.IRET:
@@ -1560,7 +1421,6 @@ public class ProgramFileReader {
                 case InstructionCodes.DT2XML:
                 case InstructionCodes.DT2JSON:
                 case InstructionCodes.T2MAP:
-                case InstructionCodes.T2JSON:
                 case InstructionCodes.XML2JSON:
                 case InstructionCodes.JSON2XML:
                 case InstructionCodes.XMLATTRS2MAP:
@@ -1607,7 +1467,6 @@ public class ProgramFileReader {
                 case InstructionCodes.MAPSTORE:
                 case InstructionCodes.JSONLOAD:
                 case InstructionCodes.JSONSTORE:
-                case InstructionCodes.ENUMERATORLOAD:
                 case InstructionCodes.IADD:
                 case InstructionCodes.FADD:
                 case InstructionCodes.SADD:
@@ -1658,6 +1517,9 @@ public class ProgramFileReader {
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.XMLSEQLOAD:
                 case InstructionCodes.NEWTABLE:
+                case InstructionCodes.T2JSON:
+                case InstructionCodes.MAP2JSON:
+                case InstructionCodes.JSON2MAP:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1687,13 +1549,6 @@ public class ProgramFileReader {
                     funcRefCPEntry = (FunctionRefCPEntry) packageInfo.getCPEntry(funcRefCPIndex);
                     packageInfo.addInstruction(new InstructionVCALL(opcode, receiverRegIndex, funcRefCPIndex,
                             funcRefCPEntry.getFunctionInfo(), flags, getArgRegs(codeStream), getArgRegs(codeStream)));
-                    break;
-                case InstructionCodes.ACALL:
-                    int actionRefCPIndex = codeStream.readInt();
-                    flags = codeStream.readInt();
-                    ActionRefCPEntry actionRefCPEntry = (ActionRefCPEntry) packageInfo.getCPEntry(actionRefCPIndex);
-                    packageInfo.addInstruction(new InstructionACALL(opcode, actionRefCPIndex,
-                            actionRefCPEntry.getActionName(), flags, getArgRegs(codeStream), getArgRegs(codeStream)));
                     break;
                 case InstructionCodes.FPCALL:
                     funcRefCPIndex = codeStream.readInt();
@@ -1858,33 +1713,6 @@ public class ProgramFileReader {
                     break;
                 default:
                     break;
-            }
-        }
-    }
-
-    private void resolveConnectorMethodTables(PackageInfo packageInfo) {
-        ConnectorInfo[] connectorInfoEntries = packageInfo.getConnectorInfoEntries();
-        for (ConnectorInfo connectorInfo : connectorInfoEntries) {
-            BConnectorType connectorType = connectorInfo.getType();
-
-            VarTypeCountAttributeInfo attributeInfo = (VarTypeCountAttributeInfo)
-                    connectorInfo.getAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE);
-            connectorType.setFieldTypeCount(attributeInfo.getVarTypeCount());
-
-            Map<Integer, Integer> methodTableInteger = connectorInfo.getMethodTableIndex();
-            Map<BConnectorType, ConnectorInfo> methodTableType = new HashMap<>();
-            for (Integer key : methodTableInteger.keySet()) {
-                int keyType = methodTableInteger.get(key);
-                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(key);
-                StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) packageInfo.getCPEntry(keyType);
-                ConnectorInfo connectorInfoType = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
-                methodTableType.put((BConnectorType) typeRefCPEntry.getType(), connectorInfoType);
-            }
-
-            connectorInfo.setMethodTableType(methodTableType);
-
-            for (ActionInfo actionInfo : connectorInfo.getActionInfoEntries()) {
-                setCallableUnitSignature(actionInfo, actionInfo.getSignature(), packageInfo);
             }
         }
     }

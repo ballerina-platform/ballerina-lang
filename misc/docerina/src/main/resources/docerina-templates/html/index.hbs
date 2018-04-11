@@ -1,74 +1,122 @@
-<!DOCTYPE HTML>
-<html lang="en">
 <head>
-	<!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="docerina-theme/libs/bootstrap-3.0.0/css/bootstrap.min.css">
-
-    <!-- Roboto font CSS -->
-    <link rel="stylesheet" href="docerina-theme/css/roboto.css">
-
-    <!-- Nanoscroller CSS -->
-    <link rel="stylesheet" href="docerina-theme/css/nanoscroller.css">
-
-    <!-- custom CSS -->
-    <link rel="stylesheet" href="docerina-theme/css/main.css">
-
-    <!-- Jquery JS -->
-    <script src="docerina-theme/js/jquery.min.js"></script>
-
-    <!-- Nanoscroller JS -->
-    <script src="docerina-theme/js/jquery.nanoscroller.min.js"></script>
-
-    <script type="text/javascript">
-        $(document).ready(function(){
-            $('.nano').nanoScroller();
-        });
-    </script>
-
-    <title>Ballerina API Documentation</title>
+   <meta charset="utf-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="author" content="WSO2, Inc.">
+   <link rel="shortcut icon" href="/img/favicon.ico">
+   <title>Ballerina.io - API Docs</title>
+   <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+   <!-- Optional theme -->
+   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+   <!-- Latest compiled and minified JavaScript -->
+   <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+   <!--      <script src="../../js/jquery-2.1.1.min.js"></script>-->
+   <!--  <script src="../../js/modernizr-2.8.3.min.js"></script>
+      <script type="text/javascript" src="../../js/highlight.pack.js"></script>-->
+   <script src="/js/jquery-2.1.1.min.js"></script>
+   <script src="/js/modernizr-2.8.3.min.js"></script>
+   <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+   <link rel="stylesheet" href="https://use.typekit.net/son4ymv.css"/>
+   <script src="/js/ballerina-common.js"></script>
+   <link rel="stylesheet" href="/css/theme.css" type="text/css" />
+   <link rel="stylesheet" href="/css/theme_extra.css" type="text/css" />
+   <link rel="stylesheet" href="/css/highlight.css">
+   <link rel="stylesheet" href="/css/ballerina-io.css">
+   <link rel="stylesheet" href="/css/ballerina-io-docs.css">
+   <link rel="stylesheet" href="/css/bbe-page.css">
+   <script src="docerina-theme/js/jquery.nanoscroller.min.js"></script>
+   <script type="text/javascript">
+      $(document).ready(function(){
+          $('.nano').nanoScroller();
+      });
+   </script>
+   <script>
+      // Current page data
+      var mkdocs_page_name = "ballerina-by-Examples";
+      var mkdocs_page_input_path = "learn/by-example.md";
+      var mkdocs_page_url = "/learn/by-example/";
+   </script>
 </head>
-<body>
-	<!-- Wrapper -->
-	<div id="wrapper">
-
-		<!-- Main -->
-		<div id="main">
-			<div class="inner">
-
-                <div id="header" class="navbar navbar-fixed-top">
-                    <div class="container-full">
-                        <a href="index.html"><strong>Ballerina</strong> API Documentation</a>
-                    </div>
-                </div>
-
-				<!-- Banner -->
-				<section>
-                    <div id="index-content" class="nano">
-                        <div class="nano-content">
-						    <h2>Ballerina Packages</h2>
-                            <ul>
-                                {{#each this}}
-                                <li>
-                                    <a href="{{href}}.html">
-                                        {{#if caption.isPackageName}}
-                                            {{caption.prefix}}<span class="bold">{{caption.suffix}}</span>
-                                        {{/if}}
-                                        {{#if caption.isStaticCaption}}
-                                            <span class="bold">{{caption.value}}</span>
-                                        {{/if}}
-                                    </a>
-                                </li>
-                                {{/each}}
-                            </ul>
-					    </div>
-                    </div>
-				</section>
-			</div>
-		</div>
-	</div>
+<body class="cBallerina-io">
+   <div class="row cBallerina-io-top-row">
+      <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6"></div>
+      <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 cTopLineContainer">
+         <div class="cTopLine"></div>
+      </div>
+   </div>
+   <div class="row cBallerina-io-Nav" id="iMainNavigation">
+   </div>
+   <div class="row cBallerina-io-Logo-row">
+      <div class="container">
+         <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 cBallerina-io-Logo-Container">
+            <a class="cLogo" href="/" ><img src="/img/ballerina-logo.svg" alt="Ballerina"/></a>
+         </div>
+      </div>
+   </div>
+   <div class="row cBallerina-io-Gray-row">
+      <div class="container">
+         <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 cBallerina-io-Home-Middle-col">
+            <div class="cBallerina-io-breadcrumbs">
+               <div role="navigation" aria-label="breadcrumbs navigation">
+                  <ul class="wy-breadcrumbs">
+                     <li><a href="/">Home</a> &raquo;</li>
+                     <li>Learn &raquo;</li>
+                     <li>API Docs</li>
+                     <li class="wy-breadcrumbs-aside" id="iGitEdit">
+                        <!--        <a href="https://github.com/ballerinalang/ballerina/edit/master/docs/learn/by-example.md"
+                           class="icon icon-github"> Edit on GitHub</a>-->
+                     </li>
+                  </ul>
+               </div>
+            </div>
+            <div class="cBlallerina-io-docs-content-container">
+               <div>
+                  <div>
+                     <div>
+                        <div>
+                           <p>
+                              <link rel="stylesheet" href="/css/philosophy-page.css">
+                              </link>
+                              <link rel="stylesheet" href="/css/bbe-page.css">
+                              </link>
+                           <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 cBBEtop">
+                              <h1>API Docs</h1>
+                              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                           </div>
+                           <div id="ballerina-by-example">
+                              <div>
+                                 <div class="cLanguageFeaturesContainer">
+                                    <div class="col-xs-12 col-sm-16 col-md-3 col-lg-3 cLanguageFeatures featureSet0">
+                                       <ul>
+                                          {{#each this}}
+                                          <li class="cTableTitle">
+                                             <a href="{{href}}.html">
+                                             {{#if caption.isPackageName}}
+                                             {{caption.prefix}}<span class="bold">{{caption.suffix}}</span>
+                                             {{/if}}
+                                             {{#if caption.isStaticCaption}}
+                                             <span class="bold">{{caption.value}}</span>
+                                             {{/if}}
+                                             </a>
+                                          </li>
+                                          {{/each}}
+                                       </ul>
+                                       <div class="clearfix"></div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div id="iBallerinaFooter" class="row cBallerina-io-White-row">
+   </div>
+   <script src="/js/theme.js"></script>
 </body>
 </html>

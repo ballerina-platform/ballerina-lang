@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.compiler.ResourceSignatureValidator;
 import org.ballerinalang.net.websub.WebSubSubscriberConstants;
@@ -36,16 +37,18 @@ import java.util.List;
  * @since 0.965.0
  */
 @SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.net.websub",
-                        name = "SubscriberServiceEndpoint")
-        }
+        value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "websub", name = "Listener")}
 )
 public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
 
+    private DiagnosticLog dlog = null;
+
     @Override
     public void init(DiagnosticLog diagnosticLog) {
+        dlog = diagnosticLog;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         for (AnnotationAttachmentNode annotation : annotations) {
@@ -58,9 +61,10 @@ public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
                 handleServiceConfigAnnotation(serviceNode, (BLangAnnotationAttachment) annotation);
             }
         }
-        if (HttpConstants.HTTP_SERVICE_TYPE.equals(serviceNode.getServiceTypeStruct().getTypeName().getValue())) {
+        final UserDefinedTypeNode serviceType = serviceNode.getServiceTypeStruct();
+        if (serviceType != null && HttpConstants.HTTP_SERVICE_TYPE.equals(serviceType.getTypeName().getValue())) {
             List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
-            resources.forEach(resource -> ResourceSignatureValidator.validate(resource.getParameters()));
+            resources.forEach(res -> ResourceSignatureValidator.validate(res.getParameters(), dlog, res.pos));
         }
     }
 

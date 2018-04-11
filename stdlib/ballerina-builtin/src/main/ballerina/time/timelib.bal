@@ -147,6 +147,10 @@ public type Time object {
 @Return { value:"Time object containing the time and zone information."}
 public native function currentTime() returns (Time);
 
+@Description {value:"Returns the current system time in nano seconds"}
+@Return {value:"Int value of the current system time in nano seconds"}
+public native function nanoTime() returns (int);
+
 @Description {value:"Returns the Time object correspoding to the given time components and timezone."}
 @Param {value:"year: The year representation"}
 @Param {value:"month: The month-of-year to represent, from 1 (January) to 12 (December)"}

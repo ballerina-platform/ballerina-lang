@@ -69,14 +69,14 @@ public type HttpCachingClient object {
 
     public {
         string serviceUri;
-        ClientEndpointConfiguration config;
+        ClientEndpointConfig config;
         HttpClient httpClient;
         HttpCache cache;
         CacheConfig cacheConfig;
     }
 
     public new(serviceUri, config, cacheConfig) {
-        self.httpClient = createHttpClient(serviceUri, config);
+        self.httpClient = createHttpSecureClient(serviceUri, config);
         self.cache = createHttpCache("http-cache", cacheConfig);
     }
 
@@ -148,26 +148,26 @@ public type HttpCachingClient object {
     @Param {value:"httpVerb: The HTTP verb value"}
     @Param {value:"path: The Resource path "}
     @Param {value:"req: An HTTP outbound request message"}
-    @Return {value:"The Handle for further interactions"}
+    @Return {value:"The Future for further interactions"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function submit (string httpVerb, string path, Request req) returns (HttpHandle|HttpConnectorError);
+    public function submit (string httpVerb, string path, Request req) returns (HttpFuture|HttpConnectorError);
 
     @Description {value:"Retrieves response for a previously submitted request."}
-    @Param {value:"handle: The Handle which relates to previous async invocation"}
+    @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"The HTTP response message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function getResponse (HttpHandle handle) returns (Response|HttpConnectorError);
+    public function getResponse (HttpFuture httpFuture) returns (Response|HttpConnectorError);
 
     @Description {value:"Checks whether server push exists for a previously submitted request."}
-    @Param {value:"handle: The Handle which relates to previous async invocation"}
+    @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"Whether push promise exists"}
-    public function hasPromise (HttpHandle handle) returns boolean;
+    public function hasPromise (HttpFuture httpFuture) returns boolean;
 
     @Description {value:"Retrieves the next available push promise for a previously submitted request."}
-    @Param {value:"handle: The Handle which relates to previous async invocation"}
+    @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"The HTTP Push Promise message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function getNextPromise (HttpHandle handle) returns (PushPromise|HttpConnectorError);
+    public function getNextPromise (HttpFuture httpFuture) returns (PushPromise|HttpConnectorError);
 
     @Description {value:"Retrieves the promised server push response."}
     @Param {value:"promise: The related Push Promise message"}
@@ -177,12 +177,11 @@ public type HttpCachingClient object {
 
     @Description {value:"Rejects a push promise."}
     @Param {value:"promise: The Push Promise need to be rejected"}
-    @Return {value:"Whether operation is successful"}
-    public function rejectPromise (PushPromise promise) returns boolean;
+    public function rejectPromise (PushPromise promise);
 };
 
 @Description {value:"Creates an HTTP client capable of caching HTTP responses."}
-public function createHttpCachingClient(string url, ClientEndpointConfiguration config, CacheConfig cacheConfig) returns HttpClient {
+public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig) returns HttpClient {
     HttpCachingClient httpCachingClient = new (url, config, cacheConfig);
     log:printDebug("Created HTTP caching client: " + io:sprintf("%r",[httpCachingClient]));
     return httpCachingClient;
@@ -281,28 +280,28 @@ public function HttpCachingClient::forward (string path, Request req) returns (R
     }
 }
 
-public function HttpCachingClient::submit (string httpVerb, string path, Request req) returns (HttpHandle|HttpConnectorError) {
+public function HttpCachingClient::submit (string httpVerb, string path, Request req) returns (HttpFuture|HttpConnectorError) {
     return self.httpClient.submit(httpVerb, path, req);
 }
 
-public function HttpCachingClient::getResponse (HttpHandle handle) returns (Response|HttpConnectorError) {
-    return self.httpClient.getResponse(handle);
+public function HttpCachingClient::getResponse (HttpFuture httpFuture) returns (Response|HttpConnectorError) {
+    return self.httpClient.getResponse(httpFuture);
 }
 
-public function HttpCachingClient::hasPromise (HttpHandle handle) returns boolean {
-    return self.httpClient.hasPromise(handle);
+public function HttpCachingClient::hasPromise (HttpFuture httpFuture) returns boolean {
+    return self.httpClient.hasPromise(httpFuture);
 }
 
-public function HttpCachingClient::getNextPromise (HttpHandle handle) returns (PushPromise|HttpConnectorError) {
-    return self.httpClient.getNextPromise(handle);
+public function HttpCachingClient::getNextPromise (HttpFuture httpFuture) returns (PushPromise|HttpConnectorError) {
+    return self.httpClient.getNextPromise(httpFuture);
 }
 
 public function HttpCachingClient::getPromisedResponse (PushPromise promise) returns (Response|HttpConnectorError) {
     return self.httpClient.getPromisedResponse(promise);
 }
 
-public function HttpCachingClient::rejectPromise (PushPromise promise) returns boolean {
-    return self.httpClient.rejectPromise(promise);
+public function HttpCachingClient::rejectPromise (PushPromise promise) {
+    self.httpClient.rejectPromise(promise);
 }
 
 function getCachedResponse (HttpCache cache, HttpClient httpClient, Request req, string httpMethod, string path,
@@ -622,18 +621,14 @@ function isAStrongValidator (string etag) returns boolean {
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
 function replaceHeaders (Response cachedResponse, Response validationResponse) {
-    map uptodateHeaders = validationResponse.getCopyOfAllHeaders();
-
-    foreach headerName, headerValues in uptodateHeaders {
-        string[] valueArray = [];
-        match <string[]>headerValues {
-            string[] arr => valueArray = arr;
-            error => next; // Skip the current header if there was an error in retrieving the header values
-        }
-
-        cachedResponse.removeHeader(headerName); // Remove existing headers before adding the up-to-date headers
-        foreach value in valueArray {
-            cachedResponse.addHeader(headerName, value);
+    string[] headerNames = validationResponse.getHeaderNames();
+    foreach headerName in headerNames {
+        cachedResponse.removeHeader(headerName);
+        if (validationResponse.hasHeader(headerName)) {
+            string[] headerValues = validationResponse.getHeaders(headerName);
+            foreach value in headerValues {
+                cachedResponse.addHeader(headerName, value);
+            }
         }
     }
 }

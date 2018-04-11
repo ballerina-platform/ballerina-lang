@@ -28,7 +28,7 @@ documentation {
     F{{local}} - The details of local address.
     F{{protocol}}  - The protocol associate with the service endpoint.
 }
-public type ServiceEndpoint object {
+public type Listener object {
     public {
         @readonly Remote remote;
         @readonly Local local;
@@ -108,7 +108,6 @@ public type ServiceEndpointConfiguration {
     int port = 9090,
     KeepAlive keepAlive = KEEPALIVE_AUTO,
     TransferEncoding transferEncoding = TRANSFERENCODE_CHUNKING,
-    Chunking chunking = CHUNKING_AUTO,
     ServiceSecureSocket? secureSocket,
     string httpVersion = "1.1",
     RequestLimits? requestLimits,
@@ -145,7 +144,7 @@ public type KeepAlive "AUTO"|"ALWAYS"|"NEVER";
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public function ServiceEndpoint::init (ServiceEndpointConfiguration config) {
+public function Listener::init (ServiceEndpointConfiguration config) {
     self.config = config;
     var err = self.initEndpoint();
     if (err != null) {
@@ -162,7 +161,7 @@ public function ServiceEndpoint::init (ServiceEndpointConfiguration config) {
 //////////////////////////////////
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
-public type WebSocketEndpoint object {
+public type WebSocketListener object {
     public {
         string id;
         string negotiatedSubProtocol;
@@ -174,11 +173,11 @@ public type WebSocketEndpoint object {
     private {
         WebSocketConnector conn;
         ServiceEndpointConfiguration config;
-        ServiceEndpoint httpEndpoint;
+        Listener httpEndpoint;
     }
 
     public new () {
-        ServiceEndpoint httpEndpoint = new;
+        Listener httpEndpoint = new;
         self.httpEndpoint = httpEndpoint;
     }
 

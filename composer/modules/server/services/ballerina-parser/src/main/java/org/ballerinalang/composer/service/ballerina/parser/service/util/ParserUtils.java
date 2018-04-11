@@ -17,7 +17,6 @@ package org.ballerinalang.composer.service.ballerina.parser.service.util;
 
 import com.google.common.io.Files;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.composer.service.ballerina.parser.service.model.BallerinaFile;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BuiltInType;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.SymbolInformation;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Action;
@@ -32,12 +31,14 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Mo
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ObjectField;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ObjectModel;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Parameter;
+import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.RecordModel;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Struct;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.StructField;
 import org.ballerinalang.langserver.CollectDiagnosticListener;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.LSDocument;
+import org.ballerinalang.langserver.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
@@ -72,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -344,6 +346,7 @@ public class ParserUtils {
             pkg.getConnectors().forEach((connector) -> extractConnector(packages, packageName, connector));
             pkg.getEnums().forEach((enumerator) -> extractEnums(packages, packageName, enumerator));
             pkg.objects.forEach((object) -> extractObjects(packages, packageName, object));
+            pkg.records.forEach((record) -> extractRecords(packages, packageName, record));
             extractEndpoints(packages, packageName, pkg.structs, pkg.functions);
         }
     }
@@ -545,6 +548,19 @@ public class ParserUtils {
         }
     }
 
+    private static void extractRecords(Map<String, ModelPackage> packages, String packagePath, BLangRecord record) {
+        String fileName = record.getPosition().getSource().getCompilationUnitName();
+        if (packages.containsKey(packagePath)) {
+            ModelPackage modelPackage = packages.get(packagePath);
+            modelPackage.addRecord(createNewRecord(record.name.getValue(), record.fields, fileName));
+        } else {
+            ModelPackage modelPackage = new ModelPackage();
+            modelPackage.setName(packagePath);
+            modelPackage.addRecord(createNewRecord(record.name.getValue(), record.fields, fileName));
+            packages.put(packagePath, modelPackage);
+        }
+    }
+
     private static void extractEndpoints(Map<String, ModelPackage> packages, String packagePath,
                                          List<BLangStruct> structs, List<BLangFunction> functions) {
         functions.forEach((function) -> {
@@ -739,6 +755,25 @@ public class ParserUtils {
         return objectModel;
     }
 
+    /**
+     * Create a new Record Model.
+     * @param name                  Record Name
+     * @param fields                List of Fields
+     * @param fileName              File name
+     * @return {@link RecordModel}  New Record Model  
+     */
+    private static RecordModel createNewRecord(String name, List<BLangVariable> fields, String fileName) {
+        RecordModel recordModel = new RecordModel(name);
+
+        fields.forEach((field) -> {
+            ObjectField objectField = new ObjectField(field.name.getValue(), field.getTypeNode().type.toString());
+            recordModel.addField(objectField);
+        });
+        recordModel.setFileName(fileName);
+        
+        return recordModel;
+    }
+
     private static Endpoint createNewEndpoint(String name, List<BLangFunction> functions, List<BLangVariable> fields,
                                               String packageName, String fileName) {
         Endpoint endpoint = new Endpoint(name);
@@ -841,6 +876,7 @@ public class ParserUtils {
      * @param content
      * @return
      */
+    @Deprecated
     public static BLangCompilationUnit compileFragment(String content) {
         Path unsaved = Paths.get(untitledProject.toString(), UNTITLED_BAL);
         synchronized (ParserUtils.class) {
@@ -864,6 +900,7 @@ public class ParserUtils {
      * @param path    file path
      * @return
      */
+    @Deprecated
     public static BallerinaFile compile(String content, Path path) {
         return compile(content, path, CompilerPhase.CODE_ANALYZE);
     }
@@ -876,6 +913,7 @@ public class ParserUtils {
      * @param compilerPhase {CompilerPhase} set phase for the compiler.
      * @return
      */
+    @Deprecated
     public static BallerinaFile compile(String content, Path path, CompilerPhase compilerPhase) {
         if (documentManager.isFileOpen(path)) {
             documentManager.updateFile(path, content);
@@ -897,7 +935,7 @@ public class ParserUtils {
             }
         }
         CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
-                                         sourceDocument, true, documentManager, CompilerPhase.DEFINE);
+                                         sourceDocument, true, documentManager, CompilerPhase.DEFINE, null);
 
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);

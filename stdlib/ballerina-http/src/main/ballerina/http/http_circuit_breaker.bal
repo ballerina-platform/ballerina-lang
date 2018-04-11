@@ -54,13 +54,14 @@ documentation {
 
     F{{failureThreshold}}  - The threshold for request failures. When this threshold is crossed, the circuit will trip.
                              The threshold should be a value between 0 and 1.
-    F{{resetTimeout}} - The time period to wait before attempting to make another request to the upstream service.
+    F{{resetTimeMillies}} - The time period(in milliseconds) to wait before attempting to make another
+                               request to the upstream service.
     F{{statusCodes}} - Array of http response status codes which considered as failure responses.
 }
 public type CircuitBreakerConfig {
     RollingWindow rollingWindow,
     float failureThreshold,
-    int resetTimeout,
+    int resetTimeMillies,
     int[] statusCodes,
 };
 
@@ -88,7 +89,7 @@ public type Bucket {
 
 public type CircuitBreakerInferredConfig {
    float failureThreshold,
-   int resetTimeout,
+   int resetTimeMillies,
    boolean[] statusCodes,
    int noOfBuckets,
    RollingWindow rollingWindow,
@@ -108,21 +109,20 @@ public type CircuitBreakerClient object {
 
     public {
         string serviceUri;
-        ClientEndpointConfiguration config;
+        ClientEndpointConfig config;
         CircuitBreakerInferredConfig circuitBreakerInferredConfig;
         HttpClient httpClient;
         CircuitHealth circuitHealth;
-        CircuitState currentCircuitState;
+        CircuitState currentCircuitState = CB_CLOSED_STATE;
     }
 
-    public new (string serviceUri, ClientEndpointConfiguration config, CircuitBreakerInferredConfig circuitBreakerInferredConfig,
+    public new (string serviceUri, ClientEndpointConfig config, CircuitBreakerInferredConfig circuitBreakerInferredConfig,
                                                                             HttpClient httpClient, CircuitHealth circuitHealth) {
         self.serviceUri = serviceUri;
         self.config = config;
         self.circuitBreakerInferredConfig = circuitBreakerInferredConfig;
         self.httpClient = httpClient;
         self.circuitHealth = circuitHealth;
-        self.currentCircuitState = CB_CLOSED_STATE;
     }
 
     @Description {value:"The POST action implementation of the Circuit Breaker. Protects the invocation of the POST action of the underlying HTTP client connector."}
@@ -193,26 +193,26 @@ public type CircuitBreakerClient object {
     @Param { value:"httpVerb: The HTTP verb value" }
     @Param { value:"path: The Resource path " }
     @Param { value:"req: An HTTP outbound request message" }
-    @Return { value:"The Handle for further interactions" }
+    @Return { value:"The Future for further interactions" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public function submit (string httpVerb, string path, Request req) returns (HttpHandle | HttpConnectorError);
+    public function submit (string httpVerb, string path, Request req) returns (HttpFuture | HttpConnectorError);
 
     @Description { value:"The getResponse implementation of Circuit Breaker."}
-    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
     @Return { value:"The HTTP response message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public function getResponse (HttpHandle handle) returns (Response | HttpConnectorError);
+    public function getResponse (HttpFuture httpFuture) returns (Response | HttpConnectorError);
 
     @Description { value:"The hasPromise implementation of Circuit Breaker."}
-    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
     @Return { value:"Whether push promise exists" }
-    public function hasPromise (HttpHandle handle) returns (boolean);
+    public function hasPromise (HttpFuture httpFuture) returns (boolean);
 
     @Description { value:"The getNextPromise implementation of Circuit Breaker."}
-    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
     @Return { value:"The HTTP Push Promise message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public function getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError);
+    public function getNextPromise (HttpFuture httpFuture) returns (PushPromise | HttpConnectorError);
 
     @Description { value:"The getPromisedResponse implementation of Circuit Breaker."}
     @Param { value:"promise: The related Push Promise message" }
@@ -222,8 +222,7 @@ public type CircuitBreakerClient object {
 
     @Description { value:"The rejectPromise implementation of Circuit Breaker."}
     @Param { value:"promise: The Push Promise need to be rejected" }
-    @Return { value:"Whether operation is successful" }
-    public function rejectPromise (PushPromise promise) returns (boolean); 
+    public function rejectPromise (PushPromise promise);
 };
 
 public function CircuitBreakerClient::post (string path, Request request) returns (Response | HttpConnectorError) {
@@ -459,34 +458,34 @@ public function CircuitBreakerClient::forward (string path, Request request) ret
 @Param { value:"httpVerb: The HTTP verb value" }
 @Param { value:"path: The Resource path " }
 @Param { value:"req: An HTTP outbound request message" }
-@Return { value:"The Handle for further interactions" }
+@Return { value:"The Future for further interactions" }
 @Return { value:"The Error occured during HTTP client invocation" }
-public function CircuitBreakerClient::submit (string httpVerb, string path, Request req) returns (HttpHandle | HttpConnectorError) {
+public function CircuitBreakerClient::submit (string httpVerb, string path, Request req) returns (HttpFuture | HttpConnectorError) {
    HttpConnectorError httpConnectorError = {message:"Unsupported action for Circuit breaker"};
    return httpConnectorError;
 }
 
 @Description { value:"The getResponse implementation of Circuit Breaker."}
-@Param { value:"handle: The Handle which relates to previous async invocation" }
+@Param { value:"httpFuture: The Future which relates to previous async invocation" }
 @Return { value:"The HTTP response message" }
 @Return { value:"The Error occured during HTTP client invocation" }
-public function CircuitBreakerClient::getResponse (HttpHandle handle) returns (Response | HttpConnectorError) {
+public function CircuitBreakerClient::getResponse (HttpFuture httpFuture) returns (Response | HttpConnectorError) {
    HttpConnectorError httpConnectorError = {message:"Unsupported action for Circuit breaker"};
    return httpConnectorError;
 }
 
 @Description { value:"The hasPromise implementation of Circuit Breaker."}
-@Param { value:"handle: The Handle which relates to previous async invocation" }
+@Param { value:"httpFuture: The Future which relates to previous async invocation" }
 @Return { value:"Whether push promise exists" }
-public function CircuitBreakerClient::hasPromise (HttpHandle handle) returns (boolean) {
+public function CircuitBreakerClient::hasPromise (HttpFuture httpFuture) returns (boolean) {
    return false;
 }
 
 @Description { value:"The getNextPromise implementation of Circuit Breaker."}
-@Param { value:"handle: The Handle which relates to previous async invocation" }
+@Param { value:"httpFuture: The Future which relates to previous async invocation" }
 @Return { value:"The HTTP Push Promise message" }
 @Return { value:"The Error occured during HTTP client invocation" }
-public function CircuitBreakerClient::getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError) {
+public function CircuitBreakerClient::getNextPromise (HttpFuture httpFuture) returns (PushPromise | HttpConnectorError) {
    HttpConnectorError httpConnectorError = {message:"Unsupported action for Circuit breaker"};
    return httpConnectorError;
 }
@@ -502,9 +501,7 @@ public function CircuitBreakerClient::getPromisedResponse (PushPromise promise) 
 
 @Description { value:"The rejectPromise implementation of Circuit Breaker."}
 @Param { value:"promise: The Push Promise need to be rejected" }
-@Return { value:"Whether operation is successful" }
-public function CircuitBreakerClient::rejectPromise (PushPromise promise) returns (boolean) {
-   return false;
+public function CircuitBreakerClient::rejectPromise (PushPromise promise) {
 }
 
 public function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentStateValue,
@@ -515,7 +512,7 @@ public function updateCircuitState (CircuitHealth circuitHealth, CircuitState cu
            time:Time currentT = time:currentTime();
            int elapsedTime = currentT.time - circuitHealth.lastErrorTime.time;
 
-           if (elapsedTime > circuitBreakerInferredConfig.resetTimeout) {
+           if (elapsedTime > circuitBreakerInferredConfig.resetTimeMillies) {
                circuitHealth.errorCount = 0;
                circuitHealth.requestCount = 0;
                currentState = CB_HALF_OPEN_STATE;
@@ -595,7 +592,7 @@ function updateCircuitHealthSuccess(CircuitHealth circuitHealth, Response inResp
 function handleOpenCircuit (CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (HttpConnectorError) {
    time:Time currentT = time:currentTime();
    int timeDif = currentT.time - circuitHealth.lastErrorTime.time;
-   int timeRemaining = circuitBreakerInferredConfig.resetTimeout - timeDif;
+   int timeRemaining = circuitBreakerInferredConfig.resetTimeMillies - timeDif;
    string errorMessage = "Upstream service unavailable. Requests to upstream service will be suspended for "
              + timeRemaining + " milliseconds.";
    HttpConnectorError httpConnectorError = {message:errorMessage};

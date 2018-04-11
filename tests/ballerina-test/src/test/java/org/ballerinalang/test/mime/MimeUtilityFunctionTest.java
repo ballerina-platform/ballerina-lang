@@ -103,20 +103,20 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(map.get("boundary").stringValue(), "032a1ab685934650abbe059cb45d6ff3");
     }
 
-    @Test(description = "Test 'toString' function in ballerina.mime package")
-    public void testToStringOnMediaType() {
+    @Test(description = "Test 'getBaseType' function in ballerina.mime package")
+    public void testGetBaseTypeOnMediaType() {
         BStruct mediaType = BCompileUtil
                 .createAndGetStruct(compileResult.getProgFile(), protocolPackageMime, mediaTypeStruct);
         mediaType.setStringField(PRIMARY_TYPE_INDEX, "application");
         mediaType.setStringField(SUBTYPE_INDEX, "test+xml");
         BValue[] args = {mediaType};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToStringOnMediaType", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetBaseTypeOnMediaType", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "application/test+xml");
     }
 
-    @Test(description = "Test 'toStringWithParameters' function in ballerina.mime package")
-    public void testToStringWithParametersOnMediaType() {
+    @Test(description = "Test 'testToStringOnMediaType' function in ballerina.mime package")
+    public void testToStringOnMediaType() {
         BStruct mediaType = BCompileUtil
                 .createAndGetStruct(compileResult.getProgFile(), protocolPackageMime, mediaTypeStruct);
         mediaType.setStringField(PRIMARY_TYPE_INDEX, "application");
@@ -125,7 +125,7 @@ public class MimeUtilityFunctionTest {
         map.put("charset", new BString("utf-8"));
         mediaType.setRefField(PRIMARY_TYPE_INDEX, map);
         BValue[] args = {mediaType};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToStringWithParametersOnMediaType", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testToStringOnMediaType", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "application/test+xml; charset=utf-8");
     }
@@ -510,5 +510,117 @@ public class MimeUtilityFunctionTest {
                 "form-data");
         String contentDispositionValue = MimeUtil.getContentDisposition(bodyPart);
         Assert.assertEquals(contentDispositionValue, "form-data");
+    }
+
+    @Test
+    public void testGetXmlWithSuffix() {
+        BXML xmlContent = XMLUtils.parse("<name>ballerina</name>");
+        BValue[] args = {xmlContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetXmlWithSuffix", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BXML) returns[0]).getTextValue().stringValue(), "ballerina");
+    }
+
+    @Test(description = "Get xml content from entity that has a non compatible xml content-type")
+    public void testGetXmlWithNonCompatibleMediaType() {
+        BXML xmlContent = XMLUtils.parse("<name>ballerina</name>");
+        BValue[] args = {xmlContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetXmlWithNonCompatibleMediaType", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
+                "Entity body is not xml compatible since the received content-type is : " +
+                        "application/3gpdash-qoe-report");
+    }
+
+    @Test
+    public void testGetJsonWithSuffix() {
+        BJSON jsonContent = new BJSON("{'code':'123'}");
+        BValue[] args = {jsonContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetJsonWithSuffix", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BJSON) returns[0]).getMessageAsString(),
+                "{\"code\":\"123\"}");
+    }
+
+    @Test
+    public void testGetJsonWithNonCompatibleMediaType() {
+        BJSON jsonContent = new BJSON("{'code':'123'}");
+        BValue[] args = {jsonContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetJsonWithNonCompatibleMediaType", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
+                "Entity body is not json compatible since the received content-type is : " +
+                        "application/whoispp-query");
+    }
+
+    @Test
+    public void testGetTextContentWithNonCompatibleMediaType() {
+        BString textContent = new BString("Hello Ballerina !");
+        BValue[] args = {textContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetTextWithNonCompatibleMediaType", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
+                "Entity body is not text compatible since the received content-type is : " +
+                        "model/vnd.parasolid.transmit");
+    }
+
+    @Test
+    public void testSetBodyAndGetText() {
+        BString textContent = new BString("Hello Ballerina !");
+        BValue[] args = {textContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetBodyAndGetText", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), textContent.stringValue());
+    }
+
+    @Test
+    public void testSetBodyAndGetXml() {
+        BXML xmlContent = XMLUtils.parse("<name>ballerina</name>");
+        BValue[] args = {xmlContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetBodyAndGetXml", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "<name>ballerina</name>");
+    }
+
+    @Test
+    public void testSetBodyAndGetJson() {
+        BJSON jsonContent = new BJSON("{'code':'123'}");
+        BValue[] args = {jsonContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetBodyAndGetJson", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BJSON) returns[0]).value().get("code").asText(), "123");
+    }
+
+    @Test
+    public void testSetBodyAndGetBlob() {
+        String content = "ballerina";
+        BBlob byteContent = new BBlob(content.getBytes());
+        BValue[] args = {byteContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetBodyAndGetBlob", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), content);
+    }
+
+    @Test
+    public void testSetBodyAndGetByteChannel() {
+        try {
+            File file = File.createTempFile("testFile", ".tmp");
+            file.deleteOnExit();
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter.write("Hello Ballerina!");
+            bufferedWriter.close();
+            BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.getByteChannelForTempFile
+                    (file.getAbsolutePath()));
+            BValue[] args = {byteChannelStruct};
+            BValue[] returns = BRunUtil.invoke(compileResult, "testSetBodyAndGetByteChannel", args);
+            Assert.assertEquals(returns.length, 1);
+            BStruct returnByteChannelStruct = (BStruct) returns[0];
+            Channel byteChannel = (Channel) returnByteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+            Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()),
+                    "Hello Ballerina!");
+        } catch (IOException e) {
+            log.error("Error occurred in testSetByteChannel", e.getMessage());
+        }
     }
 }

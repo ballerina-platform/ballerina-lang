@@ -1,5 +1,0 @@
-//A function pointer is Ballerina type, that allows passing functions as
-//variables, arguments to functions and also as function return values.
-
-//The name of a function will serve as a pointer to that function. The
-//definition of that name provides the type of that pointer in terms of a function signature.

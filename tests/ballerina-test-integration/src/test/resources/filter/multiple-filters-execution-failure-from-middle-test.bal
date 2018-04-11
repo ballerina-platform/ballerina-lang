@@ -8,6 +8,10 @@ public type Filter1 object {
         function (http:Request request, http:FilterContext context) returns (http:FilterResult) filterRequest;
         function (http:Response response, http:FilterContext context) returns (http:FilterResult) filterResponse;
     }
+
+    public new (filterRequest, filterResponse) {
+    }
+
     public function init () {
         log:printInfo("Initializing filter 1");
     }
@@ -29,7 +33,7 @@ public function interceptResponse1 (http:Response response, http:FilterContext c
     return filterResponse;
 }
 
-Filter1 filter1 = {filterRequest:interceptRequest1, filterResponse:interceptResponse1};
+Filter1 filter1 = new (interceptRequest1, interceptResponse1);
 
 // Filter2
 
@@ -38,6 +42,10 @@ public type Filter2 object {
         function (http:Request request, http:FilterContext context) returns (http:FilterResult) filterRequest;
         function (http:Response response, http:FilterContext context) returns (http:FilterResult) filterResponse;
     }
+
+    public new (filterRequest, filterResponse) {
+    }
+
     public function init () {
         log:printInfo("Initializing filter 2");
     }
@@ -60,7 +68,7 @@ public function interceptResponse2 (http:Response response, http:FilterContext c
     return filterResponse;
 }
 
-Filter2 filter2 = {filterRequest:interceptRequest2, filterResponse:interceptResponse2};
+Filter2 filter2 = new (interceptRequest2, interceptResponse2);
 
 // Filter3
 
@@ -69,6 +77,10 @@ public type Filter3 object {
         function (http:Request request, http:FilterContext context) returns (http:FilterResult) filterRequest;
         function (http:Response response, http:FilterContext context) returns (http:FilterResult) filterResponse;
     }
+
+    public new (filterRequest, filterResponse) {
+    }
+
     public function init () {
         log:printInfo("Initializing filter 3");
     }
@@ -76,7 +88,7 @@ public type Filter3 object {
     public function terminate () {
         log:printInfo("Stopping filter 3");
     }
-}
+};
 
 public function interceptRequest3 (http:Request request, http:FilterContext context) returns (http:FilterResult) {
     log:printInfo("Intercepting request for filter 3");
@@ -90,9 +102,9 @@ public function interceptResponse3 (http:Response response, http:FilterContext c
     return filterResponse;
 }
 
-Filter3 filter3 = {filterRequest:interceptRequest3, filterResponse:interceptResponse3};
+Filter3 filter3 = new (interceptRequest3, interceptResponse3);
 
-endpoint http:ServiceEndpoint echoEP {
+endpoint http:Listener echoEP {
     port:9090,
     filters:[filter1,filter2,filter3]
 };
@@ -106,7 +118,7 @@ service<http:Service> echo bind echoEP {
         path:"/test"
     }
     echo (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         _ = client -> respond(res);
     }
 }

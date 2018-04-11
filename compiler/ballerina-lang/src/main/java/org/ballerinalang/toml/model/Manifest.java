@@ -27,16 +27,16 @@ import java.util.stream.Collectors;
  * @since 0.964
  */
 public class Manifest {
-    private String name;
-    private String version;
-    private List<String> authors;
-    private List<String> keywords;
-    private String documentationURL;
-    private String homepageURL;
-    private String repositoryURL;
-    private String description;
-    private String readmeFilePath;
-    private String license;
+    private String name = "";
+    private String version = "";
+    private List<String> authors = new ArrayList<>();
+    private List<String> keywords = new ArrayList<>();
+    private String documentationURL = "";
+    private String homepageURL = "";
+    private String repositoryURL = "";
+    private String description = "";
+    private String readmeFilePath = "";
+    private String license = "";
     private List<Dependency> dependencies = new ArrayList<>();
     private List<Dependency> patches = new ArrayList<>();
 

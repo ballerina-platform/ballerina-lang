@@ -22,7 +22,7 @@ function stopMock () {
     after:"stopMock"
 }
 function testService () {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets:[{ uri:url }]
     };
 

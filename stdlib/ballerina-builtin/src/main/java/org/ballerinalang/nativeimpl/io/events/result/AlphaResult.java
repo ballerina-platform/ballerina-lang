@@ -35,10 +35,6 @@ public class AlphaResult implements EventResult<String, EventContext> {
      */
     private EventContext context;
 
-    public AlphaResult(String content) {
-        this.content = content;
-    }
-
     public AlphaResult(EventContext context) {
         this.context = context;
     }

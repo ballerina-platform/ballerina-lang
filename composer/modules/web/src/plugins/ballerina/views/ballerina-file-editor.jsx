@@ -43,6 +43,7 @@ import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visi
 import SyncLineNumbersVisitor from './../visitors/sync-line-numbers';
 import SyncBreakpointsVisitor from './../visitors/sync-breakpoints';
 import TreeUtils from './../model/tree-util';
+import DefaultNodeFactory from './../model/default-node-factory';
 import TreeBuilder from './../model/tree-builder';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import FragmentUtils from '../utils/fragment-utils';
@@ -204,9 +205,6 @@ class BallerinaFileEditor extends React.Component {
      * On ast modifications
      */
     onASTModified(evt) {
-        if (evt.type === 'child-added') {
-            this.addAutoImports(evt.data.node);
-        }
         TreeBuilder.modify(evt.origin);
 
         const newContent = this.state.model.getSource();
@@ -530,46 +528,6 @@ class BallerinaFileEditor extends React.Component {
             DebugManager.addBreakPoint(lineNumber, fileName, packagePath);
         });
     }
-
-    /**
-     * Adds relevent imports needed to be automatically imported When a node (eg: a function invocation) is dragged in
-     * @param {Node} node the node added
-     */
-    addAutoImports(node) {
-        let fullPackageName;
-        if (TreeUtils.isAssignment(node) && TreeUtils.isInvocation(node.getExpression())) {
-            fullPackageName = node.getExpression().getFullPackageName();
-        } else if (TreeUtils.isExpressionStatement(node) && TreeUtils.isInvocation(node.getExpression())) {
-            if (node.getExpression().getFullPackageName()) {
-                fullPackageName = node.getExpression().getFullPackageName();
-            } else {
-                return;
-            }
-        } else if (TreeUtils.isVariableDef(node)
-            && node.getVariable().getInitialExpression()
-            && (TreeUtils.isInvocation(node.getVariable().getInitialExpression()) ||
-                TreeUtils.isConnectorInitExpr(node.getVariable().getInitialExpression()))) {
-            fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
-        } else if (TreeUtils.isEndpointTypeVariableDef(node)) {
-            // fullPackageName = node.getVariable().getInitialExpression().getFullPackageName();
-            fullPackageName = '';
-        } else if (TreeUtils.isService(node)) {
-            fullPackageName = node.getFullPackageName();
-        } else {
-            return;
-        }
-
-        if (fullPackageName === 'Current Package' || fullPackageName === ''
-            || fullPackageName === 'builtin') {
-            return;
-        }
-
-        const importString = 'import ' + fullPackageName + ';\r\n';
-        const fragment = FragmentUtils.createTopLevelNodeFragment(importString);
-        const parsedJson = FragmentUtils.parseFragment(fragment);
-        this.state.model.addImport(TreeBuilder.build(parsedJson));
-    }
-
 
     /**
      * Save editor state in to localstorage.

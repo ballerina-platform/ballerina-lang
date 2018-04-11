@@ -19,27 +19,29 @@ package org.ballerinalang.langserver.completion.definitions;
 
 import org.ballerinalang.langserver.completion.CompletionTest;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 /**
  * Completion item tests for resource definition.
  */
+@Test(groups = "broken")
 public class ResourceDefinition extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][] {
-//                {"emptyLinePrimitiveDataTypes.json", "resource"},
-//                {"nonEmptyLinePrimitiveDataTypes.json", "resource"},
-//                {"userDefinedStructEmptyLine.json", "resource"},
-//                {"userDefinedStructNonEmptyLine.json", "resource"},
-//                {"userDefinedFunctionsEmptyLine.json", "resource"},
-//                {"userDefinedFunctionsNonEmptyLine.json", "resource"},
-//                {"importPackagesEmptyLine.json", "resource"},
-//                {"importPackagesNonEmptyLine.json", "resource"},
-//                {"allVisibleSymbolsNonEmptyLine.json", "resource"},
-//                {"allVisibleSymbolsEmptyLine.json", "resource"},
-//                {"languageConstructsEmptyLine.json", "resource"},
-//                {"languageConstructsNonEmptyLine.json", "resource"},
+                {"emptyLinePrimitiveDataTypes.json", "resource"},
+                {"nonEmptyLinePrimitiveDataTypes.json", "resource"},
+                {"userDefinedRecordEmptyLine.json", "resource"},
+                {"userDefinedRecordNonEmptyLine.json", "resource"},
+                {"userDefinedFunctionsEmptyLine.json", "resource"},
+                {"userDefinedFunctionsNonEmptyLine.json", "resource"},
+                {"importPackagesEmptyLine.json", "resource"},
+                {"importPackagesNonEmptyLine.json", "resource"},
+                {"allVisibleSymbolsNonEmptyLine.json", "resource"},
+                {"allVisibleSymbolsEmptyLine.json", "resource"},
+                {"languageConstructsEmptyLine.json", "resource"},
+                {"languageConstructsNonEmptyLine.json", "resource"},
 //                {"enumSuggestAssignment1.json", "resource"},
 //                {"enumSuggestAssignment2.json", "resource"},
 //                {"enumSuggestVarDef1.json", "resource"},

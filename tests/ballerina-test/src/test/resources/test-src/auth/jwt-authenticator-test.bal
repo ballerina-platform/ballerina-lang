@@ -1,10 +1,19 @@
-import ballerina/auth.jwtAuth;
+import ballerina/auth;
 
-function testJwtAuthenticatorCreationWithCache () returns (jwtAuth:JWTAuthenticator) {
-    return jwtAuth:createAuthenticator();
+function testJwtAuthenticatorCreationWithCache () returns (auth:JWTAuthProvider) {
+    auth:JWTAuthProviderConfig jwtConfig = {};
+    jwtConfig.issuer = "wso2";
+    jwtConfig.audience = "ballerina";
+    jwtConfig.certificateAlias = "ballerina";
+    auth:JWTAuthProvider jwtAuthProvider = new (jwtConfig);
+    return jwtAuthProvider;
 }
 
 function testAuthenticationSuccess (string jwtToken) returns (boolean|error) {
-    jwtAuth:JWTAuthenticator authenticator = jwtAuth:createAuthenticator();
-    return authenticator.authenticate(jwtToken);
+    auth:JWTAuthProviderConfig jwtConfig = {};
+    jwtConfig.issuer = "wso2";
+    jwtConfig.audience = "ballerina";
+    jwtConfig.certificateAlias = "ballerina";
+    auth:JWTAuthProvider jwtAuthProvider = new (jwtConfig);
+    return jwtAuthProvider.authenticate(jwtToken);
 }

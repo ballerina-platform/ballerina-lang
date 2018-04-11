@@ -1,10 +1,9 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
-import ballerina/net.websub;
+import ballerina/websub;
 
-endpoint websub:SubscriberServiceEndpoint websubEP {
-    host:"localhost",
+endpoint websub:Listener websubEP {
     port:8181
 };
 
@@ -16,32 +15,26 @@ endpoint websub:SubscriberServiceEndpoint websubEP {
     leaseSeconds: 3600000,
     secret: "Kslk30SNF2AChs2"
 }
-service<websub:SubscriberService> websubSubscriber bind websubEP {
+service<websub:Service> websubSubscriber bind websubEP {
 
-    onVerifyIntent (endpoint client, http:Request request) {
-        var subscriptionVerificationResponse = websub:buildSubscriptionVerificationResponse(request);
-        http:Response response = {};
-        match (subscriptionVerificationResponse) {
+    onIntentVerification (endpoint client, websub:IntentVerificationRequest request) {
+        http:Response response = new;
+        match (request.buildSubscriptionVerificationResponse()) {
             http:Response httpResponse => {
                 io:println("Intent verified for subscription request");
                 response = httpResponse;
             }
-            (any | null) => {
+            () => {
                 io:println("Intent verification for subscription request denied");
-                response = { statusCode:404 };
+                response.statusCode = 404;
             }
         }
         _ = client -> respond(response);
     }
 
-    onNotification (endpoint client, http:Request request) {
-        http:Response response = { statusCode:202 };
-        _ = client -> respond(response);
-        var reqPayload = request.getJsonPayload();
-        match (reqPayload) {
-            json jsonPayload => { io:println("WebSub Notification Received: " + jsonPayload.toString()); }
-            http:PayloadError => { io:println("Error occurred processing WebSub Notification"); }
-        }
+    onNotification (websub:NotificationRequest notification) {
+        string notificationPayload = notification.payload.toString() but { () => "" };
+        io:println("WebSub Notification Received: " + notificationPayload);
     }
 
 }

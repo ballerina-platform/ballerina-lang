@@ -30,7 +30,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-@Test(groups = {"broken"})
 public class AuthzConfigInheritanceTest {
     private ServerInstance ballerinaServer;
 

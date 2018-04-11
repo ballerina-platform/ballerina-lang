@@ -1,0 +1,26 @@
+{
+  "position": {
+    "line": 4,
+    "character": 8
+  },
+  "source": "resource/source/userDefinedRecordEmptyLine.bal",
+  "items": [
+    {
+      "label": "testRecord2",
+      "kind": 2,
+      "detail": "BType",
+      "documentation": null,
+      "sortText": 6,
+      "insertText": "testRecord2",
+      "data": null
+    }, {
+      "label": "testRecord1",
+      "kind": 2,
+      "detail": "BType",
+      "documentation": null,
+      "sortText": 6,
+      "insertText": "testRecord1",
+      "data": null
+    }
+  ]
+}

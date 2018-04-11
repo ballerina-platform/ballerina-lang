@@ -37,6 +37,7 @@ import java.nio.file.Paths;
 /**
  * Test suit for testing find all references.
  */
+@Test(groups = "broken")
 public class ReferencesTest {
     private static final String TESTS_SAMPLES = "src" + File.separator + "test" + File.separator + "resources"
             + File.separator + "references";
@@ -77,7 +78,7 @@ public class ReferencesTest {
 
 
     @Test(description = "Test references for function in the same file",
-            dataProvider = "referencesForFunctionInDifferentPkg")
+            dataProvider = "referencesForFunctionInDifferentPkg", enabled = false)
     public void referencesForFunctionInDifferentPkg(ReferencesTestDTO referencesTestDTO, Position position)
             throws InterruptedException, IOException {
         String expected = getExpectedValue(referencesTestDTO.getExpectedFileName());

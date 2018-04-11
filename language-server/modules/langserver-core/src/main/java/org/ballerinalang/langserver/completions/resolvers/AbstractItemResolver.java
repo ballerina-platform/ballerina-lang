@@ -277,11 +277,14 @@ public abstract class AbstractItemResolver {
 
     /**
      * Check whether the token stream contains an annotation start (@).
-     * @param documentServiceContext - Completion operation context
+     * @param ctx - Completion operation context
      * @return {@link Boolean}
      */
-    boolean isAnnotationContext(LSServiceOperationContext documentServiceContext) {
-        return findPreviousToken(documentServiceContext, "@", 3) >= 0;
+    protected boolean isAnnotationContext(LSServiceOperationContext ctx) {
+        return ctx.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY) != null
+                && UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY
+                .equals(ctx.get(DocumentServiceKeys.TOKEN_STREAM_KEY).get(ctx.get(DocumentServiceKeys.TOKEN_INDEX_KEY))
+                        .getText());
     }
 
     /**
@@ -376,7 +379,8 @@ public abstract class AbstractItemResolver {
         symbolInfoList.removeIf(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             String symbolName = bSymbol.getName().getValue();
-            return (bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null)
+            return (bSymbol instanceof BInvokableSymbol && (((BInvokableSymbol) bSymbol).receiverSymbol) != null
+                    && !bSymbol.kind.equals(SymbolKind.RESOURCE))
                     || (bSymbol instanceof BPackageSymbol && invalidPkgs.contains(symbolName))
                     || (symbolName.startsWith("$anonStruct"));
         });

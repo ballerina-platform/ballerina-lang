@@ -23,7 +23,7 @@ package ballerina.http;
 public type LoadBalancer object {
    public {
        string serviceUri;
-       ClientEndpointConfiguration config;
+       ClientEndpointConfig config;
        HttpClient[] loadBalanceClientsArray;
        string algorithm;
        int nextIndex; // Keeps to index which needs to be take the next load balance endpoint.
@@ -99,26 +99,26 @@ public type LoadBalancer object {
     @Param { value:"httpVerb: The HTTP verb value" }
     @Param { value:"path: The Resource path " }
     @Param { value:"req: An HTTP outbound request message" }
-    @Return { value:"The Handle for further interactions" }
+    @Return { value:"The Future for further interactions" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public function submit (string httpVerb, string path, Request req) returns (HttpHandle | HttpConnectorError);
+    public function submit (string httpVerb, string path, Request req) returns (HttpFuture | HttpConnectorError);
 
     @Description { value:"The getResponse implementation of the LoadBalancer Connector."}
-    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
     @Return { value:"The HTTP response message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public function getResponse (HttpHandle handle) returns (Response | HttpConnectorError);
+    public function getResponse (HttpFuture httpFuture) returns (Response | HttpConnectorError);
 
     @Description { value:"The hasPromise implementation of the LoadBalancer Connector."}
-    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
     @Return { value:"Whether push promise exists" }
-    public function hasPromise (HttpHandle handle) returns (boolean);
+    public function hasPromise (HttpFuture httpFuture) returns (boolean);
 
     @Description { value:"The getNextPromise implementation of the LoadBalancer Connector."}
-    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Param { value:"httpFuture: The Future which relates to previous async invocation" }
     @Return { value:"The HTTP Push Promise message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public function getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError);
+    public function getNextPromise (HttpFuture httpFuture) returns (PushPromise | HttpConnectorError);
 
     @Description { value:"The getPromisedResponse implementation of the LoadBalancer Connector."}
     @Param { value:"promise: The related Push Promise message" }
@@ -128,8 +128,7 @@ public type LoadBalancer object {
 
     @Description { value:"The rejectPromise implementation of the LoadBalancer Connector."}
     @Param { value:"promise: The Push Promise need to be rejected" }
-    @Return { value:"Whether operation is successful" }
-    public function rejectPromise (PushPromise promise) returns (boolean);
+    public function rejectPromise (PushPromise promise);
 
 };
 
@@ -141,7 +140,7 @@ public type LoadBalancer object {
 @Field {value:"httpConnectorError: Array of HttpConnectorError error occurred at each endpoint."}
 public type LoadBalanceConnectorError {
     string message,
-    error[] cause,
+    error? cause,
     int statusCode,
     HttpConnectorError[] httpConnectorError,
 };
@@ -233,34 +232,34 @@ public function LoadBalancer::get (string path, Request request) returns (Respon
 @Param { value:"httpVerb: The HTTP verb value" }
 @Param { value:"path: The Resource path " }
 @Param { value:"req: An HTTP outbound request message" }
-@Return { value:"The Handle for further interactions" }
+@Return { value:"The Future for further interactions" }
 @Return { value:"The Error occured during HTTP client invocation" }
-public function LoadBalancer::submit (string httpVerb, string path, Request req) returns (HttpHandle | HttpConnectorError) {
+public function LoadBalancer::submit (string httpVerb, string path, Request req) returns (HttpFuture | HttpConnectorError) {
     HttpConnectorError httpConnectorError = {message:"Unsupported action for LoadBalancer client."};
     return httpConnectorError;
 }
 
 @Description { value:"The getResponse implementation of the LoadBalancer Connector."}
-@Param { value:"handle: The Handle which relates to previous async invocation" }
+@Param { value:"httpFuture: The Future which relates to previous async invocation" }
 @Return { value:"The HTTP response message" }
 @Return { value:"The Error occured during HTTP client invocation" }
-public function LoadBalancer::getResponse (HttpHandle handle) returns (Response | HttpConnectorError) {
+public function LoadBalancer::getResponse (HttpFuture httpFuture) returns (Response | HttpConnectorError) {
     HttpConnectorError httpConnectorError = {message:"Unsupported action for LoadBalancer client."};
     return httpConnectorError;
 }
 
 @Description { value:"The hasPromise implementation of the LoadBalancer Connector."}
-@Param { value:"handle: The Handle which relates to previous async invocation" }
+@Param { value:"httpFuture: The Future which relates to previous async invocation" }
 @Return { value:"Whether push promise exists" }
-public function LoadBalancer::hasPromise (HttpHandle handle) returns (boolean) {
+public function LoadBalancer::hasPromise (HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
 @Description { value:"The getNextPromise implementation of the LoadBalancer Connector."}
-@Param { value:"handle: The Handle which relates to previous async invocation" }
+@Param { value:"httpFuture: The Future which relates to previous async invocation" }
 @Return { value:"The HTTP Push Promise message" }
 @Return { value:"The Error occured during HTTP client invocation" }
-public function LoadBalancer::getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError) {
+public function LoadBalancer::getNextPromise (HttpFuture httpFuture) returns (PushPromise | HttpConnectorError) {
     HttpConnectorError httpConnectorError = {message:"Unsupported action for LoadBalancer client."};
     return httpConnectorError;
 }
@@ -276,9 +275,7 @@ public function LoadBalancer::getPromisedResponse (PushPromise promise) returns 
 
 @Description { value:"The rejectPromise implementation of the LoadBalancer Connector."}
 @Param { value:"promise: The Push Promise need to be rejected" }
-@Return { value:"Whether operation is successful" }
-public function LoadBalancer::rejectPromise (PushPromise promise) returns (boolean) {
-    return false;
+public function LoadBalancer::rejectPromise (PushPromise promise) {
 }
 
 // Performs execute action of the Load Balance connector. extract the corresponding http integer value representation

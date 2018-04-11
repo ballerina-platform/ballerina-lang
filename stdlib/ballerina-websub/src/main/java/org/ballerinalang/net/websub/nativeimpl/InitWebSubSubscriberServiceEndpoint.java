@@ -38,10 +38,10 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "net.websub",
+        orgName = "ballerina", packageName = "websub",
         functionName = "initWebSubSubscriberServiceEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
-                structPackage = "ballerina.net.websub"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
+                structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH),
         isPublic = true
 )
 public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunction {

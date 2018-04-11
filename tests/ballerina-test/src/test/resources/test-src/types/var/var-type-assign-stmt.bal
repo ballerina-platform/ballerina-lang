@@ -1,7 +1,7 @@
 type Person {
     string name;
     int age;
-    Person parent;
+    Person? parent;
     json info;
     map address;
     int[] marks;
@@ -9,18 +9,6 @@ type Person {
     float score;
     boolean alive;
 };
-
-function testVarDeclarationWithAtLeaseOneNonDeclaredSymbol () returns (int, error) {
-    int a;
-    var (a, err) = returnTupleForVarAssignment();
-    return (a, err);
-}
-
-function returnTupleForVarAssignment() returns (int, error) {
-    int a = 10;
-    error er = {};
-    return (a, er);
-}
 
 function testIntToVarAssignment() returns (int) {
     var age = 81;

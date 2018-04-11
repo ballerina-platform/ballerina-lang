@@ -24,10 +24,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.PrintStream;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -35,28 +34,34 @@ import java.util.Map;
  */
 public class LSPackageCache {
 
-    private ExtendedPackageCache packageCache;
+    private ExtendedPackageCache packageCache = null;
+    
     private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
+    
+    private static Map<String, BLangPackage> staticPackageMap = new HashMap<>();
 
     private static final String[] staticPkgNames = {"http", "http.swagger", "net.uri", "mime", "auth", "auth.authz",
             "auth.authz.permissionstore", "auth.basic", "auth.jwtAuth", "auth.userstore", "auth.utils", "caching",
             "collections", "config", "sql", "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os",
             "reflect", "runtime", "security.crypto", "task", "time", "transactions", "user", "util"};
 
-    private static final LSPackageCache INSTANCE = new LSPackageCache();
+    private static LSPackageCache lsPackageCache = null;
 
     public static LSPackageCache getInstance() {
-        return INSTANCE;
+        return lsPackageCache;
+    }
+    
+    public static synchronized void initiate(LSGlobalContext lsGlobalContext) {
+        if (lsPackageCache == null) {
+            lsPackageCache = new LSPackageCache();
+            CompilerContext tempCompilerContext = CommonUtil.prepareTempCompilerContext();
+            lsPackageCache.packageCache = new ExtendedPackageCache(lsGlobalContext
+                    .get(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT));
+            loadPackagesMap(tempCompilerContext);
+        }
     }
 
     private LSPackageCache() {
-        CompilerContext tempCompilerContext = CommonUtil.prepareTempCompilerContext();
-        packageCache = new ExtendedPackageCache(tempCompilerContext);
-        this.loadPackagesMap(tempCompilerContext);
-        List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
-        builtInPackages.forEach(bLangPackage -> {
-            this.addPackage(bLangPackage.packageID, bLangPackage);
-        });
     }
 
     /**
@@ -82,7 +87,11 @@ public class LSPackageCache {
      * @param packageID ballerina package id to be removed.
      */
     public void removePackage(PackageID packageID) {
-        this.packageCache.remove(packageID);
+        packageCache.remove(packageID);
+    }
+    
+    public void clearCache() {
+        packageCache.clearCache();
     }
 
     /**
@@ -91,25 +100,21 @@ public class LSPackageCache {
      * @param bLangPackage ballerina package to be added.
      */
     void addPackage(PackageID packageID, BLangPackage bLangPackage) {
-        if (bLangPackage != null && bLangPackage.getPackageDeclaration() == null) {
-            //TODO check whether getPackageDeclaration() is needed
-            this.packageCache.put(new PackageID(Names.DOT.value), bLangPackage);
-        } else {
-            if (bLangPackage != null) {
-                bLangPackage.packageID = packageID;
-            }
-            this.packageCache.put(packageID, bLangPackage);
+        if (bLangPackage != null) {
+            bLangPackage.packageID = packageID;
+            packageCache.put(packageID, bLangPackage);
         }
     }
     
-    private void loadPackagesMap(CompilerContext tempCompilerContext) {
+    private static void loadPackagesMap(CompilerContext tempCompilerContext) {
         for (String staticPkgName : LSPackageCache.staticPkgNames) {
             PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
                     new org.wso2.ballerinalang.compiler.util.Name(staticPkgName),
                     new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
             try {
                 // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
-                LSPackageLoader.getPackageById(tempCompilerContext, packageID);
+                BLangPackage bLangPackage = LSPackageLoader.getPackageById(tempCompilerContext, packageID);
+                staticPackageMap.put(bLangPackage.packageID.bvmAlias(), bLangPackage);
             } catch (Exception e) {
                 PrintStream errPrintStream = System.err;
                 errPrintStream.println("Error while loading package :" + staticPkgName);
@@ -144,5 +149,13 @@ public class LSPackageCache {
                 this.packageMap.remove(packageID.bvmAlias());
             }
         }
+        
+        public void clearCache() {
+            this.packageMap.clear();
+        }
+    }
+
+    public static Map<String, BLangPackage> getStaticPackageMap() {
+        return staticPackageMap;
     }
 }

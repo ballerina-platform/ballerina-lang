@@ -25,14 +25,14 @@ import ballerina/runtime;
 
 function testTypicalScenario () returns (http:Response[] , http:HttpConnectorError[]) {
 
-    endpoint http:ClientEndpoint backendClientEP {
+    endpoint http:Client backendClientEP {
         circuitBreaker: {
             rollingWindow: {
                 timeWindow:10000,
                 bucketSize:2000
             },
             failureThreshold:0.3,
-            resetTimeout:1000,
+            resetTimeMillies:1000,
             statusCodes:[400, 404, 500, 502]
         },
         targets:[
@@ -40,7 +40,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
                 url: "http://localhost:8080"
             }
         ],
-        endpointTimeout:2000
+        timeoutMillis:2000
     };
 
     http:Response[] responses = [];
@@ -73,14 +73,14 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
 
 function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorError[]) {
     
-    endpoint http:ClientEndpoint backendClientEP {
+    endpoint http:Client backendClientEP {
         circuitBreaker: {
             rollingWindow: {
                 timeWindow:10000,
                 bucketSize:2000
             },
             failureThreshold:0.3,
-            resetTimeout:1000,
+            resetTimeMillies:1000,
             statusCodes:[400, 404, 500, 502]
         },
         targets:[
@@ -88,7 +88,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
                 url: "http://localhost:8080"
             }
         ],
-        endpointTimeout:2000
+        timeoutMillis:2000
     };
 
     http:Response[] responses = [];
@@ -121,14 +121,14 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
 
 function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnectorError[]) {
     
-    endpoint http:ClientEndpoint backendClientEP {
+    endpoint http:Client backendClientEP {
         circuitBreaker: {
             rollingWindow: {
                 timeWindow:10000,
                 bucketSize:2000
             },
             failureThreshold:0.3,
-            resetTimeout:1000,
+            resetTimeMillies:1000,
             statusCodes:[400, 404, 500, 502]
         },
         targets:[
@@ -136,7 +136,7 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
                 url: "http://localhost:8080"
             }
         ],
-        endpointTimeout:2000
+        timeoutMillis:2000
     };
 
     http:Response[] responses = [];
@@ -168,7 +168,7 @@ int actualRequestNumber = 0;
 public type MockClient object {
     public {
         string serviceUri;
-        http:ClientEndpointConfiguration config;
+        http:ClientEndpointConfig config;
     }
 
     public function post (string path, http:Request req) returns (http:Response | http:HttpConnectorError) {
@@ -253,21 +253,21 @@ public type MockClient object {
         return httpConnectorError;
     }
 
-    public function submit (string httpVerb, string path, http:Request req) returns (http:HttpHandle | http:HttpConnectorError) {
+    public function submit (string httpVerb, string path, http:Request req) returns (http:HttpFuture | http:HttpConnectorError) {
         http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function getResponse (http:HttpHandle handle)  returns (http:Response | http:HttpConnectorError) {
+    public function getResponse (http:HttpFuture httpFuture)  returns (http:Response | http:HttpConnectorError) {
         http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function hasPromise (http:HttpHandle handle) returns (boolean) {
+    public function hasPromise (http:HttpFuture httpFuture) returns (boolean) {
         return false;
     }
 
-    public function getNextPromise (http:HttpHandle handle) returns (http:PushPromise | http:HttpConnectorError) {
+    public function getNextPromise (http:HttpFuture httpFuture) returns (http:PushPromise | http:HttpConnectorError) {
         http:HttpConnectorError httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
@@ -277,8 +277,7 @@ public type MockClient object {
         return httpConnectorError;
     }
 
-    public function rejectPromise (http:PushPromise promise) returns (boolean) {
-        return false;
+    public function rejectPromise (http:PushPromise promise) {
     }
 };
 

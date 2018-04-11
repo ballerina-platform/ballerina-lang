@@ -19,7 +19,7 @@ import ballerina/io;
 import ballerina/util;
 import ballerina/sql;
 
-endpoint http:ServiceEndpoint participant2EP {
+endpoint http:Listener participant2EP {
     port:8890
 };
 
@@ -30,13 +30,9 @@ endpoint http:ServiceEndpoint participant2EP {
 //};
 
 endpoint sql:Client testDB {
-    database: sql:DB_HSQLDB_SERVER,
-    host: "localhost",
-    port: 9001,
-    name: "TEST_SQL_CONNECTOR",
+    url: "hsqldb:hsql://localhost:9001/TEST_SQL_CONNECTOR",
     username: "SA",
-    password: "",
-    options: {maximumPoolSize:10}
+    poolOptions: {maximumPoolSize:10}
 };
 
 State state = new;
@@ -100,7 +96,7 @@ service<http:Service> participant2 bind participant2EP {
         http:Response res = new;  res.statusCode = 200;
         sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:uuid};
         sql:Parameter[] params = [para1];
-        var x = testDB -> select("SELECT registrationID FROM Customers WHERE registrationID = ?", params, typeof Registration);
+        var x = testDB -> select("SELECT registrationID FROM Customers WHERE registrationID = ?", params, Registration);
         match x {
             table dt => {
                string payload;
@@ -111,7 +107,7 @@ service<http:Service> participant2 bind participant2EP {
                }
                res.setStringPayload(payload);
             }
-            sql:SQLConnectorError err1 => {
+            error err1 => {
                res.statusCode = 500;
             }
         }
@@ -124,8 +120,8 @@ type Registration {
     string REGISTRATIONID;
 };
 
-function saveToDatabase(http:ServiceEndpoint conn, http:Request req, boolean shouldAbort) {
-    endpoint http:ServiceEndpoint ep = conn;
+function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbort) {
+    endpoint http:Listener ep = conn;
     http:Response res = new;  res.statusCode = 200;
     transaction with oncommit=onCommit, onabort=onAbort {
         transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort {
@@ -153,19 +149,19 @@ function saveToDatabase(http:ServiceEndpoint conn, http:Request req, boolean sho
     }
 }
 
-function onAbort() {
+function onAbort(string transactionid) {
     state.abortedFunctionCalled = true;
 }
 
-function onCommit() {
+function onCommit(string transactionid) {
     state.committedFunctionCalled = true;
 }
 
-function onLocalParticipantAbort() {
+function onLocalParticipantAbort(string transactionid) {
     state.localParticipantAbortedFunctionCalled = true;
 }
 
-function onLocalParticipantCommit() {
+function onLocalParticipantCommit(string transactionid) {
     state.localParticipantCommittedFunctionCalled = true;
 }
 
