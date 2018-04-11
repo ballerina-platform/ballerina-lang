@@ -218,12 +218,12 @@ public type HttpSecureClient object {
 public function createHttpSecureClient(string url, ClientEndpointConfig config) returns HttpClient {
     match config.auth {
         AuthConfig => {
-            HttpClient httpClient = new(url, config);
-            return httpClient;
-        }
-        {} => {
             HttpSecureClient httpSecureClient = new(url, config);
             return httpSecureClient;
+        }
+        () => {
+            HttpClient httpClient = new(url, config);
+            return httpClient;
         }
     }
 }
