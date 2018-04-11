@@ -22,7 +22,7 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.ObservableContext;
 import org.ballerinalang.config.ConfigRegistry;
 
 import java.util.HashMap;
@@ -54,7 +54,7 @@ public class TraceManager {
         return instance;
     }
 
-    public void startSpan(WorkerExecutionContext ctx) {
+    public void startSpan(ObservableContext ctx) {
         BSpan activeBSpan = TraceUtil.getBSpan(ctx);
         if (activeBSpan != null) {
             BSpan parentBSpan = !bSpanStack.empty() ? bSpanStack.peek() : null;

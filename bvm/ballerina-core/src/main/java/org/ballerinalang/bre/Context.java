@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.bre;
 
+import org.ballerinalang.bre.bvm.ObservableContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BStruct;
@@ -35,7 +36,7 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-public interface Context {
+public interface Context extends ObservableContext {
 
     WorkerExecutionContext getParentWorkerExecutionContext();
 

@@ -53,6 +53,7 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.observability.CallableUnitCallbackObserver;
 import org.ballerinalang.util.observability.CallbackObserver;
 import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -125,9 +126,10 @@ public class BLangFunctions {
     }
     
     public static void invokeServiceCallable(CallableUnitInfo callableUnitInfo, WorkerExecutionContext parentCtx,
-            BValue[] args, CallableUnitCallback responseCallback) {
+                                             ObserverContext observerContext, BValue[] args,
+                                             CallableUnitCallback responseCallback) {
         int[][] regs = BLangVMUtils.populateArgAndReturnData(parentCtx, callableUnitInfo, args);
-        invokeServiceCallable(callableUnitInfo, parentCtx, regs[0], regs[1], responseCallback);
+        invokeServiceCallable(callableUnitInfo, parentCtx, observerContext, regs[0], regs[1], responseCallback);
     }
 
     /**
@@ -136,17 +138,18 @@ public class BLangFunctions {
      * This is specifically useful in executing service resources, where the calling transport
      * threads shouldn't be blocked, but rather the worker threads should be used.
      */
-    public static void invokeServiceCallable(CallableUnitInfo callableUnitInfo,
-            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs,
-            CallableUnitCallback responseCallback) {
+    public static void invokeServiceCallable(CallableUnitInfo callableUnitInfo, WorkerExecutionContext parentCtx,
+                                             ObserverContext observerContext, int[] argRegs, int[] retRegs,
+                                             CallableUnitCallback responseCallback) {
         WorkerSet workerSet = callableUnitInfo.getWorkerSet();
         int generalWorkersCount = workerSet.generalWorkers.length;
         CallableWorkerResponseContext respCtx = createWorkerResponseContext(callableUnitInfo.getRetParamTypes(),
                 generalWorkersCount);
         respCtx.registerResponseCallback(responseCallback);
-        respCtx.registerResponseCallback(new CallbackObserver(parentCtx));
+        respCtx.registerResponseCallback(new CallbackObserver(respCtx));
         respCtx.joinTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
+        ObservabilityUtils.continueServerObservation(observerContext, respCtx);
 
         /* execute the init worker and extract the local variables created by it */
         WorkerData initWorkerLocalData = null;
@@ -174,22 +177,18 @@ public class BLangFunctions {
     public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse,
             int flags) {
-        if (FunctionFlags.isObserved(flags)) {
-            ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
-                    callableUnitInfo.getName(), parentCtx);
-        }
         BLangScheduler.workerWaitForResponse(parentCtx);
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {
             if (FunctionFlags.isAsync(flags)) {
-                invokeNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs);
+                invokeNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs, flags);
                 resultCtx = parentCtx;
             } else {
                 resultCtx = invokeNativeCallable(callableUnitInfo, parentCtx, argRegs, retRegs, flags);
             }
         } else {
             if (FunctionFlags.isAsync(flags)) {
-                invokeNonNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs);
+                invokeNonNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs, flags);
                 resultCtx = parentCtx;
             } else {
                 resultCtx = invokeNonNativeCallable(callableUnitInfo, parentCtx, argRegs, retRegs, waitForResponse,
@@ -221,7 +220,9 @@ public class BLangFunctions {
             respCtx.registerResponseCallback(respCallback);
         }
         if (FunctionFlags.isObserved(flags)) {
-            respCtx.registerResponseCallback(new CallbackObserver(parentCtx));
+            ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
+                    callableUnitInfo.getName(), respCtx);
+            respCtx.registerResponseCallback(new CallbackObserver(respCtx));
         }
         respCtx.joinTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
@@ -261,13 +262,17 @@ public class BLangFunctions {
     }
     
     public static void invokeNonNativeCallableAsync(CallableUnitInfo callableUnitInfo,
-            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs) {
+            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, int flags) {
         WorkerSet workerSet = callableUnitInfo.getWorkerSet();
         int generalWorkersCount = workerSet.generalWorkers.length;
         AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo,
                 generalWorkersCount);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
-
+        if (FunctionFlags.isObserved(flags)) {
+            ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
+                    callableUnitInfo.getName(), respCtx);
+            respCtx.registerResponseCallback(new CallbackObserver(respCtx));
+        }
         /* execute the init worker and extract the local variables created by it */
         WorkerData initWorkerLocalData = null;
         CodeAttributeInfo initWorkerCAI = null;
@@ -309,18 +314,22 @@ public class BLangFunctions {
             return parentCtx;
         }
         try {
+            if (FunctionFlags.isObserved(flags)) {
+                ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
+                        callableUnitInfo.getName(), ctx);
+            }
             if (nativeCallable.isBlocking()) {
                 nativeCallable.execute(ctx, null);
                 BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
                 if (FunctionFlags.isObserved(flags)) {
-                    ObservabilityUtils.stopObservation(parentCtx);
+                    ObservabilityUtils.stopObservation(ctx);
                 }
                 /* we want the parent to continue, since we got the response of the native call already */
                 return parentCtx;
             } else {
                 CallableUnitCallback callback;
                 if (FunctionFlags.isObserved(flags)) {
-                    callback = new CallableUnitCallbackObserver(parentCtx,
+                    callback = new CallableUnitCallbackObserver(ctx,
                             new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes));
                 } else {
                     callback = new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes);
@@ -339,7 +348,7 @@ public class BLangFunctions {
     }
 
     private static void invokeNativeCallableAsync(CallableUnitInfo callableUnitInfo,
-            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs) {
+            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, int flags) {
         WorkerData caleeSF = BLangVMUtils.createWorkerDataForLocal(callableUnitInfo.getDefaultWorkerInfo(), parentCtx,
                 argRegs, callableUnitInfo.getParamTypes());
         Context nativeCtx = new NativeCallContext(parentCtx, callableUnitInfo, caleeSF);
@@ -349,9 +358,9 @@ public class BLangFunctions {
         }
         AsyncInvocableWorkerResponseContext respCtx;
         if (nativeCallable.isBlocking()) {
-            respCtx = BLangScheduler.executeBlockingNativeAsync(nativeCallable, nativeCtx);
+            respCtx = BLangScheduler.executeBlockingNativeAsync(nativeCallable, nativeCtx, flags);
         } else {
-            respCtx = BLangScheduler.executeNonBlockingNativeAsync(nativeCallable, nativeCtx);
+            respCtx = BLangScheduler.executeNonBlockingNativeAsync(nativeCallable, nativeCtx, flags);
         }
         BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
                 new BValue[] { new BCallableFuture(callableUnitInfo.getName(), respCtx) },
