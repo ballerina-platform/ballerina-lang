@@ -148,6 +148,8 @@
                                 <option>-keep class org.bouncycastle.cert.ocsp.OCSPReqBuilder { *; }</option>
                                 <option>-keep class org.bouncycastle.cert.ocsp.RevokedStatus { *; }</option>
                                 <option>-keep class org.bouncycastle.cert.ocsp.UnknownStatus { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.x509.CRLDistPoint { *; }</option>
+                                <option>-keep class org.bouncycastle.jce.provider.** { *; }</option>
                                 <option>-keep class org.bouncycastle.jcajce.** </option>
                                 <option>-keepattributes SourceFile,LineNumberTable,Exceptions,InnerClasses,Signature</option>
                             </options>
