@@ -109,7 +109,7 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
                 throw new BallerinaConnectorException("invalid maxActiveStreamsPerConnection value: "
                                                       + maxActiveStreamsPerConnection);
             }
-            senderConfiguration.setHttp2MaxActiveStreams(
+            senderConfiguration.getPoolConfiguration().setHttp2MaxActiveStreamsPerConnection(
                     maxActiveStreamsPerConnection == -1 ? Integer.MAX_VALUE : (int) maxActiveStreamsPerConnection);
 
             long waitTime = connectionThrottling
