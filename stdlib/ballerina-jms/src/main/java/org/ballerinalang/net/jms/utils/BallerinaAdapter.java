@@ -23,17 +23,24 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jms.JMSException;
 
 /**
  * Adapter class use used to bridge the connector native codes and Ballerina API.
  */
 public class BallerinaAdapter {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaAdapter.class);
+
     private BallerinaAdapter() {
     }
 
-    public static Struct getReceiverStruct(Context context) {
+    public static Struct getReceiverObject(Context context) {
         return BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
     }
 
@@ -53,5 +60,24 @@ public class BallerinaAdapter {
             throw new BallerinaException(structName + " is not properly initialized.", context);
         }
         return objectClass.cast(nativeData);
+    }
+
+    public static void throwBallerinaException(String message, Context context, Throwable throwable) {
+        LOGGER.error(message, throwable);
+        throw new BallerinaException(message + " " + throwable.getMessage(), throwable, context);
+    }
+
+    private static BStruct createErrorRecord(Context context, String errorMsg, JMSException e) {
+        BStruct errorStruct = BLangConnectorSPIUtil.createBStruct(context,
+                                                                  Constants.BALLERINA_PACKAGE_JMS,
+                                                                  Constants.ERROR_STRUCT);
+        errorStruct.setStringField(0, errorMsg + " " + e.getMessage());
+        return errorStruct;
+    }
+
+    public static void returnError(String errorMessage, Context context, JMSException e) {
+        LOGGER.error(errorMessage, e);
+        BStruct errorRecord = createErrorRecord(context, errorMessage, e);
+        context.setReturnValues(errorRecord);
     }
 }

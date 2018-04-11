@@ -138,7 +138,7 @@ function hasNextRecord () returns (boolean) {
 
 function loadToTable (string filePath) returns (float|io:IOError) {
     float total;
-    var result = io:loadToTable(filePath, "\n", ",", "UTF-8", false, typeof Employee);
+    var result = io:loadToTable(filePath, "\n", ",", "UTF-8", false, Employee);
     match result {
         table<Employee> tb => {
             foreach x in tb {

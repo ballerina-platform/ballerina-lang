@@ -12,7 +12,7 @@ function main (string[] args) {
 
     endpoint grpc:Client ep;
     // Executing unary non-blocking call registering server message listener.
-    var res = helloWorldEp -> lotsOfGreetings(typeof HelloWorldMessageListener);
+    var res = helloWorldEp -> lotsOfGreetings(HelloWorldMessageListener);
     match res {
         grpc:error err => {
             io:print("error");

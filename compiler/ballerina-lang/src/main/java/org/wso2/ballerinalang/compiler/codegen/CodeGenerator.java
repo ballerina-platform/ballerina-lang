@@ -116,7 +116,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -824,16 +824,16 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangLocalVarRef localVarRef) {
         if (localVarRef.regIndex != null && (localVarRef.regIndex.isLHSIndex || localVarRef.regIndex.isVarIndex)) {
             emit(getOpcode(localVarRef.type.tag, InstructionCodes.IMOVE),
-                    localVarRef.symbol.varIndex, localVarRef.regIndex);
+                    localVarRef.varSymbol.varIndex, localVarRef.regIndex);
             return;
         }
 
-        localVarRef.regIndex = localVarRef.symbol.varIndex;
+        localVarRef.regIndex = localVarRef.varSymbol.varIndex;
     }
 
     @Override
     public void visit(BLangFieldVarRef fieldVarRef) {
-        RegIndex fieldIndex = fieldVarRef.symbol.varIndex;
+        RegIndex fieldIndex = fieldVarRef.varSymbol.varIndex;
 
         // This is a connector field.
         // the connector reference must be stored in the current reference register index.
@@ -851,7 +851,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPackageVarRef packageVarRef) {
-        Operand gvIndex = packageVarRef.symbol.varIndex;
+        Operand gvIndex = packageVarRef.varSymbol.varIndex;
         if (varAssignment) {
             int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGSTORE);
             emit(opcode, packageVarRef.regIndex, gvIndex);
@@ -869,6 +869,12 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
+        Operand typeCPIndex = getTypeCPIndex(typeLoad.symbol.type);
+        emit(InstructionCodes.TYPELOAD, typeCPIndex, calcAndGetExprRegIndex(typeLoad));
+    }
+
+    @Override
     public void visit(BLangStructFieldAccessExpr fieldAccessExpr) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
@@ -877,7 +883,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand varRefRegIndex = fieldAccessExpr.expr.regIndex;
 
         int opcode;
-        Operand fieldIndex = fieldAccessExpr.symbol.varIndex;
+        Operand fieldIndex = fieldAccessExpr.varSymbol.varIndex;
         if (variableStore) {
             opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.IFIELDSTORE);
             emit(opcode, varRefRegIndex, fieldIndex, fieldAccessExpr.regIndex);
@@ -1001,7 +1007,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     @Override
     public void visit(BLangEnumeratorAccessExpr enumeratorAccessExpr) {
         Operand typeCPIndex = getTypeCPIndex(enumeratorAccessExpr.type);
-        Operand varIndex = enumeratorAccessExpr.symbol.varIndex;
+        Operand varIndex = enumeratorAccessExpr.varSymbol.varIndex;
         emit(InstructionCodes.ENUMERATORLOAD, typeCPIndex, varIndex,
                 calcAndGetExprRegIndex(enumeratorAccessExpr));
     }
@@ -1262,7 +1268,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.emit(InstructionCodes.AWAIT, futureRegIndex, valueRegIndex);
     }
 
-    public void visit(BLangTypeofExpr accessExpr) {
+    public void visit(BLangTypedescExpr accessExpr) {
         Operand typeCPIndex = getTypeCPIndex(accessExpr.resolvedType);
         emit(InstructionCodes.TYPELOAD, typeCPIndex, calcAndGetExprRegIndex(accessExpr));
     }
@@ -1278,15 +1284,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         int opcode;
         genNode(unaryExpr.expr, this.env);
-        if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
-            opcode = unaryExpr.opSymbol.opcode;
-            if (opcode == InstructionCodes.TYPEOF) {
-                emit(opcode, unaryExpr.expr.regIndex, exprIndex);
-            } else {
-                Operand typeCPIndex = getTypeCPIndex(unaryExpr.expr.type);
-                emit(opcode, typeCPIndex, exprIndex);
-            }
-        } else if (OperatorKind.LENGTHOF.equals(unaryExpr.operator)) {
+        if (OperatorKind.LENGTHOF.equals(unaryExpr.operator)) {
             Operand typeCPIndex = getTypeCPIndex(unaryExpr.expr.type);
             opcode = unaryExpr.opSymbol.opcode;
             emit(opcode, unaryExpr.expr.regIndex, typeCPIndex, exprIndex);
@@ -2453,7 +2451,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex regIndex;
         BType bType;
         if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && lExpr instanceof BLangLocalVarRef) {
-            lExpr.regIndex = ((BLangLocalVarRef) lExpr).symbol.varIndex;
+            lExpr.regIndex = ((BLangLocalVarRef) lExpr).varSymbol.varIndex;
             regIndex = lExpr.regIndex;
         } else {
             lExpr.regIndex = getRegIndex(lExpr.type.tag);
@@ -2547,13 +2545,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         BLangExpression lhrExpr = assignNode.varRef;
         if (assignNode.declaredWithVar) {
             BLangVariableReference varRef = (BLangVariableReference) lhrExpr;
-            visitVarSymbol(varRef.symbol, lvIndexes, localVarAttrInfo);
+            visitVarSymbol((BVarSymbol) varRef.symbol, lvIndexes, localVarAttrInfo);
         }
 
         BLangExpression rhsExpr = assignNode.expr;
         if (lhrExpr.type.tag != TypeTags.NONE && lhrExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
                 lhrExpr instanceof BLangLocalVarRef) {
-            lhrExpr.regIndex = ((BLangVariableReference) lhrExpr).symbol.varIndex;
+            lhrExpr.regIndex = ((BVarSymbol) ((BLangVariableReference) lhrExpr).symbol).varIndex;
             rhsExpr.regIndex = lhrExpr.regIndex;
         }
 
@@ -3101,7 +3099,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // create Local variable Info entries.
         variables.stream()
                 .filter(v -> v.type.tag != TypeTags.NONE)   // Ignoring ignored ("_") variables.
-                .forEach(varRef -> visitVarSymbol(varRef.symbol, lvIndexes, localVarAttrInfo));
+                .forEach(varRef -> visitVarSymbol((BVarSymbol) varRef.symbol, lvIndexes, localVarAttrInfo));
         List<Operand> nextOperands = new ArrayList<>();
         nextOperands.add(iteratorIndex);
         nextOperands.add(new Operand(variables.size()));
@@ -3109,7 +3107,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         nextOperands.add(new Operand(variables.size()));
         for (int i = 0; i < variables.size(); i++) {
             BLangVariableReference varRef = variables.get(i);
-            nextOperands.add(Optional.ofNullable(varRef.symbol.varIndex)
+            nextOperands.add(Optional.ofNullable(((BVarSymbol) varRef.symbol).varIndex)
                     .orElse(getRegIndex(foreach.varTypes.get(i).tag)));
         }
         this.emit(InstructionCodes.ITR_NEXT, nextOperands.toArray(new Operand[0]));

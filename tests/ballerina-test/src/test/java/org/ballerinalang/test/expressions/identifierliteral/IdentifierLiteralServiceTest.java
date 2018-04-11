@@ -37,6 +37,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 public class IdentifierLiteralServiceTest {
 
     private CompileResult application;
+    private static final String MOCK_ENDPOINT_NAME = "testEP";
 
     @BeforeClass
     public void setup() {
@@ -44,20 +45,20 @@ public class IdentifierLiteralServiceTest {
                 .setupProgramFile(this, "test-src/expressions/identifierliteral/identifier-literal-service.bal");
     }
 
-    @Test(description = "Test using identifier literals in service and resource names", enabled = false)
+    @Test(description = "Test using identifier literals in service and resource names")
     public void testUsingIdentifierLiteralsInServiceAndResourceNames() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(application, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("key").asText(), "keyVal");
         Assert.assertEquals(bJson.value().get("value").asText(), "valueOfTheString");
     }
 
-    @Test(description = "Test identifier literals payload", enabled = false)
+    @Test(description = "Test identifier literals payload")
     public void testIdentifierLiteralsInPayload() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource2", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(application, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         String payload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
