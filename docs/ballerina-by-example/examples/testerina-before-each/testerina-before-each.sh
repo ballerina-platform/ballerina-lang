@@ -1,4 +1,8 @@
-$ ballerina testerina-before-after-suite.bal
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina test` command.
+#Note that you need to have the ballerina-tools distribution 
+#installed in order to run this command. 
+$ ballerina test testerina-before-each.bal
     T E S T S
 ---------------------------------------------------------------------------
 ---------------------------------------------------------------------------

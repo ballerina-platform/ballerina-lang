@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/http;
 
 @Description {value:"Attributes associated with the service endpoint is defined here."}
-endpoint http:ServiceEndpoint helloWorldEP {
+endpoint http:Listener helloWorldEP {
     port:9090
 };
 
@@ -18,11 +18,11 @@ service<http:Service> helloWorld bind helloWorldEP{
         // Check if the client expects a 100-continue response.
         if (request.expects100Continue()) {
             // Send a 100-continue response to the client.
-            _ = outboundEP -> respondContinue();
+            _ = outboundEP -> continue();
         }
 
         // The client will start sending the payload once it receives the 100-continue response. Get this payload sent by the client.
-        http:Response res = {};
+        http:Response res = new;
         match request.getStringPayload() {
             string payload => {
                 io:println(payload);
@@ -34,9 +34,6 @@ service<http:Service> helloWorld bind helloWorldEP{
                 res.statusCode = 500;
                 res.setStringPayload(payloadError.message);
                 _ = outboundEP -> respond(res);
-            }
-            any | null => {
-                io:println("Error occured");
             }
         }
     }

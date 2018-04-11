@@ -2,7 +2,7 @@ import ballerina/sql;
 import ballerina/io;
 
 @Description {value:"This is the Employee struct. The field names of this should match column names of the table. The field types should match with the sql types."}
-struct Employee {
+type Employee {
     int id;
     string name;
     float salary;
@@ -10,12 +10,12 @@ struct Employee {
     string birthdate;
     string birthtime;
     string updated;
-}
+};
 
 function main (string[] args) {
 
     endpoint sql:Client testDB {
-        database: sql:DB.MYSQL,
+        database: sql:DB_MYSQL,
         host: "localhost",
         port: 3306,
         name: "testdb",
@@ -62,7 +62,7 @@ function main (string[] args) {
 
     //Query the table using SQL connector select action. Either select or call
     //action can return a table.
-    var returnVal = testDB -> select("SELECT * from EMPLOYEE", null, typeof Employee);
+    var returnVal = testDB -> select("SELECT * from EMPLOYEE", null, Employee);
 
     match returnVal {
         table val => {
@@ -99,7 +99,7 @@ function main (string[] args) {
         error e => io:println("Error in executing SELECT id,name FROM EMPLOYEE");
     }
 
-    var jsonRes =? <json>dt;
+    var jsonRes = <json>dt;
     io:println(jsonRes);
 
     //Convert a table to XML.
@@ -112,7 +112,7 @@ function main (string[] args) {
         error e => io:println("Error in executing SELECT id,name FROM EMPLOYEE");
     }
 
-    var xmlRes =? <xml>dt;
+    var xmlRes = <xml>dt;
     io:println(xmlRes);
 
     //Drop the EMPLOYEE table.
@@ -129,7 +129,7 @@ function main (string[] args) {
     var onConnectionClose = testDB -> close();
     match onConnectionClose {
         error e => io:println("Error in DB Connection close");
-        any | null => {
+        any | () => {
             io:println("DB Connection closed successfully.");
         }
     }

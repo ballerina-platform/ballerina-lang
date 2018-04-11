@@ -41,7 +41,7 @@ map<TwoPhaseCommitTransaction> participatedTransactions;
 documentation {
     This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 }
-caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache", 900000, 100, 0.1);
+caching:Cache httpClientCache = new;
 
 @final boolean scheduleInit = scheduleTimer(1000, 60000);
 
@@ -140,8 +140,8 @@ function protocolCompatible (string coordinationType,
     return participantProtocolIsValid;
 }
 
-function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
-    endpoint http:ServiceEndpoint ep = conn;
+function respondToBadRequest (http:Listener conn, string msg) {
+    endpoint http:Listener ep = conn;
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
     RequestError err = {errorMessage:msg};
@@ -153,6 +153,17 @@ function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
             log:printErrorCause("Could not send Bad Request error response to caller", respondErr);
         }
         () => return;
+    }
+}
+
+function getProtocols(Participant participant) returns LocalProtocol[] | RemoteProtocol[] {
+    match participant {
+        LocalParticipant localParticipant => return localParticipant.participantProtocols;
+        RemoteParticipant remoteParticipant => return remoteParticipant.participantProtocols;
+        any => {
+            error err = {message: "Invalid participant type"};
+            throw err;
+        }
     }
 }
 
@@ -207,8 +218,8 @@ function registerParticipantWithLocalInitiator (string transactionId,
                                                 string registerAtURL) returns TransactionContext|error {
     string participantId = getParticipantId(transactionBlockId);
     //TODO: Protocol name should be passed down from the transaction statement
-    Protocol participantProtocol = {name:PROTOCOL_DURABLE, transactionBlockId:transactionBlockId,
-                                       protocolFn:localParticipantProtocolFn};
+    LocalProtocol participantProtocol = {name:PROTOCOL_DURABLE, transactionBlockId:transactionBlockId,
+                                                    protocolFn:localParticipantProtocolFn};
     if (!initiatedTransactions.hasKey(transactionId)) {
         error err = {message:"Transaction-Unknown. Invalid TID:" + transactionId};
         return err;
@@ -221,14 +232,14 @@ function registerParticipantWithLocalInitiator (string transactionId,
             error err = {message:"Invalid-Protocol. TID:" + transactionId + ",participant ID:" + participantId};
             return err;
         } else {
-            Participant participant = {participantId:participantId};
+            LocalParticipant participant = {participantId:participantId};
             participant.participantProtocols = [participantProtocol];
             txn.participants[participantId] = participant;
 
             //Set initiator protocols
             TwoPhaseCommitTransaction twopcTxn = new (transactionId, transactionBlockId);
-            Protocol initiatorProto = {name: PROTOCOL_DURABLE, transactionBlockId:transactionBlockId};
-            twopcTxn.coordinatorProtocols = [initiatorProto];
+            //Protocol initiatorProto = {name: PROTOCOL_DURABLE, transactionBlockId:transactionBlockId};
+            //twopcTxn.coordinatorProtocols = [initiatorProto];
 
             string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
             participatedTransactions[participatedTxnId] = twopcTxn;
@@ -303,7 +314,7 @@ function getInitiatorClientEP (string registerAtURL) returns InitiatorClientEP {
     } else {
         InitiatorClientEP initiatorEP = new;
         InitiatorClientConfig config = {registerAtURL:registerAtURL,
-                                           endpointTimeout:120000, retryConfig:{count:5, interval:5000}};
+                                           timeoutMillis:120000, retryConfig:{count:5, interval:5000}};
         initiatorEP.init(config);
         httpClientCache.put(registerAtURL, initiatorEP);
         return initiatorEP;
@@ -317,7 +328,7 @@ function getParticipant2pcClientEP (string participantURL) returns Participant2p
     } else {
         Participant2pcClientEP participantEP = new;
         Participant2pcClientConfig config = {participantURL:participantURL,
-                                                endpointTimeout:120000, retryConfig:{count:5, interval:5000}};
+                                                timeoutMillis:120000, retryConfig:{count:5, interval:5000}};
         participantEP.init(config);
         httpClientCache.put(participantURL, participantEP);
         return participantEP;
@@ -334,7 +345,7 @@ documentation {
 public function registerParticipantWithRemoteInitiator (string transactionId,
                                                         int transactionBlockId,
                                                         string registerAtURL,
-                                                        Protocol[] participantProtocols) returns TransactionContext|error {
+                                                        RemoteProtocol[] participantProtocols) returns TransactionContext|error {
     endpoint InitiatorClientEP initiatorEP;
     initiatorEP = getInitiatorClientEP(registerAtURL);
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
@@ -353,13 +364,13 @@ public function registerParticipantWithRemoteInitiator (string transactionId,
         error e => {
             string msg = "Cannot register with coordinator for transaction: " + transactionId;
             log:printErrorCause(msg, e);
-            error err = {message:msg, cause:[e]};
+            error err = {message:msg, cause:e};
             return err;
         }
         RegistrationResponse regRes => {
-            Protocol[] coordinatorProtocols = regRes.coordinatorProtocols;
+            RemoteProtocol[] coordinatorProtocols = regRes.coordinatorProtocols;
             TwoPhaseCommitTransaction twopcTxn = new (transactionId, transactionBlockId);
-            twopcTxn.coordinatorProtocols = coordinatorProtocols;
+            twopcTxn.coordinatorProtocols = toProtocolArray(coordinatorProtocols);
             participatedTransactions[participatedTxnId] = twopcTxn;
             TransactionContext txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,
                                             coordinationType: TWO_PHASE_COMMIT, registerAtURL:registerAtURL};

@@ -16,7 +16,7 @@ function main (string[] args) {
 
     endpoint grpc:Client ep;
     // Executing unary non-blocking call registering server message listener.
-    var res = chatEp -> chat(typeof ChatMessageListener);
+    var res = chatEp -> chat(ChatMessageListener);
     match res {
         grpc:error err => {
             io:print("error");
@@ -90,7 +90,7 @@ public type ChatClient object {
         ChatStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfiguration config) {
+    public function init (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);

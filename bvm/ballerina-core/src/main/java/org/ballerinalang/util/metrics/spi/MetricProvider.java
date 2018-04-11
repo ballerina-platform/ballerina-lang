@@ -40,6 +40,11 @@ public interface MetricProvider {
      */
     String getName();
 
+    /**
+     * This will be called when initializing the default {@link MetricRegistry}.
+     */
+    void initialize();
+
     Counter newCounter(MetricId metricId);
 
     Gauge newGauge(MetricId metricId);

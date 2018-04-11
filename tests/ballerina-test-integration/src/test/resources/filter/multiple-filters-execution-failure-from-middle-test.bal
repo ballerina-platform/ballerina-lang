@@ -104,7 +104,7 @@ public function interceptResponse3 (http:Response response, http:FilterContext c
 
 Filter3 filter3 = new (interceptRequest3, interceptResponse3);
 
-endpoint http:ServiceEndpoint echoEP {
+endpoint http:Listener echoEP {
     port:9090,
     filters:[filter1,filter2,filter3]
 };

@@ -64,7 +64,7 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
                              structPackage = "ballerina.http"),
         isPublic = true
 )
@@ -137,7 +137,6 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         String keepAlive = endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE).getStringValue();
         String transferEncoding =
                 endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_TRANSFER_ENCODING);
-        String chunking = endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_CHUNKING).getStringValue();
         Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
         Struct requestLimits = endpointConfig.getStructField(HttpConstants.ENDPOINT_REQUEST_LIMITS);
@@ -165,8 +164,6 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
                                                           + transferEncoding);
         }
-
-        listenerConfiguration.setChunkConfig(HttpUtil.getChunkConfig(chunking));
 
         // Set Request validation limits.
         if (requestLimits != null) {

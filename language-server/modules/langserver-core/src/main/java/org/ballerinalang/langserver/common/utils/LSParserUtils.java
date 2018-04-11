@@ -18,6 +18,8 @@ package org.ballerinalang.langserver.common.utils;
 import com.google.common.io.Files;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.CollectDiagnosticListener;
+import org.ballerinalang.langserver.LSGlobalContext;
+import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.modal.BallerinaFile;
@@ -32,6 +34,7 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,7 +83,7 @@ public class LSParserUtils {
      * @return BLangCompilationUnit
      */
     public static BLangCompilationUnit compileFragment(String content) {
-        BallerinaFile model = compile(content, CompilerPhase.DEFINE);
+        BallerinaFile model = compile(content, CompilerPhase.DEFINE, null);
         if (model.getBLangPackage() != null) {
             return model.getBLangPackage().getCompilationUnits().stream().
                     filter(compUnit -> UNTITLED_BAL.equals(compUnit.getName())).findFirst().get();
@@ -95,20 +98,24 @@ public class LSParserUtils {
      * @param phase {CompilerPhase} CompilerPhase
      * @return BallerinaFile
      */
-    public static BallerinaFile compile(String content, CompilerPhase phase) {
-        return compile(content, UNTITLED_BAL, phase);
+    public static BallerinaFile compile(String content, CompilerPhase phase, LSGlobalContext lsGlobalContext) {
+        return compile(content, UNTITLED_BAL, phase, true, lsGlobalContext);
     }
 
     /**
      * Compile an unsaved Ballerina file.
      *
+     * Note: overloading for use, when the global context is not available
+     *
      * @param content file content
-     * @param tempFileId temp file id
      * @param phase {CompilerPhase} CompilerPhase
      * @return BallerinaFile
      */
-    public static BallerinaFile compile(String content, String tempFileId, CompilerPhase phase) {
-        return compile(content, tempFileId, phase, true);
+    public static BallerinaFile compile(String content, CompilerPhase phase) {
+        LSGlobalContext lsGlobalContext = new LSGlobalContext();
+        CompilerContext compilerContext = CommonUtil.prepareTempCompilerContext();
+        lsGlobalContext.put(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT, compilerContext);
+        return compile(content, UNTITLED_BAL, phase, true, lsGlobalContext);
     }
 
     /**
@@ -121,7 +128,7 @@ public class LSParserUtils {
      * @return BallerinaFile
      */
     public static BallerinaFile compile(String content, String tempFileId, CompilerPhase phase,
-                                        boolean preserveWhitespace) {
+                                        boolean preserveWhitespace, LSGlobalContext lsGlobalContext) {
         Path unsaved = createAndGetTempFile(tempFileId);
         synchronized (LSParserUtils.class) {
             // Since we use the same file name for all the fragment passes we need to make sure following -
@@ -140,7 +147,7 @@ public class LSParserUtils {
                 }
             }
             CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
-                                         sourceDocument, preserveWhitespace, documentManager, CompilerPhase.DEFINE);
+                                         sourceDocument, preserveWhitespace, documentManager, phase, lsGlobalContext);
             BallerinaFile model = compile(content, unsaved, phase, context);
             documentManager.closeFile(unsaved);
             return model;
@@ -172,14 +179,17 @@ public class LSParserUtils {
 
     /**
      * Compile a Ballerina file.
+     * 
+     * Note: THis is used by the ballerina Composer
      *
      * @param content   file content
      * @param path      file path
      * @param phase {CompilerPhase} set phase for the compiler.
      * @return BallerinaFile
      */
-    public static BallerinaFile compile(String content, Path path, CompilerPhase phase) {
-        return compile(content, path, phase, true);
+    public static BallerinaFile compile(String content, Path path, CompilerPhase phase,
+                                        LSGlobalContext lsGlobalContext) {
+        return compile(content, path, phase, true, lsGlobalContext);
     }
 
     /**
@@ -190,7 +200,8 @@ public class LSParserUtils {
      * @param phase {CompilerPhase} set phase for the compiler.
      * @return BallerinaFile
      */
-    public static BallerinaFile compile(String content, Path path, CompilerPhase phase, boolean preserveWhiteSpace) {
+    public static BallerinaFile compile(String content, Path path, CompilerPhase phase, boolean preserveWhiteSpace,
+                                        LSGlobalContext lsGlobalContext) {
         String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path);
         String pkgName = TextDocumentServiceUtil.getPackageNameForGivenFile(sourceRoot, path.toString());
         LSDocument sourceDocument = new LSDocument();
@@ -204,8 +215,8 @@ public class LSParserUtils {
                 pkgName = filePath.toString();
             }
         }
-        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
-                                            sourceDocument, preserveWhiteSpace, documentManager, CompilerPhase.DEFINE);
+        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository, 
+                sourceDocument, preserveWhiteSpace, documentManager, phase, lsGlobalContext);
         return compile(content, path, phase, context);
     }
 
@@ -237,10 +248,11 @@ public class LSParserUtils {
             }
         }
         BLangPackage bLangPackage = null;
-        List<Diagnostic> balDiagnostics = new ArrayList<>();
-        CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
-        context.put(DiagnosticListener.class, diagnosticListener);
+        if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
+            ((CollectDiagnosticListener) context.get(DiagnosticListener.class)).getDiagnostics().clear();
+        }
         try {
+            BLangDiagnosticLog.getInstance(context).errorCount = 0;
             Compiler compiler = Compiler.getInstance(context);
             bLangPackage = compiler.compile(pkgName);
         } catch (Exception e) {
@@ -248,7 +260,13 @@ public class LSParserUtils {
         }
         BallerinaFile bfile = new BallerinaFile();
         bfile.setBLangPackage(bLangPackage);
-        bfile.setDiagnostics(balDiagnostics);
+        if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
+            List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))
+                    .getDiagnostics();
+            bfile.setDiagnostics(diagnostics);
+        } else {
+            bfile.setDiagnostics(new ArrayList<>());
+        }
         return bfile;
     }
 

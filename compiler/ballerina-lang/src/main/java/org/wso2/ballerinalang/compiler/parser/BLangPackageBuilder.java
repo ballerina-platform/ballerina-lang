@@ -154,7 +154,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -807,9 +807,14 @@ public class BLangPackageBuilder {
     public void markLastEndpointAsPublic() {
         lastBuiltEndpoint.flagSet.add(Flag.PUBLIC);
     }
-    
-    public void markLastInvocationAsAsync() {
-        ((BLangInvocation) this.exprNodeStack.peek()).async = true;
+
+    public void markLastInvocationAsAsync(DiagnosticPos pos) {
+        final ExpressionNode expressionNode = this.exprNodeStack.peek();
+        if (expressionNode.getKind() == NodeKind.INVOCATION) {
+            ((BLangInvocation) this.exprNodeStack.peek()).async = true;
+        } else {
+            dlog.error(pos, DiagnosticCode.START_REQUIRE_INVOCATION);
+        }
     }
 
     public void addVariableDefStatement(DiagnosticPos pos,
@@ -1052,11 +1057,13 @@ public class BLangPackageBuilder {
         invocationWsStack.push(ws);
     }
 
-    public void createInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, String invocation, boolean argsAvailable) {
+    public void createInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, String invocation, boolean argsAvailable,
+                                     boolean safeNavigate) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
         invocationNode.addWS(invocationWsStack.pop());
+        invocationNode.safeNavigate = safeNavigate;
         if (argsAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
             exprNodes.forEach(exprNode -> invocationNode.argExprs.add((BLangExpression) exprNode));
@@ -1146,7 +1153,7 @@ public class BLangPackageBuilder {
     }
 
     public void createTypeAccessExpr(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangTypeofExpr typeAccessExpr = (BLangTypeofExpr) TreeBuilder.createTypeAccessNode();
+        BLangTypedescExpr typeAccessExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
         typeAccessExpr.pos = pos;
         typeAccessExpr.addWS(ws);
         typeAccessExpr.typeNode = (BLangType) typeNodeStack.pop();

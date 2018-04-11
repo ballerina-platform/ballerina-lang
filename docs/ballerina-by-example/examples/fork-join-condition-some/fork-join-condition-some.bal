@@ -19,11 +19,12 @@ function main (string[] args) {
             f -> fork;
         }
     } join (some 1) (map results) {
-        //Here we use "some 1" as the join condition which means wait for any one of the workers.
-        //When the join condition has been satisfied, results 'map' will be filled with
-        //the returned values from the workers.
+        // Here we use 'some 1' as the join condition, which means that the join block needs to wait for any one of the
+        // workers to finish executing.
+        // When the join condition has been satisfied, the results 'map' is updated with the value returned by the
+        // worker.
 
-        // Check whether the completed worker is 'w1'.
+        // Checks if the worker that finished executing is worker 'w1'.
         if (results["w1"] != null) {
             any[] resW1 =check <any[]>results["w1"];
             int iW1 =check <int>resW1[0];
@@ -31,7 +32,7 @@ function main (string[] args) {
             io:println("[join-block] iW1: " + iW1 + " sW1: " + sW1);
         }
 
-        // Check whether the completed worker is 'w2'.
+        // Checks if the worker that finished executing is worker 'w2'.
         if (results["w2"] != null) {
             any[] resW2 =check <any[]>results["w2"];
             float fW2 =check <float>resW2[0];

@@ -12,7 +12,7 @@ public function main (string[] args) {
 
     int[] numbers = [-5, -3, 2, 7, 12];
     // Filter operation returns a collection containing all elements that satisfy the input predicate function.
-    float avg = numbers.filter(function (int i) returns boolean {
+    float avg = numbers.filter((int i) => boolean {
                                    return i >= 0;
                                })
     // Average operation returns the average of the int/float collection. Other support operations are max(), min() and sum().
@@ -22,13 +22,13 @@ public function main (string[] args) {
     io:println("\nExecution Order");
     // Example of multiple iterable operations.
     json j = {name:"apple", colors:["red", "green"], price:5};
-    j.map(function (json j) returns string {
-                    string s = j.toString();
+    j.map((json j) => string {
+                    string s = j.toString() but {() => ""};
                     io:println("- map operation's value :" + s);
                     return s;
                 })
     // Foreach operation applies the given function to each item of the iterable collection
-            .foreach(function (string s){
+            .foreach((string s) => {
                     io:println("-- foreach operation's value :" + s);
                 });
 

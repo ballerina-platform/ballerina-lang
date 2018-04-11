@@ -1,11 +1,11 @@
 import ballerina/http;
 
 @Description {value:"Attributes associated with the service endpoint is defined here."}
-endpoint http:ServiceEndpoint hbrEP {
+endpoint http:Listener hbrEP {
     port:9090
 };
 
-endpoint http:ClientEndpoint locationEP {
+endpoint http:Client locationEP {
     targets: [
         {
             url: "http://www.mocky.io"
@@ -13,7 +13,7 @@ endpoint http:ClientEndpoint locationEP {
     ]
 };
 
-endpoint http:ClientEndpoint weatherEP {
+endpoint http:Client weatherEP {
     targets: [
         {
             url: "http://samples.openweathermap.org"
@@ -57,8 +57,8 @@ service<http:Service> headerBasedRouting bind hbrEP {
 
         match response {
             http:Response clientResponse => {
-            //Native function "forward" sends back the inbound clientResponse to the caller if no any error is found.
-                _ = conn -> forward(clientResponse);
+            //Native function "respond" sends back the inbound clientResponse to the caller if no any error is found.
+                _ = conn -> respond(clientResponse);
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;

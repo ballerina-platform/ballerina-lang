@@ -1,6 +1,6 @@
 public type InvalidNameError {
     string message;
-    error[] cause;
+    error? cause;
     string companyName;
 };
 
@@ -63,7 +63,8 @@ function testReturnAndThrowError() returns (string){
     try{
         checkAndThrow();
     }catch(error e){
-        return e.cause[0].message;
+        error c = e.cause but { error s => s };
+        return c.message;
     }
     return "OK";
 }

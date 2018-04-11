@@ -214,14 +214,6 @@ simpleTypeName
     |   emptyTupleLiteral // nil type name ()
     ;
 
-builtInTypeName
-     :   TYPE_ANY
-     |   TYPE_DESC
-     |   valueTypeName
-     |   builtInReferenceTypeName
-     |   simpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+
-     ;
-
 referenceTypeName
     :   builtInReferenceTypeName
     |   userDefineTypeName
@@ -297,7 +289,7 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN (expression | actionInvocation))? SEMICOLON
+    :   typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 recordLiteral
@@ -331,12 +323,12 @@ typeInitExpr
     ;
 
 assignmentStatement
-    :   (VAR)? variableReference ASSIGN (expression | actionInvocation) SEMICOLON
+    :   (VAR)? variableReference ASSIGN expression SEMICOLON
     ;
 
 tupleDestructuringStatement
-    :   VAR? LEFT_PARENTHESIS variableReferenceList RIGHT_PARENTHESIS ASSIGN (expression | actionInvocation) SEMICOLON
-    |   LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS ASSIGN (expression | actionInvocation) SEMICOLON
+    :   VAR? LEFT_PARENTHESIS variableReferenceList RIGHT_PARENTHESIS ASSIGN expression SEMICOLON
+    |   LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS ASSIGN expression SEMICOLON
     ;
 
 compoundAssignmentStatement
@@ -471,8 +463,7 @@ workerReply
 
 variableReference
     :   nameReference                                                           # simpleVariableReference
-    |   ASYNC? functionInvocation                                               # functionInvocationReference
-    |   awaitExpression                                                         # awaitExpressionReference
+    |   functionInvocation                                                      # functionInvocationReference
     |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
@@ -496,7 +487,7 @@ functionInvocation
     ;
 
 invocation
-    : DOT anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    : (DOT | NOT) anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocationArgList
@@ -518,7 +509,7 @@ expressionList
     ;
 
 expressionStmt
-    :   (variableReference | actionInvocation) SEMICOLON
+    :   expression SEMICOLON
     ;
 
 transactionStatement
@@ -581,15 +572,13 @@ expression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   tableLiteral                                                        # tableLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
-    |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression
-    |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
-    |   variableReference                                                   # variableReferenceExpression
+    |   ASYNC? variableReference                                            # variableReferenceExpression
+    |   actionInvocation                                                    # actionInvocationExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
-    |   TYPEOF builtInTypeName                                              # typeAccessExpression
-    |   (ADD | SUB | NOT | LENGTHOF | TYPEOF | UNTAINT) expression          # unaryExpression
+    |   (ADD | SUB | NOT | LENGTHOF | UNTAINT) expression                   # unaryExpression
     |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
     |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
@@ -603,6 +592,7 @@ expression
     |	expression matchExpression										    # matchExprExpression
     |	CHECK expression										            # checkedExpression
     |   expression ELVIS expression                                         # elvisExpression
+    |   typeName                                                            # typeAccessExpression
     ;
 
 awaitExpression
@@ -956,7 +946,7 @@ documentationTemplateContent
     ;
 
 documentationTemplateAttributeDescription
-    :   DocumentationTemplateAttributeStart Identifier DocumentationTemplateAttributeEnd docText?
+    :   DocumentationTemplateAttributeStart Identifier? DocumentationTemplateAttributeEnd docText?
     ;
 
 docText

@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -46,12 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -78,7 +74,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -370,41 +365,34 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     /**
-     * Recursively analyse the symbol env to find the closure variable that is being resolved.
+     * Recursively analyse the symbol env to find the closure variable symbol that is being resolved.
      *
-     * @param env symbol env to analyse and find the closure variable.
-     * @param bSymbol symbol to resolve and find the associated closure variable.
-     * @return resolved closure variable for the given symbol.
+     * @param env     symbol env to analyse and find the closure variable.
+     * @param name    name of the symbol to lookup
+     * @param expSymTag symbol tag
+     * @return resolved closure variable symbol for the given name.
      */
-    public BLangVariable findClosureVar(SymbolEnv env, BSymbol bSymbol) {
-        BLangNode enclEnvNode = env.enclEnv.node;
-        if (enclEnvNode instanceof BLangBlockStmt) {
-            Optional<BLangStatement> statement = ((BLangBlockStmt) enclEnvNode).stmts.stream()
-                    .filter(stmt -> (stmt instanceof BLangVariableDef) &&
-                            bSymbol.equals(((BLangVariableDef) stmt).getVariable().symbol))
-                    .findFirst();
-            if (statement.isPresent()) {
-                ((BLangFunction) env.enclInvokable).closureVarList.add(((BLangVariableDef) statement.get()).
-                        getVariable());
-                return  ((BLangVariableDef) statement.get()).getVariable();
+    public BSymbol lookupClosureVarSymbol(SymbolEnv env, Name name, int expSymTag) {
+        ScopeEntry entry = env.enclEnv.scope.lookup(name);
+        while (entry != NOT_FOUND_ENTRY) {
+            if (symTable.rootPkgSymbol.pkgID.equals(entry.symbol.pkgID) &&
+                    (entry.symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
+                return entry.symbol;
             }
-        } else if (enclEnvNode instanceof BLangFunction) {
-            Optional<BLangVariable> var = ((BLangFunction) enclEnvNode).requiredParams.stream()
-                    .filter(param -> bSymbol.equals(param.symbol))
-                    .findFirst();
-            if (var.isPresent()) {
-                return var.get();
+            if ((entry.symbol.tag & expSymTag) == expSymTag) {
+                return entry.symbol;
             }
+            entry = entry.next;
         }
 
         if (env.enclEnv != null && env.enclInvokable != null) {
-            BLangVariable closureVar = findClosureVar(env.enclEnv, bSymbol);
-            if (closureVar != symTable.notFoundVariable) {
-                ((BLangFunction) env.enclInvokable).closureVarList.add(closureVar);
+            BSymbol bSymbol = lookupClosureVarSymbol(env.enclEnv, name, expSymTag);
+            if (bSymbol != symTable.notFoundSymbol && !env.enclInvokable.flagSet.contains(Flag.ATTACHED)) {
+                ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) bSymbol);
             }
-            return closureVar;
+            return bSymbol;
         }
-        return symTable.notFoundVariable;
+        return symTable.notFoundSymbol;
     }
 
     /**

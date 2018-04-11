@@ -18,11 +18,10 @@
 package org.ballerinalang.util.metrics;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * Metric identity is a unique combination of name and tags.
@@ -31,24 +30,27 @@ public class MetricId {
 
     private final String name;
     private final String description;
-    private final SortedSet<Tag> tags;
+    private final Set<Tag> tags;
     private final int hashCode;
 
     public MetricId(String name, String description, List<Tag> tags) {
+        this(name, description, tags != null ? new HashSet<>(tags) : null);
+    }
+
+    public MetricId(String name, String description, Set<Tag> tags) {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Name is required.");
         }
         this.name = name;
         if (tags != null) {
-            this.tags = Collections.unmodifiableSortedSet(new TreeSet<>(tags));
+            this.tags = Collections.unmodifiableSet(tags);
         } else {
-            this.tags = Collections.emptySortedSet();
+            this.tags = Collections.emptySet();
         }
         this.description = description;
         // Compute hash here as this Id is immutable
         this.hashCode = Objects.hash(name, tags);
     }
-
 
     public String getName() {
         return name;

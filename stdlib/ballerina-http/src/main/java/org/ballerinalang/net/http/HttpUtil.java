@@ -48,8 +48,6 @@ import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.codegen.AnnAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -82,6 +80,7 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
+import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -89,6 +88,7 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
@@ -122,6 +122,7 @@ public class HttpUtil {
 
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
+    private static final String CHUNKING_CONFIG = "chunking_config";
 
     public static BValue[] getProperty(Context context, boolean isRequest) {
         BStruct httpMessageStruct = (BStruct) context.getRefArgument(0);
@@ -230,14 +231,13 @@ public class HttpUtil {
             try {
                 contentLength = lengthStr != null ? Integer.parseInt(lengthStr) : contentLength;
                 if (contentLength == NO_CONTENT_LENGTH_FOUND) {
-                    contentLength = httpCarbonMessage.getFullMessageLength();
+                    contentLength = httpCarbonMessage.countMessageLengthTill(BYTE_LIMIT);
                 }
-                MimeUtil.setContentLength(entity, contentLength);
             } catch (NumberFormatException e) {
                 throw new BallerinaException("Invalid content length");
             }
-            EntityBodyHandler.setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer
-                    .getInputStream());
+            EntityBodyHandler.setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer.getInputStream(),
+                    contentLength);
         }
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
@@ -253,21 +253,6 @@ public class HttpUtil {
         }
     }
 
-//    /**
-//     * Helper method to start pending http server connectors.
-//     *
-//     * @throws BallerinaConnectorException
-//     */
-//    public static void startPendingHttpConnectors(BallerinaHttpServerConnector httpServerConnector)
-//            throws BallerinaConnectorException {
-//        try {
-//            // Starting up HTTP Server connectors
-//            HttpConnectionManager.getInstance().startPendingHTTPConnectors(httpServerConnector);
-//        } catch (ServerConnectorException e) {
-//            throw new BallerinaConnectorException(e);
-//        }
-//    }
-
     public static void prepareOutboundResponse(Context context, HTTPCarbonMessage inboundRequestMsg,
                                                HTTPCarbonMessage outboundResponseMsg, BStruct outboundResponseStruct) {
 
@@ -276,6 +261,7 @@ public class HttpUtil {
         HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
         HttpUtil.setCompressionHeaders(context, inboundRequestMsg, outboundResponseMsg);
+        HttpUtil.setChunkingHeader(context, outboundResponseMsg);
     }
 
     public static BStruct createSessionStruct(Context context, Session session) {
@@ -294,23 +280,24 @@ public class HttpUtil {
 
     public static void addHTTPSessionAndCorsHeaders(Context context, HTTPCarbonMessage requestMsg,
                                                     HTTPCarbonMessage responseMsg) {
-        Session session = (Session) requestMsg.getProperty(HttpConstants.HTTP_SESSION);
-        if (session != null) {
-            boolean isSecureRequest = false;
-            AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
-                    HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
-            if (configAnn != null) {
-                AnnAttributeValue httpsPortAttrVal = configAnn
-                        .getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HTTPS_PORT);
-                if (httpsPortAttrVal != null) {
-                    Integer listenerPort = (Integer) requestMsg.getProperty(HttpConstants.LISTENER_PORT);
-                    if (listenerPort != null && httpsPortAttrVal.getIntValue() == listenerPort) {
-                        isSecureRequest = true;
-                    }
-                }
-            }
-            session.generateSessionHeader(responseMsg, isSecureRequest);
-        }
+        //TODO Remove once service session LC is introduced
+//        Session session = (Session) requestMsg.getProperty(HttpConstants.HTTP_SESSION);
+//        if (session != null) {
+//            boolean isSecureRequest = false;
+//            AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
+//                    HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
+//            if (configAnn != null) {
+//                AnnAttributeValue httpsPortAttrVal = configAnn
+//                        .getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HTTPS_PORT);
+//                if (httpsPortAttrVal != null) {
+//                    Integer listenerPort = (Integer) requestMsg.getProperty(HttpConstants.LISTENER_PORT);
+//                    if (listenerPort != null && httpsPortAttrVal.getIntValue() == listenerPort) {
+//                        isSecureRequest = true;
+//                    }
+//                }
+//            }
+//            session.generateSessionHeader(responseMsg, isSecureRequest);
+//        }
         //Process CORS if exists.
         if (requestMsg.getHeader(HttpHeaderNames.ORIGIN.toString()) != null) {
             CorsHeaderGenerator.process(requestMsg, responseMsg, true);
@@ -1184,6 +1171,20 @@ public class HttpUtil {
     public static void injectHeaders(HTTPCarbonMessage msg, Map<String, String> headers) {
         if (headers != null) {
             headers.forEach((key, value) -> msg.setHeader(key, String.valueOf(value)));
+        }
+    }
+
+    private static void setChunkingHeader(Context context, HTTPCarbonMessage
+            outboundResponseMsg) {
+        Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
+                context.getServiceInfo().getType());
+        Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
+        if (configAnnot == null) {
+            return;
+        }
+        String transferValue = configAnnot.getValue().getRefField(ANN_CONFIG_ATTR_CHUNKING).getStringValue();
+        if (transferValue != null) {
+            outboundResponseMsg.setProperty(CHUNKING_CONFIG, getChunkConfig(transferValue));
         }
     }
 }

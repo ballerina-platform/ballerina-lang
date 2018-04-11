@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint ep {
+endpoint http:Listener ep {
    port:7090,
    // HTTP version is set to 2.0.
    httpVersion:"2.0"
@@ -69,7 +69,7 @@ service<http:Service> http2Service bind ep {
   }
 }
 
-endpoint http:ClientEndpoint clientEP {
+endpoint http:Client clientEP {
     targets: [
         {
             url: "http://localhost:7090"
@@ -116,7 +116,7 @@ function main (string[] args) {
 
         if (pushPromise.path == "/resource2") {
             // Client is not interested of getting '/resource2', So reject the promise.
-            _ = clientEP -> rejectPromise(pushPromise);
+            clientEP -> rejectPromise(pushPromise);
             io:println("Push promise for resource2 rejected");
         } else {
             // Store required promises.

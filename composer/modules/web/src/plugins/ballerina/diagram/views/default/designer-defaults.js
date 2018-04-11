@@ -192,7 +192,7 @@ export const flowChartControlStatement = {
         bottom: (statement.height / 2),
     },
     gap: {
-        left: (12 * statement.padding.left),
+        left: (statement.width / 2),
     },
 };
 
@@ -271,25 +271,6 @@ export const blockNode = {
     },
 };
 
-export const packageDefinition = {
-    header: {
-        height: 35,
-        padding: {
-            top: 0,
-            right: 5,
-            bottom: 0,
-            left: 5,
-        },
-    },
-
-    labelWidth: 60,
-    textWidth: 245,
-
-    importDeclaration: {
-        itemHeight: 30,
-    },
-};
-
 export const structDefinition = {
     body: {
         height: 100,
@@ -318,23 +299,6 @@ export const annotationAttributeDefinition = {
             bottom: 10,
         },
     },
-};
-
-export const contentOperations = {
-    height: 45,
-    width: 600,
-};
-
-export const structDefinitionStatement = {
-    width: 600,
-    height: 30,
-    margin: {
-        bottom: 2,
-    },
-    padding: {
-        left: 10,
-    },
-    deleteButtonOffset: 30,
 };
 
 export const panelHeading = {

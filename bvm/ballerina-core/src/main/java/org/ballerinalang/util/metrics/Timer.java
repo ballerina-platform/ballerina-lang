@@ -18,8 +18,9 @@
 package org.ballerinalang.util.metrics;
 
 import java.time.Duration;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -44,7 +45,7 @@ public interface Timer extends Metric {
 
         private final String name;
         // Expecting at least 10 tags
-        private final ArrayList<Tag> tags = new ArrayList<>(10);
+        private final Set<Tag> tags = new HashSet<>(10);
         private String description;
 
         private Builder(String name) {
@@ -83,7 +84,7 @@ public interface Timer extends Metric {
 
         @Override
         public Timer register() {
-            return register(MetricRegistry.getDefaultRegistry());
+            return register(DefaultMetricRegistry.getInstance());
         }
 
         @Override

@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.BindException;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.time.Duration;
 import java.time.format.DateTimeParseException;
 
@@ -40,11 +41,11 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG
 @JavaSPIService("org.ballerinalang.observe.metrics.extension.micrometer.spi.MeterRegistryProvider")
 public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
 
+    private static final String METRICS_HOSTNAME = CONFIG_TABLE_METRICS + ".hostname";
     private static final String METRICS_PORT = CONFIG_TABLE_METRICS + ".port";
     private static final int DEFAULT_PORT = 9797;
 
     private static final PrintStream console = System.out;
-    private static final PrintStream consoleError = System.err;
 
     @Override
     public String getName() {
@@ -55,25 +56,61 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
     public MeterRegistry get() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
         PrometheusMeterRegistry registry = new PrometheusMeterRegistry(new BallerinaPrometheusConfig());
-        String portConfigValue = configRegistry.getConfigOrDefault(METRICS_PORT, String.valueOf(DEFAULT_PORT));
-        int port;
-        try {
-            port = Integer.parseInt(portConfigValue);
-        } catch (NumberFormatException e) {
-            throw new IllegalStateException("Invalid port used for Prometheus HTTP endpoint");
+        String hostname = configRegistry.getConfiguration(METRICS_HOSTNAME);
+        boolean hostnameAvailable = hostname != null && !hostname.isEmpty();
+        String portConfigValue = configRegistry.getConfiguration(METRICS_PORT);
+        int configuredPort = 0;
+        if (portConfigValue != null && portConfigValue.length() > 0) {
+            try {
+                configuredPort = Integer.parseInt(portConfigValue);
+            } catch (NumberFormatException e) {
+                throw new IllegalStateException("Invalid port used for Prometheus HTTP endpoint");
+            }
         }
-        InetSocketAddress socketAddress = new InetSocketAddress(port);
+        // Start in default port if there is no configured port.
+        int port = configuredPort > 0 ? configuredPort : DEFAULT_PORT;
+        InetSocketAddress socketAddress = hostnameAvailable ? new InetSocketAddress(hostname, port) :
+                new InetSocketAddress(port);
         try {
-            new HTTPServer(socketAddress, registry.getPrometheusRegistry(), true);
-            console.println("ballerina: started Prometheus HTTP endpoint " + socketAddress);
+            startServer(socketAddress, registry);
         } catch (BindException e) {
-            consoleError.println("ballerina: failed to bind Prometheus HTTP endpoint " + socketAddress + ":  "
-                    + e.getMessage());
+            if (configuredPort > 0) {
+                // User has configured a port and the program should exit.
+                throw new IllegalStateException("Failed to bind Prometheus HTTP endpoint " + socketAddress +
+                        ": " + e.getMessage(), e);
+            } else {
+                // Try to start with a different port
+                try {
+                    ServerSocket socket = new ServerSocket(0);
+                    socket.setReuseAddress(true);
+                    port = socket.getLocalPort();
+                    try {
+                        socket.close();
+                    } catch (IOException e1) {
+                        // Ignore IOException on close()
+                    }
+                } catch (IOException e1) {
+                    throw new IllegalStateException("Failed to find an available port for Prometheus HTTP endpoint",
+                            e1);
+                }
+                socketAddress = hostnameAvailable ? new InetSocketAddress(hostname, port) :
+                        new InetSocketAddress(port);
+                try {
+                    startServer(socketAddress, registry);
+                } catch (IOException e1) {
+                    throw new IllegalStateException("Failed to start Prometheus HTTP endpoint " + socketAddress, e1);
+                }
+            }
         } catch (IOException e) {
-            consoleError.println("ballerina: failed to start Prometheus HTTP endpoint " + socketAddress);
-            throw new IllegalStateException(e);
+            throw new IllegalStateException("Failed to start Prometheus HTTP endpoint " + socketAddress, e);
         }
         return registry;
+    }
+
+    private static void startServer(final InetSocketAddress socketAddress, final PrometheusMeterRegistry registry)
+            throws IOException {
+        new HTTPServer(socketAddress, registry.getPrometheusRegistry(), true);
+        console.println("ballerina: started Prometheus HTTP endpoint " + socketAddress);
     }
 
     private static class BallerinaPrometheusConfig implements PrometheusConfig {
