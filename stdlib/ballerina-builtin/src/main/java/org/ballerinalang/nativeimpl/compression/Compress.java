@@ -26,6 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -126,14 +127,13 @@ public class Compress extends BlockingNativeCallableUnit {
         if (Files.notExists(srcPath)) {
             context.setReturnValues(CompressionUtils.createCompressionError(context, "Path of the folder to be " +
                     "compressed is not available"));
-        } else if (Files.notExists(destPath)) {
-            context.setReturnValues(CompressionUtils.createCompressionError(context,
-                                                                            "Path to place the compressed file " +
-                                                                                    "is not available"));
         } else {
             try {
                 compress(srcPath, destPath);
                 context.setReturnValues();
+            } catch (FileNotFoundException e) {
+                context.setReturnValues(CompressionUtils.createCompressionError(context, "Path of the compressed" +
+                        " file is not valid"));
             } catch (IOException | BLangRuntimeException e) {
                 context.setReturnValues(CompressionUtils.createCompressionError(context,
                                                                                 "Error occurred when compressing "

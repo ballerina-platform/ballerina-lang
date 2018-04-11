@@ -102,8 +102,8 @@ public class CompressionTest {
         String destDirPath = getAbsoluteFilePath("datafiles/compression/");
         BString destDir = new BString(destDirPath + File.separator + "my.app.zip");
         BValue[] inputArg = {dirPath, destDir};
-        BRunUtil.invoke(compileResult, "compressFile", inputArg);
-
+        BValue[] returns = BRunUtil.invoke(compileResult, "compressFile", inputArg);
+        Assert.assertNotNull(returns);
         File f1 = new File(destDirPath + File.separator + "my.app.zip");
         Assert.assertEquals(f1.exists() && !f1.isDirectory(), true);
 
@@ -112,6 +112,21 @@ public class CompressionTest {
 
         Assert.assertEquals(filesInsideZip.size() > 0, true);
 
+    }
+
+    @Test(description = "test zipping/compressing a file without providing a name for the zipped file")
+    public void testCompressFileWithoutInvalidName() throws IOException, URISyntaxException {
+        String resourceToRead = getAbsoluteFilePath("datafiles/compression/my.app");
+        BString dirPath = new BString(resourceToRead);
+        BString destDir = new BString(getAbsoluteFilePath("datafiles/compression/"));
+        BValue[] inputArg = {dirPath, destDir};
+        BValue[] returns = BRunUtil.invoke(compileResult, "compressFile", inputArg);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path of the compressed file is " +
+                "not valid");
     }
 
     @Test(description = "test zipping/compressing a file without src directory path")
