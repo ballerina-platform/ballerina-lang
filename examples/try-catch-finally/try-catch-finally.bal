@@ -4,17 +4,17 @@ import ballerina/io;
 
 function main (string[] args) {
     int result;
-    //Use a try block to surround a code segment that an error may occur.
+    //Define the try block to surround the code segment that is likely to throw errors.
     try {
         io:println("Start dividing numbers");
-        //Doing an operation that causes an error to be thrown
+        //An error is thrown when the 'divideNumbers' function is executed.
         result = divideNumbers(1, 0);
-        //A Catch block executes, when an error is thrown from the enclosing try
-        //block and the thrown error type and catch clause's error type are matched, or
-        //if there is no match, then the catch is the first in the order, where thrown
-        //error type and catch clause's error type are structurally equivalent.
+        //When an error is thrown, the error type is matched to the clause defined in the catch block and the
+        //respective catch block is called. The 'error' type catch clause is structurally equivalent to any error type
+        // that is thrown and can be used to catch all errors.
+
     } catch (error err) {
-        io:println("error occured: " + err.message);
+        io:println("error occurred: " + err.message);
 
     } finally {
         io:println("finally Block executed");

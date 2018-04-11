@@ -1,7 +1,7 @@
 import ballerina/io;
 
 function main (string[] args) {
-    // Define lambda function in-line to function pointer var.
+    // Define the lambda function.
     function (string, string) returns (string) lambda =
             (string x, string y) => (string) {
                 string r = x + y;

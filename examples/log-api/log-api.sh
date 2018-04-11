@@ -1,4 +1,4 @@
-# As it can be seen from the output, only Info and higher level logs are logged
+# As shown in the output, only Info and higher level logs are logged
 $ ballerina run log-api.bal
 2017-11-05 21:20:12,313 ERROR [] - error log
 2017-11-05 21:20:12,319 ERROR [] - error log with cause : {message:"error occurred", cause:null}
