@@ -135,7 +135,7 @@ public function SimpleClient::init(SimpleClientEndpointConfiguration simpleConfi
                 self.httpEP.config.cache = simpleConfig.cache;
                 self.httpEP.httpClient = createHttpCachingClient(url, self.httpEP.config, self.httpEP.config.cache);
             } else {
-                self.httpEP.httpClient = createHttpClient(url, self.httpEP.config);
+                self.httpEP.httpClient = createHttpSecureClient(url, self.httpEP.config);
             }
         }
     }

@@ -31,6 +31,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -45,6 +46,8 @@ public class NativeCallContext implements Context {
     private WorkerData workerLocal;
 
     private BValue[] returnValues;
+
+    public Map<String, Object> localProps;
 
     public NativeCallContext(WorkerExecutionContext parentCtx, CallableUnitInfo callableUnitInfo,
             WorkerData workerLocal) {
@@ -223,6 +226,22 @@ public class NativeCallContext implements Context {
 
     public LocalTransactionInfo getLocalTransactionInfo() {
         return this.parentCtx.getLocalTransactionInfo();
+    }
+
+    @Override
+    public void setLocalProperty(String key, Object val) {
+        if (localProps == null) {
+            localProps = new HashMap<>();
+        }
+        localProps.put(key, val);
+    }
+
+    @Override
+    public Object getLocalProperty(String key) {
+        if (localProps != null) {
+            return localProps.get(key);
+        }
+        return null;
     }
 
 }

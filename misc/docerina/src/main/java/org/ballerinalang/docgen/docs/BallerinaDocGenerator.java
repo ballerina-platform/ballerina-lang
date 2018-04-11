@@ -55,10 +55,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
@@ -237,15 +237,20 @@ public class BallerinaDocGenerator {
      */
     protected static Map<String, PackageDoc> generatePackageDocsFromBallerina(
         String sourceRoot, Path packagePath, String packageFilter, boolean isNative) throws IOException {
-        final List<Path> packagePaths = new ArrayList<>();
-        final Map<String, Path> packageMdsMap = new HashMap<>();
-
+        Path packageMd = null;
         if (Files.isDirectory(packagePath)) {
-            BallerinaSubPackageVisitor subPackageVisitor = new BallerinaSubPackageVisitor(packagePaths, packageMdsMap);
-            Files.walkFileTree(packagePath, subPackageVisitor);
-        } else {
-            packagePaths.add(packagePath);
+            Optional<Path> o = Files.find(packagePath, 1, (path, attr) -> {
+                Path fileName = path.getFileName();
+                if (fileName != null) {
+                    return fileName.toString().equals(PACKAGE_CONTENT_FILE);
+                }
+                return false;
+
+            }).findFirst();
+
+            packageMd = o.isPresent() ? o.get() : null;
         }
+
         BallerinaDocDataHolder dataHolder = BallerinaDocDataHolder.getInstance();
         if (!isNative) {
             // This is necessary to be true in order to Ballerina to work properly
@@ -253,41 +258,35 @@ public class BallerinaDocGenerator {
         }
 
         BLangPackage bLangPackage;
-        int idx = 0;
-        for (Path path : packagePaths) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(CompilerOptionName.PROJECT_DIR, sourceRoot);
+        options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
+        options.put(CompilerOptionName.PRESERVE_WHITESPACE, "false");
+        context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(sourceRoot)));
 
-            CompilerContext context = new CompilerContext();
-            CompilerOptions options = CompilerOptions.getInstance(context);
-            options.put(CompilerOptionName.PROJECT_DIR, sourceRoot);
-            options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
-            options.put(CompilerOptionName.PRESERVE_WHITESPACE, "false");
-            context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(sourceRoot)));
+        Compiler compiler = Compiler.getInstance(context);
 
-            Compiler compiler = Compiler.getInstance(context);
+        // TODO: Remove this and the related constants once these are properly handled in the core
+        if (BAL_BUILTIN.equals(packagePath) || BAL_BUILTIN_CORE.equals(packagePath)) {
+            bLangPackage = loadBuiltInPackage(context);
+        } else {
+            // compile the given package
+            bLangPackage = compiler.compile(getPackageNameFromPath(packagePath));
+        }
 
-            // TODO: Remove this and the related constants once these are properly handled in the core
-            if (BAL_BUILTIN.equals(path) || BAL_BUILTIN_CORE.equals(path)) {
-                bLangPackage = loadBuiltInPackage(context);
-            } else {
-                // compile the given file
-//                loadBuiltInPackage(context);
-                bLangPackage = compiler.compile(getPackageNameFromPath(path));
-            }
-
-            if (bLangPackage == null) {
-                out.println(String.format("docerina: invalid Ballerina package: %s", packagePath));
-            } else {
-                String packageName = bLangPackage.symbol.pkgID.name.value;
-                if (isFilteredPackage(packageName, packageFilter)) {
-                    if (BallerinaDocUtils.isDebugEnabled()) {
-                        out.println("Package " + packageName + " excluded");
-                    }
-                    continue;
+        if (bLangPackage == null) {
+            out.println(String.format("docerina: invalid Ballerina package: %s", packagePath));
+        } else {
+            String packageName = bLangPackage.symbol.pkgID.name.value;
+            if (isFilteredPackage(packageName, packageFilter)) {
+                if (BallerinaDocUtils.isDebugEnabled()) {
+                    out.println("Package " + packageName + " excluded");
                 }
-                dataHolder.getPackageMap().put(packageName, new PackageDoc(packageMdsMap.containsKey(packageName) ?
-                        packageMdsMap.get(packageName) : null, bLangPackage));
+            } else {
+                dataHolder.getPackageMap().put(packageName, new PackageDoc(packageMd == null ? null : packageMd
+                        .toAbsolutePath(), bLangPackage));
             }
-            idx++;
         }
         return dataHolder.getPackageMap();
     }
