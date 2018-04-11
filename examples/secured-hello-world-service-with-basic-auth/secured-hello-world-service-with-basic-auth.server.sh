@@ -1,10 +1,10 @@
 # To perform authentication and authorization, credentials and related data is stored in a simple file based
 # userstore. The ballerina.conf file is used for this purpose.
-
+#
 # To generate the file based userstore and insert relevant data, two sample bash scripts are used.
 # These scripts will add user credentials, create the mapping between the user & groups and create the mapping
 # between the scopes & the groups.
-
+#
 # To generate the userstore with user credentials, the following bash script can be used.
 usage () {
     echo "Usage: bash userstore-generator.sh -u {username} -p {password} -g {comma separated groups} " 1>&2;
