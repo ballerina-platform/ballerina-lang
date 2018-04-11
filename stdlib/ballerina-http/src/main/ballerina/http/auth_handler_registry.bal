@@ -16,12 +16,9 @@ package ballerina.http;
 // specific language governing permissions and limitations
 // under the License.
 
-@Description {value:"AuthHandlerRegistry global instance"}
-public AuthHandlerRegistry authHandlerRegistry = new;
-
 @Description {value:"Representation of the Http Auth Handler Registry"}
 @Field {value:"httpAuthHandlers: map for auth handlers. key = auth provider id"}
-type AuthHandlerRegistry object {
+public type AuthHandlerRegistry object {
     private {
         map<HttpAuthnHandler> httpAuthHandlers;
     }
@@ -30,6 +27,8 @@ type AuthHandlerRegistry object {
     public function add (string id, HttpAuthnHandler authnHandler);
     public function get (string id) returns HttpAuthnHandler?;
     public function getAll () returns map<HttpAuthnHandler>;
+    public function remove (string id);
+    public function clear ();
 };
 
 @Description {value:"Add a HttpAuthnHandler to HttpAuthHandlerRegistry"}
@@ -50,4 +49,14 @@ public function AuthHandlerRegistry::get (string id) returns HttpAuthnHandler? {
 @Return {value:"map<HttpAuthnHandler>: map of HttpAuthnHandler"}
 public function AuthHandlerRegistry::getAll () returns map<HttpAuthnHandler> {
     return self.httpAuthHandlers;
+}
+
+@Description {value:"Removes a specific authn handler from the HttpAuthnHandler map"}
+public function AuthHandlerRegistry::remove (string id) {
+    _ = self.httpAuthHandlers.remove(id);
+}
+
+@Description {value:"Removes all authn handler from the HttpAuthnHandler map"}
+public function AuthHandlerRegistry::clear () {
+    self.httpAuthHandlers.clear();
 }

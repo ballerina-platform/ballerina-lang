@@ -40,7 +40,8 @@ public type AuthnFilter object {
 
 @Description {value:"Initializes the AuthnFilter"}
 public function AuthnFilter::init () {
-    authnHandlerChain = new;
+    AuthHandlerRegistry authHandlerRegistry = new;
+    authnHandlerChain = new(authHandlerRegistry);
 }
 
 @Description {value:"Stops the AuthnFilter"}
