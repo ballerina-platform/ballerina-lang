@@ -41,7 +41,7 @@ class MatchPatternClauseNode extends React.Component {
         const { designer } = this.context;
         const parentBBox = model.parent.viewState.bBox;
 
-        const x1 = parentBBox.x - model.parent.viewState.components['left-margin'].w;
+        const x1 = parentBBox.x - model.parent.viewState.bBox.leftMargin;
         const y1 = bBox.y;
         const x2 = x1 + parentBBox.w;
         const y2 = bBox.y;

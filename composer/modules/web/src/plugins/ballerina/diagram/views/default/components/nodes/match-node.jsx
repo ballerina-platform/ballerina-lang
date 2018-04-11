@@ -43,7 +43,9 @@ class MatchNode extends React.Component {
 
         const statementRectClass = 'compound-statement-rect';
 
-        const pX1 = bBox.x - model.viewState.components['left-margin'].w;
+        const pX1 = bBox.x - bBox.leftMargin;
+
+        const width = bBox.w + bBox.leftMargin;
 
         const patternClauses = getComponentForNodeArray(this.props.model.patternClauses);
         return (
@@ -51,7 +53,7 @@ class MatchNode extends React.Component {
                 <rect
                     x={pX1}
                     y={bBox.y}
-                    width={bBox.w}
+                    width={width}
                     height={bBox.h}
                     className={statementRectClass}
                     rx='5'
