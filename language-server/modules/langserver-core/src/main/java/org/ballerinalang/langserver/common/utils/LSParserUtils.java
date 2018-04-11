@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.workspace.repository.LangServerFSProjectDirectory;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -31,6 +32,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -179,7 +181,7 @@ public class LSParserUtils {
 
     /**
      * Compile a Ballerina file.
-     * 
+     *
      * Note: THis is used by the ballerina Composer
      *
      * @param content   file content
@@ -215,7 +217,7 @@ public class LSParserUtils {
                 pkgName = filePath.toString();
             }
         }
-        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository, 
+        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
                 sourceDocument, preserveWhiteSpace, documentManager, phase, lsGlobalContext);
         return compile(content, path, phase, context);
     }
@@ -251,6 +253,8 @@ public class LSParserUtils {
         if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             ((CollectDiagnosticListener) context.get(DiagnosticListener.class)).getDiagnostics().clear();
         }
+        SourceDirectory sourceDirectory = context.get(SourceDirectory.class);
+        boolean isProjectDir = (sourceDirectory instanceof LangServerFSProjectDirectory);
         try {
             BLangDiagnosticLog.getInstance(context).errorCount = 0;
             Compiler compiler = Compiler.getInstance(context);
@@ -259,6 +263,7 @@ public class LSParserUtils {
             // Ignore.
         }
         BallerinaFile bfile = new BallerinaFile();
+        bfile.setBallerinaProject(isProjectDir);
         bfile.setBLangPackage(bLangPackage);
         if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))

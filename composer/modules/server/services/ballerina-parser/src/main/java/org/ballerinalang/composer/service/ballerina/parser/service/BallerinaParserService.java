@@ -433,7 +433,7 @@ public class BallerinaParserService implements ComposerService {
         } else {
             java.nio.file.Path filePath = Paths.get(bFileRequest.getFilePath(), bFileRequest.getFileName());
             bFile = LSParserUtils.compile(content, filePath, CompilerPhase.CODE_ANALYZE, lsGlobalContext);
-            programDir = TextDocumentServiceUtil.getSourceRoot(filePath);
+            programDir = (bFile.isBallerinaProject()) ? TextDocumentServiceUtil.getSourceRoot(filePath) : "";
         }
 
         final BLangPackage model = bFile.getBLangPackage();
