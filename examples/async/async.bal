@@ -9,7 +9,7 @@ endpoint http:Client clientEndpoint { targets:[{url: "https://postman-echo.com" 
 
 function main(string[] args) {
   // Asynchronously call the function named 'sum'.
-  future<int> f1 = async sum(40, 50);
+  future<int> f1 = start sum(40, 50);
   // You can pass around the value of the 'future' variable 
   // and call its results later.
   int result = square_plus_cube(f1);
@@ -17,7 +17,7 @@ function main(string[] args) {
   io:println(result);
 
   // Call the 'countInfinity' function, which runs forever in asynchronous mode.
-  future f2 = async countInfinity();
+  future f2 = start countInfinity();
   runtime:sleepCurrentWorker(1000);
   // Check whether the function call is done.
   io:println(f2.isDone());
@@ -35,7 +35,7 @@ function main(string[] args) {
   http:Request req = new;
   
 
-  future<http:Response|http:HttpConnectorError> f3 = async clientEndpoint -> get("/get?test=123", req);
+  future<http:Response|http:HttpConnectorError> f3 = start clientEndpoint -> get("/get?test=123", req);
   io:println(sum(25, 75));
   io:println(f3.isDone());
   var response = await f3;
