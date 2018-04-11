@@ -22,7 +22,7 @@ public type HttpClient object {
     //for retry and other few places.
     public {
         string serviceUri;
-        ClientEndpointConfiguration config;
+        ClientEndpointConfig config;
     }
 
     @Description {value:"The POST action implementation of the HTTP Connector."}
@@ -122,8 +122,7 @@ public type HttpClient object {
 
     @Description { value:"Rejects a push promise."}
     @Param { value:"promise: The Push Promise need to be rejected" }
-    @Return { value:"Whether operation is successful" }
-    public native function rejectPromise(PushPromise promise) returns (boolean);
+    public native function rejectPromise(PushPromise promise);
 };
 
 @Description { value:"HttpConnectorError record represents an error occured during the HTTP client invocation" }

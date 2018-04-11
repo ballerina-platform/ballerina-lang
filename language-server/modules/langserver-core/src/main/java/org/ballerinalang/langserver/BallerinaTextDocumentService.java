@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
+import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
@@ -99,12 +100,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
+    private LSGlobalContext lsGlobalContext;
 
     private final Debouncer diagPushDebouncer;
 
-    BallerinaTextDocumentService(LSGlobalContext lsGlobalContext) {
-        this.ballerinaLanguageServer = lsGlobalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
-        this.documentManager = lsGlobalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
+    BallerinaTextDocumentService(LSGlobalContext globalContext) {
+        this.lsGlobalContext = globalContext;
+        this.ballerinaLanguageServer = this.lsGlobalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
+        this.documentManager = this.lsGlobalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
         this.lastDiagnosticMap = new HashMap<>();
         this.diagPushDebouncer = new Debouncer(DIAG_PUSH_DEBOUNCE_DELAY);
     }
@@ -119,7 +122,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             completionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
             try {
                 BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext,
-                        documentManager, false, CompletionCustomErrorStrategy.class, false).get(0);
+                        documentManager, false, CompletionCustomErrorStrategy.class, false, this.lsGlobalContext)
+                        .get(0);
                 completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                         bLangPackage.symbol.getName().getValue());
                 completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
@@ -156,7 +160,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 BLangPackage currentBLangPackage =
                         TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager, false,
-                                LSCustomErrorStrategy.class, false).get(0);
+                                LSCustomErrorStrategy.class, false, this.lsGlobalContext).get(0);
                 hoverContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                         currentBLangPackage.symbol.getName().getValue());
                 LSPackageCache.getInstance().addPackage(currentBLangPackage.packageID, currentBLangPackage);
@@ -182,7 +186,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
             SignatureHelp signatureHelp;
             BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager,
-                    false, LSCustomErrorStrategy.class, false).get(0);
+                    false, LSCustomErrorStrategy.class, false, this.lsGlobalContext).get(0);
             signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                     bLangPackage.symbol.getName().getValue());
             SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
@@ -201,7 +205,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             BLangPackage currentBLangPackage =
                     TextDocumentServiceUtil.getBLangPackage(definitionContext, documentManager, false,
-                            LSCustomErrorStrategy.class, false).get(0);
+                            LSCustomErrorStrategy.class, false, this.lsGlobalContext).get(0);
             definitionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                     currentBLangPackage.symbol.getName().getValue());
             LSPackageCache.getInstance().addPackage(currentBLangPackage.packageID, currentBLangPackage);
@@ -228,7 +232,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             List<BLangPackage> bLangPackages = TextDocumentServiceUtil
                     .getBLangPackage(referenceContext, documentManager, false,
-                            LSCustomErrorStrategy.class, true);
+                            LSCustomErrorStrategy.class, true, this.lsGlobalContext);
             // Get the current package.
             BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages,
                     params.getTextDocument().getUri());
@@ -269,7 +273,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
 
         BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(symbolsContext, documentManager,
-                false, LSCustomErrorStrategy.class, false).get(0);
+                false, LSCustomErrorStrategy.class, false, this.lsGlobalContext).get(0);
         symbolsContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                 bLangPackage.symbol.getName().getValue());
         Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
@@ -332,7 +336,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
             // Source generation for given ast.
-            JsonObject ast = TextDocumentFormatUtil.getAST(params, documentManager, formatContext);
+            JsonObject ast = TextDocumentFormatUtil.getAST(params, documentManager, formatContext,
+                    this.lsGlobalContext);
             SourceGen sourceGen = new SourceGen(0);
             sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
             textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"), true, false);
@@ -363,7 +368,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             List<BLangPackage> bLangPackages =
                     TextDocumentServiceUtil.getBLangPackage(renameContext, documentManager, false,
-                            LSCustomErrorStrategy.class, true);
+                            LSCustomErrorStrategy.class, true, this.lsGlobalContext);
             // Get the current package.
             BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages,
                     params.getTextDocument().getUri());
@@ -441,9 +446,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 pkgName = filePath.toString();
             }
         }
-        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
-                                                                     sourceDocument, false,
-                                                                         documentManager, CompilerPhase.CODE_ANALYZE);
+        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository, 
+                sourceDocument, false, documentManager, CompilerPhase.CODE_ANALYZE, this.lsGlobalContext);
+        
+        // In order to capture the syntactic errors, need to go through the default error strategy
+        context.put(DefaultErrorStrategy.class, null);
 
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
 
@@ -451,7 +458,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
         if (tempFileId == null) {
             balFile = LSParserUtils.compile(content, path, CompilerPhase.TAINT_ANALYZE, context);
         } else {
-            balFile = LSParserUtils.compile(content, tempFileId, CompilerPhase.TAINT_ANALYZE, false);
+            balFile = LSParserUtils.compile(content, tempFileId, CompilerPhase.TAINT_ANALYZE, false,
+                    this.lsGlobalContext);
         }
         if (balFile.getDiagnostics() != null) {
             balDiagnostics = balFile.getDiagnostics();

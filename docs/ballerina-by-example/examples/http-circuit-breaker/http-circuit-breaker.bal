@@ -25,7 +25,7 @@ endpoint http:Client backendClientEP {
                      url: "http://localhost:8080"
                  }
              ],
-    endpointTimeout:2000
+    timeoutMillis:2000
 };
 
 @http:ServiceConfig {
@@ -41,7 +41,7 @@ service<http:Service> circuitbreaker bind passthruEP {
         var backendRes = backendClientEP -> forward("/hello", request);
         match backendRes {
             http:Response res => {
-            _ = client -> forward(res);}
+            _ = client -> respond(res);}
             http:HttpConnectorError httpConnectorError => {
             http:Response response = new;
             response.statusCode = 500;

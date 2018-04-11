@@ -83,7 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -595,8 +595,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangForever foreverStatement) {
-        /* ignore */
-        //TODO Implement
+        this.lastStatement = true;
     }
 
     public void visit(BLangAction actionNode) {
@@ -670,7 +669,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     // If the stmt is declared using var, all the variable refs on lhs should be treated as inputs
                     if (assignStmt.declaredWithVar && assignStmt.varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF
                             && !inputs.contains(((BLangSimpleVarRef) assignStmt.varRef).symbol)) {
-                        inputs.add(((BLangSimpleVarRef) assignStmt.varRef).symbol);
+                        inputs.add(((BLangSimpleVarRef) assignStmt.varRef).varSymbol);
                     }
                     assignStmt.expr.accept(
                             new TransformerVarRefValidator(outputs, DiagnosticCode.TRANSFORMER_INVALID_OUTPUT_USAGE));
@@ -926,7 +925,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(unaryExpr.expr);
     }
 
-    public void visit(BLangTypeofExpr accessExpr) {
+    public void visit(BLangTypedescExpr accessExpr) {
         /* ignore */
     }
 
@@ -1128,13 +1127,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.reportInvalidWorkerInteractionDiagnostics(workerActionSystem);
         }
     }
-    
+
     private void validateForkJoinSendsToFork(WorkerActionSystem workerActionSystem) {
         for (Map.Entry<String, WorkerActionStateMachine> entry : workerActionSystem.entrySet()) {
             this.validateForkJoinSendsToFork(entry.getValue());
         }
     }
-    
+
     private void validateForkJoinSendsToFork(WorkerActionStateMachine sm) {
         boolean sentToFork = false;
         for (BLangStatement action : sm.actions) {

@@ -112,7 +112,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         /* eslint-enable max-len */
 
         default:
-            console.error('no source gen for' + node.kind);
+            console.error('no source gen for ' + node.kind);
             return '';
 
     }

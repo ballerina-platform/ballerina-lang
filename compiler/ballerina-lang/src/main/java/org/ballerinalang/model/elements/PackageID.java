@@ -63,7 +63,6 @@ public class PackageID {
             this.nameComps = Arrays.stream(name.value.split("\\."))
                     .map(Name::new).collect(Collectors.toList());
         }
-        this.version = version;
     }
 
     /**
@@ -126,11 +125,11 @@ public class PackageID {
             orgName = this.orgName + "/";
         }
 
-        if (version == Names.DEFAULT_VERSION || version == Names.EMPTY) {
+        if (version == Names.DEFAULT_VERSION || version.equals(Names.EMPTY)) {
             return orgName + this.name.value;
         }
 
-        return orgName + this.name + "[" + this.version + "]";
+        return orgName + this.name + ":" + this.version;
     }
 
     public Name getOrgName() {

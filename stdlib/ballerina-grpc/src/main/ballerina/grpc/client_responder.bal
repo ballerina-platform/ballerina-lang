@@ -48,4 +48,9 @@ public type ClientResponder object {
         Get connection ID which is unique to the connection.
     }
     public native function getID() returns (string);
+
+    documentation {
+        Get message context which is unique to the request.
+    }
+    public native function getContext() returns (MessageContext);
 };

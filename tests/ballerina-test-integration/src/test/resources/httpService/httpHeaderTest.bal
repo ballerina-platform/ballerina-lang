@@ -24,7 +24,7 @@ service<http:Service> headerService bind headerServiceEP {
         var result = stockqEP -> get("/sample/stocks", req);
         match result {
             http:Response clientResponse => {
-                _ = conn -> forward(clientResponse);
+                _ = conn -> respond(clientResponse);
             }
             any|() => {}
         }

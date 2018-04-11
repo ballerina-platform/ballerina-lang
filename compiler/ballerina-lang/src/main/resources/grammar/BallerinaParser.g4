@@ -222,14 +222,6 @@ simpleTypeName
     |   emptyTupleLiteral // nil type name ()
     ;
 
-builtInTypeName
-     :   TYPE_ANY
-     |   TYPE_DESC
-     |   valueTypeName
-     |   builtInReferenceTypeName
-     |   simpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+
-     ;
-
 referenceTypeName
     :   builtInReferenceTypeName
     |   userDefineTypeName
@@ -588,16 +580,13 @@ expression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   tableLiteral                                                        # tableLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
-    |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression
-    |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   ASYNC? variableReference                                            # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
-    |   TYPEOF builtInTypeName                                              # typeAccessExpression
-    |   (ADD | SUB | NOT | LENGTHOF | TYPEOF | UNTAINT) expression          # unaryExpression
+    |   (ADD | SUB | NOT | LENGTHOF | UNTAINT) expression                   # unaryExpression
     |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
     |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
@@ -611,6 +600,7 @@ expression
     |	expression matchExpression										    # matchExprExpression
     |	CHECK expression										            # checkedExpression
     |   expression ELVIS expression                                         # elvisExpression
+    |   typeName                                                            # typeAccessExpression
     ;
 
 awaitExpression
@@ -964,7 +954,7 @@ documentationTemplateContent
     ;
 
 documentationTemplateAttributeDescription
-    :   DocumentationTemplateAttributeStart Identifier DocumentationTemplateAttributeEnd docText?
+    :   DocumentationTemplateAttributeStart Identifier? DocumentationTemplateAttributeEnd docText?
     ;
 
 docText

@@ -23,18 +23,16 @@ import org.ballerinalang.protobuf.cmd.GrpcCmd;
 import org.ballerinalang.protobuf.cmd.OSDetector;
 import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Scanner;
 
 /**
- * Protobuff to bal generation function testcase.
+ * Protobuf to bal generation function testcase.
  */
 public class BalGenToolTest {
     private static final String PACKAGE_NAME = ".";
@@ -42,7 +40,7 @@ public class BalGenToolTest {
     private static Path resourceDir = Paths.get(
             BalGenToolTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
     
-    @Test(enabled = false)
+    @Test
     public void testUnaryHelloWorld() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException, IOException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
@@ -55,9 +53,7 @@ public class BalGenToolTest {
         grpcCmd1.setProtoPath(protoRoot.toString());
         grpcCmd1.execute();
         Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld.pb.bal"));
-        Path destFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld.gen.pb.bal"));
-        removePackage(sourceFileRoot.toString(), destFileRoot.toString());
-        CompileResult compileResult = BCompileUtil.compile(destFileRoot.toString());
+        CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                         .getStructInfo("helloWorldClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
@@ -72,10 +68,9 @@ public class BalGenToolTest {
                         .getFunctionInfo("helloWorldBlockingStub.bye"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                         .getFunctionInfo("helloWorldStub.bye"), "Connector not found.");
-        BalFileGenerationUtils.delete(new File(protoExeName));
     }
     
-    @Test(enabled = false)
+    @Test
     public void testClientStreamingHelloWorld() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException, IOException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
@@ -88,9 +83,7 @@ public class BalGenToolTest {
         grpcCmd1.setProtoPath(protoRoot.toString());
         grpcCmd1.execute();
         Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldClientStreaming.pb.bal"));
-        Path destFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldClientStreaming.gen.pb.bal"));
-        removePackage(sourceFileRoot.toString(), destFileRoot.toString());
-        CompileResult compileResult = BCompileUtil.compile(destFileRoot.toString());
+        CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                         .getStructInfo("helloWorldClientStreamingClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
@@ -98,10 +91,9 @@ public class BalGenToolTest {
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                         .getFunctionInfo("helloWorldClientStreamingStub.LotsOfGreetings"),
                 "Connector not found.");
-        BalFileGenerationUtils.delete(new File(protoExeName));
     }
     
-    @Test(enabled = false)
+    @Test
     public void testServerStreamingHelloWorld() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException, IOException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
@@ -114,9 +106,7 @@ public class BalGenToolTest {
         grpcCmd1.setProtoPath(protoRoot.toString());
         grpcCmd1.execute();
         Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldServerStreaming.pb.bal"));
-        Path destFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldServerStreaming.gen.pb.bal"));
-        removePackage(sourceFileRoot.toString(), destFileRoot.toString());
-        CompileResult compileResult = BCompileUtil.compile(destFileRoot.toString());
+        CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                         .getStructInfo("helloWorldServerStreamingClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
@@ -124,10 +114,9 @@ public class BalGenToolTest {
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                         .getFunctionInfo("helloWorldServerStreamingStub.lotsOfReplies"),
                 "Connector not found.");
-        BalFileGenerationUtils.delete(new File(protoExeName));
     }
     
-    @Test(enabled = false)
+    @Test
     public void testStandardDataTypes() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException, IOException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
@@ -140,9 +129,7 @@ public class BalGenToolTest {
         grpcCmd1.setProtoPath(protoRoot.toString());
         grpcCmd1.execute();
         Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld.pb.bal"));
-        Path destFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld.gen.pb.bal"));
-        removePackage(sourceFileRoot.toString(), destFileRoot.toString());
-        CompileResult compileResult = BCompileUtil.compile(destFileRoot.toString());
+        CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                         .getStructInfo("helloWorldClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
@@ -153,29 +140,18 @@ public class BalGenToolTest {
                         .getFunctionInfo("helloWorldBlockingStub.hello"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                         .getFunctionInfo("helloWorldStub.hello"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldBlockingStub.bye"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldStub.bye"), "Connector not found.");
+        Assert.assertNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                        .getFunctionInfo("helloWorldBlockingStub.bye"),
+                "function should not exist in pb.bal file.");
+        Assert.assertNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                        .getFunctionInfo("helloWorldStub.bye"),
+                "function should not exist in pb.bal file.");
+    }
+
+    @AfterClass
+    public void clean() {
         BalFileGenerationUtils.delete(new File(protoExeName));
     }
-    private void removePackage(String sourceFile, String destinationFile) throws IOException {
-        File file = new File(destinationFile);
-        file.createNewFile();
-        File file2 = new File(sourceFile);
-        Scanner fileScanner = new Scanner(file2);
-        FileWriter fileStream = new FileWriter(file);
-        BufferedWriter out = new BufferedWriter(fileStream);
-        fileScanner.nextLine();
-        while (fileScanner.hasNextLine()) {
-            String next = fileScanner.nextLine();
-            if (next.equals("\n")) {
-                out.newLine();
-            } else {
-                out.write(next);
-            }
-            out.newLine();
-        }
-        out.close();
-    }
+
+
 }

@@ -73,7 +73,6 @@ public interface InstructionCodes {
 
     int MAPLOAD = 46;
     int JSONLOAD = 47;
-    int ENUMERATORLOAD = 48;
 
     int IASTORE = 55;
     int FASTORE = 56;
@@ -150,7 +149,6 @@ public interface InstructionCodes {
     int TR_RETRY = 119;
     int CALL = 120;
     int VCALL = 121;
-    int ACALL = 122;
     int THROW = 123;
     int ERRSTORE = 124;
     int FPCALL = 125;
@@ -219,6 +217,8 @@ public interface InstructionCodes {
     int ANY2TYPE = 182;
     int S2JSONX = 183;
     int NULL2S = 184;
+    int MAP2JSON = 194;
+    int JSON2MAP = 195;
 
     int LOCK = 185;
     int UNLOCK = 186;
@@ -247,7 +247,6 @@ public interface InstructionCodes {
     int LENGTHOF = 208;
 
     int NEWSTRUCT = 210;
-    int NEWCONNECTOR = 211;
     int NEWMAP = 212;
     int NEWJSON = 213;
     int NEWTABLE = 215;

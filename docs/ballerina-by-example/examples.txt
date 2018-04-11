@@ -4,6 +4,7 @@ Hello World Service
 Secured Hello World Service with Basic Auth
 Value Types
 Constants
+Directory Listener
 Global Variables
 While
 IF Else
@@ -61,7 +62,6 @@ Query/Path/Matrix Param
 Content Based Routing
 Header Based Routing
 Produces/Consumes
-HTTP Sessions
 HTTP Client Connector
 HTTP Trace Logs
 HTTP 100 Continue
@@ -106,11 +106,23 @@ grpc Secured Unary Blocking
 gRPC Server Streaming
 gRPC Client Streaming
 gRPC Bidirectional Streaming
-JMS Message Producer
-JMS Message Consumer
-JMS Client Acknowledgment
-MB Message Producer
-MB Message Consumer
+MB Simple Queue Message Producer
+MB Simple Queue Message Receiver
+MB Simple Topic Message Publisher
+MB Simple Topic Message Subscriber
+MB Simple Durable Topic Message Subscriber
+JMS Simple Queue Message Producer
+JMS Simple Queue Message Receiver
+JMS Simple Topic Message Publisher
+JMS Simple Topic Message Subscriber
+JMS Simple Durable Topic Message Subscriber
+JMS Queue Message Producer
+JMS Queue Message Receiver
+JMS Queue Message Receiver Sync
+JMS Queue Message Receiver With Client Acknowledgment
+JMS Topic Message Publisher
+JMS Topic Message Subscriber
+JMS Durable Topic Message Subscriber
 Taint Checking
 WebSub Basic Sample
 Testerina Assertions

@@ -782,24 +782,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitBuiltInTypeName(BallerinaParser.BuiltInTypeNameContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        if (ctx.builtInReferenceTypeName() != null || ctx.valueTypeName() != null) {
-            return;
-        }
-        if (ctx.simpleTypeName() != null) {
-            // This is an array Type.
-            this.pkgBuilder.addArrayType(getCurrentPos(ctx), getWS(ctx), (ctx.getChildCount() - 1) / 2);
-            return;
-        }
-        // This is 'any' type
-        this.pkgBuilder.addValueType(getCurrentPos(ctx), getWS(ctx), ctx.getChild(0).getText());
-    }
-
-    @Override
     public void exitUserDefineTypeName(BallerinaParser.UserDefineTypeNameContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2757,7 +2739,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         String attributeStart = ctx.DocumentationTemplateAttributeStart().getText();
         String docPrefix = attributeStart.substring(0, 1);
-        String attributeName = ctx.Identifier().getText();
+        String attributeName = ctx.Identifier() != null ? ctx.Identifier().getText() : "";
         String endText = ctx.docText() != null ? ctx.docText().getText() : "";
         this.pkgBuilder.createDocumentationAttribute(getCurrentPos(ctx), getWS(ctx),
                 attributeName, endText, docPrefix);

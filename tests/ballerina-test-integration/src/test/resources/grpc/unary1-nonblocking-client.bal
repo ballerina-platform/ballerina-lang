@@ -26,7 +26,7 @@ function testUnaryNonBlockingClient () returns (string []) {
         port:9090
     };
     // Executing unary non-blocking call registering server message listener.
-    error? result = helloWorldEp -> hello("WSO2", typeof HelloWorldMessageListener);
+    error? result = helloWorldEp -> hello("WSO2", HelloWorldMessageListener);
     match result {
         error payloadError => {
             io:println("Error occured while sending event " + payloadError.message);
@@ -220,7 +220,7 @@ public type HelloWorldBlockingClient object {
         HelloWorldBlockingStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfiguration config) {
+    public function init (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);
@@ -243,7 +243,7 @@ public type HelloWorldClient object {
         HelloWorldStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfiguration config) {
+    public function init (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);

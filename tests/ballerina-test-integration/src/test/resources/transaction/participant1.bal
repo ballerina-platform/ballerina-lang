@@ -114,7 +114,7 @@ service<http:Service> participant1 bind participant1EP {
                             abort;
                         }
                         http:Response getRes => {
-                            var forwardRes2 = conn -> forward(getRes);
+                            var forwardRes2 = conn -> respond(getRes);
                             match forwardRes2 {
                                 http:HttpConnectorError err => {
                                     io:print("Participant1 could not forward response from participant2 to initiator. Error:");

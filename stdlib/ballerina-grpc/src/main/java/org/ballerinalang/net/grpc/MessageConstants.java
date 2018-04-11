@@ -45,6 +45,7 @@ public class MessageConstants {
     public static final String GRPC_SERVER = "SERVER";
     public static final String SERVICE_ENDPOINT_TYPE = "Service";
     public static final String CLIENT_RESPONDER = "ClientResponder";
+    public static final String MESSAGE_CONTEXT = "MessageContext";
     public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
     public static final int CLIENT_RESPONDER_REF_INDEX = 0;

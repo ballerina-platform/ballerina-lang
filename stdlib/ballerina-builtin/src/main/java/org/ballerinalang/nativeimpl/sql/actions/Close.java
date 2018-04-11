@@ -37,8 +37,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
         functionName = "close",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.SQL_CLIENT),
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
-                            structPackage = "ballerina.sql")
+                @ReturnType(type = TypeKind.STRUCT, structType = "error",
+                            structPackage = "ballerina.builtin")
         }
 )
 public class Close extends AbstractSQLAction {
