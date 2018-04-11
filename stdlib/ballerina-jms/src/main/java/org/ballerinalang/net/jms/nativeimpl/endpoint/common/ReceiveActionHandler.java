@@ -25,7 +25,8 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import javax.jms.JMSException;
@@ -37,21 +38,27 @@ import javax.jms.MessageConsumer;
  */
 public class ReceiveActionHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReceiveActionHandler.class);
+
     private ReceiveActionHandler() {
     }
 
     public static void handle(Context context) {
 
-        Struct connectorBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct connectorBObject = BallerinaAdapter.getReceiverObject(context);
         MessageConsumer messageConsumer = BallerinaAdapter.getNativeObject(connectorBObject,
                                                                            Constants.JMS_CONSUMER_OBJECT,
                                                                            MessageConsumer.class,
                                                                            context
                                                                           );
-
+        SessionConnector sessionConnector = BallerinaAdapter.getNativeObject(connectorBObject,
+                                                                             Constants.SESSION_CONNECTOR_OBJECT,
+                                                                             SessionConnector.class,
+                                                                             context);
         long timeInMilliSeconds = context.getIntArgument(0);
 
         try {
+            sessionConnector.handleTransactionBlock(context);
             Message message = messageConsumer.receive(timeInMilliSeconds);
             if (Objects.nonNull(message)) {
                 BStruct messageBObject = BLangConnectorSPIUtil.createBStruct(context,
@@ -63,7 +70,7 @@ public class ReceiveActionHandler {
                 context.setReturnValues();
             }
         } catch (JMSException e) {
-            throw new BallerinaException("Message receiving failed", e, context);
+            BallerinaAdapter.returnError("Message receiving failed.", context, e);
         }
     }
 }

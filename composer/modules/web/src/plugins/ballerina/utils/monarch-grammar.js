@@ -10,7 +10,7 @@ export default {
         'if', 'else', 'iterator', 'try', 'catch', 'finally', 'fork', 'join', 'all', 'some',
         'while', 'throw', 'return', 'returns', 'break', 'timeout', 'transaction', 'aborted',
         'abort', 'committed', 'failed', 'retries', 'next', 'bind', 'with', 'lengthof', 'typeof',
-        'foreach', 'in', 'match', 'but', 'check',
+        'foreach', 'in', 'match', 'but', 'check', 'onretry'
     ],
 
     otherKeywords: [

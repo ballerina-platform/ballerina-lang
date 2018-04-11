@@ -14,13 +14,13 @@ service <http:Service> proxy bind serviceEndpoint {
     @http:ResourceConfig {
         webSocketUpgrade: {
             upgradePath: "/ws",
-            upgradeService: typeof SimpleProxyServer
+            upgradeService: SimpleProxyServer
         }
     }
     upgrader(endpoint ep, http:Request req, string name) {
         endpoint http:WebSocketClient wsClientEp {
             url:REMOTE_BACKEND,
-            callbackService:typeof ClientService
+            callbackService:ClientService
         };
         endpoint http:WebSocketListener wsServerEp;
         wsServerEp = ep -> acceptWebSocketUpgrade({"custom":"header"});

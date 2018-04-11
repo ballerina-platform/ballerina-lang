@@ -277,8 +277,7 @@ public type MockClient object {
         return httpConnectorError;
     }
 
-    public function rejectPromise (http:PushPromise promise) returns (boolean) {
-        return false;
+    public function rejectPromise (http:PushPromise promise) {
     }
 };
 

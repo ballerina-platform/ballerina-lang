@@ -35,6 +35,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+
 import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.CONTENT_ID;
@@ -247,13 +250,14 @@ public class HeaderUtil {
         return null;
     }
 
-    public static void setHeaderToEntity(BStruct struct, String key, String value) {
+    public static void setHeaderToEntity(BStruct entity, String key, String value) {
         HttpHeaders httpHeaders;
-        if (struct.getNativeData(ENTITY_HEADERS) != null) {
-            httpHeaders = (HttpHeaders) struct.getNativeData(ENTITY_HEADERS);
+        if (entity.getNativeData(ENTITY_HEADERS) != null) {
+            httpHeaders = (HttpHeaders) entity.getNativeData(ENTITY_HEADERS);
 
         } else {
             httpHeaders = new DefaultHttpHeaders();
+            entity.addNativeData(ENTITY_HEADERS, httpHeaders);
         }
         httpHeaders.set(key, value);
     }
@@ -270,5 +274,13 @@ public class HeaderUtil {
             }
         }
         return headerMap;
+    }
+
+    public static String getBaseType(BStruct entityStruct) throws MimeTypeParseException {
+        String contentType = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
+        if (contentType != null) {
+            return new MimeType(contentType).getBaseType();
+        }
+        return null;
     }
 }

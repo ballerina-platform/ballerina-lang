@@ -56,11 +56,11 @@ type InitiatorClient object {
 
 
     function register(string transactionId, int transactionBlockId,
-                        Protocol[] participantProtocols) returns RegistrationResponse|error {
+                        RemoteProtocol[] participantProtocols) returns RegistrationResponse|error {
         endpoint http:Client httpClient = self.clientEP.httpClient;
         string participantId = getParticipantId(transactionBlockId);
-        RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
-        regReq.participantProtocols = participantProtocols;
+        RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId,
+                                        participantProtocols:participantProtocols};
 
         json reqPayload = regRequestToJson(regReq);
         http:Request req = new;

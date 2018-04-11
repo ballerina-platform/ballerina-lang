@@ -44,7 +44,6 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     public List<BLangExpression> argExprs = new ArrayList<>();
     //caching since at desugar level we need to identify whether this is actually attached function or not
     public BSymbol exprSymbol;
-    public BSymbol symbol;
     public boolean functionPointerInvocation;
     /* Variables Required for Iterable Operation */
     public boolean iterableOperationInvocation;
