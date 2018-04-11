@@ -15,13 +15,13 @@ service <http:Service> proxy bind ep {
     @http:ResourceConfig {
         webSocketUpgrade: {
             upgradePath: "/ws",
-            upgradeService: typeof simpleProxy
+            upgradeService: simpleProxy
         }
     }
     websocketProxy (endpoint httpEp, http:Request req) {
         endpoint http:WebSocketClient wsClientEp {
             url: REMOTE_BACKEND_URL,
-            callbackService: typeof clientCallbackService
+            callbackService: clientCallbackService
         };
         http:WebSocketListener wsServiceEp = httpEp -> acceptWebSocketUpgrade({"some-header":"some-header-value"});
         io:println("connections established");

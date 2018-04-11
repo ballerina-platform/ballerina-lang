@@ -1,3 +1,4 @@
+import ballerina/io;
 import ballerina/http;
 
 @final string PATH1 = "PATH1";
@@ -14,7 +15,7 @@ service <http:Service> simple bind ep {
     @http:ResourceConfig {
         webSocketUpgrade: {
             upgradePath: "/{path1}/{path2}",
-            upgradeService: typeof simpleProxy
+            upgradeService: simpleProxy
         }
     }
     websocketProxy (endpoint httpEp, http:Request req, string path1, string path2) {
@@ -37,7 +38,7 @@ service <http:WebSocketService> simpleProxy {
             string query2 = <string> ep.attributes[QUERY2];
 
             string msg = string `path-params: {{path1}}, {{path2}}; query-params: {{query1}}, {{query2}}`;
-            _ = ep -> pushText(msg);
+            ep -> pushText(msg) but {error e => io:println("Error sending message. " + e.message)};
         }
     }
 }

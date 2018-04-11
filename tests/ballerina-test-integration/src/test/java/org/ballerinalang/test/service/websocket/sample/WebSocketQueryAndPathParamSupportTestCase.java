@@ -59,8 +59,8 @@ public class WebSocketQueryAndPathParamSupportTestCase {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         client.sendText("send");
-        String expectedMsg = String.format("path-params: %s, %s; query-params: %s, %s", path1, path2, query1, query2);
         countDownLatch.await(10, TimeUnit.SECONDS);
+        String expectedMsg = String.format("path-params: %s, %s; query-params: %s, %s", path1, path2, query1, query2);
         Assert.assertEquals(client.getTextReceived(), expectedMsg);
         client.shutDown();
     }

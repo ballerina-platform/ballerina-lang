@@ -80,9 +80,9 @@ public class WebSocketTestClient {
     }
 
     /**
+     * Handshake with the remote server.
+     *
      * @return true if the handshake is done properly.
-     * @throws URISyntaxException throws if there is an error in the URI syntax.
-     * @throws InterruptedException throws if the connecting the server is interrupted.
      */
     public void handshake() {
         group = new NioEventLoopGroup();
