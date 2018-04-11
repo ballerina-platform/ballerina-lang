@@ -18,55 +18,14 @@ function testFunc() {
     // Invoking the main function
     main([]);
 
-    json jt1 = [
-        1,
-        false,
-        null,
-        "foo",
-        {
-            "first":"John",
-            "last":"Pala"
-        }
-    ];
+    json jt1 = {"title":"The Revenant","year":"2015","released":"08 Jan 2016","writer":{"fname":"Michael","lname":"Punke","age":30}};
 
-    json jt2 = "John";
-    json jt3 = [1,false,null,"foo",8.0];
-    json jt4 = {
-                "fname":"John",
-                "lname":"Stallone",
-                "family":[
-                    {
-                        "fname":"Peter",
-                        "lname":"Stallone"
-                    },
-                    {
-                        "fname":"Emma",
-                        "lname":"Stallone"
-                    },
-                    {
-                        "fname":"Alisha",
-                        "lname":"Stallone"
-                    },
-                    {
-                        "fname":"Paul",
-                        "lname":"Stallone"
-                    }
-                ]
-            };
-    json jt5 = {"fname":"Peter","lname":"Stallone"};
-    json jt6 = {"fname":"Emma","lname":"Stallone"};
-    json jt7 = {"fname":"Alisha","lname":"Stallone"};
-    json jt8 = {"fname":"Paul","lname":"Stallone"};
+    json jt2 = "Punke";
+    int jt3 = 30;
+    json jt4 = {"title":"Inception","year":"2010","released":"16 Jul 2010","writer":{"fname":"Christopher","lname":"Nolan","age":30}};
 
-    string o1 = "length of array: 4";
-
-    //test:assertEquals(jt1, outputs[0]);
+    test:assertEquals(jt1, outputs[0]);
     test:assertEquals(jt2, outputs[1]);
-    //test:assertEquals(jt3, outputs[2]);
+    test:assertEquals(jt3, outputs[2]);
     test:assertEquals(jt4, outputs[3]);
-    test:assertEquals(o1, outputs[4]);
-    test:assertEquals(jt5, outputs[5]);
-    test:assertEquals(jt6, outputs[6]);
-    test:assertEquals(jt7, outputs[7]);
-    test:assertEquals(jt8, outputs[8]);
 }

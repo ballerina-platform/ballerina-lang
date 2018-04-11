@@ -18,14 +18,30 @@ function testFunc() {
     // Invoking the main function
     main([]);
 
-    json jt1 = {"title":"The Revenant","year":"2015","released":"08 Jan 2016","writer":{"fname":"Michael","lname":"Punke","age":30}};
+    xml xml1 = xml `<Store id="AST">
+                           <name>Anne</name>
+                           <address>
+                              <street>Main</street>
+                              <city>94</city>
+                           </address>
+                           <codes>
+                              <item>4</item>
+                              <item>8</item>
+                           </codes>
+                      </Store>`;
 
-    json jt2 = "Punke";
-    int jt3 = 30;
-    json jt4 = {"title":"Inception","year":"2010","released":"16 Jul 2010","writer":{"fname":"Christopher","lname":"Nolan","age":30}};
+    xml xml2 = xml `<Store id="AST">
+                           <name>Anne</name>
+                           <address>
+                              <street>Main</street>
+                              <city>94</city>
+                           </address>
+                           <codes>
+                              <wrapper>4</wrapper>
+                              <wrapper>8</wrapper>
+                           </codes>
+                        </Store>`;
 
-    test:assertEquals(jt1, outputs[0]);
-    test:assertEquals(jt2, outputs[1]);
-    test:assertEquals(jt3, outputs[2]);
-    test:assertEquals(jt4, outputs[3]);
+    test:assertEquals(xml1, outputs[0]);
+    test:assertEquals(xml2, outputs[1]);
 }
