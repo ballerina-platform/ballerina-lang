@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -54,147 +55,149 @@ public class CompressionTest {
     }
 
     @Test(description = "test unzipping/decompressing a compressed file with src and destination directory path")
-    public void testUnzipFile() throws IOException, URISyntaxException {
+    public void testDecompressFile() throws IOException, URISyntaxException {
         String resourceToRead = getAbsoluteFilePath("datafiles/compression/hello.zip");
         BString dirPath = new BString(resourceToRead);
-        BString folderToExtract = new BString("");
         String destDirPath = getAbsoluteFilePath("datafiles/compression/");
         BString destDir = new BString(destDirPath);
-        BValue[] inputArg = {dirPath, destDir, folderToExtract};
-        BRunUtil.invoke(compileResult, "testUnzipFile", inputArg);
+        BValue[] inputArg = {dirPath, destDir};
+        BRunUtil.invoke(compileResult, "decompressFile", inputArg);
 
         File file = new File(destDirPath + File.separator + "hello.txt");
         Assert.assertEquals(file.exists() && !file.isDirectory(), true);
     }
 
-    @Test(description = "test unzipping/decompressing a compressed file without src directory path",
-            expectedExceptions = BLangRuntimeException.class)
-    public void testUnzipFileWithoutSrcDirectory() throws IOException, URISyntaxException {
+    @Test(description = "test unzipping/decompressing a compressed file without src directory path")
+    public void testDecompressFileWithoutSrcDirectory() throws IOException, URISyntaxException {
         String destDirPath = getAbsoluteFilePath("datafiles/compression/");
         BString destDir = new BString(destDirPath);
-        BString folderToExtract = new BString("");
-        BValue[] inputArg = {new BString(""), destDir, folderToExtract};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUnzipFile", inputArg);
+        BValue[] inputArg = {new BString(""), destDir};
+        BValue[] returns = BRunUtil.invoke(compileResult, "decompressFile", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path of the folder to be " +
+                "decompressed is not available");
     }
 
     @Test(description = "test unzipping/decompressing a compressed file without destination directory path")
-    public void testUnzipFileWithoutDestDirectory() throws IOException, URISyntaxException {
+    public void testDecompressFileWithoutDestDirectory() throws IOException, URISyntaxException {
         String resourceToRead = getAbsoluteFilePath("datafiles/compression/hello.zip");
         BString dirPath = new BString(resourceToRead);
-        BString folderToExtract = new BString("");
-        BValue[] inputArg = {dirPath, new BString(getAbsoluteFilePath("")), folderToExtract};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUnzipFile", inputArg);
+        BValue[] inputArg = {dirPath, new BString("")};
+        BValue[] returns = BRunUtil.invoke(compileResult, "decompressFile", inputArg);
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 0);
-
-        File file = new File(getAbsoluteFilePath("") + File.separator + "hello.txt");
-        Assert.assertEquals(file.exists() && !file.isDirectory(), true);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path to place the decompressed " +
+                "file is not available");
     }
 
     @Test(description = "test zipping/compressing a file")
-    public void testZipFile() throws IOException, URISyntaxException {
-        String resourceToRead = getAbsoluteFilePath("datafiles/compression/test");
+    public void testCompressFile() throws IOException, URISyntaxException {
+        String resourceToRead = getAbsoluteFilePath("datafiles/compression/my.app");
         BString dirPath = new BString(resourceToRead);
         String destDirPath = getAbsoluteFilePath("datafiles/compression/");
-        BString destDir = new BString(destDirPath + File.separator + "compression.zip");
+        BString destDir = new BString(destDirPath + File.separator + "my.app.zip");
         BValue[] inputArg = {dirPath, destDir};
-        BRunUtil.invoke(compileResult, "testZipFile", inputArg);
+        BRunUtil.invoke(compileResult, "compressFile", inputArg);
 
-        File f1 = new File(destDirPath + File.separator + "compression.zip");
+        File f1 = new File(destDirPath + File.separator + "my.app.zip");
         Assert.assertEquals(f1.exists() && !f1.isDirectory(), true);
 
         ArrayList<String> filesInsideZip = getFilesInsideZip(destDirPath + File.separator
-                                                                     + "compression.zip");
+                                                                     + "my.app.zip");
 
         Assert.assertEquals(filesInsideZip.size() > 0, true);
 
     }
 
-    @Test(description = "test zipping/compressing a file without src directory path",
-            expectedExceptions = BLangRuntimeException.class)
-    public void testZipFileWithoutSrcDirectory() throws IOException, URISyntaxException {
+    @Test(description = "test zipping/compressing a file without src directory path")
+    public void testCompressFileWithoutSrcDirectory() throws IOException, URISyntaxException {
         String destDirPath = getAbsoluteFilePath("datafiles/compression/");
         BString destDir = new BString(destDirPath + File.separator + "compression.zip");
         BValue[] inputArg = {new BString(""), destDir};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testZipFile", inputArg);
+        BValue[] returns = BRunUtil.invoke(compileResult, "compressFile", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path to place the compressed " +
+                "file is not available");
     }
 
     @Test(description = "test zipping/compressing a file without destination directory path")
-    public void testZipFileWithoutDestinationDirectory() throws IOException, URISyntaxException {
+    public void testCompressFileWithoutDestinationDirectory() throws IOException, URISyntaxException {
         String resourceToRead = getAbsoluteFilePath("datafiles/compression/my.app");
         BString dirPath = new BString(resourceToRead);
-        String currentDir = getAbsoluteFilePath("") + File.separator + "myapp.zip";
-        BValue[] inputArg = {dirPath, new BString(currentDir)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testZipFile", inputArg);
+        BValue[] inputArg = {dirPath, new BString("")};
+        BValue[] returns = BRunUtil.invoke(compileResult, "compressFile", inputArg);
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 0);
-
-        File file = new File(getAbsoluteFilePath("") + File.separator + "myapp.zip");
-        Assert.assertEquals(file.exists() && !file.isDirectory(), true);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Error occurred when " +
+                "compressing  (No such file or directory)");
     }
 
     @Test(description = "test unzipping/decompressing a byte array")
-    public void testUnzipBytes() throws IOException, URISyntaxException {
+    public void testDecompressBlob() throws IOException, URISyntaxException {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
         byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
                                                                             File.separator + "test.zip").toPath());
         BString destDir = new BString(dirPath);
-        BString folderToExtract = new BString("");
         BBlob contentAsByteArray = new BBlob(fileContentAsByteArray);
-        BValue[] inputArg = {contentAsByteArray, destDir, folderToExtract};
-        BRunUtil.invoke(compileResult, "testUnzipBytes", inputArg);
+        BValue[] inputArg = {contentAsByteArray, destDir};
+        BRunUtil.invoke(compileResult, "decompressBlob", inputArg);
 
         File f1 = new File(dirPath + File.separator + "test" + File.separator);
         Assert.assertEquals(f1.exists() && f1.isDirectory(), true);
 
-        File f2 = new File(dirPath + File.separator + "test/test.txt");
+        File f2 = new File(dirPath + File.separator + "test" + File.separator + "test.txt");
         Assert.assertEquals(f2.exists() && !f2.isDirectory(), true);
+
+        File f3 = new File(dirPath + File.separator + "test" + File.separator + "abc");
+        Assert.assertEquals(f3.exists() && f3.isDirectory(), true);
     }
 
-    @Test(description = "test unzipping/decompressing a byte array without the content as a blob/byte array",
-            expectedExceptions = BLangRuntimeException.class)
-    public void testUnzipBytesWithoutBytes() throws IOException, URISyntaxException {
+    @Test(description = "test unzipping/decompressing a byte array without the content as a blob/byte array")
+    public void testDecompressBlobWithoutBytes() throws IOException, URISyntaxException {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
-        BString folderToExtract = new BString("");
         BString destDir = new BString(dirPath);
-        BBlob contentAsByteArray = new BBlob(null);
-        BValue[] inputArg = {contentAsByteArray, destDir, folderToExtract};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUnzipBytes", inputArg);
+        BBlob contentAsByteArray = new BBlob(new byte[0]);
+        BValue[] inputArg = {contentAsByteArray, destDir};
+        BValue[] returns = BRunUtil.invoke(compileResult, "decompressBlob", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Length of the byte array is empty");
     }
 
     @Test(description = "test unzipping/decompressing a byte array without the destination directory path")
-    public void testUnzipBytesWithoutDestDirectory() throws IOException, URISyntaxException {
+    public void testDecompressBlobWithoutDestDirectory() throws IOException, URISyntaxException {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
         byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
                                                                             File.separator + "test.zip").toPath());
-        BString folderToExtract = new BString("");
         BBlob contentAsByteArray = new BBlob(fileContentAsByteArray);
-        BValue[] inputArg = {contentAsByteArray, new BString(getAbsoluteFilePath("")), folderToExtract};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUnzipBytes", inputArg);
+        BValue[] inputArg = {contentAsByteArray, new BString("")};
+        BValue[] returns = BRunUtil.invoke(compileResult, "decompressBlob", inputArg);
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 0);
-
-        File file = new File(getAbsoluteFilePath("") + File.separator + "test" + File.separator +
-                                     "test.txt");
-        Assert.assertEquals(file.exists() && !file.isDirectory(), true);
-
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path to place the decompressed " +
+                "file is not available");
     }
 
     @Test(description = "test zipping/compressing a file to a byte array when a destination directory is given")
-    public void testZipToBytesWithDestDir() throws IOException, URISyntaxException {
+    public void testCompressToBlobWithDestDir() throws IOException, URISyntaxException {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
         BString dirPathValue = new BString(dirPath + File.separator + "my.app");
         BValue[] inputArg = {dirPathValue};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testZipToBytes", inputArg);
+        BValue[] returns = BRunUtil.invoke(compileResult, "compressDirToBlob", inputArg);
 
         // Write the byte array to a file
         FileOutputStream fos = new FileOutputStream(dirPath + File.separator + "temp.zip");
@@ -207,14 +210,16 @@ public class CompressionTest {
 
     }
 
-    @Test(description = "test zipping/compressing a file to a byte array when the destination directory is not given",
-            expectedExceptions = BLangRuntimeException.class)
-    public void testZipToBytesWithoutDestDir() throws IOException, URISyntaxException {
+    @Test(description = "test zipping/compressing a file to a byte array when the destination directory is not given")
+    public void testCompressToBlobWithoutSrcDir() throws IOException, URISyntaxException {
         BValue[] inputArg = {new BString("")};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testZipToBytes", inputArg);
+        BValue[] returns = BRunUtil.invoke(compileResult, "compressDirToBlob", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path of the folder to be " +
+                "compressed is not available");
     }
 
     /**
