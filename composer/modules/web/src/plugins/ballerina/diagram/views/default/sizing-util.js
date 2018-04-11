@@ -1336,7 +1336,7 @@ class SizingUtil {
 
         node.viewState.bBox.h = height;
         node.viewState.bBox.w = (this.config.statement.width < width) ? width :
-            this.config.statement.width;
+            100;
         components.expression = this.getTextWidth(node.expression.getSource(true), 0,
             node.viewState.bBox.w / 2);
     }
@@ -1355,6 +1355,7 @@ class SizingUtil {
         components.expression = this.getTextWidth(node.variableNode.getSource(true), 0,
             node.viewState.bBox.w / 2);
 
+        node.viewState.bBox.h += 10;
         // Calculate the left margin.
         this.calcLeftMargin(node.viewState.bBox, [node.statement], false, false);
     }
