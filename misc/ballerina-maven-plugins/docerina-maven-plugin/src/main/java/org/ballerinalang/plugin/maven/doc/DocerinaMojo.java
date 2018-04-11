@@ -81,6 +81,6 @@ public class DocerinaMojo extends AbstractMojo {
         }
 
         String[] sources = sourceDir.split(",");
-        BallerinaDocGenerator.generateApiDocs(outputDir, packageFilter, nativeCode, sources);
+        BallerinaDocGenerator.generateApiDocs(null, outputDir, packageFilter, nativeCode, sources);
     }
 }

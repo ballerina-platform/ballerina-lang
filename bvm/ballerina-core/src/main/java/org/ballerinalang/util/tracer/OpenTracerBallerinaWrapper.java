@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 
 /**
@@ -45,11 +44,9 @@ public class OpenTracerBallerinaWrapper {
     private final boolean enabled;
 
     public OpenTracerBallerinaWrapper() {
-        this.enabled =
-                Boolean.parseBoolean(ConfigRegistry.getInstance().getAsString(CONFIG_TRACING_ENABLED));
+        enabled = Boolean.parseBoolean(ConfigRegistry.getInstance().getConfiguration(CONFIG_TRACING_ENABLED));
         if (enabled) {
-            Map<String, String> configurations = ConfigRegistry.getInstance().getConfigTable(CONFIG_TABLE_TRACING);
-            tracerStore = new TracersStore(configurations);
+            tracerStore = TracersStore.getInstance();
             spanStore = new SpanStore();
         }
     }
