@@ -21,7 +21,6 @@ package org.ballerinalang.bcl.parser;
 import org.ballerinalang.toml.antlr4.TomlBaseListener;
 import org.ballerinalang.toml.antlr4.TomlParser;
 
-import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -107,10 +106,12 @@ public class BConfigLangListener extends TomlBaseListener {
 
     @Override
     public void enterDecInt(TomlParser.DecIntContext context) {
-        try {
-            currentValue = Long.parseLong(context.getText());
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("invalid decimal int value: " + context.getText());
+        if (!(context.getParent() instanceof TomlParser.FloatIntPartContext)) {
+            try {
+                currentValue = Long.parseLong(context.getText());
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("invalid decimal int value: " + context.getText());
+            }
         }
     }
 
@@ -145,6 +146,7 @@ public class BConfigLangListener extends TomlBaseListener {
     public void enterFloatingPoint(TomlParser.FloatingPointContext context) {
         try {
             currentValue = Double.parseDouble(context.getText());
+            context.exitRule(this);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("invalid float value: " + context.getText());
         }

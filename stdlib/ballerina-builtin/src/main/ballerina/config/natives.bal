@@ -26,11 +26,12 @@ type ValueType "STRING"|"INT"|"FLOAT"|"BOOLEAN"|"MAP"|"ARRAY";
 @final ValueType ARRAY = "ARRAY";
 
 @Description {value:"Retrieves the specified configuration value as a string"}
-@Param {value:"configKey: The configuration to be retrieved" }
-@Return {value:"Configuration value mapped by the configKey" }
-public function getAsString(string configKey, string default = "") returns string {
-    if (contains(configKey)) {
-        var value = get(configKey, STRING);
+@Param {value:"key: The configuration to be retrieved" }
+@Param {value:"default: The default value to be use in case there is no mapping for the provided key" }
+@Return {value:"Configuration value mapped by the key" }
+public function getAsString(string key, string default = "") returns string {
+    if (contains(key)) {
+        var value = get(key, STRING);
 
         match value {
             string strValue => return strValue;
@@ -44,9 +45,13 @@ public function getAsString(string configKey, string default = "") returns strin
     return default;
 }
 
-public function getAsInt(string configKey, int default = 0) returns int {
-    if (contains(configKey)) {
-        var value = get(configKey, INT);
+@Description {value:"Retrieves the specified configuration value as an int"}
+@Param {value:"key: The configuration to be retrieved" }
+@Param {value:"default: The default value to be use in case there is no mapping for the provided key" }
+@Return {value:"Configuration value mapped by the key" }
+public function getAsInt(string key, int default = 0) returns int {
+    if (contains(key)) {
+        var value = get(key, INT);
 
         match value {
             int intVal => return intVal;
@@ -60,9 +65,13 @@ public function getAsInt(string configKey, int default = 0) returns int {
     return default;
 }
 
-public function getAsFloat(string configKey, float default = 0.0) returns float {
-    if (contains(configKey)) {
-        var value = get(configKey, FLOAT);
+@Description {value:"Retrieves the specified configuration value as a float"}
+@Param {value:"key: The configuration to be retrieved" }
+@Param {value:"default: The default value to be use in case there is no mapping for the provided key" }
+@Return {value:"Configuration value mapped by the key" }
+public function getAsFloat(string key, float default = 0.0) returns float {
+    if (contains(key)) {
+        var value = get(key, FLOAT);
 
         match value {
             float floatVal => return floatVal;
@@ -76,9 +85,13 @@ public function getAsFloat(string configKey, float default = 0.0) returns float 
     return default;
 }
 
-public function getAsBoolean(string configKey, boolean default = false) returns boolean {
-    if (contains(configKey)) {
-        var value = get(configKey, BOOLEAN);
+@Description {value:"Retrieves the specified configuration value as a boolean"}
+@Param {value:"key: The configuration to be retrieved" }
+@Param {value:"default: The default value to be use in case there is no mapping for the provided key" }
+@Return {value:"Configuration value mapped by the key" }
+public function getAsBoolean(string key, boolean default = false) returns boolean {
+    if (contains(key)) {
+        var value = get(key, BOOLEAN);
 
         match value {
             boolean booleanVal => return booleanVal;
@@ -92,9 +105,12 @@ public function getAsBoolean(string configKey, boolean default = false) returns 
     return default;
 }
 
-public function getAsMap(string configKey, map default) returns map {
-    if (contains(configKey)) {
-        var value = get(configKey, MAP);
+@Description {value:"Retrieves the specified configuration value as a map. If there is no mapping, an empty map will be returned."}
+@Param {value:"key: The configuration to be retrieved" }
+@Return {value:"Configuration value mapped by the key" }
+public function getAsMap(string key) returns map {
+    if (contains(key)) {
+        var value = get(key, MAP);
 
         match value {
             map section => return section;
@@ -105,22 +121,18 @@ public function getAsMap(string configKey, map default) returns map {
         }
     }
 
+    map default;
     return default;
 }
 
-@Description {value:"Retrieves the specified table of configurations as a map"}
-@Param {value:"tableHeader: The table to be retrieved"}
-@Return {value:"The specified table"}
-public native function getTable (string tableHeader) returns map;
-
 @Description {value:"Checks whether the given key is in the configuration registry"}
-@Param {value:"configKey: The configuration key to be looked-up"}
+@Param {value:"key: The configuration key to be looked-up"}
 @Return {value:"Returns true if the key is present; if not returs false"}
-public native function contains (string configKey) returns boolean;
+public native function contains (string key) returns boolean;
 
 @Description { value:"Sets the specified key/value pair as a configuration" }
-@Param { value:"configKey: The key of the configuration value to be set" }
-@Param { value:"configValue: The configuration value to be set" }
-public native function setConfig(string configKey, string configValue);
+@Param { value:"key: The key of the configuration value to be set" }
+@Param { value:"value: The configuration value to be set" }
+public native function setConfig(string key, string|int|float|boolean value);
 
 native function get(string key, ValueType vType) returns string|int|float|boolean|map|any[]|()|error;
