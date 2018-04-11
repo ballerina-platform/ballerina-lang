@@ -46,7 +46,7 @@ public class BMockTracer implements OpenTracer {
 
     @Override
     public void init(Map<String, String> configProperties) {
-
+        // Do Nothing
     }
 
     @Override

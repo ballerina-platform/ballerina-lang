@@ -38,15 +38,12 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.BLangSo
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ModelPackage;
 import org.ballerinalang.composer.service.ballerina.parser.service.util.BLangFragmentParser;
 import org.ballerinalang.composer.service.ballerina.parser.service.util.ParserUtils;
-import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
-import org.ballerinalang.langserver.LSPackageCache;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.LSParserUtils;
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;

@@ -41,7 +41,7 @@ public class BNoopTracer implements OpenTracer {
 
     @Override
     public void init(Map<String, String> configProperties) {
-
+        // Do Nothing
     }
 
     @Override
