@@ -1,1 +1,2 @@
-// Ballerina supports value typed constants except for the blob type.
+// Constants are declared just like variables, but with the @final annotation.
+// Constants can be of value types boolean, int, float or string. You cannot use the value type blob when you declare a constant in Ballerina.
