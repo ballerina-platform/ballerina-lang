@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
+import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
@@ -447,6 +448,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
         }
         CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository, 
                 sourceDocument, false, documentManager, CompilerPhase.CODE_ANALYZE, this.lsGlobalContext);
+        
+        // In order to capture the syntactic errors, need to go through the default error strategy
+        context.put(DefaultErrorStrategy.class, null);
 
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
 
