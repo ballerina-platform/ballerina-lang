@@ -415,8 +415,10 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
         }
 
-        varRefType = getSafeType(varRefType, fieldAccessExpr.safeNavigate, fieldAccessExpr.pos);
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
+        if(!fieldAccessExpr.lhsVar) {
+            varRefType = getSafeType(varRefType, fieldAccessExpr.safeNavigate, fieldAccessExpr.pos);
+        }
 
         // Get the effective types of the expression. If there are errors/nill propagating from parent
         // expressions, then the effective type will include those as well.
@@ -434,13 +436,14 @@ public class TypeChecker extends BLangNodeVisitor {
         BType varRefType = indexBasedAccessExpr.expr.type;
         varRefType = getSafeType(varRefType, indexBasedAccessExpr.safeNavigate, indexBasedAccessExpr.pos);
 
+        BType actualType = checkIndexAccessExpr(indexBasedAccessExpr, varRefType);
+        indexBasedAccessExpr.childType = actualType;
+
         // Get the effective types of the expression. If there are errors/nill propagating from parent
         // expressions, then the effective type will include those as well.
-        BType actualType = checkIndexAccessExpr(indexBasedAccessExpr, varRefType);
         actualType = getAccessExprFinalType(indexBasedAccessExpr, actualType);
 
         this.resultType = this.types.checkType(indexBasedAccessExpr, actualType, this.expType);
-        indexBasedAccessExpr.childType = this.resultType;
     }
 
     public void visit(BLangInvocation iExpr) {
