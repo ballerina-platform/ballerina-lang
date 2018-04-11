@@ -193,7 +193,7 @@ public type SQLClient object {
     table that allows performing select/update operations over the actual database table"}
     @Param {value:"tableName: The name of the table to be mirrored"}
     @Param {value:"recordType: The type which a record of the table maps with"}
-    public native function mirror (string tableName, typedesc recordType) returns
-    (table|error);
+    public native function mirror (@sensitive string tableName, typedesc recordType) returns
+    @tainted (table|error);
 
 };

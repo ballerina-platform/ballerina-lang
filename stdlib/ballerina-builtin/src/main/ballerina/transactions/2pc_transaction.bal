@@ -30,14 +30,13 @@ type TwoPhaseCommitTransaction object {
         map<Participant> participants;
         Protocol[] coordinatorProtocols;
         int createdTime;
-        TransactionState state;
+        TransactionState state = TXN_STATE_ACTIVE;
         boolean possibleMixedOutcome;
     }
 
     new(transactionId, transactionBlockId, string coordinationType = "2pc") {
         self.createdTime = time:currentTime().time;
         self.coordinationType = coordinationType;
-        self.state =  TXN_STATE_ACTIVE;
     }
 
     // This function will be called by the initiator

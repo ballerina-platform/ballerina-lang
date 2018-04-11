@@ -20,19 +20,15 @@ import io.grpc.stub.ServerCalls;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.MessageUtils.updateContextProperties;
 
 /**
  * This is Bidirectional Streaming Method Implementation for gRPC Service Call.
@@ -54,25 +50,17 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
     @Override
     public StreamObserver<Message> invoke(StreamObserver<Message> responseObserver) {
         Resource onOpen = resourceMap.get(MessageConstants.ON_OPEN_RESOURCE);
-        List<ParamDetail> paramDetails = onOpen.getParamDetails();
-        BValue[] signatureParams = new BValue[paramDetails.size()];
-        signatureParams[0] = getConnectionParameter(onOpen, responseObserver);
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
-        Executor.submit(onOpen, callback,  updateContextProperties(null), null, signatureParams);
+        Executor.submit(onOpen, callback,  null, null, computeMessageParams
+                (onOpen, null, responseObserver));
         
         return new StreamObserver<Message>() {
             @Override
             public void onNext(Message value) {
                 Resource onMessage = resourceMap.get(MessageConstants.ON_MESSAGE_RESOURCE);
-                List<ParamDetail> paramDetails = onMessage.getParamDetails();
-                BValue[] signatureParams = new BValue[paramDetails.size()];
-                signatureParams[0] = getConnectionParameter(onMessage, responseObserver);
-                BValue requestParam = getRequestParameter(onMessage, value);
-                if (requestParam != null) {
-                    signatureParams[1] = requestParam;
-                }
                 CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
-                Executor.submit(onMessage, callback,  updateContextProperties(null), null, signatureParams);
+                Executor.submit(onMessage, callback,  null, null, computeMessageParams
+                        (onMessage, value, responseObserver));
             }
             
             @Override
@@ -89,11 +77,9 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
                     LOG.error(message);
                     throw new RuntimeException(message);
                 }
-                List<ParamDetail> paramDetails = onCompleted.getParamDetails();
-                BValue[] signatureParams = new BValue[paramDetails.size()];
-                signatureParams[0] = getConnectionParameter(onCompleted, responseObserver);
                 CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
-                Executor.submit(onCompleted, callback,  updateContextProperties(null), null, signatureParams);
+                Executor.submit(onCompleted, callback,  null, null, computeMessageParams
+                        (onCompleted, null, responseObserver));
             }
         };
     }

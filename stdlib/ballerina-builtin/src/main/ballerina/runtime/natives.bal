@@ -23,12 +23,12 @@ public native function sleepCurrentWorker (int millis);
 @Description {value:"Adds the given name, value pair to the system properties."}
 @Param {value:"name: Name of the property"}
 @Param {value:"value: Value of the property"}
-public native function setProperty (string name, string value);
+public native function setProperty (@sensitive string name, string value);
 
 @Description {value:"Returns the value associated with the specified property name."}
 @Param {value:"name: Name of the property"}
 @Return { value:"Value of the property if the property exists, an empty string otherwise"}
-public native function getProperty (string name) returns (string);
+public native function getProperty (@sensitive string name) returns (string);
 
 @Description {value:"Returns all system properties."}
 @Return { value:"All system properties"}
