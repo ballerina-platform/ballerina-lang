@@ -154,32 +154,32 @@ public type Response object {
 /// Ballerina Implementations ///
 /////////////////////////////////
 
-public function Response::hasHeader (string headerName) returns (boolean) {
+public function Response::hasHeader (@sensitive string headerName) returns (boolean) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.hasHeader(headerName);
 }
 
-public function Response::getHeader (string headerName) returns (string) {
+public function Response::getHeader (@sensitive string headerName) returns (string) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
 
-public function Response::addHeader (string headerName, string headerValue) {
+public function Response::addHeader (@sensitive string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.addHeader(headerName, headerValue);
 }
 
-public function Response::getHeaders (string headerName) returns (string[]) {
+public function Response::getHeaders (@sensitive string headerName) returns (string[]) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
 
-public function Response::setHeader (string headerName, string headerValue) {
+public function Response::setHeader (@sensitive string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setHeader(headerName, headerValue);
 }
 
-public function Response::removeHeader (string key) {
+public function Response::removeHeader (@sensitive string key) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.removeHeader(key);
 }
@@ -290,7 +290,7 @@ public function Response::setBinaryPayload (blob payload) {
     self.setEntity(entity);
 }
 
-public function Response::setMultiparts (mime:Entity[] bodyParts, string contentType) {
+public function Response::setMultiparts (mime:Entity[] bodyParts, @sensitive string contentType) {
     mime:Entity entity = self.getEntityWithoutBody();
     mime:MediaType mediaType = getMediaTypeFromResponse(self, mime:MULTIPART_MIXED);
     if (contentType != null && contentType != "") {
@@ -301,7 +301,7 @@ public function Response::setMultiparts (mime:Entity[] bodyParts, string content
     self.setEntity(entity);
 }
 
-public function Response::setFileAsPayload (file:Path filePath, string contentType) {
+public function Response::setFileAsPayload (@sensitive file:Path filePath, @sensitive string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = self.getEntityWithoutBody();
     entity.contentType = mediaType;
@@ -319,7 +319,7 @@ public function Response::setByteChannel (io:ByteChannel payload) {
 @Param {value:"response: The outbound response message"}
 @Param {value:"defaultContentType: Default content-type to be used in case the content-type header doesn't contain any value"}
 @Return {value:"Return 'MediaType' struct"}
-function getMediaTypeFromResponse (Response response, string defaultContentType) returns (mime:MediaType) {
+function getMediaTypeFromResponse (Response response, @sensitive string defaultContentType) returns (mime:MediaType) {
     mime:MediaType mediaType = mime:getMediaType(defaultContentType);
 
     if (response.hasHeader(mime:CONTENT_TYPE)) {

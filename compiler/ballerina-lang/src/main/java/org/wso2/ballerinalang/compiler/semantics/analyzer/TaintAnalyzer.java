@@ -1504,10 +1504,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                         // value to a sensitive parameter is invalid and should return a compiler error.
                         int requiredParamCount = invokableSymbol.params.size();
                         int defaultableParamCount = invokableSymbol.defaultableParams.size();
-                        int totalParamCount =
-                                requiredParamCount + defaultableParamCount + (invokableSymbol.restParam == null ?
-                                        0 :
-                                        1);
                         BVarSymbol paramSymbol = getParamSymbol(invokableSymbol, argIndex, requiredParamCount,
                                 defaultableParamCount);
                         addTaintError(argExpr.pos, paramSymbol.name.value,
