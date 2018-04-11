@@ -7,7 +7,7 @@ endpoint mb:SimpleQueueReceiver listener {
     queueName: "MyQueue"
 };
 
-service<mb:Consumer> jmsListener bind listener {
+service<mb:Consumer> mbListener bind listener {
 
     onMessage(endpoint consumer, mb:Message message) {
         string messageText = check message.getTextMessageContent();
