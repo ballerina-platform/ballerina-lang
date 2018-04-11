@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.chunkdisable.ChunkClientTemplate;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -38,7 +39,7 @@ public class KeepAliveHttpOnePointZeroClientTestCase extends ChunkClientTemplate
     public void setUp() {
         senderConfiguration.setChunkingConfig(ChunkConfig.AUTO);
         senderConfiguration.setHttpVersion("1.0");
-        senderConfiguration.setKeepAlive(true);
+        senderConfiguration.setKeepAliveConfig(KeepAliveConfig.ALWAYS);
         super.setUp();
     }
 
