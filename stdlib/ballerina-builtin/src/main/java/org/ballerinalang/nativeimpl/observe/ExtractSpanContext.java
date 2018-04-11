@@ -23,14 +23,14 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.tracer.TraceConstants;
 
-import java.util.Iterator;
-import java.util.Map;
+import java.util.Set;
 
 /**
  * This function injects a span context and returns the spans Id.
@@ -55,17 +55,23 @@ public class ExtractSpanContext extends BlockingNativeCallableUnit {
         BMap header = (BMap) context.getRefArgument(0);
         String group = context.getStringArgument(0) == null ? TraceConstants.DEFAULT_USER_API_GROUP
                 : context.getStringArgument(0);
-        Iterator<Map.Entry<String, String>> headerMap = Utils.toStringMap(header).entrySet().iterator();
-
-        BMap<String, BString> spanHeaders = new BMap<>();
-
-        while (headerMap.hasNext()) {
-            Map.Entry<String, String> headers = headerMap.next();
-            if (headers.getKey().startsWith(group)) {
-                spanHeaders.put(headers.getKey().substring(group.length()), new BString(headers.getValue()));
-            }
-        }
+        BMap<String, BString> spanHeaders = extractSpanContextHeaders(header, group);
         BStruct spanContextStruct = Utils.createSpanContextStruct(context, spanHeaders);
         context.setReturnValues(spanContextStruct);
+    }
+
+    private BMap<String, BString> extractSpanContextHeaders(BMap headers, String group) {
+        BMap<String, BString> returnMap = new BMap<>();
+        if (headers != null) {
+            Set headerSet = headers.keySet();
+            for (Object aKey : headerSet) {
+                String key = aKey.toString();
+                if (key.startsWith(group)) {
+                    returnMap.put(key.substring(group.length()),
+                            new BString(((BStringArray) headers.get(aKey)).get(0)));
+                }
+            }
+        }
+        return returnMap;
     }
 }
