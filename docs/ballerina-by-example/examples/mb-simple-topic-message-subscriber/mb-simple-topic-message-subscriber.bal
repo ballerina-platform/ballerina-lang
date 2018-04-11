@@ -5,7 +5,7 @@ endpoint mb:SimpleTopicSubscriber subscriber {
     topicPattern: "BallerinaTopic"
 };
 
-service<mb:Consumer> jmsListener bind subscriber {
+service<mb:Consumer> mbListener bind subscriber {
 
     onMessage(endpoint consumer, mb:Message message) {
         string messageText = check message.getTextMessageContent();

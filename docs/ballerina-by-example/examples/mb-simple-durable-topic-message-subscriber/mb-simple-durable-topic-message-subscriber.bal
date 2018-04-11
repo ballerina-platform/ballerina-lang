@@ -6,7 +6,7 @@ endpoint mb:SimpleDurableTopicSubscriber subscriber {
     identifier: "sub-1"
 };
 
-service<mb:Consumer> jmsListener bind subscriber {
+service<mb:Consumer> mbListener bind subscriber {
 
     onMessage(endpoint consumer, mb:Message message) {
         string messageText = check message.getTextMessageContent();
