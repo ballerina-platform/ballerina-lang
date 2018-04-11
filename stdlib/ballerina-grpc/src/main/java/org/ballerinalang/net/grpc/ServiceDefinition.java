@@ -17,32 +17,74 @@
  */
 package org.ballerinalang.net.grpc;
 
+import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import io.grpc.Channel;
+import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
-import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
-import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
-import org.ballerinalang.net.grpc.stubs.ProtoFileDefinition;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 
 /**
- * This is Factory class for gRPC client connector.
+ * This class contains proto descriptors of the service.
  *
  * @since 1.0.0
  */
-public final class ClientConnectorFactory {
-    private String serviceFullName;
-    // Static method descriptors that strictly reflect the proto.
-    private Map<String, MethodDescriptor<Message, Message>> methodDescriptorMap = new HashMap<>();
+public final class ServiceDefinition {
     
-    public ClientConnectorFactory(ProtoFileDefinition protoFileDefinition) throws GrpcClientException {
-        Descriptors.FileDescriptor fileDescriptor = protoFileDefinition.getDescriptor();
+    private byte[] rootDescriptorData;
+    private List<byte[]> dependentDescriptorData;
+    private Descriptors.FileDescriptor fileDescriptor;
+    
+    public ServiceDefinition(byte[] rootDescriptorData, List<byte[]> depDescriptorData) {
+        this.rootDescriptorData = new byte[rootDescriptorData.length];
+        this.rootDescriptorData = Arrays.copyOf(rootDescriptorData, rootDescriptorData.length);
+        dependentDescriptorData = depDescriptorData;
+    }
+    
+    /**
+     * Returns file descriptor of the gRPC service.
+     *
+     * @return file descriptor of the service.
+     */
+    public Descriptors.FileDescriptor getDescriptor() {
+        if (fileDescriptor != null) {
+            return fileDescriptor;
+        }
+        Descriptors.FileDescriptor[] depSet = new Descriptors.FileDescriptor[dependentDescriptorData.size()];
+        int i = 0;
+        for (byte[] dis : dependentDescriptorData) {
+            try {
+                DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
+                        .parseFrom(dis);
+                depSet[i] = Descriptors.FileDescriptor.buildFrom(fileDescriptorSet, new Descriptors
+                        .FileDescriptor[] {});
+                i++;
+            } catch (InvalidProtocolBufferException | Descriptors.DescriptorValidationException e) {
+                throw new RuntimeException("Error while gen extracting depend descriptors. ", e);
+            }
+        }
+        
+        try (InputStream targetStream = new ByteArrayInputStream(rootDescriptorData)) {
+            DescriptorProtos.FileDescriptorProto descriptorProto = DescriptorProtos.FileDescriptorProto.parseFrom
+                    (targetStream);
+            return fileDescriptor = Descriptors.FileDescriptor.buildFrom(descriptorProto, depSet);
+        } catch (IOException | Descriptors.DescriptorValidationException e) {
+            throw new RuntimeException("Error while generating service descriptor : ", e);
+        }
+    }
+
+    private Descriptors.ServiceDescriptor getServiceDescriptor() throws GrpcClientException {
+        Descriptors.FileDescriptor fileDescriptor = getDescriptor();
 
         if (fileDescriptor.getFile().getServices().isEmpty()) {
             throw new GrpcClientException("No service found in proto definition file");
@@ -51,18 +93,19 @@ public final class ClientConnectorFactory {
             throw new GrpcClientException("Multiple service definitions in signal proto file is not supported. Number" +
                     " of service found: " + fileDescriptor.getFile().getServices().size());
         }
-        Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.getFile().getServices().get(0);
-        this.serviceFullName = serviceDescriptor.getFullName();
-        registryMethodDescriptorMap(serviceDescriptor);
+        return fileDescriptor.getFile().getServices().get(0);
     }
 
-    private void registryMethodDescriptorMap(Descriptors.ServiceDescriptor serviceDescriptor) {
+    public Map<String, MethodDescriptor<Message, Message>> getMethodDescriptors() throws GrpcClientException {
+
         Map<String, MethodDescriptor<Message, Message>> descriptorMap = new HashMap<>();
+        Descriptors.ServiceDescriptor serviceDescriptor = getServiceDescriptor();
+
         for (Descriptors.MethodDescriptor methodDescriptor:  serviceDescriptor.getMethods()) {
             String methodName = methodDescriptor.getName();
             Descriptors.Descriptor reqMessage = methodDescriptor.getInputType();
             Descriptors.Descriptor resMessage = methodDescriptor.getOutputType();
-            String fullMethodName = generateFullMethodName(serviceFullName, methodName);
+            String fullMethodName = generateFullMethodName(serviceDescriptor.getFullName(), methodName);
             MethodDescriptor<Message, Message> descriptor =
                     MethodDescriptor.<Message, Message>newBuilder()
                             .setType(MessageUtils.getMethodType(methodDescriptor.toProto()))
@@ -87,21 +130,6 @@ public final class ClientConnectorFactory {
                 messageRegistry.addMessageDescriptor(nestedType.getName(), nestedType);
             }
         }
-        methodDescriptorMap = Collections.unmodifiableMap(descriptorMap);
+        return Collections.unmodifiableMap(descriptorMap);
     }
-    
-    /**
-     * Creates a new async stub that supports all call types for the service.
-     */
-    public GrpcNonBlockingStub newNonBlockingStub(Channel channel) {
-        return new GrpcNonBlockingStub(channel, methodDescriptorMap);
-    }
-    
-    /**
-     * Creates a new blocking-style stub that supports unary and streaming output calls on the service.
-     */
-    public GrpcBlockingStub newBlockingStub(Channel channel) {
-        return new GrpcBlockingStub(channel, methodDescriptorMap);
-    }
-
 }

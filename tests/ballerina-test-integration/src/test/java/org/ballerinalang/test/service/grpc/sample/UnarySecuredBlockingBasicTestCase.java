@@ -46,14 +46,14 @@ public class UnarySecuredBlockingBasicTestCase extends IntegrationTestCase {
     private void setup() throws Exception {
         ballerinaServer = ServerInstance.initBallerinaServer(8085);
         System.setProperty("ballerina.home", ballerinaServer.getServerHome());
-        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "grpc-secured-unary-service.bal");
+        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "grpc_secured_unary_service.bal");
         ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
     }
     
     @Test
     public void testUnarySecuredBlocking() {
         
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpc-secured-unary-client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpc_secured_unary_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         final String serverMsg = "Hello WSO2";
         
