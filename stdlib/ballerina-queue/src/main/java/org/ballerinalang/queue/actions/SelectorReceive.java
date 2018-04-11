@@ -59,7 +59,6 @@ public class SelectorReceive extends Receive {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
         String messageSelector = context.getStringArgument(1);
-
         startSubscriber(context, callableUnitCallback, messageSelector);
     }
 }

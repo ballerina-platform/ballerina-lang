@@ -18,6 +18,7 @@ package org.ballerinalang.queue.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.persistency.PersistenceUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
@@ -54,7 +55,8 @@ public class Correlate extends Receive {
         BValue jsonMap = context.getRefArgument(1);
         String map = ((BJSON) jsonMap).getMessageAsString();
         String selector = "correlationId = '"+ map + "'";
-
+        PersistenceUtils
+                .saveJsonFIle(PersistenceUtils.getJson(context.getParentWorkerExecutionContext()), map);
         startSubscriber(context, callableUnitCallback, selector);
     }
 }

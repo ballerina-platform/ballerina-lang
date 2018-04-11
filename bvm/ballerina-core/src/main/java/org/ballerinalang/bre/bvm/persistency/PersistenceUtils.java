@@ -185,7 +185,6 @@ public class PersistenceUtils {
         } catch (FileNotFoundException e) {
             //ignore
         }
-        //        }
     }
 
     public static WorkerExecutionContext reloadContext(WorkerExecutionContext context, String messageName) {
