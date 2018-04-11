@@ -540,7 +540,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (actualType.tag != TypeTags.STRUCT) {
-            //TODO dlog error?
+            dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, actualType);
             resultType = symTable.errType;
             return;
         }

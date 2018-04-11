@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.TypeFlag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
@@ -57,9 +59,11 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
+import org.wso2.ballerinalang.util.TypeFlags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -1167,7 +1171,43 @@ public class Types {
      * @return Flag indicating whether the given type has a default value
      */
     public boolean defaultValueExists(BType type) {
+        if ((type.flags & TypeFlags.DEFAULTABLE_CHECKED) == TypeFlags.DEFAULTABLE_CHECKED) {
+            return (type.flags & TypeFlags.DEFAULTABLE) == TypeFlags.DEFAULTABLE;
+        }
+        if (checkDefaultable(type)) {
+            type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED, TypeFlag.DEFAULTABLE));
+            return true;
+        }
+        type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED));
+        return false;
+    }
+
+    private boolean checkDefaultable(BType type) {
         if (type.isNullable()) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.STRUCT) {
+            BStructType structType = (BStructType) type;
+
+            if (structType.tsymbol.kind == SymbolKind.RECORD) {
+                for (BStructField field : structType.fields) {
+                    if (!field.expAvailable && !defaultValueExists(field.type)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            BStructSymbol structSymbol = (BStructSymbol) structType.tsymbol;
+            if (structSymbol.initializerFunc.symbol.params.size() > 0) {
+                return false;
+            }
+            for (BStructField field : structType.fields) {
+                if (!field.expAvailable && !defaultValueExists(field.type)) {
+                    return false;
+                }
+            }
             return true;
         }
 
