@@ -98,6 +98,7 @@ public type ClientEndpointConfig {
     string|FailoverConfig lbMode = ROUND_ROBIN,
     CacheConfig cache,
     string acceptEncoding = "auto",
+    AuthConfig authConfig;
 };
 
 public native function createHttpClient(string uri, ClientEndpointConfig config) returns HttpClient;
@@ -160,6 +161,34 @@ public type Proxy {
 public type ConnectionThrottling {
     int maxActiveConnections = -1,
     int waitTime = 60000,
+};
+
+@Description { value:"AuthConfig record represents the authentication mechanism that HTTP client uses" }
+@Field {value:"type: type of the configuration"}
+@Field {value:"username: username for basic authentication"}
+@Field {value:"username: password for basic authentication"}
+@Field {value:"accessToken: access token for oauth2 authentication"}
+@Field {value:"refreshToken: refresh token for oauth2 authentication"}
+@Field {value:"refreshToken: refresh token for oauth2 authentication"}
+@Field {value:"refreshTokenUrl: refresh token url for oauth2 authentication"}
+@Field {value:"consumerKey: consume key for oauth2 authentication"}
+@Field {value:"consumerKey: consume key for oauth2 authentication"}
+@Field {value:"consumerSecret: consume secret for oauth2 authentication"}
+@Field {value:"tokenURL: token url for oauth2 authentication"}
+@Field {value:"clientId: clietnt id for oauth2 authentication"}
+@Field {value:"clientSecret: client secret for oauth2 authentication"}
+public type AuthConfig {
+    string ^"type",
+    string username,
+    string password,
+    string accessToken,
+    string refreshToken,
+    string refreshTokenUrl,
+    string consumerKey,
+    string consumerSecret,
+    string tokenURL,
+    string clientId,
+    string clientSecret,
 };
 
 public function Client::init(ClientEndpointConfig config) {
