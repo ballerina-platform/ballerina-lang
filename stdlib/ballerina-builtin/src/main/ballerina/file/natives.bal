@@ -82,4 +82,4 @@ public native function createFile(Path path) returns (boolean | IOError);
 
 @Description {value: "Rereives the last modified time of the Path"}
 @Return {value : "Last modified time or an error if the path cannot be resolved"}
-public native function getModifiedTIme() returns (time:Time | IOError);
+public native function getModifiedTime(Path path) returns (time:Time | IOError);
