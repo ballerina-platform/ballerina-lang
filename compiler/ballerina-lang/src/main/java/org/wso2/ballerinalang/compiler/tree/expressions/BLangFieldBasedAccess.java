@@ -80,6 +80,22 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
     }
 
     /**
+     * @since 0.97
+     */
+    public static class BLangStructFunctionVarRef extends BLangFieldBasedAccess {
+
+        public BLangStructFunctionVarRef(BLangVariableReference varRef, BVarSymbol varSymbol) {
+            this.expr = varRef;
+            this.symbol = varSymbol;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
      * @since 0.94
      */
     public static class BLangEnumeratorAccessExpr extends BLangFieldBasedAccess {
