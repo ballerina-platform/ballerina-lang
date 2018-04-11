@@ -1,14 +1,14 @@
 import ballerina/sql;
+import ballerina/mysql;
 import ballerina/io;
 
-endpoint sql:Client testDB {
-    database:sql:DB_MYSQL,
-    host:"localhost",
-    port:3306,
-    name:"testdb",
-    username:"root",
-    password:"root",
-    options:{maximumPoolSize:5}
+endpoint mysql:Client testDB {
+    host: "localhost",
+    port: 3306,
+    name: "testdb",
+    username: "root",
+    password: "root",
+    poolOptions: {maximumPoolSize:5}
 };
 
 function main (string[] args) {
@@ -21,7 +21,7 @@ function main (string[] args) {
         int status => {
             io:println("Table creation status:" + status);
         }
-        sql:SQLConnectorError err => {
+        error err => {
             io:println("SALARY table Creation failed:" + err.message);
             return;
         }
@@ -38,7 +38,7 @@ function main (string[] args) {
         int status => {
             io:println("Stored proc creation status:" + status);
         }
-        sql:SQLConnectorError err => {
+        error err => {
             io:println("SALARY table Creation failed:" + err.message);
             return;
         }
@@ -55,7 +55,7 @@ function main (string[] args) {
         int rows => {
             io:println("Inserted row count:" + rows);
         }
-        sql:SQLConnectorError err => {
+        error err => {
             io:println("SALARY table Creation failed:" + err.message);
             return;
         }
@@ -77,7 +77,7 @@ function main (string[] args) {
             io:println("Inserted row count:" + count);
             io:println("Generated key:" + ids[0]);
         }
-        sql:SQLConnectorError err1 => {
+        error err1 => {
             io:println(err1.message);
         }
     }
@@ -103,7 +103,7 @@ function main (string[] args) {
     sql:Parameter[][] bPara = [item1, item2];
     var insertVal = testDB -> batchUpdate("INSERT INTO STUDENT (AGE,NAME) VALUES (?, ?)", bPara);
     int[] default = [];
-    int[] c = insertVal but {sql:SQLConnectorError => default};
+    int[] c = insertVal but {error => default};
     io:println("Batch item 1 status:" + c[0]);
     io:println("Batch item 2 status:" + c[1]);
 
@@ -139,7 +139,7 @@ function main (string[] args) {
         int status => {
             io:println("Table drop status:" + status);
         }
-        sql:SQLConnectorError err => {
+        error err => {
             io:println("SALARY table Creation failed:" + err.message);
             return;
         }
@@ -151,7 +151,7 @@ function main (string[] args) {
         int status => {
             io:println("Procedure drop status:" + status);
         }
-        sql:SQLConnectorError err => {
+        error err => {
             io:println("SALARY table Creation failed:" + err.message);
             return;
         }

@@ -50,7 +50,7 @@ endpoint http:Listener storeServiceEndpoint {
 }
 service StoreService bind storeServiceEndpoint {
 
-    future ftr = async initRealtimeRequestCounter();
+    future ftr = start initRealtimeRequestCounter();
 
     @http:ResourceConfig {
         methods:["POST"],

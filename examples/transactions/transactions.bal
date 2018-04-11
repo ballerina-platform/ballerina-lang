@@ -1,16 +1,15 @@
-import ballerina/sql;
+import ballerina/mysql;
 import ballerina/io;
 
 function main (string[] args) {
 
-    endpoint sql:Client testDBEP {
-        database:sql:DB_MYSQL,
-        host:"localhost",
-        port:3306,
-        name:"testdb",
-        username:"root",
-        password:"root",
-        options:{maximumPoolSize:5}
+    endpoint mysql:Client testDBEP {
+        host: "localhost",
+        port: 3306,
+        name: "testdb",
+        username: "root",
+        password: "root",
+        poolOptions: {maximumPoolSize:5}
     };
 
     int updatedRows;
@@ -21,7 +20,7 @@ function main (string[] args) {
         int rows => {
             updatedRows = rows;
         }
-        sql:SQLConnectorError err => {
+        error err => {
             io:println("CUSTOMER table Creation failed:" + err.message);
             return;
         }
@@ -32,7 +31,7 @@ function main (string[] args) {
         int rows => {
             updatedRows = rows;
         }
-        sql:SQLConnectorError err => {
+        error err => {
             io:println("SALARY table Creation failed:" + err.message);
             return;
         }
@@ -56,7 +55,7 @@ function main (string[] args) {
                     abort;
                 }
             }
-            sql:SQLConnectorError err => {
+            error err => {
                 fail;
             }
         }

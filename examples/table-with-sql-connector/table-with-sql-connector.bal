@@ -1,4 +1,5 @@
 import ballerina/sql;
+import ballerina/mysql;
 import ballerina/io;
 
 @Description {value:"This is the Employee struct. The field names of this should match column names of the table. The field types should match with the sql types."}
@@ -14,14 +15,13 @@ type Employee {
 
 function main (string[] args) {
 
-    endpoint sql:Client testDB {
-        database: sql:DB_MYSQL,
+    endpoint mysql:Client testDB {
         host: "localhost",
         port: 3306,
         name: "testdb",
         username: "root",
         password: "root",
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
 
     int count;

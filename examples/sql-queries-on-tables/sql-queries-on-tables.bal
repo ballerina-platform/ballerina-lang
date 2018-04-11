@@ -58,19 +58,19 @@ public function main (string[] args) {
     Order o4 = {personId:3, orderId:8765, items:"Tshirt", amount:20.75};
 
     // Insert the person struct objects and populate the table.
-    personTable.add(p1);
-    personTable.add(p2);
-    personTable.add(p3);
-    personTable.add(p4);
+    _ = personTable.add(p1);
+    _ = personTable.add(p2);
+    _ = personTable.add(p3);
+    _ = personTable.add(p4);
 
     io:print("The personTable: ");
     io:println(personTable);
 
     // Insert the order struct objects and populate the table
-    orderTable.add(o1);
-    orderTable.add(o2);
-    orderTable.add(o3);
-    orderTable.add(o4);
+    _ = orderTable.add(o1);
+    _ = orderTable.add(o2);
+    _ = orderTable.add(o3);
+    _ = orderTable.add(o4);
 
     io:print("The orderTable: ");
     io:println(orderTable);

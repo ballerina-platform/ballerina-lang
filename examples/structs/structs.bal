@@ -4,7 +4,7 @@ import ballerina/io;
 type Person {
     string name;
     int age = -1;
-    Person parent;
+    Person? parent;
     string status;
 };
 

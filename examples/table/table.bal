@@ -16,10 +16,10 @@ function main (string[] args) {
     Employee e3 = {id:3, name:"John", salary:400.50};
     Employee e4 = {id:4, name:"Peter", salary:150.0};
 
-    tb.add(e1);
-    tb.add(e2);
-    tb.add(e3);
-    tb.add(e4);
+    _ = tb.add(e1);
+    _ = tb.add(e2);
+    _ = tb.add(e3);
+    _ = tb.add(e4);
 
     //Print the table data.
     io:print("Table Data:");
@@ -35,7 +35,7 @@ function main (string[] args) {
     io:println("Average of Low salary:" + lowerAvgSal);
 
     //Delete rows matching to a given criteria.
-    int count = tb.remove(isLowerSalary);
+    int count = check tb.remove(isLowerSalary);
     io:println("Deleted row count:" + count);
     io:print("After Delete:");
     io:println(tb);

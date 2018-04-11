@@ -1,4 +1,4 @@
-import ballerina/sql;
+import ballerina/mysql;
 
 //It is possible to use @sensitive annotation with parameters
 //of user defined functions and actions. This will allow, users
@@ -8,14 +8,13 @@ public function userDefinedSecureOperation (@sensitive string secureParameter) {
 }
 
 function main (string[] args) {
-    endpoint sql:Client customerDatabase {
-        database: sql:DB_MYSQL,
+    endpoint mysql:Client customerDatabase {
         host: "localhost",
         port: 3306,
         name: "testdb",
         username: "root",
         password: "root",
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
 
     //Sensitive parameters of operations builtin to Ballerina

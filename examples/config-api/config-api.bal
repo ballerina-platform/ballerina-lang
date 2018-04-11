@@ -12,30 +12,21 @@ function main(string[] args) {
     // variable value. <br>
     // The configs are simply arbitrary key/value pairs with slight structure to it.
     string[] users;
-    var usersConfig  = config:getAsString("username.instances");
-    match usersConfig {
-        string usersString => {
-            users = usersString.split(",");
-        }
-        int | () => { return; }
+    string usersString  = config:getAsString("username.instances");
+    if (usersString != ""){
+        users = usersString.split(",");
+    } else {
+        return;
     }
 
-    string user1Rights;
-    var user1RightsConfig = config:getAsString(users[0] + ".access.rights");
-    match user1RightsConfig {
-        string user1RightsString => {
-            user1Rights = user1RightsString;
-        }
-        int | () => { return; }
+    string user1Rights = config:getAsString(users[0] + ".access.rights");
+    if (user1Rights == ""){
+        return;
     }
 
-    string user2Rights;
-    var user2RightsConfig = config:getAsString(users[1] + ".access.rights");
-    match user2RightsConfig {
-        string user2RightsString => {
-            user2Rights = user2RightsString;
-        }
-        int | () => { return; }
+    var user2Rights = config:getAsString(users[1] + ".access.rights");
+    if (user2Rights == ""){
+        return;
     }
 
     io:println(users[0] + " has " + user1Rights + " access");
@@ -59,14 +50,11 @@ function main(string[] args) {
 }
 
 function getLimit() returns (string) {
-    var limitConfig = config:getAsString("sum.limit");
-    match limitConfig {
-        string limit => {
-            return limit;
-        }
-        float | () => {
-            io:println("Returning default limit: 1000");
-            return "1000";
-        }
+    string limit = config:getAsString("sum.limit");
+    if (limit != ""){
+        return limit;
     }
+
+    io:println("Returning default limit: 1000");
+    return "1000";
 }
