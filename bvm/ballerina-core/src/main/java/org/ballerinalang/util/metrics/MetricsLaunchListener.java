@@ -18,6 +18,7 @@
 package org.ballerinalang.util.metrics;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.metrics.noop.NoOpMetricProvider;
@@ -72,9 +73,28 @@ public class MetricsLaunchListener implements LaunchListener {
         metricProvider.initialize();
         // Create default MetricRegistry
         DefaultMetricRegistry.setInstance(new MetricRegistry(metricProvider));
+        // Register Ballerina specific metrics
+        registerBallerinaMetrics();
 
         // Add Metrics Observer
         ObservabilityUtils.addObserver(new BallerinaMetricsObserver());
+    }
+
+    private void registerBallerinaMetrics() {
+        final BLangScheduler.SchedulerStats schedulerStats = BLangScheduler.getStats();
+        final String prefix = "ballerina_scheduler_";
+        CallbackGauge.builder(prefix + "ready_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getReadyWorkerCount).register();
+        CallbackGauge.builder(prefix + "running_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getRunningWorkerCount).register();
+        CallbackGauge.builder(prefix + "excepted_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getExceptedWorkerCount).register();
+        CallbackGauge.builder(prefix + "paused_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getPausedWorkerCount).register();
+        CallbackGauge.builder(prefix + "waiting_for_response_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getWaitingForResponseWorkerCount).register();
+        CallbackGauge.builder(prefix + "waiting_for_lock_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getWaitingForLockWorkerCount).register();
     }
 
     @Override

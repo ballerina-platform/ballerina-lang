@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -155,12 +156,12 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<? extends ObjectNode> getObjects() {
+    public List<BLangObject> getObjects() {
         return objects;
     }
 
     @Override
-    public List<? extends TypeDefinition> getTypeDefinitions() {
+    public List<BLangTypeDefinition> getTypeDefinitions() {
         return typeDefinitions;
     }
 
@@ -177,6 +178,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public List<? extends TransformerNode> getTransformers() {
         return transformers;
+    }
+
+    @Override
+    public List<BLangRecord> getRecords() {
+        return records;
     }
 
     @Override
@@ -247,6 +253,12 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addTransformer(TransformerNode transformer) {
         this.transformers.add((BLangTransformer) transformer);
         this.topLevelNodes.add(transformer);
+    }
+
+    @Override
+    public void addRecord(RecordNode recordNode) {
+        this.records.add((BLangRecord) recordNode);
+        this.topLevelNodes.add(recordNode);
     }
 
     @Override

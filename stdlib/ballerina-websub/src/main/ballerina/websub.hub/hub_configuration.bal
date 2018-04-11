@@ -17,6 +17,8 @@ package ballerina.websub.hub;
 
 import ballerina/config;
 import ballerina/http;
+import ballerina/log;
+import ballerina/websub;
 
 @final string BASE_PATH = "/websub";
 @final string HUB_PATH = "/hub";
@@ -37,6 +39,8 @@ import ballerina/http;
 @final int hubLeaseSeconds = getIntConfig("hub.lease_seconds", DEFAULT_LEASE_SECONDS_VALUE);
 @final string hubSignatureMethod = getStringConfig("hub.signature_method", DEFAULT_SIGNATURE_METHOD);
 @final boolean hubRemotePublishingEnabled = getBooleanConfig("hub.remote_publishing.enabled", false);
+@final string hubRemotePublishingMode = getStringConfig("hub.remote_publishing.mode",
+                                                                                websub:REMOTE_PUBLISHING_MODE_DIRECT);
 @final boolean hubTopicRegistrationRequired = getBooleanConfig("hub.topic_registration.required", true);
 @final string hubPublicUrl = getStringConfig("hub.url", getHubUrl());
 
@@ -145,18 +149,35 @@ function getServiceSecureSocketConfig() returns (http:ServiceSecureSocket | ()) 
 }
 
 function getSecureSocketConfig() returns (http:SecureSocket | ()) {
-    if (!hubSslEnabled) {
-       return;
-    }
-
     string trustStoreFilePath;
     string trustStorePassword;
 
-    match (config:getAsString("hub.ssl.trustStore.filePath")) {
+    if (!hubSslEnabled) {
+        match (config:getAsString("hub.ssl.trust_store.file_path")) {
+            string stringConfigFromFile => { trustStoreFilePath = stringConfigFromFile; }
+            () => { return; }
+        }
+        match (config:getAsString("hub.ssl.trust_store.password")) {
+            string stringConfigFromFile => {
+                trustStorePassword = stringConfigFromFile;
+                http:SecureSocket secureSocket = {
+                    trustStore: { filePath: trustStoreFilePath, password: trustStorePassword},
+                    verifyHostname: false
+                };
+                return secureSocket;
+            }
+            () => {
+                log:printWarn("Ignoring trust store file since password is not specified.");
+                return;
+            }
+        }
+    }
+
+    match (config:getAsString("hub.ssl.trust_store.file_path")) {
         string stringConfigFromFile => { trustStoreFilePath = stringConfigFromFile; }
         () => { trustStoreFilePath = "${ballerina.home}/bre/security/ballerinaTruststore.p12"; }
     }
-    match (config:getAsString("hub.ssl.trustStore.password")) {
+    match (config:getAsString("hub.ssl.trust_store.password")) {
         string stringConfigFromFile => { trustStorePassword = stringConfigFromFile; }
         () => { trustStorePassword = "ballerina"; }
     }

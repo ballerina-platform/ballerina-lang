@@ -41,6 +41,7 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 /**
  * Test class for gRPC unary service with blocking and non-blocking client.
@@ -145,8 +146,9 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
         Assert.assertTrue(responses[0] instanceof BStringArray);
         BStringArray responseValues = (BStringArray) responses[0];
         Assert.assertEquals(responseValues.size(), 2);
-        Assert.assertEquals(responseValues.get(0), serverMsg);
-        Assert.assertEquals(responseValues.get(1), "Server Complete Sending Response.");
+        Assert.assertTrue(Stream.of(responseValues.getStringArray()).anyMatch(serverMsg::equals));
+        Assert.assertTrue(Stream.of(responseValues.getStringArray()).anyMatch(("Server Complete Sending Response" +
+                ".")::equals));
     }
     
     @AfterClass

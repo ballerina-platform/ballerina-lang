@@ -1,3 +1,7 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina test` command.
+#Note that you need to have the ballerina-tools distribution 
+#installed in order to run this command. 
 $ ballerina test testerina-groups.bal --groups g1,g2
 ---------------------------------------------------------------------------
     T E S T S
@@ -51,7 +55,7 @@ $ ballerina test testerina-groups.bal --groups default
 ---------------------------------------------------------------------------
 Running Tests of Package: .
 ---------------------------------------------------------------------------
-I'm the ungrouped test
+I'm the ungrouped test.
 
 Tests run: 1, Passed: 1, Failures: 0, Skipped: 0 - in TestSuite
 
@@ -73,7 +77,7 @@ $ ballerina test testerina-groups.bal --exclude-groups g2
 ---------------------------------------------------------------------------
 Running Tests of Package: .
 ---------------------------------------------------------------------------
-I'm the ungrouped test
+I'm the ungrouped test.
 I'm in test belonging to g1!
 
 Tests run: 2, Passed: 2, Failures: 0, Skipped: 0 - in TestSuite

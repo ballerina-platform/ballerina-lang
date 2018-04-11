@@ -61,4 +61,10 @@ public class TimerTest extends MetricTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testPercentileTimer");
         Assert.assertNotEquals(returns[0], new BFloat(0));
     }
+
+    @Test
+    public void testTimerWithoutTags() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTimerWithoutTags");
+        Assert.assertEquals(returns[0], new BFloat(2500));
+    }
 }

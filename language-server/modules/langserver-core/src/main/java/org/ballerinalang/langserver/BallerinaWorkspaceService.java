@@ -35,10 +35,12 @@ import java.util.concurrent.CompletableFuture;
 class BallerinaWorkspaceService implements WorkspaceService {
     private BallerinaLanguageServer ballerinaLanguageServer;
     private WorkspaceDocumentManagerImpl workspaceDocumentManager;
+    private LSGlobalContext lsGlobalContext;
 
-    BallerinaWorkspaceService(LSGlobalContext lsGlobalContext) {
-        this.ballerinaLanguageServer = lsGlobalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
-        this.workspaceDocumentManager = lsGlobalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
+    BallerinaWorkspaceService(LSGlobalContext globalContext) {
+        this.lsGlobalContext = globalContext;
+        this.ballerinaLanguageServer = this.lsGlobalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
+        this.workspaceDocumentManager = this.lsGlobalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
     }
 
     @Override
@@ -63,7 +65,7 @@ class BallerinaWorkspaceService implements WorkspaceService {
         executeCommandContext.put(ExecuteCommandKeys.LANGUAGE_SERVER_KEY, this.ballerinaLanguageServer);
         
         return CompletableFuture.supplyAsync(() -> {
-            CommandExecutor.executeCommand(params, executeCommandContext);
+            CommandExecutor.executeCommand(params, executeCommandContext, this.lsGlobalContext);
             return true;
         });
     }
