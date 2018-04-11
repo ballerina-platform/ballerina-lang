@@ -67,7 +67,7 @@ public class ConfigProcessor {
 
             // If there are environment variables which map to any config keys, replace their values with the value
             // of the environment variable
-//            lookUpVariables(configEntries.getConfigurations());
+            lookUpVariables(configEntries.getConfigurations());
         }
 
         if (runtimeParams != null && !runtimeParams.isEmpty()) {
@@ -76,18 +76,49 @@ public class ConfigProcessor {
         return configEntries;
     }
 
-    private static void lookUpVariables(Map<String, String> configFileEntries) {
-        configFileEntries.keySet().forEach(key -> {
-            String envVarName = convertToEnvVarFormat(key);
-            if (envVarName.matches(ENV_VAR_FORMAT)) { // Not all config keys are valid environment variable names
-                String value = System.getenv(envVarName);
+    private static void lookUpVariables(Map<String, Object> configFileEntries) {
+        configFileEntries.entrySet().forEach(entry -> {
+            Object val = entry.getValue();
 
-                if (value != null) {
-                    // replace the config value if there is an environment variable of the same name
-                    configFileEntries.put(key, value);
+            if (val instanceof Map) {
+                lookUpVariables((Map<String, Object>) val);
+            } else {
+                String envVarVal = getEnvVarValue(entry.getKey());
+
+                if (envVarVal != null) {
+                    if (val instanceof String) {
+                        configFileEntries.put(entry.getKey(), envVarVal);
+                    } else if (val instanceof Long) {
+                        try {
+                            configFileEntries.put(entry.getKey(), Long.parseLong(envVarVal));
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException(
+                                    "invalid int value received from environment: " + envVarVal);
+                        }
+                    } else if (val instanceof Double) {
+                        try {
+                            configFileEntries.put(entry.getKey(), Double.parseDouble(envVarVal));
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException(
+                                    "invalid float value received from environment: " + envVarVal);
+                        }
+                    } else if (val instanceof Boolean) {
+                        configFileEntries.put(entry.getKey(), Boolean.parseBoolean(envVarVal));
+                    }
                 }
             }
+
         });
+    }
+
+    private static String getEnvVarValue(String key) {
+        String envVarName = convertToEnvVarFormat(key);
+
+        if (envVarName.matches(ENV_VAR_FORMAT)) { // Not all config keys are valid environment variable names
+            return System.getenv(envVarName);
+        }
+
+        return null;
     }
 
     private static String convertToEnvVarFormat(String var) {
