@@ -1,6 +1,6 @@
 import ballerina/http;
 
-endpoint http:NonListeningServiceEndpoint testEP {
+endpoint http:NonListener testEP {
     host: "localhost",
     port: 9090
 };

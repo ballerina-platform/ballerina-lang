@@ -24,18 +24,18 @@ import ballerina/io;
 @Description {value:"Represents an HTTP client endpoint"}
 @Field {value:"epName: The name of the endpoint"}
 @Field {value:"config: The configurations associated with the endpoint"}
-public type ClientEndpoint object {
+public type Client object {
     public {
         string epName;
-        ClientEndpointConfiguration config;
+        ClientEndpointConfig config;
         HttpClient httpClient;
     }
 
     @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
     @Param {value:"ep: The endpoint to be initialized"}
     @Param {value:"epName: The endpoint name"}
-    @Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
-    public function init(ClientEndpointConfiguration config);
+    @Param {value:"config: The ClientEndpointConfig of the endpoint"}
+    public function init(ClientEndpointConfig config);
 
     public function register(typedesc serviceType) {
     }
@@ -65,9 +65,9 @@ public type TargetService {
     SecureSocket? secureSocket,
 };
 
-@Description { value:"ClientEndpointConfiguration struct represents options to be used for HTTP client invocation" }
+@Description { value:"ClientEndpointConfig struct represents options to be used for HTTP client invocation" }
 @Field {value:"circuitBreaker: Circuit Breaker configuration"}
-@Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
+@Field {value:"timeoutMillis: Endpoint timeout value in millisecond"}
 @Field {value:"keepAlive: Specifies whether to reuse a connection for multiple requests"}
 @Field {value:"transferEncoding: The types of encoding applied to the request"}
 @Field {value:"chunking: The chunking behaviour of the request"}
@@ -80,11 +80,11 @@ public type TargetService {
 @Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
 @Field {value:"algorithm: The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default."}
 @Field {value:"failoverConfig: Failover configuration"}
-@Field {value:"cacheConfig: HTTP caching related configurations"}
+@Field {value:"cache: HTTP caching related configurations"}
 @Field {value:"acceptEncoding: Specifies the way of handling accept-encoding header."}
-public type ClientEndpointConfiguration {
+public type ClientEndpointConfig {
     CircuitBreakerConfig? circuitBreaker,
-    int endpointTimeout = 60000,
+    int timeoutMillis = 60000,
     boolean keepAlive = true,
     TransferEncoding transferEncoding = "CHUNKING",
     Chunking chunking = "AUTO",
@@ -96,11 +96,11 @@ public type ClientEndpointConfiguration {
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
     string|FailoverConfig lbMode = ROUND_ROBIN,
-    CacheConfig cacheConfig,
+    CacheConfig cache,
     string acceptEncoding = "auto",
 };
 
-public native function createHttpClient(string uri, ClientEndpointConfiguration config) returns HttpClient;
+public native function createHttpClient(string uri, ClientEndpointConfig config) returns HttpClient;
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
@@ -162,7 +162,7 @@ public type ConnectionThrottling {
     int waitTime = 60000,
 };
 
-public function ClientEndpoint::init(ClientEndpointConfiguration config) {
+public function Client::init(ClientEndpointConfig config) {
     boolean httpClientRequired = false;
     string url = config.targets[0].url;
     match config.lbMode {
@@ -177,8 +177,8 @@ public function ClientEndpoint::init(ClientEndpointConfiguration config) {
                 }
                 self.config = config;
 
-                if (config.cacheConfig.enabled) {
-                    self.httpClient = createHttpCachingClient(url, config, config.cacheConfig);
+                if (config.cache.enabled) {
+                    self.httpClient = createHttpCachingClient(url, config, config.cache);
                 } else{
                     self.httpClient = createHttpClient(url, config);
                 }
@@ -214,8 +214,8 @@ public function ClientEndpoint::init(ClientEndpointConfiguration config) {
                             self.httpClient = createRetryClient(url, config);
                         }
                         () => {
-                            if (config.cacheConfig.enabled) {
-                                self.httpClient = createHttpCachingClient(url, config, config.cacheConfig);
+                            if (config.cache.enabled) {
+                                self.httpClient = createHttpCachingClient(url, config, config.cache);
                             } else{
                                 self.httpClient = createHttpClient(url, config);
                             }
@@ -229,7 +229,7 @@ public function ClientEndpoint::init(ClientEndpointConfiguration config) {
     }
 }
 
-function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) returns HttpClient {
+function createCircuitBreakerClient (string uri, ClientEndpointConfig configuration) returns HttpClient {
     var cbConfig = configuration.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
@@ -242,8 +242,8 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
                     cbHttpClient = createRetryClient(uri, configuration);
                 }
                 () => {
-                    if (configuration.cacheConfig.enabled) {
-                        cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+                    if (configuration.cache.enabled) {
+                        cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cache);
                     } else{
                         cbHttpClient = createHttpClient(uri, configuration);
                     }
@@ -261,7 +261,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
 
             CircuitBreakerInferredConfig circuitBreakerInferredConfig = {
                                                                 failureThreshold:cb.failureThreshold,
-                                                                resetTimeout:cb.resetTimeout,
+                                                                resetTimeMillies:cb.resetTimeMillies,
                                                                 statusCodes:statusCodes,
                                                                 noOfBuckets:numberOfBuckets,
                                                                 rollingWindow:cb.rollingWindow
@@ -271,8 +271,8 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
         }
         () => {
             //remove following once we can ignore
-            if (configuration.cacheConfig.enabled) {
-                return createHttpCachingClient(uri, configuration, configuration.cacheConfig);
+            if (configuration.cache.enabled) {
+                return createHttpCachingClient(uri, configuration, configuration.cache);
             } else {
                 return createHttpClient(uri, configuration);
             }
@@ -280,12 +280,12 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
     }
 }
 
-function createLoadBalancerClient(ClientEndpointConfiguration config, string lbAlgorithm) returns HttpClient {
+function createLoadBalancerClient(ClientEndpointConfig config, string lbAlgorithm) returns HttpClient {
     HttpClient[] lbClients = createHttpClientArray(config);
     return new LoadBalancer(config.targets[0].url, config, lbClients, lbAlgorithm, 0);
 }
 
-public function createFailOverClient(ClientEndpointConfiguration config, FailoverConfig foConfig) returns HttpClient {
+public function createFailOverClient(ClientEndpointConfig config, FailoverConfig foConfig) returns HttpClient {
         HttpClient[] clients = createHttpClientArray(config);
 
         boolean[] failoverCodes = populateErrorCodeIndex(foConfig.failoverCodes);
@@ -296,20 +296,20 @@ public function createFailOverClient(ClientEndpointConfiguration config, Failove
         return new Failover(config.targets[0].url, config, failoverInferredConfig);
 }
 
-function createRetryClient (string url, ClientEndpointConfiguration configuration) returns HttpClient {
+function createRetryClient (string url, ClientEndpointConfig configuration) returns HttpClient {
     var retryConfig = configuration.retry;
     match retryConfig {
         Retry retry => {
-            if (configuration.cacheConfig.enabled) {
-                return new RetryClient(url, configuration, retry, createHttpCachingClient(url, configuration, configuration.cacheConfig));
+            if (configuration.cache.enabled) {
+                return new RetryClient(url, configuration, retry, createHttpCachingClient(url, configuration, configuration.cache));
             } else{
                 return new RetryClient(url, configuration, retry, createHttpClient(url, configuration));
             }
         }
         () => {
             //remove following once we can ignore
-            if (configuration.cacheConfig.enabled) {
-                return createHttpCachingClient(url, configuration, configuration.cacheConfig);
+            if (configuration.cache.enabled) {
+                return createHttpCachingClient(url, configuration, configuration.cache);
             } else {
                 return createHttpClient(url, configuration);
             }

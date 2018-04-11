@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 /**
  * Test class for gRPC server streaming service with non-blocking client.
@@ -56,17 +57,17 @@ public class ServerStreamingTestCase extends IntegrationTestCase {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "server-streaming-client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
-        final String serverMsg = "Hi WSO2";
 
         BValue[] responses = BRunUtil.invoke(result, "testServerStreaming", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BStringArray);
         BStringArray responseValues = (BStringArray) responses[0];
         Assert.assertEquals(responseValues.size(), 4);
-        Assert.assertEquals(responseValues.get(0), "Hi WSO2");
-        Assert.assertEquals(responseValues.get(1), "Hey WSO2");
-        Assert.assertEquals(responseValues.get(2), "GM WSO2");
-        Assert.assertEquals(responseValues.get(3), "Server Complete Sending Response.");
+        Assert.assertTrue(Stream.of(responseValues.getStringArray()).anyMatch("Hi WSO2"::equals));
+        Assert.assertTrue(Stream.of(responseValues.getStringArray()).anyMatch("Hey WSO2"::equals));
+        Assert.assertTrue(Stream.of(responseValues.getStringArray()).anyMatch("GM WSO2"::equals));
+        Assert.assertTrue(Stream.of(responseValues.getStringArray()).anyMatch(("Server Complete Sending Response" +
+                ".")::equals));
     }
 
     @AfterClass

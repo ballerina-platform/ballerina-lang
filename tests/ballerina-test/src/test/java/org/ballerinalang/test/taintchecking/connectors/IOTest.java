@@ -53,8 +53,8 @@ public class IOTest {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/file-read-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 2);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'accessMode'", 6, 64);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'nBytes'", 9, 36);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'accessMode'", 7, 57);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'nBytes'", 10, 36);
         // Blocked on return annotation support
         // BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'sensitiveValue'", 16, 18);
     }

@@ -15,10 +15,10 @@
 // under the License.
 package ballerina.websub;
 
-public type SubscriberService object {
+public type Service object {
 
-    public function getEndpoint () returns (SubscriberServiceEndpoint) {
-        SubscriberServiceEndpoint ep = new;
+    public function getEndpoint () returns (Listener) {
+        Listener ep = new;
         return ep;
     }
 

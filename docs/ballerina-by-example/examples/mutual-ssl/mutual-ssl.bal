@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-endpoint http:ServiceEndpoint helloWorldEP {
+endpoint http:Listener helloWorldEP {
     port:9095,
     secureSocket: {
         keyStore: {
@@ -42,7 +42,7 @@ service<http:Service> helloWorld bind helloWorldEP {
     }
 }
 
-endpoint http:ClientEndpoint clientEP {
+endpoint http:Client clientEP {
     targets: [{
         url: "https://localhost:9095",
         secureSocket: {

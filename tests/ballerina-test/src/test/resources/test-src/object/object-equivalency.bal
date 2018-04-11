@@ -25,15 +25,15 @@ public type person1 object {
 };
 
 public function person1::getName () returns (string) {
-    return name;
+    return self.name;
 }
 
 public function person1::getAge () returns (int) {
-    return age;
+    return self.age;
 }
 
 public function person1::getSSN () returns (string) {
-    return ssn;
+    return self.ssn;
 }
 
 public function person1::setSSN (string ssn) {
@@ -65,15 +65,15 @@ public type employee1 object {
 };
 
 public function employee1::getName () returns (string) {
-    return name;
+    return self.name;
 }
 
 public function employee1::getAge () returns (int) {
-    return age;
+    return self.age;
 }
 
 public function employee1::getSSN () returns (string) {
-    return ssn + ":employee";
+    return self.ssn + ":employee";
 }
 
 public function employee1::setSSN (string ssn) {
@@ -81,7 +81,7 @@ public function employee1::setSSN (string ssn) {
 }
 
 public function employee1::getEmployeeId () returns (int) {
-    return employeeId;
+    return self.employeeId;
 }
 
 
@@ -114,15 +114,15 @@ public type person2 object {
 };
 
 public function person2::getName () returns (string) {
-    return name;
+    return self.name;
 }
 
 public function person2::getAge () returns (int) {
-    return age;
+    return self.age;
 }
 
 public function person2::getSSN () returns (string) {
-    return ssn;
+    return self.ssn;
 }
 
 public function person2::setSSN (string ssn) {
@@ -152,15 +152,15 @@ public type employee2 object {
 };
 
 public function employee2::getName () returns (string) {
-    return name;
+    return self.name;
 }
 
 public function employee2::getAge () returns (int) {
-    return age;
+    return self.age;
 }
 
 public function employee2::getSSN () returns (string) {
-    return ssn + ":employee";
+    return self.ssn + ":employee";
 }
 
 public function employee2::setSSN (string ssn) {
@@ -168,7 +168,7 @@ public function employee2::setSSN (string ssn) {
 }
 
 public function employee2::getEmployeeId () returns (int) {
-    return employeeId;
+    return self.employeeId;
 }
 
 function testEquivalenceOfPublicStructsInSamePackage () returns (string) {
@@ -216,15 +216,15 @@ public type employee3 object {
 };
 
 public function employee3::getName () returns (string) {
-    return name;
+    return self.name;
 }
 
 public function employee3::getAge () returns (int) {
-    return age;
+    return self.age;
 }
 
 public function employee3::getSSN () returns (string) {
-    return ssn + ":employee";
+    return self.ssn + ":employee";
 }
 
 public function employee3::setSSN (string ssn) {
@@ -232,7 +232,7 @@ public function employee3::setSSN (string ssn) {
 }
 
 public function employee3::getEmployeeId () returns (int) {
-    return employeeId;
+    return self.employeeId;
 }
 
 function testEqOfPublicStructs1 () returns (string) {
@@ -272,11 +272,11 @@ type userA object {
 };
 
 function userA::getName () returns (string) {
-    return name;
+    return self.name;
 }
 
 function userA::getAge () returns (int) {
-    return age;
+    return self.age;
 }
 
 type userB object {
@@ -292,11 +292,11 @@ type userB object {
 };
 
 function userB::getName () returns (string) {
-    return name;
+    return self.name;
 }
 
 function userB::getAge () returns (int) {
-    return age;
+    return self.age;
 }
 
 type userFoo object {
@@ -313,11 +313,11 @@ type userFoo object {
 };
 
 function userFoo::getName () returns (string) {
-    return name;
+    return self.name;
 }
 
 function userFoo::getAge () returns (int) {
-    return age;
+    return self.age;
 }
 
 
@@ -348,11 +348,11 @@ public type userPA object {
 };
 
 public function userPA::getName () returns (string) {
-    return name;
+    return self.name;
 }
 
 public function userPA::getAge () returns (int) {
-    return age;
+    return self.age;
 }
 
 public type userPB object {
@@ -368,11 +368,11 @@ public type userPB object {
 };
 
 public function userPB::getName () returns (string) {
-    return name;
+    return self.name;
 }
 
 public function userPB::getAge () returns (int) {
-    return age;
+    return self.age;
 }
 
 public type userPFoo object {
@@ -389,11 +389,11 @@ public type userPFoo object {
 };
 
 public function userPFoo::getName () returns (string) {
-    return name;
+    return self.name;
 }
 
 public function userPFoo::getAge () returns (int) {
-    return age;
+    return self.age;
 }
 
 
@@ -454,11 +454,11 @@ type personC object {
 };
 
 function personC::setContact(addressStruct ad){
-    address = ad;
+    self.address = ad;
 }
 
 function personC::getAddress() returns (string){
-    return address.toString();
+    return self.address.toString();
 }
 
 type addressStruct object {
@@ -471,7 +471,7 @@ type addressStruct object {
 };
 
 function addressStruct::toString() returns (string){
-    return no + city;
+    return self.no + self.city;
 }
 
 type officeAddressStruct object {
@@ -485,7 +485,7 @@ type officeAddressStruct object {
 };
 
 function officeAddressStruct::toString() returns (string){
-    return department + no + city;
+    return self.department + self.no + self.city;
 }
 
 function testStructEquivalencyWithArguments() returns (string, string, string){

@@ -20,10 +20,10 @@
 package org.ballerinalang.net.jms.nativeimpl.endpoint.common;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -37,16 +37,22 @@ public class MessageAcknowledgementHandler {
     }
 
     public static void handle(Context context) {
+        Struct consumerConnectorObject = BallerinaAdapter.getReceiverObject(context);
+        SessionConnector sessionConnector = BallerinaAdapter.getNativeObject(consumerConnectorObject,
+                                                                             Constants.SESSION_CONNECTOR_OBJECT,
+                                                                             SessionConnector.class,
+                                                                             context);
         BStruct messageBObject = (BStruct) context.getRefArgument(1);
         Message message = BallerinaAdapter.getNativeObject(messageBObject,
                                                                 Constants.JMS_MESSAGE_OBJECT,
                                                                 Message.class,
                                                                 context);
-
         try {
+            sessionConnector.handleTransactionBlock(context);
             message.acknowledge();
+            context.setReturnValues();
         } catch (JMSException e) {
-            throw new BallerinaException("Message acknowledgement failed", e, context);
+            BallerinaAdapter.returnError("Message acknowledgement failed.", context, e);
         }
     }
 }

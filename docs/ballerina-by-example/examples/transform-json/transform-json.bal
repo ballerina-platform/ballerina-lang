@@ -1,11 +1,11 @@
 import ballerina/io;
 
 @Description {value:"Defining Person struct."}
-struct Person {
+type Person {
     string name;
     int age;
     string city;
-}
+};
 
 @Description {value:"Defining transformer to convert from Person type to constrained JSON."}
 transformer <Person p, json<Person> j> updateCity(string city) {

@@ -69,7 +69,7 @@ public function interceptResponse2 (http:Response response, http:FilterContext c
 
 Filter2 filter2 = new (interceptRequest2, interceptResponse2);
 
-endpoint http:ServiceEndpoint echoEP {
+endpoint http:Listener echoEP {
     port:9090,
     filters:[filter1,filter2]
 };

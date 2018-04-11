@@ -41,7 +41,7 @@ map<TwoPhaseCommitTransaction> participatedTransactions;
 documentation {
     This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 }
-caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache", 900000, 100, 0.1);
+caching:Cache httpClientCache = new;
 
 @final boolean scheduleInit = scheduleTimer(1000, 60000);
 
@@ -140,8 +140,8 @@ function protocolCompatible (string coordinationType,
     return participantProtocolIsValid;
 }
 
-function respondToBadRequest (http:ServiceEndpoint conn, string msg) {
-    endpoint http:ServiceEndpoint ep = conn;
+function respondToBadRequest (http:Listener conn, string msg) {
+    endpoint http:Listener ep = conn;
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
     RequestError err = {errorMessage:msg};
@@ -303,7 +303,7 @@ function getInitiatorClientEP (string registerAtURL) returns InitiatorClientEP {
     } else {
         InitiatorClientEP initiatorEP = new;
         InitiatorClientConfig config = {registerAtURL:registerAtURL,
-                                           endpointTimeout:120000, retryConfig:{count:5, interval:5000}};
+                                           timeoutMillis:120000, retryConfig:{count:5, interval:5000}};
         initiatorEP.init(config);
         httpClientCache.put(registerAtURL, initiatorEP);
         return initiatorEP;
@@ -317,7 +317,7 @@ function getParticipant2pcClientEP (string participantURL) returns Participant2p
     } else {
         Participant2pcClientEP participantEP = new;
         Participant2pcClientConfig config = {participantURL:participantURL,
-                                                endpointTimeout:120000, retryConfig:{count:5, interval:5000}};
+                                                timeoutMillis:120000, retryConfig:{count:5, interval:5000}};
         participantEP.init(config);
         httpClientCache.put(participantURL, participantEP);
         return participantEP;
@@ -353,7 +353,7 @@ public function registerParticipantWithRemoteInitiator (string transactionId,
         error e => {
             string msg = "Cannot register with coordinator for transaction: " + transactionId;
             log:printErrorCause(msg, e);
-            error err = {message:msg, cause:[e]};
+            error err = {message:msg, cause:e};
             return err;
         }
         RegistrationResponse regRes => {

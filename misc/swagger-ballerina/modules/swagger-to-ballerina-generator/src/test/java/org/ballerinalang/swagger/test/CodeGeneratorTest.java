@@ -45,9 +45,10 @@ public class CodeGeneratorTest {
         String definitionPath = testResourceRoot + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
         generator.setApiPackage("org.ballerina.api");
+        generator.setModelPackage("org.ballerina.api.model");
 
         try {
-            generator.generate(GenType.SKELETON, definitionPath, testResourceRoot);
+            generator.generate(GenType.MOCK, definitionPath, testResourceRoot);
             File genFile = new File(outFile);
 
             if (genFile.exists()) {
@@ -57,7 +58,7 @@ public class CodeGeneratorTest {
                 Assert.fail("Service was not generated");
             }
         } catch (IOException e) {
-            Assert.fail("Error while generating the service. " + e.getMessage());
+            Assert.fail("Error while writing the service. " + e.getMessage());
         } catch (BallerinaOpenApiException e) {
             Assert.fail("Error while generating the service. " + e.getMessage());
         }
@@ -77,7 +78,7 @@ public class CodeGeneratorTest {
             if (genFile.exists()) {
                 String result = new String(Files.readAllBytes(Paths.get(genFile.getPath())));
                 Assert.assertTrue(result != null &&
-                        result.contains("<SwaggerPetstoreClient client> listPets()"));
+                        result.contains("public function listPets()"));
             } else {
                 Assert.fail("Service was not generated");
             }

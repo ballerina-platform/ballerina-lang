@@ -1,21 +1,22 @@
-$ ballerina testerina-before-after.bal
+$ ballerina test testerina-before-after-suite.bal
 ---------------------------------------------------------------------------
     T E S T S
 ---------------------------------------------------------------------------
 ---------------------------------------------------------------------------
 Running Tests of Package: .
 ---------------------------------------------------------------------------
-I'm the before function!
-I'm in test function!
-I'm the after function!
+I'm the before suite function!
+I'm in test function 1!
+I'm in test function 2!
+I'm the after suite function!
 
-Tests run: 1, Passed: 1, Failures: 0, Skipped: 0 - in TestSuite
+Tests run: 2, Passed: 2, Failures: 0, Skipped: 0 - in TestSuite
 
 
 ---------------------------------------------------------------------------
 Results:
 
-Tests run: 1, Passed: 1, Failures: 0, Skipped: 0
+Tests run: 2, Passed: 2, Failures: 0, Skipped: 0
 ---------------------------------------------------------------------------
 Summary:
 

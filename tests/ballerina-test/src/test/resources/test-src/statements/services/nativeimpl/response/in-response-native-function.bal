@@ -69,7 +69,7 @@ function testSetXmlPayload (xml value) returns (http:Response) {
     return res;
 }
 
-endpoint http:NonListeningServiceEndpoint mockEP {
+endpoint http:NonListener mockEP {
     port:9090
 };
 
@@ -81,7 +81,7 @@ service<http:Service> hello bind mockEP {
     }
     echo1 (endpoint conn, http:Request req) {
         http:Response res = new;
-        _ = conn -> forward(res);
+        _ = conn -> respond(res);
     }
 
     @http:ResourceConfig {

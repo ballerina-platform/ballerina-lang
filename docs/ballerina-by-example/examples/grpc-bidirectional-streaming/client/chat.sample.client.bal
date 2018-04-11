@@ -14,7 +14,7 @@ function main (string[] args) {
 
     endpoint grpc:Client ep;
     // Executing unary non-blocking call registering server message listener.
-    var res = chatEp -> chat(typeof ChatMessageListener);
+    var res = chatEp -> chat(ChatMessageListener);
     match res {
         grpc:error err => {
             io:print("error");

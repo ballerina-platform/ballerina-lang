@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:ServiceEndpoint servicEp {
+endpoint http:Listener servicEp {
 port:9090
 };
 
@@ -10,7 +10,7 @@ port:9090
       basePath:"/test",
         webSocketUpgrade:{
             upgradePath: "/ws",
-            upgradeService: typeof wsService
+            upgradeService: wsService
         }
 }
 service<http:Service> httpService bind servicEp {

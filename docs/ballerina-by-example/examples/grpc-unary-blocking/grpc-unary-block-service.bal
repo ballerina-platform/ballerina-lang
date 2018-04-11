@@ -9,7 +9,7 @@ endpoint grpc:Service ep {
 };
 
 @grpc:serviceConfig {generateClientConnector:false}
-service<grpc:Endpoint> HelloWorld bind ep {
+service<grpc:Listener> HelloWorld bind ep {
     hello (endpoint client, string name, grpc:Headers headers) {
         io:println("name: " + name);
         string message = "Hello " + name;

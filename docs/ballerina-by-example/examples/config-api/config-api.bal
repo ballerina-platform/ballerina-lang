@@ -2,7 +2,7 @@ import ballerina/config;
 import ballerina/io;
 
 function main(string[] args) {
-    // Ballerina config API provides a mechanism for developers to look-up values from config files, CLI parameters,
+    // Using the Ballerina config API, you can look up values from config files, CLI parameters,
     // environment variables, etc. The precedence order for config lookup is as follows: <br>
     // * CLI parameters <br>
     // * Environment variables <br>
@@ -17,7 +17,7 @@ function main(string[] args) {
         string usersString => {
             users = usersString.split(",");
         }
-        int | null => { return; }
+        int | () => { return; }
     }
 
     string user1Rights;
@@ -26,7 +26,7 @@ function main(string[] args) {
         string user1RightsString => {
             user1Rights = user1RightsString;
         }
-        int | null => { return; }
+        int | () => { return; }
     }
 
     string user2Rights;
@@ -35,7 +35,7 @@ function main(string[] args) {
         string user2RightsString => {
             user2Rights = user2RightsString;
         }
-        int | null => { return; }
+        int | () => { return; }
     }
 
     io:println(users[0] + " has " + user1Rights + " access");
@@ -52,7 +52,7 @@ function main(string[] args) {
 
     io:println("Before changing sum.limit in code: " + getLimit());
 
-    // Configurations can be set in code as well.
+    // You can set configs using the code as well.
     config:setConfig("sum.limit", "10");
 
     io:println("After changing sum.limit: " + getLimit());
@@ -64,7 +64,7 @@ function getLimit() returns (string) {
         string limit => {
             return limit;
         }
-        float | null => {
+        float | () => {
             io:println("Returning default limit: 1000");
             return "1000";
         }

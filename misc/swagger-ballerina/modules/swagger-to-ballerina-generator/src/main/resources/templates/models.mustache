@@ -1,5 +1,0 @@
-{{#apiPackage}}package {{apiPackage}}.model;{{/apiPackage}}{{#schemas}}{{#value}}
-{{#isArraySchema}}public struct {{key}} {}{{/isArraySchema}}{{^isArraySchema}}
-public struct {{key}} { {{#properties}}
-    {{#value}}{{type}}{{/value}} {{key}};{{/properties}}
-}{{/isArraySchema}}{{/value}}{{/schemas}}
