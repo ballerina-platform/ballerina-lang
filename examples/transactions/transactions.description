@@ -1,6 +1,6 @@
-// Ballerina transaction is a series of data manipulation 
-// statements that must either fully complete or fully fail, 
-// leaving the system in a consistent state. This sample use MySQL DB and before running the
-// sample copy the MySQL JDBC driver to the BALLERINA_HOME/bre/lib folder and change
+// A Ballerina transaction is a series of data manipulation 
+// statements that must either fully complete or fully fail, and thereby
+// leave the system in a consistent state. This sample uses MySQL DB. Before running the
+// sample, copy the `MySQL JDBC driver` to the `BALLERINA_HOME/bre/lib` folder and change
 // the DB connection properties as required.
 
