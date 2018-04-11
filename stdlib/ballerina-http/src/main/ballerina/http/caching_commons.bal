@@ -194,37 +194,38 @@ public type ResponseCacheControl object {
 };
 
 function Request::parseCacheControlHeader () {
-    self.cacheControl = new;
-
     // If the request doesn't contain a cache-control header, resort to default cache control settings
     if (!self.hasHeader(CACHE_CONTROL)) {
         return;
     }
 
+    RequestCacheControl reqCC = new;
     string cacheControl = self.getHeader(CACHE_CONTROL);
     string[] directives = cacheControl.split(",");
 
     foreach directive in directives {
         directive = directive.trim();
         if (directive == NO_CACHE) {
-            self.cacheControl.noCache = true;
+            reqCC.noCache = true;
         } else if (directive == NO_STORE) {
-            self.cacheControl.noStore = true;
+            reqCC.noStore = true;
         } else if (directive == NO_TRANSFORM) {
-            self.cacheControl.noTransform = true;
+            reqCC.noTransform = true;
         } else if (directive == ONLY_IF_CACHED) {
-            self.cacheControl.onlyIfCached = true;
+            reqCC.onlyIfCached = true;
         } else if (directive.hasPrefix(MAX_AGE)) {
-            self.cacheControl.maxAge = getExpirationDirectiveValue(directive);
+            reqCC.maxAge = getExpirationDirectiveValue(directive);
         } else if (directive == MAX_STALE) {
-            self.cacheControl.maxStale = MAX_STALE_ANY_AGE;
+            reqCC.maxStale = MAX_STALE_ANY_AGE;
         } else if (directive.hasPrefix(MAX_STALE)) {
-            self.cacheControl.maxStale = getExpirationDirectiveValue(directive);
+            reqCC.maxStale = getExpirationDirectiveValue(directive);
         } else if (directive.hasPrefix(MIN_FRESH)) {
-            self.cacheControl.minFresh = getExpirationDirectiveValue(directive);
+            reqCC.minFresh = getExpirationDirectiveValue(directive);
         }
         // non-standard directives are ignored
     }
+
+    self.cacheControl = reqCC;
 }
 
 function appendFields (string[] fields) returns string {
@@ -257,5 +258,19 @@ function getExpirationDirectiveValue (string directive) returns int {
     match <int>directiveParts[1] {
         int age => return age;
         error => return -1; // Disregarding the directive if the value cannot be parsed
+    }
+}
+
+function setRequestCacheControlHeader(Request request) {
+    match request.cacheControl {
+        RequestCacheControl cacheControl => request.setHeader(CACHE_CONTROL, cacheControl.buildCacheControlDirectives());
+        () => {}
+    }
+}
+
+function setResponseCacheControlHeader(Response response) {
+    match response.cacheControl {
+        ResponseCacheControl cacheControl => response.setHeader(CACHE_CONTROL, cacheControl.buildCacheControlDirectives());
+        () => {}
     }
 }

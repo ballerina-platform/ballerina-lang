@@ -16,7 +16,7 @@ public type Response object {
         int statusCode;
         string reasonPhrase;
         string server;
-        ResponseCacheControl cacheControl;
+        ResponseCacheControl? cacheControl;
     }
 
     private {
@@ -121,9 +121,6 @@ public type Response object {
     @Param {value:"response: The response message"}
     @Return {value:"Returns the body parts as an array of entities"}
     public function getBodyParts () returns (mime:Entity[] | mime:EntityError);
-
-    @Description {value:"Builds the Cache-Control header from the ResponseCacheControl object and sets it to the response."}
-    public function setCacheControl();
 
     @Description {value:"Sets the ETag header for the given payload. The ETag is generated using a CRC32 hash function."}
     @Param {value:"The payload for which the ETag should be set."}
@@ -296,11 +293,6 @@ public function Response::getBodyParts () returns mime:Entity[] | mime:EntityErr
         mime:Entity entity => return entity.getBodyParts();
         mime:EntityError err => return err;
     }
-}
-
-public function Response::setCacheControl() {
-    string cacheControlDirectives = self.cacheControl.buildCacheControlDirectives();
-    self.setHeader(CACHE_CONTROL, cacheControlDirectives);
 }
 
 public function Response::setETag(json|xml|string|blob payload) {

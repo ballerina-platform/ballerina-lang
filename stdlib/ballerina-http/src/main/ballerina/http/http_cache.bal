@@ -33,10 +33,14 @@ type HttpCache object {
         return true;
     }
 
-    function put (string key, RequestCacheControl requestCacheControl, Response inboundResponse) {
-        if (inboundResponse.cacheControl.noStore ||
-            requestCacheControl.noStore ||
-            (inboundResponse.cacheControl.isPrivate && isShared)) {
+    function put (string key, RequestCacheControl? requestCacheControl, Response inboundResponse) {
+        ResponseCacheControl respCacheControl;
+        match inboundResponse.cacheControl {
+            ResponseCacheControl respCC => respCacheControl = respCC;
+            () => return;
+        }
+
+        if (respCacheControl.noStore || (requestCacheControl.noStore ?: false) || (respCacheControl.isPrivate && isShared)) {
             // TODO: Need to consider https://tools.ietf.org/html/rfc7234#section-3.2 as well here
             return;
         }
@@ -44,15 +48,15 @@ type HttpCache object {
         // Based on https://tools.ietf.org/html/rfc7234#page-6
         // TODO: Consider cache control extensions as well here
         if (inboundResponse.hasHeader(EXPIRES) ||
-            inboundResponse.cacheControl.maxAge >= 0 ||
-            (inboundResponse.cacheControl.sMaxAge >= 0 && isShared) ||
+            respCacheControl.maxAge >= 0 ||
+            (respCacheControl.sMaxAge >= 0 && isShared) ||
             isCacheableStatusCode(inboundResponse.statusCode) ||
-            !inboundResponse.cacheControl.isPrivate) {
+            !respCacheControl.isPrivate) {
 
             // IMPT: The call to getBinaryPayload() builds the payload from the stream. If this is not done, the stream will
             // be read by the client and the response will be after the first cache hit.
             match inboundResponse.getBinaryPayload() {
-            // TODO: remove these dummy assignments once empty blocks are supported
+                // TODO: remove these dummy assignments once empty blocks are supported
                 blob => {int x = 0;}
                 mime:EntityError => {int x = 0;}
             }
