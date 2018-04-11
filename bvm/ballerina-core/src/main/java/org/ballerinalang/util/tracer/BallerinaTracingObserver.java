@@ -33,7 +33,6 @@ import static org.ballerinalang.util.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_ERROR_KIND;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_EVENT_TYPE;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_MESSAGE;
-import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX_LENGTH;
 
 /**
  * Observe the runtime and start/stop tracing.
@@ -48,8 +47,8 @@ public class BallerinaTracingObserver implements BallerinaObserver {
         Map<String, String> httpHeaders = (Map<String, String>) observerContext.getProperty(PROPERTY_TRACE_PROPERTIES);
         if (httpHeaders != null) {
             httpHeaders.entrySet().stream()
-                    .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
-                    .forEach(e -> span.addProperty(e.getKey().substring(TRACE_PREFIX_LENGTH), e.getValue()));
+                    .filter(c -> c.getKey().equals(TraceConstants.TRACE_HEADER))
+                    .forEach(e -> span.addProperty(e.getKey(), e.getValue()));
         }
         TraceUtil.setBSpan(executionContext, span);
         span.startSpan();
