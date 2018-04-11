@@ -254,8 +254,9 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         }
         senderConfiguration.setSocketIdleTimeout((int) timeoutMillis);
 
-        boolean isKeepAlive = clientEndpointConfig.getBooleanField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE);
-        senderConfiguration.setKeepAlive(isKeepAlive);
+        String keepAliveConfig = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE)
+                .getStringValue();
+        senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
 
         String httpVersion = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_HTTP_VERSION);
         if (httpVersion != null) {
