@@ -49,8 +49,8 @@ BinaryExpr
    ;
 
 Bind
-    : bind <expression.source> with <variable.source> ;
-    ;
+   : bind <expression.source> with <variable.source> ;
+   ;
 
 Block
    : <statements>*
@@ -60,6 +60,9 @@ Block
 Break
    : break ;
    ;
+
+BracedTupleExpr
+   : ( <expressions-joined-by,>* )
 
 BuiltInRefType
    : <typeKind>
@@ -109,14 +112,6 @@ EndpointType
 
 ExpressionStatement
    : <expression.source> ;
-   ;
-
-Enum
-   : enum\u0020 <name.source> { <enumerators-joined-by-,>* }
-   ;
-
-Enumerator
-   : <name.source>
    ;
 
 FieldBasedAccessExpr
@@ -190,8 +185,12 @@ MatchExpression
    : <expr> but { <patternClauses>* }
    ;
 
-MatchExprPatternClause
-   : <variable.source> => <expr.source>
+MatchExpressionPatternClause
+   : <variable.source> => <statement.source>
+   ;
+
+NamedArgsExpr
+   : <name.value> = <expression.source>
    ;
 
 Next
@@ -223,7 +222,9 @@ Resource
    ;
 
 Return
-   : return <expression.source> ;
+   : <noExpressionAvailable?> return                       ;
+   | <emptyBrackets?>         return                     ();
+   |                          return <expression.source>   ;
    ;
 
 Service
@@ -288,8 +289,14 @@ Try
    | try { <body.source> } <catchBlocks>*
    ;
 
+TupleDestructure
+   : <declaredWithVar?> var ( <variableRefs-joined-by,>+ ) = <expression.source>;
+   |                        ( <variableRefs-joined-by,>+ ) = <expression.source>;
+   ;
+
 TupleTypeNode
    : ( <memberTypeNodes-joined-by,>+ )
+   ;
 
 TypeCastExpr
    : ( <typeNode.source> ) <expression.source>
@@ -305,8 +312,9 @@ TypeofExpression
    ;
 
 TypeInitExpr
-   : <noTypeAttached?> new                   ( <expressions-joined-by,>* );
-   |                   new <typeName.source> ( <expressions-joined-by,>* );
+   : <noExpressionAvailable?> new                                                ;
+   | <noTypeAttached?>        new                   ( <expressions-joined-by,>* );
+   |                          new <typeName.source> ( <expressions-joined-by,>* );
    ;
 
 UnaryExpr

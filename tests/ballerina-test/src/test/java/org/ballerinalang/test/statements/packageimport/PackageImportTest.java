@@ -86,13 +86,13 @@ public class PackageImportTest {
     }
 
     @Test(expectedExceptions = { BLangCompilerException.class },
-            expectedExceptionsMessageRegExp = "cannot find package 'abcd\\[\\]'")
+            expectedExceptionsMessageRegExp = "cannot find package 'abcd'")
     public void testInvalidImport1() {
         BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative1.bal");
     }
 
     @Test(expectedExceptions = { BLangCompilerException.class },
-            expectedExceptionsMessageRegExp = "cannot find package 'foo.x\\[\\]'")
+            expectedExceptionsMessageRegExp = "cannot find package 'foo.x'")
     public void testInvalidImport2() {
         BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative2.bal");
     }

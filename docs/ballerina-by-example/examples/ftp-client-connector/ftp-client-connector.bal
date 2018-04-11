@@ -6,6 +6,7 @@ import ballerina/lang.blobs;
 
 function main (string[] args) {
 
+    // Creating a client endpoint that is used to connect to the FTP server.
     endpoint ftp:Client clientEndpoint {
         protocol: "sftp",
         host:"localhost",
@@ -13,17 +14,17 @@ function main (string[] args) {
         passPhrase : "helloWorld"
     };
 
-    // Checking if a specified file exists.
+    // Checking if a specified file exists in the local machine.
     file:File newDir = {path:"/ballerina-user/README.txt"};
     boolean filesExists;
     filesExists = check clientEndpoint -> exists(newDir);
     io:println("File exists: " + filesExists);
 
-    // Creating a new directory at a remote location.
+    // Creating a new directory in a remote location.
     files:File newDir = {path:"/ballerina-user/new-dir/"};
     clientEndpoint -> createFile(newDir, false);
 
-    // Reading a file in a remote directory.
+    // Reading a file that is in a remote directory.
     files:File txtFile = {path:"/ballerina-user/final-results.txt"};
     io:ByteChannel channel = check clientEndpoint -> read(txtFile);
 

@@ -5,8 +5,7 @@ import ballerina/http;
 import ballerina/websub;
 
 //The endpoint to which the subscriber service is bound
-endpoint websub:SubscriberServiceEndpoint websubEP {
-    host:"localhost",
+endpoint websub:Listener websubEP {
     port:8181
 };
 
@@ -19,7 +18,7 @@ endpoint websub:SubscriberServiceEndpoint websubEP {
     leaseSeconds: 3600000,
     secret: "Kslk30SNF2AChs2"
 }
-service<websub:SubscriberService> websubSubscriber bind websubEP {
+service websubSubscriber bind websubEP {
 
     //Resource accepting intent verification requests
     onIntentVerification (endpoint client, websub:IntentVerificationRequest request) {

@@ -34,7 +34,7 @@ public class DependencyTree {
     }
 
     public void listDependencyPackages(BLangPackage packageNode) {
-        outStream.println(packageNode.packageID.bvmAlias() + ":" + packageNode.packageID.version);
+        outStream.println(packageNode.packageID.toString());
         outStream.println(DependencyTree.renderDependencyTree(packageNode, symbolTable, 0));
     }
     /**
@@ -66,7 +66,7 @@ public class DependencyTree {
                                                                 int depth) {
         List<StringBuilder> result = new LinkedList<>();
         if (depth > 0) {
-            result.add(new StringBuilder().append(packageNode.packageID.bvmAlias()));
+            result.add(new StringBuilder().append(packageNode.packageID.toString()));
         }
         Iterator<BLangImportPackage> iterator = packageNode.getImports().iterator();
         while (iterator.hasNext()) {

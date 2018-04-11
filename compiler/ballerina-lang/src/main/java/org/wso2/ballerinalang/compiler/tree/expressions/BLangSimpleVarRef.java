@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -30,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangSimpleVarRef extends BLangVariableReference implements SimpleVariableReferenceNode {
 
+    public BVarSymbol varSymbol;
     public BLangIdentifier pkgAlias;
 
     public BLangIdentifier variableName;
@@ -71,6 +73,7 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
 
         public BLangLocalVarRef(BVarSymbol varSymbol) {
             this.symbol = varSymbol;
+            this.varSymbol = varSymbol;
         }
 
         @Override
@@ -91,6 +94,7 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
 
         public BLangFieldVarRef(BVarSymbol varSymbol) {
             this.symbol = varSymbol;
+            this.varSymbol = varSymbol;
         }
 
         @Override
@@ -106,6 +110,7 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
 
         public BLangPackageVarRef(BVarSymbol varSymbol) {
             this.symbol = varSymbol;
+            this.varSymbol = varSymbol;
         }
 
         @Override
@@ -120,6 +125,22 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
     public static class BLangFunctionVarRef extends BLangSimpleVarRef {
 
         public BLangFunctionVarRef(BVarSymbol varSymbol) {
+            this.symbol = varSymbol;
+            this.varSymbol = varSymbol;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /***
+     * @since 0.970.0
+     */
+    public static class BLangTypeLoad extends BLangSimpleVarRef {
+
+        public BLangTypeLoad(BSymbol varSymbol) {
             this.symbol = varSymbol;
         }
 

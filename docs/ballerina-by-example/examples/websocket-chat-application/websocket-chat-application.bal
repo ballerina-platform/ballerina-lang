@@ -15,7 +15,7 @@ service<http:Service> ChatAppUpgrader bind ep {
     @http:ResourceConfig {
         webSocketUpgrade: {
             upgradePath: "/{name}",
-            upgradeService: typeof chatApp
+            upgradeService: chatApp
         }
     }
     upgrader(endpoint ep, http:Request req, string name) {

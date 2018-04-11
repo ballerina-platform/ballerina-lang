@@ -118,7 +118,6 @@ RETRIES     : 'retries' ;
 ONABORT     : 'onabort' ;
 ONCOMMIT    : 'oncommit' ;
 LENGTHOF    : 'lengthof' ;
-TYPEOF      : 'typeof' ;
 WITH        : 'with' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;

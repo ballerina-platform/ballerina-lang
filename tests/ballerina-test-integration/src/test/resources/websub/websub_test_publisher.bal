@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/runtime;
 import ballerina/websub;
 
-endpoint websub:HubClientEndpoint websubHubClientEP {
+endpoint websub:Client websubHubClientEP {
     url: "https://localhost:9999/websub/hub"
 };
 
@@ -13,7 +13,7 @@ function main (string [] args) {
     _ = webSubHub.registerTopic("http://www.websubpubtopic.com");
 
     //Allow for subscriber service start up and subscription
-    runtime:sleepCurrentWorker(30000);
+    runtime:sleepCurrentWorker(45000);
 
     io:println("Publishing update to internal Hub");
     //Publish to the internal Ballerina Hub directly

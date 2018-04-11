@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
@@ -55,7 +56,7 @@ public class DocumentationTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 0, getErrorString(compileResult.getDiagnostics()));
         PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
+        List<BLangDocumentation> docNodes = ((BLangObject) packageNode.getObjects().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, " Documentation for Test annotation\n");
@@ -70,6 +71,7 @@ public class DocumentationTest {
         docNodes = ((BLangAnnotation) packageNode.getAnnotations().get(0)).docAttachments;
         dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText, " Documentation for Test annotation\n");
     }
 
 
@@ -117,7 +119,7 @@ public class DocumentationTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 0, getErrorString(compileResult.getDiagnostics()));
         PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
+        List<BLangDocumentation> docNodes = ((BLangRecord) packageNode.getRecords().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, " Documentation for Test type\n");
@@ -129,6 +131,7 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.getAttributes().get(1).documentationText, " type `field b` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "c");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationText, " type `field c` documentation");
+
     }
 
     @Test(description = "Test doc function.")

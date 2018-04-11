@@ -18,6 +18,7 @@
 package org.ballerinalang.docgen.docs;
 
 import org.ballerinalang.docgen.docs.utils.BallerinaDocGenTestUtils;
+import org.ballerinalang.docgen.model.PackageDoc;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -31,6 +32,7 @@ import java.util.Map;
 /**
  * Tests for doc generation of bal files in the current package
  */
+@Test(groups = "broken")
 public class BallerinaDocGenForCurrentPackageTest {
 
     private String sourceRoot;
@@ -44,12 +46,12 @@ public class BallerinaDocGenForCurrentPackageTest {
     @Test(description = "Test a bal file with a function in the current package")
     public void testStruct() {
         try {
-            Map<String, BLangPackage> docsMap =
+            Map<String, PackageDoc> docsMap =
                     BallerinaDocGenerator.generatePackageDocsFromBallerina(sourceRoot, "balFileInCurrentPackage.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
 
-            BLangPackage balPackage = docsMap.get(".");
+            BLangPackage balPackage = docsMap.get(".").bLangPackage;
             List<BLangFunction> functions = balPackage.getFunctions();
 
             Assert.assertEquals(functions.size(), 1);

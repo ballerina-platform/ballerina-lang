@@ -34,7 +34,7 @@ service<http:Service> chunkingSample bind chunkingEP {
         match result {
             http:Response clientResponse => {
                 //Forward the inbound response.
-                _ = conn -> forward(clientResponse);
+                _ = conn -> respond(clientResponse);
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;
