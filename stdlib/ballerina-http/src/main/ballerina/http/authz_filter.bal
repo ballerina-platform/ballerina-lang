@@ -114,32 +114,3 @@ function getScopesForResource (FilterContext context) returns (string[]|()) {
         }
     }
 }
-
-//@Description {value:"Tries to retrieve the annotation value for scope hierarchically - first from the resource level
-//and then from the service level, if its not there in the resource level"}
-//@Param {value:"annotationPackage: annotation package name"}
-//@Param {value:"annotationName: annotation name"}
-//@Param {value:"annData: array of annotationData instances"}
-//@Return {value:"string[]: array of scope name if defined, else nil"}
-//function getAuthzAnnotation (string annotationPackage, string annotationName, internal:annotationData[] annData)
-//                                                                                                returns (string[]|()) {
-//    if (lengthof annData == 0) {
-//        return ();
-//    }
-//    internal:annotationData|() authAnn;
-//    foreach ann in annData {
-//        if (ann.name == annotationName && ann.pkgName == annotationPackage) {
-//            authAnn = ann;
-//            break;
-//        }
-//    }
-//    match authAnn {
-//        internal:annotationData annData1 => {
-//            var authConfig = check <auth:AuthConfig> annData1.value;
-//            return authConfig.scopes;
-//        }
-//        () => {
-//            return ();
-//        }
-//    }
-//}

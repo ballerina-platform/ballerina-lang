@@ -31,7 +31,6 @@ public type Filter object {
 
     public function init ();
     public function terminate ();
-
 };
 
 @Description {value:"Representation of filter Context."}

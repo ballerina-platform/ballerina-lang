@@ -25,9 +25,16 @@ package ballerina.http;
 @Description {value:"Auth annotation package"}
 @final string ANN_PACKAGE = "ballerina.http";
 @Description {value:"Resource level annotation name"}
-@final string RESOURCE_ANN_NAME = "HttpResourceConfig";
+@final string RESOURCE_ANN_NAME = "ResourceConfig";
 @Description {value:"Service level annotation name"}
-@final string SERVICE_ANN_NAME = "HttpServiceConfig";
+@final string SERVICE_ANN_NAME = "ServiceConfig";
+@final string AUTH_PROVIDER_CONFIG = "config";
+@final string AUTH_PROVIDER_LDAP = "ldap";
+@final string AUTH_PROVIDER_JDBC = "jdbc";
+@final string AUTH_PROVIDER_AD = "activeDirectory";
+
+@final string AUTH_SCHEME_JWT = "jwt";
+@final string AUTH_SCHEME_OAUTH2 = "oauth2";
 
 @Description {value:"Extracts the basic authentication header value from the request"}
 @Param {value:"req: Request instance"}

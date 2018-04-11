@@ -29,9 +29,10 @@ public type AuthnFilter object {
     public {
         function (Request request, FilterContext context) returns (FilterResult) filterRequest;
         function (Response response, FilterContext context) returns (FilterResult) filterResponse;
+        AuthHandlerRegistry authHandlerRegistry;
     }
 
-    public new (filterRequest, filterResponse) {
+    public new (authHandlerRegistry, filterRequest, filterResponse) {
     }
 
     public function init ();
@@ -40,8 +41,7 @@ public type AuthnFilter object {
 
 @Description {value:"Initializes the AuthnFilter"}
 public function AuthnFilter::init () {
-    AuthHandlerRegistry authHandlerRegistry = new;
-    authnHandlerChain = new(authHandlerRegistry);
+    authnHandlerChain = new(self.authHandlerRegistry);
 }
 
 @Description {value:"Stops the AuthnFilter"}
@@ -102,13 +102,13 @@ function getResourceAuthConfig (FilterContext context) returns (boolean, string[
     AuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
                                     internal:getServiceAnnotations(context.serviceType));
     // check if authentication is enabled
-    match resourceLevelAuthAnn.authn {
+    match resourceLevelAuthAnn.authentication {
         Authentication authn => {
             isResourceSecured  = authn.enabled;
         }
         () => {
             // if not found at resource level, check in the service level
-            match serviceLevelAuthAnn.authn {
+            match serviceLevelAuthAnn.authentication {
                 Authentication authn => {
                     isResourceSecured  = authn.enabled;
                 }

@@ -62,9 +62,12 @@ function createAuthFilters () returns (Filter[]) {
     // TODO: currently hard coded. fix it.
     Filter[] authFilters = [];
     //TODO fix this object instantiation properly
-    AuthnFilter authnFilter = new (authnRequestFilterFunc, responseFilterFunc);
+    AuthHandlerRegistry registry = new;
+    registry.add("basic", createBasicAuthHandler());
+    // TODO: add JWT handler
+    AuthnFilter authnFilter = new (registry, authnRequestFilterFunc, responseFilterFunc);
     AuthzFilter authzFilter = new (authzRequestFilterFunc, responseFilterFunc);
-    authFilters[0] = authnFilter;
+    authFilters[0] = <Filter> authnFilter;
     authFilters[1] = authzFilter;
     return authFilters;
 }

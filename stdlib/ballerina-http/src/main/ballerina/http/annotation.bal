@@ -130,7 +130,7 @@ public type WebSocketUpgradeConfig {
 @Field {value:"providers: array of providers"}
 @Field {value:"scopes: array of scopes"}
 public type AuthConfig {
-    Authentication? authn,
+    Authentication? authentication,
     string[]? authProviders,
     string[]? scopes,
 };

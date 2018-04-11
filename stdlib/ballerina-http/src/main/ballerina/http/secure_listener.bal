@@ -16,6 +16,8 @@
 
 package ballerina.http;
 
+import ballerina/auth;
+
 @Description {value:"Representation of an Secure Listener"}
 @Field {value:"config: SecureEndpointConfiguration instance"}
 @Field {value:"httpListener: HTTP Listener instance"}
@@ -73,7 +75,7 @@ public type SecureEndpointConfiguration {
     string httpVersion = "1.1",
     RequestLimits? requestLimits,
     Filter[] filters,
-    AuthProvider[] authProviders,
+    AuthProvider[]? authProviders,
 };
 
 @Description {value:"Configuration for authentication providers"}
@@ -82,14 +84,100 @@ public type SecureEndpointConfiguration {
 public type AuthProvider {
     string scheme,
     string id,
+    string authProvider,
+    string filePath,
+    string issuer,
+    string audience,
+    TrustStore? trustStore,
+    string certificateAlias,
+    int timeSkew,
 };
-
-
 
 public function SecureListener::init (SecureEndpointConfiguration config) {
     //TODO init auth handlers.
-    addAuthFilters(config);
+    addAuthFiltersForSecureListener(config);
     self.httpListener.init(config);
+}
+
+@Description {value:"Add authn and authz filters"}
+@Param {value:"config: SecureEndpointConfiguration instance"}
+function addAuthFiltersForSecureListener (SecureEndpointConfiguration config) {
+    // add authentication and authorization filters as the first two filters.
+    // if there are any other filters specified, those should be added after the authn and authz filters.
+    if (config.filters == null) {
+        // can add authn and authz filters directly
+        config.filters = createAuthFiltersForSecureListener(config);
+    } else {
+        Filter[] newFilters = createAuthFiltersForSecureListener(config);
+        // add existing filters next
+        int i = 0;
+        while (i < lengthof config.filters) {
+            newFilters[i + (lengthof newFilters)] = config.filters[i];
+            i = i + 1;
+        }
+        config.filters = newFilters;
+    }
+}
+
+@Description {value:"Create an array of auth and authz filters"}
+@Param {value:"config: SecureEndpointConfiguration instance"}
+@Return {value:"Array of Filters comprising of authn and authz Filters"}
+function createAuthFiltersForSecureListener (SecureEndpointConfiguration config) returns (Filter[]) {
+    // parse and create authentication handlers
+    AuthHandlerRegistry registry = new;
+    match config.authProviders {
+        AuthProvider[] providers => {
+            foreach provider in providers {
+                registry.add(provider.id, createAuthHandler(provider));
+            }
+        }
+        () => {
+            // add basic authn handler with config based auth provider
+            registry.add("basic", createBasicAuthHandler());
+            // TODO add other authn handlers as well
+        }
+    }
+    // TODO: currently hard coded. fix it.
+    Filter[] authFilters = [];
+    //TODO fix this object instantiation properly
+    AuthnFilter authnFilter = new (registry, authnRequestFilterFunc, responseFilterFunc);
+    AuthzFilter authzFilter = new (authzRequestFilterFunc, responseFilterFunc);
+    authFilters[0] = <Filter> authnFilter;
+    authFilters[1] = authzFilter;
+    return authFilters;
+}
+
+function createBasicAuthHandler () returns HttpAuthnHandler  {
+    auth:ConfigAuthProvider configAuthProvider = new;
+    auth:AuthProvider authProvider1 = <auth:AuthProvider> configAuthProvider;
+    HttpBasicAuthnHandler basicAuthHandler = new(authProvider1);
+    return check <HttpAuthnHandler> basicAuthHandler;
+}
+
+function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler {
+    if (lengthof authProvider.id == 0) {
+        // id is empty
+        error e = {message:"Auth provider id not specified"};
+        throw e;
+    }
+
+    auth:AuthProvider authProvider1;
+    if (authProvider.authProvider == AUTH_PROVIDER_CONFIG) {
+        auth:ConfigAuthProvider configAuthProvider = new;
+        authProvider1 = <auth:AuthProvider> configAuthProvider;
+    } else {
+        // other auth providers are unsupported yet
+        error e = {message:"Invalid auth provider: " + authProvider.authProvider };
+        throw e;
+    }
+    if (authProvider.scheme == AUTH_SCHEME_BASIC) {
+        HttpBasicAuthnHandler basicAuthHandler = new(authProvider1);
+        return check <HttpAuthnHandler> basicAuthHandler;
+    } else {
+        // TODO: create other HttpAuthnHandlers
+        error e = {message:"Invalid auth scheme: " + authProvider.scheme };
+        throw e;
+    }
 }
 
 @Description {value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
