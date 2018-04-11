@@ -58,13 +58,13 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/natives
+                ${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/natives
+                ${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
