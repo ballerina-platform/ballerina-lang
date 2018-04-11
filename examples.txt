@@ -135,3 +135,4 @@ Testerina Function Mocks
 Testerina Groups
 Streams
 Streams within services
+Streams Join
