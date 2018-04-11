@@ -45,7 +45,7 @@ under the License.
             <package name="org.ballerinalang.test.types.*">
                 <exclude name="org.ballerinalang.test.types.service.*"/>
                 <exclude name="org.ballerinalang.test.types.null.*"/>
-                
+
                 <!-- TODO: remove once constraint tests are fixed -->
                 <exclude name="org.ballerinalang.test.types.map.*"/>
             </package>

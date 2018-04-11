@@ -14,9 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.auth.jwtAuth;
+package ballerina.auth;
 
-import ballerina/auth.utils;
 import ballerina/caching;
 import ballerina/config;
 import ballerina/jwt;
@@ -25,23 +24,36 @@ import ballerina/runtime;
 import ballerina/time;
 
 @Description {value:"Represents a JWT Authenticator"}
-@Field {value:"jwtValidatorConfig: JWTValidatorConfig object"}
+@Field {value:"jwtAuthProviderConfig: JWTAuthProviderConfig object"}
 @Field {value:"authCache: Authentication cache object"}
-public type JWTAuthenticator object {
+public type JWTAuthProvider object {
     public {
-        jwt:JWTValidatorConfig jwtValidatorConfig;
+        JWTAuthProviderConfig jwtAuthProviderConfig;
         caching:Cache? authCache;
+    }
+
+    public new (jwtAuthProviderConfig) {
+        authCache = caching:createCache(JWT_AUTH_CACHE, 300000, 100, 0.25);
+        config:setConfig("trustStore.location", jwtAuthProviderConfig.trustStoreFilePath );
+        config:setConfig("trustStore.type","pkcs12");
+        config:setConfig("trustStore.trustStorePassword",jwtAuthProviderConfig.trustStorePassword);
     }
     public function authenticate (string jwtToken) returns (boolean|error);
     function authenticateFromCache (string jwtToken)
-                                                returns (boolean, boolean)|(boolean, boolean, jwt:Payload);
+                                                returns ( boolean, jwt:Payload)? ;
     function addToAuthenticationCache (string jwtToken, int exp, jwt:Payload payload);
 };
 
-@final string AUTHENTICATOR_JWT = "authenticator_jwt";
-@final string ISSUER = "issuer";
-@final string AUDIENCE = "audience";
-@final string CERTIFICATE_ALIAS = "certificateAlias";
+@Description {value:"Represents JWT validator configurations"}
+public type JWTAuthProviderConfig {
+    string issuer,
+    string audience,
+    string certificateAlias,
+    int timeSkew,
+    string trustStoreFilePath,
+    string trustStorePassword,
+};
+
 @final string JWT_AUTH_CACHE = "jwt_auth_cache";
 @final string SCOPES = "scope";
 @final string GROUPS = "groups";
@@ -53,67 +65,57 @@ public type CachedJWTAuthContext {
     int expiryTime;
 };
 
-@Description {value:"Creates a JWT Authenticator instance"}
-@Return {value:"JWTAuthenticator instance"}
-public function createAuthenticator () returns (JWTAuthenticator) {
-    JWTAuthenticator authenticator = new;
-    authenticator.jwtValidatorConfig = getAuthenticatorConfig();
-    match utils:createCache(JWT_AUTH_CACHE) {
-        caching:Cache cache => authenticator.authCache = cache;
-        () => authenticator.authCache = ();
-    }
-    return authenticator;
-}
 
 @Description {value:"Authenticate with a jwt token"}
 @Param {value:"jwtToken: Jwt token extracted from the authentication header"}
 @Return {value:"boolean: true if authentication is a success, else false"}
 @Return {value:"error: If error occured in authentication"}
-public function JWTAuthenticator::authenticate (string jwtToken) returns (boolean|error) {
-    match self.authenticateFromCache(jwtToken) {
-        (boolean, boolean) cacheHit => {
-            var (isCacheHit, isAuthenticated) = cacheHit;
-            if (isCacheHit) {
-                return isAuthenticated;
+public function JWTAuthProvider::authenticate (string jwtToken) returns (boolean|error) {
+    match self.authCache {
+        caching:Cache cache => {
+            match self.authenticateFromCache(jwtToken) {
+                (boolean, jwt:Payload) authResult => {
+                    var (isAuthenticated, jwtPayload) = authResult;
+                    match jwtPayload {
+                        jwt:Payload payload => setAuthContext(payload, jwtToken);
+                    }
+                    return isAuthenticated;
+                }
+                () => log:printDebug("Auth cache not initialized.");
             }
         }
-        (boolean, boolean, jwt:Payload) authResult => {
-            var (_, isAuthenticated, jwtPayload) = authResult;
-            setAuthContext(jwtPayload, jwtToken);
-            return isAuthenticated;
-        }
+        () => log:printDebug("Auth cache not initialized.");
     }
-    match jwt:validate(jwtToken, self.jwtValidatorConfig) {
-        jwt:Payload authResult => {
-            boolean isAuthenticated = true;
-            setAuthContext(authResult, jwtToken);
-            self.addToAuthenticationCache(jwtToken, authResult.exp, authResult);
-            return isAuthenticated;
+    match jwt:validate(jwtToken, self.jwtAuthProviderConfig) {
+        (boolean, jwt:Payload) result => {
+        var (isValid, jwtPayload) = result;
+            if(isValid){
+              match jwtPayload {
+                jwt:Payload payload => {
+                    setAuthContext(payload, jwtToken);
+                    match self.authCache {
+                        caching:Cache cache => {
+                            self.addToAuthenticationCache(jwtToken, payload. exp, payload);
+                        }
+                        () => log:printDebug("Auth cache not initialized.");
+                    }
+                }
+              }
+            }
+            return isValid;
         }
-        boolean isInvalid => return isInvalid;
         error err => return err;
     }
 }
 
-function getAuthenticatorConfig () returns (jwt:JWTValidatorConfig) {
-    jwt:JWTValidatorConfig jwtValidatorConfig = {};
-    jwtValidatorConfig.issuer = getAuthenticatorConfigValue(AUTHENTICATOR_JWT, ISSUER);
-    jwtValidatorConfig.audience = getAuthenticatorConfigValue(AUTHENTICATOR_JWT, AUDIENCE);
-    jwtValidatorConfig.certificateAlias = getAuthenticatorConfigValue(AUTHENTICATOR_JWT, CERTIFICATE_ALIAS);
-    return jwtValidatorConfig;
-}
-
-function JWTAuthenticator::authenticateFromCache (string jwtToken)
-returns (boolean, boolean)|(boolean, boolean, jwt:Payload) {
+function JWTAuthProvider::authenticateFromCache (string jwtToken) returns (boolean,jwt:Payload)|() {
     boolean isCacheHit;
-    boolean isAuthenticated;
     CachedJWTAuthContext cachedAuthContext = {};
     try {
         match self.authCache {
             caching:Cache cache => {
                 match <CachedJWTAuthContext> cache.get(jwtToken) {
                     CachedJWTAuthContext context => cachedAuthContext = context;
-
                     error => isCacheHit = false;
                 }
             }
@@ -126,16 +128,16 @@ returns (boolean, boolean)|(boolean, boolean, jwt:Payload) {
 
     if (isCacheHit) {
         if (cachedAuthContext.expiryTime > time:currentTime().time) {
-            isAuthenticated = true;
             jwt:Payload payload = cachedAuthContext.jwtPayload;
             log:printDebug("Authenticate user :" + payload.sub + " from cache");
-            return (isCacheHit, isAuthenticated, payload);
+            return (true, payload);
         }
+        return (false, ());
     }
-    return (isCacheHit, isAuthenticated);
+    return ();
 }
 
-function JWTAuthenticator::addToAuthenticationCache (string jwtToken, int exp, jwt:Payload payload) {
+function JWTAuthProvider::addToAuthenticationCache (string jwtToken, int exp, jwt:Payload payload) {
     CachedJWTAuthContext cachedContext = {};
     cachedContext.jwtPayload = payload;
     cachedContext.expiryTime = exp;
@@ -179,8 +181,4 @@ function setAuthContext (jwt:Payload jwtPayload, string jwtToken) {
 
     authContext.authType = AUTH_TYPE_JWT;
     authContext.authToken = jwtToken;
-}
-
-function getAuthenticatorConfigValue (string instanceId, string property) returns (string) {
-    return config:getAsString(instanceId + "." + property, default = "");
 }
