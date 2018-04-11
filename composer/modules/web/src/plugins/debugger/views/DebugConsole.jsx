@@ -62,7 +62,6 @@ class DebuggerConsole extends View {
             messages,
         });
         messageCache = messages;
-        console.log(messages);
     }
 
 
