@@ -441,7 +441,7 @@ public class BallerinaParserService implements ComposerService {
 
         ErrorCategory errorCategory = ErrorCategory.NONE;
         if (!diagnostics.isEmpty()) {
-            if (model == null) {
+            if (model == null || model.symbol == null) {
                 errorCategory = ErrorCategory.SYNTAX;
             } else {
                 errorCategory = ErrorCategory.SEMANTIC;
@@ -477,7 +477,7 @@ public class BallerinaParserService implements ComposerService {
         JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
         result.add("diagnostics", diagnosticsJson);
 
-        if (model != null && bFileRequest.needTree()) {
+        if (model != null && model.symbol != null && bFileRequest.needTree()) {
             BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
                     filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
             JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>());
