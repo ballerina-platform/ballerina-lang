@@ -40,6 +40,8 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,18 +72,18 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct configBStruct = (BStruct) context.getRefArgument(0);
+        BStruct configBStruct = (BStruct) context.getRefArgument(HttpConstants.CLIENT_ENDPOINT_CONFIG_INDEX);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
-        String url = context.getStringArgument(0);
+        String urlString = context.getStringArgument(HttpConstants.CLIENT_ENDPOINT_URL_INDEX);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
         String scheme;
-        if (url.startsWith("http://")) {
-            scheme = HttpConstants.PROTOCOL_HTTP;
-        } else if (url.startsWith("https://")) {
-            scheme = HttpConstants.PROTOCOL_HTTPS;
-        } else {
-            throw new BallerinaException("malformed URL: " + url);
+        URL url;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            throw new BallerinaException("Malformed URL: " + urlString);
         }
+        scheme = url.getProtocol();
         Map<String, Object> properties =
                 HTTPConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
         SenderConfiguration senderConfiguration =
@@ -111,7 +113,7 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         HttpClientConnector httpClientConnector = httpConnectorFactory
                 .createHttpClientConnector(properties, senderConfiguration);
         BStruct httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), HTTP_PACKAGE_PATH,
-                HTTP_CLIENT, url, clientEndpointConfig);
+                HTTP_CLIENT, urlString, clientEndpointConfig);
         httpClient.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
         httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
         context.setReturnValues(httpClient);
