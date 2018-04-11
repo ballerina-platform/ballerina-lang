@@ -20,16 +20,6 @@ public type Request object {
         RequestCacheControl cacheControl;
     }
 
-    //TODO Remove once service session LC is introduced
-    @Description {value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct."}
-    @Return {value:"HTTP Session record type"}
-    native function createSessionIfAbsent() returns (Session);
-
-    //TODO Remove once service session LC is introduced
-    @Description {value:"Gets the Session struct from the connection if it is present"}
-    @Return {value:"The HTTP Session record type assoicated with the request"}
-    native function getSession() returns (Session);
-
     @Description {value:"Set the entity to request"}
     @Return {value:"Entity of the request"}
     public native function setEntity (mime:Entity entity);

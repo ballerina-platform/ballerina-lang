@@ -114,7 +114,7 @@ public class H2ClientActionsTest {
                 "{customerId:41, name:\"Devni\", creditLimit:1000.0, country:\"Sri Lanka\"}");
     }
 
-    //@Test
+    @Test
     public void testUpdateInMemory() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdateInMemory");
         BInteger retValue = (BInteger) returns[0];
