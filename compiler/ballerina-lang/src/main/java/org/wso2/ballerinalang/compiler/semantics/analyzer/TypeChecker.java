@@ -388,10 +388,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
                 if (env.enclInvokable != null && env.enclInvokable.flagSet.contains(Flag.LAMBDA) &&
-                        env.enclEnv.enclEnv != null) {
-                    BLangVariable closureVar = symResolver.findClosureVar(env.enclEnv, symbol);
-                    if (closureVar != symTable.notFoundVariable) {
-                        ((BLangFunction) env.enclInvokable).closureVarList.add(closureVar);
+                        env.enclEnv.enclEnv != null && !(symbol.owner instanceof BPackageSymbol)) {
+                    BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(env.enclEnv,
+                            symbol.name, SymTag.VARIABLE_NAME);
+                    if (closureVarSymbol != symTable.notFoundSymbol &&
+                            !isFunctionArgument(closureVarSymbol, env.enclInvokable.requiredParams)) {
+                        ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
                     }
                 }
             } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
@@ -404,6 +406,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Check type compatibility
         resultType = types.checkType(varRefExpr, actualType, expType);
+    }
+
+    private boolean isFunctionArgument(BSymbol symbol, List<BLangVariable> params) {
+        return params.stream().anyMatch(param -> (param.symbol.name.equals(symbol.name) &&
+                param.type.equals(symbol.type)));
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
