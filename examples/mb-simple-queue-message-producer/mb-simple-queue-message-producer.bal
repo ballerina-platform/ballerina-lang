@@ -1,4 +1,3 @@
-import ballerina/jms;
 import ballerina/mb;
 import ballerina/log;
 
