@@ -60,7 +60,7 @@ public class GetText extends BlockingNativeCallableUnit {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
             if (baseType != null && (baseType.toLowerCase(Locale.getDefault()).startsWith(TEXT_AS_PRIMARY_TYPE) ||
-                    baseType.toLowerCase(Locale.getDefault()).startsWith(APPLICATION_FORM))) {
+                    baseType.equalsIgnoreCase(APPLICATION_FORM))) {
                 MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
                     result = new BString(dataSource.getMessageAsString());

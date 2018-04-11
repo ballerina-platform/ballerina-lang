@@ -74,9 +74,13 @@ public class Constants {
      */
     public static final String MULTIPART_MIXED = "multipart/mixed";
 
-    public static final String JSON_SUFFIX = "json";
+    public static final String JSON_SUFFIX = "+json";
 
-    public static final String XML_SUFFIX = "xml";
+    public static final String JSON_TYPE_IDENTIFIER = "/json";
+
+    public static final String XML_SUFFIX = "+xml";
+
+    public static final String XML_TYPE_IDENTIFIER = "/xml";
 
     public static final String TEXT_AS_PRIMARY_TYPE = "text/";
 

@@ -37,6 +37,7 @@ import java.util.Locale;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.Constants.XML_SUFFIX;
+import static org.ballerinalang.mime.util.Constants.XML_TYPE_IDENTIFIER;
 
 /**
  * Get the entity body in xml form.
@@ -58,7 +59,8 @@ public class GetXml extends BlockingNativeCallableUnit {
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
-            if (baseType != null && baseType.toLowerCase(Locale.getDefault()).endsWith(XML_SUFFIX)) {
+            if (baseType != null && (baseType.toLowerCase(Locale.getDefault()).endsWith(XML_TYPE_IDENTIFIER) ||
+                    baseType.toLowerCase(Locale.getDefault()).endsWith(XML_SUFFIX))) {
                 MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
                     if (dataSource instanceof BXML) {

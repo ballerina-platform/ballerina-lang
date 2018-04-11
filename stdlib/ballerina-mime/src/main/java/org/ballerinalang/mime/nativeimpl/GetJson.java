@@ -36,6 +36,7 @@ import java.util.Locale;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.Constants.JSON_SUFFIX;
+import static org.ballerinalang.mime.util.Constants.JSON_TYPE_IDENTIFIER;
 
 /**
  * Get the entity body in JSON form.
@@ -57,7 +58,8 @@ public class GetJson extends BlockingNativeCallableUnit {
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
-            if (baseType != null && baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_SUFFIX)) {
+            if (baseType != null && (baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_TYPE_IDENTIFIER) ||
+                    baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_SUFFIX))) {
                 MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
                     if (dataSource instanceof BJSON) {
