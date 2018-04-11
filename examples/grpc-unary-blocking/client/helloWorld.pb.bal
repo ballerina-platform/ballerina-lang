@@ -15,22 +15,18 @@ public type HelloWorldBlockingStub object {
         self.serviceStub = navStub;
     }
 
-    function getContext () returns (grpc:MessageContext) {
-        grpc:MessageContext context = new;
-        return context;
-    }
-
-
-    function hello (string req) returns (string|error) {
-        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/hello", req);
+    function hello (string req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
+        (any,grpc:Headers)|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/hello", req, ...headers);
         match unionResp {
             grpc:ConnectorError payloadError => {
                 error err = {message:payloadError.message};
                 return err;
             }
-            any payload => {
-                string result = <string> payload;
-                return result;
+            (any, grpc:Headers) payload => {
+                any result;
+                grpc:Headers resHeaders;
+                (result, resHeaders) = payload;
+                return (<string>result, resHeaders);
             }
         }
     }
@@ -49,13 +45,8 @@ public type HelloWorldStub object {
         self.serviceStub = navStub;
     }
 
-    function getContext () returns (grpc:MessageContext) {
-        grpc:MessageContext context = new;
-        return context;
-    }
-
-    function hello (string req, typedesc listener) returns (error| ()) {
-        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/hello", req, listener);
+    function hello (string req, typedesc listener, grpc:Headers... headers) returns (error| ()) {
+        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/hello", req, listener, ...headers);
         if (err1 != ()) {
             error err = {message:err1.message};
             return err;

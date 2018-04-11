@@ -15,8 +15,8 @@ public type HelloWorldStub object {
         self.serviceStub = navStub;
     }
 
-    function lotsOfReplies (string req, typedesc listener) returns (error?) {
-        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/lotsOfReplies", req, listener);
+    function lotsOfReplies (string req, typedesc listener, grpc:Headers... headers) returns (error?) {
+        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/lotsOfReplies", req, listener, ...headers);
         if (err1 != ()) {
             error e = {message:err1.message};
             return e;

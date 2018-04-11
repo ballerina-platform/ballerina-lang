@@ -15,8 +15,8 @@ public type HelloWorldStub object {
         self.serviceStub = navStub;
     }
 
-    function lotsOfGreetings (typedesc listener) returns (grpc:Client|error) {
-        var res = self.serviceStub.streamingExecute("HelloWorld/lotsOfGreetings", listener);
+    function lotsOfGreetings (typedesc listener, grpc:Headers... headers) returns (grpc:Client|error) {
+        var res = self.serviceStub.streamingExecute("HelloWorld/lotsOfGreetings", listener, ...headers);
         match res {
             grpc:ConnectorError err => {
                 error e = {message:err.message};
