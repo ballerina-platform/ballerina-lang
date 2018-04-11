@@ -9,7 +9,7 @@ function main (string[] args) {
         port:9090
     };
     // Executing unary non-blocking call registering server message listener.
-    error| () result = helloWorldEp -> hello("WSO2", typeof HelloWorldMessageListener);
+    error| () result = helloWorldEp -> hello("WSO2", HelloWorldMessageListener);
     match result {
         error payloadError => {
             io:println("Error occured while sending event " + payloadError.message);

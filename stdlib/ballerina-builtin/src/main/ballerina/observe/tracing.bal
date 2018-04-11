@@ -121,7 +121,14 @@ public native function extractTraceContext (map headers, string traceGroup) retu
 @Param {value:"traceGroup: The group to which this span belongs to"}
 @Return {value:"The SpanContext that was propogated from another service"}
 public function extractTraceContextFromHttpHeader (http:Request req, string traceGroup) returns SpanContext {
-    map headers = req.getCopyOfAllHeaders();
+    map<string[]> headers;
+    string[] headerNames = req.getHeaderNames();
+    foreach headerName in headerNames {
+        if (req.hasHeader(headerName)) {
+            string[] headerValues = req.getHeaders(headerName);
+            headers[headerName] = headerValues;
+        }
+    }
     return extractTraceContext(headers, traceGroup);
 }
 

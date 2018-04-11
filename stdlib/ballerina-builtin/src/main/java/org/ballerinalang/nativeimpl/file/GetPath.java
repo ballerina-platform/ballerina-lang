@@ -20,16 +20,11 @@ package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.file.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Creates the file at the path specified in the File struct.
@@ -38,32 +33,23 @@ import java.nio.file.Paths;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "file",
-        functionName = "getPath",
-        args = {@Argument(name = "basePath", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Path",
-                structPackage = "ballerina.file")},
+        functionName = "Path.getPath",
+        args = {
+                @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path", structPackage = "ballerina.file")
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.STRUCT, structType = "Path", structPackage = "ballerina.file")
+        },
         isPublic = true
 )
 public class GetPath extends BlockingNativeCallableUnit {
-
-    /**
-     * Retrieves the path from the given location.
-     *
-     * @param path the values of the path.
-     * @return reference to the path location.
-     */
-    private Path getPath(String path) {
-        return Paths.get(path);
-    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void execute(Context context) {
-        String basePath = context.getStringArgument(0);
-        BStruct path = BLangConnectorSPIUtil.createBStruct(context, Constants.FILE_PACKAGE, Constants.PATH_STRUCT);
-        path.addNativeData(Constants.PATH_DEFINITION_NAME, getPath(basePath));
+        BStruct path = (BStruct) context.getRefArgument(0);
         context.setReturnValues(path);
     }
 }

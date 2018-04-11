@@ -19,6 +19,7 @@
 package org.ballerinalang.mime.util;
 
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
@@ -40,7 +41,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Set;
-
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
@@ -105,20 +105,18 @@ public class MimeUtil {
      * @return content-type in 'primarytype/subtype; key=value;' format
      */
     public static String getContentTypeWithParameters(BStruct entity) {
-        String contentType = null;
-        if (entity.getRefField(MEDIA_TYPE_INDEX) != null) {
-            BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
-            if (mediaType != null) {
-                contentType = mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" +
-                        mediaType.getStringField(SUBTYPE_INDEX);
-                if (mediaType.getRefField(PARAMETER_MAP_INDEX) != null) {
-                    BMap map = mediaType.getRefField(PARAMETER_MAP_INDEX) != null ?
-                            (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX) : null;
-                    if (map != null && !map.isEmpty()) {
-                        contentType = contentType + SEMICOLON;
-                        return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
-                    }
-                }
+        if (entity.getRefField(MEDIA_TYPE_INDEX) == null) {
+            return HeaderUtil.getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString());
+        }
+        BStruct mediaType = (BStruct) entity.getRefField(MEDIA_TYPE_INDEX);
+        String contentType = mediaType.getStringField(PRIMARY_TYPE_INDEX) + "/" +
+                mediaType.getStringField(SUBTYPE_INDEX);
+        if (mediaType.getRefField(PARAMETER_MAP_INDEX) != null) {
+            BMap map = mediaType.getRefField(PARAMETER_MAP_INDEX) != null ?
+                    (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX) : null;
+            if (map != null && !map.isEmpty()) {
+                contentType = contentType + SEMICOLON;
+                return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
             }
         }
         return contentType;

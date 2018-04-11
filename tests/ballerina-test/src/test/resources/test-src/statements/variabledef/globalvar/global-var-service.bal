@@ -9,7 +9,7 @@ float glbVarFloatChange = 99;
 
 float glbVarFloat1 = glbVarFloat;
 
-endpoint http:ServiceEndpoint echoEP {
+endpoint http:Listener echoEP {
     port:9090
 };
 
@@ -23,7 +23,7 @@ service<http:Service> GlobalVar bind echoEP {
         path:"/defined"
     }
     defineGlobalVar (endpoint conn, http:Request request) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"glbVarInt":glbVarInt, "glbVarString":glbVarString, "glbVarFloat":glbVarFloat};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -34,7 +34,7 @@ service<http:Service> GlobalVar bind echoEP {
         path:"/access-service-level"
     }
     accessGlobalVarAtServiceLevel (endpoint conn, http:Request request) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"serviceVarFloat":serviceVarFloat};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -45,7 +45,7 @@ service<http:Service> GlobalVar bind echoEP {
         path:"/change-resource-level"
     }
     changeGlobalVarAtResourceLevel (endpoint conn, http:Request request) {
-        http:Response res = {};
+        http:Response res = new;
         glbVarFloatChange = 77.87;
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);
@@ -57,7 +57,7 @@ service<http:Service> GlobalVar bind echoEP {
         path:"/get-changed-resource-level"
     }
     getChangedGlobalVarAtResourceLevel (endpoint conn, http:Request request) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
@@ -73,7 +73,7 @@ service<http:Service> GlobalVarSecond bind echoEP {
         path:"/get-changed-resource-level"
     }
     getChangedGlobalVarAtResourceLevel (endpoint conn, http:Request request) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);

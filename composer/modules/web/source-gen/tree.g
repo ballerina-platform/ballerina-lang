@@ -39,14 +39,18 @@ Assignment
    : <declaredWithVar?var> <variable.source> = <expression.source> ;
    ;
 
+AwaitExpr
+   : await <expression.source>
+   ;
+
 BinaryExpr
    : <inTemplateLiteral?> {{ <leftExpression.source> <operatorKind> <rightExpression.source> }}
    |             <leftExpression.source> <operatorKind> <rightExpression.source>
    ;
 
 Bind
-    : bind <expression.source> with <variable.source> ;
-    ;
+   : bind <expression.source> with <variable.source> ;
+   ;
 
 Block
    : <statements>*
@@ -57,12 +61,19 @@ Break
    : break ;
    ;
 
+BracedTupleExpr
+   : ( <expressions-joined-by,>* )
+
 BuiltInRefType
    : <typeKind>
    ;
 
 Catch
    : catch ( <parameter.source> ) { <body.source> }
+   ;
+
+CheckExpr
+   : check <expression.source>
    ;
 
 Comment
@@ -101,14 +112,6 @@ EndpointType
 
 ExpressionStatement
    : <expression.source> ;
-   ;
-
-Enum
-   : enum\u0020 <name.source> { <enumerators-joined-by-,>* }
-   ;
-
-Enumerator
-   : <name.source>
    ;
 
 FieldBasedAccessExpr
@@ -153,10 +156,10 @@ IndexBasedAccessExpr
    ;
 
 Invocation
-   : <actionInvocation?>      <expression.source>  ->   <name.value> ( <argumentExpressions-joined-by,>* )
-   | <expression.source>  .   <name.value> ( <argumentExpressions-joined-by,>* )
-   | <packageAlias.value> :   <name.value> ( <argumentExpressions-joined-by,>* )
-   |                          <name.value> ( <argumentExpressions-joined-by,>* )
+   : <actionInvocation?>      <async?async> <expression.source>  ->   <name.value> ( <argumentExpressions-joined-by,>* )
+   | <expression.source>  .   <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
+   | <packageAlias.value> :   <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
+   |                          <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
    ;
 
 Lambda
@@ -176,9 +179,33 @@ Match
 MatchPatternClause
    : <withoutCurlies?> <variableNode.source> =>   <statement.source>
    :                   <variableNode.source> => { <statement.source> }
+   ;
+
+MatchExpression
+   : <expr> but { <patternClauses>* }
+   ;
+
+MatchExpressionPatternClause
+   : <variable.source> => <statement.source>
+   ;
+
+NamedArgsExpr
+   : <name.value> = <expression.source>
+   ;
 
 Next
    : next ;
+   ;
+
+Object
+   : <noFieldsAvailable?>        <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> object {                                                         <initFunction> <functions>* };
+   | <noPrivateFieldsAvailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> object { public { <publicFields>* }                              <initFunction> <functions>* };
+   | <noPublicFieldAvailable?>   <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> object {                            private { <privateFields>* } <initFunction> <functions>* };
+   |                             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> object { public { <publicFields>* } private { <privateFields>* } <initFunction> <functions>* };
+   ;
+
+Record
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* type <name.value> { <fields-suffixed-by-;>* };
    ;
 
 RecordLiteralExpr
@@ -195,7 +222,9 @@ Resource
    ;
 
 Return
-   : return <expression.source> ;
+   : <noExpressionAvailable?> return                       ;
+   | <emptyBrackets?>         return                     ();
+   |                          return <expression.source>   ;
    ;
 
 Service
@@ -260,8 +289,14 @@ Try
    | try { <body.source> } <catchBlocks>*
    ;
 
-TupleType
+TupleDestructure
+   : <declaredWithVar?> var ( <variableRefs-joined-by,>+ ) = <expression.source>;
+   |                        ( <variableRefs-joined-by,>+ ) = <expression.source>;
+   ;
+
+TupleTypeNode
    : ( <memberTypeNodes-joined-by,>+ )
+   ;
 
 TypeCastExpr
    : ( <typeNode.source> ) <expression.source>
@@ -276,8 +311,18 @@ TypeofExpression
    : typeof <typeNode.source>
    ;
 
+TypeInitExpr
+   : <noExpressionAvailable?> new                                                ;
+   | <noTypeAttached?>        new                   ( <expressions-joined-by,>* );
+   |                          new <typeName.source> ( <expressions-joined-by,>* );
+   ;
+
 UnaryExpr
    : <operatorKind> <expression.source>
+   ;
+
+UnionTypeNode
+   : <memberTypeNodes-joined-by|>*
    ;
 
 UserDefinedType
@@ -319,12 +364,12 @@ Worker
    ;
 
 WorkerReceive
-   : <expressions-joined-by,>* <- <workerName.value> ;
+   : <expression.source> <- <workerName.value> ;
    ;
 
 WorkerSend
-   : <forkJoinedSend?> <expressions-joined-by,>* -> fork ;
-   |                   <expressions-joined-by,>* -> <workerName.value> ;
+   : <forkJoinedSend?> <expression.source> -> fork ;
+   |                   <expression.source> -> <workerName.value> ;
    ;
 
 XmlAttribute

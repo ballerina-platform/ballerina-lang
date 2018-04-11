@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
-import io.grpc.ManagedChannel;
+import io.grpc.Channel;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import org.ballerinalang.bre.Context;
@@ -78,7 +78,7 @@ public class InitStub extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
         BStruct clientEndpoint = (BStruct) context.getRefArgument(CLIENT_ENDPOINT_REF_INDEX);
-        ManagedChannel channel = (ManagedChannel) clientEndpoint.getNativeData(CHANNEL_KEY);
+        Channel channel = (Channel) clientEndpoint.getNativeData(CHANNEL_KEY);
         String stubType = context.getStringArgument(STUB_TYPE_STRING_INDEX);
         String descriptorKey = context.getStringArgument(DESCRIPTOR_KEY_STRING_INDEX);
         BMap<String, BValue> descriptorMap = (BMap<String, BValue>) context.getRefArgument(DESCRIPTOR_MAP_REF_INDEX);

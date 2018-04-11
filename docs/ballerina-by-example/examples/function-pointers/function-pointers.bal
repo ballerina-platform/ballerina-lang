@@ -1,5 +1,6 @@
 import ballerina/io;
 
+@Description {value:"The'test' function acts a variable function pointer in the 'main function'."}
 function test (int x, string s) returns (float) {
     int y = check <int>s;
     float f = x * 1.0 * y;
@@ -18,7 +19,7 @@ function getIt () returns (function (int, string) returns (float)) {
 }
 
 function main (string[] args) {
-    // Value 'test' will serve as a pointer to 'test' function.
+    // Value 'test' will serve as a function pointer to the 'test' function.
     io:println("Answer: " + foo(10, test));
     io:println("Answer: " + foo(10, getIt()));
     // Function pointer as a variable;

@@ -70,30 +70,24 @@ public function createAuthenticator () returns (JWTAuthenticator) {
 @Return {value:"boolean: true if authentication is a success, else false"}
 @Return {value:"error: If error occured in authentication"}
 public function JWTAuthenticator::authenticate (string jwtToken) returns (boolean|error) {
-    int size = authCache.capacity ?: 0;
-    if (size > 0) {
-        match self.authenticateFromCache(jwtToken) {
-            (boolean, boolean) cacheHit => {
-                var (isCacheHit, isAuthenticated) = cacheHit;
-                if (isCacheHit) {
-                    return isAuthenticated;
-                }
-            }
-            (boolean, boolean, jwt:Payload) authResult => {
-                var (_, isAuthenticated, jwtPayload) = authResult;
-                setAuthContext(jwtPayload, jwtToken);
+    match self.authenticateFromCache(jwtToken) {
+        (boolean, boolean) cacheHit => {
+            var (isCacheHit, isAuthenticated) = cacheHit;
+            if (isCacheHit) {
                 return isAuthenticated;
             }
         }
+        (boolean, boolean, jwt:Payload) authResult => {
+            var (_, isAuthenticated, jwtPayload) = authResult;
+            setAuthContext(jwtPayload, jwtToken);
+            return isAuthenticated;
+        }
     }
-    match jwt:validate(jwtToken, jwtValidatorConfig) {
+    match jwt:validate(jwtToken, self.jwtValidatorConfig) {
         jwt:Payload authResult => {
             boolean isAuthenticated = true;
             setAuthContext(authResult, jwtToken);
-            size = authCache.capacity ?: 0;
-            if (size > 0) {
-                self.addToAuthenticationCache(jwtToken, authResult.exp, authResult);
-            }
+            self.addToAuthenticationCache(jwtToken, authResult.exp, authResult);
             return isAuthenticated;
         }
         boolean isInvalid => return isInvalid;
@@ -115,7 +109,7 @@ returns (boolean, boolean)|(boolean, boolean, jwt:Payload) {
     boolean isAuthenticated;
     CachedJWTAuthContext cachedAuthContext = {};
     try {
-        match authCache {
+        match self.authCache {
             caching:Cache cache => {
                 match <CachedJWTAuthContext> cache.get(jwtToken) {
                     CachedJWTAuthContext context => cachedAuthContext = context;
@@ -145,7 +139,7 @@ function JWTAuthenticator::addToAuthenticationCache (string jwtToken, int exp, j
     CachedJWTAuthContext cachedContext = {};
     cachedContext.jwtPayload = payload;
     cachedContext.expiryTime = exp;
-    match authCache {
+    match self.authCache {
         caching:Cache cache => cache.put(jwtToken, cachedContext);
         () => log:printWarn("Auth cache not initialized.");
     }

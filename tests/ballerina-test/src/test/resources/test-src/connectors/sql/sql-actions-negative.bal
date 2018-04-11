@@ -3,13 +3,9 @@ import ballerina/io;
 
 function testSelectData () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
     string returnData;
     try {
@@ -20,7 +16,7 @@ function testSelectData () returns (string) {
                 var j = check <json>dt;
                 returnData = io:sprintf("%j", [j]);
             }
-            sql:SQLConnectorError err1 => {
+            error err1 => {
                 returnData = err1.message;
             }
         }
@@ -33,13 +29,9 @@ function testSelectData () returns (string) {
 
 function testGeneratedKeyOnInsert () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     string id = "";
@@ -54,7 +46,7 @@ function testGeneratedKeyOnInsert () returns (string) {
             (int, string[] ) =>{
                 id = generatedID[0];
             }
-                sql:SQLConnectorError err1 =>{
+                error err1 =>{
                 id = err1.message;
             }
         }
@@ -67,13 +59,9 @@ function testGeneratedKeyOnInsert () returns (string) {
 
 function testCallProcedure () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
     string returnData;
     try {
@@ -83,7 +71,7 @@ function testCallProcedure () returns (string) {
                 var j = check <json>dt[0];
                 returnData = io:sprintf("%j", [j]);
             }
-            sql:SQLConnectorError err1 =>{
+            error err1 =>{
                 returnData = err1.message;
             }
         }
@@ -95,13 +83,9 @@ function testCallProcedure () returns (string) {
 
 function testBatchUpdate () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int[] updateCount;
@@ -131,7 +115,7 @@ function testBatchUpdate () returns (string) {
                 updateCount = data;
                 returnVal = "success";
             }
-            sql:SQLConnectorError err1 =>{
+            error err1 =>{
                 returnVal = err1.message;
             }
         }
@@ -143,13 +127,9 @@ function testBatchUpdate () returns (string) {
 
 function testInvalidArrayofQueryParameters () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     string returnData;
@@ -166,7 +146,7 @@ function testInvalidArrayofQueryParameters () returns (string) {
                 var j =  check <json>dt;
                 returnData = io:sprintf("%j", [j]);
             }
-            sql:SQLConnectorError err1 =>{
+            error err1 =>{
                 returnData = err1.message;
             }
         }

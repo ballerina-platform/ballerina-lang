@@ -91,7 +91,7 @@ public class WebSubIntegrationTestCase extends IntegrationTestCase {
         });
 
         //Allow to bring up the hub
-        given().ignoreException(ConnectException.class).await().atMost(30, SECONDS).until(() -> {
+        given().ignoreException(ConnectException.class).await().atMost(60, SECONDS).until(() -> {
             HttpResponse response = HttpsClientRequest.doGet(hubUrl, ballerinaWebSubPublisher.getServerHome());
             return response.getResponseCode() == 202;
         });
@@ -99,7 +99,7 @@ public class WebSubIntegrationTestCase extends IntegrationTestCase {
         ballerinaWebSubSubscriber.startBallerinaServer(subscriberBal);
 
         //Allow to start up the subscriber service
-        given().ignoreException(ConnectException.class).await().atMost(30, SECONDS).until(() -> {
+        given().ignoreException(ConnectException.class).await().atMost(60, SECONDS).until(() -> {
             Map<String, String> headers = new HashMap<>();
             headers.put("X-Hub-Signature", "SHA256=5262411828583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
@@ -114,12 +114,12 @@ public class WebSubIntegrationTestCase extends IntegrationTestCase {
 
     @Test(dependsOnMethods = "testStartUpAndIntentVerification")
     public void testContentReceiptForDirectHubNotification() throws BallerinaTestException {
-        internalHubNotificationLogLeecher.waitForText(10000);
+        internalHubNotificationLogLeecher.waitForText(20000);
     }
 
     @Test(dependsOnMethods = "testStartUpAndIntentVerification")
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
-        remoteHubNotificationLogLeecher.waitForText(10000);
+        remoteHubNotificationLogLeecher.waitForText(20000);
     }
 
     @AfterClass

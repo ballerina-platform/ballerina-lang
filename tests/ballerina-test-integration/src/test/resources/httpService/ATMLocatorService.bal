@@ -2,16 +2,16 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 
-endpoint http:ServiceEndpoint serviceEnpoint {
+endpoint http:Listener serviceEnpoint {
     port:9090
 };
 
-endpoint http:ClientEndpoint bankInfoService {
+endpoint http:Client bankInfoService {
     targets:[{url: "http://localhost:9090/bankinfo/product"}]
 
 };
 
-endpoint http:ClientEndpoint branchLocatorService {
+endpoint http:Client branchLocatorService {
     targets:[{url: "http://localhost:9090/branchlocator/product"}]
 };
 
@@ -77,7 +77,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
                 io:println("Error occurred while writing info response");
             }
         }
-        _ = outboundEP -> forward(infomationResponse);
+        _ = outboundEP -> respond(infomationResponse);
     }
 }
 

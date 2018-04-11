@@ -22,6 +22,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.launcher.BLauncherCmd;
@@ -35,6 +36,7 @@ import java.util.List;
 @Parameters(commandNames = "doc", commandDescription = "generate Ballerina API documentation")
 public class BallerinaDocCmd implements BLauncherCmd {
     private final PrintStream out = System.out;
+    private final PrintStream err = System.err;
 
     private JCommander parentCmdParser;
 
@@ -92,7 +94,12 @@ public class BallerinaDocCmd implements BLauncherCmd {
         }
 
         String[] sources = argList.toArray(new String[argList.size()]);
-        BallerinaDocGenerator.generateApiDocs(outputDir, packageFilter, nativeSource, sources);
+        try {
+            BallerinaDocGenerator.generateApiDocs(outputDir, packageFilter, nativeSource, sources);
+        } catch (Throwable e) {
+            err.println(ExceptionUtils.getStackTrace(e));
+            System.exit(1);
+        }
     }
 
     @Override

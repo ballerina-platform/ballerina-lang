@@ -18,12 +18,6 @@ type Family {
     string[] children;
 };
 
-function testCreateStruct () returns (string, map, int) {
-    map address = {"country":"USA", "state":"CA"};
-    Person emp = {name:"Jack", adrs:address, age:25};
-    return (emp.name, emp.adrs, emp.age);
-}
-
 function testStructOfStruct () returns (string) {
 
     map address = {"country":"USA", "state":"CA"};

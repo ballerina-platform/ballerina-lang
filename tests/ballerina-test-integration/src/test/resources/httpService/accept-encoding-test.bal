@@ -3,11 +3,11 @@ import ballerina/mime;
 
 const string ACCEPT_ENCODING = "accept-encoding";
 
-endpoint http:ServiceEndpoint passthroughEP {
+endpoint http:Listener passthroughEP {
     port:9090
 };
 
-endpoint http:ClientEndpoint acceptEncodingAutoEP {
+endpoint http:Client acceptEncodingAutoEP {
     targets: [
                  {
                      url: "http://localhost:9092/hello"
@@ -16,7 +16,7 @@ endpoint http:ClientEndpoint acceptEncodingAutoEP {
     acceptEncoding:"auto"
 };
 
-endpoint http:ClientEndpoint acceptEncodingEnableEP {
+endpoint http:Client acceptEncodingEnableEP {
     targets: [
                  {
                      url: "http://localhost:9092/hello"
@@ -25,7 +25,7 @@ endpoint http:ClientEndpoint acceptEncodingEnableEP {
     acceptEncoding:"enable"
 };
 
-endpoint http:ClientEndpoint acceptEncodingDisableEP {
+endpoint http:Client acceptEncodingDisableEP {
     targets: [
                  {
                      url: "http://localhost:9092/hello"
@@ -43,7 +43,7 @@ service<http:Service> passthrough bind passthroughEP {
             var clientResponse = acceptEncodingAutoEP -> post("/", req);
             match clientResponse {
                 http:Response res => {
-                    _ = outboundEP -> forward(res);
+                    _ = outboundEP -> respond(res);
                 }
                 http:HttpConnectorError err => {
                     http:Response res = new;
@@ -56,7 +56,7 @@ service<http:Service> passthrough bind passthroughEP {
             var clientResponse = acceptEncodingEnableEP -> post("/", req);
             match clientResponse {
                 http:Response res => {
-                    _ = outboundEP -> forward(res);
+                    _ = outboundEP -> respond(res);
                 }
                 http:HttpConnectorError err => {
                     http:Response res = new;
@@ -69,7 +69,7 @@ service<http:Service> passthrough bind passthroughEP {
             var clientResponse = acceptEncodingDisableEP -> post("/", req);
             match clientResponse {
                 http:Response res => {
-                    _ = outboundEP -> forward(res);
+                    _ = outboundEP -> respond(res);
                 }
                 http:HttpConnectorError err => {
                     http:Response res = new;
@@ -82,7 +82,7 @@ service<http:Service> passthrough bind passthroughEP {
     }
 }
 
-endpoint http:ServiceEndpoint helloEP {
+endpoint http:Listener helloEP {
     port:9092
 };
 
