@@ -16,8 +16,6 @@
 
 package org.ballerinalang.composer.service.ballerina.launcher.service.util;
 
-import java.util.List;
-
 /**
  * {@link LogDTO} Parsed log message sent to client.
  *

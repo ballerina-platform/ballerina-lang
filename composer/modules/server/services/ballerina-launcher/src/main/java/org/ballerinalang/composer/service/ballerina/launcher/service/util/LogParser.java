@@ -145,8 +145,8 @@ public class LogParser {
 
     private String getPayload(String header) {
         int startIndex = header.lastIndexOf("\n");
-        if(startIndex!=-1 && startIndex!= header.length()){
-            return header.substring(startIndex+1);
+        if (startIndex != -1 && startIndex != header.length()) {
+            return header.substring(startIndex + 1);
         }
         return "";
     }
