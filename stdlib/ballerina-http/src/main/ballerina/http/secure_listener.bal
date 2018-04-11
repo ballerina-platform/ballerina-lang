@@ -118,12 +118,46 @@ function addAuthFiltersForSecureListener (SecureEndpointConfiguration config) {
     }
 }
 
+//@Description {value:"Create an array of auth and authz filters"}
+//@Param {value:"config: SecureEndpointConfiguration instance"}
+//@Return {value:"Array of Filters comprising of authn and authz Filters"}
+//function createAuthFiltersForSecureListener (SecureEndpointConfiguration config) returns (Filter[]) {
+//    // parse and create authentication handlers
+//    AuthHandlerRegistry registry = new;
+//    match config.authProviders {
+//        AuthProvider[] providers => {
+//            int i = 1;
+//            foreach provider in providers {
+//                if (lengthof provider.id > 0) {
+//                    registry.add(provider.scheme + "-" + i, createAuthHandler(provider));
+//                } else {
+//                    registry.add(provider.id, createAuthHandler(provider));
+//                }
+//                i++;
+//            }
+//        }
+//        () => {
+//            // add basic authn handler with config based auth provider
+//            registry.add("basic", createBasicAuthHandler());
+//            // TODO add other authn handlers as well
+//        }
+//    }
+//    // TODO: currently hard coded. fix it.
+//    Filter[] authFilters = [];
+//    AuthnHandlerChain authnHandlerChain = new(registry);
+//    AuthnFilter authnFilter = new (authnHandlerChain, authnRequestFilterFunc, responseFilterFunc);
+//    AuthzFilter authzFilter = new (authzRequestFilterFunc, responseFilterFunc);
+//    authFilters[0] = <Filter> authnFilter;
+//    authFilters[1] = authzFilter;
+//    return authFilters;
+//}
+
 @Description {value:"Create an array of auth and authz filters"}
 @Param {value:"config: SecureEndpointConfiguration instance"}
 @Return {value:"Array of Filters comprising of authn and authz Filters"}
 function createAuthFiltersForSecureListener (SecureEndpointConfiguration config) returns (Filter[]) {
     // parse and create authentication handlers
-    AuthHandlerRegistry registry = new;
+    //AuthHandlerRegistry registry = new;
     match config.authProviders {
         AuthProvider[] providers => {
             int i = 1;
@@ -137,19 +171,19 @@ function createAuthFiltersForSecureListener (SecureEndpointConfiguration config)
             }
         }
         () => {
-            // add basic authn handler with config based auth provider
-            registry.add("basic", createBasicAuthHandler());
-            // TODO add other authn handlers as well
-        }
-    }
-    // TODO: currently hard coded. fix it.
-    Filter[] authFilters = [];
-    AuthnHandlerChain authnHandlerChain = new(registry);
-    AuthnFilter authnFilter = new (authnHandlerChain, authnRequestFilterFunc, responseFilterFunc);
-    AuthzFilter authzFilter = new (authzRequestFilterFunc, responseFilterFunc);
-    authFilters[0] = <Filter> authnFilter;
-    authFilters[1] = authzFilter;
-    return authFilters;
+    // add basic authn handler with config based auth provider
+    registry.add("basic", createBasicAuthHandler());
+    // TODO add other authn handlers as well
+}
+}
+// TODO: currently hard coded. fix it.
+Filter[] authFilters = [];
+//AuthnHandlerChain authnHandlerChain = new(registry);
+AuthnFilter authnFilter = new (authnRequestFilterFunc, responseFilterFunc);
+AuthzFilter authzFilter = new (authzRequestFilterFunc, responseFilterFunc);
+authFilters[0] = <Filter> authnFilter;
+authFilters[1] = authzFilter;
+                 return authFilters;
 }
 
 function createBasicAuthHandler () returns HttpAuthnHandler  {

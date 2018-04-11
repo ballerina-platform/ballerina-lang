@@ -94,14 +94,14 @@ function createAuthzResult (boolean authorized) returns (FilterResult) {
 @Param {value:"context: FilterContext object"}
 @Return {value:"string: Scope name if defined, else nil"}
 function getScopesForResource (FilterContext context) returns (string[]|()) {
-    AuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
+    ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
         internal:getResourceAnnotations(context.serviceType, context.resourceName));
     match resourceLevelAuthAnn.scopes {
         string[] scopes => {
             return scopes;
         }
         () => {
-            AuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
+            ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
                 internal:getServiceAnnotations(context.serviceType));
             match serviceLevelAuthAnn.scopes {
                 string[] scopes => {

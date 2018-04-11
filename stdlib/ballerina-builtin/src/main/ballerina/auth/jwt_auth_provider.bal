@@ -29,9 +29,10 @@ import ballerina/time;
 public type JWTAuthProvider object {
     public {
         JWTAuthProviderConfig jwtAuthProviderConfig;
-        caching:Cache? authCache;
+        caching:Cache authCache;
     }
-    public new (jwtAuthProviderConfig, authCache) {
+
+    new (jwtAuthProviderConfig) {
         config:setConfig("trustStore.location", jwtAuthProviderConfig.trustStoreFilePath );
         config:setConfig("trustStore.type","pkcs12");
         config:setConfig("trustStore.trustStorePassword",jwtAuthProviderConfig.trustStorePassword);
@@ -62,6 +63,7 @@ public type CachedJWTAuthContext {
     jwt:Payload jwtPayload,
     int expiryTime;
 };
+
 
 @Description {value:"Authenticate with a jwt token"}
 @Param {value:"jwtToken: Jwt token extracted from the authentication header"}
