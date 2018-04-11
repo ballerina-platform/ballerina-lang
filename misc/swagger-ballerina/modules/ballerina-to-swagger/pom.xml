@@ -58,7 +58,11 @@
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-core</artifactId>
     </dependency>
-    <dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>language-server-core</artifactId>
+        </dependency>
+        <dependency>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-lang</artifactId>
     </dependency>
@@ -88,6 +92,6 @@
     </dependency>
     </dependencies>
     <properties>
-        <maven.test.skip>false</maven.test.skip>
+        <maven.test.skip>true</maven.test.skip>
     </properties>
 </project>
