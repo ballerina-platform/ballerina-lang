@@ -20,6 +20,16 @@ import ballerina/io;
 import ballerina/util;
 import ballerina/runtime;
 
+@final string EMPTY_STRING = "";
+@final string BASIC = "Basic ";
+@final string BEARER = "Bearer ";
+@final string AUTHORIZATION = "Authorization";
+@final string CONTENT_TYPE = "Content-Type";
+@final string APPLICATION_WWW_FORM_URL_ENCODED = "application/x-www-form-urlencoded";
+@final string BASIC_SCHEME = "basic";
+@final string OAUTH_SCHEME = "oauth";
+@final string JWT_SCHEME = "jwt";
+
 @Description {value:"An HTTP secure client for interacting with an HTTP server with authentication."}
 public type HttpSecureClient object {
     //These properties are populated from the init call to the client connector as these were needed later stage
@@ -223,7 +233,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 @Param {value:"request:Client endpoint configurations"}
 public function prepareRequest(Request req, ClientEndpointConfig config) returns (()|HttpConnectorError) {
     string scheme = config.authConfig.scheme;
-    if (scheme == "basic"){
+    if (scheme == BASIC_SCHEME){
         string username = config.authConfig.username;
         string password = config.authConfig.password;
         var encodedStringVar = util:base64EncodeString(username + ":" + password);
@@ -236,18 +246,18 @@ public function prepareRequest(Request req, ClientEndpointConfig config) returns
                 return httpConnectorError;
             }
         }
-        req.setHeader("Authorization", "Basic " + encodedString);
-    } else if (scheme == "oauth"){
-        if (config.authConfig.accessToken == "") {
+        req.setHeader(AUTHORIZATION, BASIC + encodedString);
+    } else if (scheme == OAUTH_SCHEME){
+        if (config.authConfig.accessToken == EMPTY_STRING) {
             string refreshToken = config.authConfig.refreshToken;
             string clientId = config.authConfig.clientId;
             string clientSecret = config.authConfig.clientSecret;
             string refreshTokenUrl = config.authConfig.refreshTokenUrl;
 
-            if (refreshToken != "" && clientId != "" && clientSecret != "") {
+            if (refreshToken != EMPTY_STRING && clientId != EMPTY_STRING && clientSecret != EMPTY_STRING) {
                 var accessTokenValueResponse = getAccessTokenFromRefreshToken(config);
                 match accessTokenValueResponse {
-                    string accessTokenString => req.setHeader("Authorization", "Bearer " + accessTokenString);
+                    string accessTokenString => req.setHeader(AUTHORIZATION, BEARER + accessTokenString);
                     HttpConnectorError err => return err;
                 }
             } else {
@@ -256,11 +266,11 @@ public function prepareRequest(Request req, ClientEndpointConfig config) returns
                 return httpConnectorError;
             }
         } else {
-            req.setHeader("Authorization", "Bearer " + config.authConfig.accessToken);
+            req.setHeader(AUTHORIZATION, BEARER + config.authConfig.accessToken);
         }
-    } else if (scheme == "jwt"){
+    } else if (scheme == JWT_SCHEME){
         string authToken = runtime:getInvocationContext().authenticationContext.authToken;
-        req.setHeader("Authorization", "Bearer " + authToken);
+        req.setHeader(AUTHORIZATION, BEARER + authToken);
     }
     return ();
 }
@@ -288,8 +298,8 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
         }
     }
     Request refreshTokenRequest;
-    refreshTokenRequest.addHeader("Authorization", "Basic " + base64ClientIdSecret);
-    refreshTokenRequest.addHeader("Content-Type", "application/x-www-form-urlencoded");
+    refreshTokenRequest.addHeader(AUTHORIZATION, BASIC + base64ClientIdSecret);
+    refreshTokenRequest.addHeader(CONTENT_TYPE, APPLICATION_WWW_FORM_URL_ENCODED);
     refreshTokenRequest.setStringPayload("grant_type=refresh_token&refresh_token=" + refreshToken);
     refreshTokenRequest.setStringPayload(requestParams);
     refreshTokenRequestPath = refreshTokenRequestPath + "?" + requestParams;
@@ -303,8 +313,8 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     json generatedToken = check requestAccessTokenJson;
 
     if (tokenResponse.statusCode == 200) {
-        return generatedToken.access_token.toString() but { () => "" };
+        return generatedToken.access_token.toString() but { () => EMPTY_STRING };
     }
-    return "";
+    return EMPTY_STRING;
 }
 
