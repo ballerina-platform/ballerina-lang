@@ -46,6 +46,7 @@ public enum DiagnosticCode {
     UNDEFINED_PARAMETER("undefined.parameter"),
     CANNOT_FIND_MATCHING_FUNCTION("cannot.find.function.sig.for.function.in.object"),
     IMPLEMENTATION_ALREADY_EXIST("implementation.already.exist"),
+    CANNOT_FIND_MATCHING_INTERFACE("cannot.find.matching.interface.function"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),

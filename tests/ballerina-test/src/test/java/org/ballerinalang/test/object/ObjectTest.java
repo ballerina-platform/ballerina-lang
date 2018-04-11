@@ -465,19 +465,38 @@ public class ObjectTest {
                 "not present as a constructor parameter", 22, 1);
     }
 
-//    @Test (description = "Negative test to test self reference types")
-//    public void testNonMatchingAttachedFunction() {
-//        CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
-//        Assert.assertEquals(result.getErrorCount(), 5);
-//        BAssertUtil.validateError(result, 0, "object un-initializable field 'Employee emp' " +
-//                "is not present as a constructor parameter", 7, 1);
-//        BAssertUtil.validateError(result, 1, "cyclic type reference in '[Employee, Foo, Bar, Person]'", 10, 9);
-//        BAssertUtil.validateError(result, 2, "object un-initializable field 'Foo foo' is " +
-//                "not present as a constructor parameter", 14, 1);
-//        BAssertUtil.validateError(result, 3, "object un-initializable field 'Bar bar' is " +
-//                "not present as a constructor parameter", 14, 1);
-//        BAssertUtil.validateError(result, 4, "object un-initializable field 'Bar bar1' is " +
-//                "not present as a constructor parameter", 22, 1);
-//    }
+    @Test (description = "Negative test to test self reference types")
+    public void testNonMatchingAttachedFunction() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_invalid_attached_func_def.bal");
+        Assert.assertEquals(result.getErrorCount(), 14);
+        BAssertUtil.validateError(result, 0, "cannot find matching interface " +
+                "function 'test0' in the object 'Person'", 42, 1);
+        BAssertUtil.validateError(result, 1, "cannot find matching interface " +
+                "function 'test1' in the object 'Person'", 46, 1);
+        BAssertUtil.validateError(result, 2, "cannot find matching interface " +
+                "function 'test2' in the object 'Person'", 50, 1);
+        BAssertUtil.validateError(result, 3, "cannot find matching interface " +
+                "function 'test3' in the object 'Person'", 54, 1);
+        BAssertUtil.validateError(result, 4, "incompatible types: expected " +
+                "'string', found 'int'", 54, 44);
+        BAssertUtil.validateError(result, 5, "cannot find matching interface " +
+                "function 'test5' in the object 'Person'", 62, 1);
+        BAssertUtil.validateError(result, 6, "cannot find matching interface " +
+                "function 'test6' in the object 'Person'", 66, 1);
+        BAssertUtil.validateError(result, 7, "cannot find matching interface " +
+                "function 'test7' in the object 'Person'", 70, 1);
+        BAssertUtil.validateError(result, 8, "cannot find matching interface " +
+                "function 'test8' in the object 'Person'", 74, 1);
+        BAssertUtil.validateError(result, 9, "cannot find matching interface " +
+                "function 'test9' in the object 'Person'", 78, 1);
+        BAssertUtil.validateError(result, 10, "cannot find matching interface " +
+                "function 'test10' in the object 'Person'", 82, 1);
+        BAssertUtil.validateError(result, 11, "cannot find matching interface " +
+                "function 'test11' in the object 'Person'", 86, 1);
+        BAssertUtil.validateError(result, 12, "cannot find matching interface " +
+                "function 'test12' in the object 'Person'", 90, 1);
+        BAssertUtil.validateError(result, 13, "cannot find matching interface " +
+                "function 'test13' in the object 'Person'", 94, 1);
+    }
 
 }
