@@ -35,6 +35,7 @@ import java.util.ArrayList;
 /**
  * Test cases for Handlebars Writer.
  */
+@Test(groups = "broken")
 public class WriterTest {
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     private PrintStream defaultOutput;

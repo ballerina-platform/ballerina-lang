@@ -22,6 +22,11 @@ under the License.
 <suite name="ballerina-docgen-test-suite">
 	<!-- Ballerina Docgen Test Cases. -->
     <test name="ballerina-docgen-test-suite" preserve-order="true" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <packages>
             <package name="org.wso2.ballerina.docgen.docs"/>
         </packages>

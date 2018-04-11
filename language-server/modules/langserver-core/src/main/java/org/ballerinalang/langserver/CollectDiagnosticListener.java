@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class CollectDiagnosticListener implements DiagnosticListener {
 
-    List<Diagnostic> diagnostics;
+    private List<Diagnostic> diagnostics;
     public CollectDiagnosticListener(List<Diagnostic> diagnostics) {
         this.diagnostics = diagnostics;
     }
@@ -32,5 +32,9 @@ public class CollectDiagnosticListener implements DiagnosticListener {
     @Override
     public void received(Diagnostic diagnostic) {
         diagnostics.add(diagnostic);
+    }
+
+    public List<Diagnostic> getDiagnostics() {
+        return diagnostics;
     }
 }

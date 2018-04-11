@@ -10,3 +10,4 @@ documentation {
 V{{bar}} constant variable `bar`
 }
 @final string bar = "bar";
+

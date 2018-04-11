@@ -81,4 +81,8 @@ public interface PackageNode extends Node {
     List<? extends TransformerNode> getTransformers();
 
     void addTransformer(TransformerNode transformer);
+
+    List<? extends RecordNode> getRecords();
+
+    void addRecord(RecordNode recordNode);
 }

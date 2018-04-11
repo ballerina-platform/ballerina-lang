@@ -46,7 +46,7 @@ function initDefaultCsvForReading(string filePath) returns (boolean|io:IOError){
 }
 
 function initDefaultCsvForWriting(string filePath) returns (boolean|io:IOError){
-    var csvDefaultChannel = io:createCsvChannel(filePath,mode="w");
+    var csvDefaultChannel = io:createCsvChannel(filePath,mode=io:MODE_W);
     match csvDefaultChannel {
         io:DelimitedRecordChannel delimChannel =>{
             txtChannel = delimChannel;
@@ -59,7 +59,7 @@ function initDefaultCsvForWriting(string filePath) returns (boolean|io:IOError){
 }
 
 function initRfcForReading(string filePath) returns (boolean|io:IOError){
-    var csvDefaultChannel = io:createCsvChannel(filePath,mode="r", rf="RFC4180");
+    var csvDefaultChannel = io:createCsvChannel(filePath,mode=io:MODE_R, rf=io:FORMAT_RFC4180);
     match csvDefaultChannel {
        io:DelimitedRecordChannel delimChannel =>{
           txtChannel = delimChannel;
@@ -72,7 +72,7 @@ function initRfcForReading(string filePath) returns (boolean|io:IOError){
 }
 
 function initRfcForWriting(string filePath) returns (boolean|io:IOError){
-    var csvDefaultChannel = io:createCsvChannel(filePath,mode="w", rf="RFC4180");
+    var csvDefaultChannel = io:createCsvChannel(filePath,mode=io:MODE_W, rf=io:FORMAT_RFC4180);
     match csvDefaultChannel {
         io:DelimitedRecordChannel delimChannel =>{
             txtChannel = delimChannel;
@@ -85,7 +85,7 @@ function initRfcForWriting(string filePath) returns (boolean|io:IOError){
 }
 
 function initTdfForReading(string filePath) returns (boolean|io:IOError){
-    var csvDefaultChannel = io:createCsvChannel(filePath,mode="r", rf="TDF");
+    var csvDefaultChannel = io:createCsvChannel(filePath,mode=io:MODE_R, rf=io:FORMAT_TDF);
     match csvDefaultChannel {
        io:DelimitedRecordChannel delimChannel =>{
          txtChannel = delimChannel;
@@ -98,7 +98,7 @@ function initTdfForReading(string filePath) returns (boolean|io:IOError){
 }
 
 function initTdfForWriting(string filePath) returns (boolean|io:IOError){
-    var csvDefaultChannel = io:createCsvChannel(filePath,mode="w", rf="TDF");
+    var csvDefaultChannel = io:createCsvChannel(filePath,mode=io:MODE_W, rf=io:FORMAT_TDF);
     match csvDefaultChannel {
         io:DelimitedRecordChannel delimChannel =>{
             txtChannel = delimChannel;

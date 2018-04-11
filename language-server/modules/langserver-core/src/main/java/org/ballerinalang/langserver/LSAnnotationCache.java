@@ -45,13 +45,10 @@ public class LSAnnotationCache {
     }
     
     public static LSAnnotationCache getInstance() {
-        if (lsAnnotationCache == null) {
-            initiate();
-        }
         return lsAnnotationCache;
     }
     
-    static synchronized void initiate() {
+    public static synchronized void initiate() {
         if (lsAnnotationCache == null) {
             lsAnnotationCache = new LSAnnotationCache();
             List<BLangPackage> builtins = LSPackageLoader.getBuiltinPackages();

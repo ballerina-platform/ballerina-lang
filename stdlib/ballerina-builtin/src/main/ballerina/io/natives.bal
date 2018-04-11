@@ -16,6 +16,27 @@
 
 package ballerina.io;
 
+@Description {value:"Describes access mode for reading"}
+@final public string MODE_R = "r";
+
+@Description {value:"Describes access mode for writing"}
+@final public string MODE_W = "w";
+
+@Description {value:"Describes acces mode for reading and writing"}
+@final public string MODE_RW = "rw";
+
+@Description {value:"Describes access mode for append"}
+@final public string MODE_A = "a";
+
+@Description {value:"Describes default format to open CSV"}
+@final public string FORMAT_DEFAULT = "default";
+
+@Description {value:"Describes RFC4180 format to open CSV"}
+@final public string FORMAT_RFC4180 = "RFC4180";
+
+@Description {value:"Describes TDF format to open CSV"}
+@final public string FORMAT_TDF = "TDF";
+
 @Description {value:"Ballerina ByteChannel represents a channel which will allow I/O operations to be done"}
 public type ByteChannel object {
     @Description {value:"Function to read bytes"}
@@ -57,16 +78,21 @@ public type CharacterChannel object {
     public native function closeCharacterChannel () returns (IOError | ());
 
     @Description {value:"Function to convert a character channel to a JSON"}
-    @Param {value:"channel: The source CharacterChannel that going to convert to JSON"}
     @Return {value:"Returns A JSON"}
     @Return {value:"Returns if there's any error while performaing I/O operation"}
     public native function readJson () returns @tainted (json|IOError);
 
     @Description {value:"Function to convert a character channel to a XML"}
-    @Param {value:"channel: The source CharacterChannel that going to convert to XML"}
     @Return {value:"Returns A XML"}
     @Return {value:"Returns if there's any error while performaing I/O operation"}
+
     public native function readXml () returns @tainted (xml|IOError);
+
+    @Description {value:"Writes json through a given character channel"}
+    public native function writeJson(json content) returns (IOError | ());
+
+    @Description {value:"Writes xml through a given character channel"}
+    public native function writeXml(xml content) returns (IOError | ());
 };
 
 @Description {value:"Ballerina DelimitedRecordChannel represents a channel which will allow to read/write text records"}

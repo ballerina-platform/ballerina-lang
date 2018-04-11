@@ -200,6 +200,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private List<Boolean> returnTaintedStatusList;
     private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
     private Map<BlockingNode, List<BlockedNode>> blockedNodeMap = new HashMap<>();
+    private Map<BLangIdentifier, Boolean> workerInteractionTaintedStatusMap;
+    private BLangIdentifier currWorkerIdentifier;
+    private BLangIdentifier currForkIdentifier;
 
     private static final String ANNOTATION_TAINTED = "tainted";
     private static final String ANNOTATION_UNTAINTED = "untainted";
@@ -373,6 +376,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangWorker workerNode) {
+        currWorkerIdentifier = workerNode.name;
         SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env);
         analyzeNode(workerNode.body, workerEnv);
     }
@@ -431,9 +435,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             } else {
                 analyzeNode(stmt, blockEnv);
             }
-        }
-        if (stopAnalysis) {
-            stopAnalysis = false;
         }
     }
 
@@ -654,7 +655,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangForkJoin forkJoin) {
-        forkJoin.workers.forEach(worker -> worker.accept(this));
+        analyzeWorkers(forkJoin.workers);
+        if (currForkIdentifier != null) {
+            Boolean taintedStatus = workerInteractionTaintedStatusMap.get(currForkIdentifier);
+            if (taintedStatus != null) {
+                setTaintedStatus(forkJoin.joinResultVar, taintedStatus);
+            }
+        }
         nonOverridingAnalysis = true;
         if (forkJoin.joinedBody != null) {
             forkJoin.joinedBody.accept(this);
@@ -730,11 +737,26 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangWorkerSend workerSendNode) {
+        if (workerSendNode.isForkJoinSend) {
+            currForkIdentifier = workerSendNode.workerIdentifier;
+        }
         workerSendNode.expr.accept(this);
+        Boolean taintedStatus = workerInteractionTaintedStatusMap.get(workerSendNode.workerIdentifier);
+        if (taintedStatus == null) {
+            workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier, getObservedTaintedStatus());
+        } else if (getObservedTaintedStatus()) {
+            taintedStatus = getObservedTaintedStatus();
+            workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier, taintedStatus);
+        }
     }
 
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.expr.accept(this);
+        Boolean taintedStatus = workerInteractionTaintedStatusMap.get(currWorkerIdentifier);
+        if (taintedStatus == null) {
+            throw new WorkerAnalysisBlockedOnInteractionException();
+        } else {
+            setTaintedStatus((BLangVariableReference) workerReceiveNode.expr, getObservedTaintedStatus());
+        }
     }
 
     // Expressions
@@ -1321,11 +1343,30 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (invokableNode.workers.isEmpty()) {
             analyzeNode(invokableNode.body, symbolEnv);
         } else {
-            for (BLangWorker worker : invokableNode.workers) {
+            analyzeWorkers(invokableNode.workers);
+        }
+        if (stopAnalysis) {
+            stopAnalysis = false;
+        }
+    }
+
+    private void analyzeWorkers (List<BLangWorker> workers) {
+        workerInteractionTaintedStatusMap = new HashMap<>();
+        boolean doScan = true;
+        while (doScan) {
+            doScan = false;
+            for (BLangWorker worker : workers) {
                 worker.endpoints.forEach(endpoint -> endpoint.accept(this));
-                analyzeNode(worker, symbolEnv);
-                if (this.blockedNode != null || taintErrorSet.size() > 0) {
-                    break;
+                try {
+                    worker.accept(this);
+                    if (this.blockedNode != null || taintErrorSet.size() > 0) {
+                        return;
+                    }
+                } catch (WorkerAnalysisBlockedOnInteractionException e) {
+                    doScan = true;
+                }
+                if (stopAnalysis) {
+                    return;
                 }
             }
         }
@@ -1741,5 +1782,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             result = 31 * result + invokableNode.symbol.name.hashCode();
             return result;
         }
+    }
+
+    private class WorkerAnalysisBlockedOnInteractionException extends RuntimeException {
     }
 }

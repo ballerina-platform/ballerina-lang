@@ -290,7 +290,7 @@ public class SQLDatasource implements BValue {
         case Constants.DBTypes.H2_FILE:
             jdbcUrl.append("jdbc:h2:file:").append(hostOrPath).append(File.separator).append(dbName);
             break;
-        case Constants.DBTypes.H2_MEM:
+        case Constants.DBTypes.H2_MEMORY:
             jdbcUrl.append("jdbc:h2:mem:").append(dbName);
             break;
         case Constants.DBTypes.DERBY_SERVER:
@@ -348,7 +348,7 @@ public class SQLDatasource implements BValue {
         case Constants.DBTypes.H2:
         case Constants.DBTypes.H2_SERVER:
         case Constants.DBTypes.H2_FILE:
-        case Constants.DBTypes.H2_MEM:
+        case Constants.DBTypes.H2_MEMORY:
             xaDataSource = Constants.XADataSources.H2_XA_DATASOURCE;
             break;
         case Constants.DBTypes.DERBY_SERVER:

@@ -3,6 +3,11 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/file;
 
+function testContentType (http:Request req, string contentTypeValue) returns (string?) {
+    req.setContentType(contentTypeValue);
+    return req.getContentType();
+}
+
 function testGetContentLength (http:Request req) returns (string) {
     return req.getHeader("content-length");
 }
@@ -50,6 +55,12 @@ function testSetEntityBody (string filePath, string contentType) returns (http:R
     file:Path path = new(filePath);
     req.setFileAsPayload(path, contentType);
     return req;
+}
+
+function testSetPayloadAndGetText ((string | xml | json | blob | io:ByteChannel) payload) returns string | http:PayloadError {
+    http:Request req = new;
+    req.setPayload(payload);
+    return req.getStringPayload();
 }
 
 function testGetHeader (http:Request req, string key) returns (string) {
