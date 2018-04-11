@@ -113,7 +113,7 @@ public type CircuitBreakerClient object {
         CircuitBreakerInferredConfig circuitBreakerInferredConfig;
         HttpClient httpClient;
         CircuitHealth circuitHealth;
-        CircuitState currentCircuitState;
+        CircuitState currentCircuitState = CB_CLOSED_STATE;
     }
 
     public new (string serviceUri, ClientEndpointConfig config, CircuitBreakerInferredConfig circuitBreakerInferredConfig,
@@ -123,7 +123,6 @@ public type CircuitBreakerClient object {
         self.circuitBreakerInferredConfig = circuitBreakerInferredConfig;
         self.httpClient = httpClient;
         self.circuitHealth = circuitHealth;
-        self.currentCircuitState = CB_CLOSED_STATE;
     }
 
     @Description {value:"The POST action implementation of the Circuit Breaker. Protects the invocation of the POST action of the underlying HTTP client connector."}
