@@ -48,9 +48,7 @@ import org.testng.annotations.Test;
 
 import static org.awaitility.Awaitility.await;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
 
 import java.util.Arrays;
 
@@ -65,23 +63,20 @@ public class TimerTest {
     @BeforeClass
     public void setup() {
         System.setProperty("java.util.logging.config.file",
-                           ClassLoader.getSystemResource("logging.properties").getPath());
+                ClassLoader.getSystemResource("logging.properties").getPath());
         System.setProperty("java.util.logging.manager", "org.ballerinalang.logging.BLogManager");
     }
 
     @Test(description = "Tests running a timer and stopping it")
     public void testSimpleExecution() {
         CompileResult timerCompileResult = BCompileUtil.compileAndSetup("test-src/task/timer-simple.bal");
+
         printDiagnostics(timerCompileResult);
 
         int initialDelay = 500;
         int interval = 1000;
-        BValue[] returns =
-                BRunUtil.invokeStateful(timerCompileResult, "scheduleTimer",
-                                        new BValue[]{new BInteger(initialDelay), new BInteger(interval)});
-        String taskId = returns[0].stringValue();
-        assertNotEquals(taskId, "", "Invalid task ID");  // A non-null task ID should be returned
-        assertEquals(returns.length, 1); // There should be no errors
+        BRunUtil.invokeStateful(timerCompileResult, "scheduleTimer",
+                new BValue[]{new BInteger(initialDelay), new BInteger(interval)});
 
         await().atMost(30, SECONDS).until(() -> {
             BValue[] counts = BRunUtil.invokeStateful(timerCompileResult, "getCount");
@@ -89,9 +84,7 @@ public class TimerTest {
         });
 
         // Now let's try stopping the task
-        BValue[] stopResult = BRunUtil.invokeStateful(timerCompileResult,
-                                                      "stopTask", new BValue[]{new BString(taskId)});
-        assertNull(stopResult[0], "Task stopping resulted in an error");
+        BRunUtil.invokeStateful(timerCompileResult, "stopTask");
 
         // One more check to see whether the task really stopped
         BValue[] counts = BRunUtil.invokeStateful(timerCompileResult, "getCount");
@@ -106,13 +99,9 @@ public class TimerTest {
         int initialDelay = 500;
         int interval = 1000;
         String errMsg = "Timer error";
-        BValue[] returns =
-                BRunUtil.invokeStateful(timerCompileResult, "scheduleTimerWithError",
-                                        new BValue[]{new BInteger(initialDelay), new BInteger(interval),
-                                                new BString(errMsg)});
-        String taskId = returns[0].stringValue();
-        assertNotEquals(taskId, "", "Invalid task ID");  // A non-null task ID should be returned
-        assertEquals(returns.length, 1); // There should be no errors
+        BRunUtil.invokeStateful(timerCompileResult, "scheduleTimerWithError",
+                new BValue[]{new BInteger(initialDelay), new BInteger(interval),
+                        new BString(errMsg)});
 
         await().atMost(5, SECONDS).until(() -> {
             BValue[] error = BRunUtil.invokeStateful(timerCompileResult, "getError");
@@ -125,9 +114,7 @@ public class TimerTest {
         assertEquals(error[0].stringValue(), errMsg, "Expected error message not returned.");
 
         // Now let's try stopping the task
-        BValue[] stopResult = BRunUtil.invokeStateful(timerCompileResult,
-                                                      "stopTask", new BValue[]{new BString(taskId)});
-        assertNull(stopResult[0], "Task stopping resulted in an error");
+        BRunUtil.invokeStateful(timerCompileResult, "stopTask");
     }
 
     @Test(description = "Tests running a timer started within workers")
@@ -139,16 +126,11 @@ public class TimerTest {
         int w1Interval = 1000;
         int w2InitialDelay = 800;
         int w2Interval = 2000;
-        BValue[] returns =
-                BRunUtil.invokeStateful(timerCompileResult, "scheduleTimer",
-                                        new BValue[]{
-                                                new BInteger(w1InitialDelay), new BInteger(w1Interval),
-                                                new BInteger(w2InitialDelay), new BInteger(w2Interval),
-                                                new BString(""), new BString("")});
-        String w1TaskId = returns[0].stringValue();
-        String w2TaskId = returns[1].stringValue();
-        assertNotEquals(w1TaskId, "", "Invalid task ID from worker w1");  // A non-null task ID should be returned
-        assertNotEquals(w2TaskId, "", "Invalid task ID from worker w2");  // A non-null task ID should be returned
+        BRunUtil.invokeStateful(timerCompileResult, "scheduleTimer",
+                new BValue[]{
+                        new BInteger(w1InitialDelay), new BInteger(w1Interval),
+                        new BInteger(w2InitialDelay), new BInteger(w2Interval),
+                        new BString(""), new BString("")});
         await().atMost(30, SECONDS).until(() -> {
             BValue[] counts = BRunUtil.invokeStateful(timerCompileResult, "getCounts");
             return counts != null && counts[0] != null && counts[1] != null &&
@@ -156,10 +138,7 @@ public class TimerTest {
         });
 
         // Now let's try stopping the tasks
-        BValue[] stopResult = BRunUtil.invokeStateful(timerCompileResult, "stopTasks",
-                                                      new BValue[]{new BString(w1TaskId), new BString(w2TaskId)});
-        assertNull(stopResult[0], "Task stopping on worker w1 resulted in an error");
-        assertNull(stopResult[1], "Task stopping on worker w2 resulted in an error");
+        BRunUtil.invokeStateful(timerCompileResult, "stopTasks");
 
         // One more check to see whether the task really stopped
         BValue[] counts = BRunUtil.invokeStateful(timerCompileResult, "getCounts");
@@ -179,16 +158,11 @@ public class TimerTest {
         String w1ErrMsg = "w1: Timer error";
         String w2ErrMsg = "w2: Timer error";
 
-        BValue[] returns =
-                BRunUtil.invokeStateful(timerCompileResult, "scheduleTimer",
-                                        new BValue[]{
-                                                new BInteger(w1InitialDelay), new BInteger(w1Interval),
-                                                new BInteger(w2InitialDelay), new BInteger(w2Interval),
-                                                new BString(w1ErrMsg), new BString(w2ErrMsg)});
-        String w1TaskId = returns[0].stringValue();
-        String w2TaskId = returns[1].stringValue();
-        assertNotEquals(w1TaskId, "", "Invalid task ID from worker w1");  // A non-null task ID should be returned
-        assertNotEquals(w2TaskId, "", "Invalid task ID from worker w2");  // A non-null task ID should be returned
+        BRunUtil.invokeStateful(timerCompileResult, "scheduleTimer",
+                new BValue[]{
+                        new BInteger(w1InitialDelay), new BInteger(w1Interval),
+                        new BInteger(w2InitialDelay), new BInteger(w2Interval),
+                        new BString(w1ErrMsg), new BString(w2ErrMsg)});
         await().atMost(10, SECONDS).until(() -> {
             BValue[] errors = BRunUtil.invokeStateful(timerCompileResult, "getErrors");
             return errors != null && errors[0] != null && !errors[0].stringValue().isEmpty() &&
@@ -202,10 +176,7 @@ public class TimerTest {
         assertEquals(error[1].stringValue(), w2ErrMsg, "Expected error message not returned.");
 
         // Now let's try stopping the tasks
-        BValue[] stopResult = BRunUtil.invokeStateful(timerCompileResult, "stopTasks",
-                                                      new BValue[]{new BString(w1TaskId), new BString(w2TaskId)});
-        assertNull(stopResult[0], "Task stopping on worker w1 resulted in an error");
-        assertNull(stopResult[1], "Task stopping on worker w2 resulted in an error");
+        BRunUtil.invokeStateful(timerCompileResult, "stopTasks");
 
         // One more check to see whether the task really stopped
         BValue[] counts = BRunUtil.invokeStateful(timerCompileResult, "getCounts");
