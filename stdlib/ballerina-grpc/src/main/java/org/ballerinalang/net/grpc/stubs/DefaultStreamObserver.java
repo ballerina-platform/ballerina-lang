@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.net.grpc.stubs;
 
+import io.grpc.Metadata;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
@@ -36,8 +37,10 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static org.ballerinalang.net.grpc.MessageUtils.updateContextProperties;
+import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
+import static org.ballerinalang.net.grpc.MessageUtils.getHeaderStruct;
 
 /**
  * This is Stream Observer Implementation for gRPC Client Call.
@@ -47,8 +50,9 @@ import static org.ballerinalang.net.grpc.MessageUtils.updateContextProperties;
 public class DefaultStreamObserver implements StreamObserver<Message> {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultStreamObserver.class);
     private Map<String, Resource> resourceMap = new HashMap<>();
+    private AtomicReference<Metadata> headerCapture;
 
-    public DefaultStreamObserver(Service callbackService) throws
+    public DefaultStreamObserver(Service callbackService, AtomicReference<Metadata> headerCapture) throws
             GrpcClientException {
         if (callbackService == null) {
             throw new GrpcClientException("Error while building the connection. Listener Service does not exist");
@@ -57,6 +61,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         for (Resource resource : callbackService.getResources()) {
             resourceMap.put(resource.getName(), resource);
         }
+        this.headerCapture = headerCapture;
     }
     
     @Override
@@ -69,12 +74,19 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         }
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-        BValue requestParam = getRequestParameter(resource, value);
+        BStruct headerStruct = getHeaderStruct(resource);
+        if (headerStruct != null) {
+            headerStruct.addNativeData(METADATA_KEY, headerCapture.get());
+        }
+        BValue requestParam = getRequestParameter(resource, value, headerStruct != null);
         if (requestParam != null) {
             signatureParams[0] = requestParam;
         }
+        if (headerStruct != null) {
+            signatureParams[signatureParams.length - 1] = headerStruct;
+        }
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
-        Executor.submit(resource, callback, updateContextProperties(null), null, signatureParams);
+        Executor.submit(resource, callback, null, null, signatureParams);
     }
     
     @Override
@@ -87,17 +99,20 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         }
         List<ParamDetail> paramDetails = onError.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-        if (paramDetails.size() != 1) {
-            String message = "Error in onError resource definition. It must have only error params, but have "
-                    + paramDetails.size();
-            LOG.error(message);
-            throw new RuntimeException(message);
-        }
         BType errorType = paramDetails.get(0).getVarType();
         BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
         signatureParams[0] = errorStruct;
+        BStruct headerStruct = getHeaderStruct(onError);
+        if (headerStruct != null) {
+            headerStruct.addNativeData(METADATA_KEY, headerCapture.get());
+        }
+
+        if (headerStruct != null && signatureParams.length == 2) {
+            signatureParams[1] = headerStruct;
+        }
+
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
-        Executor.submit(onError, callback, updateContextProperties(null), null, signatureParams);
+        Executor.submit(onError, callback, null, null, signatureParams);
     }
     
     @Override
@@ -110,16 +125,26 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         }
         List<ParamDetail> paramDetails = onCompleted.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
+        BStruct headerStruct = getHeaderStruct(onCompleted);
+        if (headerStruct != null) {
+            headerStruct.addNativeData(METADATA_KEY, headerCapture.get());
+        }
+
+        if (headerStruct != null && signatureParams.length == 1) {
+            signatureParams[0] = headerStruct;
+        }
+
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
-        Executor.submit(onCompleted, callback, updateContextProperties(null), null, signatureParams);
+        Executor.submit(onCompleted, callback, null, null, signatureParams);
     }
     
-    private BValue getRequestParameter(Resource resource, Message requestMessage) {
-        if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 1) {
+    private BValue getRequestParameter(Resource resource, Message requestMessage, boolean isHeaderRequired) {
+        if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 2) {
             throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than two");
         }
-        
-        if (resource.getParamDetails().size() == 1) {
+
+        List<ParamDetail> paramDetails = resource.getParamDetails();
+        if ((isHeaderRequired && paramDetails.size() == 2) || (!isHeaderRequired && paramDetails.size() == 1)) {
             BType requestType = resource.getParamDetails().get(MessageConstants.CALLBACK_MESSAGE_PARAM_INDEX)
                     .getVarType();
             String requestName = resource.getParamDetails().get(MessageConstants.CALLBACK_MESSAGE_PARAM_INDEX)

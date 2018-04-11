@@ -8,20 +8,22 @@ function main (string[] args) {
         host:"localhost",
         port:9090
     };
-
     //Working with custom headers
-    grpc:MessageContext context = helloWorldBlockingEp -> getContext();
-    context.setHeader("x-id", "0987654321");
+    grpc:Headers headers = new;
+    headers.setEntry("x-id","0987654321");
     // Executing unary blocking call
-    string|error unionResp = helloWorldBlockingEp -> hello("WSO2");
+    (string,grpc:Headers)|error unionResp = helloWorldBlockingEp -> hello("WSO2", headers);
     match unionResp {
-        string payload => {
+        (string,grpc:Headers) payload => {
             io:println("Client Got Response : ");
-            io:println(payload);
+            string result;
+            grpc:Headers resHeaders;
+            (result, resHeaders) = payload;
+            io:println(result);
+            io:println(resHeaders.get("x-id"));
         }
         error err => {
             io:println("Error from Connector: " + err.message);
         }
     }
-    io:println(context.getHeader("x-id"));
 }

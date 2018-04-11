@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.net.grpc;
 
+import io.grpc.CallOptions;
 import io.grpc.Context;
 import io.grpc.Metadata;
 
@@ -25,9 +26,9 @@ import java.util.Set;
  *
  * @since 1.0.0
  */
-public class MessageContext {
-    public static final String MESSAGE_CONTEXT_KEY = "MessageContext";
-    public static final Context.Key<MessageContext> DATA_KEY = Context.key("MessageContext");
+public class MessageHeaders {
+    public static final String METADATA_KEY = "Metadata";
+    public static final Context.Key<MessageHeaders> DATA_KEY = Context.key("Metadata");
     private Metadata contextMetadata;
 
     /**
@@ -41,10 +42,14 @@ public class MessageContext {
             throw new RuntimeException("Context instance provided is null.");
         }
         if (DATA_KEY.get(context) != null) {
-            throw new IllegalStateException("MessageContext has already been created in the scope of the current " +
+            throw new IllegalStateException("MessageHeaders has already been created in the scope of the current " +
                     "context");
         }
-        return context.withValue(DATA_KEY, new MessageContext());
+        return context.withValue(DATA_KEY, new MessageHeaders());
+    }
+
+    public Metadata getMessageMetadata() {
+        return contextMetadata;
     }
 
     /**
@@ -52,39 +57,43 @@ public class MessageContext {
      *
      * @throws  IllegalStateException  if no ambient context is attached to the current gRPC {@code Context}.
      */
-    public static MessageContext current() {
+    public static MessageHeaders current() {
         if (DATA_KEY.get() == null) {
-            throw new IllegalStateException("MessageContext has not yet been created in the scope of the current " +
+            throw new IllegalStateException("MessageHeaders has not yet been created in the scope of the current " +
                     "context");
         }
         return DATA_KEY.get();
     }
 
     /**
-     * @return true if an {@code MessageContext} is attached to the current gRPC context.
+     * @return true if an {@code MessageHeaders} is attached to the current gRPC context.
      */
     public static boolean isPresent() {
         return DATA_KEY.get() != null;
     }
 
-    public MessageContext() {
+    public MessageHeaders() {
         this.contextMetadata = new Metadata();
     }
 
     /**
      * Copy constructor.
      */
-    public MessageContext(MessageContext other) {
+    public MessageHeaders(MessageHeaders other) {
         this();
         this.contextMetadata.merge(other.contextMetadata);
     }
 
+    public MessageHeaders(Metadata metadata) {
+        this.contextMetadata = metadata;
+    }
+
     /**
-     * Similar to {@link #initialize(Context)}, {@code fork()} attaches a shallow clone of this {@code MessageContext}
+     * Similar to {@link #initialize(Context)}, {@code fork()} attaches a shallow clone of this {@code MessageHeaders}
      * to a provided gRPC {@code Context}. Use {@code fork()} when you want create a temporary context scope.
      */
     public Context fork(Context context) {
-        return context.withValue(DATA_KEY, new MessageContext(this));
+        return context.withValue(DATA_KEY, new MessageHeaders(this));
     }
 
     /**

@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
+import org.ballerinalang.net.grpc.MessageHeaders;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
@@ -36,8 +37,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
+import static org.ballerinalang.net.grpc.MessageUtils.getHeaderStruct;
 import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
-import static org.ballerinalang.net.grpc.MessageUtils.updateContextProperties;
 
 /**
  * Abstract Method listener.
@@ -60,7 +62,7 @@ abstract class MethodListener {
      * @param responseObserver client responder instance.
      * @return instance of endpoint type.
      */
-    BValue getConnectionParameter(Resource resource, StreamObserver<Message> responseObserver) {
+    private BValue getConnectionParameter(Resource resource, StreamObserver<Message> responseObserver) {
         ProgramFile programFile = getProgramFile(resource);
         // generate client responder struct on request message with response observer and response msg type.
         BStruct clientEndpoint = BLangConnectorSPIUtil.createBStruct(programFile,
@@ -82,15 +84,16 @@ abstract class MethodListener {
      * @param requestMessage protobuf request message.
      * @return b7a message.
      */
-    BValue getRequestParameter(Resource resource, Message requestMessage) {
-        if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 2) {
-            throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than two");
+    private BValue getRequestParameter(Resource resource, Message requestMessage, boolean isHeaderRequired) {
+        if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 3) {
+            throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than three");
         }
-        
-        if (resource.getParamDetails().size() == 2) {
-            BType requestType = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_PARAM_INDEX)
+
+        List<ParamDetail> paramDetails = resource.getParamDetails();
+        if ((isHeaderRequired && paramDetails.size() == 3) || (!isHeaderRequired && paramDetails.size() == 2)) {
+            BType requestType = paramDetails.get(MessageConstants.REQUEST_MESSAGE_PARAM_INDEX)
                     .getVarType();
-            String requestName = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_PARAM_INDEX)
+            String requestName = paramDetails.get(MessageConstants.REQUEST_MESSAGE_PARAM_INDEX)
                     .getVarName();
             return MessageUtils.generateRequestStruct(requestMessage, getProgramFile(resource), requestName,
                     requestType);
@@ -98,7 +101,7 @@ abstract class MethodListener {
             return null;
         }
     }
-    
+
     /**
      * Checks whether service method has a response message.
      *
@@ -117,28 +120,43 @@ abstract class MethodListener {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(resource, responseObserver);
-        if (paramDetails.size() != 2) {
-            String message = "Error in onError resource definition. It must have two input params, but have "
-                    + paramDetails.size();
-            LOG.error(message);
-            throw new RuntimeException(message);
-        }
         BType errorType = paramDetails.get(1).getVarType();
         BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
         signatureParams[1] = errorStruct;
+        BStruct headerStruct = getHeaderStruct(resource);
+        if (MessageHeaders.isPresent()) {
+            MessageHeaders context = MessageHeaders.current();
+            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(context));
+        }
+
+        if (headerStruct != null && signatureParams.length == 3) {
+            signatureParams[2] = headerStruct;
+        }
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
         Executor.submit(resource, callback, null, null, signatureParams);
     }
 
     void onMessageInvoke(Resource resource, Message request, StreamObserver<Message> responseObserver) {
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
+        Executor.submit(resource, callback, null, null, computeMessageParams(resource, request, responseObserver));
+    }
+
+    BValue[] computeMessageParams(Resource resource, Message request, StreamObserver<Message> responseObserver) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(resource, responseObserver);
-        BValue requestParam = getRequestParameter(resource, request);
+        BStruct headerStruct = getHeaderStruct(resource);
+        if (MessageHeaders.isPresent()) {
+            MessageHeaders context = MessageHeaders.current();
+            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(context));
+        }
+        BValue requestParam = getRequestParameter(resource, request, (headerStruct != null));
         if (requestParam != null) {
             signatureParams[1] = requestParam;
         }
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
-        Executor.submit(resource, callback, updateContextProperties(null), null, signatureParams);
+        if (headerStruct != null) {
+            signatureParams[signatureParams.length - 1] = headerStruct;
+        }
+        return signatureParams;
     }
 }
