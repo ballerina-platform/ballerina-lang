@@ -204,7 +204,7 @@ public type HttpSecureClient object {
     public function rejectPromise (PushPromise promise);
 };
 
-@Description {value:"Creates an HTTP client capable of caching HTTP responses."}
+@Description {value:"Creates an HTTP client capable of securing HTTP requests with authentication."}
 public function createHttpSecureClient(string url, ClientEndpointConfig config) returns HttpClient {
     HttpSecureClient httpSecureClient = new(url, config);
     log:printDebug("Created HTTP secure client: " + io:sprintf("%r", [httpSecureClient]));
