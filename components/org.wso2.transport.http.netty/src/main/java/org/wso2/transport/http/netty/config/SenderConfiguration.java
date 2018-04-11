@@ -90,8 +90,7 @@ public class SenderConfiguration {
     @XmlAttribute
     private int maxRedirectCount;
 
-    @XmlAttribute
-    private boolean isKeepAlive = true;
+    private KeepAliveConfig keepAliveConfig = KeepAliveConfig.AUTO;
 
     @XmlAttribute
     private boolean forceHttp2 = false;
@@ -250,12 +249,12 @@ public class SenderConfiguration {
         this.maxRedirectCount = maxRedirectCount;
     }
 
-    public boolean isKeepAlive() {
-        return isKeepAlive;
+    public KeepAliveConfig getKeepAliveConfig() {
+        return keepAliveConfig;
     }
 
-    public void setKeepAlive(boolean keepAlive) {
-        isKeepAlive = keepAlive;
+    public void setKeepAliveConfig(KeepAliveConfig keepAliveConfig) {
+        this.keepAliveConfig = keepAliveConfig;
     }
 
     public void setProxyServerConfiguration(ProxyServerConfiguration proxyServerConfiguration) {
