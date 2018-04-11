@@ -79,7 +79,7 @@ public class PushUtils {
 
         // Get package path from project directory path
         Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), "repo", Names.ANON_ORG.getValue(),
-                                            packageName, Names.DEFAULT_VERSION.getValue(), packageName + ".zip");
+                                            packageName, version, packageName + ".zip");
         if (Files.notExists(pkgPathFromPrjtDir)) {
             throw new BLangCompilerException("package does not exist");
         }

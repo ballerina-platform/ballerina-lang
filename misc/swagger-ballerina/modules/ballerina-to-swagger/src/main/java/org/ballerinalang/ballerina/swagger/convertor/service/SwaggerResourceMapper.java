@@ -41,6 +41,10 @@ import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNod
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.net.http.HttpConstants;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -112,7 +116,7 @@ public class SwaggerResourceMapper {
                 operation = this.convertResourceToOperation(resource,
                         httpMethod.toUpperCase(Locale.getDefault())).getOperation();
                 if (operation != null) {
-                    switch (httpMethod.toLowerCase(Locale.getDefault())) {
+                    switch (httpMethod.toUpperCase(Locale.getDefault())) {
                         case HttpConstants.ANNOTATION_METHOD_GET:
                             pathObject.setGet(operation);
                             break;
@@ -125,7 +129,7 @@ public class SwaggerResourceMapper {
                         case HttpConstants.ANNOTATION_METHOD_DELETE:
                             pathObject.setDelete(operation);
                             break;
-                        case "head":
+                        case "HEAD":
                             pathObject.setHead(operation);
                             break;
                         case HttpConstants.ANNOTATION_METHOD_OPTIONS:
@@ -564,44 +568,48 @@ public class SwaggerResourceMapper {
             // .get("authorizations"), operation);
         }
     }
-    
+
     /**
      * Gets the http methods of a resource.
-     * @param resource The ballerina resource.
+     *
+     * @param resource    The ballerina resource.
      * @param useDefaults True to add default http methods, else false.
      * @return A list of http methods.
      */
     private List<String> getHttpMethods(ResourceNode resource, boolean useDefaults) {
         Optional<? extends AnnotationAttachmentNode> responsesAnnotationAttachment =
-                                                                            resource.getAnnotationAttachments().stream()
-                .filter(a -> null != this.httpAlias && this.httpAlias.equals(a.getPackageAlias().getValue()) &&
-                             "resourceConfig".equals(a.getAnnotationName().getValue()))
-                .findFirst();
+                resource.getAnnotationAttachments().stream()
+                        .filter(a ->
+                                "ResourceConfig".equals(a.getAnnotationName().getValue()))
+                        .findFirst();
         Set<String> httpMethods = new LinkedHashSet<>();
+        List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues =
+                ((BLangRecordLiteral) ((BLangAnnotationAttachment) responsesAnnotationAttachment.get()).
+                        getExpression()).getKeyValuePairs();
         if (responsesAnnotationAttachment.isPresent()) {
-            Map<String, AnnotationAttachmentAttributeValueNode> responsesAttributes =
-                    this.listToMap(responsesAnnotationAttachment.get());
-            if (responsesAttributes.containsKey("methods") &&
-                                                        responsesAttributes.get("methods").getValueArray().size() > 0) {
-                for (AnnotationAttachmentAttributeValueNode methodsValue :
-                                                                responsesAttributes.get("methods").getValueArray()) {
-                    httpMethods.add(this.getStringLiteralValue(methodsValue));
+            Map<String, BLangExpression> recordsMap = listToMapBLangRecords(recordKeyValues);
+            if (recordsMap.containsKey("methods") && recordsMap.get("methods") != null) {
+                for (BLangExpression methodsValue : ((BLangArrayLiteral) recordsMap.get("methods")).exprs) {
+                    if (methodsValue != null) {
+                        httpMethods.add(methodsValue.toString());
+                    }
                 }
             }
         }
-        
+
         if (httpMethods.isEmpty() && useDefaults) {
-            // By default http methods is supported.
-            httpMethods.add("GET");
-            httpMethods.add("POST");
+            // By default all http methods are supported.
+            httpMethods.add(HttpConstants.ANNOTATION_METHOD_GET);
+            httpMethods.add(HttpConstants.ANNOTATION_METHOD_PUT);
+            httpMethods.add(HttpConstants.ANNOTATION_METHOD_POST);
+            httpMethods.add(HttpConstants.ANNOTATION_METHOD_DELETE);
+            httpMethods.add(HttpConstants.ANNOTATION_METHOD_PATCH);
+            httpMethods.add(HttpConstants.ANNOTATION_METHOD_OPTIONS);
             httpMethods.add("HEAD");
-            httpMethods.add("OPTIONS");
-            httpMethods.add("DELETE");
-            httpMethods.add("PUT");
         }
         return Lists.reverse(new ArrayList<>(httpMethods));
     }
-    
+
     /**
      * Gets the path value of the @http:resourceConfig.
      * @param resource The ballerina resource.
@@ -636,6 +644,23 @@ public class SwaggerResourceMapper {
                 Collectors.toMap(attribute -> attribute.getName().getValue(), AnnotationAttachmentAttributeNode
                         ::getValue));
     }
+
+
+    /**
+     * Convert BLangRecordKeyValue to Map which contains  BLangExpression
+     *
+     * @param recordKeyValues BLangRecordKeyValue list which contains multiple record values
+     * @return Map which contains BLangExpression generated from passed list.
+     */
+    private Map<String, BLangExpression> listToMapBLangRecords
+    (List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues) {
+        Map<String, BLangExpression> map = new HashMap<>();
+        for (BLangRecordLiteral.BLangRecordKeyValue attribute : recordKeyValues) {
+            map.put(attribute.getKey().toString(), attribute.getValue());
+        }
+        return map;
+    }
+
     
     /**
      * Coverts the string value of an annotation attachment to a string.
