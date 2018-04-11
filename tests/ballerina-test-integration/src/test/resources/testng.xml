@@ -52,6 +52,7 @@
             <!--<class name="org.ballerinalang.test.service.websocket.sample.WebSocketAutoPingPongTest"/>-->
             <class name="org.ballerinalang.test.service.websocket.sample.WebSocketSimpleProxyTestCase"/>
             <class name="org.ballerinalang.test.service.websocket.sample.WebSocketQueryAndPathParamSupportTestCase"/>
+            <class name="org.ballerinalang.test.service.websocket.sample.PingPongSupportTestCase"/>
         </classes>
     </test>
 
