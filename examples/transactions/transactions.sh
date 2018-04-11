@@ -1,3 +1,5 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command.
 $ ballerina run transactions.bal
 2018-03-03 11:29:39,803 INFO  [ballerina.transactions] - Created transaction: 35a7a1b737a14322b0ce7070a9bb3090
 Inserted count:1
