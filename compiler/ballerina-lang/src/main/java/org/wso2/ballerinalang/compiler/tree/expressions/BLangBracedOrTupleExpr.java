@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.BracedOrTupleExpression;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -34,6 +35,8 @@ public class BLangBracedOrTupleExpr extends BLangExpression implements BracedOrT
 
     public List<BLangExpression> expressions = new ArrayList<>();
     public boolean isBracedExpr = false;
+    public boolean isTypedescExpr = false;
+    public BType typedescType = null;
 
     @Override
     public List<BLangExpression> getExpressions() {

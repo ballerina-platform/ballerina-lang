@@ -37,6 +37,7 @@ public class BType implements ValueType {
 
     public int tag;
     public BTypeSymbol tsymbol;
+    public int flags;
 
     public BType(int tag, BTypeSymbol tsymbol) {
         this.tag = tag;

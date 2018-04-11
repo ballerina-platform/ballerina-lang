@@ -22,18 +22,13 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.StructureType;
-import org.ballerinalang.util.codegen.ConnectorInfo;
-import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.StructInfo;
-import org.ballerinalang.util.codegen.attributes.AttributeInfo;
-import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 
 /**
  * Util Class for handling structs in Ballerina VM.
@@ -63,29 +58,6 @@ public class BLangVMStructs {
             setValue(bStruct, indexes, paramType.getTag(), values[i]);
         }
         return bStruct;
-    }
-
-    /**
-     * Create BConnector with given values.
-     *
-     * @param connectorInfo {@link ConnectorInfo} of the {@link BConnector}
-     * @param values        field values of the connector ( including args ).
-     * @return BStruct instance.
-     */
-    public static BConnector createBConnector(ConnectorInfo connectorInfo, Object... values) {
-        BConnector bConnector = new BConnector(connectorInfo.getType());
-        final LocalVariableAttributeInfo localVar = (LocalVariableAttributeInfo) connectorInfo.getAttributeInfo(
-                AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
-        int i = 0;
-        int[] indexes = new int[] {-1, -1, -1, -1, -1, -1};
-        for (LocalVariableInfo variableInfo : localVar.getLocalVariables()) {
-            if (values.length < i + 1) {
-                break;
-            }
-            final BType varType = variableInfo.getVariableType();
-            setValue(bConnector, indexes, varType.getTag(), values[i]);
-        }
-        return bConnector;
     }
 
     @SuppressWarnings("rawtypes")

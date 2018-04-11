@@ -93,15 +93,17 @@ public class HTTPServicesRegistry {
         List<HttpService> httpServices = HttpService.buildHttpService(service);
 
         for (HttpService httpService : httpServices) {
-            //TODO check with new method
-//        HttpUtil.populateKeepAliveAndCompressionStatus(service, annotation);
-
-            // TODO: Add websocket services to the service registry when service creation get available.
-            servicesInfoMap.put(httpService.getBasePath(), httpService);
-            logger.info("Service deployed : " + service.getName() + " with context " + httpService.getBasePath());
+            String basePath = httpService.getBasePath();
+            if (servicesInfoMap.containsKey(basePath)) {
+                throw new BallerinaException("Service registration failed: two services have the same basePath : " +
+                                                     basePath);
+            }
+            servicesInfoMap.put(basePath, httpService);
+            String errLog = String.format("Service deployed : %s with context %s", service.getName(), basePath);
+            logger.info(errLog);
 
             //basePath will get cached after registering service
-            sortedServiceURIs.add(httpService.getBasePath());
+            sortedServiceURIs.add(basePath);
             sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
             registerUpgradableWebSocketService(httpService);
         }

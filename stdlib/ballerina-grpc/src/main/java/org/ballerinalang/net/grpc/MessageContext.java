@@ -26,6 +26,7 @@ import java.util.Set;
  * @since 1.0.0
  */
 public class MessageContext {
+    public static final String MESSAGE_CONTEXT_KEY = "MessageContext";
     public static final Context.Key<MessageContext> DATA_KEY = Context.key("MessageContext");
     private Metadata contextMetadata;
 
@@ -73,7 +74,7 @@ public class MessageContext {
     /**
      * Copy constructor.
      */
-    private MessageContext(MessageContext other) {
+    public MessageContext(MessageContext other) {
         this();
         this.contextMetadata.merge(other.contextMetadata);
     }
