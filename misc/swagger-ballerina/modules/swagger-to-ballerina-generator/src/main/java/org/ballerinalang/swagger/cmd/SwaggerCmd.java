@@ -108,7 +108,7 @@ public class SwaggerCmd implements BLauncherCmd {
     @Override
     public void printUsage(StringBuilder stringBuilder) {
         stringBuilder.append("  ballerina swagger <mock | connector> <swaggerFile> -p<package name> "
-                + "-d<output directory name>\n");
+                + "-o<output directory name>\n");
         stringBuilder.append("\tmock      : generates a ballerina mock service\n");
         stringBuilder.append("\tconnector : generates a ballerina connector\n");
     }

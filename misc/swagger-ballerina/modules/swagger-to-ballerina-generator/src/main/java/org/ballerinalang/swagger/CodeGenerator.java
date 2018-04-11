@@ -42,6 +42,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static org.ballerinalang.swagger.model.GenSrcFile.GenFileType;
 
@@ -71,7 +72,7 @@ public class CodeGenerator {
     public void generate(GenType type, String definitionPath, String outPath)
             throws IOException, BallerinaOpenApiException {
         if (!CodegenUtils.isBallerinaProject(Paths.get(outPath))) {
-            throw new BallerinaOpenApiException(outPath + " is not a valid ballerina project directory. Use "
+            throw new BallerinaOpenApiException("Output path is not a valid ballerina project directory. Use "
                     + "`ballerina init` to generate a new project");
         }
 
@@ -215,7 +216,7 @@ public class CodeGenerator {
      */
     private List<GenSrcFile> generateConnector(BallerinaOpenApi context) throws IOException {
         List<GenSrcFile> sourceFiles = new ArrayList<>();
-        String srcFile = context.getInfo().getTitle().replaceAll(" ", "") + ".bal";
+        String srcFile = context.getInfo().getTitle().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_") + ".bal";
 
         String mainContent = getContent(context, GeneratorConstants.DEFAULT_CONNECTOR_DIR,
                 GeneratorConstants.CONNECTOR_TEMPLATE_NAME);
@@ -239,7 +240,9 @@ public class CodeGenerator {
      */
     private List<GenSrcFile> generateMock(BallerinaOpenApi context) throws IOException {
         List<GenSrcFile> sourceFiles = new ArrayList<>();
-        String srcFile = context.getInfo().getTitle().replaceAll(" ", "") + ".bal";
+        String concatTitle = context.getInfo().getTitle().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_");
+        String srcFile = concatTitle + ".bal";
+        String implFile = concatTitle + "_impl.bal";
 
         String mainContent = getContent(context, GeneratorConstants.DEFAULT_MOCK_DIR,
                 GeneratorConstants.MOCK_TEMPLATE_NAME);
@@ -250,6 +253,12 @@ public class CodeGenerator {
                 GeneratorConstants.SCHEMA_TEMPLATE_NAME);
         sourceFiles.add(new GenSrcFile(GenFileType.MODEL_SRC, srcPackage, GeneratorConstants.SCHEMA_FILE_NAME,
                 schemaContent));
+
+        // Generate resource implementation source
+        String implContent = getContent(context, GeneratorConstants.DEFAULT_MOCK_DIR,
+                GeneratorConstants.IMPL_TEMPLATE_NAME);
+        sourceFiles.add(new GenSrcFile(GenFileType.IMPL_SRC, srcPackage, implFile, implContent));
+
 
         return sourceFiles;
     }

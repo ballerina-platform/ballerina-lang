@@ -47,7 +47,7 @@ public class CodeGeneratorTest {
         String definitionPath = projectPath + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
         generator.setSrcPackage(pkgName);
-        Path outFile = projectPath.resolve(Paths.get(pkgName, "gen", "SwaggerPetstore.bal"));
+        Path outFile = projectPath.resolve(Paths.get(pkgName, "gen", "swagger_petstore.bal"));
 
         try {
             Path cachePath = projectPath.resolve(Paths.get(".ballerina"));
@@ -75,7 +75,7 @@ public class CodeGeneratorTest {
         String definitionPath = projectPath + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
         generator.setSrcPackage(pkgName);
-        Path outFile = projectPath.resolve(Paths.get(pkgName, "gen", "SwaggerPetstore.bal"));
+        Path outFile = projectPath.resolve(Paths.get(pkgName, "gen", "swagger_petstore.bal"));
 
         try {
             Path cachePath = projectPath.resolve(Paths.get(".ballerina"));
@@ -88,7 +88,7 @@ public class CodeGeneratorTest {
                 String result = new String(Files.readAllBytes(outFile));
                 Assert.assertTrue(result != null && result.contains("public function listPets()"));
             } else {
-                Assert.fail("Service was not generated");
+                Assert.fail("Connector was not generated");
             }
         } catch (IOException e) {
             Assert.fail("Error while generating the service. " + e.getMessage());

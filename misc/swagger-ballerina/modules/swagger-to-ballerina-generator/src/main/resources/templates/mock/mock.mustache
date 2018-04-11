@@ -1,5 +1,5 @@
 import ballerina/http;
-import ballerina/http.swagger;
+import ballerina/swagger;
 
 {{#servers}}endpoint http:Listener ep{{@index}} {
     host: "{{host}}",
@@ -48,11 +48,8 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        http:Response resp = new;
-        string payload = "Sample {{operationId}} Response";
-        resp.setStringPayload(payload);
-        _ = outboundEp -> respond(resp);
+        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
+        _ = outboundEp -> respond(res);
     }
 {{/get}}{{#post}}
     @swagger:ResourceInfo {
@@ -77,11 +74,8 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        http:Response resp = new;
-        string payload = "Sample {{operationId}} Response";
-        resp.setStringPayload(payload);
-        _ = outboundEp -> respond(resp);
+        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
+        _ = outboundEp -> respond(res);
     }
 {{/post}}{{#put}}
     @swagger:ResourceInfo {
@@ -106,11 +100,8 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        http:Response resp = new;
-        string payload = "Sample {{operationId}} Response";
-        resp.setStringPayload(payload);
-        _ = outboundEp -> respond(resp);
+        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
+        _ = outboundEp -> respond(res);
     }
 {{/put}}{{#delete}}
     @swagger:ResourceInfo {
@@ -135,11 +126,8 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        http:Response resp = new;
-        string payload = "Sample {{operationId}} Response";
-        resp.setStringPayload(payload);
-        _ = outboundEp -> respond(resp);
+        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
+        _ = outboundEp -> respond(res);
     }
 {{/delete}}{{#options}}
     @swagger:ResourceInfo {
@@ -164,11 +152,8 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        http:Response resp = new;
-        string payload = "Sample {{operationId}} Response";
-        resp.setStringPayload(payload);
-        _ = outboundEp -> respond(resp);
+        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
+        _ = outboundEp -> respond(res);
     }
 {{/options}}{{#head}}
     @swagger:ResourceInfo {
@@ -193,11 +178,8 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        http:Response resp = new;
-        string payload = "Sample {{operationId}} Response";
-        resp.setStringPayload(payload);
-        _ = outboundEp -> respond(resp);
+        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
+        _ = outboundEp -> respond(res);
     }
 {{/head}}{{#patch}}
     @swagger:ResourceInfo {
@@ -222,11 +204,8 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        http:Response resp = new;
-        string payload = "Sample {{operationId}} Response";
-        resp.setStringPayload(payload);
-        _ = outboundEp -> respond(resp);
+        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
+        _ = outboundEp -> respond(res);
     }
 {{/patch}}{{#trace}}
     @swagger:ResourceInfo {
@@ -251,11 +230,8 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        //stub code - fill as necessary
-        http:Response resp = new;
-        string payload = "Sample {{operationId}} Response";
-        resp.setStringPayload(payload);
-        _ = outboundEp -> respond(resp);
+        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
+        _ = outboundEp -> respond(res);
     }
 {{/trace}}{{/value}}{{/paths}}
 }

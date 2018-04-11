@@ -48,6 +48,7 @@ public class GeneratorConstants {
 
     public static final String CONNECTOR_TEMPLATE_NAME = "connector";
     public static final String MOCK_TEMPLATE_NAME = "mock";
+    public static final String IMPL_TEMPLATE_NAME = "impl";
     public static final String SCHEMA_TEMPLATE_NAME = "schemas";
     public static final String COMMON_MODELS_TEMPLATE_NAME = "common";
 
