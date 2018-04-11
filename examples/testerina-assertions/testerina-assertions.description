@@ -1,0 +1,3 @@
+// Testerina, has inbuilt assertions which enables developers to
+// assert a outcome against a expected outcome. This sample illustrate usage of
+// different assertions

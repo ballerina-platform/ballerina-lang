@@ -1,0 +1,5 @@
+//XML to JSON conversion can be done using the 'toJSON' function. This function 
+//takes the XML to be converted and struct of options as arguments. The options 
+//struct has two fields: attributePrefix specifies the prefix added to XML 
+//attribute/namespace keys (default is @), and preserveNamespaces specifies 
+//whether to preserve namespace prefixes during conversion.

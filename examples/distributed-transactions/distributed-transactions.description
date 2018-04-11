@@ -1,0 +1,4 @@
+// Ballerina distributed transactions are used when the transaction is happening over
+// two or more databases or JMS endpoints. This sample use two MySQL DBs and before
+// running the sample copy the MySQL JDBC driver to the BALLERINA_HOME/bre/lib folder
+// and change the DB connection properties as required.

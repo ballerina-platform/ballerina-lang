@@ -1,0 +1,4 @@
+//The table type is used to hold tabular data, such as those returned from
+//an SQL database query and provides cursor based access to the data.This sample use
+//MySQL DB and before running the sample copy the MySQL JDBC driver to the
+// BALLERINA_HOME/bre/lib folder and change the DB connection properties as required.

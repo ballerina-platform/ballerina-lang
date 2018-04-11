@@ -1,0 +1,1 @@
+// HTTP caching is enabled in HTTP client endpoints by default. Users can configure caching through the cache field in the endpoint configurations.

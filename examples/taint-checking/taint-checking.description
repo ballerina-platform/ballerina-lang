@@ -1,0 +1,2 @@
+//Ballerina compiler includes a taint analyzer that prevents untrusted
+//data from being passed to security sensitive parameters.
