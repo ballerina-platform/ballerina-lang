@@ -1,7 +1,7 @@
 function refTypeAccessTestTrivialEqualityPositiveCase() (int) {
     int temp_int = 2;
     int temp_int_1 = 5;
-    if ((typeof temp_int) == (typeof temp_int_1)) {
+    if ((temp_int) == (temp_int_1)) {
         return 1;
     } else {
         return 2;
@@ -11,8 +11,8 @@ function refTypeAccessTestTrivialEqualityPositiveCase() (int) {
 function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclared() (int) {
     int temp_int = 2;
     int temp_int_1 = 5;
-    type temp_int_type = (typeof temp_int);
-    type temp_int_1_type = (typeof temp_int_1);
+    type temp_int_type = (temp_int);
+    type temp_int_1_type = (temp_int_1);
 
     if (temp_int_type == temp_int_1_type) {
         return 1;
@@ -24,8 +24,8 @@ function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclared() (int) {
 function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclaredWithVar() (int) {
     int temp_int = 2;
     int temp_int_1 = 5;
-    var temp_int_type = (typeof temp_int);
-    var temp_int_1_type = (typeof temp_int_1);
+    var temp_int_type = (temp_int);
+    var temp_int_1_type = (temp_int_1);
 
     if (temp_int_type == temp_int_1_type) {
         return 1;
@@ -37,7 +37,7 @@ function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclaredWithVar() (
 function refTypeAccessTestTrivialEqualityNegativeCase() (int) {
     int temp_int = 2;
     string temp_str = "dummy";
-    if ((typeof temp_int) == (typeof temp_str)) {
+    if ((temp_int) == (temp_str)) {
         return 1;
     } else {
        return 2;
@@ -47,7 +47,7 @@ function refTypeAccessTestTrivialEqualityNegativeCase() (int) {
 function refTypeAccessTestTrivialNotEqualityCase() (int) {
     int temp_int = 2;
     string temp_str = "dummy";
-    if ((typeof temp_int) != (typeof temp_str)) {
+    if ((temp_int) != (temp_str)) {
         return 1;
     } else {
         return 2;
@@ -57,7 +57,7 @@ function refTypeAccessTestTrivialNotEqualityCase() (int) {
 function refTypeAccessTestAnyTypeNegativeCase() (int) {
     any temp_int = 2;
     string temp_str = "dummy";
-    if ((typeof temp_int) == (typeof temp_str)) {
+    if ((temp_int) == (temp_str)) {
         return 1;
     } else {
         return 2;
@@ -67,7 +67,7 @@ function refTypeAccessTestAnyTypeNegativeCase() (int) {
 function refTypeAccessTestAnyTypePositiveCase() (int) {
     any any_type_var = "dummy";
     string temp_str = "dummy";
-    if ((typeof any_type_var) == (typeof temp_str)) {
+    if ((any_type_var) == (temp_str)) {
         return 1;
     } else {
         return 2;
@@ -79,7 +79,7 @@ function refTypeAccessTestMapAccessCase() (int) {
     int_map["index"] = 2;
     map string_map = {};
     string_map["index"] = "dummy";
-    if ((typeof int_map["index"]) == (typeof string_map["index"])) {
+    if ((int_map["index"]) == (string_map["index"])) {
         return 1;
     } else {
         return 2;
@@ -91,7 +91,7 @@ function refTypeAccessTestArrayAccessCase() (int) {
     int_array[0] = 2;
     string[] string_array = [];
     string_array[0] = "dummy";
-    if ((typeof int_array[0]) == (typeof string_array[0])) {
+    if ((int_array[0]) == (string_array[0])) {
         return 1;
     } else {
         return 2;
@@ -103,7 +103,7 @@ function refTypeAccessTestArrayEqualityCase() (int) {
     int_array[0] = 2;
     string[] string_array = [];
     string_array[0] = "dummy";
-    if ((typeof int_array) == (typeof string_array)) {
+    if ((int_array) == (string_array)) {
         return 1;
     } else {
         return 2;
@@ -115,7 +115,7 @@ function refTypeAccessTestArrayEqualityPositiveCase() (int) {
     int_array[0] = 2;
     int[] int_array_2 = [];
     int_array_2[0] = 10;
-    if ((typeof int_array) == (typeof int_array_2)) {
+    if ((int_array) == (int_array_2)) {
         return 1;
     } else {
         return 2;
@@ -126,7 +126,7 @@ function refTypeAccessTestStructAccessCase() (int) {
     Person jack;
     jack = {name:"Jack", age:25};
 
-    if ((typeof jack.name) == (typeof jack.age)) {
+    if ((jack.name) == (jack.age)) {
         return 1;
     } else {
         return 2;
@@ -139,7 +139,7 @@ function refTypeAccessTestStructTypeEqualityCase() (int) {
     Person neal;
     neal = {name:"Neal", age:9};
 
-    if ((typeof jack) == (typeof neal)) {
+    if ((jack) == (neal)) {
         return 1;
     } else {
         return 2;
@@ -152,7 +152,7 @@ function refTypeAccessTestStructTypeNotEqualityCase() (int) {
     Person neal;
     neal = {name:"Neal", age:9};
 
-    if ((typeof jack) != (typeof neal)) {
+    if ((jack) != (neal)) {
         return 1;
     } else {
         return 2;
@@ -165,7 +165,7 @@ function refTypeAccessTestStructTypeNegativeEqualityCase() (int) {
     Animal dog;
     dog = {name:"Doggy", size:1, age:4};
 
-    if ((typeof jack) == (typeof dog)) {
+    if ((jack) == (dog)) {
         return 1;
     } else {
         return 2;
@@ -178,7 +178,7 @@ function refTypeAccessTestStructTypeNegativeNotEqualityCase() (int) {
     Animal dog;
     dog = {name:"Doggy", size:1, age:4};
 
-    if ((typeof jack) != (typeof dog)) {
+    if ((jack) != (dog)) {
         return 1;
     } else {
         return 2;
@@ -191,7 +191,7 @@ function refTypeAccessTestStructFieldTypeEqualityCase() (int) {
     Animal dog;
     dog = {name:"Doggy", size:1, age:4};
 
-    if ((typeof jack.name) == (typeof dog.name)) {
+    if ((jack.name) == (dog.name)) {
         return 1;
     } else {
         return 2;
@@ -204,7 +204,7 @@ function refTypeAccessTestStructFieldTypeNotEqualityCase() (int) {
     Animal dog;
     dog = {name:"Doggy", size:1, age:4};
 
-    if ((typeof jack.name) == (typeof dog.age)) {
+    if ((jack.name) == (dog.age)) {
         return 1;
     } else {
         return 2;
@@ -214,7 +214,7 @@ function refTypeAccessTestStructFieldTypeNotEqualityCase() (int) {
 function refTypeAccessTestJSONEqualityCase() (int) {
     json json_object = {"dummy":"dummy"};
     json json_array = [1,2,3];
-    if ((typeof json_object) == (typeof json_array)) {
+    if ((json_object) == (json_array)) {
         return 1;
     } else {
         return 2;
@@ -224,7 +224,7 @@ function refTypeAccessTestJSONEqualityCase() (int) {
 function refTypeAccessTestTypeAsReturnValue() (int) {
     json json_object = {"dummy":"dummy"};
     json json_array = [1,2,3];
-    if ((typeof json_object) == getType(json_array)) {
+    if ((json_object) == getType(json_array)) {
         return 1;
     } else {
         return 2;
@@ -232,7 +232,7 @@ function refTypeAccessTestTypeAsReturnValue() (int) {
 }
 
 function getType(any variable)(type){
-    return (typeof variable);
+    return (variable);
 }
 
 struct Person {
@@ -249,7 +249,7 @@ struct Animal {
 function refTypeAccessTestMultiArrayNegativeCase() (int) {
     json[][][][][][][] jsonMulti = [];
     int[][][][][][][] intMulti = [];
-    if ((typeof jsonMulti) == (typeof intMulti)) {
+    if ((jsonMulti) == (intMulti)) {
         return 1;
     } else {
         return 2;
@@ -259,7 +259,7 @@ function refTypeAccessTestMultiArrayNegativeCase() (int) {
 function refTypeAccessTestMultiArrayPositiveCase() (int) {
     json[][][][][][][] jsonMulti = [];
     json[][][][][][][] jsonMulti_2 = [];
-    if ((typeof jsonMulti) == (typeof jsonMulti_2)) {
+    if ((jsonMulti) == (jsonMulti_2)) {
         return 1;
     } else {
         return 2;
@@ -269,7 +269,7 @@ function refTypeAccessTestMultiArrayPositiveCase() (int) {
 function refTypeAccessTestMultiArrayDifferentDimensionCase() (int) {
     json[][][][][][][] jsonMulti = [];
     json[][][][][][] jsonMulti_2 = [];
-    if ((typeof jsonMulti) == (typeof jsonMulti_2)) {
+    if ((jsonMulti) == (jsonMulti_2)) {
         return 1;
     } else {
         return 2;
@@ -279,7 +279,7 @@ function refTypeAccessTestMultiArrayDifferentDimensionCase() (int) {
 function refTypeAccessTestMultiArrayDifferentDimensionCaseTwo() (int) {
     json[][][][][][][] jsonMulti = [];
     int[][][][][][] intMulti = [];
-    if ((typeof jsonMulti) == (typeof intMulti)) {
+    if ((jsonMulti) == (intMulti)) {
         return 1;
     } else {
         return 2;
@@ -289,7 +289,7 @@ function refTypeAccessTestMultiArrayDifferentDimensionCaseTwo() (int) {
 function refTypeAccessTestMultiArrayDifferentDimensionNotEqualityCase() (int) {
     json[][][][][][][] jsonMulti = [];
     int[][][][][][] intMulti = [];
-    if ((typeof jsonMulti) != (typeof intMulti)) {
+    if ((jsonMulti) != (intMulti)) {
         return 1;
     } else {
         return 2;

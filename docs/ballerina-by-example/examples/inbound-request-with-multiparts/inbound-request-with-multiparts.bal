@@ -18,7 +18,7 @@ service<http:Service> test bind multipartEP {
     receiveMultiparts (endpoint conn, http:Request request) {
         http:Response response = new;
         // Extract the bodyparts from the request.
-        match request.getMultiparts() {
+        match request.getBodyParts() {
         // Setting the error response in case of an error
             mime:EntityError err => {
                 io:println(err);

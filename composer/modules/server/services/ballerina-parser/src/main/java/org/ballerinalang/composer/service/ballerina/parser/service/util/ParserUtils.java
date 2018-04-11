@@ -935,7 +935,7 @@ public class ParserUtils {
             }
         }
         CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
-                                         sourceDocument, true, documentManager, CompilerPhase.DEFINE);
+                                         sourceDocument, true, documentManager, CompilerPhase.DEFINE, null);
 
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);

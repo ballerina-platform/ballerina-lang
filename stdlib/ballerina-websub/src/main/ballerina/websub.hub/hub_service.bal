@@ -413,7 +413,7 @@ function addTopicRegistrationsOnStartup() {
     };
     sql:Parameter[] sqlParams = [];
     table dt;
-    var dbResult = subscriptionDbEp -> select("SELECT topic, secret FROM topics", sqlParams, typeof TopicRegistration);
+    var dbResult = subscriptionDbEp -> select("SELECT topic, secret FROM topics", sqlParams, TopicRegistration);
     match (dbResult) {
         table t => { dt = t; }
         sql:SQLConnectorError sqlErr => {
@@ -456,7 +456,7 @@ function addSubscriptionsOnStartup() {
     sqlParams = [];
     table dt;
     var dbResult = subscriptionDbEp -> select("SELECT topic, callback, secret, lease_seconds, created_at"
-                                                + " FROM subscriptions", sqlParams, typeof websub:SubscriptionDetails);
+                                                + " FROM subscriptions", sqlParams, websub:SubscriptionDetails);
     match (dbResult) {
         table t => { dt = t; }
         sql:SQLConnectorError sqlErr => {

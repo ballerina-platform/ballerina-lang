@@ -12,7 +12,7 @@ function testServerStreaming (string name) returns (string[]) {
         port:9090
     };
     // Executing unary non-blocking call registering server message listener.
-    error? result = helloWorldEp -> lotsOfReplies(name, typeof HelloWorldMessageListener);
+    error? result = helloWorldEp -> lotsOfReplies(name, HelloWorldMessageListener);
     match result {
         error payloadError => {
             io:println("Error occured while sending event " + payloadError.message);
