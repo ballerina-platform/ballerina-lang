@@ -268,7 +268,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     string clientSecret = config.authConfig.clientSecret;
     string refreshTokenUrl = config.authConfig.refreshTokenUrl;
     HttpClient refreshTokenClient = createHttpClient(refreshTokenUrl, {});
-    string accessTokenFromRefreshTokenReq = "/oauth2/v3/token";
+    string refreshTokenRequestPath = "/oauth2/v3/token";
     string requestParams = "refresh_token=" + refreshToken + "&grant_type=refresh_token&client_secret=" + clientSecret + "&client_id=" + clientId;
     string base64ClientIdSecret;
     string clientIdSecret = clientId + ":" + clientSecret;
@@ -285,8 +285,8 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     refreshTokenRequest.addHeader("Content-Type", "application/x-www-form-urlencoded");
     refreshTokenRequest.setStringPayload("grant_type=refresh_token&refresh_token=" + refreshToken);
     refreshTokenRequest.setStringPayload(requestParams);
-    accessTokenFromRefreshTokenReq = accessTokenFromRefreshTokenReq + "?" + requestParams;
-    var refreshTokenResponse = refreshTokenClient.post(accessTokenFromRefreshTokenReq, refreshTokenRequest);
+    refreshTokenRequestPath = refreshTokenRequestPath + "?" + requestParams;
+    var refreshTokenResponse = refreshTokenClient.post(refreshTokenRequestPath, refreshTokenRequest);
     Response tokenResponse;
     match refreshTokenResponse {
         Response httpResponse => tokenResponse = httpResponse;
