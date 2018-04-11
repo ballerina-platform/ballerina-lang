@@ -157,15 +157,13 @@ function respondToBadRequest (http:Listener conn, string msg) {
 }
 
 function getProtocols(Participant participant) returns LocalProtocol[] | RemoteProtocol[] {
-    if(typeof participant == typeof LocalParticipant) {
-        LocalParticipant localParticipant = check <LocalParticipant> participant;
-        return localParticipant.participantProtocols;
-    } else if (typeof participant == typeof RemoteParticipant) {
-        RemoteParticipant remoteParticipant = check <RemoteParticipant> participant;
-        return remoteParticipant.participantProtocols;
-    } else {
-        error err = {message: "Invalid participant type"};
-        throw err;
+    match participant {
+        LocalParticipant localParticipant => return localParticipant.participantProtocols;
+        RemoteParticipant remoteParticipant => return remoteParticipant.participantProtocols;
+        any => {
+            error err = {message: "Invalid participant type"};
+            throw err;
+        }
     }
 }
 
