@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha4-SNAPSHOT</version>
+        <version>0.970.0-alpha5-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -64,10 +64,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>swagger-to-ballerina-generator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-container-support</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -123,9 +119,7 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- TODO: Temporary removed, need to include fix NPE issue
-            <plugin>
+            <!--plugin>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>docerina-maven-plugin</artifactId>
                 <executions>
@@ -160,9 +154,7 @@
                         <version>${project.version}</version>
                     </dependency>
                 </dependencies>
-            </plugin>
-            -->
-
+            </plugin-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>

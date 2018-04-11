@@ -38,13 +38,13 @@ public class PackageNameContextResolver extends AbstractItemResolver {
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        LSPackageCache.getInstance().getPackageMap().entrySet().forEach(pkgEntry -> {
+        LSPackageCache.getStaticPackageMap().entrySet().forEach(pkgEntry -> {
             PackageID packageID = pkgEntry.getValue().packageID;
             String label = packageID.getOrgName().getValue() + "/" + packageID.getName().getValue();
             String insertText = label + ";";
             fillImportCompletion(label, insertText, completionItems);
         });
-        
+
         return completionItems;
     }
     

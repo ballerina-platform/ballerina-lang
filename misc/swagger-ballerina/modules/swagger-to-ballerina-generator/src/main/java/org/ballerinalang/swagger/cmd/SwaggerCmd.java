@@ -50,7 +50,7 @@ public class SwaggerCmd implements BLauncherCmd {
     private String output = "";
 
     @Parameter(names = { "-p", "--package" }, description = "Package name to be used in the generated source files")
-    private String apiPackage;
+    private String srcPackage;
 
     @Parameter(names = { "-h", "--help" }, hidden = true)
     private boolean helpFlag;
@@ -115,7 +115,7 @@ public class SwaggerCmd implements BLauncherCmd {
 
     private void generateFromSwagger(String targetLanguage) {
         CodeGenerator generator = new CodeGenerator();
-        generator.setApiPackage(apiPackage);
+        generator.setSrcPackage(srcPackage);
 
         try {
             generator.generate(GenType.valueOf(targetLanguage), argList.get(1), output);

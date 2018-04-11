@@ -192,7 +192,7 @@ export const flowChartControlStatement = {
         bottom: (statement.height / 2),
     },
     gap: {
-        left: (12 * statement.padding.left),
+        left: (statement.width / 2),
     },
 };
 

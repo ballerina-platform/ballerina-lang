@@ -57,8 +57,8 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
         },
         returnType = {
                 @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.INT),
-                @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
-                            structPackage = "ballerina.sql")
+                @ReturnType(type = TypeKind.STRUCT, structType = "error",
+                            structPackage = "ballerina.builtin")
         }
 )
 public class BatchUpdate extends AbstractSQLAction {

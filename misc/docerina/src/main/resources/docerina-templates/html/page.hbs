@@ -7,6 +7,8 @@
     <link rel="shortcut icon" href="/img/favicon.ico">
     <title>Ballerina.io - API Docs</title>
     <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>var base_url = "";</script>
+    <script data-main="/search/search.js" src="/search/require.js"></script>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
         crossorigin="anonymous">
     <!-- Optional theme -->
@@ -161,6 +163,11 @@
                                                 <span class="bold">{{heading.value}}</span>
                                                 {{#if heading.isPackageName}} package {{/if}}
                                             </h1>
+                                            {{#if description}}
+                                            <div class="cAPIdocsDescription">
+                                                 {{{description}}}
+                                            </div>
+                                            {{/if}}
                                             {{#each constructs}}
                                             <div class="construct-wrapper">
                                                 <!--Primitive Types-->
@@ -177,7 +184,7 @@
                                                 <div class="function-wrapper">
                                                     <ul>
                                                         {{#each children}}
-                                                        <li>
+                                                        <li class="cFunctionList">
                                                             <h2 id="{{../name}}-{{name}}">
                                                                 <span class={{icon}}></span>
                                                                 <span class="thin-text light-gray">&lt; {{../name}} &gt;</span>
@@ -206,6 +213,9 @@
                                                                 {{/each}}
                                                             </table>
                                                             {{/if}} {{#if returnParams}}
+                                                            <p class="cReturn">
+                                                                <label class="table-header-text">Return Parameters:</label>
+                                                            </p>
                                                             <table>
                                                                 <tr>
                                                                     <th class="col-md-3">Return Variable</th>
@@ -255,7 +265,7 @@
                                                     {{/each}}
                                                 </table>
                                                 {{/if}} {{#if returnParams}}
-                                                <p>
+                                                <p class="cReturn">
                                                     <label class="table-header-text">Return Parameters:</label>
                                                 </p>
                                                 <table>
@@ -277,7 +287,7 @@
                                                 {{#if isStruct}}
                                                 <h2 id="{{name}}">
                                                     <span class="{{icon}} sm-icon"></span>
-                                                    public struct {{name}}
+                                                    public object {{name}}
                                                 </h2>
                                                 {{#if description}}
                                                 <p>
@@ -336,7 +346,7 @@
                                                                 {{/each}}
                                                             </table>
                                                             {{/if}} {{#if returnParams}}
-                                                            <p>
+                                                            <p class="cReturn">
                                                                 <label class="table-header-text">Return Parameters:</label>
                                                             </p>
                                                             <table>
@@ -423,7 +433,7 @@
                                                                 {{/each}}
                                                             </table>
                                                             {{/if}} {{#if returnParams}}
-                                                            <p>
+                                                            <p class="cReturn">
                                                                 <label class="table-header-text">Return Parameters:</label>
                                                             </p>
                                                             <table>

@@ -86,37 +86,12 @@ export default {
                     image: 'preview_passthroughService',
                 },
                 {
-                    name: 'Transformer',
-                    isFile: false,
-                    openFolder: true,
-                    folder: '/resources/composer/samples/transformer',
-                    path: '/resources/composer/samples/transformer/StructTransformer.bal',
-                    image: 'preview_transformStmt',
-                },
-                {
-                    name: 'Service Chaining',
-                    isFile: false,
-                    openFolder: false,
-                    folder: '/resources/composer/samples/serviceChaining/',
-                    path: '/resources/composer/samples/serviceChaining/servicechaining/samples/ATMLocatorService.bal',
-                    image: 'preview_servicechaining',
-                },
-                {
                     name: 'RESTful Service',
                     isFile: false,
                     openFolder: false,
                     folder: '/resources/composer/samples/restfulService/restfulservice',
                     path: '/resources/composer/samples/restfulService/restfulservice/samples/productsService.bal',
                     image: 'preview_restfulService',
-                },
-                {
-                    name: 'Routing Services',
-                    isFile: false,
-                    openFolder: false,
-                    folder: '/resources/composer/samples/routingServices',
-                    path: '/resources/composer/samples/routingServices/' +
-                    'routingServices/samples/contentBasedRoutingService.bal',
-                    image: 'preview_routingServices',
                 },
                 {
                     name: 'WebSocket',

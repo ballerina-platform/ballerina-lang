@@ -1,3 +1,0 @@
-// In Ballerina, global variables are defined as top level constructs.
-// They are usually defined on top of the Ballerina program.
-// The global variables hold their value throughout the lifetime of the Ballerina program.
