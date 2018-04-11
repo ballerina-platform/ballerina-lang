@@ -17,7 +17,7 @@ endpoint http:Client backendClientEP {
                             bucketSize:2000
                        },
         failureThreshold:0.2,
-        resetTimeout:10000,
+        resetTimeMillies:10000,
         statusCodes:[400, 404, 500]
     },
     targets: [
@@ -25,7 +25,7 @@ endpoint http:Client backendClientEP {
                      url: "http://localhost:8080"
                  }
              ],
-    endpointTimeout:2000
+    timeoutMillis:2000
 };
 
 @http:ServiceConfig {
@@ -38,15 +38,14 @@ service<http:Service> circuitbreaker bind passthruEP {
         path:"/"
     }
     passthru (endpoint client, http:Request request) {
-        http:HttpConnectorError err = {};
         var backendRes = backendClientEP -> forward("/hello", request);
         match backendRes {
             http:Response res => {
-            _ = client -> forward(res);}
-            http:HttpConnectorError err1 => {
+            _ = client -> respond(res);}
+            http:HttpConnectorError httpConnectorError => {
             http:Response response = new;
             response.statusCode = 500;
-            response.setStringPayload(err1.message);
+            response.setStringPayload(httpConnectorError.message);
             _ = client -> respond(response);}
         }
     }
@@ -74,7 +73,7 @@ service<http:Service> helloWorld bind backendEP {
             counter = counter + 1;
             http:Response res = new;
             res.statusCode = 500;
-            res.setStringPayload("Internal erro r occurred while processing the request.");
+            res.setStringPayload("Internal error occurred while processing the request.");
             _ = client -> respond(res);
         } else {
             counter = counter + 1;

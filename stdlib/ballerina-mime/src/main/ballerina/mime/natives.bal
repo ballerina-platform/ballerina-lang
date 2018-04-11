@@ -86,19 +86,19 @@ public type MediaType object {
 
     @Description {value:"Get “primaryType/subtype+suffix” combination in string format."}
     @Return {value:"Return base type from MediaType struct"}
-    public function toString () returns (string);
+    public function getBaseType () returns (string);
 
     @Description {value:"Convert the media type to a string suitable for use as the value of a corresponding HTTP header."}
     @Return {value:"Return the Content-Type with parameters as a string"}
-    public function toStringWithParameters () returns (string);
+    public function toString () returns (string);
 };
 
-public function MediaType::toString () returns (string) {
+public function MediaType::getBaseType () returns (string) {
     return self.primaryType + "/" + self.subType;
 }
 
-public function MediaType::toStringWithParameters () returns (string) {
-    string contentType = self.toString() + "; ";
+public function MediaType::toString () returns (string) {
+    string contentType = self.getBaseType() + "; ";
     map<string> parameters = self.parameters;
     string[] arrKeys = self.parameters.keys();
     int size = lengthof arrKeys;
@@ -121,7 +121,7 @@ public function MediaType::toStringWithParameters () returns (string) {
 @Field {value:"cause: The error which caused the entity error"}
 public type EntityError  {
     string message,
-    error[] cause,
+    error? cause,
 };
 
 @Description {value:"Represent the headers and body of a message. This can be used to represent both the entity of a top
@@ -137,6 +137,9 @@ public type Entity object {
         int size;
         ContentDisposition contentDisposition;
     }
+
+    @Description {value:"Set the entity body with a given content"}
+    public function setBody ((string | xml | json | blob | io:ByteChannel | Entity[]) entityBody);
 
     @Description {value:"Set the entity body with a given file handler"}
     @Param {value:"fileHandler: Represent a file"}
@@ -216,9 +219,9 @@ public type Entity object {
     @Return {value:"Return all the header values associated with the given header name as a string of arrays"}
     public native function getHeaders (string headerName) returns string[];
 
-    @Description {value:"Get all the headers as a map. Please note that manipulating the returned map has no effect to the original copy of headers"}
-    @Return {value:"Return a copy of all headers as a map."}
-    public native function getCopyOfAllHeaders () returns map;
+    @Description {value:"Get all header names."}
+    @Return {value:"Return all header names as an array of strings"}
+    public native function getHeaderNames () returns string[];
 
     @Description {value:"Add the given header value against the given header"}
     @Param {value:"headerName: Represent the header name"}
@@ -242,9 +245,21 @@ public type Entity object {
     public native function hasHeader (string headerName) returns boolean;
 };
 
-public function Entity::setFileAsEntityBody (file:Path filePath) {
-    io:ByteChannel channel =check file:newByteChannel(fileHandler, READ_PERMISSION);
+public function Entity::setFileAsEntityBody (file:Path fileHandler) {
+    string path = fileHandler.toAbsolutePath().getPathValue();
+    io:ByteChannel channel = io:openFile(path, READ_PERMISSION);
     self.setByteChannel(channel);
+}
+
+public function Entity::setBody ((string | xml | json | blob | io:ByteChannel | Entity[]) entityBody) {
+    match entityBody {
+        string textContent => self.setText(textContent);
+        xml xmlContent => self.setXml(xmlContent);
+        json jsonContent => self.setJson(jsonContent);
+        blob blobContent => self.setBlob(blobContent);
+        io:ByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
+        Entity[] bodyParts => self.setBodyParts(bodyParts);
+    }
 }
 
 @Description {value:"Represent errors related to mime base64 encoder"}
@@ -252,7 +267,7 @@ public function Entity::setFileAsEntityBody (file:Path filePath) {
 @Field {value:"cause: The cause of the error"}
 public type Base64EncodeError {
     string message,
-    error[] cause,
+    error? cause,
 };
 
 @Description {value:"Represent errors related to mime base64 decoder"}
@@ -260,7 +275,7 @@ public type Base64EncodeError {
 @Field {value:"cause: The cause of the error"}
 public type Base64DecodeError {
     string message,
-    error[] cause,
+    error? cause,
 };
 
 @Description {value:"Encode a given input with MIME specific Base64 encoding scheme."}

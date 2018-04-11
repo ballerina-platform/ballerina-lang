@@ -68,7 +68,7 @@ public class ZipFile extends BlockingNativeCallableUnit {
         try {
             zipFiles(dirPath, new FileOutputStream(destDir));
         } catch (FileNotFoundException e) {
-            throw new BLangRuntimeException("File not found" + dirPath);
+            throw new BLangRuntimeException("File to compress not found" + dirPath);
         }
     }
 
@@ -101,13 +101,13 @@ public class ZipFile extends BlockingNativeCallableUnit {
                     try {
                         ZipFile.addEntry(finalZos, p.toString());
                     } catch (IOException e) {
-                        throw new BLangRuntimeException("I/O Exception when processing files " + e.getMessage());
+                        throw new BLangRuntimeException("Error occurred when compressing");
                     }
                 });
             }
             zos.close();
         } catch (IOException e) {
-            throw new BLangRuntimeException("Failed or interrupted I/O operation has occured");
+            throw new BLangRuntimeException("Error occurred when completing the compression process");
         }
         return outputStream;
     }

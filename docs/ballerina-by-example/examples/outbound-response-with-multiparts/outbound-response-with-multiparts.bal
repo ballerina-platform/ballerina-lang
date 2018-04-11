@@ -31,19 +31,19 @@ service<http:Service> test bind multipartEP {
         childPart2.contentType = contentTypeOfFilePart;
         //This file path is relative to where the ballerina is running. If your file is located outside, please
         //give the absolute file path instead.
-        file:Path fileHandler = file:getPath("./files/test.xml");
+        file:Path fileHandler = new("./files/test.xml");
         childPart2.setFileAsEntityBody(fileHandler);
 
         //Create an array to hold child parts.
         mime:Entity[] childParts = [childPart1, childPart2];
 
-        //Set the child parts to parent part.
+        //Set the child parts to the parent part.
         parentPart.setBodyParts(childParts);
 
         //Create an array to hold the parent part and set it to response.
         mime:Entity[] immediatePartsToResponse = [parentPart];
         http:Response outResponse = new;
-        outResponse.setMultiparts(immediatePartsToResponse, mime:MULTIPART_FORM_DATA);
+        outResponse.setBodyParts(immediatePartsToResponse, mime:MULTIPART_FORM_DATA);
 
         _ = conn -> respond(outResponse);
     }

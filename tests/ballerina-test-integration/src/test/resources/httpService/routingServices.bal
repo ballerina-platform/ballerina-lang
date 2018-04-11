@@ -41,7 +41,7 @@ service<http:Service> contentBasedRouting bind serviceEP{
                     clientResponse.setStringPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
-                http:Response returnResponse => _ = conn -> forward(returnResponse);
+                http:Response returnResponse => _ = conn -> respond(returnResponse);
             }
         } else {
             var result = nasdaqEP -> post("/stocks", clientRequest);
@@ -51,7 +51,7 @@ service<http:Service> contentBasedRouting bind serviceEP{
                     clientResponse.setStringPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
-                http:Response returnResponse => _ = conn -> forward(returnResponse);
+                http:Response returnResponse => _ = conn -> respond(returnResponse);
             }
         }
     }
@@ -78,7 +78,7 @@ service<http:Service> headerBasedRouting bind serviceEP{
                     clientResponse.setStringPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
-                http:Response returnResponse => _ = conn -> forward(returnResponse);
+                http:Response returnResponse => _ = conn -> respond(returnResponse);
             }
         } else {
             var result = nasdaqEP -> post("/stocks", clientRequest);
@@ -88,7 +88,7 @@ service<http:Service> headerBasedRouting bind serviceEP{
                     clientResponse.setStringPayload("Error sending request");
                     _ = conn -> respond(clientResponse);
                 }
-                http:Response returnResponse => _ = conn -> forward(returnResponse);
+                http:Response returnResponse => _ = conn -> respond(returnResponse);
             }
         }
     }

@@ -17,7 +17,7 @@
  */
 
 const Constants = {
-    HTTP_SERVICE_PREFIX: 'ballerina: started HTTP/WS server connector',
+    HTTP_SERVICE_PREFIX: 'ballerina: started HTTP/WS endpoint',
 };
 
 export default Constants;

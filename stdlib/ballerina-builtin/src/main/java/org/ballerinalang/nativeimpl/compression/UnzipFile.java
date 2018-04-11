@@ -67,7 +67,7 @@ public class UnzipFile extends BlockingNativeCallableUnit {
             InputStream inputStream = new FileInputStream(dirPath);
             UnzipBytes.decompress(inputStream, outputFolder, folderToUnzip);
         } catch (IOException e) {
-            throw new BLangRuntimeException("I/O exception occured when processing the file " + dirPath);
+            throw new BLangRuntimeException("Error occurred when decompressing");
         }
     }
 

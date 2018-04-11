@@ -25,8 +25,6 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -48,8 +46,6 @@ import java.util.zip.ZipFile;
  * Test Native functions in ballerina.compression.
  */
 public class CompressionTest {
-
-    private static final Logger log = LoggerFactory.getLogger(CompressionTest.class);
     private CompileResult compileResult;
 
     @BeforeClass
@@ -238,7 +234,7 @@ public class CompressionTest {
     }
 
     /**
-     * Get files inside the zip file
+     * Get files inside the zip file.
      *
      * @param zipFilePath path of the zip file
      * @return list of files available inside the zipped file
@@ -247,7 +243,6 @@ public class CompressionTest {
         ArrayList<String> filesContained = new ArrayList<>();
         try {
             ZipFile zipFile = new ZipFile(zipFilePath);
-
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
             while (entries.hasMoreElements()) {
@@ -257,8 +252,7 @@ public class CompressionTest {
             }
             zipFile.close();
         } catch (IOException e) {
-            log.debug("I/O Exception when closing the zip file stream ", e);
-            log.error("I/O Exception when closing the zip file stream " + e.getMessage());
+            new BLangRuntimeException("Error occured when retrieving the files from the archived file");
         }
         return filesContained;
     }

@@ -9,14 +9,14 @@ documentation {
     Represents an HTTP Retry client to be used with the HTTP client to provide retrying over HTTP requests.
 
     F{{serviceUri}} - Target service url.
-    F{{config}}  - HTTP ClientEndpointConfiguration to be used for HTTP client invocation.
+    F{{config}}  - HTTP ClientEndpointConfig to be used for HTTP client invocation.
     F{{retry}} - Retry related configuration.
     F{{httpClient}}  - HTTP client for outbound HTTP requests.
 }
 public type RetryClient object {
     public {
         string serviceUri;
-        ClientEndpointConfiguration config;
+        ClientEndpointConfig config;
         Retry retry;
         HttpClient httpClient;
     }
@@ -138,7 +138,7 @@ public type RetryClient object {
 
         P{{promise}} - The Push Promise need to be rejected.
     }
-    public function rejectPromise (PushPromise promise) returns (boolean);
+    public function rejectPromise (PushPromise promise);
 };
 
 public function RetryClient::post (string path, Request request) returns (Response | HttpConnectorError) {
@@ -209,8 +209,7 @@ public function RetryClient::getPromisedResponse (PushPromise promise) returns (
 	return httpConnectorError;
 }
 
-public function RetryClient::rejectPromise (PushPromise promise) returns (boolean) {
-	return false;
+public function RetryClient::rejectPromise (PushPromise promise) {
 }
 
 // Performs execute action of the retry client. extract the corresponding http integer value representation

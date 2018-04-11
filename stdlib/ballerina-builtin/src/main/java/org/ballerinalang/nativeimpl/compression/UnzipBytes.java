@@ -23,7 +23,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -77,7 +76,13 @@ public class UnzipBytes extends BlockingNativeCallableUnit {
             while ((entry = zin.getNextEntry()) != null) {
                 name = entry.getName();
                 if (!folderToUnzip.isEmpty() && name.startsWith(folderToUnzip)) {
-                    int index = name.lastIndexOf(File.separator) + 1;
+                    /*
+                      According to the .zip specification: The paths of files inside a zip
+                      should not contain a drive or device letter, or a leading slash.
+                      All slashes MUST be forward slashes '/' as opposed to backwards slashes                     *
+                      https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
+                     */
+                    int index = name.lastIndexOf("/") + 1;
                     name = name.substring(index);
                 }
                     if (entry.isDirectory()) {
@@ -91,14 +96,14 @@ public class UnzipBytes extends BlockingNativeCallableUnit {
                     extractFile(zin, outdir, name);
             }
         } catch (IOException e) {
-            throw new BLangRuntimeException("I/O Exception when processing files");
+            throw new BLangRuntimeException("Error occurred when decompressing");
         } finally {
             try {
                 if (zin != null) {
                     zin.close();
                 }
             } catch (IOException e) {
-                throw new BLangRuntimeException("I/O Exception when closing the input stream " + e.getMessage());
+                throw new BLangRuntimeException("Error occurred when completing the decompression process");
             }
         }
     }
@@ -115,7 +120,7 @@ public class UnzipBytes extends BlockingNativeCallableUnit {
             Path resourcePath = Paths.get(outdir.toString()).resolve(name);
             Files.copy(in, resourcePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            throw new BLangRuntimeException("I/O Exception when closing the input stream " + outdir);
+            throw new BLangRuntimeException("Error occurred when copying the files during decompression" + outdir);
         }
     }
 
@@ -127,7 +132,13 @@ public class UnzipBytes extends BlockingNativeCallableUnit {
      */
     private static String getDirectoryPath(String name) {
         if (name != null) {
-            int s = name.lastIndexOf(File.separatorChar);
+            /*
+             According to the .zip specification: The paths of files inside a zip
+             should not contain a drive or device letter, or a leading slash.
+             All slashes MUST be forward slashes '/' as opposed to backwards slashes                     *
+             https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
+            */
+            int s = name.lastIndexOf("/");
             return s == -1 ? null : name.substring(0, s);
         }
         return null;

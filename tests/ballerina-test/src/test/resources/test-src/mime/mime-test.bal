@@ -8,12 +8,12 @@ function testGetMediaType (string contentType) returns mime:MediaType {
     return mime:getMediaType(contentType);
 }
 
-function testToStringOnMediaType (mime:MediaType mediaType) returns (string) {
-    return mediaType.toString();
+function testGetBaseTypeOnMediaType (mime:MediaType mediaType) returns (string) {
+    return mediaType.getBaseType();
 }
 
-function testToStringWithParametersOnMediaType (mime:MediaType mediaType) returns (string) {
-    return mediaType.toStringWithParameters();
+function testToStringOnMediaType (mime:MediaType mediaType) returns (string) {
+    return mediaType.toString();
 }
 
 function testMimeBase64EncodeString (string contentToBeEncoded) returns (string | mime:Base64EncodeError) {
@@ -188,7 +188,7 @@ function testGetBlobMultipleTimes (blob blobContent) returns (string) {
 
 function testSetFileAsEntityBody (string fileLocation) returns blob | mime:EntityError {
     mime:Entity entity = new;
-    file:Path path = file:getPath(fileLocation);
+    file:Path path = new(fileLocation);
     entity.setFileAsEntityBody(path);
     return entity.getBlob();
 }
@@ -221,6 +221,7 @@ function testSetJsonAndGetByteChannel (json jsonContent) returns io:ByteChannel 
 function testGetTextDataSource (io:ByteChannel byteChannel) returns string | mime:EntityError {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel);
+    entity.setHeader("content-type", "text/plain");
     //Consume byte channel externally
     var result = entity.getByteChannel();
     match result {
@@ -233,6 +234,7 @@ function testGetTextDataSource (io:ByteChannel byteChannel) returns string | mim
 function testGetJsonDataSource (io:ByteChannel byteChannel) returns json | mime:EntityError {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel);
+    entity.setHeader("content-type", "application/json");
     //Consume byte channel externally
     var result = entity.getByteChannel();
     match result {
@@ -267,4 +269,69 @@ service<http:Service> echo bind mockEP {
         response.setEntity(responseEntity);
         _ = client -> respond(response);
     }
+}
+
+function testGetXmlWithSuffix (xml xmlContent) returns xml | mime:EntityError {
+    mime:Entity entity = new;
+    entity.setHeader("content-type", "application/3gpdash-qoe-report+xml");
+    entity.setXml(xmlContent);
+    return entity.getXml();
+}
+
+function testGetXmlWithNonCompatibleMediaType (xml xmlContent) returns xml | mime:EntityError {
+    mime:Entity entity = new;
+    entity.setHeader("content-type", "application/3gpdash-qoe-report");
+    entity.setXml(xmlContent);
+    return entity.getXml();
+}
+
+function testGetJsonWithSuffix (json jsonContent) returns json | mime:EntityError {
+    mime:Entity entity = new;
+    entity.setHeader("content-type", "application/yang-patch+json");
+    entity.setJson(jsonContent);
+    return entity.getJson();
+}
+
+function testGetJsonWithNonCompatibleMediaType (json jsonContent) returns json | mime:EntityError {
+    mime:Entity entity = new;
+    entity.setHeader("content-type", "application/whoispp-query");
+    entity.setJson(jsonContent);
+    return entity.getJson();
+}
+
+function testGetTextWithNonCompatibleMediaType (string textContent) returns string | mime:EntityError {
+    mime:Entity entity = new;
+    entity.setHeader("content-type", "model/vnd.parasolid.transmit");
+    entity.setText(textContent);
+    return entity.getText();
+}
+
+function testSetBodyAndGetText ((string | xml | json | blob | io:ByteChannel) entityBody) returns string | mime:EntityError {
+    mime:Entity entity = new;
+    entity.setBody(entityBody);
+    return entity.getText();
+}
+
+function testSetBodyAndGetXml ((string | xml | json | blob | io:ByteChannel) entityBody) returns xml | mime:EntityError {
+    mime:Entity entity = new;
+    entity.setBody(entityBody);
+    return entity.getXml();
+}
+
+function testSetBodyAndGetJson ((string | xml | json | blob | io:ByteChannel) entityBody) returns json | mime:EntityError {
+    mime:Entity entity = new;
+    entity.setBody(entityBody);
+    return entity.getJson();
+}
+
+function testSetBodyAndGetBlob ((string | xml | json | blob | io:ByteChannel) entityBody) returns blob | mime:EntityError {
+    mime:Entity entity = new;
+    entity.setBody(entityBody);
+    return entity.getBlob();
+}
+
+function testSetBodyAndGetByteChannel ((string | xml | json | blob | io:ByteChannel) entityBody) returns io:ByteChannel | mime:EntityError {
+    mime:Entity entity = new;
+    entity.setBody(entityBody);
+    return entity.getByteChannel();
 }
