@@ -45,6 +45,7 @@ public class BLangPatternStreamingInput extends BLangNode implements PatternStre
     private boolean isNotWithAnd;
     private boolean isAndOnly;
     private boolean isOrOnly;
+    private boolean isCommaSeparated;
 
     @Override
     public NodeKind getKind() {
@@ -129,6 +130,16 @@ public class BLangPatternStreamingInput extends BLangNode implements PatternStre
     @Override
     public boolean isOrOnly() {
         return isOrOnly;
+    }
+
+    @Override
+    public void setCommaSeparated(boolean isCommaSeparated) {
+        this.isCommaSeparated = isCommaSeparated;
+    }
+
+    @Override
+    public boolean isCommaSeparated() {
+        return isCommaSeparated;
     }
 
     @Override
