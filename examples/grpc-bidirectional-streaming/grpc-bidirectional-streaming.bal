@@ -14,8 +14,7 @@ endpoint grpc:Service ep {
     serverStreaming:true,
     generateClientConnector:false}
 service<grpc:Listener> Chat bind ep {
-    //TODO: remove temp initialization when map issue is fixed.
-    map<grpc:Service> consMap = {"_":new};
+    map<grpc:Service> consMap;
 
     onOpen (endpoint client) {
         var connID = client -> getID();
@@ -28,8 +27,7 @@ service<grpc:Listener> Chat bind ep {
         io:println(msg);
         string[] conKeys = consMap.keys();
         int len = lengthof conKeys;
-        //TODO: set i to zero when map issue is fixed.
-        int i = 1;
+        int i = 0;
         while (i < len) {
             con = <grpc:Service>consMap[conKeys[i]];
             grpc:ConnectorError err = con -> send(msg);
@@ -54,8 +52,7 @@ service<grpc:Listener> Chat bind ep {
         var v = consMap.remove(<string>connID);
         string[] conKeys = consMap.keys();
         int len = lengthof conKeys;
-        //TODO: set i to zero when map issue is fixed.
-        int i = 1;
+        int i = 0;
         while (i < len) {
             con = <grpc:Service>consMap[conKeys[i]];
             grpc:ConnectorError err = con -> send(msg);

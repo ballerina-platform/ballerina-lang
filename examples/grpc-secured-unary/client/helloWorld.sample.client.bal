@@ -11,11 +11,13 @@ function main (string[] args) {
         }
     };
 
-    string|error unionResp = helloWorldBlockingEp -> hello("WSO2");
+    (string, grpc:Headers)|error unionResp = helloWorldBlockingEp -> hello("WSO2");
     match unionResp {
-        string payload => {
+        (string, grpc:Headers) payload => {
+            string result;
+            (result, _) = payload;
             io:println("Client Got Response : ");
-            io:println(payload);
+            io:println(result);
         }
         error err => {
             io:println("Error from Connector: " + err.message);

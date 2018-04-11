@@ -15,8 +15,8 @@ public type ChatStub object {
         self.serviceStub = navStub;
     }
 
-    function chat (typedesc listener) returns (grpc:Client|error) {
-        var res = self.serviceStub.streamingExecute("Chat/chat", listener);
+    function chat (typedesc listener, grpc:Headers... headers) returns (grpc:Client|error) {
+        var res = self.serviceStub.streamingExecute("Chat/chat", listener, ...headers);
         match res {
             grpc:ConnectorError err => {
                 error e = {message:err.message};
