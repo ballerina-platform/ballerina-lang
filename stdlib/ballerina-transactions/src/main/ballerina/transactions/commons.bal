@@ -17,9 +17,8 @@
 package ballerina.transactions;
 
 import ballerina/caching;
-import ballerina/log;
 import ballerina/http;
-import ballerina/task;
+import ballerina/log;
 import ballerina/time;
 import ballerina/util;
 

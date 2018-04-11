@@ -16,7 +16,6 @@
 
 package ballerina.transactions;
 
-import ballerina/log;
 import ballerina/http;
 
 @final string TWO_PHASE_COMMIT = "2pc";

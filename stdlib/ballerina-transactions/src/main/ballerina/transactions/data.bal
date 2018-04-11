@@ -15,7 +15,6 @@
 // under the License.
 
 package ballerina.transactions;
-import ballerina/io;
 
 @final string PROTOCOL_COMPLETION = "completion";
 @final string PROTOCOL_VOLATILE = "volatile";
