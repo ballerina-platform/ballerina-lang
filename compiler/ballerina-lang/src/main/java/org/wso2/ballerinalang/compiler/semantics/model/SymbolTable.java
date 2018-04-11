@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -47,7 +46,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -76,7 +74,6 @@ public class SymbolTable {
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
     public final BSymbol notFoundSymbol;
-    public final BLangVariable notFoundVariable;
     public final Scope rootScope;
 
     public final BType noType = new BNoType(TypeTags.NONE);
@@ -95,7 +92,6 @@ public class SymbolTable {
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
-    public final BType connectorType = new BConnectorType(null, null);
     public final BType endpointType = new BType(TypeTags.CONNECTOR, null);
     public final BType arrayType = new BArrayType(noType);
 
@@ -129,8 +125,6 @@ public class SymbolTable {
         this.rootPkgSymbol.scope = this.rootScope;
         this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID,
                 rootPkgSymbol.pkgID, noType, rootPkgSymbol);
-        this.notFoundVariable = new BLangVariable();
-
         // Initialize built-in types in Ballerina
         initializeType(intType, TypeKind.INT.typeName());
         initializeType(floatType, TypeKind.FLOAT.typeName());
@@ -243,7 +237,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.EQUAL, floatType, floatType, booleanType, InstructionCodes.FEQ);
         defineBinaryOperator(OperatorKind.EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BEQ);
         defineBinaryOperator(OperatorKind.EQUAL, stringType, stringType, booleanType, InstructionCodes.SEQ);
-        defineBinaryOperator(OperatorKind.EQUAL, typeDesc, typeDesc, booleanType, InstructionCodes.TEQ);
         defineBinaryOperator(OperatorKind.EQUAL, jsonType, nilType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nilType, jsonType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, xmlType, nilType, booleanType, InstructionCodes.REQ);
@@ -256,8 +249,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.EQUAL, nilType, anyType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, mapType, nilType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nilType, mapType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, connectorType, nilType, booleanType, InstructionCodes.REQ);
-        defineBinaryOperator(OperatorKind.EQUAL, nilType, connectorType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nilType, arrayType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, arrayType, nilType, booleanType, InstructionCodes.REQ);
         defineBinaryOperator(OperatorKind.EQUAL, nilType, nilType, booleanType, InstructionCodes.REQ);
@@ -267,7 +258,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.NOT_EQUAL, floatType, floatType, booleanType, InstructionCodes.FNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, stringType, stringType, booleanType, InstructionCodes.SNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, typeDesc, typeDesc, booleanType, InstructionCodes.TNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, jsonType, nilType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, jsonType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, xmlType, nilType, booleanType, InstructionCodes.RNE);
@@ -280,8 +270,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, anyType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, mapType, nilType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, mapType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, connectorType, nilType, booleanType, InstructionCodes.RNE);
-        defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, connectorType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, arrayType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, arrayType, nilType, booleanType, InstructionCodes.RNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, nilType, nilType, booleanType, InstructionCodes.RNE);

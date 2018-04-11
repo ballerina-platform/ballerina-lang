@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
+import static org.ballerinalang.net.grpc.MessageUtils.updateContextProperties;
 
 /**
  * Abstract Method listener.
@@ -138,6 +139,6 @@ abstract class MethodListener {
             signatureParams[1] = requestParam;
         }
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
-        Executor.submit(resource, callback, null, null, signatureParams);
+        Executor.submit(resource, callback, updateContextProperties(null), null, signatureParams);
     }
 }

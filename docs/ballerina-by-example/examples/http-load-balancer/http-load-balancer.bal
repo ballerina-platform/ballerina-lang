@@ -28,7 +28,7 @@ service<http:Service> loadBalancerService bind backendEP{
         outRequest.setJsonPayload(requestPayload);
         var response = lbEP -> post("/", outRequest);
         match  response {
-                http:Response resp => _ = conn -> forward(resp);
+                http:Response resp => _ = conn -> respond(resp);
                 http:HttpConnectorError err => {
                 http:Response outResponse = new;
                 outResponse.statusCode = err.statusCode;

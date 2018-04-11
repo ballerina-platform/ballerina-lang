@@ -62,4 +62,10 @@ public class GaugeTest extends MetricTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDecrementGauge");
         Assert.assertEquals(returns[0], new BFloat(8.0));
     }
+
+    @Test
+    public void testGaugeWithoutTags() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGaugeWithoutTags");
+        Assert.assertEquals(returns[0], new BFloat(6));
+    }
 }

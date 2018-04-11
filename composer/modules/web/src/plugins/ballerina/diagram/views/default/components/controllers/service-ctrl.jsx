@@ -36,7 +36,7 @@ class ServiceCtrl extends React.Component {
     render() {
         const node = this.props.model;
         const y = node.viewState.bBox.y + 8;
-        const x = node.viewState.bBox.x - 3;
+        const x = node.viewState.bBox.x - 8;
 
         const w = 20;
         const h = 30;

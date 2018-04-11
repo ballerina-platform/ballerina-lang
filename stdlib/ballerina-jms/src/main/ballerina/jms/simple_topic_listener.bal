@@ -2,9 +2,9 @@ package ballerina.jms;
 
 import ballerina/log;
 
-public type SimpleTopicListener object {
+public type SimpleTopicSubscriber object {
     public {
-        SimpleTopicListenerEndpointConfiguration config;
+        SimpleTopicSubscriberEndpointConfiguration config;
     }
 
     private {
@@ -13,7 +13,7 @@ public type SimpleTopicListener object {
         TopicSubscriber? subscriber;
     }
 
-    public function init(SimpleTopicListenerEndpointConfiguration config) {
+    public function init(SimpleTopicSubscriberEndpointConfiguration config) {
         self.config = config;
         Connection conn = new ({
                 initialContextFactory: config.initialContextFactory,
@@ -21,20 +21,21 @@ public type SimpleTopicListener object {
                 connectionFactoryName: config.connectionFactoryName,
                 properties: config.properties
             });
-        connection = conn;
+        self.connection = conn;
 
         Session newSession = new (conn, {
                 acknowledgementMode: config.acknowledgementMode
             });
-        session = newSession;
+        self.session = newSession;
 
         TopicSubscriber topicSubscriber = new;
         TopicSubscriberEndpointConfiguration consumerConfig = {
             session: newSession,
-            topicPattern: config.topicPattern
+            topicPattern: config.topicPattern,
+            messageSelector: config.messageSelector
         };
         topicSubscriber.init(consumerConfig);
-        subscriber = topicSubscriber;
+        self.subscriber = topicSubscriber;
     }
 
     public function register (typedesc serviceType) {
@@ -65,7 +66,7 @@ public type SimpleTopicListener object {
     public function stop () {
     }
 
-    public function createTextMessage(string message) returns (Message) {
+    public function createTextMessage(string message) returns (Message | Error) {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
@@ -77,11 +78,12 @@ public type SimpleTopicListener object {
     }
 };
 
-public type SimpleTopicListenerEndpointConfiguration {
+public type SimpleTopicSubscriberEndpointConfiguration {
     string initialContextFactory = "wso2mbInitialContextFactory";
-    string providerUrl = "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'";
+    string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
+    string messageSelector;
     map properties;
     string topicPattern;
 };

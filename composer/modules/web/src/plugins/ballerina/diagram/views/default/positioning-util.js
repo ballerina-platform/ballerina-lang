@@ -93,6 +93,10 @@ class PositioningUtil {
             arrowStartBBox.y = viewState.components['statement-box'].y
                                 + this.config.actionInvocationStatement.text.height;
 
+            if (!TreeUtil.isReturn(node)) {
+                arrowStartBBox.x += 3;
+            }
+
             if (parentConstructNode) {
                 viewState.components.invocation = {
                     start: undefined,
@@ -1030,7 +1034,6 @@ class PositioningUtil {
         viewState.components['statement-box'].x = viewState.bBox.x;
         viewState.components['statement-box'].y = y + viewState.components['drop-zone'].h;
     }
-
 
 
     /**

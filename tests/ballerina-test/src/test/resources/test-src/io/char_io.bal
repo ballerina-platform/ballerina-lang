@@ -79,6 +79,14 @@ function readXml () returns (xml|io:IOError) {
     }
 }
 
+function writeJson(json content) {
+    var result = characterChannel.writeJson(content);
+}
+
+function writeXml(xml content) {
+    var result = characterChannel.writeXml(content);
+}
+
 function close () {
     var err = characterChannel.closeCharacterChannel();
 }

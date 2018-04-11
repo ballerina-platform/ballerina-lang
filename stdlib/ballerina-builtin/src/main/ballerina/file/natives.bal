@@ -16,20 +16,25 @@
 
 package ballerina.file;
 
-import ballerina/io;
-
 @Description { value: "Represents an I/O error which could occur when processing a file."}
 public type IOError {
     string message;
     error? cause;
 };
 
-@Description { value: "Derives a file path from the given location"}
-@Param {value:"Path which will hold reference to file location"}
-public native function getPath(string basePath) returns (Path);
-
 @Description {value: "Reference to the file location" }
 public type Path object{
+    private {
+      string link;
+    }
+
+    new (link){
+        init(link);
+    }
+
+    @Description { value: "Constructs the path"}
+    native function init(string link);
+
     @Description { value: "Retreives the absolut path from the provided location"}
     @Return {value:"Returns the absolute path reference or an error if the path cannot be derived."}
     public native function toAbsolutePath() returns (Path);
@@ -68,9 +73,3 @@ public native function createDirectory(Path path) returns (boolean | IOError);
 @Param {value: "path: Refernce to the file path location"}
 @Return {value : "error if the file could not be created"}
 public native function createFile(Path path) returns (boolean | IOError);
-
-@Description {value: "Creates a channel from the specified path"}
-@Param {value: "path : Refernce to the file path location"}
-@Param {value: "accessMode : whether the file should be opened for read, write or append"}
-@Return {value : "channel which will hold the reference to the file or io error"}
-public native function newByteChannel(Path path, @sensitive string accessMode) returns (io:ByteChannel |IOError);

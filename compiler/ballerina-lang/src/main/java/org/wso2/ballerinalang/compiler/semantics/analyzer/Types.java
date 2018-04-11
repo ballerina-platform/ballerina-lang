@@ -589,6 +589,14 @@ public class Types {
             return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
         }
 
+        if (s.tag == TypeTags.STRUCT && t.tag == TypeTags.STRUCT) {
+            if (checkStructEquivalency(s, t)) {
+                return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
+            } else {
+                return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
+            }
+        }
+
         // In this case, target type should be of type 'any' and the source type cannot be a value type
         if (t == symTable.anyType && !isValueType(s)) {
             return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
@@ -676,6 +684,14 @@ public class Types {
                 .anyMatch(memberType -> conversionVisitor.visit(memberType, target) == symTable.notFoundSymbol);
     }
 
+    private boolean checkJsonToMapConvertibility(BJSONType src, BMapType target) {
+        return true;
+    }
+
+    private boolean checkMapToJsonConvertibility(BMapType src, BJSONType target) {
+        return true;
+    }
+
     private BTypeVisitor<BType, BSymbol> conversionVisitor = new BTypeVisitor<BType, BSymbol>() {
 
         @Override
@@ -721,6 +737,11 @@ public class Types {
                 }
             } else if (s.tag == TypeTags.STRUCT) {
                 return createConversionOperatorSymbol(s, t, true, InstructionCodes.T2MAP);
+            } else if (s.tag == TypeTags.JSON) {
+                if (!checkJsonToMapConvertibility((BJSONType) s, t)) {
+                    return symTable.notFoundSymbol;
+                }
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.JSON2MAP);
             } else if (t.constraint.tag != TypeTags.ANY) {
                 // Semantically fail rest of the casts for Constrained Maps.
                 // Eg:- ANY2MAP cast is undefined for Constrained Maps.
@@ -764,6 +785,11 @@ public class Types {
                     return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECK_CONVERSION);
                 }
                 return symTable.notFoundSymbol;
+            } else if (s.tag == TypeTags.MAP) {
+                if (!checkMapToJsonConvertibility((BMapType) s, t)) {
+                    return symTable.notFoundSymbol;
+                }
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.MAP2JSON);
             } else if (t.constraint.tag != TypeTags.NONE) {
                 return symTable.notFoundSymbol;
             }
@@ -854,7 +880,6 @@ public class Types {
 
         @Override
         public BSymbol visit(BFutureType t, BType s) {
-            // TODO FUTUREX
             return null;
         }
     };
@@ -1175,7 +1200,7 @@ public class Types {
             return true;
         }
 
-        if (type.tag == TypeTags.INVOKABLE || type.tag == TypeTags.FINITE) {
+        if (type.tag == TypeTags.INVOKABLE || type.tag == TypeTags.FINITE || type.tag == TypeTags.TYPEDESC) {
             return false;
         }
 

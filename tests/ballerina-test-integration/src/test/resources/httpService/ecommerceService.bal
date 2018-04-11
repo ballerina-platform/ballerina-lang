@@ -52,7 +52,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
                 io:println("Error occurred while reading product response");
             }
             http:Response product => {
-                _ = outboundEP -> forward(product);
+                _ = outboundEP -> respond(product);
             }
         }
 
@@ -84,7 +84,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
                 clientResponse = prod;
             }
         }
-        _ = outboundEP -> forward(clientResponse);
+        _ = outboundEP -> respond(clientResponse);
     }
 
     @http:ResourceConfig {
@@ -99,7 +99,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
                 io:println("Error occurred while reading orders response");
             }
             http:Response orders => {
-                _ = outboundEP -> forward(orders);
+                _ = outboundEP -> respond(orders);
             }
         }
     }
@@ -116,7 +116,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
                 io:println("Error occurred while writing orders response");
             }
             http:Response orders => {
-                _ = outboundEP -> forward(orders);
+                _ = outboundEP -> respond(orders);
             }
         }
 
@@ -134,7 +134,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
                 io:println("Error occurred while reading customers response");
             }
             http:Response customer => {
-                _ = outboundEP -> forward(customer);
+                _ = outboundEP -> respond(customer);
             }
         }
 
@@ -152,7 +152,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
                 io:println("Error occurred while writing customers response");
             }
             http:Response customer => {
-                _ = outboundEP -> forward(customer);
+                _ = outboundEP -> respond(customer);
             }
         }
     }

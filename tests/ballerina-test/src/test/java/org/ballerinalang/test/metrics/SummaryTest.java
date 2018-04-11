@@ -61,4 +61,10 @@ public class SummaryTest extends MetricTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testPercentileSummary");
         Assert.assertNotEquals(returns[0], new BFloat(0));
     }
+
+    @Test
+    public void testSummaryWithoutTags() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSummaryWithoutTags");
+        Assert.assertEquals(returns[0], new BFloat(3));
+    }
 }
