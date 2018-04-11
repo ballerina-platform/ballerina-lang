@@ -1,1 +1,2 @@
-//The 'ballerina.log' package contains ballerina log handling functions.
+//The `ballerina.log` package contains ballerina log handling functions, such as `DEBUG`, `ERROR`, `INFO`, `TRACE`,
+//`WARN`, `OFF`, and `ALL` logs.
