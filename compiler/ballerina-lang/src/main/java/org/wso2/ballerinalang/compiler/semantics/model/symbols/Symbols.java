@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSingletonType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -230,7 +231,7 @@ public class Symbols {
 
     public static BConversionOperatorSymbol createUnboxValueTypeOpSymbol(BType sourceType, BType targetType) {
         int opcode;
-        switch (targetType.tag) {
+        switch (resolveToSuperType(targetType).tag) {
             case TypeTags.INT:
                 opcode = InstructionCodes.ANY2I;
                 break;
@@ -254,6 +255,13 @@ public class Symbols {
                 null, false, true, opcode);
         symbol.kind = SymbolKind.CONVERSION_OPERATOR;
         return symbol;
+    }
+
+    private static BType resolveToSuperType(BType bType) {
+        if (bType instanceof BSingletonType) {
+            return ((BSingletonType) bType).superSetType;
+        }
+        return bType;
     }
 
     public static BTransformerSymbol createTransformerSymbol(int flags,

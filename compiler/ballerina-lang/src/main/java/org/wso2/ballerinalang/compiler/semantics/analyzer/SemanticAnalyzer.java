@@ -1585,7 +1585,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         boolean error = true;
         NodeKind retryKind = retryCountExpr.getKind();
         if (retryKind == NodeKind.LITERAL) {
-            if (retryCountExpr.type.tag == TypeTags.INT) {
+            if (types.resolveToSuperType(retryCountExpr.type).tag == TypeTags.INT) {
                 int retryCount = Integer.parseInt(((BLangLiteral) retryCountExpr).getValue().toString());
                 if (retryCount >= 0) {
                     error = false;
@@ -1593,7 +1593,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         } else if (retryKind == NodeKind.SIMPLE_VARIABLE_REF) {
             if (((BLangSimpleVarRef) retryCountExpr).symbol.flags == Flags.FINAL) {
-                if (((BLangSimpleVarRef) retryCountExpr).symbol.type.tag == TypeTags.INT) {
+                if (types.resolveToSuperType(((BLangSimpleVarRef) retryCountExpr).symbol.type).tag == TypeTags.INT) {
                     error = false;
                 }
             }

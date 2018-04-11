@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.types.SingletonType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * Singleton Type.
@@ -30,7 +31,7 @@ public class BSingletonType extends BType implements SingletonType {
 
     public BSingletonType(BLangLiteral valueSpace,
                           BType superSetType) {
-        super(superSetType.tag, null);
+        super(TypeTags.SINGLETON, null);
         this.valueSpace = valueSpace;
         this.superSetType = superSetType;
     }

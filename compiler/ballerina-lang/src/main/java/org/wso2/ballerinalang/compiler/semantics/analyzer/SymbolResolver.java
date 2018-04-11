@@ -153,7 +153,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BSymbol resolveImplicitConversionOp(BType sourceType,
                                                BType targetType) {
-        BSymbol symbol = resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
+        BSymbol symbol = resolveOperator(Names.CONVERSION_OP,
+                Lists.of(resolveToSuperType(sourceType), resolveToSuperType(targetType)));
         if (symbol == symTable.notFoundSymbol) {
             return symbol;
         }
@@ -168,43 +169,27 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BSymbol resolveConversionOperator(BType sourceType,
                                              BType targetType) {
-        return types.getConversionOperator(sourceType, targetType);
+        return types.getConversionOperator(resolveToSuperType(sourceType), resolveToSuperType(targetType));
     }
 
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
                                          BType lhsType,
                                          BType rhsType) {
-        BSymbol bSymbol = resolveOperator(names.fromString(opKind.value()), Lists.of(lhsType, rhsType));
+        BSymbol bSymbol = resolveOperator(names.fromString(opKind.value()),
+                Lists.of(resolveToSuperType(lhsType), resolveToSuperType(rhsType)));
         if (bSymbol == symTable.notFoundSymbol) {
-            bSymbol = getBinaryOpForNullChecks(opKind, lhsType, rhsType);
-        }
-
-        if (bSymbol == symTable.notFoundSymbol) {
-            bSymbol = getBinaryOpForSingletonTypes(opKind, lhsType, rhsType);
+            bSymbol = getBinaryOpForNullChecks(opKind,
+                    resolveToSuperType(lhsType), resolveToSuperType(rhsType));
         }
 
         return bSymbol;
     }
 
-
-    private BSymbol getBinaryOpForSingletonTypes(OperatorKind opKind, BType lhsType,
-                                                 BType rhsType) {
-
-        BType effectiveLhsType;
-        BType effectiveRhsType;
-        if (lhsType.getKind() == TypeKind.SINGLETON) {
-            effectiveLhsType = ((BSingletonType) lhsType).superSetType;
-        } else {
-            effectiveLhsType = lhsType;
+    private static BType resolveToSuperType(BType bType) {
+        if (bType.tag == TypeTags.SINGLETON) {
+            bType = ((BSingletonType) bType).superSetType;
         }
-
-        if (rhsType.getKind() == TypeKind.SINGLETON) {
-            effectiveRhsType = ((BSingletonType) rhsType).superSetType;
-        } else {
-            effectiveRhsType = rhsType;
-        }
-
-        return resolveOperator(names.fromString(opKind.value()), Lists.of(effectiveLhsType, effectiveRhsType));
+        return bType;
     }
 
     private BSymbol getBinaryOpForNullChecks(OperatorKind opKind, BType lhsType,
@@ -245,19 +230,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     public BSymbol resolveUnaryOperator(DiagnosticPos pos,
                                         OperatorKind opKind,
                                         BType type) {
-        BSymbol bSymbol = resolveOperator(names.fromString(opKind.value()), Lists.of(type));
-
-        if (bSymbol == symTable.notFoundSymbol) {
-            bSymbol = getUnaryOpForSingletonType(opKind, type);
-        }
-
-        return bSymbol;
-    }
-
-
-    private BSymbol getUnaryOpForSingletonType(OperatorKind opKind, BType type) {
-        BType effectiveType = (type.getKind() == TypeKind.SINGLETON) ? ((BSingletonType) type).superSetType : type;
-        return resolveOperator(names.fromString(opKind.value()), Lists.of(effectiveType));
+        return resolveOperator(names.fromString(opKind.value()), Lists.of(resolveToSuperType(type)));
     }
 
     public BSymbol resolveOperator(Name name, List<BType> types) {
@@ -572,6 +545,12 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangSingletonTypeNode singletonTypeNode) {
+        if (this.symTable.getTypeFromTag(singletonTypeNode.literal.typeTag)
+                == this.symTable.nilType) {
+            resultType = this.symTable.nilType;
+            return;
+        }
+
         resultType = new BSingletonType(singletonTypeNode.literal,
                 this.symTable.getTypeFromTag(singletonTypeNode.literal.typeTag));
     }

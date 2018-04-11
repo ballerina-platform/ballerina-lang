@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
@@ -169,7 +168,7 @@ public class Types {
     }
 
     public boolean isValueType(BType type) {
-        return type.tag < TypeTags.TYPEDESC;
+        return type.tag < TypeTags.TYPEDESC || type.tag == TypeTags.SINGLETON;
     }
 
     public boolean isBrandedType(BType type) {
@@ -254,6 +253,11 @@ public class Types {
 
         if (source.tag == TypeTags.STRUCT && target.tag == TypeTags.STRUCT) {
             return checkStructEquivalency(source, target);
+        }
+
+        if (source.tag == TypeTags.SINGLETON) {
+            BSingletonType singletonType = (BSingletonType) source;
+            return isAssignable(singletonType.superSetType, target);
         }
 
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
@@ -468,13 +472,6 @@ public class Types {
         BSymbol symbol = symResolver.resolveImplicitConversionOp(actualType, expType);
         if (expType.tag == TypeTags.UNION && isValueType(actualType)) {
             symbol = symResolver.resolveImplicitConversionOp(actualType, symTable.anyType);
-        }
-
-        if ((expType.tag == TypeTags.UNION || expType.tag == TypeTags.ANY ||
-                expType.getKind() == TypeKind.SINGLETON) &&
-                actualType.getKind() == TypeKind.SINGLETON) {
-            BSingletonType singletonType = (BSingletonType) actualType;
-            symbol = symResolver.resolveImplicitConversionOp(singletonType.superSetType, symTable.anyType);
         }
 
         if (symbol == symTable.notFoundSymbol) {
@@ -856,10 +853,6 @@ public class Types {
     private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
         @Override
         public Boolean visit(BType t, BType s) {
-            if (s.getKind() == TypeKind.SINGLETON) {
-                BSingletonType singletonType = (BSingletonType) s;
-                return isSameType(singletonType.superSetType, t);
-            }
             return t == s;
 
         }
@@ -937,7 +930,7 @@ public class Types {
                 if (t.getTupleTypes().get(i) == symTable.noType) {
                     continue;
                 }
-                if (!isSameType(source.getTupleTypes().get(i), t.tupleTypes.get(i))) {
+                if (!isAssignable(source.getTupleTypes().get(i), t.tupleTypes.get(i))) {
                     return false;
                 }
             }
@@ -999,13 +992,15 @@ public class Types {
 
         @Override
         public Boolean visit(BSingletonType t, BType s) {
-            if (s.getKind() == TypeKind.SINGLETON) {
+            if (s.tag == TypeTags.SINGLETON) {
                 BSingletonType sT = (BSingletonType) s;
                 if (sT.valueSpace.value == null) {
                     return t.valueSpace.value == null;
                 } else {
                     return sT.valueSpace.value.equals(t.valueSpace.value);
                 }
+            } else if (s.tag == TypeTags.NIL) {
+                return t.superSetType == s;
             }
             return false;
         }
@@ -1173,7 +1168,7 @@ public class Types {
         if (lhsType.tag == TypeTags.UNION) {
             BUnionType lhsUnionType = (BUnionType) lhsType;
             lhsTypes.addAll(lhsUnionType.memberTypes);
-        } else if (lhsType.getKind() == TypeKind.SINGLETON) {
+        } else if (lhsType.tag == TypeTags.SINGLETON) {
             BType superType = ((BSingletonType) lhsType).superSetType;
             lhsTypes.add(superType);
             lhsTypes.add(lhsType);
@@ -1184,7 +1179,7 @@ public class Types {
         if (rhsType.tag == TypeTags.UNION) {
             BUnionType rhsUnionType = (BUnionType) rhsType;
             rhsTypes.addAll(rhsUnionType.memberTypes);
-        } else if (rhsType.getKind() == TypeKind.SINGLETON) {
+        } else if (rhsType.tag == TypeTags.SINGLETON) {
             BType superType = ((BSingletonType) rhsType).superSetType;
             rhsTypes.add(superType);
             rhsTypes.add(rhsType);
@@ -1204,6 +1199,13 @@ public class Types {
                         .anyMatch(t -> isSameType(s, t)))
                 .anyMatch(found -> found);
         return matchFound;
+    }
+
+    public BType resolveToSuperType(BType bType) {
+        if (bType.tag == TypeTags.SINGLETON) {
+            return ((BSingletonType) bType).superSetType;
+        }
+        return bType;
     }
 
 }
