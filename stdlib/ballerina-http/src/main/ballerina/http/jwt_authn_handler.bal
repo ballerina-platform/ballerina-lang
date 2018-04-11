@@ -17,18 +17,18 @@
 package ballerina.http;
 
 import ballerina/log;
-import ballerina/auth.jwtAuth;
-
-@Description {value:"JWT authenticator instance"}
-jwtAuth:JWTAuthenticator jwtAuthenticator = jwtAuth:createAuthenticator();
+import ballerina/auth;
 
 @Description {value:"Representation of JWT Auth handler for HTTP traffic"}
+@Field {value:"jwtAuthenticator: JWTAuthenticator instance"}
 @Field {value:"name: Authentication handler name"}
 public type HttpJwtAuthnHandler object {
     public {
+        auth:JWTAuthProvider jwtAuthenticator;
         string name = "jwt";
     }
-
+    new (jwtAuthenticator) {
+    }
     @Description {value:"Intercepts a HTTP request for authentication"}
     @Param {value:"req: Request object"}
     @Return {value:"boolean: true if authentication is a success, else false"}

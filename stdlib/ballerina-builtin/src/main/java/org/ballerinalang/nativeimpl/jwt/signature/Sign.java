@@ -38,7 +38,7 @@ import java.security.PrivateKey;
  * @since 0.964.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jwt.signature",
+        orgName = "ballerina", packageName = "jwt",
         functionName = "sign",
         args = {
                 @Argument(name = "data", type = TypeKind.STRING),

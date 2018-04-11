@@ -14,15 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.jwt.signature;
+package ballerina.jwt;
 
-@Description {value:"Verify the signature of a given jwt."}
+@Description {value:"VerifySignature the signature of a given jwt."}
 @Param {value:"data: Original data which has signed."}
 @Param {value:"signature: Signature string."}
 @Param {value:"algorithm: Signature algorithm."}
 @Param {value:"keyAlias: Public key alias."}
 @Return {value:"Verified status. true or false."}
-public native function verify (string data, string signature, string algorithm, string keyAlias) returns (boolean);
+public native function verifySignature (string data, string signature, string algorithm, string keyAlias) returns
+                                                                                                       (boolean);
 
 @Description {value:"Sign the given input jwt data."}
 @Param {value:"data: Original that need to sign."}
