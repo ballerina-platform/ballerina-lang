@@ -10,6 +10,40 @@ function finiteAssignmentStateType() returns State {
 
 type NumberSet 1|2|3|4|5;
 
+type SN State|NumberSet;
+
+type SNR SN;
+
+function finiteAssignmentCompositeFiniteTypes() returns SNR {
+    SNR v1 = "on";
+    SNR v2 = 5;
+    SNR v3;
+    if (v1 != v2) {
+       v3 = "off";
+    }
+    return v3;
+}
+
+function finiteTypeSetIntersectionCaseOne() returns State {
+    SNR v1 = "on";
+    State v2 = "off";
+    State v3;
+    if (v1 != v2) {
+       v3 = "off";
+    }
+    return v3;
+}
+
+function finiteTypeSetIntersectionCaseTwo() returns int {
+    int v1 = 2;
+    NumberSet v2 = 1;
+    int v3;
+    if (v1 != v2) {
+       v3 = 100;
+    }
+    return 200;
+}
+
 function finiteAssignmentNumberSetType() returns NumberSet {
     NumberSet n = 1;
     if (n == 1) {
