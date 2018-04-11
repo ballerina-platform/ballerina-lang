@@ -100,7 +100,7 @@ service<http:Service> participant2 bind participant2EP {
         http:Response res = new;  res.statusCode = 200;
         sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:uuid};
         sql:Parameter[] params = [para1];
-        var x = testDB -> select("SELECT registrationID FROM Customers WHERE registrationID = ?", params, typeof Registration);
+        var x = testDB -> select("SELECT registrationID FROM Customers WHERE registrationID = ?", params, Registration);
         match x {
             table dt => {
                string payload;

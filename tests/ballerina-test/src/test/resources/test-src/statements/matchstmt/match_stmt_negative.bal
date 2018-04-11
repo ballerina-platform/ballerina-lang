@@ -15,7 +15,7 @@ function testMatchStmtNegative1 (string | int | boolean i)  returns (string | in
 function testMatchStmtNegative2 (string | int i)  {
 
      match i {
-        typedesc j => j = typeof int;
+        typedesc j => j = int;
         int k => k = 10;
         string j => j = "sss";
         boolean b => b = true;

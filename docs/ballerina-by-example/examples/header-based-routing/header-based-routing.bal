@@ -57,8 +57,8 @@ service<http:Service> headerBasedRouting bind hbrEP {
 
         match response {
             http:Response clientResponse => {
-            //Native function "forward" sends back the inbound clientResponse to the caller if no any error is found.
-                _ = conn -> forward(clientResponse);
+            //Native function "respond" sends back the inbound clientResponse to the caller if no any error is found.
+                _ = conn -> respond(clientResponse);
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;

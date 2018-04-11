@@ -19,7 +19,7 @@ service<http:Service> passthroughService bind passthroughEP {
         var response = nyseEP -> get("/nyseStock/stocks", clientRequest);
         match response {
             http:Response httpResponse => {
-                _ = outboundEP -> forward(httpResponse);
+                _ = outboundEP -> respond(httpResponse);
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;

@@ -51,8 +51,7 @@ public class MetricRegistry {
      * @param id The {@link MetricId}.
      * @return A existing or a new {@link Counter} metric.
      */
-    // This is method is only allowed to be used within package.
-    Counter counter(MetricId id) {
+    public Counter counter(MetricId id) {
         return getOrCreate(id, Counter.class, () -> metricProvider.newCounter(id));
     }
 
@@ -62,7 +61,7 @@ public class MetricRegistry {
      * @param id The {@link MetricId}.
      * @return A existing or a new {@link Gauge} metric.
      */
-    Gauge gauge(MetricId id) {
+    public Gauge gauge(MetricId id) {
         return getOrCreate(id, Gauge.class, () -> metricProvider.newGauge(id));
     }
 
@@ -75,7 +74,7 @@ public class MetricRegistry {
      * @param <T>           The type of the state object from which the gauge value is extracted.
      * @return A existing or a new {@link CallbackGauge} metric.
      */
-    <T> CallbackGauge callbackGauge(MetricId id, T obj, ToDoubleFunction<T> valueFunction) {
+    public <T> CallbackGauge callbackGauge(MetricId id, T obj, ToDoubleFunction<T> valueFunction) {
         return getOrCreate(id, CallbackGauge.class, () -> metricProvider.newCallbackGauge(id, obj, valueFunction));
     }
 
@@ -85,7 +84,7 @@ public class MetricRegistry {
      * @param id The {@link MetricId}.
      * @return A existing or a new {@link Summary} metric.
      */
-    Summary summary(MetricId id) {
+    public Summary summary(MetricId id) {
         return getOrCreate(id, Summary.class, () -> metricProvider.newSummary(id));
     }
 
@@ -95,7 +94,7 @@ public class MetricRegistry {
      * @param id The {@link MetricId}.
      * @return A existing or a new {@link Timer} metric.
      */
-    Timer timer(MetricId id) {
+    public Timer timer(MetricId id) {
         return getOrCreate(id, Timer.class, () -> metricProvider.newTimer(id));
     }
 
