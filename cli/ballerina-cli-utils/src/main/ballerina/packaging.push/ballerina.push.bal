@@ -48,11 +48,11 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
     
     var result = httpEndpoint -> post("", req);
     http:Response httpResponse = check result;
-    int statusCode = httpResponse.statusCode;
-    if (statusCode == 500 || statusCode == 501 || statusCode == 502 || statusCode == 503 || statusCode == 504 ) {
+    string statusCode = <string> httpResponse.statusCode;
+    if (statusCode.hasPrefix("5")) {
         error err = {message:"remote registry failed for url :" + url};
         throw err;
-    } else if (statusCode != 200) {
+    } else if (statusCode != "200") {
         json jsonResponse = check (httpResponse.getJsonPayload());
         string message = (jsonResponse.message.toString() but {()=> "error occurred when pushing the package"});
         io:println(message);

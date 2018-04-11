@@ -25,11 +25,11 @@ function search (string url, string querySearched) {
     http:Response httpResponse = check result;
 
     json jsonResponse = check (httpResponse.getJsonPayload());
-    int statusCode = httpResponse.statusCode;
-    if (statusCode == 500 || statusCode == 501 || statusCode == 502 || statusCode == 503 || statusCode == 504 ) {
+    string statusCode = <string> httpResponse.statusCode;
+    if (statusCode.hasPrefix("5")) {
         error err = {message:"remote registry failed for url :" + url};
         throw err;
-    } else if (statusCode != 200) {
+    } else if (statusCode != "200") {
         string message = (jsonResponse.msg.toString() but {()=> "error occurred when searching for packages"});
         io:println(message);
     } else {
