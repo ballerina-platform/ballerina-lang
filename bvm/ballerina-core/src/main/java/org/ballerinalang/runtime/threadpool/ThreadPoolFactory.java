@@ -39,7 +39,7 @@ public class ThreadPoolFactory {
 
     private ThreadPoolFactory() {
         int poolSize = DEFAULT_THREAD_POOL_SIZE;
-        String workerThreadPoolSizeProp = ConfigRegistry.getInstance().getConfiguration(WORKER_THREAD_POOL_SIZE_PROP);
+        String workerThreadPoolSizeProp = ConfigRegistry.getInstance().getAsString(WORKER_THREAD_POOL_SIZE_PROP);
         if (workerThreadPoolSizeProp != null) {
             try {
                 poolSize = Integer.parseInt(workerThreadPoolSizeProp);
