@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -85,6 +86,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     private List<BLangExpression> outTableRefs;
 
     private boolean isInPatternForClause = false;
+    private boolean isSequence = false;
 
     public static SiddhiQueryBuilder getInstance(CompilerContext context) {
         SiddhiQueryBuilder siddhiQueryBuilder = context.get(SIDDHI_QUERY_BUILDER_KEY);
@@ -364,14 +366,21 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
         boolean onlyOrAvailable = patternStreamingInput.isOrOnly();
         boolean andWithNotAvailable = patternStreamingInput.isAndWithNot();
         boolean forWithNotAvailable = patternStreamingInput.isForWithNot();
+        boolean isCommaSeparatedSequence = patternStreamingInput.isCommaSeparated();
 
         List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs =
                 patternStreamingInput.getPatternStreamingEdgeInputs();
         BLangPatternStreamingInput nestedPatternStreamingInput =
                 (BLangPatternStreamingInput) patternStreamingInput.getPatternStreamingInput();
 
-        if (isFollowedByPattern) {
-            buildFollowedByPattern(patternStreamingEdgeInputs, nestedPatternStreamingInput);
+        if (isFollowedByPattern || isCommaSeparatedSequence) {
+            if (!isCommaSeparatedSequence) {
+                buildFollowedByPattern(patternStreamingEdgeInputs, nestedPatternStreamingInput, "-> ");
+            } else {
+                isSequence = true;
+                buildFollowedByPattern(patternStreamingEdgeInputs, nestedPatternStreamingInput, ", ");
+                isSequence = false;
+            }
             return;
         }
         if (enclosedInParenthesisPattern) {
@@ -442,11 +451,11 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     }
 
     private void buildFollowedByPattern(List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs,
-                                        BLangPatternStreamingInput nestedPatternStreamingInput) {
+            BLangPatternStreamingInput nestedPatternStreamingInput, String followedByOp) {
         BLangPatternStreamingEdgeInput patternStreamingEdgeInput = (BLangPatternStreamingEdgeInput)
                 patternStreamingEdgeInputs.get(0);
         patternStreamingEdgeInput.accept(this);
-        patternStreamingClause.append(" -> ");
+        patternStreamingClause.append(followedByOp);
         nestedPatternStreamingInput.accept(this);
     }
 
@@ -486,7 +495,18 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
             addExprToClause(endExpr, intRangeExpr, null);
         }
         intRangeExpr.append(">");
-        exprStack.push(intRangeExpr.toString());
+        if (isSequence) {
+            String expr = intRangeExpr.toString();
+            if (expr.equalsIgnoreCase("<0:1>")) {
+                exprStack.push("?");
+            } else if (expr.equalsIgnoreCase("<0:>")) {
+                exprStack.push("*");
+            } else if (expr.equalsIgnoreCase("<1:>")) {
+                exprStack.push("+");
+            }
+        } else {
+            exprStack.push(intRangeExpr.toString());
+        }
     }
 
     @Override
@@ -508,10 +528,21 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
             sqlExpr = fieldAccessExpr.toString();
             BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) fieldAccessExpr.expr;
             String exprName = (indexBasedAccess.expr.toString() + ".length-1").replaceAll("\\s+", "");
-            if (sqlExpr.replaceAll("\\s+", "").contains(exprName)) {
-                sqlExpr = sqlExpr.replaceFirst(exprName, "last");
+            sqlExpr = sqlExpr.replaceAll("\\s+", "");
+            if (sqlExpr.contains(exprName)) {
+                sqlExpr = sqlExpr.replaceFirst("(?i)" + exprName, "last");
             }
             exprStack.push(sqlExpr);
+        }
+    }
+
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        List<BLangExpression> expressionList = bracedOrTupleExpr.getExpressions();
+        for (BLangExpression expression : expressionList) {
+            expression.accept(this);
+            String expr = exprStack.pop();
+            String expressionWithBrace = "( " + expr + " ) ";
+            exprStack.push(expressionWithBrace);
         }
     }
 

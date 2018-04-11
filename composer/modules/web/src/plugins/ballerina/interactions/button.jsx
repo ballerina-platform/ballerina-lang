@@ -116,7 +116,7 @@ class Button extends React.Component {
         let buttonBackgroundClass = 'button-background';
 
         if (this.props.type === 'secondary') {
-            buttonBackgroundClass = 'button-background-secondary';
+            buttonBackgroundClass = 'button-background-secondary right-arrow';
         } if (this.props.type === 'default') {
             buttonBackgroundClass = 'button-background-default';
             IconOpacity = 0;
