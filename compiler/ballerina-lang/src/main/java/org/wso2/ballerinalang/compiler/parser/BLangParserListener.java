@@ -2545,9 +2545,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean forWithNotAvailable = ctx.simpleLiteral() != null;
         boolean onlyAndAvailable = ctx.AND() != null && ctx.NOT() == null && ctx.FOR() == null;
         boolean onlyOrAvailable = ctx.OR() != null && ctx.NOT() == null && ctx.FOR() == null;
+        boolean commaSeparated = ctx.COMMA() != null;
         this.pkgBuilder.endPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx), followedByAvailable,
                 enclosedInParenthesis, andWithNotAvailable, forWithNotAvailable, onlyAndAvailable,
-                onlyOrAvailable);
+                onlyOrAvailable, commaSeparated);
     }
 
     @Override
