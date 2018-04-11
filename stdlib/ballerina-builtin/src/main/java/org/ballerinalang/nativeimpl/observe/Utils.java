@@ -21,7 +21,6 @@ package org.ballerinalang.nativeimpl.observe;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -39,16 +38,12 @@ public class Utils {
         //Do nothing
     }
 
-    static Map<String, String> toStringMap(BMap map) {
+    public static Map<String, String> toStringMap(BMap map) {
         Map<String, String> returnMap = new HashMap<>();
         if (map != null) {
             Set bIterator = map.keySet();
             for (Object aKey : bIterator) {
-                if (map.get(aKey) instanceof BStringArray) {
-                    returnMap.put(aKey.toString(), (((BStringArray) map.get(aKey)).get(0)));
-                } else {
-                    returnMap.put(aKey.toString(), map.get(aKey).stringValue());
-                }
+                returnMap.put(aKey.toString(), map.get(aKey).stringValue());
             }
         }
         return returnMap;
