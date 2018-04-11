@@ -120,10 +120,5 @@ public function FileBasedPermissionStore::readGroupsOfUser (string username) ret
 }
 
 function getPermissionStoreConfigValue (string instanceId, string property) returns (string) {
-    match config:getAsString(instanceId + "." + property) {
-        string value => {
-            return value == () ? "" : value;
-        }
-        () => return "";
-    }
+    return config:getAsString(instanceId + "." + property, default = "");
 }

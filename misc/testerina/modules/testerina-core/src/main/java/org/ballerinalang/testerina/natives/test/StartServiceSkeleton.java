@@ -96,7 +96,7 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
         }
 
         CodeGenerator generator = new CodeGenerator();
-        generator.setApiPackage(packageName);
+        generator.setSrcPackage(packageName);
 
         try {
             generator.generate(GeneratorConstants.GenType.MOCK, swaggerFilePath, rootDir.toString());

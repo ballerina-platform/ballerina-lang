@@ -52,7 +52,7 @@ public class BLangScheduler {
     private static boolean schedulerStatsEnabled;
     
     static {
-        String statsConfigProp = ConfigRegistry.getInstance().getConfiguration(SCHEDULER_STATS_CONFIG_PROP);
+        String statsConfigProp = ConfigRegistry.getInstance().getAsString(SCHEDULER_STATS_CONFIG_PROP);
         if (statsConfigProp != null) {
             schedulerStatsEnabled = Boolean.parseBoolean(statsConfigProp);
         }
