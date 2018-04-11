@@ -88,6 +88,7 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
@@ -121,6 +122,7 @@ public class HttpUtil {
 
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
+    private static final String CHUNKING_CONFIG = "chunking_config";
 
     public static BValue[] getProperty(Context context, boolean isRequest) {
         BStruct httpMessageStruct = (BStruct) context.getRefArgument(0);
@@ -251,21 +253,6 @@ public class HttpUtil {
         }
     }
 
-//    /**
-//     * Helper method to start pending http server connectors.
-//     *
-//     * @throws BallerinaConnectorException
-//     */
-//    public static void startPendingHttpConnectors(BallerinaHttpServerConnector httpServerConnector)
-//            throws BallerinaConnectorException {
-//        try {
-//            // Starting up HTTP Server connectors
-//            HttpConnectionManager.getInstance().startPendingHTTPConnectors(httpServerConnector);
-//        } catch (ServerConnectorException e) {
-//            throw new BallerinaConnectorException(e);
-//        }
-//    }
-
     public static void prepareOutboundResponse(Context context, HTTPCarbonMessage inboundRequestMsg,
                                                HTTPCarbonMessage outboundResponseMsg, BStruct outboundResponseStruct) {
 
@@ -274,6 +261,7 @@ public class HttpUtil {
         HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
         HttpUtil.setCompressionHeaders(context, inboundRequestMsg, outboundResponseMsg);
+        HttpUtil.setChunkingHeader(context, outboundResponseMsg);
     }
 
     public static BStruct createSessionStruct(Context context, Session session) {
@@ -1183,6 +1171,20 @@ public class HttpUtil {
     public static void injectHeaders(HTTPCarbonMessage msg, Map<String, String> headers) {
         if (headers != null) {
             headers.forEach((key, value) -> msg.setHeader(key, String.valueOf(value)));
+        }
+    }
+
+    private static void setChunkingHeader(Context context, HTTPCarbonMessage
+            outboundResponseMsg) {
+        Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
+                context.getServiceInfo().getType());
+        Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
+        if (configAnnot == null) {
+            return;
+        }
+        String transferValue = configAnnot.getValue().getRefField(ANN_CONFIG_ATTR_CHUNKING).getStringValue();
+        if (transferValue != null) {
+            outboundResponseMsg.setProperty(CHUNKING_CONFIG, getChunkConfig(transferValue));
         }
     }
 }

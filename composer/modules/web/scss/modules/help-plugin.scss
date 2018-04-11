@@ -37,11 +37,11 @@
     .rc-tabs-tab-active {
         .tab-title-wrapper {
             &.welcome-page-tab-title {
-                background-color:#f9f9f9;
+                background-color:$primaryBackgroundColor;
                 color: #7D7D7D;
                 height: 30px;
                 .close-tab {
-                    background: #f9f9f9 !important;
+                    background: $primaryBackgroundColor !important;
                     &:hover{
                         color: #474747;
                     }

@@ -62,5 +62,12 @@ public @interface SupportEndpointTypes {
          * @return name of the endpoint package
          */
         String packageName();
+
+        /**
+         * Name of the endpoint package organization.
+         *
+         * @return name of the endpoint package organization
+         */
+        String orgName() default "";
     }
 }
