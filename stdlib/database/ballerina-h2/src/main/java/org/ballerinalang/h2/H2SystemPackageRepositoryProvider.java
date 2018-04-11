@@ -31,6 +31,11 @@ import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 public class H2SystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
 
     @Override
+    public int dependentLevel() {
+        return 300;
+    }
+
+    @Override
     public Repo loadRepository() {
         return new JarRepo(SystemPackageRepositoryProvider.getClassUri(this));
     }
