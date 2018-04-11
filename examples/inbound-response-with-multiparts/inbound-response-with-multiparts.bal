@@ -33,7 +33,7 @@ service<http:Service> test bind multipartEP {
                 res.setStringPayload("Connection error");
             }
             http:Response returnResponse => {
-                match returnResponse.getMultiparts() {
+                match returnResponse.getBodyParts() {
                     mime:EntityError err => {
                         res.statusCode = 500;
                         res.setStringPayload(err.message);

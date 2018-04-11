@@ -8,22 +8,26 @@ function main (string[] args) {
         float k = 2.34;
         io:println("[w1 -> w2] i: " + i + " k: " + k);
         // Send messages to worker `w2`. This message contains two values of type `int` and `float`.
-        i, k -> w2;
+        (i, k) -> w2;
         // Receive a message from worker `w2`. This message contains a `JSON` typed value.
         json j = {};
         j <- w2;
-        io:println("[w1 <- w2] j: " + j.toString());
+        string jStr = j.toString() but {() => ""};
+        io:println("[w1 <- w2] j: " + jStr);
     }
 
     worker w2 {
         // Receive a message from the default worker.
         int iw;
         float kw;
-        iw, kw <- w1;
+        any vW1;
+        vW1 <-  w1;
+        (iw, kw) = check <(int, float)>vW1;
         io:println("[w2 <- w1] iw: " + iw + " kw: " + kw);
         // Send a message to the default worker.
         json jw = {"name":"Ballerina"};
-        io:println("[w2 -> w1] jw: " + jw.toString());
+        string jwStr = jw.toString() but {() => ""};
+        io:println("[w2 -> w1] jw: " + jwStr);
         jw -> w1;
     }
 }

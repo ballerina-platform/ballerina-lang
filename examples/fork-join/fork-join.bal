@@ -10,7 +10,7 @@ function main (string[] args) {
             string s = "Colombo";
             io:println("[w1] i: " + i + " s: " + s);
             // The reply to the join block from worker w1.
-            i, s -> fork;
+            (i, s) -> fork;
         }
 
         worker w2 {
@@ -26,13 +26,12 @@ function main (string[] args) {
 
 
         // Get the values received from worker 'w1'.
-        any[] resW1 = check <any[]>results["w1"];
-        int iW1 = check <int>resW1[0];
-        string sW1 = <string>resW1[1];
+        int iW1;
+        string sW1;
+        (iW1, sW1) = check <(int, string)>results["w1"];
         io:println("[join-block] iW1: " + iW1 + " sW1: " + sW1);
-        // Get the values received from worker 'w2'
-        any[] resW2 = check <any[]>results["w2"];
-        float fW2 = check <float>resW2[0];
+        float fW2 = check <float>results["w2"];
         io:println("[join-block] fW2: " + fW2);
+
     }
 }

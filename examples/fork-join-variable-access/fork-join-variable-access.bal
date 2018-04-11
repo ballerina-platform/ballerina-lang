@@ -17,7 +17,7 @@ function main (string[] args) {
             // Define a new variable within the worker to send to the join block.
             string n = "Colombo";
             // Send the data to the join block of the fork-join from worker W1.
-            i, n -> fork;
+            (i, n) -> fork;
         }
 
         worker W2 {
@@ -30,40 +30,15 @@ function main (string[] args) {
         }
     } join (all) (map results) {
 
-        any[] r1;
-        any[] r2;
+        int p;
+        string l;
         // Declare variables to receive the results from the forked workers W1 and W2.
         // The 'results' map contains a map of any type array from each worker defined within the fork-join statement
         // Values received from worker W1 are assigned to the 'any' type array of r1.
-        var x1 = <any[]>results["W1"];
-        match x1 {
-            any[] val  => {r1 = <any[]> val;}
-            error e => {io:println(e.message);}
-        }
+        (p, l) = check <(int, string)>results["W1"];
 
         // Values received from worker W2 are assigned to 'any' type array of r2.
-        var x2 = <any[]>results["W2"];
-        match x2 {
-            any[] val  => {r2 = <any[]> val;}
-            error e => {io:println(e.message);}
-        }
-
-        // Get the 0th index of the array returned from worker W1.
-        int p;
-        p = check <int>r1[0];
-        // Getting the 1st index of the array returned from worker W1.
-        string l;
-        var indexL = <string>r1[1];
-        match indexL {
-            string val  => {l = <string > val;}
-        }
-
-        // Getting the 0th index of the array returned from worker W2.
-        string q;
-        var indexQ = <string>r2[0];
-        match indexQ {
-            string val  => {q = <string > val;}
-        }
+        string q = <string>results["W2"];
 
         // Print the values received from workers within the join block.
         io:println("[default worker] within join:

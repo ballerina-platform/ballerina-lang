@@ -37,7 +37,7 @@ service<http:Service> hello bind helloEP {
     }
     bindXML (endpoint outboundEP, http:Request req, xml store) {
         //Access XML content.
-        xml city = store.selectChildren("city");
+        xml city = store.selectDescendants("city");
         io:println(city);
 
         http:Response res = new;
