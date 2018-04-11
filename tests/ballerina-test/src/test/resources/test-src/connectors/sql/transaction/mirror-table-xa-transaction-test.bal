@@ -18,23 +18,15 @@ type SalaryTrx {
 
 function testXATransactionSuccess () returns (int, int) {
     endpoint sql:Client testDB1 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_1/",
-        port: 0,
-        name: "TestDB1",
-        username: "sa",
-        password: "",
-        options: {maximumPoolSize:1, isXA:true}
+        url: "h2:file:./target/H2_1/TestDB1",
+        username: "SA",
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 
     endpoint sql:Client testDB2 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_2/",
-        port: 0,
-        name: "TestDB2",
-        username: "sa",
-        password: "",
-        options: {maximumPoolSize:1, isXA:true}
+        url: "h2:file:./target/H2_2/TestDB2",
+        username: "SA",
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 
     var temp0 = testDB1 -> mirror("CustomersTrx", CustomersTrx);
@@ -76,23 +68,15 @@ function testXATransactionSuccess () returns (int, int) {
 function testXATransactionFailed1 () returns (int, int) {
 
     endpoint sql:Client testDB1 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_1/",
-        port: 0,
-        name: "TestDB1",
-        username: "sa",
-        password: "",
-        options: {maximumPoolSize:1, isXA:true}
+        url: "h2:file:./target/H2_1/TestDB1",
+        username: "SA",
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 
     endpoint sql:Client testDB2 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_2/",
-        port: 0,
-        name: "TestDB2",
-        username: "sa",
-        password: "",
-        options: {maximumPoolSize:1, isXA:true}
+        url: "h2:file:./target/H2_2/TestDB2",
+        username: "SA",
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 
     var temp0 = testDB1 -> mirror("CustomersTrx", CustomersTrx);
@@ -138,23 +122,15 @@ function testXATransactionFailed1 () returns (int, int) {
 function testXATransactionFailed2 () returns (int, int) {
 
     endpoint sql:Client testDB1 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_1/",
-        port: 0,
-        name: "TestDB1",
-        username: "sa",
-        password: "",
-        options: {maximumPoolSize:1, isXA:true}
+        url: "h2:file:./target/H2_1/TestDB1",
+        username: "SA",
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 
     endpoint sql:Client testDB2 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_2/",
-        port: 0,
-        name: "TestDB2",
-        username: "sa",
-        password: "",
-        options: {maximumPoolSize:1, isXA:true}
+        url: "h2:file:./target/H2_2/TestDB2",
+        username: "SA",
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 
     var temp0 = testDB1 -> mirror("CustomersTrx", CustomersTrx);
@@ -200,23 +176,15 @@ function testXATransactionFailed2 () returns (int, int) {
 function testXATransactionRetry () returns (int, int) {
 
     endpoint sql:Client testDB1 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_1/",
-        port: 0,
-        name: "TestDB1",
-        username: "sa",
-        password: "",
-        options: {maximumPoolSize:1, isXA:true}
+        url: "h2:file:./target/H2_1/TestDB1",
+        username: "SA",
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 
     endpoint sql:Client testDB2 {
-        database: sql:DB_H2_FILE,
-        host: "./target/H2_2/",
-        port: 0,
-        name: "TestDB2",
-        username: "sa",
-        password: "",
-        options: {maximumPoolSize:1, isXA:true}
+        url: "h2:file:./target/H2_2/TestDB2",
+        username: "SA",
+        poolOptions: {maximumPoolSize:1, isXA:true}
     };
 
     int i = 0;

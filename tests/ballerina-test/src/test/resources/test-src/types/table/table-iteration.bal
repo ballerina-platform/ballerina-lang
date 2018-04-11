@@ -40,13 +40,9 @@ string nameValue = "";
 
 function testForEachInTableWithStmt () returns (int, int, float, string) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person where id = 1", (), Person);
@@ -69,13 +65,9 @@ function testForEachInTableWithStmt () returns (int, int, float, string) {
 
 function testForEachInTable () returns (int, int, float, string) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB-> select("SELECT * from Person where id = 1", (), Person);
@@ -98,13 +90,9 @@ function testForEachInTable () returns (int, int, float, string) {
 
 function testCountInTable () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person where id < 10", (), Person);
@@ -116,13 +104,9 @@ function testCountInTable () returns (int) {
 
 function testFilterTable () returns (int, int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person", (), Person);
@@ -137,13 +121,9 @@ function testFilterTable () returns (int, int, int) {
 
 function testFilterWithAnnonymousFuncOnTable () returns (int, int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person", (), Person);
@@ -160,13 +140,9 @@ function testFilterWithAnnonymousFuncOnTable () returns (int, int, int) {
 
 function testFilterTableWithCount () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person", (), Person);
@@ -178,13 +154,9 @@ function testFilterTableWithCount () returns (int) {
 
 function testMapTable () returns (string[]) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), Person);
@@ -196,13 +168,9 @@ function testMapTable () returns (string[]) {
 
 function testMapWithFilterTable () returns (string[]) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), Person);
@@ -214,13 +182,9 @@ function testMapWithFilterTable () returns (string[]) {
 
 function testFilterWithMapTable () returns (string[]) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), Person);
@@ -232,13 +196,9 @@ function testFilterWithMapTable () returns (string[]) {
 
 function testFilterWithMapAndCountTable () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), Person);
@@ -250,13 +210,9 @@ function testFilterWithMapAndCountTable () returns (int) {
 
 function testAverageWithTable () returns (float) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), Person);
@@ -268,13 +224,9 @@ function testAverageWithTable () returns (float) {
 
 function testMinWithTable () returns (float) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), Person);
@@ -286,13 +238,9 @@ function testMinWithTable () returns (float) {
 
 function testMaxWithTable () returns (float) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), Person);
@@ -304,13 +252,9 @@ function testMaxWithTable () returns (float) {
 
 function testSumWithTable () returns (float) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT * from Person order by id", (), Person);
@@ -322,13 +266,9 @@ function testSumWithTable () returns (float) {
 
 function testCloseConnectionPool () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", (),

@@ -22,11 +22,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.sql.Constants;
-import org.ballerinalang.nativeimpl.sql.SQLDatasource;
+import org.ballerinalang.nativeimpl.sql.SQLDatasourceUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -49,26 +47,7 @@ public class CreateSQLClient extends BlockingNativeCallableUnit {
         BStruct configBStruct = (BStruct) context.getRefArgument(0);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
 
-        //Extract parameters from the endpoint config
-        Value dbRef = clientEndpointConfig.getRefField(Constants.EndpointConfig.DATABASE);
-        String database = "";
-        if (dbRef != null) {
-            database = dbRef.getStringValue();
-        }
-
-        String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
-        int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
-        String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
-        String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
-        String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
-        Struct options = clientEndpointConfig.getStructField(Constants.EndpointConfig.OPTIONS);
-
-        SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, database, host, port, username, password, name);
-
-        BStruct sqlClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH,
-                Constants.SQL_CLIENT);
-        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
+        BStruct sqlClient = SQLDatasourceUtils.createSQLDBClient(context, clientEndpointConfig);
         context.setReturnValues(sqlClient);
     }
 }

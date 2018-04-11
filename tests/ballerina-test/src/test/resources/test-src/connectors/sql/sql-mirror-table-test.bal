@@ -8,13 +8,9 @@ type Employee {
 
 function testIterateMirrorTable () returns (Employee[], Employee[]) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:2}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> mirror("employeeItr", Employee);
@@ -44,13 +40,9 @@ function testIterateMirrorTable () returns (Employee[], Employee[]) {
 
 function testAddToMirrorTable () returns (Employee[]) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:2}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> mirror("employeeAdd", Employee);
@@ -81,13 +73,9 @@ function testAddToMirrorTable () returns (Employee[]) {
 
 function testAddToMirrorTableNegative () returns (any) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:2}
+        poolOptions: {maximumPoolSize:1}
     };
 
     var temp = testDB -> mirror("employeeAddNegative", Employee);
@@ -105,13 +93,9 @@ function testAddToMirrorTableNegative () returns (any) {
 
 function testDeleteFromMirrorTable () returns (boolean, int) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:2}
+        poolOptions: {maximumPoolSize:2}
     };
 
     var temp = testDB -> mirror("employeeDel", Employee);
