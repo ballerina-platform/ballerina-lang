@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.common.utils;
 
 import com.google.common.io.Files;
+import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.CollectDiagnosticListener;
 import org.ballerinalang.langserver.LSGlobalContext;
@@ -26,15 +27,19 @@ import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.io.File;
@@ -149,13 +154,15 @@ public class LSParserUtils {
             sourceDocument.setSourceRoot(sourceRoot);
 
             PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
+            PackageID packageID = new PackageID(Names.ANON_ORG, new Name(pkgName), Names.DEFAULT_VERSION);
             if ("".equals(pkgName)) {
                 Path filePath = unsaved.getFileName();
                 if (filePath != null) {
                     pkgName = filePath.toString();
+                    packageID = new PackageID(pkgName);
                 }
             }
-            CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
+            CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageID, packageRepository,
                                          sourceDocument, preserveWhitespace, documentManager, phase, lsGlobalContext);
             BallerinaFile model = compile(content, unsaved, phase, context);
             documentManager.closeFile(unsaved);
@@ -188,7 +195,7 @@ public class LSParserUtils {
 
     /**
      * Compile a Ballerina file.
-     * 
+     *
      * Note: THis is used by the ballerina Composer
      *
      * @param content   file content
@@ -218,14 +225,20 @@ public class LSParserUtils {
         sourceDocument.setSourceRoot(sourceRoot);
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
+        PackageID packageID = new PackageID(Names.ANON_ORG, new Name(pkgName), Names.DEFAULT_VERSION);
         if ("".equals(pkgName)) {
             Path filePath = path.getFileName();
             if (filePath != null) {
                 pkgName = filePath.toString();
+                packageID = new PackageID(pkgName);
             }
         }
-        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository, 
+        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageID, packageRepository,
                 sourceDocument, preserveWhiteSpace, documentManager, phase, lsGlobalContext);
+
+        // In order to capture the syntactic errors, need to go through the default error strategy
+        context.put(DefaultErrorStrategy.class, null);
+
         return compile(content, path, phase, context);
     }
 
@@ -250,10 +263,12 @@ public class LSParserUtils {
         sourceDocument.setUri(path.toUri().toString());
         sourceDocument.setSourceRoot(sourceRoot);
 
+        PackageID packageID = new PackageID(Names.ANON_ORG, new Name(pkgName), Names.DEFAULT_VERSION);
         if ("".equals(pkgName)) {
             Path filePath = path.getFileName();
             if (filePath != null) {
                 pkgName = filePath.toString();
+                packageID = new PackageID(pkgName);
             }
         }
         BLangPackage bLangPackage = null;
@@ -262,6 +277,7 @@ public class LSParserUtils {
         }
         try {
             BLangDiagnosticLog.getInstance(context).errorCount = 0;
+            setGlobalPackageCache(packageID, context);
             Compiler compiler = Compiler.getInstance(context);
             bLangPackage = compiler.compile(pkgName);
         } catch (Exception e) {
@@ -288,5 +304,17 @@ public class LSParserUtils {
     public static String getUnsavedFileIdOrNull(String filePath) {
         Matcher pkgMatcher = untitledFilePattern.matcher(filePath);
         return (pkgMatcher.find()) ? pkgMatcher.group(1) : null;
+    }
+
+    /**
+     * Sets a global PackageCache instance into the given compiler context.
+     *
+     * @param packageID current package ID
+     * @param compilerContext compiler context
+     */
+    public static void setGlobalPackageCache(PackageID packageID, CompilerContext compilerContext) {
+        LSPackageCache globalPackageCache = LSPackageCache.getInstance();
+        globalPackageCache.removePackage(packageID);
+        PackageCache.setInstance(globalPackageCache.getPackageCache(), compilerContext);
     }
 }
