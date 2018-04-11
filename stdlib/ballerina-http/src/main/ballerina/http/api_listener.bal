@@ -61,7 +61,6 @@ function addAuthFilters (ServiceEndpointConfiguration config) {
 function createAuthFilters () returns (Filter[]) {
     // TODO: currently hard coded. fix it.
     Filter[] authFilters = [];
-    //TODO fix this object instantiation properly
     AuthHandlerRegistry registry = new;
     registry.add("basic", createBasicAuthHandler());
     // TODO: add JWT handler

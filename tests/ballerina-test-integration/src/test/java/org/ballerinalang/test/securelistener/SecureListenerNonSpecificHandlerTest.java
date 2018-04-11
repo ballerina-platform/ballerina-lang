@@ -18,12 +18,10 @@
 
 package org.ballerinalang.test.securelistener;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
-import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -33,7 +31,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ServiceLevelAuthnTest extends IntegrationTestCase {
+public class SecureListenerNonSpecificHandlerTest extends IntegrationTestCase {
     private ServerInstance ballerinaServer;
 
     @BeforeClass
@@ -41,7 +39,7 @@ public class ServiceLevelAuthnTest extends IntegrationTestCase {
         String basePath = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "secureListener")
                 .getAbsolutePath();
-        String balFilePath = basePath + File.separator + "service-level-auth-config-test.bal";
+        String balFilePath = basePath + File.separator + "secure-listener-non-specific-handler-test.bal";
         String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
         startServer(balFilePath, ballerinaConfPath);
     }
@@ -54,7 +52,6 @@ public class ServiceLevelAuthnTest extends IntegrationTestCase {
     @Test(description = "Authn and authz success test case")
     public void testAuthSuccess() throws Exception {
         Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("echo/test"), headers);
         Assert.assertNotNull(response);
@@ -64,7 +61,6 @@ public class ServiceLevelAuthnTest extends IntegrationTestCase {
     @Test(description = "Authn success and authz failure test case")
     public void testAuthzFailure() throws Exception {
         Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         headers.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("echo/test"), headers);
         Assert.assertNotNull(response);
@@ -74,7 +70,6 @@ public class ServiceLevelAuthnTest extends IntegrationTestCase {
     @Test(description = "Authn and authz failure test case")
     public void testAuthFailure() throws Exception {
         Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("echo/test"), headers);
         Assert.assertNotNull(response);

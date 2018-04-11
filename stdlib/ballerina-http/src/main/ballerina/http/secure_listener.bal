@@ -127,8 +127,14 @@ function createAuthFiltersForSecureListener (SecureEndpointConfiguration config)
     AuthHandlerRegistry registry = new;
     match config.authProviders {
         AuthProvider[] providers => {
+            int i = 1;
             foreach provider in providers {
-                registry.add(provider.id, createAuthHandler(provider));
+                if (lengthof provider.id > 0) {
+                    registry.add(provider.scheme + "-" + i, createAuthHandler(provider));
+                } else {
+                    registry.add(provider.id, createAuthHandler(provider));
+                }
+                i++;
             }
         }
         () => {
@@ -139,7 +145,6 @@ function createAuthFiltersForSecureListener (SecureEndpointConfiguration config)
     }
     // TODO: currently hard coded. fix it.
     Filter[] authFilters = [];
-    //TODO fix this object instantiation properly
     AuthnFilter authnFilter = new (registry, authnRequestFilterFunc, responseFilterFunc);
     AuthzFilter authzFilter = new (authzRequestFilterFunc, responseFilterFunc);
     authFilters[0] = <Filter> authnFilter;
@@ -155,12 +160,6 @@ function createBasicAuthHandler () returns HttpAuthnHandler  {
 }
 
 function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler {
-    if (lengthof authProvider.id == 0) {
-        // id is empty
-        error e = {message:"Auth provider id not specified"};
-        throw e;
-    }
-
     auth:AuthProvider authProvider1;
     if (authProvider.authProvider == AUTH_PROVIDER_CONFIG) {
         auth:ConfigAuthProvider configAuthProvider = new;
@@ -170,7 +169,7 @@ function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler 
         error e = {message:"Invalid auth provider: " + authProvider.authProvider };
         throw e;
     }
-    if (authProvider.scheme == AUTH_SCHEME_BASIC) {
+    if (authProvider.scheme == AUTHN_SCHEME_BASIC) {
         HttpBasicAuthnHandler basicAuthHandler = new(authProvider1);
         return check <HttpAuthnHandler> basicAuthHandler;
     } else {
