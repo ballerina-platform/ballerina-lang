@@ -267,7 +267,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     string clientId = config.authConfig.clientId;
     string clientSecret = config.authConfig.clientSecret;
     string refreshTokenUrl = config.authConfig.refreshTokenUrl;
-    HttpClient refreshTokenClient = createHttpClient(refreshTokenUrl, {});
+    HttpClient refreshTokenClient = createHttpSecureClient(refreshTokenUrl, {});
     string refreshTokenRequestPath = "/oauth2/v3/token";
     string requestParams = "refresh_token=" + refreshToken + "&grant_type=refresh_token&client_secret=" + clientSecret + "&client_id=" + clientId;
     string base64ClientIdSecret;
