@@ -30,13 +30,13 @@ import org.testng.annotations.Test;
 public class HttpClientTest {
 
     @Test
-    public void testHttpClientIO() {
+    public void testHttpClient() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/httpclient.bal");
         Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
     @Test
-    public void testCharacterIONegative() {
+    public void testHttpClientNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/httpclient-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 3);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'headerName'", 15, 19);

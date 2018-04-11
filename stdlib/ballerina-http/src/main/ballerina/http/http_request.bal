@@ -159,32 +159,32 @@ public type Request object {
 /// Ballerina Implementations ///
 /////////////////////////////////
 
-public function Request::hasHeader (@sensitive string headerName) returns (boolean) {
+public function Request::hasHeader (string headerName) returns (boolean) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.hasHeader(headerName);
 }
 
-public function Request::getHeader (@sensitive string headerName) returns (string) {
+public function Request::getHeader (string headerName) returns (string) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
 
-public function Request::getHeaders (@sensitive string headerName) returns (string[]) {
+public function Request::getHeaders (string headerName) returns (string[]) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
 
-public function Request::setHeader (@sensitive string headerName, string headerValue) {
+public function Request::setHeader (string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setHeader(headerName, headerValue);
 }
 
-public function Request::addHeader (@sensitive string headerName, string headerValue) {
+public function Request::addHeader (string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.addHeader(headerName, headerValue);
 }
 
-public function Request::removeHeader (@sensitive string key) {
+public function Request::removeHeader (string key) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.removeHeader(key);
 }
@@ -357,7 +357,7 @@ public function Request::setBodyParts (mime:Entity[] bodyParts, @sensitive strin
     self.setEntity(entity);
 }
 
-public function Request::setFileAsPayload (@sensitive file:Path filePath, @sensitive string contentType) {
+public function Request::setFileAsPayload (file:Path filePath, @sensitive string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setFileAsEntityBody(filePath);

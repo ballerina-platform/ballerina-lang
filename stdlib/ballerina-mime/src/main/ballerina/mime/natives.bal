@@ -245,7 +245,7 @@ public type Entity object {
     public native function hasHeader (@sensitive string headerName) returns boolean;
 };
 
-public function Entity::setFileAsEntityBody (file:Path fileHandler) {
+public function Entity::setFileAsEntityBody (@sensitive file:Path fileHandler) {
     string path = fileHandler.toAbsolutePath().getPathValue();
     io:ByteChannel channel = io:openFile(path, READ_PERMISSION);
     self.setByteChannel(channel);
