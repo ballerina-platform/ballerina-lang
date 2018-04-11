@@ -1,3 +1,0 @@
-// You can provide a list of function names the test function depends on, and will be run before the test execution.
-// This will allow you to make sure that tests run in the expected order.
-

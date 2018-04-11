@@ -20,7 +20,7 @@ import ballerina/http;
 
 type InitiatorClientConfig {
     string registerAtURL;
-    int endpointTimeout;
+    int timeoutMillis;
     {
         int count;
         int interval;
@@ -29,12 +29,12 @@ type InitiatorClientConfig {
 
 type InitiatorClientEP object {
     private {
-        http:ClientEndpoint httpClient;
+        http:Client httpClient;
     }
 
     function init (InitiatorClientConfig conf) {
-        endpoint http:ClientEndpoint httpEP {targets:[{url:conf.registerAtURL}],
-                                            endpointTimeout:conf.endpointTimeout,
+        endpoint http:Client httpEP {targets:[{url:conf.registerAtURL}],
+                                            timeoutMillis:conf.timeoutMillis,
                                             retry:{count:conf.retryConfig.count,
                                                       interval:conf.retryConfig.interval}};
         self.httpClient = httpEP;
@@ -56,11 +56,11 @@ type InitiatorClient object {
 
 
     function register(string transactionId, int transactionBlockId,
-                        Protocol[] participantProtocols) returns RegistrationResponse|error {
-        endpoint http:ClientEndpoint httpClient = self.clientEP.httpClient;
+                        RemoteProtocol[] participantProtocols) returns RegistrationResponse|error {
+        endpoint http:Client httpClient = self.clientEP.httpClient;
         string participantId = getParticipantId(transactionBlockId);
-        RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
-        regReq.participantProtocols = participantProtocols;
+        RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId,
+                                        participantProtocols:participantProtocols};
 
         json reqPayload = regRequestToJson(regReq);
         http:Request req = new;

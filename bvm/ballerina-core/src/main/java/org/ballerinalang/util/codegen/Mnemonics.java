@@ -62,7 +62,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BGLOAD] = "bgload";
         mnemonics[InstructionCodes.LGLOAD] = "lgload";
         mnemonics[InstructionCodes.RGLOAD] = "rgload";
-        mnemonics[InstructionCodes.ENUMERATORLOAD] = "enumeratorload";
 
         mnemonics[InstructionCodes.IASTORE] = "iastore";
         mnemonics[InstructionCodes.FASTORE] = "fastore";
@@ -148,7 +147,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.TR_RETRY] = "tr_retry";
         mnemonics[InstructionCodes.CALL] = "call";
         mnemonics[InstructionCodes.VCALL] = "vcall";
-        mnemonics[InstructionCodes.ACALL] = "acall";
         mnemonics[InstructionCodes.THROW] = "throw";
         mnemonics[InstructionCodes.ERRSTORE] = "errstore";
         mnemonics[InstructionCodes.FPCALL] = "fp_call";
@@ -182,6 +180,9 @@ public class Mnemonics {
         mnemonics[InstructionCodes.JSON2B] = "json2b";
         mnemonics[InstructionCodes.T2JSON] = "t2json";
         mnemonics[InstructionCodes.JSON2T] = "json2t";
+        mnemonics[InstructionCodes.JSON2MAP] = "json2map";
+        mnemonics[InstructionCodes.MAP2JSON] = "map2json";
+        mnemonics[InstructionCodes.JSON2T] = "json2t";
         mnemonics[InstructionCodes.LENGTHOF] = "lengthof";
         mnemonics[InstructionCodes.NULL2S] = "null2s";
         mnemonics[InstructionCodes.ANY2SCONV] = "any2sconv";
@@ -206,6 +207,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.CHECKCAST] = "checkcast";
         mnemonics[InstructionCodes.DT2JSON] = "dt2json";
         mnemonics[InstructionCodes.DT2XML] = "dt2xml";
+        mnemonics[InstructionCodes.ARRAY2JSON] = "array2json";
+        mnemonics[InstructionCodes.JSON2ARRAY] = "json2array";
         mnemonics[InstructionCodes.CHECK_CONVERSION] = "checkconversion";
 
         // Transactions
@@ -228,7 +231,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ARRAYLEN] = "arraylength";
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "newstruct";
-        mnemonics[InstructionCodes.NEWCONNECTOR] = "newconnector";
         mnemonics[InstructionCodes.NEWMAP] = "newmap";
         mnemonics[InstructionCodes.NEWJSON] = "newjson";
         mnemonics[InstructionCodes.NEWTABLE] = "newtable";

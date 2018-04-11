@@ -28,7 +28,7 @@ public type HubClientConnector object {
     }
 
     private {
-        http:ClientEndpoint httpClientEndpoint;
+        http:Client httpClientEndpoint;
     }
 
     new (hubUrl, httpClientEndpoint) {}
@@ -37,14 +37,14 @@ public type HubClientConnector object {
     @Param {value:"subscriptionRequest: The SubscriptionChangeRequest containing subscription details"}
     @Return {value:"SubscriptionChangeResponse indicating subscription details, if the request was successful"}
     @Return {value:"WebSubError if an error occurred with the subscription request"}
-    public function subscribe (SubscriptionChangeRequest subscriptionRequest) returns @untainted
+    public function subscribe (SubscriptionChangeRequest subscriptionRequest) returns @tainted
                                                                             (SubscriptionChangeResponse | WebSubError);
 
     @Description {value:"Function to send an unsubscription request to a WebSub Hub"}
     @Param {value:"unsubscriptionRequest: The SubscriptionChangeRequest containing unsubscription details"}
     @Return {value:"SubscriptionChangeResponse indicating unsubscription details, if the request was successful"}
     @Return {value:"WebSubError if an error occurred with the unsubscription request"}
-    public function unsubscribe (SubscriptionChangeRequest unsubscriptionRequest) returns @untainted
+    public function unsubscribe (SubscriptionChangeRequest unsubscriptionRequest) returns @tainted
                                                                             (SubscriptionChangeResponse | WebSubError);
 
     @Description {value:"Function to register a topic in a Ballerina WebSub Hub against which subscribers can subscribe
@@ -70,36 +70,36 @@ public type HubClientConnector object {
 };
 
 public function HubClientConnector::subscribe (SubscriptionChangeRequest subscriptionRequest) returns
-@untainted (SubscriptionChangeResponse | WebSubError) {
-    endpoint http:ClientEndpoint httpClientEndpoint = self.httpClientEndpoint;
+@tainted (SubscriptionChangeResponse | WebSubError) {
+    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = httpClientEndpoint -> post("", builtSubscriptionRequest);
-    return processHubResponse(hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint);
+    return processHubResponse(self.hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint);
 }
 
 public function HubClientConnector::unsubscribe (SubscriptionChangeRequest unsubscriptionRequest) returns
-@untainted (SubscriptionChangeResponse | WebSubError) {
-    endpoint http:ClientEndpoint httpClientEndpoint = self.httpClientEndpoint;
+@tainted (SubscriptionChangeResponse | WebSubError) {
+    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtUnsubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
     var response = httpClientEndpoint -> post("", builtUnsubscriptionRequest);
-    return processHubResponse(hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint);
+    return processHubResponse(self.hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint);
 }
 
 public function HubClientConnector::registerTopic (string topic, string secret = "") {
-    endpoint http:ClientEndpoint httpClientEndpoint = self.httpClientEndpoint;
+    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic, secret);
     _ = httpClientEndpoint -> post("", request);
 }
 
 public function HubClientConnector::unregisterTopic (string topic, string secret = "") {
-    endpoint http:ClientEndpoint httpClientEndpoint = self.httpClientEndpoint;
+    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic, secret);
     _ = httpClientEndpoint -> post("", request);
 }
 
 public function HubClientConnector::publishUpdate (string topic, json payload,
             string secret = "", string signatureMethod = "sha256", json... headers) returns (WebSubError | ()) {
-    endpoint http:ClientEndpoint httpClientEndpoint = self.httpClientEndpoint;
+    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
     request.setJsonPayload(payload);
@@ -129,8 +129,8 @@ public function HubClientConnector::publishUpdate (string topic, json payload,
         match (response) {
             http:Response => return;
             http:HttpConnectorError httpConnectorError => { WebSubError webSubError = {
-                      errorMessage:"Notification failed for topic [" + topic + "]", connectorError:httpConnectorError };
-                                                        return webSubError;
+                      message:"Notification failed for topic [" + topic + "]", cause:httpConnectorError };
+                                                            return webSubError;
             }
     }
 }
@@ -140,7 +140,8 @@ public function HubClientConnector::publishUpdate (string topic, json payload,
 @Param {value:"subscriptionChangeRequest: The SubscriptionChangeRequest specifying the topic to subscribe to and the
                                         parameters to use"}
 @Return {value:"The Request to send to the hub to subscribe/unsubscribe"}
-function buildTopicRegistrationChangeRequest(string mode, string topic, string secret) returns (http:Request) {
+function buildTopicRegistrationChangeRequest(@sensitive string mode, @sensitive string topic, @sensitive string secret)
+returns (http:Request) {
     http:Request request = new;
     string body = HUB_MODE + "=" + mode + "&" + HUB_TOPIC + "=" + topic;
     if (secret != "") {
@@ -156,8 +157,8 @@ function buildTopicRegistrationChangeRequest(string mode, string topic, string s
 @Param {value:"subscriptionChangeRequest: The SubscriptionChangeRequest specifying the topic to subscribe to and the
                                         parameters to use"}
 @Return {value:"The Request to send to the hub to subscribe/unsubscribe"}
-function buildSubscriptionChangeRequest(string mode, SubscriptionChangeRequest subscriptionChangeRequest) returns
-(http:Request) {
+function buildSubscriptionChangeRequest(@sensitive string mode, SubscriptionChangeRequest subscriptionChangeRequest)
+returns (http:Request) {
     http:Request request = new;
     string body = HUB_MODE + "=" + mode
                   + "&" + HUB_TOPIC + "=" + subscriptionChangeRequest.topic
@@ -181,15 +182,16 @@ function buildSubscriptionChangeRequest(string mode, SubscriptionChangeRequest s
 @Return {value:"SubscriptionChangeResponse including details of subscription/unsubscription,
                 if the request was successful"}
 @Return { value : "WebSubErrror indicating any errors that occurred, if the request was unsuccessful"}
-function processHubResponse(string hub, string mode, SubscriptionChangeRequest subscriptionChangeRequest,
-                            http:Response|http:HttpConnectorError response, http:ClientEndpoint httpClientEndpoint)
-                            returns @untainted (SubscriptionChangeResponse | WebSubError) {
+function processHubResponse(@sensitive string hub, @sensitive string mode,
+                            SubscriptionChangeRequest subscriptionChangeRequest,
+                            Response|http:HttpConnectorError response, http:Client httpClientEndpoint)
+                            returns @tainted (SubscriptionChangeResponse | WebSubError) {
     string topic = subscriptionChangeRequest.topic;
     match response {
         http:HttpConnectorError httpConnectorError => {
             string errorMessage = "Error occurred for request: Mode[" + mode + "] at Hub[" + hub +"] - "
                                         + httpConnectorError.message;
-            WebSubError webSubError = {errorMessage:errorMessage, connectorError:httpConnectorError};
+            WebSubError webSubError = { message:errorMessage, cause:httpConnectorError };
             return webSubError;
         }
         http:Response httpResponse => {
@@ -206,7 +208,7 @@ function processHubResponse(string hub, string mode, SubscriptionChangeRequest s
                                                                        + "Error occurred identifying"
                                                                        + "cause: " + payloadError.message; }
                 }
-                WebSubError webSubError = {errorMessage:errorMessage};
+                WebSubError webSubError = { message:errorMessage };
                 return webSubError;
             } else {
                 SubscriptionChangeResponse subscriptionChangeResponse = {hub:hub, topic:topic, response:httpResponse};
@@ -221,9 +223,9 @@ redirection from original hub"}
 @Param {value:"hub: The hub to which the subscription/unsubscription request is to be sent"}
 @Param {value:"mode: Whether the request is for subscription or unsubscription"}
 @Param {value:"subscriptionChangeRequest: The request containing subscription details"}
-function invokeClientConnectorOnRedirection (string hub, string mode,
-SubscriptionChangeRequest subscriptionChangeRequest) returns @untainted  (SubscriptionChangeResponse | WebSubError) {
-    endpoint HubClientEndpoint websubHubClientEP { url:hub };
+function invokeClientConnectorOnRedirection (@sensitive string hub, @sensitive string mode,
+SubscriptionChangeRequest subscriptionChangeRequest) returns @tainted (SubscriptionChangeResponse | WebSubError) {
+    endpoint Client websubHubClientEP { url:hub };
     if (mode == MODE_SUBSCRIBE) {
         var response = websubHubClientEP -> subscribe(subscriptionChangeRequest);
         return response;

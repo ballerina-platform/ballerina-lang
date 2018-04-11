@@ -18,9 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
-import org.ballerinalang.model.symbols.VariableSymbol;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
 import org.ballerinalang.model.tree.clauses.OutputRateLimitNode;
@@ -32,10 +30,6 @@ import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOutputRateLimit;
@@ -50,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -64,10 +59,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * This class will generate the Siddhi query for stream SQLish grammar for different classes.
@@ -88,14 +80,13 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     private StringBuilder streamDefinitionQuery;
     private StringBuilder siddhiQuery;
 
-    private Set<String> streamIds;
-
     private List<BLangExpression> inStreamRefs;
     private List<BLangExpression> inTableRefs;
     private List<BLangExpression> outStreamRefs;
     private List<BLangExpression> outTableRefs;
 
     private boolean isInPatternForClause = false;
+    private boolean isSequence = false;
 
     public static SiddhiQueryBuilder getInstance(CompilerContext context) {
         SiddhiQueryBuilder siddhiQueryBuilder = context.get(SIDDHI_QUERY_BUILDER_KEY);
@@ -161,8 +152,8 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
         streamingInputClause = new StringBuilder();
         BLangExpression streamRef = (BLangExpression) streamingInput.getStreamReference();
         streamRef.accept(this);
-        String streamRefName = exprStack.pop();
-        streamingInputClause.append(streamRefName);
+        exprStack.pop();
+        streamingInputClause.append("[[streamName]]");
         WhereNode beforeWhereNode = streamingInput.getBeforeStreamingCondition();
         WhereNode afterWhereNode = streamingInput.getAfterStreamingCondition();
         WindowClauseNode windowClauseNode = streamingInput.getWindowClause();
@@ -185,7 +176,6 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
         if (streamingInput.getAlias() != null) {
             streamingInputClause.append(" as ").append(streamingInput.getAlias()).append(" ");
         }
-        streamIds.add(streamRefName);
         addInRefs(streamRef);
     }
 
@@ -226,7 +216,6 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     public void visit(BLangForever foreverStatement) {
         siddhiQuery = new StringBuilder();
         streamDefinitionQuery = new StringBuilder();
-        streamIds = new HashSet<>();
         inStreamRefs = new ArrayList<>();
         outStreamRefs = new ArrayList<>();
         inTableRefs = new ArrayList<>();
@@ -244,43 +233,9 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
         patternStreamingClause = null;
         streamActionClause = null;
 
-        List<VariableNode> globalVariables = foreverStatement.getGlobalVariables();
-        if (globalVariables != null) {
-            globalVariables.forEach(variable -> ((BLangVariable) variable).accept(this));
-        }
-
-        List<VariableSymbol> functionVariables = foreverStatement.getFunctionVariables();
-        if (functionVariables != null) {
-            functionVariables.stream().map(variable -> (BVarSymbol) variable)
-                    .forEach(this::getStreamDefinitionForFunctionVariable);
-        }
-
         List<? extends StatementNode> statementNodes = foreverStatement.getStreamingQueryStatements();
         statementNodes.forEach(statementNode -> ((BLangStatement) statementNode).accept(this));
         foreverStatement.setSiddhiQuery(this.getSiddhiQuery());
-        foreverStatement.setStreamIdsAsString(String.join(",", streamIds));
-    }
-
-    @Override
-    public void visit(BLangVariable varNode) {
-        String name = varNode.name.toString();
-        List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) (varNode).type).
-                constraint).fields;
-        createStreamDefinitionQuery(name, structFieldList);
-    }
-
-    private void createStreamDefinitionQuery(String name, List<BStructType.BStructField> structFieldList) {
-        StringBuilder streamDefinition = new StringBuilder("define stream ");
-        streamDefinition.append(name).append("( ");
-        generateStreamDefinition(structFieldList, streamDefinition);
-        streamDefinitionQuery.append(streamDefinition).append("\n");
-    }
-
-    private void getStreamDefinitionForFunctionVariable(BVarSymbol varSymbol) {
-        String name = varSymbol.name.toString();
-        List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) (varSymbol).type).constraint).
-                fields;
-        createStreamDefinitionQuery(name, structFieldList);
     }
 
     @Override
@@ -411,14 +366,21 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
         boolean onlyOrAvailable = patternStreamingInput.isOrOnly();
         boolean andWithNotAvailable = patternStreamingInput.isAndWithNot();
         boolean forWithNotAvailable = patternStreamingInput.isForWithNot();
+        boolean isCommaSeparatedSequence = patternStreamingInput.isCommaSeparated();
 
         List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs =
                 patternStreamingInput.getPatternStreamingEdgeInputs();
         BLangPatternStreamingInput nestedPatternStreamingInput =
                 (BLangPatternStreamingInput) patternStreamingInput.getPatternStreamingInput();
 
-        if (isFollowedByPattern) {
-            buildFollowedByPattern(patternStreamingEdgeInputs, nestedPatternStreamingInput);
+        if (isFollowedByPattern || isCommaSeparatedSequence) {
+            if (!isCommaSeparatedSequence) {
+                buildFollowedByPattern(patternStreamingEdgeInputs, nestedPatternStreamingInput, "-> ");
+            } else {
+                isSequence = true;
+                buildFollowedByPattern(patternStreamingEdgeInputs, nestedPatternStreamingInput, ", ");
+                isSequence = false;
+            }
             return;
         }
         if (enclosedInParenthesisPattern) {
@@ -489,11 +451,11 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     }
 
     private void buildFollowedByPattern(List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs,
-                                        BLangPatternStreamingInput nestedPatternStreamingInput) {
+            BLangPatternStreamingInput nestedPatternStreamingInput, String followedByOp) {
         BLangPatternStreamingEdgeInput patternStreamingEdgeInput = (BLangPatternStreamingEdgeInput)
                 patternStreamingEdgeInputs.get(0);
         patternStreamingEdgeInput.accept(this);
-        patternStreamingClause.append(" -> ");
+        patternStreamingClause.append(followedByOp);
         nestedPatternStreamingInput.accept(this);
     }
 
@@ -501,14 +463,14 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
         BLangExpression streamRef = (BLangExpression) patternStreamingEdgeInput.getStreamReference();
         streamRef.accept(this);
-        streamIds.add(exprStack.pop());
+        exprStack.pop();
         addInRefs(streamRef);
 
         String alias = patternStreamingEdgeInput.getAliasIdentifier();
         if (alias != null) {
             patternStreamingClause.append(alias).append(" = ");
         }
-        patternStreamingClause.append(patternStreamingEdgeInput.getStreamReference());
+        patternStreamingClause.append("[[streamName]]");
         WhereNode whereNode = patternStreamingEdgeInput.getWhereClause();
         if (whereNode != null) {
             ((BLangWhere) whereNode).accept(this);
@@ -533,7 +495,18 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
             addExprToClause(endExpr, intRangeExpr, null);
         }
         intRangeExpr.append(">");
-        exprStack.push(intRangeExpr.toString());
+        if (isSequence) {
+            String expr = intRangeExpr.toString();
+            if (expr.equalsIgnoreCase("<0:1>")) {
+                exprStack.push("?");
+            } else if (expr.equalsIgnoreCase("<0:>")) {
+                exprStack.push("*");
+            } else if (expr.equalsIgnoreCase("<1:>")) {
+                exprStack.push("+");
+            }
+        } else {
+            exprStack.push(intRangeExpr.toString());
+        }
     }
 
     @Override
@@ -544,44 +517,10 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
         addExprToClause((BLangExpression) setAssignmentClause.getExpressionNode(), setExpr, null);
     }
 
-    private void generateStreamDefinition(List<BStructType.BStructField> structFieldList,
-                                          StringBuilder streamDefinition) {
-        Iterator<BStructType.BStructField> structFieldIterator = structFieldList.iterator();
-        BStructType.BStructField structField = structFieldIterator.next();
-        if (structField != null) {
-            addTypesToStreamDefinitionQuery(streamDefinition, structField);
-        }
-
-        while (structFieldIterator.hasNext()) {
-            structField = structFieldIterator.next();
-            streamDefinition.append(" , ");
-            addTypesToStreamDefinitionQuery(streamDefinition, structField);
-        }
-
-        if (structField != null) {
-            streamDefinition.append(" ); ");
-        }
-    }
-
-    private void addTypesToStreamDefinitionQuery(StringBuilder streamDefinition, BStructType.BStructField structField) {
-        streamDefinition.append(structField.getName()).append(" ");
-        String type = structField.getType().toString();
-        //even though, type defined as int, actual value is a long. To handle this case in Siddhi, type is defined
-        //as long.
-        if (type.equalsIgnoreCase("int")) {
-            type = "long";
-        } else if (type.equalsIgnoreCase("float")) {
-            type = "double";
-        } else if (type.equalsIgnoreCase("boolean")) {
-            type = "bool";
-        }
-        streamDefinition.append(type);
-    }
-
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         String sqlExpr;
-        if (fieldAccessExpr.expr instanceof  BLangSimpleVarRef) {
+        if (fieldAccessExpr.expr instanceof BLangSimpleVarRef) {
             BLangSimpleVarRef expr = (BLangSimpleVarRef) fieldAccessExpr.expr;
             sqlExpr = expr.variableName.value + "." + fieldAccessExpr.field.value;
             exprStack.push(sqlExpr);
@@ -589,10 +528,21 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
             sqlExpr = fieldAccessExpr.toString();
             BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) fieldAccessExpr.expr;
             String exprName = (indexBasedAccess.expr.toString() + ".length-1").replaceAll("\\s+", "");
-            if (sqlExpr.replaceAll("\\s+", "").contains(exprName)) {
-                sqlExpr = sqlExpr.replaceFirst(exprName, "last");
+            sqlExpr = sqlExpr.replaceAll("\\s+", "");
+            if (sqlExpr.contains(exprName)) {
+                sqlExpr = sqlExpr.replaceFirst("(?i)" + exprName, "last");
             }
             exprStack.push(sqlExpr);
+        }
+    }
+
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        List<BLangExpression> expressionList = bracedOrTupleExpr.getExpressions();
+        for (BLangExpression expression : expressionList) {
+            expression.accept(this);
+            String expr = exprStack.pop();
+            String expressionWithBrace = "( " + expr + " ) ";
+            exprStack.push(expressionWithBrace);
         }
     }
 

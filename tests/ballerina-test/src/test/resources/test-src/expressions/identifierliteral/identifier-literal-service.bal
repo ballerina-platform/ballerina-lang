@@ -1,7 +1,6 @@
 import ballerina/http;
-import ballerina/http;
 
-endpoint http:NonListeningServiceEndpoint testEP {
+endpoint http:NonListener testEP {
     port:9090
 };
 
@@ -22,7 +21,7 @@ service<http:Service> ^"sample Service" bind testEP{
         path:"/resource"
     }
     ^"sample resource" (endpoint outboundEp, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json responseJson = {"key":"keyVal", "value":"valueOfTheString"};
         res.setJsonPayload(responseJson);
         _ = outboundEp -> respond(res);
@@ -33,7 +32,7 @@ service<http:Service> ^"sample Service" bind testEP{
         path:"/resource2"
     }
     ^"sample resource2" (endpoint outboundEp, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         string ^"a a" = "hello";
         res.setStringPayload(^"a a");
         _ = outboundEp -> respond(res);

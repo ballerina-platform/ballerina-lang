@@ -29,16 +29,12 @@ type TwoPhaseCommitTransaction object {
         boolean isInitiated; // Indicates whether this is a transaction that was initiated or is participated in
         map<Participant> participants;
         Protocol[] coordinatorProtocols;
-        int createdTime;
-        TransactionState state;
+        int createdTime = time:currentTime().time;
+        TransactionState state = TXN_STATE_ACTIVE;
         boolean possibleMixedOutcome;
     }
 
-    new(transactionId, transactionBlockId, string coordinationType = "2pc") {
-        self.createdTime = time:currentTime().time;
-        self.coordinationType = coordinationType;
-        self.state =  TXN_STATE_ACTIVE;
-    }
+    new(transactionId, transactionBlockId, coordinationType = "2pc") {}
 
     // This function will be called by the initiator
     function twoPhaseCommit() returns string|error {
@@ -138,14 +134,15 @@ type TwoPhaseCommitTransaction object {
     function prepareParticipants(string protocol) returns boolean {
         boolean successful = true;
         foreach _, participant in self.participants {
-            Protocol[] protocols = participant.participantProtocols;
-            foreach proto in protocols {
-                if (proto.name == protocol) {
-                    match proto.protocolFn {
-                        (function (string, int, string) returns boolean)protocolFn => {
+            LocalProtocol[] | RemoteProtocol[] protocols = getProtocols(participant);
+            match protocols {
+                LocalProtocol[] localProtocols => {
+                    foreach localProto in localProtocols {
+                        if(localProto.name == protocol) {
+                            (function (string, int, string) returns boolean) protocolFn = localProto.protocolFn;
                             // if the participant is a local participant, i.e. protoFn is set, then call that fn
                             log:printInfo("Preparing local participant: " + participant.participantId);
-                            if (!protocolFn(self.transactionId, proto.transactionBlockId, COMMAND_PREPARE)) {
+                            if (!protocolFn(self.transactionId, localProto.transactionBlockId, COMMAND_PREPARE)) {
                                 // Don't send notify to participants who have failed or rejected prepare
                                 boolean removed = self.participants.remove(participant.participantId);
                                 if (!removed){
@@ -154,8 +151,13 @@ type TwoPhaseCommitTransaction object {
                                 successful = false;
                             }
                         }
-                        () => {
-                            if (!self.prepareRemoteParticipant(participant, proto.url)) {
+                    }
+                }
+
+                RemoteProtocol[] remoteProtocols => {
+                    foreach remoteProto in remoteProtocols {
+                        if(remoteProto.name == protocol) {
+                            if (!self.prepareRemoteParticipant(participant, remoteProto.url)) {
                                 successful = false;
                             }
                         }
@@ -169,13 +171,21 @@ type TwoPhaseCommitTransaction object {
     function notifyAbortToVolatileParticipants() returns boolean {
         map<Participant> participants = self.participants;
         foreach _, participant in participants {
-            Protocol[] protocols = participant.participantProtocols;
-            foreach proto in protocols {
-                if (proto.name == PROTOCOL_VOLATILE) {
-                    var ret = self.notifyRemoteParticipant(participant, COMMAND_ABORT);
-                    match ret {
-                        error err => return false;
-                        string s => return true;
+            LocalProtocol[] | RemoteProtocol[] protocols = getProtocols(participant);
+            match protocols {
+                LocalProtocol[] localProtocols => {
+                    //TODO: check this
+                }
+                RemoteProtocol[]  remoteProtocols => {
+                    foreach proto in remoteProtocols {
+                        if (proto.name == PROTOCOL_VOLATILE) {
+                            RemoteParticipant remoteParticipant = check <RemoteParticipant>participant;
+                            var ret = self.notifyRemoteParticipant(remoteParticipant, COMMAND_ABORT);
+                            match ret {
+                                error err => return false;
+                                string s => return true;
+                            }
+                        }
                     }
                 }
             }
@@ -188,21 +198,26 @@ type TwoPhaseCommitTransaction object {
         string|error ret = OUTCOME_ABORTED;
         boolean isHazardOutcome = false;
         foreach _, participant in participants {
-            Protocol[] protocols = participant.participantProtocols;
-            foreach proto in protocols {
-                match proto.protocolFn {
-                    (function (string, int, string) returns boolean)protocolFn => {
+            LocalProtocol[] | RemoteProtocol[] protocols = getProtocols(participant);
+            match protocols {
+                LocalProtocol[] localProtocols => {
+                    foreach localProto in localProtocols {
+                        (function (string, int, string) returns boolean) protocolFn = localProto.protocolFn;
                         // if the participant is a local participant, i.e. protoFn is set, then call that fn
                         log:printInfo("Notify(abort) local participant: " + participant.participantId);
-                        boolean successful = protocolFn(self.transactionId, proto.transactionBlockId, COMMAND_ABORT);
+                        boolean successful = protocolFn(self.transactionId, localProto.transactionBlockId, COMMAND_ABORT);
                         if (!successful) {
                             error e = {message:OUTCOME_HAZARD};
                             ret = e;
                             isHazardOutcome = true;
                         }
                     }
-                    () => {
-                        var result = self.notifyRemoteParticipant(participant, COMMAND_ABORT);
+                }
+
+                RemoteProtocol[] remoteProtocols => {
+                    foreach _ in remoteProtocols {
+                        RemoteParticipant remoteParticipant = check <RemoteParticipant> participant;
+                        var result = self.notifyRemoteParticipant(remoteParticipant, COMMAND_ABORT);
                         match result {
                             string status => {
                                 if (!isHazardOutcome && status == OUTCOME_COMMITTED) {
@@ -277,18 +292,23 @@ type TwoPhaseCommitTransaction object {
     function notify(string message) returns boolean {
         boolean successful = true;
         foreach _, participant in self.participants {
-            Protocol[] protocols = participant.participantProtocols;
-            foreach proto in protocols {
-                match proto.protocolFn {
-                    (function (string, int, string) returns boolean)protocolFn => {
+            LocalProtocol[] | RemoteProtocol[] protocols = getProtocols(participant);
+            match protocols {
+                LocalProtocol[] localProtocols => {
+                    foreach localProto in localProtocols {
+                        (function (string, int, string) returns boolean)protocolFn = localProto.protocolFn;
                         // if the participant is a local participant, i.e. protoFn is set, then call that fn
                         log:printInfo("Notify(" + message + ") local participant: " + participant.participantId);
-                        if (!protocolFn(self.transactionId, proto.transactionBlockId, message)) {
+                        if (!protocolFn(self.transactionId, localProto.transactionBlockId, message)) {
                             successful = false;
                         }
                     }
-                    () => {
-                        var result = self.notifyRemoteParticipant(participant, message);
+                }
+
+                RemoteProtocol[] remoteProtocols => {
+                    foreach _ in remoteProtocols {
+                        RemoteParticipant remoteParticipant = check <RemoteParticipant> participant;
+                        var result = self.notifyRemoteParticipant(remoteParticipant, message);
                         match result {
                             error err => successful = false;
                             string s => successful = true;
@@ -300,15 +320,15 @@ type TwoPhaseCommitTransaction object {
         return successful;
     }
 
-    function notifyRemoteParticipant(Participant participant, string message) returns string|error {
+    function notifyRemoteParticipant(RemoteParticipant participant, string message) returns string|error {
         endpoint Participant2pcClientEP participantEP;
 
         string|error ret = "";
         string participantId = participant.participantId;
         log:printInfo("Notify(" + message + ") remote participant: " + participantId);
-
-        foreach protocol in participant.participantProtocols {
-            string protoURL = protocol.url;
+        RemoteProtocol[] protocols = participant.participantProtocols;
+        foreach remoteProto in protocols {
+            string protoURL = remoteProto.url;
             participantEP = getParticipant2pcClientEP(protoURL);
             var result = participantEP -> notify(self.transactionId, message);
             match result {

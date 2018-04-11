@@ -45,6 +45,16 @@ public class TimeTest {
         Assert.assertTrue(((BInteger) returns[0]).intValue() > 1498621376460L);
     }
 
+    @Test(description = "Test nanoTime function.")
+    public void testNanoTime() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testNanoTime", args);
+        Assert.assertEquals(returns[0].getClass().getSimpleName(), "BInteger");
+        Assert.assertTrue(((BInteger) returns[0]).intValue() > 0, "nanoTime returned should be greater than zero");
+        Assert.assertTrue(((BInteger) returns[0]).intValue() < System.nanoTime(),
+                "nanoTime returned should be less than the current system nano time");
+    }
+
     @Test(description = "Test create time with offset ID provided.")
     public void testCreateTimeWithZoneID() {
         BValue[] args = {};

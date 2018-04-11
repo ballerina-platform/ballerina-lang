@@ -40,6 +40,8 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +62,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
         orgName = "ballerina", packageName = "http",
         functionName = "createHttpClient",
         args = {@Argument(name = "uri", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
+                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfig")},
         isPublic = true
 )
 public class CreateHttpClient extends BlockingNativeCallableUnit {
@@ -70,18 +72,18 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct configBStruct = (BStruct) context.getRefArgument(0);
+        BStruct configBStruct = (BStruct) context.getRefArgument(HttpConstants.CLIENT_ENDPOINT_CONFIG_INDEX);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
-        String url = context.getStringArgument(0);
+        String urlString = context.getStringArgument(HttpConstants.CLIENT_ENDPOINT_URL_INDEX);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
         String scheme;
-        if (url.startsWith("http://")) {
-            scheme = HttpConstants.PROTOCOL_HTTP;
-        } else if (url.startsWith("https://")) {
-            scheme = HttpConstants.PROTOCOL_HTTPS;
-        } else {
-            throw new BallerinaException("malformed URL: " + url);
+        URL url;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            throw new BallerinaException("Malformed URL: " + urlString);
         }
+        scheme = url.getProtocol();
         Map<String, Object> properties =
                 HTTPConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
         SenderConfiguration senderConfiguration =
@@ -111,7 +113,7 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         HttpClientConnector httpClientConnector = httpConnectorFactory
                 .createHttpClientConnector(properties, senderConfiguration);
         BStruct httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), HTTP_PACKAGE_PATH,
-                HTTP_CLIENT, url, clientEndpointConfig);
+                HTTP_CLIENT, urlString, clientEndpointConfig);
         httpClient.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
         httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
         context.setReturnValues(httpClient);
@@ -248,14 +250,15 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         String chunking = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_CHUNKING).getStringValue();
         senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
 
-        long endpointTimeout = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
-        if (endpointTimeout < 0 || !isInteger(endpointTimeout)) {
-            throw new BallerinaConnectorException("invalid idle timeout: " + endpointTimeout);
+        long timeoutMillis = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
+        if (timeoutMillis < 0 || !isInteger(timeoutMillis)) {
+            throw new BallerinaConnectorException("invalid idle timeout: " + timeoutMillis);
         }
-        senderConfiguration.setSocketIdleTimeout((int) endpointTimeout);
+        senderConfiguration.setSocketIdleTimeout((int) timeoutMillis);
 
-        boolean isKeepAlive = clientEndpointConfig.getBooleanField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE);
-        senderConfiguration.setKeepAlive(isKeepAlive);
+        String keepAliveConfig = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE)
+                .getStringValue();
+        senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
 
         String httpVersion = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_HTTP_VERSION);
         if (httpVersion != null) {

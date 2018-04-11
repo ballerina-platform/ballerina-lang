@@ -1,4 +1,0 @@
-//The 'any' is the root of the Ballerina data types. It represents a variable of 'any' data type in the type system.
-//It is a powerful way to deal with variables that we do not know about while compiling a Ballerina program.
-//Values of these variables can come from dynamic content. E.g., request and response messages, user input, etc.
-//The 'any' type allows you to skip compile-time type checks

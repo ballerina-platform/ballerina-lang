@@ -32,18 +32,17 @@ import java.util.Locale;
 
 /**
  * Class to implement "swagger" command for ballerina.
- * Ex: ballerina swagger (connector | skeleton | mock) (swaggerFile) -p(package name) -d(output directory name)
+ * Ex: ballerina swagger (mock | connector) (swaggerFile) -p(package name) -d(output directory name)
  */
 @Parameters(commandNames = "swagger", commandDescription = "Generate connector/service using swagger definition")
 public class SwaggerCmd implements BLauncherCmd {
     private static final String connector = "CONNECTOR";
-    private static final String skeleton = "SKELETON";
     private static final String mock = "MOCK";
 
     private static final PrintStream outStream = System.err;
     private JCommander parentCmdParser;
 
-    @Parameter(arity = 1, description = "<action> <swagger specification>. action : connector|skeleton|mock")
+    @Parameter(arity = 1, description = "<action> <swagger specification>. action : mock|connector")
     private List<String> argList;
 
     @Parameter(names = { "-o", "--output" },
@@ -51,7 +50,7 @@ public class SwaggerCmd implements BLauncherCmd {
     private String output = "";
 
     @Parameter(names = { "-p", "--package" }, description = "Package name to be used in the generated source files")
-    private String apiPackage;
+    private String srcPackage;
 
     @Parameter(names = { "-h", "--help" }, hidden = true)
     private boolean helpFlag;
@@ -78,21 +77,17 @@ public class SwaggerCmd implements BLauncherCmd {
         StringBuilder msg = new StringBuilder("successfully generated ballerina ");
 
         switch (action) {
-            case connector:
-                generateFromSwagger(connector);
-                msg.append("connector");
-                break;
-            case skeleton:
-                generateFromSwagger(skeleton);
-                msg.append("skeleton");
-                break;
             case mock:
                 generateFromSwagger(mock);
                 msg.append("mock service");
                 break;
+            case connector:
+                generateFromSwagger(connector);
+                msg.append("connector");
+                break;
             default:
                 throw LauncherUtils.createUsageException(
-                        "Only following actions(connector, skeleton, mock) are " + "supported in swagger command");
+                        "Only following actions(mock, connector) are " + "supported in swagger command");
         }
         msg.append(" for swagger file - " + argList.get(1));
         outStream.println(msg.toString());
@@ -105,23 +100,22 @@ public class SwaggerCmd implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Generates ballerina connector, service skeleton and mock service" + System.lineSeparator());
+        out.append("Generates ballerina mock service and connector" + System.lineSeparator());
         out.append("for a given swagger definition" + System.lineSeparator());
         out.append(System.lineSeparator());
     }
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("  ballerina swagger <connector | skeleton | mock> <swaggerFile> -p<package name> "
+        stringBuilder.append("  ballerina swagger <mock | connector> <swaggerFile> -p<package name> "
                 + "-d<output directory name>\n");
+        stringBuilder.append("\tmock      : generates a ballerina mock service\n");
         stringBuilder.append("\tconnector : generates a ballerina connector\n");
-        stringBuilder.append("\tskeleton  : generates a ballerina service skeleton\n");
-        stringBuilder.append("\tmock      : generates a ballerina mock service with sample responses\n");
     }
 
     private void generateFromSwagger(String targetLanguage) {
         CodeGenerator generator = new CodeGenerator();
-        generator.setApiPackage(apiPackage);
+        generator.setSrcPackage(srcPackage);
 
         try {
             generator.generate(GenType.valueOf(targetLanguage), argList.get(1), output);

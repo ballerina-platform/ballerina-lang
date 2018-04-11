@@ -17,11 +17,11 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:ServiceEndpoint initiatorEP {
+endpoint http:Listener initiatorEP {
     port:8888
 };
 
-endpoint http:ClientEndpoint participant1EP {
+endpoint http:Client participant1EP {
     targets:[{url: "http://localhost:8889"}]
 };
 
@@ -163,7 +163,7 @@ service<http:Service> InitiatorService bind initiatorEP {
                     abort;
                 }
                 http:Response participant1Res => {
-                    var fwdResult = conn -> forward(participant1Res); 
+                    var fwdResult = conn -> respond(participant1Res);
                     match fwdResult {
                         http:HttpConnectorError err => {
                             io:print("Initiator could not forward response from participant 1 to originating client. Error:");
@@ -225,8 +225,8 @@ service<http:Service> InitiatorService bind initiatorEP {
     }
 }
 
-function sendErrorResponseToCaller(http:ServiceEndpoint conn) {
-    endpoint http:ServiceEndpoint conn2 = conn;
+function sendErrorResponseToCaller(http:Listener conn) {
+    endpoint http:Listener conn2 = conn;
     http:Response errRes = new; errRes.statusCode = 500;
     var respondResult = conn2 -> respond(errRes);
     match respondResult {

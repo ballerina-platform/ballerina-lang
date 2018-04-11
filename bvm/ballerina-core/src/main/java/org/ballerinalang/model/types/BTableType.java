@@ -70,4 +70,13 @@ public class BTableType extends BType {
     public int getTag() {
         return TypeTags.TABLE_TAG;
     }
+
+    @Override
+    public String toString() {
+        if (constraint == null) {
+            return super.toString();
+        } else {
+            return super.toString() + "<" + constraint.getName() + ">";
+        }
+    }
 }

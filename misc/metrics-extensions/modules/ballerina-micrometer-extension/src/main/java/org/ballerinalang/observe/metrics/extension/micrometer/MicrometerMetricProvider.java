@@ -18,7 +18,17 @@
 package org.ballerinalang.observe.metrics.extension.micrometer;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.micrometer.core.instrument.binder.system.FileDescriptorMetrics;
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
+import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.observe.metrics.extension.micrometer.spi.MeterRegistryProvider;
 import org.ballerinalang.util.metrics.CallbackGauge;
 import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.Gauge;
@@ -27,7 +37,11 @@ import org.ballerinalang.util.metrics.Summary;
 import org.ballerinalang.util.metrics.Timer;
 import org.ballerinalang.util.metrics.spi.MetricProvider;
 
+import java.util.Iterator;
+import java.util.ServiceLoader;
 import java.util.function.ToDoubleFunction;
+
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
 
 /**
  * {@link MetricProvider} implementation to provide Micrometer based metrics.
@@ -35,19 +49,54 @@ import java.util.function.ToDoubleFunction;
 @JavaSPIService("org.ballerinalang.util.metrics.spi.MetricProvider")
 public class MicrometerMetricProvider implements MetricProvider {
 
-    private final MeterRegistry meterRegistry;
+    private MeterRegistry meterRegistry;
+    private static final String METER_REGISTRY_NAME = CONFIG_TABLE_METRICS + ".micrometer_registry";
 
     public MicrometerMetricProvider() {
-        this(MicrometerMeterRegistryHolder.getInstance());
-    }
-
-    public MicrometerMetricProvider(MeterRegistry meterRegistry) {
-        this.meterRegistry = meterRegistry;
     }
 
     @Override
     public String getName() {
         return "Micrometer";
+    }
+
+    @Override
+    public void initialize() {
+        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+        String registryName = configRegistry.getAsString(METER_REGISTRY_NAME);
+        // Look for MeterRegistryProvider implementations
+        Iterator<MeterRegistryProvider> meterRegistryProviders = ServiceLoader.load(MeterRegistryProvider.class)
+                .iterator();
+        MeterRegistryProvider meterRegistryProvider = null;
+        while (meterRegistryProviders.hasNext()) {
+            MeterRegistryProvider temp = meterRegistryProviders.next();
+            if (registryName != null && registryName.equalsIgnoreCase(temp.getName())) {
+                meterRegistryProvider = temp;
+                break;
+            } else {
+                // Use a random provider
+                meterRegistryProvider = temp;
+            }
+        }
+        MeterRegistry meterRegistry = null;
+        if (meterRegistryProvider != null) {
+            meterRegistry = meterRegistryProvider.get();
+        }
+        if (meterRegistry == null) {
+            // This is a CompositeMeterRegistry and it is like a no-op registry when there are no other registries.
+            meterRegistry = Metrics.globalRegistry;
+        }
+
+        // Register system metrics
+        new ClassLoaderMetrics().bindTo(meterRegistry);
+        new JvmMemoryMetrics().bindTo(meterRegistry);
+        new JvmGcMetrics().bindTo(meterRegistry);
+        new ProcessorMetrics().bindTo(meterRegistry);
+        new JvmThreadMetrics().bindTo(meterRegistry);
+        new FileDescriptorMetrics().bindTo(meterRegistry);
+        new UptimeMetrics().bindTo(meterRegistry);
+
+        this.meterRegistry = meterRegistry;
     }
 
     @Override

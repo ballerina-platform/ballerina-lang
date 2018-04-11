@@ -72,7 +72,7 @@ function testNonExistenceHeader () returns string {
     return entity.getHeader("header");
 }
 
-function testGetCopyOfAllHeaders () returns (map) {
+function testGetHeaderNames () returns (string[]) {
     mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
@@ -81,10 +81,10 @@ function testGetCopyOfAllHeaders () returns (map) {
     entity.addHeader("headeR2", "value4");
     entity.addHeader("HeADEr2", "totally different value");
     entity.addHeader("HEADER3", "testVal");
-    return entity.getCopyOfAllHeaders();
+    return entity.getHeaderNames();
 }
 
-function testManipulatingReturnHeaders () returns (map) {
+function testManipulateHeaders () returns (string[]) {
     mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
@@ -93,10 +93,12 @@ function testManipulatingReturnHeaders () returns (map) {
     entity.addHeader("headeR2", "value4");
     entity.addHeader("HeADEr2", "totally different value");
     entity.addHeader("HEADER3", "testVal");
-    map headerMap = entity.getCopyOfAllHeaders();
-    _ = headerMap.remove("HeADEr2");
-    _ = headerMap.remove("HEADER3");
-    return entity.getCopyOfAllHeaders();
+    string[] headerNames = entity.getHeaderNames();
+    foreach header in headerNames {
+        entity.removeHeader(header);
+    }
+
+    return entity.getHeaderNames();
 }
 
 function testHasHeader() returns boolean{

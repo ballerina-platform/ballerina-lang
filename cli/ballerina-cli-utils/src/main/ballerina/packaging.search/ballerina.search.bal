@@ -5,7 +5,7 @@ import ballerina/http;
 import ballerina/time;
 
 function search (string url, string querySearched) {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets: [
         {
             url: url,
@@ -14,46 +14,32 @@ function search (string url, string querySearched) {
                     filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 },
-                hostNameVerification:false,
-                sessionCreation: true
-            }
-        }
-        ]
-    };
-
-    http:Request req = {};
-    http:Response res = {};
-    var httpResponse = httpEndpoint -> get(querySearched, req);
-    match httpResponse {
-     http:HttpConnectorError errRes => {
-         var errorResp = <error> errRes;
-         match errorResp {
-             error err =>  throw err;
-         }
-     }
-     http:Response response => res = response;
-    }
-    var jsonResponse = res.getJsonPayload();
-    json jsonObj;
-    match jsonResponse {
-            mime:EntityError errRes => {
-                var errorResp = <error> errRes;
-                match errorResp {
-                    error err =>  throw err;
+                verifyHostname:false,
+                shareSession: true
                 }
             }  
-            json j => jsonObj = j;            
-    }
-    if (res.statusCode != 200) {
-        io:println(jsonObj.msg.toString()); 
+        ]
+    };
+    http:Request req = new;
+    var result = httpEndpoint -> get(querySearched, req);
+    http:Response httpResponse = check result;
+
+    json jsonResponse = check (httpResponse.getJsonPayload());
+    string statusCode = <string> httpResponse.statusCode;
+    if (statusCode.hasPrefix("5")) {
+        error err = {message:"remote registry failed for url :" + url};
+        throw err;
+    } else if (statusCode != "200") {
+        string message = (jsonResponse.msg.toString() but {()=> "error occurred when searching for packages"});
+        io:println(message);
     } else {
-        json artifacts = jsonObj.artifacts;
-        int artifactsLength = lengthof artifacts;
-        if (artifactsLength > 0) {
+        json[] artifacts = check <json[]>jsonResponse.artifacts;
+        if (artifacts == null || lengthof artifacts > 0) {
+            int artifactsLength = lengthof artifacts;
             io:println("Ballerina Central");
             printInCLI("NAME", 30);
             printInCLI("DESCRIPTION", 40);
-            printInCLI("AUTHOR", 25);
+            printInCLI("AUTHOR", 40);
             printInCLI("DATE", 20);
             printInCLI("VERSION", 15);
             io:println("");
@@ -61,14 +47,21 @@ function search (string url, string querySearched) {
             int i = 0;
             while (i < artifactsLength) {
                 json jsonElement = artifacts[i];
-                printInCLI(jsonElement.orgName.toString() + "/" + jsonElement.packageName.toString(), 30);
-                printInCLI(jsonElement.description.toString(), 40);
-                printInCLI(jsonElement.author.toString(), 25);
+                string orgName = (jsonElement.orgName.toString() but {()=> ""});
+                string packageName = (jsonElement.packageName.toString() but {()=> ""});
+                printInCLI(orgName + "/" + packageName, 30);
+                
+                string summary = (jsonElement.summary.toString() but {()=> ""});
+                printInCLI(summary, 40);
+                
+                string authors = (jsonElement.authors.toString() but {()=> ""});
+                printInCLI(authors, 40);
 
-                json createTimeJson = jsonElement.createdDate;
+                json createTimeJson = <json>jsonElement.createdDate;
                 printInCLI(getDateCreated(createTimeJson), 20);
-
-                printInCLI(jsonElement.packageVersion.toString(), 15);               
+                
+                string packageVersion = (jsonElement.packageVersion.toString() but {()=> ""});
+                printInCLI(packageVersion, 15);               
                 i = i + 1;
                 io:println("");
             }
@@ -94,15 +87,9 @@ function printInCLI(string element, int charactersAllowed) {
     }
 }
 
-function getDateCreated(json createdDate) returns string {
-    var timeConversion = <int>createdDate.time.toString();
-    int timeInMillis;
-    match timeConversion {
-        error errRes => throw errRes;
-        int time => timeInMillis = time;
-    }
-
-    time:Time timeStruct = {time : timeInMillis, zone:{zoneId:"UTC",zoneOffset:0}};
+function getDateCreated(json jsonObj) returns string {
+    int timeInMillis = <int>(jsonObj.time but {()=>0});
+    time:Time timeStruct = new(timeInMillis, {zoneId:"UTC",zoneOffset:0});
     string customTimeString = timeStruct.format("yyyy-MM-dd-E");
     return customTimeString;
 }

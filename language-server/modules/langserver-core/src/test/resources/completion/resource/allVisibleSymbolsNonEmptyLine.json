@@ -43,7 +43,7 @@
     {
       "label":"client",
       "kind":"Unit",
-      "detail":"ballerina.http:ServiceEndpoint",
+      "detail":"ballerina.http:Listener",
       "sortText":"110",
       "insertText":"client"
     }

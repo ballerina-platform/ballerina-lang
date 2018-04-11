@@ -43,12 +43,7 @@ class PositioningUtil {
             const arrowStartBBox = new SimpleBBox();
             const arrowEndBBox = new SimpleBBox();
             const dropDown = new SimpleBBox();
-            let variableRefName;
-            if (TreeUtil.isVariableDef(node)) {
-                variableRefName = node.variable.initialExpression.expression.variableName.value;
-            } else if (TreeUtil.isAssignment(node) || TreeUtil.isExpressionStatement(node)) {
-                variableRefName = node.expression.expression.variableName.value;
-            }
+            const variableRefName = TreeUtil.getVariableReference(node);
             const allVisibleEndpoints = TreeUtil.getAllVisibleEndpoints(node.parent);
             const endpoint = _.find(allVisibleEndpoints, (endpoint) => {
                 return endpoint.name.value === variableRefName;
@@ -92,6 +87,10 @@ class PositioningUtil {
             arrowStartBBox.x = viewState.components['statement-box'].x;
             arrowStartBBox.y = viewState.components['statement-box'].y
                                 + this.config.actionInvocationStatement.text.height;
+
+            if (!TreeUtil.isReturn(node)) {
+                arrowStartBBox.x += 3;
+            }
 
             if (parentConstructNode) {
                 viewState.components.invocation = {
@@ -582,7 +581,7 @@ class PositioningUtil {
         node.body.viewState.bBox.x = node.viewState.bBox.x + (cmp.lifeLine.w / 2);
         node.body.viewState.bBox.y = node.viewState.bBox.y + this.config.lifeLine.head.height;
 
-        if (!TreeUtil.isForkJoin(node.parent)) {
+        if (node.parent && !TreeUtil.isForkJoin(node.parent)) {
             node.body.viewState.bBox.y += this.config.statement.height;
         }
     }
@@ -1030,7 +1029,6 @@ class PositioningUtil {
         viewState.components['statement-box'].x = viewState.bBox.x;
         viewState.components['statement-box'].y = y + viewState.components['drop-zone'].h;
     }
-
 
 
     /**

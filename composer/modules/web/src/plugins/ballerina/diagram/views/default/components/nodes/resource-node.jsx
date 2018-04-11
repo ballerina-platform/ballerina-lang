@@ -119,7 +119,7 @@ class ResourceNode extends React.Component {
             };
         }
 
-        const clientEndpoint = this.props.model.parameters[0];
+        const client = this.props.model.viewState.components.client;
 
         return (
             <g>
@@ -135,8 +135,8 @@ class ResourceNode extends React.Component {
                     {...panelAdditionalProps}
                 >
                     <Client
-                        title={clientEndpoint.name.value}
-                        bBox={this.props.model.viewState.components.client}
+                        title={client.title}
+                        bBox={client}
                     />
                     <g>
                         { this.props.model.getWorkers().length === 0 &&

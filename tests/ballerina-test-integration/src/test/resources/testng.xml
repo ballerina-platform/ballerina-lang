@@ -37,6 +37,7 @@
             <package name="org.ballerinalang.test.transaction"/>
             <package name="org.ballerinalang.test.filter"/>
             <package name="org.ballerinalang.test.auth"/>
+            <package name="org.ballerinalang.test.securelistener"/>
         </packages>
     </test>
 
@@ -58,16 +59,11 @@
             <class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingHeaderTestCase"/>
         </classes>
     </test>
 
     <test name="ballerina-observability-tests" preserve-order="true" parallel="false">
-        <groups>
-            <run>
-                <exclude name="broken"/>
-            </run>
-        </groups>
-
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
         </classes>

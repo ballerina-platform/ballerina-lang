@@ -21,10 +21,16 @@ package org.ballerinalang.net.jms.nativeimpl.endpoint.connection;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.utils.BallerinaAdapter;
+
+import javax.jms.Connection;
+import javax.jms.JMSException;
 
 /**
  * Get the ID of the connection.
@@ -40,7 +46,14 @@ import org.ballerinalang.natives.annotations.Receiver;
 public class Start implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-
+        Struct connectionBObject = BallerinaAdapter.getReceiverObject(context);
+        Connection connection = BallerinaAdapter.getNativeObject(connectionBObject, Constants.JMS_CONNECTION,
+                                                                 Connection.class, context);
+        try {
+            connection.start();
+        } catch (JMSException e) {
+            BallerinaAdapter.throwBallerinaException("Error occurred while starting connection.", context, e);
+        }
     }
 
     @Override

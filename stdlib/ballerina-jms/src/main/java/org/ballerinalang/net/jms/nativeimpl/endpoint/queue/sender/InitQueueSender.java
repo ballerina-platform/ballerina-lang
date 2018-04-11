@@ -29,6 +29,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JMSUtils;
+import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -60,9 +62,13 @@ public class InitQueueSender implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct queueSenderBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct queueSenderBObject = BallerinaAdapter.getReceiverObject(context);
         Struct queueSenderConfig = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONFIG);
         String queueName = queueSenderConfig.getStringField(Constants.QUEUE_SENDER_FIELD_QUEUE_NAME);
+
+        if (JMSUtils.isNullOrEmptyAfterTrim(queueName)) {
+            throw new BallerinaException("Queue name cannot be null", context);
+        }
 
         BStruct sessionBObject = (BStruct) context.getRefArgument(1);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,
@@ -70,13 +76,18 @@ public class InitQueueSender implements NativeCallableUnit {
                                                            Session.class,
                                                            context);
         try {
-            Queue queue = session.createQueue(queueName);
+            Queue queue = null;
+            if (!JMSUtils.isNullOrEmptyAfterTrim(queueName)) {
+                queue = session.createQueue(queueName);
+            }
             MessageProducer producer = session.createProducer(queue);
             Struct queueSenderConnectorBObject
                     = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONNECTOR);
-            queueSenderConnectorBObject.addNativeData(Constants.JMS_QUEUE_SENDER_OBJECT, producer);
+            queueSenderConnectorBObject.addNativeData(Constants.JMS_PRODUCER_OBJECT, producer);
+            queueSenderConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT,
+                                                      new SessionConnector(session));
         } catch (JMSException e) {
-            throw new BallerinaException("Error creating Queue sender", e, context);
+            BallerinaAdapter.throwBallerinaException("Error creating queue sender.", context, e);
         }
     }
 
