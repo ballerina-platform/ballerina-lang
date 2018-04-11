@@ -29,14 +29,20 @@
     
     <dependencies>
         <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-models</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.parser.v3</groupId>
+            <artifactId>swagger-parser</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-models</artifactId>
-            <version>2.0.0-rc2</version>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-parser</artifactId>
-            <version>2.0.0-rc1</version>
         </dependency>
         <dependency>
             <groupId>com.github.jknack</groupId>
@@ -82,10 +88,12 @@
                                     <include>io.swagger:swagger-core</include>
                                     <include>io.swagger:swagger-models</include>
                                     <include>io.swagger:swagger-parser</include>
-                                    <include>io.swagger:swagger-parser-core</include>
-                                    <include>io.swagger:swagger-parser-v2</include>
-                                    <include>io.swagger:swagger-parser-v2-converter</include>
-                                    <include>io.swagger:swagger-parser-v3</include>
+                                    <include>io.swagger.core.v3:swagger-core</include>
+                                    <include>io.swagger.core.v3:swagger-models</include>
+                                    <include>io.swagger.parser.v3:swagger-parser</include>
+                                    <include>io.swagger.parser.v3:swagger-parser-core</include>
+                                    <include>io.swagger.parser.v3:swagger-parser-v2-converter</include>
+                                    <include>io.swagger.parser.v3:swagger-parser-v3</include>
                                     <include>javax.validation:validation-api</include>
                                 </includes>
                             </artifactSet>
