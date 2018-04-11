@@ -25,6 +25,7 @@ import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
 import java.io.PrintStream;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.ballerinalang.observe.trace.extension.jaeger.Constants.DEFAULT_REPORTER_FLUSH_INTERVAL;
 import static org.ballerinalang.observe.trace.extension.jaeger.Constants.DEFAULT_REPORTER_HOSTNAME;
@@ -48,11 +49,25 @@ import static org.ballerinalang.observe.trace.extension.jaeger.Constants.TRACER_
 @JavaSPIService("org.ballerinalang.util.tracer.OpenTracer")
 public class OpenTracingExtension implements OpenTracer {
 
+    private static final PrintStream console = System.out;
     private static final PrintStream consoleError = System.err;
+    private Map<String, String> configProperties;
 
     @Override
-    public Tracer getTracer(String tracerName, Map<String, String> configProperties, String serviceName)
-            throws InvalidConfigurationException {
+    public void init(Map<String, String> configProperties) {
+        console.println("ballerina: started publishing tracers to Jaeger on "
+                + configProperties.getOrDefault(REPORTER_HOST_NAME_CONFIG, DEFAULT_REPORTER_HOSTNAME) + ":" +
+                getValidIntegerConfig(configProperties.get(REPORTER_PORT_CONFIG),
+                        DEFAULT_REPORTER_PORT, REPORTER_PORT_CONFIG));
+        this.configProperties = configProperties;
+    }
+
+    @Override
+    public Tracer getTracer(String tracerName, String serviceName) throws InvalidConfigurationException {
+
+        if (Objects.isNull(configProperties)) {
+            throw new InvalidConfigurationException("Tracer not initialized with configurations");
+        }
 
         return new Configuration(
                 serviceName,
