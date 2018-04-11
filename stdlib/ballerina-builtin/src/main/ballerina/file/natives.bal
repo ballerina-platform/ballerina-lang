@@ -16,6 +16,8 @@
 
 package ballerina.file;
 
+import ballerina/time;
+
 @Description { value: "Represents an I/O error which could occur when processing a file."}
 public type IOError {
     string message;
@@ -42,6 +44,10 @@ public type Path object{
     @Description { value: "Retreives the absolut path from the provided location"}
     @Return {value:"Returns the absolute path string value"}
     public native function getPathValue() returns (string);
+
+    @Description {value: "Retreives the name of the file from the provided location"}
+    @Return {value:"Returns the name of the file"}
+    public native function getName() returns (string);
 };
 
 @Description { value: "Check for existance of the file"}
@@ -73,3 +79,7 @@ public native function createDirectory(Path path) returns (boolean | IOError);
 @Param {value: "path: Refernce to the file path location"}
 @Return {value : "error if the file could not be created"}
 public native function createFile(Path path) returns (boolean | IOError);
+
+@Description {value: "Rereives the last modified time of the Path"}
+@Return {value : "Last modified time or an error if the path cannot be resolved"}
+public native function getModifiedTIme() returns (time:Time | IOError);
