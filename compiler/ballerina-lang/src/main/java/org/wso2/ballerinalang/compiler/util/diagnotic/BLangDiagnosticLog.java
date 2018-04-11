@@ -97,8 +97,4 @@ public class BLangDiagnosticLog implements DiagnosticLog {
                 pos, message.toString());
         listener.received(diagnostic);
     }
-
-    public DiagnosticListener getListener() {
-        return listener;
-    }
 }

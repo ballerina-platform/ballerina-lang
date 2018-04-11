@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -230,9 +231,8 @@ public class LSParserUtils {
             }
         }
         BLangPackage bLangPackage = null;
-        if (BLangDiagnosticLog.getInstance(context).getListener() instanceof CollectDiagnosticListener) {
-            ((CollectDiagnosticListener) BLangDiagnosticLog.getInstance(context).getListener())
-                    .getDiagnostics().clear();
+        if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
+            ((CollectDiagnosticListener) context.get(DiagnosticListener.class)).getDiagnostics().clear();
         }
         try {
             BLangDiagnosticLog.getInstance(context).errorCount = 0;
@@ -243,9 +243,9 @@ public class LSParserUtils {
         }
         BallerinaFile bfile = new BallerinaFile();
         bfile.setBLangPackage(bLangPackage);
-        if (BLangDiagnosticLog.getInstance(context).getListener() instanceof CollectDiagnosticListener) {
-            List<Diagnostic> diagnostics = ((CollectDiagnosticListener) BLangDiagnosticLog.getInstance(context)
-                    .getListener()).getDiagnostics();
+        if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
+            List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))
+                    .getDiagnostics();
             bfile.setDiagnostics(diagnostics);
         } else {
             bfile.setDiagnostics(new ArrayList<>());
