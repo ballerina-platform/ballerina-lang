@@ -62,7 +62,7 @@ public class UnaryBlockingHeaderTestCase {
     }
 
     @Test
-    public void testIntBlockingBallerinaClient() {
+    public void testBlockingHeaderClient() {
 
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary-client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());

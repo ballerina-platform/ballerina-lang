@@ -124,7 +124,7 @@ abstract class MethodListener {
         BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
         signatureParams[1] = errorStruct;
         BStruct headerStruct = getHeaderStruct(resource);
-        if (MessageHeaders.isPresent()) {
+        if (headerStruct != null && MessageHeaders.isPresent()) {
             MessageHeaders context = MessageHeaders.current();
             headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(context));
         }
@@ -146,7 +146,7 @@ abstract class MethodListener {
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(resource, responseObserver);
         BStruct headerStruct = getHeaderStruct(resource);
-        if (MessageHeaders.isPresent()) {
+        if (headerStruct != null && MessageHeaders.isPresent()) {
             MessageHeaders context = MessageHeaders.current();
             headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(context));
         }

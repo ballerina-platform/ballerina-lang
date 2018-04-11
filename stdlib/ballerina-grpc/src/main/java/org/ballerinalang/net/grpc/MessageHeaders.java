@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.net.grpc;
 
-import io.grpc.CallOptions;
 import io.grpc.Context;
 import io.grpc.Metadata;
 

@@ -19,13 +19,10 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.MessageLite;
-import io.grpc.Metadata;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
 
 /**
  * Generic Proto3 Message.

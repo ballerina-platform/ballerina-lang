@@ -48,7 +48,7 @@ public type ServiceStub object {
         P{{payload}} - Any type of request payload.
         P{{listenerService}} - call back listener service.
     }
-    public native function nonBlockingExecute (string methodID, any payload, typedesc listenerService, Headers... headers) returns (Headers|ConnectorError);
+    public native function nonBlockingExecute (string methodID, any payload, typedesc listenerService, Headers... headers) returns (ConnectorError);
 
 
     documentation {
@@ -57,7 +57,7 @@ public type ServiceStub object {
         P{{methodID}} - remote procedure call id.
         P{{listenerService}} - call back listener service.
     }
-    public native function streamingExecute (string methodID, typedesc listenerService, Headers... headers) returns ((Client,Headers)|ConnectorError);
+    public native function streamingExecute (string methodID, typedesc listenerService, Headers... headers) returns (Client|ConnectorError);
 
 };
 

@@ -68,8 +68,8 @@ public type ChatStub object {
         self.serviceStub = navStub;
     }
 
-    function chat (typedesc listener) returns (grpc:Client|error) {
-        var res = stub.serviceStub.streamingExecute("Chat/chat", listener);
+    function chat (typedesc listener, grpc:Headers... headers) returns (grpc:Client|error) {
+        var res = stub.serviceStub.streamingExecute("Chat/chat", listener, ...header);
         match res {
             grpc:ConnectorError err1 => {
                 error err = {message:err1.message};

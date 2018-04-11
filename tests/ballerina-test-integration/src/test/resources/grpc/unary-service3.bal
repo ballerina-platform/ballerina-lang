@@ -9,14 +9,13 @@ endpoint grpc:Service ep {
 };
 
 @grpc:serviceConfig {generateClientConnector:false}
-service<grpc:Endpoint> HelloWorld bind ep {
-    hello (endpoint client, string name) {
+service<grpc:Listener> HelloWorld bind ep {
+    hello (endpoint client, string name, grpc:Headers headers) {
         io:println("name: " + name);
         string message = "Hello " + name;
-        grpc:MessageContext context = client -> getContext();
-        io:println(context.getHeader("x-id"));
-        context.setHeader("x-id", "1234567890");
-        grpc:ConnectorError err = client -> send(message);
+        io:println(headers.get("x-id"));
+        headers.setEntry("x-id", "1234567890");
+        grpc:ConnectorError err = client -> send(message, headers);
         io:println("Server send response : " + message);
         if (err != ()) {
             io:println("Error at helloWorld : " + err.message);

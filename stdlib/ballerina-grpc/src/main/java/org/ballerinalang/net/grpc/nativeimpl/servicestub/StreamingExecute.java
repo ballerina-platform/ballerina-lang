@@ -136,7 +136,9 @@ public class StreamingExecute extends AbstractExecute {
             // Attach header read/write listener to the service stub.
             AtomicReference<Metadata> headerCapture = new AtomicReference<>();
             AtomicReference<Metadata> trailerCapture = new AtomicReference<>();
-            grpcNonBlockingStub = MetadataUtils.attachHeaders(grpcNonBlockingStub, headers.getMessageMetadata());
+            if (headers != null) {
+                grpcNonBlockingStub = MetadataUtils.attachHeaders(grpcNonBlockingStub, headers.getMessageMetadata());
+            }
             grpcNonBlockingStub = MetadataUtils.captureMetadata(grpcNonBlockingStub, headerCapture, trailerCapture);
 
             BTypeDescValue serviceType = (BTypeDescValue) context.getRefArgument(1);

@@ -24,20 +24,23 @@ endpoint HelloWorldBlockingClient helloWorldBlockingEp {
 
 function testUnaryBlockingClient (string name) returns (string) {
 
-    grpc:MessageContext context = helloWorldBlockingEp -> getContext();
-    context.setHeader("x-id", "woow");
+    //Working with custom headers
+    grpc:Headers headers = new;
+    headers.setEntry("x-id", "0987654321");
     // Executing unary blocking call
-    string|error unionResp = helloWorldBlockingEp -> hello("WSO2");
+    (string,grpc:Headers)|error unionResp = helloWorldBlockingEp -> hello("WSO2", headers);
     match unionResp {
-        string payload => {
+        (string,grpc:Headers) payload => {
+            string result;
+            grpc:Headers resHeaders;
+            (result, resHeaders) = payload;
             io:println("Client Got Response : ");
-            io:println(payload);
-            io:println(context.getHeader("x-id"));
-            return "Client got response: " + payload;
+            io:println(result);
+            //io:println(resHeaders.get("x-id"));
+            return "Client got response: " + result;
         }
         error err => {
             io:println("Error from Connector: " + err.message);
-            io:println(context.getHeader("x-id"));
             return "Error from Connector: " + err.message;
         }
     }
@@ -45,21 +48,24 @@ function testUnaryBlockingClient (string name) returns (string) {
 
 function testBlockingHeader (string name) returns (string) {
 
-    grpc:MessageContext context = helloWorldBlockingEp -> getContext();
-    context.setHeader("x-id", "woow");
+    grpc:Headers headers = new;
+    headers.setEntry("x-id", "0987654321");
     // Executing unary blocking call
-    string|error unionResp = helloWorldBlockingEp -> hello("WSO2");
+    (string,grpc:Headers)|error unionResp = helloWorldBlockingEp -> hello("WSO2", headers);
     match unionResp {
-        string payload => {
+        (string,grpc:Headers) payload => {
+            string result;
+            grpc:Headers resHeaders;
+            (result, resHeaders) = payload;
             io:println("Client Got Response : ");
-            io:println(payload);
-            io:println(context.getHeader("x-id"));
-            return "Header: " + context.getHeader("x-id");
+            io:println(result);
+            //io:println(resHeaders.get("x-id"));
+            string headerValue = resHeaders.get("x-id") but {() => "none"};
+            return "Header: " + headerValue;
         }
         error err => {
             io:println("Error from Connector: " + err.message);
-            io:println(context.getHeader("x-id"));
-            return "Header: " + context.getHeader("x-id");
+            return "Error: " + err.message;
         }
     }
 }
@@ -77,22 +83,18 @@ public type HelloWorldBlockingStub object {
         self.serviceStub = navStub;
     }
 
-    function getContext () returns (grpc:MessageContext) {
-        grpc:MessageContext context = new;
-        return context;
-    }
-
-
-    function hello (string req) returns (string|error) {
-        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/hello", req);
+    function hello (string req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
+        (any,grpc:Headers)|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/hello", req, ...headers);
         match unionResp {
             grpc:ConnectorError payloadError => {
                 error err = {message:payloadError.message};
                 return err;
             }
-            any payload => {
-                string result = <string> payload;
-                return result;
+            (any,grpc:Headers) payload => {
+                any result;
+                grpc:Headers resHeaders;
+                (result, resHeaders)= payload;
+                return (<string>result,resHeaders);
             }
         }
     }
@@ -111,13 +113,8 @@ public type HelloWorldStub object {
         self.serviceStub = navStub;
     }
 
-    function getContext () returns (grpc:MessageContext) {
-        grpc:MessageContext context = new;
-        return context;
-    }
-
-    function hello (string req, typedesc listener) returns (error| ()) {
-        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/hello", req, listener);
+    function hello (string req, typedesc listener, grpc:Headers... headers) returns (error| ()) {
+        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/hello", req, listener, ...headers);
         if (err1 != ()) {
             error err = {message:err1.message};
             return err;

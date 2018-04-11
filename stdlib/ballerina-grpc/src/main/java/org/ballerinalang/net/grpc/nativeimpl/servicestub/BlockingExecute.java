@@ -137,7 +137,9 @@ public class BlockingExecute extends AbstractExecute {
                     // Attach header read/write listener to the service stub.
                     AtomicReference<Metadata> headerCapture = new AtomicReference<>();
                     AtomicReference<Metadata> trailerCapture = new AtomicReference<>();
-                    grpcBlockingStub = MetadataUtils.attachHeaders(grpcBlockingStub, headers.getMessageMetadata());
+                    if (headers != null) {
+                        grpcBlockingStub = MetadataUtils.attachHeaders(grpcBlockingStub, headers.getMessageMetadata());
+                    }
                     grpcBlockingStub = MetadataUtils.captureMetadata(grpcBlockingStub, headerCapture, trailerCapture);
 
                     Message responseMsg = grpcBlockingStub.executeUnary(requestMsg, methodDescriptors.get(methodName));
