@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
+import org.ballerinalang.net.grpc.MessageHeaders;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.slf4j.Logger;
@@ -75,8 +76,9 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         BStruct headerStruct = getHeaderStruct(resource);
-        if (headerStruct != null) {
-            headerStruct.addNativeData(METADATA_KEY, headerCapture.get());
+        Metadata respMetadata = headerCapture.get();
+        if (headerStruct != null && respMetadata != null) {
+            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));
         }
         BValue requestParam = getRequestParameter(resource, value, headerStruct != null);
         if (requestParam != null) {
@@ -103,8 +105,9 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
         signatureParams[0] = errorStruct;
         BStruct headerStruct = getHeaderStruct(onError);
-        if (headerStruct != null) {
-            headerStruct.addNativeData(METADATA_KEY, headerCapture.get());
+        Metadata respMetadata = headerCapture.get();
+        if (headerStruct != null && respMetadata != null) {
+            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));
         }
 
         if (headerStruct != null && signatureParams.length == 2) {
@@ -126,8 +129,9 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         List<ParamDetail> paramDetails = onCompleted.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         BStruct headerStruct = getHeaderStruct(onCompleted);
-        if (headerStruct != null) {
-            headerStruct.addNativeData(METADATA_KEY, headerCapture.get());
+        Metadata respMetadata = headerCapture.get();
+        if (headerStruct != null && respMetadata != null) {
+            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));
         }
 
         if (headerStruct != null && signatureParams.length == 1) {
