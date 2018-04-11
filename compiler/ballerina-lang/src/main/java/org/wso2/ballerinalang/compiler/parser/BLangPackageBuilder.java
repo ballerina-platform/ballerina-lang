@@ -2607,14 +2607,11 @@ public class BLangPackageBuilder {
     public void addIntRangeExpression(DiagnosticPos pos,
                                       Set<Whitespace> ws,
                                       boolean includeStart,
-                                      boolean includeEnd,
-                                      boolean noUpperBound) {
+                                      boolean includeEnd) {
         BLangIntRangeExpression intRangeExpr = (BLangIntRangeExpression) TreeBuilder.createIntRangeExpression();
         intRangeExpr.pos = pos;
         intRangeExpr.addWS(ws);
-        if (!noUpperBound) {
-            intRangeExpr.endExpr = (BLangExpression) this.exprNodeStack.pop();
-        }
+        intRangeExpr.endExpr = (BLangExpression) this.exprNodeStack.pop();
         intRangeExpr.startExpr = (BLangExpression) this.exprNodeStack.pop();
         intRangeExpr.includeStart = includeStart;
         intRangeExpr.includeEnd = includeEnd;
