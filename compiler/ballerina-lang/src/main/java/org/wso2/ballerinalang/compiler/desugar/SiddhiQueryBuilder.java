@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -532,6 +533,16 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
                 sqlExpr = sqlExpr.replaceFirst("(?i)" + exprName, "last");
             }
             exprStack.push(sqlExpr);
+        }
+    }
+
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        List<BLangExpression> expressionList = bracedOrTupleExpr.getExpressions();
+        for (BLangExpression expression : expressionList) {
+            expression.accept(this);
+            String expr = exprStack.pop();
+            String expressionWithBrace = "( " + expr + " ) ";
+            exprStack.push(expressionWithBrace);
         }
     }
 

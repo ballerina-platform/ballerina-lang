@@ -1,5 +1,6 @@
 import ballerina/io;
 import ballerina/file;
+import ballerina/time;
 
 function testAbsolutePath(string pathValue) returns (string){
     file:Path filePath = new(pathValue);
@@ -54,6 +55,17 @@ function testCreateFile(string pathValue) returns (string){
    }
 
    return pathValues[0];
+}
+
+function testGetFileName(string pathValue) returns (string){
+    file:Path path = new (pathValue);
+    return path.getName();
+}
+
+function testGetModifiedTime(string pathValue) returns (string){
+    file:Path path = new(pathValue);
+    time:Time modifiedTime =check file:getModifiedTime(path);
+    return modifiedTime.toString();
 }
 
 function testWriteFile(string pathValue,string accessMode,blob content) returns (blob|io:IOError){

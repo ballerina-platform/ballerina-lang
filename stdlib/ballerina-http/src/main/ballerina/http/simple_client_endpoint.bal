@@ -87,7 +87,7 @@ public type SimpleClientEndpointConfiguration {
     int timeoutMillis = 60000,
     string httpVersion = "1.1",
     string forwarded = "disable",
-    boolean keepAlive = true,
+    KeepAlive keepAlive = KEEPALIVE_AUTO,
     TransferEncoding transferEncoding = "CHUNKING",
     Chunking chunking = "AUTO",
     FollowRedirects? followRedirects,

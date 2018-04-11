@@ -143,7 +143,7 @@ public type Entity object {
 
     @Description {value:"Set the entity body with a given file handler"}
     @Param {value:"fileHandler: Represent a file"}
-    public function setFileAsEntityBody (file:Path fileHandler);
+    public function setFileAsEntityBody (@sensitive file:Path fileHandler);
 
     @Description {value:"Set the entity body with the given json content"}
     @Param {value:"jsonContent: Json content that needs to be set to entity"}
@@ -152,7 +152,7 @@ public type Entity object {
     @Description {value:"Given an entity, get the entity body in json form."}
     @Return {value:"Return json data"}
     @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
-    public native function getJson () returns json | EntityError;
+    public native function getJson () returns @tainted json | EntityError;
 
     @Description {value:"Set the entity body with the given xml content"}
     @Param {value:"xmlContent: Xml content that needs to be set to entity"}
@@ -161,7 +161,7 @@ public type Entity object {
     @Description {value:"Given an entity, get the entity body in xml form."}
     @Return {value:"Return xml data"}
     @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
-    public native function getXml () returns xml | EntityError;
+    public native function getXml () returns @tainted xml | EntityError;
 
     @Description {value:"Set the entity body with the given text content"}
     @Param {value:"textContent: Text content that needs to be set to entity"}
@@ -170,7 +170,7 @@ public type Entity object {
     @Description {value:"Given an entity, get the entity body in text form."}
     @Return {value:"Return text data"}
     @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
-    public native function getText () returns string | EntityError;
+    public native function getText () returns @tainted string | EntityError;
 
     @Description {value:"Set the entity body with the given blob content"}
     @Param {value:"blobContent: Blob content that needs to be set to entity"}
@@ -181,7 +181,7 @@ public type Entity object {
     using getEntityWrapper() method instead"}
     @Return {value:"Return a blob"}
     @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
-    public native function getBlob () returns blob | EntityError;
+    public native function getBlob () returns @tainted blob | EntityError;
 
     @Description {value:"Set the entity body with the given byte channel content"}
     @Param {value:"byteChannel: Byte channel that needs to be set to entity"}
@@ -190,7 +190,7 @@ public type Entity object {
     @Description {value:"Given an entity, get the entity body as a byte channel."}
     @Return {value:"Return a byte channel"}
     @Return {value:"EntityError will get thrown in case of errors during byte channel extraction from entity"}
-    public native function getByteChannel () returns io:ByteChannel | EntityError;
+    public native function getByteChannel () returns @tainted io:ByteChannel | EntityError;
 
     @Description {value:"Given an entity, get its body parts."}
     @Return {value:"Return an array of entities which represent its body parts"}
@@ -201,7 +201,7 @@ public type Entity object {
     @Param {value:"entity: Represent a MIME entity"}
     @Return {value:"Return body parts as a byte channel "}
     @Return {value:"EntityError will get thrown in case of errors"}
-    public native function getBodyPartsAsChannel () returns io:ByteChannel;
+    public native function getBodyPartsAsChannel () returns @tainted io:ByteChannel;
 
     @Description {value:"Set body parts to entity"}
     @Param {value:"entity: Represent a MIME entity"}
@@ -212,40 +212,40 @@ public type Entity object {
     @Param {value:"headerName: Represent header name"}
     @Return {value:"Return header value associated with the given header name. If multiple header values are present,
     then the first value will be returned"}
-    public native function getHeader (string headerName) returns string;
+    public native function getHeader (@sensitive string headerName) returns @tainted string;
 
     @Description {value:"Get all the header values associated with the given header name"}
     @Param {value:"headerName: Represent the header name"}
     @Return {value:"Return all the header values associated with the given header name as a string of arrays"}
-    public native function getHeaders (string headerName) returns string[];
+    public native function getHeaders (@sensitive string headerName) returns @tainted string[];
 
     @Description {value:"Get all header names."}
     @Return {value:"Return all header names as an array of strings"}
-    public native function getHeaderNames () returns string[];
+    public native function getHeaderNames () returns @tainted string[];
 
     @Description {value:"Add the given header value against the given header"}
     @Param {value:"headerName: Represent the header name"}
     @Param {value:"headerValue: Represent the header value to be added"}
-    public native function addHeader (string headerName, string headerValue);
+    public native function addHeader (@sensitive string headerName, string headerValue);
 
     @Description {value:"Set the given header value against the given header. If a header already exist, its value will be
     replaced with the given header value"}
     @Param {value:"headerName: Represent the header name"}
     @Param {value:"headerValue: Represent the header value"}
-    public native function setHeader (string headerName, string headerValue);
+    public native function setHeader (@sensitive string headerName, string headerValue);
 
     @Description {value:"Remove the given header from the entity"}
     @Param {value:"headerName: Represent the header name"}
-    public native function removeHeader (string headerName);
+    public native function removeHeader (@sensitive string headerName);
 
     @Description {value:"Remove all headers associated with the entity"}
     public native function removeAllHeaders ();
 
     @Description {value:"Check the header existence"}
-    public native function hasHeader (string headerName) returns boolean;
+    public native function hasHeader (@sensitive string headerName) returns boolean;
 };
 
-public function Entity::setFileAsEntityBody (file:Path fileHandler) {
+public function Entity::setFileAsEntityBody (@sensitive file:Path fileHandler) {
     string path = fileHandler.toAbsolutePath().getPathValue();
     io:ByteChannel channel = io:openFile(path, READ_PERMISSION);
     self.setByteChannel(channel);

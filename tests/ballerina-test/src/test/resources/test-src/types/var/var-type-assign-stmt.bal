@@ -1,7 +1,7 @@
 type Person {
     string name;
     int age;
-    Person parent;
+    Person? parent;
     json info;
     map address;
     int[] marks;
