@@ -1054,7 +1054,6 @@
                 <module>tests/ballerina-test</module>
 
                 <module>cli/ballerina-cli-utils</module>
-                <module>docs/ballerina-by-example</module>
 
                 <module>language-server</module>
                 <module>misc/docerina</module>
@@ -1103,7 +1102,6 @@
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
-                <module>docs/ballerina-by-example</module>
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
                 <module>cli/ballerina-cli-utils</module>
@@ -1153,7 +1151,6 @@
                 <module>tests/ballerina-test-compiler-plugins</module>
 
                 <module>cli/ballerina-cli-utils</module>
-                <module>docs/ballerina-by-example</module>
 
                 <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>
