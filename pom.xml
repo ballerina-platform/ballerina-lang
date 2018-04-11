@@ -24,6 +24,12 @@
     <version>0.970.0-alpha5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Ballerina - Examples</name>
+    <scm>
+        <url>https://github.com/ballerina-platform/ballerina-examples.git</url>
+        <developerConnection>scm:git:https://github.com/ballerina-platform/ballerina-examples.git</developerConnection>
+        <connection>scm:git:https://github.com/ballerina-platform/ballerina-examples.git</connection>
+        <tag>HEAD</tag>
+    </scm>
     <build>
         <plugins>
             <plugin>
