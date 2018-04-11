@@ -205,7 +205,7 @@ public class BLangFunctions {
 
     private static void persistState(WorkerExecutionContext ctx) {
         String jsonPaylaod = PersistenceUtils.getJson(ctx);
-        PersistenceUtils.saveJsonFIle(jsonPaylaod, Integer.toString(ctx.programFile.getMagicValue()));
+//        PersistenceUtils.saveJsonFIle(jsonPaylaod, Integer.toString(ctx.programFile.getMagicValue()));
     }
 
     private static CallableWorkerResponseContext createWorkerResponseContext(BType[] retParamTypes,
