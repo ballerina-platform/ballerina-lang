@@ -31,7 +31,6 @@ import java.nio.file.Files;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-@Test(groups = {"broken"})
 public class TracingTestCase {
 
     private ServerInstance serverInstance;

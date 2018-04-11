@@ -19,9 +19,6 @@ package ballerina.http;
 import ballerina/internal;
 import ballerina/auth;
 
-@Description {value:"Authn handler chain instance"}
-AuthnHandlerChain authnHandlerChain;
-
 @Description {value:"Representation of the Authentication filter"}
 @Field {value:"filterRequest: request filter method which attempts to authenticated the request"}
 @Field {value:"filterRequest: response filter method (not used this scenario)"}
@@ -29,10 +26,10 @@ public type AuthnFilter object {
     public {
         function (Request request, FilterContext context) returns (FilterResult) filterRequest;
         function (Response response, FilterContext context) returns (FilterResult) filterResponse;
-        AuthHandlerRegistry authHandlerRegistry;
+        AuthnHandlerChain authnHandlerChain;
     }
 
-    public new (authHandlerRegistry, filterRequest, filterResponse) {
+    public new (authnHandlerChain, filterRequest, filterResponse) {
     }
 
     public function init ();
@@ -41,7 +38,6 @@ public type AuthnFilter object {
 
 @Description {value:"Initializes the AuthnFilter"}
 public function AuthnFilter::init () {
-    authnHandlerChain = new(self.authHandlerRegistry);
 }
 
 @Description {value:"Stops the AuthnFilter"}

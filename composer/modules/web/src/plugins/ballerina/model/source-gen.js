@@ -210,6 +210,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return join(node.statements, pretty, replaceLambda, l, w, '');
         case 'Break':
             return dent() + w() + 'break' + w() + ';';
+        case 'BracedTupleExpr':
+            return w() + '('
+                 + join(node.expressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
         case 'BuiltInRefType':
             return w() + node.typeKind;
         case 'Catch':
@@ -273,12 +276,6 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'ExpressionStatement':
             return dent() + getSourceOf(node.expression, pretty, l, replaceLambda)
                  + w() + ';';
-        case 'Enum':
-            return dent() + w() + 'enum\u0020'
-                 + getSourceOf(node.name, pretty, l, replaceLambda) + w() + '{' + indent()
-                 + join(node.enumerators, pretty, replaceLambda, l, w, '', ',') + outdent() + w() + '}';
-        case 'Enumerator':
-            return getSourceOf(node.name, pretty, l, replaceLambda);
         case 'FieldBasedAccessExpr':
             return getSourceOf(node.expression, pretty, l, replaceLambda) + w()
                  + '.' + w() + node.fieldName.valueWithBar;
@@ -528,12 +525,16 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.statement, pretty, l, replaceLambda) + outdent() + w() + '}';
             }
         case 'MatchExpression':
-            return dent() + w() + node.expr + w() + 'but' + w() + '{' + indent()
-                 + join(node.patternClauses, pretty, replaceLambda, l, w, '')
-                 + outdent() + w() + '}';
-        case 'MatchExprPatternClause':
+            return dent() + w() + node.expr + a(' ') + w() + 'but' + a(' ') + w()
+                 + '{' + indent()
+                 + join(node.patternClauses, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
+        case 'MatchExpressionPatternClause':
             return getSourceOf(node.variable, pretty, l, replaceLambda) + w() + '=>'
-                 + getSourceOf(node.expr, pretty, l, replaceLambda);
+                 + a(' ')
+                 + getSourceOf(node.statement, pretty, l, replaceLambda);
+        case 'NamedArgsExpr':
+            return w() + node.name.valueWithBar + w(' ') + '=' + a(' ')
+                 + getSourceOf(node.expression, pretty, l, replaceLambda);
         case 'Next':
             return dent() + w() + 'next' + w() + ';';
         case 'Object':
@@ -610,8 +611,14 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.body, pretty, l, replaceLambda)
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
         case 'Return':
-            return dent() + w() + 'return' + a(' ')
+            if (node.noExpressionAvailable) {
+                return dent() + w() + 'return' + a(' ') + w() + ';';
+            } else if (node.emptyBrackets) {
+                return w() + 'return' + a(' ') + w() + '();';
+            } else {
+                return dent() + w() + 'return' + a(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + ';';
+            }
         case 'Service':
             if (node.isServiceTypeUnavailable && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
@@ -846,6 +853,16 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}'
                  + join(node.catchBlocks, pretty, replaceLambda, l, w, '');
             }
+        case 'TupleDestructure':
+            if (node.declaredWithVar && node.variableRefs
+                         && node.variableRefs.length) {
+                return w() + 'var' + w() + '('
+                 + join(node.variableRefs, pretty, replaceLambda, l, w, '', ',') + w() + ')' + w() + '=' + w()
+                 + '<expression.source>;';
+            } else {
+                return w() + '('
+                 + join(node.variableRefs, pretty, replaceLambda, l, w, '', ',') + w() + ')' + w() + '=' + w() + '<expression.source>;';
+            }
         case 'TupleTypeNode':
             return w() + '('
                  + join(node.memberTypeNodes, pretty, replaceLambda, l, w, '', ',') + w() + ')';
@@ -868,12 +885,14 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return w() + 'typeof' + b(' ')
                  + getSourceOf(node.typeNode, pretty, l, replaceLambda);
         case 'TypeInitExpr':
-            if (node.noTypeAttached && node.expressions) {
-                return w() + 'new' + w() + '('
+            if (node.noExpressionAvailable) {
+                return dent() + w() + 'new' + w() + ';';
+            } else if (node.noTypeAttached && node.expressions) {
+                return w() + 'new' + w(' ') + '('
                  + join(node.expressions, pretty, replaceLambda, l, w, '', ',') + w() + ');';
             } else {
-                return w() + 'new'
-                 + getSourceOf(node.typeName, pretty, l, replaceLambda) + w() + '('
+                return w() + 'new' + b(' ')
+                 + getSourceOf(node.typeName, pretty, l, replaceLambda) + w(' ') + '('
                  + join(node.expressions, pretty, replaceLambda, l, w, '', ',') + w() + ');';
             }
         case 'UnaryExpr':
@@ -1067,7 +1086,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         /* eslint-enable max-len */
 
         default:
-            console.error('no source gen for' + node.kind);
+            console.error('no source gen for ' + node.kind);
             return '';
 
     }

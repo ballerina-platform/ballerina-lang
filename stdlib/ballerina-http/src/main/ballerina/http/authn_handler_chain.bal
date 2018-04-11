@@ -18,7 +18,6 @@ package ballerina.http;
 
 import ballerina/log;
 import ballerina/auth;
-import ballerina/auth.jwtAuth;
 
 @Description {value:"Representation of Authentication handler chain"}
 public type AuthnHandlerChain object {

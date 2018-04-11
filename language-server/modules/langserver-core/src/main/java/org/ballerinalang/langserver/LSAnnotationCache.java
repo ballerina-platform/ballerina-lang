@@ -45,17 +45,14 @@ public class LSAnnotationCache {
     }
     
     public static LSAnnotationCache getInstance() {
-        if (lsAnnotationCache == null) {
-            initiate();
-        }
         return lsAnnotationCache;
     }
     
-    static synchronized void initiate() {
+    public static synchronized void initiate() {
         if (lsAnnotationCache == null) {
             lsAnnotationCache = new LSAnnotationCache();
             List<BLangPackage> builtins = LSPackageLoader.getBuiltinPackages();
-            Map<String, BLangPackage> packages = LSPackageCache.getInstance().getPackageMap();
+            Map<String, BLangPackage> packages = LSPackageCache.getStaticPackageMap();
             builtins.forEach(bLangPackage -> packages.put(bLangPackage.packageID.getName().getValue(), bLangPackage));
             lsAnnotationCache.loadAnnotations(packages.values().stream().collect(Collectors.toList()));
         }

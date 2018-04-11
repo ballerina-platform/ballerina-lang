@@ -18,6 +18,7 @@
 package org.ballerinalang.util.metrics;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.metrics.noop.NoOpMetricProvider;
@@ -43,12 +44,12 @@ public class MetricsLaunchListener implements LaunchListener {
     @Override
     public void beforeRunProgram(boolean service) {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        if (!Boolean.valueOf(configRegistry.getConfiguration(CONFIG_METRICS_ENABLED))) {
+        if (!configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED)) {
             // Create default MetricRegistry with NoOpMetricProvider
             DefaultMetricRegistry.setInstance(new MetricRegistry(new NoOpMetricProvider()));
             return;
         }
-        String providerName = configRegistry.getConfiguration(METRIC_PROVIDER_NAME);
+        String providerName = configRegistry.getAsString(METRIC_PROVIDER_NAME);
         // Look for MetricProvider implementations
         Iterator<MetricProvider> metricProviders = ServiceLoader.load(MetricProvider.class).iterator();
         MetricProvider metricProvider = null;
@@ -72,9 +73,28 @@ public class MetricsLaunchListener implements LaunchListener {
         metricProvider.initialize();
         // Create default MetricRegistry
         DefaultMetricRegistry.setInstance(new MetricRegistry(metricProvider));
+        // Register Ballerina specific metrics
+        registerBallerinaMetrics();
 
         // Add Metrics Observer
         ObservabilityUtils.addObserver(new BallerinaMetricsObserver());
+    }
+
+    private void registerBallerinaMetrics() {
+        final BLangScheduler.SchedulerStats schedulerStats = BLangScheduler.getStats();
+        final String prefix = "ballerina_scheduler_";
+        CallbackGauge.builder(prefix + "ready_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getReadyWorkerCount).register();
+        CallbackGauge.builder(prefix + "running_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getRunningWorkerCount).register();
+        CallbackGauge.builder(prefix + "excepted_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getExceptedWorkerCount).register();
+        CallbackGauge.builder(prefix + "paused_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getPausedWorkerCount).register();
+        CallbackGauge.builder(prefix + "waiting_for_response_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getWaitingForResponseWorkerCount).register();
+        CallbackGauge.builder(prefix + "waiting_for_lock_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getWaitingForLockWorkerCount).register();
     }
 
     @Override

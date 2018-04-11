@@ -64,7 +64,8 @@ function createAuthFilters () returns (Filter[]) {
     AuthHandlerRegistry registry = new;
     registry.add("basic", createBasicAuthHandler());
     // TODO: add JWT handler
-    AuthnFilter authnFilter = new (registry, authnRequestFilterFunc, responseFilterFunc);
+    AuthnHandlerChain authnHandlerChain = new(registry);
+    AuthnFilter authnFilter = new (authnHandlerChain, authnRequestFilterFunc, responseFilterFunc);
     AuthzFilter authzFilter = new (authzRequestFilterFunc, responseFilterFunc);
     authFilters[0] = <Filter> authnFilter;
     authFilters[1] = authzFilter;

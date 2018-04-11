@@ -1,10 +1,9 @@
 import ballerina/http;
 import ballerina/mime;
-import ballerina/auth.jwtAuth;
+import ballerina/auth;
 
 function testCanHandleHttpJwtAuthWithoutHeader () returns (boolean) {
-    jwtAuth:JWTAuthenticator jwtAuthenticator = jwtAuth:createAuthenticator();
-    http:HttpJwtAuthnHandler handler = new(jwtAuthenticator);
+    http:HttpJwtAuthnHandler handler = new(createJwtAuthProvider());
     http:Request request = createRequest ();
     string authHeaderValue = "Basic xxxxxx";
     mime:Entity requestEntity = new;
@@ -14,8 +13,7 @@ function testCanHandleHttpJwtAuthWithoutHeader () returns (boolean) {
 }
 
 function testCanHandleHttpJwtAuth () returns (boolean) {
-    jwtAuth:JWTAuthenticator jwtAuthenticator = jwtAuth:createAuthenticator();
-    http:HttpJwtAuthnHandler handler = new(jwtAuthenticator);
+    http:HttpJwtAuthnHandler handler = new(createJwtAuthProvider());
     http:Request request = createRequest ();
     string authHeaderValue = "Bearer xxx.yyy.zzz";
     mime:Entity requestEntity = new;
@@ -25,8 +23,7 @@ function testCanHandleHttpJwtAuth () returns (boolean) {
 }
 
 function testHandleHttpJwtAuthFailure () returns (boolean) {
-    jwtAuth:JWTAuthenticator jwtAuthenticator = jwtAuth:createAuthenticator();
-    http:HttpJwtAuthnHandler handler = new(jwtAuthenticator);
+    http:HttpJwtAuthnHandler handler = new(createJwtAuthProvider());
     http:Request request = createRequest ();
     string authHeaderValue = "Bearer xxx.yyy.zzz";
     mime:Entity requestEntity = new;
@@ -36,8 +33,7 @@ function testHandleHttpJwtAuthFailure () returns (boolean) {
 }
 
 function testHandleHttpJwtAuth (string token) returns (boolean) {
-    jwtAuth:JWTAuthenticator jwtAuthenticator = jwtAuth:createAuthenticator();
-    http:HttpJwtAuthnHandler handler = new(jwtAuthenticator);
+    http:HttpJwtAuthnHandler handler = new(createJwtAuthProvider());
     http:Request request = createRequest ();
     string authHeaderValue = "Bearer " + token;
     mime:Entity requestEntity = new;
@@ -52,4 +48,13 @@ function createRequest () returns (http:Request) {
     inRequest.method = "GET";
     inRequest.httpVersion = "1.1";
     return inRequest;
+}
+
+function createJwtAuthProvider() returns auth:JWTAuthProvider {
+    auth:JWTAuthProviderConfig jwtConfig = {};
+    jwtConfig.issuer = "wso2";
+    jwtConfig.audience = "ballerina";
+    jwtConfig.certificateAlias = "ballerina";
+    auth:JWTAuthProvider jwtAuthProvider = new (jwtConfig);
+    return jwtAuthProvider;
 }

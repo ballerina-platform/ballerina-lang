@@ -70,7 +70,6 @@ public type SecureEndpointConfiguration {
     int port = 9090,
     KeepAlive keepAlive = KEEPALIVE_AUTO,
     TransferEncoding transferEncoding = TRANSFERENCODE_CHUNKING,
-    Chunking chunking = CHUNKING_AUTO,
     ServiceSecureSocket? secureSocket,
     string httpVersion = "1.1",
     RequestLimits? requestLimits,
@@ -145,7 +144,8 @@ function createAuthFiltersForSecureListener (SecureEndpointConfiguration config)
     }
     // TODO: currently hard coded. fix it.
     Filter[] authFilters = [];
-    AuthnFilter authnFilter = new (registry, authnRequestFilterFunc, responseFilterFunc);
+    AuthnHandlerChain authnHandlerChain = new(registry);
+    AuthnFilter authnFilter = new (authnHandlerChain, authnRequestFilterFunc, responseFilterFunc);
     AuthzFilter authzFilter = new (authzRequestFilterFunc, responseFilterFunc);
     authFilters[0] = <Filter> authnFilter;
     authFilters[1] = authzFilter;

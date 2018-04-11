@@ -306,12 +306,14 @@ public class HttpConstants {
 
     //Client Endpoint
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
+    public static final int CLIENT_ENDPOINT_CONFIG_INDEX = 0;
+    public static final int CLIENT_ENDPOINT_URL_INDEX = 0;
 
     //Client Endpoint Config
     public static final String URI = "uri";
     public static final String CLIENT_EP_TRNASFER_ENCODING = "transferEncoding";
     public static final String CLIENT_EP_CHUNKING = "chunking";
-    public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "endpointTimeout";
+    public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "timeoutMillis";
     public static final String CLIENT_EP_IS_KEEP_ALIVE = "keepAlive";
     public static final String CLIENT_EP_HTTP_VERSION = "httpVersion";
     public static final String CLIENT_EP_FORWARDED = "forwarded";

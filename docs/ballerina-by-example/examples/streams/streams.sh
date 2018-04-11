@@ -1,1 +1,0 @@
-$ ballerina run streams.bal

@@ -81,7 +81,12 @@ public class Start extends BlockingNativeCallableUnit {
         HandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
         handshakeFuture.setHandshakeListener(
                 new WsHandshakeListener(context, wsService, clientConnectorListener));
-        context.setReturnValues();
+        try {
+            handshakeFuture.sync();
+        } catch (InterruptedException e) {
+            throw new BallerinaConnectorException("Error occurred: " + e.getMessage());
+
+        }
     }
 
     static class WsHandshakeListener implements HandshakeListener {

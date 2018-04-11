@@ -82,7 +82,7 @@ lambdaFunction
     ;
 
 callableUnitSignature
-    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
+    :   anyIdentifierName LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
     ;
 
 typeDefinition
@@ -141,7 +141,7 @@ objectFunctionDefinition
 
 //TODO merge with callableUnitSignature later
 objectCallableUnitSignature
-    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
+    :   anyIdentifierName LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
     ;
 
 
@@ -221,14 +221,6 @@ simpleTypeName
     |   referenceTypeName
     |   emptyTupleLiteral // nil type name ()
     ;
-
-builtInTypeName
-     :   TYPE_ANY
-     |   TYPE_DESC
-     |   valueTypeName
-     |   builtInReferenceTypeName
-     |   simpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+
-     ;
 
 referenceTypeName
     :   builtInReferenceTypeName
@@ -499,7 +491,7 @@ xmlAttrib
     ;
 
 functionInvocation
-    : nameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    : functionNameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocation
@@ -517,7 +509,7 @@ invocationArg
     ;
 
 actionInvocation
-    : ASYNC? nameReference RARROW functionInvocation
+    : START? nameReference RARROW functionInvocation
     ;
 
 expressionList
@@ -588,16 +580,13 @@ expression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   tableLiteral                                                        # tableLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
-    |   valueTypeName DOT Identifier                                        # valueTypeTypeExpression
-    |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
-    |   ASYNC? variableReference                                            # variableReferenceExpression
+    |   START? variableReference                                            # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
-    |   TYPEOF builtInTypeName                                              # typeAccessExpression
-    |   (ADD | SUB | NOT | LENGTHOF | TYPEOF | UNTAINT) expression          # unaryExpression
+    |   (ADD | SUB | NOT | LENGTHOF | UNTAINT) expression                   # unaryExpression
     |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
     |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
@@ -611,6 +600,7 @@ expression
     |	expression matchExpression										    # matchExprExpression
     |	CHECK expression										            # checkedExpression
     |   expression ELVIS expression                                         # elvisExpression
+    |   typeName                                                            # typeAccessExpression
     ;
 
 awaitExpression
@@ -629,6 +619,10 @@ matchExpressionPatternClause
 
 nameReference
     :   (Identifier COLON)? Identifier
+    ;
+
+functionNameReference
+    :   (Identifier COLON)? anyIdentifierName
     ;
 
 returnParameter
@@ -785,6 +779,7 @@ anyIdentifierName
 reservedWord
     :   FOREACH
     |   TYPE_MAP
+    |   START
     ;
 
 

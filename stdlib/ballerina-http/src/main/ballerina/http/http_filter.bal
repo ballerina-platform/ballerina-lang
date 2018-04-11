@@ -44,6 +44,7 @@ public type FilterContext object {
         string serviceName;
         string resourceName;
     }
+    new (serviceType){}
 };
 
 @Description {value:"Represents a filter result. This should be populated and returned by each request and response

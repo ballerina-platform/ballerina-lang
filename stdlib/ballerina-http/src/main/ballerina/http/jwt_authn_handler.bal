@@ -17,15 +17,15 @@
 package ballerina.http;
 
 import ballerina/log;
-import ballerina/auth.jwtAuth;
+import ballerina/auth;
 
 @Description {value:"Representation of JWT Auth handler for HTTP traffic"}
 @Field {value:"jwtAuthenticator: JWTAuthenticator instance"}
 @Field {value:"name: Authentication handler name"}
 public type HttpJwtAuthnHandler object {
     public {
+        auth:JWTAuthProvider jwtAuthenticator;
         string name = "jwt";
-        jwtAuth:JWTAuthenticator jwtAuthenticator;
     }
     new (jwtAuthenticator) {
     }

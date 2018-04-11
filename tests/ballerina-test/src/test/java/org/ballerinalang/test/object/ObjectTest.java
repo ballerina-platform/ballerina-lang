@@ -292,18 +292,40 @@ public class ObjectTest {
         Assert.assertEquals(returns[1].stringValue(), "passed in name value");
     }
 
-//    @Test(description = "Test shadowing object field")
-//    public void testShadowingObjectField() {
-//        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_shadow_field.bal");
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testShadowingObjectField");
-//
-//        Assert.assertEquals(returns.length, 2);
-//        Assert.assertSame(returns[0].getClass(), BInteger.class);
-//        Assert.assertSame(returns[1].getClass(), BString.class);
-//
-//        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
-//        Assert.assertEquals(returns[1].stringValue(), "passed in name value");
-//    }
+    @Test(description = "Test shadowing object field")
+    public void testShadowingObjectField() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_shadow_field.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testShadowingObjectField");
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+        Assert.assertEquals(returns[1].stringValue(), "passed in name value");
+    }
+
+    @Test(description = "Test initializing object in return statement with same type")
+    public void testNewAsReturnWithSameType() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_new_in_return.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateObjectInReturnSameType");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+
+    @Test(description = "Test initializing object in return statement with different type")
+    public void testNewAsReturnWithDifferentType() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_new_in_return.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateObjectInReturnDifferentType");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
+    }
 
 //
 //    @Test(description = "Test object with default initializer with default values") //TODO fix
@@ -334,6 +356,18 @@ public class ObjectTest {
         Assert.assertEquals(returns[1].stringValue(), "sample value");
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
         Assert.assertEquals(returns[3].stringValue(), "");
+    }
+
+    @Test(description = "Test object self reference with defaultable")
+    public void testObjectSelfreferenceWithDefaultable() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_cyclic_" +
+                "self_reference_with_default.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCyclicReferenceWithDefaultable");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 89);
     }
 
 //    @Test(description = "Test object with default initialize global variable") //TODO fix
@@ -382,18 +416,53 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 3, "undefined symbol 'age'", 39, 17);
     }
 
-//    @Test (description = "Negative test to test multiple attach functions for same function interface and " +
-//            "attached function without function interface") //TODO fix
-//    public void testObjectNegativeTestForNonInitializable() {
-//        CompileResult result = BCompileUtil.compile("test-src/object/object_with_non_defaultable_negative.bal");
-//        Assert.assertEquals(result.getErrorCount(), 2);
-//        // test duplicate matching attach function implementations
-//        BAssertUtil.validateError(result, 0, "implementation already exist for the given " +
-//                "function 'attachInterface' in same package", 24, 1);
-//
-//        // test object without matching function signature within the object
-//        BAssertUtil.validateError(result, 1, "cannot find function signature for" +
-//                " function 'attachInterfaceFunc' in object 'Employee'", 38, 1);
-//    }
+    @Test (description = "Negative test to test uninitialized object variables")
+    public void testObjectNegativeTestForNonInitializable() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_with_non_defaultable_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 6);
+        BAssertUtil.validateError(result, 0, "variable 'pp' is not initialized", 2, 1);
+        BAssertUtil.validateError(result, 1, "variable 'ee' is not initialized", 3, 1);
+        BAssertUtil.validateError(result, 2, "variable 'p' is not initialized", 6, 5);
+        BAssertUtil.validateError(result, 3, "variable 'e' is not initialized", 7, 5);
+        BAssertUtil.validateError(result, 4, "undefined function 'attachInterface' in struct 'Person'", 8, 13);
+        BAssertUtil.validateError(result, 5, "object un-initializable field 'Person p' is " +
+                "not present as a constructor parameter", 25, 1);
+    }
+
+    @Test (description = "Negative test to test returning different type without type name")
+    public void testObjectNegativeTestForReturnDifferentType() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_new_in_return_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 6);
+        BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 23, 12);
+        BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'Person?'", 27, 12);
+        BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'Person?'", 31, 26);
+        BAssertUtil.validateError(result, 3, "invalid variable definition; can not infer the assignment type.",
+                32, 19);
+        BAssertUtil.validateError(result, 4, "cannot infer type of the object from 'other'", 32, 19);
+        BAssertUtil.validateError(result, 5, "invalid usage of 'new' with type 'error'", 33, 21);
+    }
+
+    @Test (description = "Negative test to test returning different type without type name")
+    public void testUnInitializableObjFieldAsParam() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_un_initializable_field.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "object un-initializable field 'Foo foo' is not " +
+                "present as a constructor parameter", 18, 1);
+    }
+
+    @Test (description = "Negative test to test self reference types")
+    public void testSelfReferenceType() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
+        Assert.assertEquals(result.getErrorCount(), 5);
+        BAssertUtil.validateError(result, 0, "object un-initializable field 'Employee emp' " +
+                "is not present as a constructor parameter", 7, 1);
+        BAssertUtil.validateError(result, 1, "cyclic type reference in '[Employee, Foo, Bar, Person]'", 10, 9);
+        BAssertUtil.validateError(result, 2, "object un-initializable field 'Foo foo' is " +
+                "not present as a constructor parameter", 14, 1);
+        BAssertUtil.validateError(result, 3, "object un-initializable field 'Bar bar' is " +
+                "not present as a constructor parameter", 14, 1);
+        BAssertUtil.validateError(result, 4, "object un-initializable field 'Bar bar1' is " +
+                "not present as a constructor parameter", 22, 1);
+    }
 
 }

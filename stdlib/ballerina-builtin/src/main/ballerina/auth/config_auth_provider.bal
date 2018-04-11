@@ -53,13 +53,9 @@ function readPasswordHash (string username) returns (string) {
     return getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "password");
 }
 
+
 function getConfigAuthValue (string instanceId, string property) returns (string) {
-    match config:getAsString(instanceId + "." + property) {
-        string value => {
-            return value == () ? "" : value;
-        }
-        () => { return ""; }
-    }
+    return config:getAsString(instanceId + "." + property, default = "");
 }
 
 @Description {value:"Construct an array of groups from the comma separed group string passed"}

@@ -26,33 +26,38 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
  * Unit tests for {@link org.ballerinalang.swagger.CodeGenerator}
  */
 public class CodeGeneratorTest {
-    private String testResourceRoot;
+    private Path projectPath;
 
     @BeforeClass()
     public void setup() {
-        testResourceRoot = CodeGeneratorTest.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String resourcePath = CodeGeneratorTest.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        projectPath = Paths.get(resourcePath);
     }
 
     @Test(description = "Test Ballerina skeleton generation")
     public void generateSkeleton() {
-        String outFile = testResourceRoot + File.separator + "SwaggerPetstore.bal";
-        String definitionPath = testResourceRoot + File.separator + "petstore.yaml";
+        final String pkgName = "service";
+        String definitionPath = projectPath + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
-        generator.setApiPackage("org.ballerina.api");
-        generator.setModelPackage("org.ballerina.api.model");
+        generator.setSrcPackage(pkgName);
+        Path outFile = projectPath.resolve(Paths.get(pkgName, "gen", "SwaggerPetstore.bal"));
 
         try {
-            generator.generate(GenType.MOCK, definitionPath, testResourceRoot);
-            File genFile = new File(outFile);
+            Path cachePath = projectPath.resolve(Paths.get(".ballerina"));
+            if (Files.notExists(cachePath)) {
+                Files.createDirectory(cachePath);
+            }
 
-            if (genFile.exists()) {
-                String result = new String(Files.readAllBytes(Paths.get(genFile.getPath())));
+            generator.generate(GenType.MOCK, definitionPath, projectPath.toString());
+            if (Files.exists(outFile)) {
+                String result = new String(Files.readAllBytes(outFile));
                 Assert.assertTrue(result != null && result.contains("listPets (endpoint outboundEp"));
             } else {
                 Assert.fail("Service was not generated");
@@ -66,19 +71,22 @@ public class CodeGeneratorTest {
 
     @Test(description = "Test Ballerina connector generation")
     public void generateConnector() {
-        String outFile = testResourceRoot + File.separator + "SwaggerPetstore.bal";
-        String definitionPath = testResourceRoot + File.separator + "petstore.yaml";
+        final String pkgName = "connector";
+        String definitionPath = projectPath + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
-        generator.setApiPackage("org.ballerina.api");
+        generator.setSrcPackage(pkgName);
+        Path outFile = projectPath.resolve(Paths.get(pkgName, "gen", "SwaggerPetstore.bal"));
 
         try {
-            generator.generate(GenType.CONNECTOR, definitionPath, testResourceRoot);
-            File genFile = new File(outFile);
+            Path cachePath = projectPath.resolve(Paths.get(".ballerina"));
+            if (Files.notExists(cachePath)) {
+                Files.createDirectory(cachePath);
+            }
 
-            if (genFile.exists()) {
-                String result = new String(Files.readAllBytes(Paths.get(genFile.getPath())));
-                Assert.assertTrue(result != null &&
-                        result.contains("public function listPets()"));
+            generator.generate(GenType.CONNECTOR, definitionPath, projectPath.toString());
+            if (Files.exists(outFile)) {
+                String result = new String(Files.readAllBytes(outFile));
+                Assert.assertTrue(result != null && result.contains("public function listPets()"));
             } else {
                 Assert.fail("Service was not generated");
             }

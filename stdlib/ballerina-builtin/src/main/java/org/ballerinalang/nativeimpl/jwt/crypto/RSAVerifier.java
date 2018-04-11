@@ -27,7 +27,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 
 /**
- * Verify signature with RSA algorithms. Expects a public RSA key.
+ * VerifySignature signature with RSA algorithms. Expects a public RSA key.
  *
  * <p>See RFC 7518, sections
  * <a href="https://tools.ietf.org/html/rfc7518#section-3.3">3.3</a> for more

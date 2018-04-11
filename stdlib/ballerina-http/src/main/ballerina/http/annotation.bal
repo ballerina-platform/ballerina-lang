@@ -31,6 +31,7 @@ public type HttpServiceConfig {
     HttpServiceLifeTime lifetime,
     string basePath,
     Compression compression = "AUTO",
+    Chunking chunking = CHUNKING_AUTO,
     CorsConfig cors,
     Versioning versioning,
     AuthConfig? authConfig,

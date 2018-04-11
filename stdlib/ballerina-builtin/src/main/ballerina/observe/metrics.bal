@@ -24,7 +24,7 @@ public type Counter object {
     public {
         string name;
         string description;
-        map tags;
+        map | () tags;
     }
 
     public new(name, description, tags) {}
@@ -49,7 +49,7 @@ public type Gauge object {
     public {
         string name;
         string description;
-        map tags;
+        map | () tags;
     }
 
     public new(name, description, tags) {}
@@ -85,7 +85,7 @@ public type Summary object {
     public {
         string name;
         string description;
-        map tags;
+        map | () tags;
     }
 
     public new(name, description, tags) {}
@@ -130,7 +130,7 @@ public type Timer object {
     public {
         string name;
         string description;
-        map tags;
+        map | () tags;
     }
 
     public new(name, description, tags) {}

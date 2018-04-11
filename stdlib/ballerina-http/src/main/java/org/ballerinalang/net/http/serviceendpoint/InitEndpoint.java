@@ -137,7 +137,6 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         String keepAlive = endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE).getStringValue();
         String transferEncoding =
                 endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_TRANSFER_ENCODING).getStringValue();
-        String chunking = endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_CHUNKING).getStringValue();
         Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
         Struct requestLimits = endpointConfig.getStructField(HttpConstants.ENDPOINT_REQUEST_LIMITS);
@@ -152,7 +151,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         }
 
         if (port == HTTP_DEFAULT_PORT && configRegistry.contains("ballerina.http.port")) {
-            port = Long.parseLong(configRegistry.getConfiguration("ballerina.http.port"));
+            port = Long.parseLong(configRegistry.getAsString("ballerina.http.port"));
         }
         listenerConfiguration.setPort(Math.toIntExact(port));
 
@@ -165,8 +164,6 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
                                                           + transferEncoding);
         }
-
-        listenerConfiguration.setChunkConfig(HttpUtil.getChunkConfig(chunking));
 
         // Set Request validation limits.
         if (requestLimits != null) {

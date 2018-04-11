@@ -20,8 +20,9 @@ import ballerina/internal;
 import ballerina/auth;
 import ballerina/caching;
 
-@Description {value:"Authz handler chain instance"}
-HttpAuthzHandler authzHandler;
+caching:Cache authzCache = new(expiryTimeMillis = 300000);
+@Description {value:"Authz handler instance"}
+HttpAuthzHandler authzHandler = new(authzCache);
 
 @Description {value:"Representation of the Authorization filter"}
 @Field {value:"filterRequest: request filter method which attempts to authorize the request"}
@@ -39,7 +40,6 @@ public type AuthzFilter object {
 
 @Description {value:"Initializes the AuthzFilter"}
 public function AuthzFilter::init () {
-    authzHandler = new(caching:createCache("authz_cache", 300000, 100, 0.25));
 }
 
 @Description {value:"Stops the AuthzFilter"}
