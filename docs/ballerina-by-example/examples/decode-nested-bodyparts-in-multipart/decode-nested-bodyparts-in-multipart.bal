@@ -33,7 +33,7 @@ service<http:Service> test bind multipartEP {
     }
 }
 
-//Given a parent part, get it's child parts.
+//This function retrieves the child parts when you specify the parent part.
 function handleNestedParts (mime:Entity parentPart) {
     string contentTypeOfParent = parentPart.contentType.toString();
     if (contentTypeOfParent.hasPrefix("multipart/")) {
@@ -54,25 +54,25 @@ function handleNestedParts (mime:Entity parentPart) {
     }
 }
 
-@Description {value:"Handling body part content logic varies according to user's requirement.."}
+@Description {value:"The logic to handle body part content can vary depending on your requirement"}
 function handleContent (mime:Entity bodyPart) {
     string contentType = bodyPart.contentType.toString();
     if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
-        //Extract xml data from body part and print.
+        //Extract xml data from the body part and print the content.
         var payload = bodyPart.getXml();
         match payload {
             mime:EntityError err => io:println("Error in getting xml payload");
             xml xmlContent => io:println(xmlContent);
         }
     } else if (mime:APPLICATION_JSON == contentType) {
-        //Extract json data from body part and print.
+        //Extract json data from the body part and print the content.
         var payload = bodyPart.getJson();
         match payload {
             mime:EntityError err => io:println("Error in getting json payload");
             json jsonContent => io:println(jsonContent);
         }
     } else if (mime:TEXT_PLAIN == contentType) {
-        //Extract text data from body part and print.
+        //Extract text data from the body part and print the content.
         var payload = bodyPart.getText();
         match payload {
             mime:EntityError err => io:println("Error in getting string payload");
