@@ -21,7 +21,7 @@ documentation {
 
     F{{epName}} - Name of the endpoint
     F{{simpleConfig}} - The configurations for the endpoint to connect to. This contains all the configurations as the
-                        ClientEndpointConfiguration, except for the resiliency related configurations.
+                        ClientEndpointConfig, except for the resiliency related configurations.
 }
 public type SimpleClient object {
     public {
@@ -68,7 +68,7 @@ documentation {
     F{{url}} - The URL of the HTTP endpoint to connect to
     F{{circuitBreaker}} - Circuit Breaker configuration
     F{{secureSocket}} - The SSL configurations for the endpoint
-    F{{endpointTimeout}} - The maximum time to wait (in milli seconds) for a response before closing the connection
+    F{{timeoutMillis}} - The maximum time to wait (in milli seconds) for a response before closing the connection
     F{{httpVersion}} - The HTTP version to be used to communicate with the endpoint
     F{{forwarded}} - The choice of setting forwarded/x-forwarded header
     F{{keepAlive}} - Specifies whether to keep the connection alive (or not) for multiple request/response pairs
@@ -78,13 +78,13 @@ documentation {
     F{{retry}} - Retry related options
     F{{proxyConfig}} - Proxy related options
     F{{connectionThrottling}} - The configurations for controlling the number of connections allowed concurrently
-    F{{cacheConfig}} - The configurations for controlling the caching behaviour
+    F{{cache}} - The configurations for controlling the caching behaviour
 }
 public type SimpleClientEndpointConfiguration {
     string url,
     CircuitBreakerConfig? circuitBreaker,
     SecureSocket? secureSocket,
-    int endpointTimeout = 60000,
+    int timeoutMillis = 60000,
     string httpVersion = "1.1",
     string forwarded = "disable",
     boolean keepAlive = true,
@@ -94,7 +94,7 @@ public type SimpleClientEndpointConfiguration {
     Retry? retry,
     Proxy? proxyConfig,
     ConnectionThrottling? connectionThrottling,
-    CacheConfig cacheConfig = {},
+    CacheConfig cache = {},
 };
 
 documentation {
@@ -114,7 +114,7 @@ public function SimpleClient::init(SimpleClientEndpointConfiguration simpleConfi
 
     self.httpEP.config.circuitBreaker = simpleConfig.circuitBreaker;
     self.httpEP.config.targets[0] = {url: simpleConfig.url, secureSocket: simpleConfig.secureSocket};
-    self.httpEP.config.endpointTimeout = simpleConfig.endpointTimeout;
+    self.httpEP.config.timeoutMillis = simpleConfig.timeoutMillis;
     self.httpEP.config.httpVersion = simpleConfig.httpVersion;
     self.httpEP.config.forwarded = simpleConfig.forwarded;
     self.httpEP.config.keepAlive = simpleConfig.keepAlive;
@@ -131,9 +131,9 @@ public function SimpleClient::init(SimpleClientEndpointConfiguration simpleConfi
             self.httpEP.httpClient = createCircuitBreakerClient(url, self.httpEP.config);
         }
         () => {
-            if (simpleConfig.cacheConfig.enabled) {
-                self.httpEP.config.cacheConfig = simpleConfig.cacheConfig;
-                self.httpEP.httpClient = createHttpCachingClient(url, self.httpEP.config, self.httpEP.config.cacheConfig);
+            if (simpleConfig.cache.enabled) {
+                self.httpEP.config.cache = simpleConfig.cache;
+                self.httpEP.httpClient = createHttpCachingClient(url, self.httpEP.config, self.httpEP.config.cache);
             } else {
                 self.httpEP.httpClient = createHttpClient(url, self.httpEP.config);
             }

@@ -1,0 +1,4 @@
+[project]
+# Name of the package
+org-name = "versioning.test"
+version = "2.4"

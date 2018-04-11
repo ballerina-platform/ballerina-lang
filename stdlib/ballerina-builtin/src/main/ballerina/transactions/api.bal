@@ -37,14 +37,13 @@ function beginTransaction (string? transactionId, int transactionBlockId, string
                            string coordinationType) returns TransactionContext|error {
     match transactionId {
         string txnId => {
-            io:println(typeof txnId);
             if (initiatedTransactions.hasKey(txnId)) { // if participant & initiator are in the same process
                 // we don't need to do a network call and can simply do a local function call
                 return registerParticipantWithLocalInitiator(txnId, transactionBlockId, registerAtUrl);
             } else {
                 //TODO: set the proper protocol
                 string protocolName = PROTOCOL_DURABLE;
-                Protocol[] protocols = [{name:protocolName, url:getParticipantProtocolAt(protocolName, transactionBlockId)}];
+                RemoteProtocol[] protocols = [{name:protocolName, url:getParticipantProtocolAt(protocolName, transactionBlockId)}];
                 return registerParticipantWithRemoteInitiator(txnId, transactionBlockId, registerAtUrl, protocols);
             }
         }

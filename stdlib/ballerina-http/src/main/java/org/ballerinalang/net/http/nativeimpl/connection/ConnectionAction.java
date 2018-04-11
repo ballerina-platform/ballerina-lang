@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -30,7 +29,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.util.CacheUtils;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -42,8 +40,6 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
-
 /**
  * {@code {@link ConnectionAction}} represents a Abstract implementation of Native Ballerina Connection Function.
  *
@@ -51,30 +47,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
  */
 public abstract class ConnectionAction extends BlockingNativeCallableUnit {
 
-    @Override
-    public void execute(Context context) {
-        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
-        HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
-        HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg);
-
-        BStruct outboundResponseStruct = (BStruct) context.getRefArgument(1);
-        HTTPCarbonMessage outboundResponseMsg = HttpUtil
-                .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-
-        HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
-
-        if (CacheUtils.isValidCachedResponse(outboundResponseMsg, inboundRequestMsg)) {
-            outboundResponseMsg.setProperty(HTTP_STATUS_CODE, HttpResponseStatus.NOT_MODIFIED.code());
-            outboundResponseMsg.waitAndReleaseAllEntities();
-            outboundResponseMsg.completeMessage();
-        }
-
-        BValue[] outboundResponseStatus = sendOutboundResponseRobust(context, inboundRequestMsg,
-                outboundResponseStruct, outboundResponseMsg);
-        context.setReturnValues(outboundResponseStatus);
-    }
-
-    private BValue[] sendOutboundResponseRobust(Context context, HTTPCarbonMessage requestMessage,
+    protected BValue[] sendOutboundResponseRobust(Context context, HTTPCarbonMessage requestMessage,
                                                 BStruct outboundResponseStruct, HTTPCarbonMessage responseMessage) {
         String contentType = HttpUtil.getContentTypeFromTransportMessage(responseMessage);
         String boundaryString = null;

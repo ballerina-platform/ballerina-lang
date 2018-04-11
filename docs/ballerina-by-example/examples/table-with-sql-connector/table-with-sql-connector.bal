@@ -62,7 +62,7 @@ function main (string[] args) {
 
     //Query the table using SQL connector select action. Either select or call
     //action can return a table.
-    var returnVal = testDB -> select("SELECT * from EMPLOYEE", null, typeof Employee);
+    var returnVal = testDB -> select("SELECT * from EMPLOYEE", null, Employee);
 
     match returnVal {
         table val => {

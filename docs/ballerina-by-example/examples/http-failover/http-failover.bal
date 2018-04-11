@@ -19,7 +19,7 @@ endpoint http:Client backendClientEP {
              {url: "http://localhost:300000/mock"},
              {url: "http://localhost:8080/echo"},
              {url: "http://localhost:8080/mock"}],
-    endpointTimeout:5000
+    timeoutMillis:5000
 };
 
 @http:ServiceConfig {
@@ -37,7 +37,7 @@ service<http:Service> failover bind failoveruEP {
         var backendRes = backendClientEP -> post("/", request);
         match backendRes {
             http:Response res => {
-            _ = client -> forward(res);}
+            _ = client -> respond(res);}
         http:HttpConnectorError err1 => {
             response = new;
             response.statusCode = 500;

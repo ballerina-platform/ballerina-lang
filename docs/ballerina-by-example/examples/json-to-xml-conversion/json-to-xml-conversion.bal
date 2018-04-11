@@ -1,7 +1,7 @@
 import ballerina/io;
 
 function main (string[] args) {
-    //Create JSON.
+    //Create a JSON object.
     json j1 = {"Store":{
                            "@id":"AST",
                            "name":"Anne",
@@ -12,11 +12,13 @@ function main (string[] args) {
                            "codes":["4", "8"]
                        }
               };
-    //Convert to XML with default attribute prefix and arrayEntryTag.
+    //Convert the JSON object to XML using the default `attributePrefix`
+    //and the default `arrayEntryTag`.
     var x1 = j1.toXML({});
     io:println(x1);
 
-    //Convert to XML with custom attribute prefix and custom array tag.
+    //Convert the JSON object to XML using a custom `attributePrefix` (i.e., the `#` character), 
+    //and custom `arrayEntryTag` (i.e., `wrapper`).
     json j2 = {"Store":{
                            "#id":"AST",
                            "name":"Anne",

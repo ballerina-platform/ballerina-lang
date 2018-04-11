@@ -3,8 +3,7 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
-endpoint websub:SubscriberServiceEndpoint websubEP {
-    host:"localhost",
+endpoint websub:Listener websubEP {
     port:8181
 };
 
@@ -16,7 +15,7 @@ endpoint websub:SubscriberServiceEndpoint websubEP {
     leaseSeconds: 3600000,
     secret: "Kslk30SNF2AChs2"
 }
-service<websub:SubscriberService> websubSubscriber bind websubEP {
+service<websub:Service> websubSubscriber bind websubEP {
 
     onIntentVerification (endpoint client, websub:IntentVerificationRequest request) {
         http:Response response = new;
