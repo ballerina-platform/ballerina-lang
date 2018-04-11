@@ -25,7 +25,7 @@ import ballerina/websub;
 
 @final string DEFAULT_HOST = "localhost";
 
-@final int DEFAULT_PORT = 9999;
+@final int DEFAULT_PORT = 9292;
 @final int DEFAULT_LEASE_SECONDS_VALUE = 86400000; //one day
 @final string DEFAULT_SIGNATURE_METHOD = "SHA256";
 
@@ -45,6 +45,7 @@ import ballerina/websub;
 @final string hubPublicUrl = getStringConfig("hub.url", getHubUrl());
 
 @final boolean hubPersistenceEnabled = getBooleanConfig("hub.persistence.enabled", false);
+//TODO: include db type --> "hub.db.type"
 @final string hubDatabaseHost = getStringConfig("hub.db.host", DEFAULT_HOST);
 @final int hubDatabasePort = getIntConfig("hub.db.port", DEFAULT_DB_PORT);
 @final string hubDatabaseName = getStringConfig("hub.db.name", DEFAULT_DB_NAME);
@@ -134,11 +135,11 @@ function getServiceSecureSocketConfig() returns (http:ServiceSecureSocket | ()) 
     string keyStoreFilePath;
     string keyStorePassword;
 
-    match (config:getAsString("hub.ssl.keyStore.filePath")) {
+    match (config:getAsString("hub.ssl.key_store.file_path")) {
         string stringConfigFromFile => { keyStoreFilePath = stringConfigFromFile; }
         () => { keyStoreFilePath = "${ballerina.home}/bre/security/ballerinaKeystore.p12"; }
     }
-    match (config:getAsString("hub.ssl.keyStore.password")) {
+    match (config:getAsString("hub.ssl.key_store.password")) {
         string stringConfigFromFile => { keyStorePassword = stringConfigFromFile; }
         () => { keyStorePassword = "ballerina"; }
     }
