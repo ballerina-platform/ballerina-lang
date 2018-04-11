@@ -21,7 +21,7 @@ import ballerina/caching;
 type HttpCache object {
     private {
         caching:Cache cache;
-        CachingPolicy policy;
+        CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
         boolean isShared;
     }
 
