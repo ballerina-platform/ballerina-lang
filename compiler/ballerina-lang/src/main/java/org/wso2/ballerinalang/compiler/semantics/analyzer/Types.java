@@ -1160,7 +1160,7 @@ public class Types {
             return true;
         }
 
-        if (type.tag == TypeTags.INVOKABLE || type.tag == TypeTags.FINITE) {
+        if (type.tag == TypeTags.INVOKABLE || type.tag == TypeTags.FINITE || type.tag == TypeTags.TYPEDESC) {
             return false;
         }
 
