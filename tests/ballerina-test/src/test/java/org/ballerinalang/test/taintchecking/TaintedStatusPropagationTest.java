@@ -466,4 +466,34 @@ public class TaintedStatusPropagationTest {
         Assert.assertTrue(result.getDiagnostics().length == 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 20, 20);
     }
+
+    @Test
+    public void testSimpleWorkerInteraction() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/propagation/simple-worker-interaction.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 0);
+    }
+
+    @Test
+    public void testSimpleWorkerInteractionNegative() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/propagation/simple-worker-interaction-negative.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 1);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 6, 24);
+    }
+
+    @Test
+    public void testForkJoin() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/propagation/fork-join.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 0);
+    }
+
+    @Test
+    public void testForkJoinNegative() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/propagation/fork-join-negative.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 1);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 10, 24);
+    }
 }
