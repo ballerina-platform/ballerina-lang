@@ -125,8 +125,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path of the compressed file is " +
-                "not valid");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0).startsWith("Error occurred when " +
+               "compressing"), true);
     }
 
     @Test(description = "test zipping/compressing a file without src directory path")
@@ -139,8 +139,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path to place the compressed " +
-                "file is not available");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path of the folder to be " +
+                "compressed is not available");
     }
 
     @Test(description = "test zipping/compressing a file without destination directory path")
