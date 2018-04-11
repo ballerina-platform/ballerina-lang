@@ -9,7 +9,8 @@ int counter = 0;
     functionName : "println"
 }
 public function mockPrint (any s) {
-    outputs[counter] = s;
+    string j = <string>s;
+    outputs[counter] = j;
     counter++;
 }
 
@@ -18,20 +19,11 @@ function testFunc() {
     // Invoking the main function
     main([]);
 
-    json jt1 = {"fname":"John","lname":"Stallone","age":30};
-    json jt2 = "John";
-    json jt3 = "Stallone";
-    json jt4 = {"fname":"John","lname":"Silva","age":31};
-    json jt5 = {
-                "fname":"Peter",
-                "lname":"Stallone",
-                "age":30,
-                "address":{
-                    "line":"20 Palm Grove",
-                    "city":"Colombo 03",
-                    "country":"Sri Lanka"
-                    }
-                };
+    string jt1 = "{\"fname\":\"John\",\"lname\":\"Stallone\",\"age\":30}";
+    string jt2 = "John";
+    string jt3 = "Stallone";
+    string jt4 = "{\"fname\":\"John\",\"lname\":\"Silva\",\"age\":31}";
+    string jt5 = "{\"fname\":\"Peter\",\"lname\":\"Stallone\",\"age\":30,\"address\":{\"line\":\"20 Palm Grove\",\"city\":\"Colombo 03\",\"country\":\"Sri Lanka\"}}";
     json jt6 = {
                 "fname":"Peter",
                 "lname":"Stallone",
@@ -45,11 +37,9 @@ function testFunc() {
                 };
 
 
-    test:assertEquals(outputs[0], "M");
-    //test:assertEquals(jt2, outputs[1]);
-    //test:assertEquals(jt3, outputs[2]);
-    //test:assertEquals(jt4, outputs[3]);
-    //test:assertEquals(jt5, outputs[4]);
-    //test:assertEquals(jt6, outputs[5]);
-
+    test:assertEquals(jt1, outputs[0]);
+    test:assertEquals(jt2, outputs[1]);
+    test:assertEquals(jt3, outputs[2]);
+    test:assertEquals(jt4, outputs[3]);
+    test:assertEquals(jt5, outputs[4]);
 }
