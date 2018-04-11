@@ -30,13 +30,9 @@ endpoint http:Listener participant2EP {
 //};
 
 endpoint sql:Client testDB {
-    database: sql:DB_HSQLDB_SERVER,
-    host: "localhost",
-    port: 9001,
-    name: "TEST_SQL_CONNECTOR",
+    url: "hsqldb:hsql://localhost:9001/TEST_SQL_CONNECTOR",
     username: "SA",
-    password: "",
-    options: {maximumPoolSize:10}
+    poolOptions: {maximumPoolSize:10}
 };
 
 State state = new;
@@ -111,7 +107,7 @@ service<http:Service> participant2 bind participant2EP {
                }
                res.setStringPayload(payload);
             }
-            sql:SQLConnectorError err1 => {
+            error err1 => {
                res.statusCode = 500;
             }
         }

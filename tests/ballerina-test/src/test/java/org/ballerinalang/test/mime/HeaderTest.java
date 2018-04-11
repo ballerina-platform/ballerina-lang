@@ -132,22 +132,18 @@ public class HeaderTest {
 
     }
 
-    @Test(description = "Test getting all headers")
-    public void testGetCopyOfAllHeaders() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetCopyOfAllHeaders");
+    @Test(description = "Test getting all header names")
+    public void testGetHeaderNames() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetHeaderNames");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{\"heAder1\":[\"value1\"], \"header1\":[\"value2\", " +
-                "\"value3\"], \"hEader2\":[\"value3\"], \"headeR2\":[\"value4\"], " +
-                "\"HeADEr2\":[\"totally different value\"], \"HEADER3\":[\"testVal\"]}");
+        Assert.assertEquals(returns[0].stringValue(), "[\"heAder1\", \"hEader2\", \"HEADER3\"]");
     }
 
     @Test(description = "Test manipulating return headers")
     public void testManipulatingReturnHeaders() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testManipulatingReturnHeaders");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testManipulateHeaders");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{\"heAder1\":[\"value1\"], \"header1\":[\"value2\", " +
-                "\"value3\"], \"hEader2\":[\"value3\"], \"headeR2\":[\"value4\"], " +
-                "\"HeADEr2\":[\"totally different value\"], \"HEADER3\":[\"testVal\"]}");
+        Assert.assertEquals(returns[0].stringValue(), "[]");
     }
 
     @Test(description = "Test has header function")

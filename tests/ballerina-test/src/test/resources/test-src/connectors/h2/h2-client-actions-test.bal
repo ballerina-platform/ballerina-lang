@@ -18,7 +18,7 @@ function testSelect() returns (int[]) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var val = testDB -> select("select * from Customers where customerId=1 OR customerId=2", (), typeof Customer);
+    var val = testDB -> select("select * from Customers where customerId=1 OR customerId=2", (), Customer);
 
     int[] customerIds;
     match (val) {
@@ -61,7 +61,7 @@ function testCall() returns (string) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtsRet = testDB -> call("{call JAVAFUNC('select * from Customers where customerId=1')}", (), typeof Customer);
+    var dtsRet = testDB -> call("{call JAVAFUNC('select * from Customers where customerId=1')}", (), Customer);
     table[] dts = check dtsRet;
 
     string name;
@@ -155,7 +155,7 @@ function testAddToMirrorTable() returns (Customer[]) {
     };
 
     try {
-        var temp = testDB -> mirror("Customers", typeof Customer);
+        var temp = testDB -> mirror("Customers", Customer);
         match (temp) {
             table dt => {
                 Customer c1 = {customerId:40, name:"Manuri", creditLimit:1000, country:"Sri Lanka"};
@@ -166,7 +166,7 @@ function testAddToMirrorTable() returns (Customer[]) {
             }
             error e => return [];
         }
-        var temp2 = testDB -> select("SELECT  * from Customers where customerId=40 OR customerId=41", (), typeof Customer);
+        var temp2 = testDB -> select("SELECT  * from Customers where customerId=40 OR customerId=41", (), Customer);
         match (temp2) {
             table dt2 => {
                 Customer[] customerArray;
@@ -200,7 +200,7 @@ function testUpdateInMemory() returns (int, string) {
 
     var insertCountRet = testDB -> update("insert into Customers (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')", ());
-    var x = testDB -> select("SELECT  * from Customers", (), typeof Customer);
+    var x = testDB -> select("SELECT  * from Customers", (), Customer);
     table t = check x;
 
     json j = check <json>t;

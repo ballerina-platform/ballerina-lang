@@ -82,7 +82,7 @@ public final class Constants {
         public static final String H2 = "H2";
         public static final String H2_SERVER = "H2_SERVER";
         public static final String H2_FILE = "H2_FILE";
-        public static final String H2_MEM = "H2_MEM";
+        public static final String H2_MEMORY = "H2_MEMORY";
     }
 
     /**

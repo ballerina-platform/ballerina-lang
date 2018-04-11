@@ -222,8 +222,8 @@ public class ServiceTest {
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertNotNull(bJson);
-        Assert.assertEquals(bJson.value().get("Name").asText(), "WSO2", "Name variable not set properly.");
-        Assert.assertNull(bJson.value().get("Team").stringValue());
+        Assert.assertEquals(bJson.value().get("Name").stringValue(), "");
+        Assert.assertEquals(bJson.value().get("Team").stringValue(), "");
     }
 
     @Test(description = "Test Http PATCH verb dispatching with a responseMsgPayload")

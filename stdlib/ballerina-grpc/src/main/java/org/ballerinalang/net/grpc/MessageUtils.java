@@ -26,12 +26,9 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
@@ -121,9 +118,7 @@ public class MessageUtils {
 
     public static StreamObserver<Message> getResponseObserver(BRefType refType) {
         Object observerObject = null;
-        if (refType instanceof BConnector) {
-            observerObject = ((BConnector) refType).getNativeData(MessageConstants.RESPONSE_OBSERVER);
-        } else if (refType instanceof BStruct) {
+        if (refType instanceof BStruct) {
             observerObject = ((BStruct) refType).getNativeData(MessageConstants.RESPONSE_OBSERVER);
         }
         if (observerObject instanceof StreamObserver) {
@@ -359,12 +354,6 @@ public class MessageUtils {
                         requestStruct.setRefField(refIndex++, (BRefType) generateRequestStruct(message, programFile,
                                 structFieldName, structField.getFieldType()));
                     }
-                } else if (structField.getFieldType() instanceof BEnumType) {
-                    int value = (Integer) request.getFields().get(structField.getFieldName());
-                    BEnumerator enumerator = new BEnumerator(((BEnumType) structField.getFieldType())
-                            .getEnumerator(value).getName(), (BEnumType) structField.getFieldType());
-                    requestStruct.setRefField(refIndex++, enumerator);
-
                 } else {
                     if (request.getFields().containsKey(structFieldName)) {
                         String fieldType = structField.getFieldType().getName();

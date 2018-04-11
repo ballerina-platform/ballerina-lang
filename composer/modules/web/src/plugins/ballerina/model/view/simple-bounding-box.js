@@ -34,6 +34,7 @@ class SimpleBBox {
         this.expansionW = expansionW || 0;
         this.expansionH = expansionH || 0;
         this.opaque = false;
+        this.leftMargin = 0;
     }
 
     /**
