@@ -2607,11 +2607,14 @@ public class BLangPackageBuilder {
     public void addIntRangeExpression(DiagnosticPos pos,
                                       Set<Whitespace> ws,
                                       boolean includeStart,
-                                      boolean includeEnd) {
+                                      boolean includeEnd,
+                                      boolean noUpperBound) {
         BLangIntRangeExpression intRangeExpr = (BLangIntRangeExpression) TreeBuilder.createIntRangeExpression();
         intRangeExpr.pos = pos;
         intRangeExpr.addWS(ws);
-        intRangeExpr.endExpr = (BLangExpression) this.exprNodeStack.pop();
+        if (!noUpperBound) {
+            intRangeExpr.endExpr = (BLangExpression) this.exprNodeStack.pop();
+        }
         intRangeExpr.startExpr = (BLangExpression) this.exprNodeStack.pop();
         intRangeExpr.includeStart = includeStart;
         intRangeExpr.includeEnd = includeEnd;
@@ -3070,7 +3073,7 @@ public class BLangPackageBuilder {
 
     public void endPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isFollowedBy,
             boolean enclosedInParenthesis, boolean andWithNotAvailable, boolean forWithNotAvailable,
-            boolean onlyAndAvailable, boolean onlyOrAvailable) {
+            boolean onlyAndAvailable, boolean onlyOrAvailable, boolean commaSeparated) {
         if (!this.patternStreamingInputStack.empty()) {
             PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.pop();
 
@@ -3101,8 +3104,12 @@ public class BLangPackageBuilder {
                 processNegationPatternWithTimeDuration(patternStreamingInputNode);
             }
 
+            if (commaSeparated) {
+                processCommaSeparatedSequence(patternStreamingInputNode);
+            }
+
             if (!(isFollowedBy || enclosedInParenthesis || forWithNotAvailable ||
-                  onlyAndAvailable || onlyOrAvailable || andWithNotAvailable)) {
+                  onlyAndAvailable || onlyOrAvailable || andWithNotAvailable || commaSeparated)) {
                 patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
                 this.recentStreamingPatternInputNode = patternStreamingInputNode;
             }
@@ -3112,6 +3119,13 @@ public class BLangPackageBuilder {
             this.patternStreamingInputStack.push(this.recentStreamingPatternInputNode);
             this.recentStreamingPatternInputNode = null;
         }
+    }
+
+    private void processCommaSeparatedSequence(PatternStreamingInputNode patternStreamingInputNode) {
+        patternStreamingInputNode.setCommaSeparated(true);
+        patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
+        patternStreamingInputNode.setPatternStreamingInput(this.recentStreamingPatternInputNode);
+        this.recentStreamingPatternInputNode = patternStreamingInputNode;
     }
 
     private void processNegationPatternWithTimeDuration(PatternStreamingInputNode patternStreamingInputNode) {

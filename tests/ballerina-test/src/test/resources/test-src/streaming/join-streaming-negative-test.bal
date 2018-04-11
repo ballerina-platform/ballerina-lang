@@ -44,6 +44,15 @@ function startJoinQuery() returns (StockWithPrice[]) {
     stream<Twitter> twitterStream;
     stream<StockWithPrice> stockWithPriceStream;
 
+    forever {
+        from stockStream window time(1000) as s
+        join twitterStream window time(1000)
+        on stockStream.symbol == twitterStream.company
+        select stockStream.symbol as symbol, twitterStream.tweet as tweet, stockStream.price as price
+        => (StockWithPrice[] emp) {
+            stockWithPriceStream.publish(emp);
+        }
+    }
 
     Stock s1 = {symbol:"WSO2", price:55.6, volume:100};
     Stock s2 = {symbol:"MBI", price:74.6, volume:100};
@@ -60,19 +69,6 @@ function startJoinQuery() returns (StockWithPrice[]) {
 
     runtime:sleepCurrentWorker(3000);
     return globalEventsArray;
-}
-
-function addStreamingRules(stream<Stock> stockStream, stream<Twitter> twitterStream, stream<StockWithPrice>
-stockWithPriceStream) {
-    forever {
-        from stockStream window time(1000) as s
-        join twitterStream window time(1000)
-        on stockStream.symbol == twitterStream.company
-        select stockStream.symbol as symbol, twitterStream.tweet as tweet, stockStream.price as price
-        => (StockWithPrice[] emp) {
-            stockWithPriceStream.publish(emp);
-        }
-    }
 }
 
 function printCompanyStockPrice(StockWithPrice s) {
