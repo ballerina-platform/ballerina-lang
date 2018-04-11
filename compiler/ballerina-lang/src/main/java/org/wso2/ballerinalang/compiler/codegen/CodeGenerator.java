@@ -405,8 +405,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add the current package to the program file
         BPackageSymbol pkgSymbol = pkgNode.symbol;
         currentPkgID = pkgSymbol.pkgID;
-        currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo,
-                                                    currentPkgID.bvmAlias());
+        currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.bvmAlias());
         currentPkgInfo.versionCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.version.value);
 
         // Insert the package reference to the constant pool of the current package

@@ -181,11 +181,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.DEFINE)) {
             return;
         }
-        // Create PackageSymbol.
-        BPackageSymbol pSymbol = createPackageSymbol(pkgNode);
+
+        // Create PackageSymbol
+        BPackageSymbol pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable);
+        pkgNode.symbol = pkgSymbol;
         SymbolEnv builtinEnv = this.symTable.pkgEnvMap.get(symTable.builtInPackageSymbol);
-        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pSymbol.scope, builtinEnv);
-        this.symTable.pkgEnvMap.put(pSymbol, pkgEnv);
+        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, builtinEnv);
+        this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
 
         createPackageInitFunctions(pkgNode);
         // visit the package node recursively and define all package level symbols.
@@ -729,18 +731,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    // Private methods
 
-    private BPackageSymbol createPackageSymbol(BLangPackage pkgNode) {
-        BPackageSymbol pSymbol = new BPackageSymbol(pkgNode.packageID, symTable.rootPkgSymbol);
-        pkgNode.symbol = pSymbol;
-        if (pSymbol.name.value.startsWith(Names.BUILTIN_PACKAGE.value)) {
-            pSymbol.scope = symTable.rootScope;
-        } else {
-            pSymbol.scope = new Scope(pSymbol);
-        }
-        return pSymbol;
-    }
+    // Private methods
 
     private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {
         return annotationAttachmentList.stream()

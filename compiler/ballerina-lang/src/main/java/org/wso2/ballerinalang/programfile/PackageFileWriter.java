@@ -42,22 +42,24 @@ public class PackageFileWriter {
         DataOutputStream dataOutStream = null;
         try {
             dataOutStream = new DataOutputStream(programOutStream);
-
             dataOutStream.writeInt(PackageFile.MAGIC_VALUE);
-            dataOutStream.writeShort(packageFile.langVersion);
+            dataOutStream.writeShort(PackageFile.LANG_VERSION);
 
-            PackageInfoWriter.writeCP(dataOutStream, packageFile.getConstPoolEntries());
             PackageInfo packageInfo = packageFile.packageInfo;
+            PackageInfoWriter.writeCP(dataOutStream, packageInfo.getConstPoolEntries());
             dataOutStream.writeInt(packageInfo.nameCPIndex);
+            dataOutStream.writeInt(packageInfo.versionCPIndex);
 
             // Emit package dependencies
+            // TODO Move this to the packageInfoWriter class.. This should be part of the packageInfo
             dataOutStream.writeShort(packageInfo.importPkgInfoSet.size());
             for (ImportPackageInfo importPkgInfo : packageInfo.importPkgInfoSet) {
                 dataOutStream.writeInt(importPkgInfo.nameCPIndex);
+                dataOutStream.writeInt(importPkgInfo.versionCPIndex);
             }
 
+            // Write the package info structure
             PackageInfoWriter.writePackageInfo(dataOutStream, packageInfo);
-            PackageInfoWriter.writeAttributeInfoEntries(dataOutStream, packageFile.getAttributeInfoEntries());
 
             dataOutStream.flush();
             dataOutStream.close();

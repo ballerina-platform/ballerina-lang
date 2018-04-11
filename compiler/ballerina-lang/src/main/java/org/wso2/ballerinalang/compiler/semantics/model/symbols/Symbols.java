@@ -42,6 +42,15 @@ import java.util.Set;
  */
 public class Symbols {
 
+    public static BPackageSymbol createPackageSymbol(PackageID packageID, SymbolTable symTable) {
+        BPackageSymbol pkgSymbol = new BPackageSymbol(packageID, symTable.rootPkgSymbol);
+        if (pkgSymbol.name.value.startsWith(Names.BUILTIN_PACKAGE.value)) {
+            pkgSymbol.scope = symTable.rootScope;
+        } else {
+            pkgSymbol.scope = new Scope(pkgSymbol);
+        }
+        return pkgSymbol;
+    }
 
     public static BTypeSymbol createStructSymbol(int flags,
                                                  Name name,

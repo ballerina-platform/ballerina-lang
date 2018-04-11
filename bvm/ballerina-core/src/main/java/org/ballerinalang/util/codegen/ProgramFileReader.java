@@ -825,6 +825,8 @@ public class ProgramFileReader {
             packageInfo.addFunctionInfo(uniqueFuncName, functionInfo);
         }
 
+        // Read and ignore the workerData length
+        dataInStream.readInt();
         int workerDataChannelsLength = dataInStream.readShort();
         for (int i = 0; i < workerDataChannelsLength; i++) {
             readWorkerDataChannelEntries(dataInStream, packageInfo, functionInfo);
@@ -1278,6 +1280,9 @@ public class ProgramFileReader {
         if (attribKind == null) {
             throw new ProgramFileFormatException("unknown attribute kind " + attribNameCPEntry.getValue());
         }
+
+        // The length of the attribute data in bytes. Ignoring this value for now.
+        dataInStream.readInt();
 
         switch (attribKind) {
             case CODE_ATTRIBUTE:

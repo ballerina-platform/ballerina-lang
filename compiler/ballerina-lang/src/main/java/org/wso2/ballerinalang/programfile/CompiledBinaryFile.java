@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.programfile;
 
-
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfoPool;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
@@ -145,8 +144,7 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
     public static class PackageFile extends CompiledBinaryFile {
 
         public static final int MAGIC_VALUE = 0xFFFFFFFF;
-
-        public int langVersion = VERSION_NUMBER;
+        public static final int LANG_VERSION = VERSION_NUMBER;
 
         // TODO Temp
         public PackageInfo packageInfo = new PackageInfo();
