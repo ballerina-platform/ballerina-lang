@@ -41,30 +41,30 @@ public class ObjectAttachedFunctionPointerTest {
     @Test(description = "Test basic function pointer test")
     public void testBasicAttachedFunctionPointerTest() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test1");
-        Assert.assertEquals(((BInteger)returns[0]).intValue(), 60);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
     }
 
     @Test(description = "Test object attached function pointer with lambda")
     public void testAttachedFunctionPointerWithLambdaTest() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test2");
-        Assert.assertEquals(((BInteger)returns[0]).intValue(), 60);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
     }
 
     @Test(description = "Test basic externally attached function pointer")
     public void testBasicExternalAttachedFunctionPointerTest() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test3");
-        Assert.assertEquals(((BInteger)returns[0]).intValue(), 53);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 53);
     }
 
     @Test(description = "Test externally attached function pointer with lambda")
     public void testExternalAttachedFunctionPointerWithLambdaTest() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test4");
-        Assert.assertEquals(((BInteger)returns[0]).intValue(), 60);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
     }
 
     @Test(description = "Test multi level lambda with attached function")
     public void testMultiLevelLambdaWithinAttachedFunction() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test5");
-        Assert.assertEquals(((BInteger)returns[0]).intValue(), 65);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 65);
     }
 }
