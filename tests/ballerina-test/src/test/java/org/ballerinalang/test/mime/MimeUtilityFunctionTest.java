@@ -528,7 +528,8 @@ public class MimeUtilityFunctionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetXmlWithNonCompatibleMediaType", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
-                "Entity body is not xml compatible");
+                "Entity body is not xml compatible since the received content-type is : " +
+                        "application/3gpdash-qoe-report");
     }
 
     @Test
@@ -548,7 +549,8 @@ public class MimeUtilityFunctionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetJsonWithNonCompatibleMediaType", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
-                "Entity body is not json compatible");
+                "Entity body is not json compatible since the received content-type is : " +
+                        "application/whoispp-query");
     }
 
     @Test
@@ -558,7 +560,8 @@ public class MimeUtilityFunctionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetTextWithNonCompatibleMediaType", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
-                "Entity body is not text compatible");
+                "Entity body is not text compatible since the received content-type is : " +
+                        "model/vnd.parasolid.transmit");
     }
 
     @Test

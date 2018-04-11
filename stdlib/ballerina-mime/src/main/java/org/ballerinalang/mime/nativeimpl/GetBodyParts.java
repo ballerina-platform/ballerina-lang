@@ -31,6 +31,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.util.Locale;
+
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_AS_PRIMARY_TYPE;
@@ -56,8 +58,8 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
-            if (baseType != null && (baseType.toLowerCase().startsWith(MULTIPART_AS_PRIMARY_TYPE) ||
-                    baseType.toLowerCase().startsWith(MESSAGE_AS_PRIMARY_TYPE))) {
+            if (baseType != null && (baseType.toLowerCase(Locale.getDefault()).startsWith(MULTIPART_AS_PRIMARY_TYPE) ||
+                    baseType.toLowerCase(Locale.getDefault()).startsWith(MESSAGE_AS_PRIMARY_TYPE))) {
                 //Get the body parts from entity's multipart data field, if they've been already been decoded
                 partsArray = EntityBodyHandler.getBodyPartArray(entityStruct);
                 if (partsArray == null || partsArray.size() < 1) {

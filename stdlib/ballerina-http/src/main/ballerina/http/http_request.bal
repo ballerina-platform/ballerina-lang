@@ -93,6 +93,10 @@ public type Request object {
     @Param {value:"contentType: Content type value that needs to be set to Content-Type header"}
     public function setContentType (string contentType);
 
+    @Description {value:"Get the content-type value from the request"}
+    @Return {value:"Returns the content-type header value as a string."}
+    public function getContentType () returns (string?);
+
     @Description {value:"Gets the request payload in JSON format"}
     @Return {value:"The JSON reresentation of the message payload or 'PayloadError' in case of errors"}
     public function getJsonPayload () returns (json | PayloadError);
@@ -210,6 +214,13 @@ public function Request::expects100Continue () returns (boolean) {
 public function Request::setContentType (string contentType) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setHeader(mime:CONTENT_TYPE, contentType);
+}
+
+public function Request::getContentType () returns (string?) {
+    if (self.hasHeader(mime:CONTENT_TYPE)) {
+        return self.getHeader(mime:CONTENT_TYPE);
+    }
+    return ();
 }
 
 public function Request::getJsonPayload () returns (json | PayloadError) {
