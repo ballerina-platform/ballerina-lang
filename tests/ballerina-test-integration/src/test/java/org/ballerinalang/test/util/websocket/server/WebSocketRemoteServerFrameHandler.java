@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Simple WebSocket frame handler for testing
@@ -62,7 +63,7 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
             String text = ((TextWebSocketFrame) frame).text();
             if (PING.equals(text)) {
                 ctx.channel().writeAndFlush(new PingWebSocketFrame(
-                        Unpooled.wrappedBuffer(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}))));
+                        Unpooled.wrappedBuffer(ByteBuffer.wrap("data".getBytes(StandardCharsets.UTF_8)))));
                 return;
             }
             ctx.channel().writeAndFlush(new TextWebSocketFrame(text));

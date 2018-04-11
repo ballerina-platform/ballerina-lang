@@ -33,16 +33,14 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import javax.net.ssl.SSLException;
 
 /**
  * Test case to test simple WebSocket pass through scenarios.
  */
-public class WebSocketSimpleProxyTestCase {
+public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
 
     private WebSocketRemoteServer remoteServer;
     private ServerInstance ballerinaServerInstance;
-    private static final int REMOTE_SERVER_PORT = 15500;
     private static final String URL = "ws://localhost:9090/proxy/ws";
 
     @BeforeClass
@@ -56,14 +54,14 @@ public class WebSocketSimpleProxyTestCase {
     }
 
     @Test(priority = 1)
-    public void testSendText() throws URISyntaxException, InterruptedException, SSLException {
+    public void testSendText() throws URISyntaxException, InterruptedException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
         handshakeAndAck(client);
         String textSent = "hi all";
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         client.sendText(textSent);
-        countDownLatch.await(10, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), textSent);
         client.shutDown();
     }
@@ -76,7 +74,7 @@ public class WebSocketSimpleProxyTestCase {
         client.setCountDownLatch(countDownLatch);
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
         client.sendBinary(bufferSent);
-        countDownLatch.await(10, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
         client.shutDown();
     }
@@ -87,14 +85,5 @@ public class WebSocketSimpleProxyTestCase {
         remoteServer.stop();
     }
 
-    private void handshakeAndAck(WebSocketTestClient client)
-            throws InterruptedException, URISyntaxException, SSLException {
-        CountDownLatch ackCountDownLatch = new CountDownLatch(1);
-        client.setCountDownLatch(ackCountDownLatch);
-        client.handshake();
-        ackCountDownLatch.await(10, TimeUnit.SECONDS);
-        if (!"send".equals(client.getTextReceived())) {
-            throw new IllegalArgumentException("Could not receive acknowledgment");
-        }
-    }
+
 }

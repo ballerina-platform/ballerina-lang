@@ -30,12 +30,11 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import javax.net.ssl.SSLException;
 
 /**
  * Test WebSocket Path and Query Parameters.
  */
-public class WebSocketQueryAndPathParamSupportTestCase {
+public class WebSocketQueryAndPathParamSupportTestCase extends WebSocketIntegrationTest {
 
     private ServerInstance ballerinaServerInstance;
 
@@ -48,7 +47,7 @@ public class WebSocketQueryAndPathParamSupportTestCase {
     }
 
     @Test
-    public void testPathAndQueryParams() throws URISyntaxException, InterruptedException, SSLException {
+    public void testPathAndQueryParams() throws URISyntaxException, InterruptedException {
         String path1 = "path1";
         String path2 = "path2";
         String query1 = "query1";
@@ -59,7 +58,7 @@ public class WebSocketQueryAndPathParamSupportTestCase {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         client.sendText("send");
-        countDownLatch.await(10, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         String expectedMsg = String.format("path-params: %s, %s; query-params: %s, %s", path1, path2, query1, query2);
         Assert.assertEquals(client.getTextReceived(), expectedMsg);
         client.shutDown();

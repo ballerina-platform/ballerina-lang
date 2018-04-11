@@ -57,7 +57,7 @@ public class WebSocketTestClient {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketTestClient.class);
 
     private Channel channel = null;
-    private WebSocketTestClientHandler handler;
+    private WebSocketTestClientHandler webSocketHandler;
     private final URI uri;
     private EventLoopGroup group;
 
@@ -67,16 +67,16 @@ public class WebSocketTestClient {
 
     public WebSocketTestClient(String url, Map<String, String> headers) throws URISyntaxException {
         this.uri = new URI(url);
-        // Creating handler
+        // Creating webSocketHandler
         URI uri = new URI(url);
         DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
         headers.forEach(httpHeaders::add);
-        handler = new WebSocketTestClientHandler(WebSocketClientHandshakerFactory.
+        webSocketHandler = new WebSocketTestClientHandler(WebSocketClientHandshakerFactory.
                 newHandshaker(uri, WebSocketVersion.V13, null, true, httpHeaders));
     }
 
     public void setCountDownLatch(CountDownLatch countdownLatch) {
-        handler.setCountDownLatch(countdownLatch);
+        webSocketHandler.setCountDownLatch(countdownLatch);
     }
 
     /**
@@ -84,83 +84,69 @@ public class WebSocketTestClient {
      *
      * @return true if the handshake is done properly.
      */
-    public void handshake() {
+    public void handshake() throws InterruptedException {
         group = new NioEventLoopGroup();
-        try {
-            // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
-            // If you change it to V00, ping is not supported and remember to change
-            // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
-
-            Bootstrap b = new Bootstrap();
-            b.group(group)
-                    .channel(NioSocketChannel.class)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) {
-                            ChannelPipeline p = ch.pipeline();
-                            p.addLast(
-                                    new HttpClientCodec(),
-                                    new HttpObjectAggregator(8192),
-                                    WebSocketClientCompressionHandler.INSTANCE,
-                                    handler);
-                        }
-                    });
-
-            channel = b.connect(uri.getHost(), uri.getPort()).sync().channel();
-            handler.handshakeFuture().sync();
-        } catch (Exception e) {
-            logger.error("Handshake unsuccessful : " + e.getMessage(), e);
-        }
+        Bootstrap b = new Bootstrap();
+        b.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer<SocketChannel>() {
+            @Override
+            protected void initChannel(SocketChannel ch) {
+                ChannelPipeline p = ch.pipeline();
+                p.addLast(new HttpClientCodec(), new HttpObjectAggregator(8192),
+                          WebSocketClientCompressionHandler.INSTANCE, webSocketHandler);
+            }
+        });
+        channel = b.connect(uri.getHost(), uri.getPort()).sync().channel();
+        webSocketHandler.handshakeFuture().sync();
     }
 
     /**
      * Send text to the server.
      * @param text text need to be sent.
      */
-    public void sendText(String text) {
+    public void sendText(String text) throws InterruptedException {
         if (channel == null) {
             logger.error("Channel is null. Cannot send text.");
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
-        channel.writeAndFlush(new TextWebSocketFrame(text));
+        channel.writeAndFlush(new TextWebSocketFrame(text)).sync();
     }
 
     /**
      * Send binary data to server.
      * @param buf buffer containing the data need to be sent.
      */
-    public void sendBinary(ByteBuffer buf) throws IOException {
+    public void sendBinary(ByteBuffer buf) throws IOException, InterruptedException {
         if (channel == null) {
             logger.error("Channel is null. Cannot send text.");
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
-        channel.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(buf)));
+        channel.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(buf))).sync();
     }
 
     /**
      * Send a ping message to the server.
      * @param buf content of the ping message to be sent.
      */
-    public void sendPing(ByteBuffer buf) throws IOException {
+    public void sendPing(ByteBuffer buf) throws IOException, InterruptedException {
         if (channel == null) {
             logger.error("Channel is null. Cannot send text.");
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
-        channel.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(buf)));
+        channel.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(buf))).sync();
     }
 
     /**
      * @return the text received from the server.
      */
     public String getTextReceived() {
-        return handler.getTextReceived();
+        return webSocketHandler.getTextReceived();
     }
 
     /**
      * @return the binary data received from the server.
      */
     public ByteBuffer getBufferReceived() {
-        return handler.getBufferReceived();
+        return webSocketHandler.getBufferReceived();
     }
 
     /**
@@ -169,25 +155,25 @@ public class WebSocketTestClient {
      * @return true if the connection is open.
      */
     public boolean isOpen() {
-        return handler.isOpen();
+        return webSocketHandler.isOpen();
     }
 
     /**
-     * Check whether handler receives a ping.
+     * Check whether webSocketHandler receives a ping.
      *
      * @return true if a ping is received.
      */
     public boolean isPing() {
-        return handler.isPing();
+        return webSocketHandler.isPing();
     }
 
     /**
-     * Check whether handler receives a pong.
+     * Check whether webSocketHandler receives a pong.
      *
      * @return true if a pong is received.
      */
     public boolean isPong() {
-        return handler.isPong();
+        return webSocketHandler.isPong();
     }
 
     /**
