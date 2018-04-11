@@ -69,6 +69,8 @@ public class GetConfig extends BlockingNativeCallableUnit {
             case "MAP":
                 context.setReturnValues(buildBMap(configRegistry.getAsMap(configKey)));
                 break;
+            default:
+                throw new IllegalStateException("invalid value type: " + type.stringValue());
         }
     }
 

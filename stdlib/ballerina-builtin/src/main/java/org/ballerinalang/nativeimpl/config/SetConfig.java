@@ -45,7 +45,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 public class SetConfig extends BlockingNativeCallableUnit {
 
-    public static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+    public static final ConfigRegistry CONFIG_REGISTRY = ConfigRegistry.getInstance();
 
     @Override
     public void execute(Context context) {
@@ -54,13 +54,13 @@ public class SetConfig extends BlockingNativeCallableUnit {
 
         BType type = configValue.getType();
         if (type == BTypes.typeString) {
-            configRegistry.addConfiguration(configKey, configValue.stringValue());
+            CONFIG_REGISTRY.addConfiguration(configKey, configValue.stringValue());
         } else if (type == BTypes.typeInt) {
-            configRegistry.addConfiguration(configKey, ((BInteger) configValue).intValue());
+            CONFIG_REGISTRY.addConfiguration(configKey, ((BInteger) configValue).intValue());
         } else if (type == BTypes.typeFloat) {
-            configRegistry.addConfiguration(configKey, ((BFloat) configValue).floatValue());
+            CONFIG_REGISTRY.addConfiguration(configKey, ((BFloat) configValue).floatValue());
         } else if (type == BTypes.typeBoolean) {
-            configRegistry.addConfiguration(configKey, ((BBoolean) configValue).floatValue());
+            CONFIG_REGISTRY.addConfiguration(configKey, ((BBoolean) configValue).floatValue());
         }
 
         context.setReturnValues();
