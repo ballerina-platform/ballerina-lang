@@ -85,7 +85,7 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         super.handlerAdded(ctx);
-        ctx.pipeline().remove(Constants.IDLE_STATE_HANDLER); // Remove http idle state handler
+        //ctx.pipeline().remove(Constants.HTTP2_TO_HTTP_FALLBACK_HANDLER);
         this.ctx = ctx;
     }
 
@@ -126,7 +126,7 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
             requestCarbonMessage.addHttpContent(new DefaultLastHttpContent(upgradedRequest.content()));
             notifyRequestListener(requestCarbonMessage, 1);
         }
-        super.userEventTriggered(ctx, evt);
+        //super.userEventTriggered(ctx, evt);
     }
 
     /**

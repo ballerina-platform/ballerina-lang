@@ -207,6 +207,7 @@ public final class Constants {
 
     public static final String HTTP_SOURCE_HANDLER = "SourceHandler";
     public static final String HTTP_ENCODER = "encoder";
+    public static final String HTTP_DECODER = "decoder";
     public static final String HTTP_CLIENT_CODEC = "codec";
     public static final String HTTP_SERVER_CODEC = "ServerCodec";
     public static final String WEBSOCKET_SOURCE_HANDLER = "ws_handler";
@@ -220,6 +221,7 @@ public final class Constants {
     public static final String TARGET_HANDLER = "targetHandler";
     public static final String HTTP2_TIMEOUT_HANDLER = "Http2TimeoutHandler";
     public static final String HTTP2_UPGRADE_HANDLER = "Http2UpgradeHandler";
+    public static final String HTTP2_TO_HTTP_FALLBACK_HANDLER = "Http2ToHttpFallbackHandler";
     public static final String REDIRECT_HANDLER = "redirectHandler";
     public static final String DECOMPRESSOR_HANDLER = "deCompressor";
     public static final String IDLE_STATE_HANDLER = "idleStateHandler";

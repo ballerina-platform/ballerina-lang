@@ -114,7 +114,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             if (sslConfig != null) {
                 configureSslForHttp(serverPipeline, ch);
             } else {
-                configureHTTPPipeline(serverPipeline, Constants.HTTP_SCHEME);
+                configureHttpPipeline(serverPipeline, Constants.HTTP_SCHEME);
             }
         }
     }
@@ -159,18 +159,20 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     }
 
     /**
-     * Configure the pipeline if user sent HTTP requests
+     * Configures HTTP/1.x pipeline.
      *
-     * @param serverPipeline Channel
+     * @param serverPipeline the channel pipeline
+     * @param initialHttpScheme initial http scheme
      */
-    void configureHTTPPipeline(ChannelPipeline serverPipeline, String httpScheme) {
+    void configureHttpPipeline(ChannelPipeline serverPipeline, String initialHttpScheme) {
 
-        if (httpScheme.equals(Constants.HTTP_SCHEME)) {
+        if (initialHttpScheme.equals(Constants.HTTP_SCHEME)) {
             serverPipeline.addLast(Constants.HTTP_ENCODER, new HttpResponseEncoder());
+            serverPipeline.addLast(Constants.HTTP_DECODER,
+                                   new HttpRequestDecoder(reqSizeValidationConfig.getMaxUriLength(),
+                                                          reqSizeValidationConfig.getMaxHeaderSize(),
+                                                          reqSizeValidationConfig.getMaxChunkSize()));
         }
-        serverPipeline.addLast("decoder",
-                new HttpRequestDecoder(reqSizeValidationConfig.getMaxUriLength(),
-                        reqSizeValidationConfig.getMaxHeaderSize(), reqSizeValidationConfig.getMaxChunkSize()));
         serverPipeline.addLast("compressor", new CustomHttpContentCompressor());
         serverPipeline.addLast("chunkWriter", new ChunkedWriteHandler());
 
@@ -208,7 +210,9 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         // Add handler to handle http2 requests without an upgrade
         pipeline.addLast(new Http2WithPriorKnowledgeHandler(interfaceId, serverName, serverConnectorFuture));
         // Add http2 upgrade decoder and upgrade handler
-        final HttpServerCodec sourceCodec = new HttpServerCodec();
+        final HttpServerCodec sourceCodec = new HttpServerCodec(reqSizeValidationConfig.getMaxUriLength(),
+                                                                reqSizeValidationConfig.getMaxHeaderSize(),
+                                                                reqSizeValidationConfig.getMaxChunkSize());
 
         final HttpServerUpgradeHandler.UpgradeCodecFactory upgradeCodecFactory = protocol -> {
             if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
@@ -219,11 +223,19 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             }
         };
         pipeline.addLast(Constants.HTTP_SERVER_CODEC, sourceCodec);
+        if (httpTraceLogEnabled) {
+            pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
+                                   new HTTPTraceLoggingHandler("tracelog.http.downstream"));
+        }
+        if (httpAccessLogEnabled) {
+            pipeline.addLast(Constants.HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler("accesslog.http"));
+        }
         pipeline.addLast(Constants.HTTP2_UPGRADE_HANDLER,
                          new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory, Integer.MAX_VALUE));
         /* Max size of the upgrade request is limited to 2GB. Need to see whether there is a better approach to handle
            large upgrade requests. Requests will be propagated to next handlers if no upgrade has been attempted */
-        configureHTTPPipeline(pipeline, ApplicationProtocolNames.HTTP_2);
+        pipeline.addLast(Constants.HTTP2_TO_HTTP_FALLBACK_HANDLER,
+                         new Http2ToHttpFallbackHandler(this));
     }
 
     public void setServerConnectorFuture(ServerConnectorFuture serverConnectorFuture) {
@@ -240,6 +252,14 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     void setHttpAccessLogEnabled(boolean httpAccessLogEnabled) {
         this.httpAccessLogEnabled = httpAccessLogEnabled;
+    }
+
+    boolean isHttpTraceLogEnabled() {
+        return httpTraceLogEnabled;
+    }
+
+    boolean isHttpAccessLogEnabled() {
+        return httpAccessLogEnabled;
     }
 
     void setInterfaceId(String interfaceId) {
@@ -312,7 +332,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                                 new Http2SourceHandlerBuilder(interfaceId, serverConnectorFuture, serverName).build());
             } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
                 // handles pipeline for HTTP/1.x requests after SSL handshake
-                configureHTTPPipeline(ctx.pipeline(), Constants.HTTP_SCHEME);
+                configureHttpPipeline(ctx.pipeline(), Constants.HTTP_SCHEME);
             } else {
                 throw new IllegalStateException("unknown protocol: " + protocol);
             }
