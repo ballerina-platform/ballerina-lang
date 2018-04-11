@@ -164,7 +164,7 @@ public type ConnectionThrottling {
 };
 
 @Description { value:"AuthConfig record represents the authentication mechanism that HTTP client uses" }
-@Field {value:"type: type of the configuration"}
+@Field {value:"scheme: scheme of the configuration. (basic, oauth, jwt etc.)"}
 @Field {value:"username: username for basic authentication"}
 @Field {value:"username: password for basic authentication"}
 @Field {value:"accessToken: access token for oauth2 authentication"}
@@ -178,7 +178,7 @@ public type ConnectionThrottling {
 @Field {value:"clientId: clietnt id for oauth2 authentication"}
 @Field {value:"clientSecret: client secret for oauth2 authentication"}
 public type AuthConfig {
-    string ^"type",
+    string scheme,
     string username,
     string password,
     string accessToken,
