@@ -59,10 +59,10 @@ public class WriteXml implements NativeCallableUnit {
                     .CHARACTER_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
             IOUtils.writeFull(characterChannel, content.stringValue(), eventContext);
-            callback.notifySuccess();
         } catch (BallerinaException e) {
             BStruct errorStruct = IOUtils.createError(context, e.getMessage());
             context.setReturnValues(errorStruct);
+        } finally {
             callback.notifySuccess();
         }
     }
