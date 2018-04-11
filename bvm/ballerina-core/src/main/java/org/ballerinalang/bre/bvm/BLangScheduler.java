@@ -203,11 +203,7 @@ public class BLangScheduler {
             Context nativeCtx, int flags) {
         CallableUnitInfo callableUnitInfo = nativeCtx.getCallableUnitInfo();
         AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo);
-        if (FunctionFlags.isObserved(flags)) {
-            respCtx.registerResponseCallback(new CallbackObserver(respCtx));
-            ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
-                    callableUnitInfo.getName(), respCtx);
-        }
+        checkAndObserveNativeAsync(respCtx, callableUnitInfo, flags);
         NativeCallExecutor exec = new NativeCallExecutor(nativeCallable, nativeCtx, respCtx);
         ThreadPoolFactory.getInstance().getWorkerExecutor().submit(exec);
         return respCtx;
@@ -217,11 +213,7 @@ public class BLangScheduler {
             Context nativeCtx, int flags) {
         CallableUnitInfo callableUnitInfo = nativeCtx.getCallableUnitInfo();
         AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo);
-        if (FunctionFlags.isObserved(flags)) {
-            respCtx.registerResponseCallback(new CallbackObserver(respCtx));
-            ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
-                    callableUnitInfo.getName(), respCtx);
-        }
+        checkAndObserveNativeAsync(respCtx, callableUnitInfo, flags);
         BLangAsyncCallableUnitCallback callback = new BLangAsyncCallableUnitCallback(respCtx, nativeCtx);
         nativeCallable.execute(nativeCtx, callback);
         return respCtx;
@@ -229,6 +221,15 @@ public class BLangScheduler {
     
     public static SchedulerStats getStats() {
         return schedulerStats;
+    }
+
+    private static void checkAndObserveNativeAsync(AsyncInvocableWorkerResponseContext respCtx,
+                                                   CallableUnitInfo callableUnitInfo, int flags) {
+        if (FunctionFlags.isObserved(flags)) {
+            respCtx.registerResponseCallback(new CallbackObserver(respCtx));
+            ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
+                    callableUnitInfo.getName(), respCtx);
+        }
     }
     
     /**

@@ -29,6 +29,7 @@ import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.ForkJoinTimeoutCallback;
 import org.ballerinalang.bre.bvm.ForkJoinWorkerResponseContext;
 import org.ballerinalang.bre.bvm.InitWorkerResponseContext;
+import org.ballerinalang.bre.bvm.ObservableContext;
 import org.ballerinalang.bre.bvm.SyncCallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
@@ -219,11 +220,7 @@ public class BLangFunctions {
             respCallback = new WaitForResponseCallback();
             respCtx.registerResponseCallback(respCallback);
         }
-        if (FunctionFlags.isObserved(flags)) {
-            ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
-                    callableUnitInfo.getName(), respCtx);
-            respCtx.registerResponseCallback(new CallbackObserver(respCtx));
-        }
+        checkAndObserveNonNativeCallable(respCtx, callableUnitInfo, flags);
         respCtx.joinTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
 
@@ -268,11 +265,7 @@ public class BLangFunctions {
         AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo,
                 generalWorkersCount);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
-        if (FunctionFlags.isObserved(flags)) {
-            ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
-                    callableUnitInfo.getName(), respCtx);
-            respCtx.registerResponseCallback(new CallbackObserver(respCtx));
-        }
+        checkAndObserveNonNativeCallable(respCtx, callableUnitInfo, flags);
         /* execute the init worker and extract the local variables created by it */
         WorkerData initWorkerLocalData = null;
         CodeAttributeInfo initWorkerCAI = null;
@@ -314,26 +307,15 @@ public class BLangFunctions {
             return parentCtx;
         }
         try {
-            if (FunctionFlags.isObserved(flags)) {
-                ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
-                        callableUnitInfo.getName(), ctx);
-            }
+            checkAndStartCallableObservation(ctx, callableUnitInfo, flags);
             if (nativeCallable.isBlocking()) {
                 nativeCallable.execute(ctx, null);
                 BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
-                if (FunctionFlags.isObserved(flags)) {
-                    ObservabilityUtils.stopObservation(ctx);
-                }
+                checkAndStopCallableObservation(ctx, flags);
                 /* we want the parent to continue, since we got the response of the native call already */
                 return parentCtx;
             } else {
-                CallableUnitCallback callback;
-                if (FunctionFlags.isObserved(flags)) {
-                    callback = new CallableUnitCallbackObserver(ctx,
-                            new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes));
-                } else {
-                    callback = new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes);
-                }
+                CallableUnitCallback callback = getNativeCallableUnitCallback(parentCtx, ctx, retRegs, retTypes, flags);
                 nativeCallable.execute(ctx, callback);
                 /* we want the parent to suspend (i.e. go to wait for response state) and stay until notified */
                 return null;
@@ -488,6 +470,44 @@ public class BLangFunctions {
         forkjoinInfo.getWorkerInfoMap().forEach((k, v) -> channels.put(k, v.getWorkerDataChannelInfoForForkJoin()
                 != null ? v.getWorkerDataChannelInfoForForkJoin().getChannelName() : null));
         return channels;
+    }
+
+    private static void checkAndObserveNonNativeCallable(CallableWorkerResponseContext respCtx,
+                                                         CallableUnitInfo callableUnitInfo, int flags) {
+        if (FunctionFlags.isObserved(flags)) {
+            startCallableObservation(respCtx, callableUnitInfo);
+            respCtx.registerResponseCallback(new CallbackObserver(respCtx));
+        }
+    }
+
+    private static void checkAndStopCallableObservation(ObservableContext ctx, int flags) {
+        if (FunctionFlags.isObserved(flags)) {
+            ObservabilityUtils.stopObservation(ctx);
+        }
+    }
+
+    private static void checkAndStartCallableObservation(ObservableContext ctx, CallableUnitInfo callableUnitInfo,
+                                                         int flags) {
+        if (FunctionFlags.isObserved(flags)) {
+            startCallableObservation(ctx, callableUnitInfo);
+        }
+    }
+
+    private static CallableUnitCallback getNativeCallableUnitCallback(WorkerExecutionContext parentCtx, Context ctx,
+                                                                      int[] retRegs, BType[] retTypes, int flags) {
+        CallableUnitCallback callback;
+        if (FunctionFlags.isObserved(flags)) {
+            callback = new CallableUnitCallbackObserver(ctx,
+                    new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes));
+        } else {
+            callback = new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes);
+        }
+        return callback;
+    }
+
+    private static void startCallableObservation(ObservableContext ctx, CallableUnitInfo callableUnitInfo) {
+        ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
+                callableUnitInfo.getName(), ctx);
     }
     
     /**
