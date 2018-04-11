@@ -51,12 +51,11 @@ public class ResourceExecutor {
      */
     public static void execute(Resource resource, CallableUnitCallback responseCallback,
                                Map<String, Object> properties, ObserverContext observerContext,
-                               BValue... bValues) throws BallerinaConnectorException {
+                               WorkerExecutionContext context, BValue... bValues) throws BallerinaConnectorException {
         if (resource == null || responseCallback == null) {
             throw new BallerinaConnectorException("invalid arguments provided");
         }
         ResourceInfo resourceInfo = resource.getResourceInfo();
-        WorkerExecutionContext context = new WorkerExecutionContext(resourceInfo.getPackageInfo().getProgramFile());
         if (properties != null) {
             context.globalProps.putAll(properties);
             if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
