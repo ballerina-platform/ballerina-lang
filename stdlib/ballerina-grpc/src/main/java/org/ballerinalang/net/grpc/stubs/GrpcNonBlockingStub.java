@@ -22,8 +22,6 @@ import io.grpc.Channel;
 import io.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.Message;
 
-import java.util.Map;
-
 import static io.grpc.stub.ClientCalls.asyncBidiStreamingCall;
 import static io.grpc.stub.ClientCalls.asyncClientStreamingCall;
 import static io.grpc.stub.ClientCalls.asyncServerStreamingCall;
@@ -35,11 +33,9 @@ import static io.grpc.stub.ClientCalls.asyncUnaryCall;
  * @since 1.0.0
  */
 public class GrpcNonBlockingStub extends io.grpc.stub.AbstractStub<GrpcNonBlockingStub> {
-    private Map<String, MethodDescriptor<Message, Message>> descriptorMap;
 
-    public GrpcNonBlockingStub(Channel channel, Map<String, MethodDescriptor<Message, Message>> descriptorMap) {
+    public GrpcNonBlockingStub(Channel channel) {
         super(channel);
-        this.descriptorMap = descriptorMap;
     }
 
     private GrpcNonBlockingStub(Channel channel, CallOptions callOptions) {
@@ -56,11 +52,10 @@ public class GrpcNonBlockingStub extends io.grpc.stub.AbstractStub<GrpcNonBlocki
      *
      * @param request  request message.
      * @param responseObserver response Observer.
-     * @param methodID method name
+     * @param methodDescriptor method descriptor
      */
     public void executeServerStreaming(Message request, io.grpc.stub.StreamObserver<Message> responseObserver,
-                                       String methodID) {
-        MethodDescriptor<Message, Message> methodDescriptor = descriptorMap.get(methodID);
+                                       MethodDescriptor<Message, Message> methodDescriptor) {
         asyncServerStreamingCall(
                 getChannel().newCall(methodDescriptor, getCallOptions()), request, responseObserver);
     }
@@ -69,11 +64,12 @@ public class GrpcNonBlockingStub extends io.grpc.stub.AbstractStub<GrpcNonBlocki
      * Executes client streaming non blocking call.
      *
      * @param responseObserver response Observer.
-     * @param methodID method name
+     * @param methodDescriptor method descriptor
      */
     public io.grpc.stub.StreamObserver<Message> executeClientStreaming(io.grpc.stub.StreamObserver<Message>
-                                                                               responseObserver, String methodID) {
-        MethodDescriptor<Message, Message> methodDescriptor = descriptorMap.get(methodID);
+                                                                               responseObserver,
+                                                                       MethodDescriptor<Message, Message>
+                                                                               methodDescriptor) {
         return asyncClientStreamingCall(
                 getChannel().newCall(methodDescriptor, getCallOptions()), responseObserver);
     }
@@ -83,24 +79,24 @@ public class GrpcNonBlockingStub extends io.grpc.stub.AbstractStub<GrpcNonBlocki
      *
      * @param request  request message.
      * @param responseObserver response Observer.
-     * @param methodID method name
+     * @param methodDescriptor method descriptor
      */
     public void executeUnary(Message request,
-                             io.grpc.stub.StreamObserver<Message> responseObserver, String methodID) {
-            asyncUnaryCall(
-                    getChannel().newCall(descriptorMap.get(methodID),
-                            getCallOptions()), request, responseObserver);
+                             io.grpc.stub.StreamObserver<Message> responseObserver, MethodDescriptor<Message,
+            Message> methodDescriptor) {
+            asyncUnaryCall(getChannel().newCall(methodDescriptor, getCallOptions()), request, responseObserver);
     }
 
     /**
      * Executes bidirectional streaming non blocking call.
      *
      * @param responseObserver response Observer.
-     * @param methodID method name
+     * @param methodDescriptor method descriptor
      */
     public io.grpc.stub.StreamObserver<Message> executeBidiStreaming(io.grpc.stub.StreamObserver<Message>
-                                                                               responseObserver, String methodID) {
-        MethodDescriptor<Message, Message> methodDescriptor = descriptorMap.get(methodID);
+                                                                               responseObserver,
+                                                                     MethodDescriptor<Message, Message>
+                                                                             methodDescriptor) {
         return asyncBidiStreamingCall(
                 getChannel().newCall(methodDescriptor, getCallOptions()), responseObserver);
     }

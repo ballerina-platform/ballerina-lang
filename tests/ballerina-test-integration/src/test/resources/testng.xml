@@ -63,12 +63,6 @@
     </test>
 
     <test name="ballerina-observability-tests" preserve-order="true" parallel="false">
-        <groups>
-            <run>
-                <exclude name="broken"/>
-            </run>
-        </groups>
-
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
         </classes>

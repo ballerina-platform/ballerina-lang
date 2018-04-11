@@ -25,12 +25,12 @@ public type ClientResponder object {
 
         P{{res}} - The outbound response message.
     }
-    public native function send(any res) returns (ConnectorError);
+    public native function send(any res, Headers... headers) returns (ConnectorError);
 
     documentation {
         Informs the caller, server finished sending messages.
     }
-    public native function complete() returns  (ConnectorError);
+    public native function complete(Headers... headers) returns  (ConnectorError);
 
     documentation {
         Checks whether the connection is closed by the caller.
@@ -42,15 +42,10 @@ public type ClientResponder object {
 
         P{{serverError}} - remote procedure call id.
     }
-    public native function errorResponse(ServerError serverError) returns (ConnectorError);
+    public native function errorResponse(ServerError serverError, Headers... headers) returns (ConnectorError);
 
     documentation {
         Get connection ID which is unique to the connection.
     }
     public native function getID() returns (string);
-
-    documentation {
-        Get message context which is unique to the request.
-    }
-    public native function getContext() returns (MessageContext);
 };

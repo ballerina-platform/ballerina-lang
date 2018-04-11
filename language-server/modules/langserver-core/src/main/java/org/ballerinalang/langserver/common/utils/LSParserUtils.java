@@ -20,6 +20,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.CollectDiagnosticListener;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
+import org.ballerinalang.langserver.LSPackageCache;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.modal.BallerinaFile;
@@ -83,7 +84,15 @@ public class LSParserUtils {
      * @return BLangCompilationUnit
      */
     public static BLangCompilationUnit compileFragment(String content) {
-        BallerinaFile model = compile(content, CompilerPhase.DEFINE, null);
+        // TODO: Need to revisit this approach and all the APIs exposes for other libs, should be isolated from this
+        LSGlobalContext lsContext = new LSGlobalContext();
+        CompilerContext globalCompilationContext = CommonUtil.prepareTempCompilerContext();
+        lsContext.put(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT, globalCompilationContext);
+        
+        if (LSPackageCache.getInstance() == null) {
+            LSPackageCache.initiate(lsContext);
+        }
+        BallerinaFile model = compile(content, CompilerPhase.DEFINE, lsContext);
         if (model.getBLangPackage() != null) {
             return model.getBLangPackage().getCompilationUnits().stream().
                     filter(compUnit -> UNTITLED_BAL.equals(compUnit.getName())).findFirst().get();

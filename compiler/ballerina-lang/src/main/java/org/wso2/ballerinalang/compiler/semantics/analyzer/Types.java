@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.TypeFlag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
@@ -25,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -57,12 +60,15 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
+import org.wso2.ballerinalang.util.TypeFlags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -96,6 +102,8 @@ public class Types {
     private SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
 
+    private Stack<BTypeSymbol> typeStack;
+
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
         if (types == null) {
@@ -111,6 +119,7 @@ public class Types {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.typeStack = new Stack<>();
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -584,7 +593,7 @@ public class Types {
         if (s == t) {
             return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
         }
-        
+
         if (s.tag == TypeTags.STRUCT && t.tag == TypeTags.STRUCT) {
             if (checkStructEquivalency(s, t)) {
                 return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
@@ -679,15 +688,15 @@ public class Types {
         return type.memberTypes.stream()
                 .anyMatch(memberType -> conversionVisitor.visit(memberType, target) == symTable.notFoundSymbol);
     }
-    
+
     private boolean checkJsonToMapConvertibility(BJSONType src, BMapType target) {
         return true;
     }
-    
+
     private boolean checkMapToJsonConvertibility(BMapType src, BJSONType target) {
         return true;
     }
-    
+
     private BTypeVisitor<BType, BSymbol> conversionVisitor = new BTypeVisitor<BType, BSymbol>() {
 
         @Override
@@ -1155,8 +1164,57 @@ public class Types {
      * @param type Type to check the existence if a default value
      * @return Flag indicating whether the given type has a default value
      */
-    public boolean defaultValueExists(BType type) {
+    public boolean defaultValueExists(DiagnosticPos pos, BType type) {
+        if (typeStack.contains(type.tsymbol)) {
+            dlog.error(pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, typeStack);
+            typeStack.empty();
+            return false;
+        }
+        typeStack.add(type.tsymbol);
+
+        boolean result;
+
+        if ((type.flags & TypeFlags.DEFAULTABLE_CHECKED) == TypeFlags.DEFAULTABLE_CHECKED) {
+            result = (type.flags & TypeFlags.DEFAULTABLE) == TypeFlags.DEFAULTABLE;
+            typeStack.pop();
+            return result;
+        }
+        if (checkDefaultable(pos, type)) {
+            type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED, TypeFlag.DEFAULTABLE));
+            typeStack.pop();
+            return true;
+        }
+        type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED));
+        typeStack.pop();
+        return false;
+    }
+
+    private boolean checkDefaultable(DiagnosticPos pos, BType type) {
         if (type.isNullable()) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.STRUCT) {
+            BStructType structType = (BStructType) type;
+
+            if (structType.tsymbol.kind == SymbolKind.RECORD) {
+                for (BStructField field : structType.fields) {
+                    if (!field.expAvailable && !defaultValueExists(pos, field.type)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            BStructSymbol structSymbol = (BStructSymbol) structType.tsymbol;
+            if (structSymbol.initializerFunc.symbol.params.size() > 0) {
+                return false;
+            }
+            for (BStructField field : structType.fields) {
+                if (!field.expAvailable && !defaultValueExists(pos, field.type)) {
+                    return false;
+                }
+            }
             return true;
         }
 
@@ -1166,7 +1224,7 @@ public class Types {
 
         if (type.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (defaultValueExists(memberType)) {
+                if (defaultValueExists(pos, memberType)) {
                     return true;
                 }
             }
