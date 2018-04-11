@@ -29,30 +29,26 @@ import ballerina/websub;
 @final int DEFAULT_LEASE_SECONDS_VALUE = 86400000; //one day
 @final string DEFAULT_SIGNATURE_METHOD = "SHA256";
 
-@final int DEFAULT_DB_PORT = 3306;
-@final string DEFAULT_DB_NAME = "subscriptiondb";
-@final string DEFAULT_DB_USERNAME = "wso2";
-@final string DEFAULT_DB_PASSWORD = "wso2";
+@final string DEFAULT_DB_USERNAME = "ballerina";
+@final string DEFAULT_DB_PASSWORD = "ballerina";
 
-@final string hubHost = getStringConfig("hub.host", DEFAULT_HOST);
-@final int hubPort = getIntConfig("hub.port", DEFAULT_PORT);
-@final int hubLeaseSeconds = getIntConfig("hub.lease_seconds", DEFAULT_LEASE_SECONDS_VALUE);
-@final string hubSignatureMethod = getStringConfig("hub.signature_method", DEFAULT_SIGNATURE_METHOD);
-@final boolean hubRemotePublishingEnabled = getBooleanConfig("hub.remote_publishing.enabled", false);
-@final string hubRemotePublishingMode = getStringConfig("hub.remote_publishing.mode",
-                                                                                websub:REMOTE_PUBLISHING_MODE_DIRECT);
-@final boolean hubTopicRegistrationRequired = getBooleanConfig("hub.topic_registration.required", true);
-@final string hubPublicUrl = getStringConfig("hub.url", getHubUrl());
+@final string hubHost = config:getAsString("hub.host", default=DEFAULT_HOST);
+@final int hubPort = config:getAsInt("hub.port", default=DEFAULT_PORT);
+@final int hubLeaseSeconds = config:getAsInt("hub.lease_seconds", default=DEFAULT_LEASE_SECONDS_VALUE);
+@final string hubSignatureMethod = config:getAsString("hub.signature_method", default=DEFAULT_SIGNATURE_METHOD);
+@final boolean hubRemotePublishingEnabled = config:getAsBoolean("hub.remote_publishing.enabled");
+@final string hubRemotePublishingMode = config:getAsString("hub.remote_publishing.mode",
+                                                                        default=websub:REMOTE_PUBLISHING_MODE_DIRECT);
+@final boolean hubTopicRegistrationRequired = config:getAsBoolean("hub.topic_registration.required", default=true);
+@final string hubPublicUrl = config:getAsString("hub.url", default=getHubUrl());
 
-@final boolean hubPersistenceEnabled = getBooleanConfig("hub.persistence.enabled", false);
-//TODO: include db type --> "hub.db.type"
-@final string hubDatabaseHost = getStringConfig("hub.db.host", DEFAULT_HOST);
-@final int hubDatabasePort = getIntConfig("hub.db.port", DEFAULT_DB_PORT);
-@final string hubDatabaseName = getStringConfig("hub.db.name", DEFAULT_DB_NAME);
-@final string hubDatabaseUsername = getStringConfig("hub.db.username", DEFAULT_DB_USERNAME);
-@final string hubDatabasePassword = getStringConfig("hub.db.password", DEFAULT_DB_PASSWORD);
+@final boolean hubPersistenceEnabled = config:getAsBoolean("hub.persistence.enabled");
+@final string hubDatabaseUrl = config:getAsString("hub.db.url", default=DEFAULT_HOST);
+@final string hubDatabaseUsername = config:getAsString("hub.db.username", default=DEFAULT_DB_USERNAME);
+@final string hubDatabasePassword = config:getAsString("hub.db.password", default=DEFAULT_DB_PASSWORD);
+//TODO:add pool options
 
-@final boolean hubSslEnabled = isHubSslEnabled();
+@final boolean hubSslEnabled = config:getAsBoolean("hub.ssl.enabled", default=true);
 http:ServiceSecureSocket? serviceSecureSocket = getServiceSecureSocketConfig();
 http:SecureSocket? secureSocket = getSecureSocketConfig();
 
@@ -78,72 +74,14 @@ function isHubTopicRegistrationRequired () returns (boolean) {
     return hubTopicRegistrationRequired;
 }
 
-@Description {value:"Function to retrieve a configuration set as a boolean, via the config API, or set a default value
-                    if not specified."}
-@Return {value:"The boolean configuration"}
-function getBooleanConfig (string property, boolean defaultIfNotSet) returns (boolean) {
-    boolean configuration;
-    match (config:getAsString(property)) {
-        string stringConfigFromFile => { configuration = <boolean>stringConfigFromFile; }
-        () => { configuration = defaultIfNotSet; }
-    }
-    return configuration;
-}
-
-@Description {value:"Function to retrieve a configuration set as a string, via the config API, or set a default value
-                    if not specified."}
-@Return {value:"The string configuration"}
-function getStringConfig (string property, string defaultIfNotSet) returns (string) {
-    string configuration;
-    match (config:getAsString(property)) {
-        string stringConfigFromFile => { configuration = stringConfigFromFile == "" ? defaultIfNotSet
-                                                         : stringConfigFromFile; }
-        () => configuration = defaultIfNotSet;
-    }
-    return configuration;
-}
-
-@Description{value:"Function to retrieve a configuration set as an integer, via the config API, or set a default value
-                    if not specified."}
-@Return{value:"The integer configuration"}
-function getIntConfig (string property, int defaultIfNotSet) returns (int) {
-    int configuration;
-    match (config:getAsString(property)) {
-        string stringConfigFromFile => {
-            match (<int>stringConfigFromFile) {
-                int portConfigFromFile => { configuration = portConfigFromFile; }
-                error => { configuration = defaultIfNotSet; }
-            }
-        }
-        () => configuration = defaultIfNotSet;
-    }
-    return configuration;
-}
-
-function isHubSslEnabled() returns (boolean) {
-    match (config:getAsString("hub.ssl.enabled")) {
-        string stringConfigFromFile => { return <boolean>stringConfigFromFile; }
-        () => { return true; } //enabled by default
-    }
-}
-
 function getServiceSecureSocketConfig() returns (http:ServiceSecureSocket | ()) {
     if (!hubSslEnabled) {
         return;
     }
 
-    string keyStoreFilePath;
-    string keyStorePassword;
-
-    match (config:getAsString("hub.ssl.key_store.file_path")) {
-        string stringConfigFromFile => { keyStoreFilePath = stringConfigFromFile; }
-        () => { keyStoreFilePath = "${ballerina.home}/bre/security/ballerinaKeystore.p12"; }
-    }
-    match (config:getAsString("hub.ssl.key_store.password")) {
-        string stringConfigFromFile => { keyStorePassword = stringConfigFromFile; }
-        () => { keyStorePassword = "ballerina"; }
-    }
-
+    string keyStoreFilePath = config:getAsString("hub.ssl.key_store.file_path",
+                                                default="${ballerina.home}/bre/security/ballerinaKeystore.p12");
+    string keyStorePassword = config:getAsString("hub.ssl.key_store.password", default="ballerina");
     http:ServiceSecureSocket serviceSecureSocket =
                                     { keyStore: { filePath: keyStoreFilePath, password: keyStorePassword } };
     return serviceSecureSocket;
@@ -154,35 +92,25 @@ function getSecureSocketConfig() returns (http:SecureSocket | ()) {
     string trustStorePassword;
 
     if (!hubSslEnabled) {
-        match (config:getAsString("hub.ssl.trust_store.file_path")) {
-            string stringConfigFromFile => { trustStoreFilePath = stringConfigFromFile; }
-            () => { return; }
+        trustStoreFilePath = config:getAsString("hub.ssl.trust_store.file_path");
+        if (trustStoreFilePath == "") {
+            return;
         }
-        match (config:getAsString("hub.ssl.trust_store.password")) {
-            string stringConfigFromFile => {
-                trustStorePassword = stringConfigFromFile;
-                http:SecureSocket secureSocket = {
-                    trustStore: { filePath: trustStoreFilePath, password: trustStorePassword},
-                    verifyHostname: false
-                };
-                return secureSocket;
-            }
-            () => {
-                log:printWarn("Ignoring trust store file since password is not specified.");
-                return;
-            }
+        trustStorePassword = config:getAsString("hub.ssl.trust_store.password");
+        if (trustStorePassword == "") {
+            log:printWarn("Ignoring trust store file since password is not specified.");
+            return;
         }
+        http:SecureSocket secureSocket = {
+            trustStore: { filePath: trustStoreFilePath, password: trustStorePassword},
+            verifyHostname: false
+        };
+        return secureSocket;
     }
 
-    match (config:getAsString("hub.ssl.trust_store.file_path")) {
-        string stringConfigFromFile => { trustStoreFilePath = stringConfigFromFile; }
-        () => { trustStoreFilePath = "${ballerina.home}/bre/security/ballerinaTruststore.p12"; }
-    }
-    match (config:getAsString("hub.ssl.trust_store.password")) {
-        string stringConfigFromFile => { trustStorePassword = stringConfigFromFile; }
-        () => { trustStorePassword = "ballerina"; }
-    }
-
+    trustStoreFilePath = config:getAsString("hub.ssl.trust_store.file_path",
+                                                    default="${ballerina.home}/bre/security/ballerinaTruststore.p12");
+    trustStorePassword = config:getAsString("hub.ssl.trust_store.password", default="ballerina");
     http:SecureSocket secureSocket = { trustStore: { filePath: trustStoreFilePath, password: trustStorePassword},
                                         verifyHostname: false};
     return secureSocket;

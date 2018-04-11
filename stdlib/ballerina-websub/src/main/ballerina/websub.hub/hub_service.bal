@@ -318,13 +318,10 @@ function verifyIntent(string callback, string topic, map params) {
 @Param {value:"secret: The secret if specified when registering, empty string if not"}
 function changeTopicRegistrationInDatabase(string mode, string topic, string secret) {
     endpoint sql:Client subscriptionDbEp {
-        database: sql:DB_MYSQL,
-        host: hubDatabaseHost,
-        port: hubDatabasePort,
-        name: hubDatabaseName,
+        url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
@@ -334,14 +331,14 @@ function changeTopicRegistrationInDatabase(string mode, string topic, string sec
         var updateStatus = subscriptionDbEp -> update("INSERT INTO topics (topic,secret) VALUES (?,?)", sqlParams);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for registration");
-            sql:SQLConnectorError err => log:printError("Error occurred updating registration data: " + err.message);
+            error err => log:printError("Error occurred updating registration data: " + err.message);
         }
     } else {
         var updateStatus = subscriptionDbEp -> update("DELETE FROM topics WHERE topic=? AND secret=?",
                                                       sqlParams);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unregistration");
-            sql:SQLConnectorError err => log:printError("Error occurred updating unregistration data: " + err.message);
+            error err => log:printError("Error occurred updating unregistration data: " + err.message);
         }
     }
     _ = subscriptionDbEp -> close();
@@ -352,13 +349,10 @@ function changeTopicRegistrationInDatabase(string mode, string topic, string sec
 @Param {value:"subscriptionDetails: The details of the subscription changing"}
 function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails subscriptionDetails) {
     endpoint sql:Client subscriptionDbEp {
-        database: sql:DB_MYSQL,
-        host: hubDatabaseHost,
-        port: hubDatabasePort,
-        name: hubDatabaseName,
+        url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.topic};
@@ -375,7 +369,7 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
                                              sqlParams);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for subscription");
-            sql:SQLConnectorError err => log:printError("Error occurred updating subscription data: " + err.message);
+            error err => log:printError("Error occurred updating subscription data: " + err.message);
         }
     } else {
         sqlParams = [para1, para2];
@@ -383,7 +377,7 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
                                                "DELETE FROM subscriptions WHERE topic=? AND callback=?", sqlParams);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unsubscription");
-            sql:SQLConnectorError err => log:printError("Error occurred updating unsubscription data: " + err.message);
+            error err => log:printError("Error occurred updating unsubscription data: " + err.message);
         }
     }
     _ = subscriptionDbEp -> close();
@@ -403,20 +397,17 @@ function setupOnStartup() {
 @Description {value:"Function to load topic registrations from the database"}
 function addTopicRegistrationsOnStartup() {
     endpoint sql:Client subscriptionDbEp {
-        database: sql:DB_MYSQL,
-        host: hubDatabaseHost,
-        port: hubDatabasePort,
-        name: hubDatabaseName,
+        url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
     sql:Parameter[] sqlParams = [];
     table dt;
     var dbResult = subscriptionDbEp -> select("SELECT topic, secret FROM topics", sqlParams, TopicRegistration);
     match (dbResult) {
         table t => { dt = t; }
-        sql:SQLConnectorError sqlErr => {
+        error sqlErr => {
             log:printError("Error retreiving data from the database: " + sqlErr.message);
         }
     }
@@ -440,13 +431,10 @@ function addTopicRegistrationsOnStartup() {
 @Description {value:"Function to add subscriptions to the broker on startup, if persistence is enabled"}
 function addSubscriptionsOnStartup() {
     endpoint sql:Client subscriptionDbEp {
-        database: sql:DB_MYSQL,
-        host: hubDatabaseHost,
-        port: hubDatabasePort,
-        name: hubDatabaseName,
+        url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
 
     int time = time:currentTime().time;
@@ -459,7 +447,7 @@ function addSubscriptionsOnStartup() {
                                                 + " FROM subscriptions", sqlParams, websub:SubscriptionDetails);
     match (dbResult) {
         table t => { dt = t; }
-        sql:SQLConnectorError sqlErr => {
+        error sqlErr => {
             log:printError("Error retreiving data from the database: " + sqlErr.message);
         }
     }
