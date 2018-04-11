@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.TypeFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -155,6 +156,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
+import org.wso2.ballerinalang.util.TypeFlags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -363,7 +365,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         analyzeDef(objectNode.initFunction, objectEnv);
 
-        validateConstructor(objectNode);
+        validateConstructorAndCheckDefaultable(objectNode);
 
         //Visit temporary init statements in the init function
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(objectNode.initFunction,
@@ -386,6 +388,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
 
         analyzeDef(record.initFunction, structEnv);
+
+        validateDefaultable(record);
+
         record.docAttachments.forEach(doc -> analyzeDef(doc, structEnv));
     }
 
@@ -890,15 +895,44 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 endpointSPIAnalyzer.getEndpointConfigType((BStructSymbol) serviceNode.endpointType.tsymbol));
     }
 
-    private void validateConstructor(BLangObject objectNode) {
+    private void validateConstructorAndCheckDefaultable(BLangObject objectNode) {
+        boolean defaultableStatus = true;
         for (BLangVariable field : objectNode.fields) {
             if (field.expr != null || types.defaultValueExists(field.symbol.type)) {
                 continue;
             }
+            defaultableStatus = false;
             if (objectNode.initFunction.symbol.params.stream().filter(p -> p.field ? p.originalName.equals(field
                     .symbol.name) : p.name.equals(field.symbol.name)).collect(Collectors.toList()).size() == 0) {
                 dlog.error(objectNode.pos, DiagnosticCode.OBJECT_UN_INITIALIZABLE_FIELD, field);
             }
+        }
+
+        if (objectNode.initFunction.symbol.params.size() > 0) {
+            defaultableStatus = false;
+        }
+        if (defaultableStatus) {
+            objectNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED,
+                    TypeFlag.DEFAULTABLE));
+        } else {
+            objectNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED));
+        }
+    }
+
+    private void validateDefaultable(BLangRecord recordNode) {
+        boolean defaultableStatus = true;
+        for (BLangVariable field : recordNode.fields) {
+            if (field.expr != null || types.defaultValueExists(field.symbol.type)) {
+                continue;
+            }
+            defaultableStatus = false;
+            break;
+        }
+        if (defaultableStatus) {
+            recordNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED,
+                    TypeFlag.DEFAULTABLE));
+        } else {
+            recordNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED));
         }
     }
 
