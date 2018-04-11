@@ -13,35 +13,46 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl;
+package org.ballerinalang.net.grpc.nativeimpl.clientresponder;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.grpc.MessageUtils;
 
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER;
+import static org.ballerinalang.net.grpc.MessageConstants.MESSAGE_CONTEXT;
 import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 /**
- * Get the Headers of the Message.
+ * Native action to get the unique id of the connection.
  *
  * @since 1.0.0
- */
+ **/
 @BallerinaFunction(
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "getHeader",
-        args = {@Argument(name = "headerName", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        functionName = "getContext",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_RESPONDER,
+                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
+        returnType = {
+                @ReturnType(type = TypeKind.STRUCT, structType = MESSAGE_CONTEXT,
+                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
+        },
         isPublic = true
 )
-public class GetHeader extends BlockingNativeCallableUnit {
+public class GetContext extends BlockingNativeCallableUnit {
+
     @Override
     public void execute(Context context) {
-        context.setReturnValues(MessageUtils.getHeader(context));
+        BStruct requestStruct = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
+                PROTOCOL_STRUCT_PACKAGE_GRPC, MESSAGE_CONTEXT);
+        context.setReturnValues(requestStruct);
     }
 }

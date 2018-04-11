@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.DOUBLE;
 import static org.ballerinalang.net.grpc.MessageConstants.FLOAT;
 import static org.ballerinalang.net.grpc.MessageConstants.INT;
 import static org.ballerinalang.net.grpc.MessageConstants.STRING;
+import static org.ballerinalang.net.grpc.MessageContext.MESSAGE_CONTEXT_KEY;
 
 /**
  * Util methods to generate protobuf message.
@@ -65,28 +67,49 @@ public class MessageUtils {
 
     public static BValue getHeader(Context context) {
         String headerName = context.getStringArgument(0);
-        String headerValue = getHeaderValue(headerName);
-        
+        MessageContext messageContext = (MessageContext) context.getProperty(MESSAGE_CONTEXT_KEY);
+        String headerValue = getHeaderValue(messageContext, headerName);
+
         return new BString(headerValue);
     }
     
-    private static String getHeaderValue(String keyName) {
+    public static String getHeaderValue(MessageContext context, String keyName) {
         String headerValue = null;
-        if (MessageContext.isPresent()) {
-            MessageContext messageContext = MessageContext.DATA_KEY.get();
+        if (context != null) {
             if (keyName.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
                 Metadata.Key<byte[]> key = Metadata.Key.of(keyName, Metadata.BINARY_BYTE_MARSHALLER);
-                byte[] byteValues = messageContext.get(key);
+                byte[] byteValues = context.get(key);
                 // Referred : https://stackoverflow
                 // .com/questions/1536054/how-to-convert-byte-array-to-string-and-vice-versa
                 // https://stackoverflow.com/questions/2418485/how-do-i-convert-a-byte-array-to-base64-in-java
                 headerValue = byteValues != null ? Base64.getEncoder().encodeToString(byteValues) : null;
             } else {
                 Metadata.Key<String> key = Metadata.Key.of(keyName, Metadata.ASCII_STRING_MARSHALLER);
-                headerValue = messageContext.get(key);
+                headerValue = context.get(key);
             }
         }
         return headerValue;
+    }
+
+    public static Map<String, Object> updateContextProperties(Map<String, Object> properties) {
+        if (MessageContext.isPresent()) {
+            properties = properties != null ? properties : new HashMap<>();
+            MessageContext context = MessageContext.current();
+            properties.put(MESSAGE_CONTEXT_KEY, new MessageContext(context));
+        }
+        return properties;
+    }
+
+    public static void setRequestHeaders(Context context) {
+        if (context.getProperty(MESSAGE_CONTEXT_KEY) == null) {
+            LOG.debug("Request headers not found in the ballerina context");
+        }
+        // Set request headers.
+        io.grpc.Context msgContext = io.grpc.Context.current().withValue(MessageContext.DATA_KEY, (MessageContext)
+                context.getProperty(MESSAGE_CONTEXT_KEY)).attach();
+        if (msgContext == null) {
+            LOG.error("Error while setting request headers. gRPC context is null");
+        }
     }
     
     public static StreamObserver<Message> getResponseObserver(BRefType refType) {
