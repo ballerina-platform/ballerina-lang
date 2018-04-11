@@ -31,6 +31,9 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.util.CacheUtils;
+import org.ballerinalang.persistence.CorrelationUtil;
+import org.ballerinalang.persistence.State;
+import org.ballerinalang.persistence.StateStore;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -132,6 +135,10 @@ public abstract class ConnectionAction extends BlockingNativeCallableUnit {
         Throwable cause = outboundResponseStatusFuture.getStatus().getCause();
         if (cause != null) {
             outboundResponseStatusFuture.resetStatus();
+            State state = new State(context.getParentWorkerExecutionContext());
+            state.setIp(context.getParentWorkerExecutionContext().ip);
+            StateStore.getInstance().persistFaildState(
+                    CorrelationUtil.getInstanceId(context.getParentWorkerExecutionContext()), state);
             return new BValue[]{HttpUtil.getHttpConnectorError(context, cause)};
         }
         return new BValue[0];

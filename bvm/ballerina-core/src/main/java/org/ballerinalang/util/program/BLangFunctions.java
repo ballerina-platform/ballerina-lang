@@ -34,11 +34,14 @@ import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.RecoverableNativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.persistence.State;
+import org.ballerinalang.persistence.StateStore;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo.WorkerSet;
@@ -181,6 +184,14 @@ public class BLangFunctions {
         BLangScheduler.workerWaitForResponse(parentCtx);
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {
+            NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
+            if (nativeCallable instanceof RecoverableNativeCallableUnit) {
+                Object o = parentCtx.globalProps.get("instance.id");
+                if (o != null && o instanceof String) {
+                    String instanceId = (String) o;
+                    StateStore.getInstance().persistState(instanceId, new State(parentCtx));
+                }
+            }
             if (FunctionFlags.isAsync(flags)) {
                 invokeNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs);
                 resultCtx = parentCtx;
