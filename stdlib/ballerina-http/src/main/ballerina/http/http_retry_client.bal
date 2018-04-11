@@ -214,14 +214,14 @@ public function RetryClient::rejectPromise (PushPromise promise) {
 
 // Performs execute action of the retry client. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
-function performRetryClientExecuteAction (string path, Request request, string httpVerb,
+function performRetryClientExecuteAction (@sensitive string path, Request request, @sensitive string httpVerb,
                                RetryClient retryClient) returns (Response | HttpConnectorError) {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
     return performRetryAction(path, request, connectorAction, retryClient);
 }
 
 // Handles all the actions exposed through the retry client.
-function performRetryAction (string path, Request request, HttpOperation requestAction,
+function performRetryAction (@sensitive string path, Request request, HttpOperation requestAction,
                                 RetryClient retryClient) returns (Response | HttpConnectorError) {
     int currentRetryCount = 0;
     int retryCount = retryClient.retry.count;

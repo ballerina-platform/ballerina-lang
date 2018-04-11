@@ -306,6 +306,8 @@ public class HttpConstants {
 
     //Client Endpoint
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
+    public static final int CLIENT_ENDPOINT_CONFIG_INDEX = 0;
+    public static final int CLIENT_ENDPOINT_URL_INDEX = 0;
 
     //Client Endpoint Config
     public static final String URI = "uri";

@@ -182,8 +182,5 @@ function setAuthContext (jwt:Payload jwtPayload, string jwtToken) {
 }
 
 function getAuthenticatorConfigValue (string instanceId, string property) returns (string) {
-    match config:getAsString(instanceId + "." + property) {
-        string value => return value;
-        () => return "";
-    }
+    return config:getAsString(instanceId + "." + property, default = "");
 }

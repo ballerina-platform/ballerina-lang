@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -67,6 +68,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -100,6 +102,8 @@ public class Types {
     private SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
 
+    private Stack<BTypeSymbol> typeStack;
+
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
         if (types == null) {
@@ -115,6 +119,7 @@ public class Types {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.typeStack = new Stack<>();
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -1159,19 +1164,32 @@ public class Types {
      * @param type Type to check the existence if a default value
      * @return Flag indicating whether the given type has a default value
      */
-    public boolean defaultValueExists(BType type) {
-        if ((type.flags & TypeFlags.DEFAULTABLE_CHECKED) == TypeFlags.DEFAULTABLE_CHECKED) {
-            return (type.flags & TypeFlags.DEFAULTABLE) == TypeFlags.DEFAULTABLE;
+    public boolean defaultValueExists(DiagnosticPos pos, BType type) {
+        if (typeStack.contains(type.tsymbol)) {
+            dlog.error(pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, typeStack);
+            typeStack.empty();
+            return false;
         }
-        if (checkDefaultable(type)) {
+        typeStack.add(type.tsymbol);
+
+        boolean result;
+
+        if ((type.flags & TypeFlags.DEFAULTABLE_CHECKED) == TypeFlags.DEFAULTABLE_CHECKED) {
+            result = (type.flags & TypeFlags.DEFAULTABLE) == TypeFlags.DEFAULTABLE;
+            typeStack.pop();
+            return result;
+        }
+        if (checkDefaultable(pos, type)) {
             type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED, TypeFlag.DEFAULTABLE));
+            typeStack.pop();
             return true;
         }
         type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED));
+        typeStack.pop();
         return false;
     }
 
-    private boolean checkDefaultable(BType type) {
+    private boolean checkDefaultable(DiagnosticPos pos, BType type) {
         if (type.isNullable()) {
             return true;
         }
@@ -1181,7 +1199,7 @@ public class Types {
 
             if (structType.tsymbol.kind == SymbolKind.RECORD) {
                 for (BStructField field : structType.fields) {
-                    if (!field.expAvailable && !defaultValueExists(field.type)) {
+                    if (!field.expAvailable && !defaultValueExists(pos, field.type)) {
                         return false;
                     }
                 }
@@ -1193,7 +1211,7 @@ public class Types {
                 return false;
             }
             for (BStructField field : structType.fields) {
-                if (!field.expAvailable && !defaultValueExists(field.type)) {
+                if (!field.expAvailable && !defaultValueExists(pos, field.type)) {
                     return false;
                 }
             }
@@ -1206,7 +1224,7 @@ public class Types {
 
         if (type.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (defaultValueExists(memberType)) {
+                if (defaultValueExists(pos, memberType)) {
                     return true;
                 }
             }
