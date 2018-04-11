@@ -98,7 +98,7 @@ public type ClientEndpointConfig {
     string|FailoverConfig lbMode = ROUND_ROBIN,
     CacheConfig cache,
     string acceptEncoding = "auto",
-    AuthConfig authConfig,
+    AuthConfig? authConfig,
 };
 
 public native function createHttpClient(string uri, ClientEndpointConfig config) returns HttpClient;

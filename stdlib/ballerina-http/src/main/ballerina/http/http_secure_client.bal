@@ -206,9 +206,16 @@ public type HttpSecureClient object {
 
 @Description {value:"Creates an HTTP client capable of securing HTTP requests with authentication."}
 public function createHttpSecureClient(string url, ClientEndpointConfig config) returns HttpClient {
-    HttpSecureClient httpSecureClient = new(url, config);
-    log:printDebug("Created HTTP secure client: " + io:sprintf("%r", [httpSecureClient]));
-    return httpSecureClient;
+    match config.authConfig {
+        AuthConfig => {
+            HttpClient httpClient = new(url, config);
+            return httpClient;
+        }
+        {} => {
+            HttpSecureClient httpSecureClient = new(url, config);
+            return httpSecureClient;
+        }
+    }
 }
 
 @Description {value:"Prepare HTTP request with the required headers for authentication."}
