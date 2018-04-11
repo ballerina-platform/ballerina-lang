@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -51,7 +50,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -59,12 +57,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
@@ -200,12 +196,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define object nodes
         pkgNode.objects.forEach(object -> defineNode(object, pkgEnv));
 
-        // Define connector nodes.
-        pkgNode.connectors.forEach(con -> defineNode(con, pkgEnv));
-
-        // Define connector params and type.
-        defineConnectorParams(pkgNode.connectors, pkgEnv);
-
         // Define transformer nodes.
         pkgNode.transformers.forEach(tansformer -> defineNode(tansformer, pkgEnv));
 
@@ -223,9 +213,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define object field nodes.
         defineObjectFields(pkgNode.objects, pkgEnv);
-
-        // Define connector action nodes.
-        defineConnectorMembers(pkgNode.connectors, pkgEnv);
 
         // Define object functions
         defineObjectMembers(pkgNode.objects, pkgEnv);
@@ -462,16 +449,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangConnector connectorNode) {
-        BConnectorSymbol conSymbol = Symbols.createConnectorSymbol(Flags.asMask(connectorNode.flagSet),
-                names.fromIdNode(connectorNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        connectorNode.symbol = conSymbol;
-        defineSymbol(connectorNode.pos, conSymbol);
-        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, conSymbol.scope, env);
-        connectorNode.endpoints.forEach(ep -> defineNode(ep, connectorEnv));
-    }
-
-    @Override
     public void visit(BLangService serviceNode) {
         BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
                 names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, serviceNode.type, env.scope.owner);
@@ -594,23 +571,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define transformer source.
         defineNode(transformerNode.source, transformerEnv);
-    }
-
-    @Override
-    public void visit(BLangAction actionNode) {
-        BInvokableSymbol actionSymbol = Symbols
-                .createActionSymbol(Flags.asMask(actionNode.flagSet), names.fromIdNode(actionNode.name),
-                        env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
-        defineInvokableSymbol(actionNode, actionSymbol, invokableEnv);
-        actionNode.endpoints.forEach(ep -> defineNode(ep, invokableEnv));
-        //TODO check below as it create a new symbol for the connector
-        BVarSymbol varSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
-                names.fromIdNode((BLangIdentifier) createIdentifier(Names.CONNECTOR.getValue())),
-                env.enclPkg.symbol.pkgID, actionSymbol.owner.type, invokableEnv.scope.owner);
-
-        actionSymbol.receiverSymbol = varSymbol;
-        ((BInvokableType) actionSymbol.type).setReceiverType(varSymbol.type);
     }
 
     @Override
@@ -807,9 +767,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TYPE_DEFINITION:
                 pkgNode.typeDefinitions.add((BLangTypeDefinition) node);
                 break;
-            case CONNECTOR:
-                pkgNode.connectors.add((BLangConnector) node);
-                break;
             case SERVICE:
                 pkgNode.services.add((BLangService) node);
                 break;
@@ -892,25 +849,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         });
     }
 
-    private void defineConnectorMembers(List<BLangConnector> connectors, SymbolEnv pkgEnv) {
-        connectors.forEach(connector -> {
-            SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connector, connector.symbol.scope, pkgEnv);
-
-            connector.varDefs.forEach(varDef -> defineNode(varDef.var, conEnv));
-            defineConnectorInitFunction(connector, conEnv);
-            connector.actions.stream()
-                    .peek(action -> action.flagSet.add(Flag.PUBLIC))
-                    .forEach(action -> defineNode(action, conEnv));
-        });
-    }
-
-    private void defineConnectorParams(List<BLangConnector> connectors, SymbolEnv pkgEnv) {
-        connectors.forEach(connector -> {
-            SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connector, connector.symbol.scope, pkgEnv);
-            defineConnectorSymbolParams(connector, connector.symbol, conEnv);
-        });
-    }
-
     private void defineServiceMembers(List<BLangService> services, SymbolEnv pkgEnv) {
         services.forEach(service -> {
             SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(service, service.symbol.scope, pkgEnv);
@@ -963,24 +901,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             paramTypes.add(invokableSymbol.restParam.type);
         }
         invokableSymbol.type = new BInvokableType(paramTypes, invokableNode.returnTypeNode.type, null);
-    }
-
-    private void defineConnectorSymbolParams(BLangConnector connectorNode, BConnectorSymbol symbol,
-                                             SymbolEnv connectorEnv) {
-        List<BVarSymbol> paramSymbols =
-                connectorNode.params.stream()
-                        .peek(varNode -> defineNode(varNode, connectorEnv))
-                        .map(varNode -> varNode.symbol)
-                        .collect(Collectors.toList());
-
-        symbol.params = paramSymbols;
-
-        // Create connector type
-        List<BType> paramTypes = paramSymbols.stream()
-                .map(paramSym -> paramSym.type)
-                .collect(Collectors.toList());
-
-        symbol.type = new BConnectorType(paramTypes, symbol);
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
@@ -1038,34 +958,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
-    }
-
-    private void defineConnectorInitFunction(BLangConnector connector, SymbolEnv conEnv) {
-        BLangFunction initFunction = createInitFunction(connector.pos, connector.getName().getValue(),
-                Names.INIT_FUNCTION_SUFFIX);
-        //Add connector as a parameter to the init function
-        BLangVariable param = (BLangVariable) TreeBuilder.createVariableNode();
-        param.pos = connector.pos;
-        param.setName(this.createIdentifier(Names.CONNECTOR.getValue()));
-        BLangUserDefinedType connectorType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        connectorType.pos = connector.pos;
-        connectorType.typeName = connector.name;
-        connectorType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        param.setTypeNode(connectorType);
-        initFunction.addParameter(param);
-        //Add connector level variables to the init function
-        connector.varDefs.stream().filter(f -> f.var.expr != null)
-                .forEachOrdered(v -> initFunction.body.addStatement(createAssignmentStmt(v.var)));
-
-        addInitReturnStatement(initFunction.body);
-        connector.initFunction = initFunction;
-
-        BLangAction initAction = createNativeInitAction(connector.pos);
-        connector.initAction = initAction;
-
-        defineNode(connector.initFunction, conEnv);
-        defineNode(connector.initAction, conEnv);
-        connector.symbol.initFunctionSymbol = connector.initFunction.symbol;
     }
 
     private void defineObjectInitFunction(BLangObject object, SymbolEnv conEnv) {
@@ -1326,14 +1218,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         body.pos = pos;
         initFunction.setBody(body);
         return initFunction;
-    }
-
-    private BLangAction createNativeInitAction(DiagnosticPos pos) {
-        BLangAction initAction = (BLangAction) TreeBuilder.createActionNode();
-        initAction.setName(createIdentifier(Names.INIT_ACTION_SUFFIX.getValue()));
-        initAction.flagSet = EnumSet.of(Flag.NATIVE, Flag.PUBLIC);
-        initAction.pos = pos;
-        return initAction;
     }
 
     private IdentifierNode createIdentifier(String value) {

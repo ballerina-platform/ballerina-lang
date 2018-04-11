@@ -29,11 +29,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,151 +37,118 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangConnector extends BLangNode implements ConnectorNode {
-    
-    public BLangIdentifier name;
-    public List<BLangVariable> params;
-    public List<BLangVariableDef> varDefs;
-    public List<BLangAction> actions;
-    public Set<Flag> flagSet;
-    public List<BLangAnnotationAttachment> annAttachments;
-    public List<BLangDocumentation> docAttachments;
-    public List<BLangDeprecatedNode> deprecatedAttachments;
-    public List<BLangEndpoint> endpoints;
-    public BLangFunction initFunction;
-    public BLangAction initAction;
-
-    public BConnectorSymbol symbol;
-
-    public BLangConnector() {
-        this.params = new ArrayList<>();
-        this.varDefs = new ArrayList<>();
-        this.actions = new ArrayList<>();
-        this.flagSet = EnumSet.noneOf(Flag.class);
-        this.endpoints = new ArrayList<>();
-        this.annAttachments = new ArrayList<>();
-        this.docAttachments = new ArrayList<>();
-        this.deprecatedAttachments = new ArrayList<>();
-    }
 
     @Override
-    public BLangIdentifier getName() {
-        return name;
+    public IdentifierNode getName() {
+        return null;
     }
-    
+
     @Override
     public void setName(IdentifierNode name) {
-        this.name = (BLangIdentifier) name;
+
     }
 
     @Override
-    public List<BLangVariable> getParameters() {
-        return params;
+    public List<? extends VariableNode> getParameters() {
+        return null;
     }
-    
+
     @Override
     public void addParameter(VariableNode param) {
-        this.getParameters().add((BLangVariable) param);
+
     }
 
     @Override
-    public List<BLangVariableDef> getVariableDefs() {
-        return varDefs;
-    }
-    
-    @Override
-    public void addVariableDef(VariableDefinitionNode varDef) {
-        this.getVariableDefs().add((BLangVariableDef) varDef);
+    public List<? extends VariableDefinitionNode> getVariableDefs() {
+        return null;
     }
 
     @Override
-    public List<BLangAction> getActions() {
-        return actions;
+    public void addVariableDef(VariableDefinitionNode var) {
+
     }
-    
+
+    @Override
+    public List<? extends ActionNode> getActions() {
+        return null;
+    }
+
     @Override
     public void addAction(ActionNode action) {
-        this.getActions().add((BLangAction) action);
-    }
 
-    @Override
-    public void setInitFunction(FunctionNode function) {
-        this.initFunction = (BLangFunction) function;
-    }
-
-    @Override
-    public FunctionNode getInitFunction() {
-        return initFunction;
-    }
-
-    @Override
-    public void setInitAction(ActionNode action) {
-        this.initAction = (BLangAction) action;
-    }
-
-    @Override
-    public ActionNode getInitAction() {
-        return initAction;
-    }
-
-    @Override
-    public Set<Flag> getFlags() {
-        return flagSet;
-    }
-    
-    @Override
-    public void addFlag(Flag flag) {
-        this.getFlags().add(flag);
-    }
-
-    @Override
-    public List<BLangAnnotationAttachment> getAnnotationAttachments() {
-        return annAttachments;
-    }
-    
-    @Override
-    public void addAnnotationAttachment(AnnotationAttachmentNode annAttachement) {
-        this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachement);
-    }
-
-    @Override
-    public List<BLangDocumentation> getDocumentationAttachments() {
-        return docAttachments;
-    }
-
-    @Override
-    public void addDocumentationAttachment(DocumentationNode docAttachment) {
-        this.docAttachments.add((BLangDocumentation) docAttachment);
-    }
-
-    @Override
-    public List<BLangDeprecatedNode> getDeprecatedAttachments() {
-        return deprecatedAttachments;
-    }
-
-    @Override
-    public void addDeprecatedAttachment(DeprecatedNode deprecatedNode) {
-        this.deprecatedAttachments.add((BLangDeprecatedNode) deprecatedNode);
     }
 
     @Override
     public List<? extends EndpointNode> getEndpointNodes() {
-        return endpoints;
+        return null;
+    }
+
+    @Override
+    public void setInitFunction(FunctionNode function) {
+
+    }
+
+    @Override
+    public FunctionNode getInitFunction() {
+        return null;
+    }
+
+    @Override
+    public void setInitAction(ActionNode action) {
+
+    }
+
+    @Override
+    public ActionNode getInitAction() {
+        return null;
+    }
+
+    @Override
+    public Set<? extends Flag> getFlags() {
+        return null;
+    }
+
+    @Override
+    public void addFlag(Flag flag) {
+
+    }
+
+    @Override
+    public List<? extends AnnotationAttachmentNode> getAnnotationAttachments() {
+        return null;
+    }
+
+    @Override
+    public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
+
+    }
+
+    @Override
+    public List<? extends DocumentationNode> getDocumentationAttachments() {
+        return null;
+    }
+
+    @Override
+    public void addDocumentationAttachment(DocumentationNode annAttachment) {
+
+    }
+
+    @Override
+    public List<? extends DeprecatedNode> getDeprecatedAttachments() {
+        return null;
+    }
+
+    @Override
+    public void addDeprecatedAttachment(DeprecatedNode deprecatedAttachment) {
+
     }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
     }
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.CONNECTOR;
+        return null;
     }
-    
-    @Override
-    public String toString() {
-        return "BLangConnector: " + this.name + " (" + this.params +
-                ")\n\t Variable Defs: " + this.varDefs + "\n\t Actions: " + this.actions;
-    }
-
 }

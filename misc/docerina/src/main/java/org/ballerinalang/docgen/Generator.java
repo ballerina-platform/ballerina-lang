@@ -21,7 +21,6 @@ package org.ballerinalang.docgen;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.model.ActionDoc;
 import org.ballerinalang.docgen.model.AnnotationDoc;
-import org.ballerinalang.docgen.model.ConnectorDoc;
 import org.ballerinalang.docgen.model.Documentable;
 import org.ballerinalang.docgen.model.EnumDoc;
 import org.ballerinalang.docgen.model.Field;
@@ -44,7 +43,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -105,12 +103,6 @@ public class Generator {
                         documentables.add(createDocForNode(function));
                     }
                 }
-            }
-        }
-        // Check for connectors in the package
-        for (BLangConnector connector : balPackage.getConnectors()) {
-            if (connector.getFlags().contains(Flag.PUBLIC)) {
-                documentables.add(createDocForNode(connector));
             }
         }
         // Check for connectors in the package
@@ -346,34 +338,34 @@ public class Generator {
         return new StructDoc(structName, description(structNode), new ArrayList<>(), fields);
     }
 
-    /**
-     * Create documentation for connectors.
-     * @param connectorNode ballerina connector node.
-     * @return documentation for connectors.
-     */
-    public static ConnectorDoc createDocForNode(BLangConnector connectorNode) {
-        String connectorName = connectorNode.getName().value;
-        List<Variable> parameters = new ArrayList<>();
-        List<Documentable> actions = new ArrayList<>();
-
-        // Iterate through the connector parameters
-        if (connectorNode.getParameters().size() > 0) {
-            for (BLangVariable param : connectorNode.getParameters()) {
-                String dataType = type(param);
-                String desc = paramAnnotation(connectorNode, param);
-                Variable variable = new Variable(param.getName().value, dataType, desc);
-                parameters.add(variable);
-            }
-        }
-
-        //Iterate through the actions of the connectors
-        if (connectorNode.getActions().size() > 0) {
-            for (BLangAction action : connectorNode.getActions()) {
-                actions.add(createDocForNode(action));
-            }
-        }
-        return new ConnectorDoc(connectorName, description(connectorNode), actions, parameters);
-    }
+//    /**
+//     * Create documentation for connectors.
+//     * @param connectorNode ballerina connector node.
+//     * @return documentation for connectors.
+//     */
+//    public static ConnectorDoc createDocForNode(BLangConnector connectorNode) {
+//        String connectorName = connectorNode.getName().value;
+//        List<Variable> parameters = new ArrayList<>();
+//        List<Documentable> actions = new ArrayList<>();
+//
+//        // Iterate through the connector parameters
+//        if (connectorNode.getParameters().size() > 0) {
+//            for (BLangVariable param : connectorNode.getParameters()) {
+//                String dataType = type(param);
+//                String desc = paramAnnotation(connectorNode, param);
+//                Variable variable = new Variable(param.getName().value, dataType, desc);
+//                parameters.add(variable);
+//            }
+//        }
+//
+//        //Iterate through the actions of the connectors
+//        if (connectorNode.getActions().size() > 0) {
+//            for (BLangAction action : connectorNode.getActions()) {
+//                actions.add(createDocForNode(action));
+//            }
+//        }
+//        return new ConnectorDoc(connectorName, description(connectorNode), actions, parameters);
+//    }
 
     /**
      * Get the type of the variable.

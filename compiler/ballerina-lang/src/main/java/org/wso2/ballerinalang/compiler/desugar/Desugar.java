@@ -49,8 +49,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -90,7 +88,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangTransformerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
@@ -301,7 +298,6 @@ public class Desugar extends BLangNodeVisitor {
         endpointDesugar.rewriteServiceBoundToEndpointInPkg(pkgNode, env);
         pkgNode.transformers = rewrite(pkgNode.transformers, env);
         pkgNode.functions = rewrite(pkgNode.functions, env);
-        pkgNode.connectors = rewrite(pkgNode.connectors, env);
         pkgNode.services = rewrite(pkgNode.services, env);
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
@@ -451,39 +447,6 @@ public class Desugar extends BLangNodeVisitor {
         resourceNode.body = rewrite(resourceNode.body, resourceEnv);
         resourceNode.workers = rewrite(resourceNode.workers, resourceEnv);
         result = resourceNode;
-    }
-
-    @Override
-    public void visit(BLangConnector connectorNode) {
-        SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorNode.symbol.scope, env);
-        connectorNode.params = rewrite(connectorNode.params, conEnv);
-        connectorNode.actions = rewrite(connectorNode.actions, conEnv);
-        connectorNode.varDefs = rewrite(connectorNode.varDefs, conEnv);
-        connectorNode.endpoints = rewrite(connectorNode.endpoints, conEnv);
-        connectorNode.initFunction = rewrite(connectorNode.initFunction, conEnv);
-        connectorNode.initAction = rewrite(connectorNode.initAction, conEnv);
-        result = connectorNode;
-    }
-
-    @Override
-    public void visit(BLangAction actionNode) {
-        addReturnIfNotPresent(actionNode);
-        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionNode.symbol.scope, env);
-        Collections.reverse(actionNode.endpoints); // To preserve endpoint code gen order at action.
-        actionNode.endpoints = rewrite(actionNode.endpoints, actionEnv);
-        actionNode.body = rewrite(actionNode.body, actionEnv);
-        actionNode.workers = rewrite(actionNode.workers, actionEnv);
-
-        // we rewrite it's parameter list to have the receiver variable as the first parameter
-        BInvokableSymbol actionSymbol = actionNode.symbol;
-        List<BVarSymbol> params = actionSymbol.params;
-        BVarSymbol receiverSymbol = actionNode.symbol.receiverSymbol;
-        params.add(0, receiverSymbol);
-        BInvokableType actionType = (BInvokableType) actionSymbol.type;
-        if (receiverSymbol != null) {
-            actionType.paramTypes.add(0, receiverSymbol.type);
-        }
-        result = actionNode;
     }
 
     @Override
@@ -1168,12 +1131,6 @@ public class Desugar extends BLangNodeVisitor {
                                 iExpr.symbol, iExpr.type, iExpr.expr, iExpr.async);
                 attachedFunctionInvocation.actionInvocation = iExpr.actionInvocation;
                 result = attachedFunctionInvocation;
-                break;
-            case TypeTags.CONNECTOR:
-                List<BLangExpression> actionArgExprs = new ArrayList<>(iExpr.requiredArgs);
-                actionArgExprs.add(0, iExpr.expr);
-                result = new BLangActionInvocation(iExpr.pos, actionArgExprs, iExpr.namedArgs, iExpr.restArgs,
-                        iExpr.symbol, iExpr.type, iExpr.async);
                 break;
         }
     }

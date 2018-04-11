@@ -558,11 +558,6 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
-        // No implementation
-    }
-
-    @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
         // No implementation
     }

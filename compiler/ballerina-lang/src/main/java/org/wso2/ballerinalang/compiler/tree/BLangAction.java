@@ -27,17 +27,10 @@ public class BLangAction extends BLangInvokableNode implements ActionNode {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
     }
 
     @Override
     public NodeKind getKind() {
         return NodeKind.ACTION;
     }
-    
-    @Override
-    public String toString() {
-        return "BLangAction: " + super.toString();
-    }
-    
 }

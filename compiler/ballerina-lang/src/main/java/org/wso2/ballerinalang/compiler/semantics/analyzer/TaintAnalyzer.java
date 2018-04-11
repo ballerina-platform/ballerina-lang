@@ -34,12 +34,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -313,21 +311,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         visitEntryPoint(resourceNode, resourceEnv);
     }
 
-    public void visit(BLangConnector connectorNode) {
-        BSymbol connectorSymbol = connectorNode.symbol;
-        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, env);
-        attachTaintTableBasedOnAnnotations(connectorNode);
-        connectorNode.varDefs.forEach(var -> var.accept(this));
-        analyzeNode(connectorNode.initFunction, connectorEnv);
-        analyzeNode(connectorNode.initAction, connectorEnv);
-        connectorNode.actions.forEach(action -> analyzeNode(action, connectorEnv));
-    }
-
-    public void visit(BLangAction actionNode) {
-        BSymbol actionSymbol = actionNode.symbol;
-        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
-        visitInvokable(actionNode, actionEnv);
-    }
 
     public void visit(BLangStruct structNode) {
         BSymbol structSymbol = structNode.symbol;
@@ -364,8 +347,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
             // If the variable is a package/service/connector level variable, we don't need to check types.
             // It will we done during the init-function of the respective construct is visited.
-            if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE && (ownerSymTag & SymTag.SERVICE) != SymTag.SERVICE
-                    && (ownerSymTag & SymTag.CONNECTOR) != SymTag.CONNECTOR) {
+            if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE && (ownerSymTag & SymTag.SERVICE) != SymTag.SERVICE) {
                 analyzeNode(varNode.expr, varInitEnv);
                 setTaintedStatus(varNode, getObservedTaintedStatus());
             }
@@ -856,10 +838,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             typeInit.objectInitInvocation.accept(this);
         }
         setTaintedStatusList(typeTaintedStatus);
-    }
-
-    public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
-        /* ignore */
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {
@@ -1357,26 +1335,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
             }
             invokableNode.symbol.taintTable = taintTable;
-        }
-    }
-
-    private void attachTaintTableBasedOnAnnotations(BLangConnector connectorNode) {
-        if (connectorNode.symbol.taintTable == null) {
-            List<Boolean> retParamsTaintedStatus = new ArrayList<>();
-            Map<Integer, TaintRecord> taintTable = new HashMap<>();
-            taintTable.put(ALL_UNTAINTED_TABLE_ENTRY_INDEX, new TaintRecord(retParamsTaintedStatus, null));
-            if (connectorNode.params.size() > 0) {
-                // Append taint table with tainted status when each parameter is tainted.
-                for (int paramIndex = 0; paramIndex < connectorNode.params.size(); paramIndex++) {
-                    BLangVariable param = connectorNode.params.get(paramIndex);
-                    // If parameter is sensitive, test for this parameter being tainted is invalid.
-                    if (hasAnnotation(param, ANNOTATION_SENSITIVE)) {
-                        continue;
-                    }
-                    taintTable.put(paramIndex, new TaintRecord(retParamsTaintedStatus, null));
-                }
-            }
-            connectorNode.symbol.taintTable = taintTable;
         }
     }
 

@@ -115,27 +115,7 @@ public class AnnotationTest {
         // Assert.assertEquals(paramAnnotVal, "input parameter for oderPizza resource");
     }
 
-    @Test(description = "Test connector annotation", enabled = false)
-    public void testConnectorAnnotation() {
-        AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
-                .getEntryPackage().getConnectorInfoEntries()[0]
-                .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        AnnAttachmentInfo[] attachmentInfos = annotationInfo.getAttachmentInfoEntries();
-        String attributeValue = attachmentInfos[0].getAttributeValue("value").getStringValue();
-        Assert.assertEquals(attributeValue, "Test connector");
-    }
-
-    @Test(description = "Test action annotation", enabled = false)
-    public void testActionAnnotation() {
-        AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
-                .getEntryPackage().getConnectorInfoEntries()[0].getActionInfoEntries()[1]
-                .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        AnnAttachmentInfo[] attachmentInfos = annotationInfo.getAttachmentInfoEntries();
-        String attributeValue = attachmentInfos[0].getAttributeValue("value").getStringValue();
-        Assert.assertEquals(attributeValue, "Test action of test connector");
-    }
-
-    @Test(description = "Test struct annotation", enabled = false)
+   @Test(description = "Test struct annotation", enabled = false)
     public void testStructAnnotation() {
         AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
                 .getEntryPackage().getStructInfo("Person")

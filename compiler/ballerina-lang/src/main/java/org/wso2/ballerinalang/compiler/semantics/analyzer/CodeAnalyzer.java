@@ -29,12 +29,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -68,7 +66,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
@@ -591,14 +588,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.visitInvocable(resourceNode, resourceEnv);
     }
 
-    public void visit(BLangConnector connectorNode) {
-    }
-
     public void visit(BLangForever foreverStatement) {
         this.lastStatement = true;
-    }
-
-    public void visit(BLangAction actionNode) {
     }
 
     public void visit(BLangStruct structNode) {
@@ -1380,11 +1371,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         public void visit(BLangTypeInit connectorInitExpr) {
             dlog.error(connectorInitExpr.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER, "connector init");
-        }
-
-        public void visit(BLangActionInvocation actionInvocationExpr) {
-            // We should not reach here. Action invocations are captured as a BLangInvocation expr.
-            throw new IllegalStateException();
         }
 
         public void visit(BLangXMLQName xmlQName) {

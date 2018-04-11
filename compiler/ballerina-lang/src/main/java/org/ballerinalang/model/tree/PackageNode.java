@@ -50,10 +50,6 @@ public interface PackageNode extends Node {
 
     void addService(ServiceNode service);
 
-    List<? extends ConnectorNode> getConnectors();
-
-    void addConnector(ConnectorNode connector);
-
     List<? extends FunctionNode> getFunctions();
 
     void addFunction(FunctionNode function);

@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -47,11 +46,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
@@ -92,7 +89,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangTransformerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
@@ -158,12 +154,10 @@ import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.ActionInfo;
 import org.wso2.ballerinalang.programfile.AttachedFunctionInfo;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
-import org.wso2.ballerinalang.programfile.ConnectorInfo;
 import org.wso2.ballerinalang.programfile.DefaultValue;
 import org.wso2.ballerinalang.programfile.EnumInfo;
 import org.wso2.ballerinalang.programfile.EnumeratorInfo;
@@ -198,7 +192,6 @@ import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInf
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
-import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -221,7 +214,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -289,7 +281,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     private LocalVariableAttributeInfo localVarAttrInfo;
     private WorkerInfo currentWorkerInfo;
     private ServiceInfo currentServiceInfo;
-    private ConnectorInfo currentConnectorInfo;
 
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
@@ -449,7 +440,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         pkgNode.structs.forEach(this::createStructInfoEntry);
         pkgNode.enums.forEach(this::createEnumInfoEntry);
         pkgNode.typeDefinitions.forEach(this::createTypeDefinitionInfoEntry);
-        pkgNode.connectors.forEach(this::createConnectorInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
         pkgNode.services.forEach(this::createServiceInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
@@ -1131,18 +1121,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.CALL, operands);
     }
 
-    public void visit(BLangActionInvocation aIExpr) {
-        BInvokableSymbol actionSymbol = (BInvokableSymbol) aIExpr.symbol;
-        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, actionSymbol.pkgID);
-        int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, actionSymbol.name.value);
-
-        ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex, actionNameCPIndex);
-        int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
-        Operand[] operands = getFuncOperands(aIExpr, actionRefCPIndex);
-
-        emit(InstructionCodes.ACALL, operands);
-    }
-
     public void visit(BLangTypeInit cIExpr) {
         BSymbol structSymbol = cIExpr.type.tsymbol;
         int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
@@ -1215,7 +1193,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (opcode == InstructionCodes.MAP2T ||
                 opcode == InstructionCodes.JSON2T ||
                 opcode == InstructionCodes.ANY2T ||
-                opcode == InstructionCodes.ANY2C ||
                 opcode == InstructionCodes.ANY2E ||
                 opcode == InstructionCodes.ANY2M ||
                 opcode == InstructionCodes.T2JSON ||
@@ -1339,10 +1316,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private String generateFunctionSig(BType[] paramTypes) {
         return "(" + generateSig(paramTypes) + ")()";
-    }
-
-    private String generateConnectorSig(ConnectorInfo callableUnitInfo) {
-        return "(" + generateSig(callableUnitInfo.paramTypes) + ")";
     }
 
     private int getNextIndex(int typeTag, VariableIndex indexes) {
@@ -1716,9 +1689,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         CallableUnitInfo callableUnitInfo;
         if (iExpr.symbol.kind == SymbolKind.FUNCTION) {
             callableUnitInfo = pkgInfo.functionInfoMap.get(iExpr.symbol.name.value);
-        } else if (iExpr.symbol.kind == SymbolKind.ACTION) {
-            ConnectorInfo connectorInfo = pkgInfo.connectorInfoMap.get(iExpr.symbol.owner.name.value);
-            callableUnitInfo = connectorInfo.actionInfoMap.get(iExpr.symbol.name.value);
         } else {
             throw new IllegalStateException("Unsupported callable unit");
         }
@@ -2042,57 +2012,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    private void createConnectorInfoEntry(BLangConnector connectorNode) {
-        BConnectorType connectorType = (BConnectorType) connectorNode.symbol.type;
-        // Add connector name as an UTFCPEntry to the constant pool
-        int connectorNameCPIndex = addUTF8CPEntry(currentPkgInfo, connectorNode.name.value);
-        //Create connector info
-        ConnectorInfo connectorInfo = new ConnectorInfo(currentPackageRefCPIndex,
-                connectorNameCPIndex, connectorNode.symbol.flags);
-        connectorInfo.paramTypes = connectorType.paramTypes.toArray(new BType[0]);
-        connectorInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo, generateConnectorSig(connectorInfo));
-        // Add connector level variables
-        int localVarAttNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
-        LocalVariableAttributeInfo localVarAttributeInfo = new LocalVariableAttributeInfo(localVarAttNameIndex);
-        connectorNode.params.forEach(var -> visitVarSymbol(var.symbol, fieldIndexes, localVarAttributeInfo));
-        connectorNode.varDefs.forEach(var -> visitVarSymbol(var.var.symbol, fieldIndexes, localVarAttributeInfo));
-        connectorInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
-
-        // Create variable count attribute info
-        prepareIndexes(fieldIndexes);
-        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
-        addVariableCountAttributeInfo(currentPkgInfo, connectorInfo, fieldCount);
-
-        // Create the init function info
-        BLangFunction connectorInitFunction = (BLangFunction) connectorNode.getInitFunction();
-        createFunctionInfoEntry(connectorInitFunction);
-        this.currentPkgInfo.connectorInfoMap.put(connectorNode.name.value, connectorInfo);
-        // Create action info entries for all actions
-        connectorNode.actions.forEach(res -> createActionInfoEntry(res, connectorInfo));
-        createActionInfoEntry(connectorNode.initAction, connectorInfo);
-        fieldIndexes = new VariableIndex(FIELD);
-    }
-
-    private void createActionInfoEntry(BLangAction actionNode, ConnectorInfo connectorInfo) {
-        BInvokableSymbol actionSymbol = actionNode.symbol;
-        BInvokableType actionType = (BInvokableType) actionSymbol.type;
-        // Add action name as an UTFCPEntry to the constant pool
-        int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, actionNode.name.value);
-        ActionInfo actionInfo = new ActionInfo(currentPackageRefCPIndex, actionNameCPIndex);
-
-        actionInfo.paramTypes = actionType.paramTypes.toArray(new BType[0]);
-        populateInvokableSignature(actionType, actionInfo);
-        actionInfo.flags = actionSymbol.flags;
-        // Add worker info
-        this.addWorkerInfoEntries(actionInfo, actionNode.getWorkers());
-
-        // Add parameter default value info
-        addParameterDefaultValues(actionNode, actionInfo);
-
-        // Add action info to the connector info
-        connectorInfo.actionInfoMap.put(actionNode.name.getValue(), actionInfo);
-    }
 
     @Override
     public void visit(BLangEndpoint endpointNode) {
@@ -2478,25 +2397,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangConnector connectorNode) {
-        BLangFunction initFunction = (BLangFunction) connectorNode.getInitFunction();
-        visit(initFunction);
-
-        currentConnectorInfo = currentPkgInfo.getConnectorInfo(connectorNode.getName().getValue());
-
-        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorNode.symbol.scope, this.env);
-        connectorNode.actions.forEach(action -> genNode(action, connectorEnv));
-        genNode(connectorNode.initAction, connectorEnv);
-    }
-
-    public void visit(BLangAction actionNode) {
-        ActionInfo actionInfo = currentConnectorInfo.actionInfoMap.get(actionNode.name.getValue());
-        currentCallableUnitInfo = actionInfo;
-
-        SymbolEnv actionEnv = SymbolEnv
-                .createResourceActionSymbolEnv(actionNode, actionNode.symbol.scope, this.env);
-        visitInvokableNode(actionNode, currentCallableUnitInfo, actionEnv);
-    }
 
     public void visit(BLangForever foreverStatement) {
         /* ignore */

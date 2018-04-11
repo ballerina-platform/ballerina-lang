@@ -150,7 +150,6 @@ public interface InstructionCodes {
     int TR_RETRY = 119;
     int CALL = 120;
     int VCALL = 121;
-    int ACALL = 122;
     int THROW = 123;
     int ERRSTORE = 124;
     int FPCALL = 125;
@@ -213,7 +212,6 @@ public interface InstructionCodes {
     int ANY2M = 176;
     int ANY2E = 177;
     int ANY2T = 178;
-    int ANY2C = 179;
     int CHECKCAST = 180;
     int NULL2JSON = 181;
 
@@ -250,7 +248,6 @@ public interface InstructionCodes {
     int LENGTHOF = 208;
 
     int NEWSTRUCT = 210;
-    int NEWCONNECTOR = 211;
     int NEWMAP = 212;
     int NEWJSON = 213;
     int NEWTABLE = 215;
