@@ -35,7 +35,7 @@ public class TracingLaunchListener implements LaunchListener {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
         if (Boolean.valueOf(configRegistry.getConfigOrDefault(CONFIG_TRACING_ENABLED, String.valueOf(Boolean.FALSE)))) {
             ObservabilityUtils.addObserver(new BallerinaTracingObserver());
-            TracersStore.getInstance(); // Load tracer store
+            TracersStore.getInstance().loadTracers();
         }
     }
 

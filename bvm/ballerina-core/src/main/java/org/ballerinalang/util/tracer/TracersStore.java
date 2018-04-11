@@ -41,6 +41,7 @@ class TracersStore {
 
     private List<TracerGenerator> tracers;
     private Map<String, Map<String, Tracer>> tracerStore;
+    private Map<String, String> tracingConfigs;
 
     private static TracersStore instance = new TracersStore();
 
@@ -49,7 +50,10 @@ class TracersStore {
     }
 
     private TracersStore() {
-        Map<String, String> tracingConfigs = ConfigRegistry.getInstance().getConfigTable(CONFIG_TABLE_TRACING);
+        tracingConfigs = ConfigRegistry.getInstance().getConfigTable(CONFIG_TABLE_TRACING);
+    }
+
+    public void loadTracers() {
         if (Boolean.parseBoolean(tracingConfigs.get(ENABLED_CONFIG))) {
 
             this.tracers = new ArrayList<>();
