@@ -52,7 +52,7 @@ public class LSAnnotationCache {
         if (lsAnnotationCache == null) {
             lsAnnotationCache = new LSAnnotationCache();
             List<BLangPackage> builtins = LSPackageLoader.getBuiltinPackages();
-            Map<String, BLangPackage> packages = LSPackageCache.getInstance().getPackageMap();
+            Map<String, BLangPackage> packages = LSPackageCache.getStaticPackageMap();
             builtins.forEach(bLangPackage -> packages.put(bLangPackage.packageID.getName().getValue(), bLangPackage));
             lsAnnotationCache.loadAnnotations(packages.values().stream().collect(Collectors.toList()));
         }

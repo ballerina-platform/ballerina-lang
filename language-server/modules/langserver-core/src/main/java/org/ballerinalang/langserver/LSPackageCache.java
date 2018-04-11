@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.PrintStream;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -34,7 +35,10 @@ import java.util.Map;
 public class LSPackageCache {
 
     private ExtendedPackageCache packageCache = null;
+    
     private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
+    
+    private static Map<String, BLangPackage> staticPackageMap = new HashMap<>();
 
     private static final String[] staticPkgNames = {"http", "http.swagger", "net.uri", "mime", "auth", "auth.authz",
             "auth.authz.permissionstore", "auth.basic", "auth.jwtAuth", "auth.userstore", "auth.utils", "caching",
@@ -109,7 +113,8 @@ public class LSPackageCache {
                     new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
             try {
                 // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
-                LSPackageLoader.getPackageById(tempCompilerContext, packageID);
+                BLangPackage bLangPackage = LSPackageLoader.getPackageById(tempCompilerContext, packageID);
+                staticPackageMap.put(bLangPackage.packageID.bvmAlias(), bLangPackage);
             } catch (Exception e) {
                 PrintStream errPrintStream = System.err;
                 errPrintStream.println("Error while loading package :" + staticPkgName);
@@ -148,5 +153,9 @@ public class LSPackageCache {
         public void clearCache() {
             this.packageMap.clear();
         }
+    }
+
+    public static Map<String, BLangPackage> getStaticPackageMap() {
+        return staticPackageMap;
     }
 }

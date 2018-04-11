@@ -1,3 +1,0 @@
-//Example depicts ballerina server connector CORS configuration. CORS headers can apply in both service/resouce levels.
-//Service level CORS headers applies to all the resources, unless it is not configured at resource level.
-//Ballerina CORS supports for both simple and pre-flight requests.
