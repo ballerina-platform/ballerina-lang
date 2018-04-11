@@ -63,4 +63,13 @@ public class InitWorkerResponseContext implements WorkerResponseContext {
         return null;
     }
 
+    @Override
+    public void setLocalProperty(String key, Object val) {
+        // do nothing.
+    }
+
+    @Override
+    public Object getLocalProperty(String key) {
+        return null;
+    }
 }

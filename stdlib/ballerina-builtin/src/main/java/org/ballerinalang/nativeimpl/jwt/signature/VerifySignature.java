@@ -38,8 +38,8 @@ import java.security.interfaces.RSAPublicKey;
  * @since 0.964.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jwt.signature",
-        functionName = "verify",
+        orgName = "ballerina", packageName = "jwt",
+        functionName = "verifySignature",
         args = {
                 @Argument(name = "data", type = TypeKind.STRING),
                 @Argument(name = "signature", type = TypeKind.STRING),
@@ -49,7 +49,7 @@ import java.security.interfaces.RSAPublicKey;
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class Verify extends BlockingNativeCallableUnit {
+public class VerifySignature extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {

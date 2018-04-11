@@ -102,7 +102,7 @@ public class Types {
     private SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
 
-    private Stack<BTypeSymbol> typeStack;
+    private Stack<BType> typeStack;
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -837,6 +837,9 @@ public class Types {
 
         @Override
         public BSymbol visit(BTupleType t, BType s) {
+            if (s == symTable.anyType) {
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+            }
             return symTable.notFoundSymbol;
         }
 
@@ -1165,12 +1168,11 @@ public class Types {
      * @return Flag indicating whether the given type has a default value
      */
     public boolean defaultValueExists(DiagnosticPos pos, BType type) {
-        if (typeStack.contains(type.tsymbol)) {
+        if (typeStack.contains(type)) {
             dlog.error(pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, typeStack);
-            typeStack.empty();
             return false;
         }
-        typeStack.add(type.tsymbol);
+        typeStack.add(type);
 
         boolean result;
 
