@@ -33,6 +33,7 @@ import org.ballerinalang.bre.bvm.SyncCallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
+import org.ballerinalang.bre.bvm.persistency.PersistenceUtils;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -174,10 +175,12 @@ public class BLangFunctions {
     public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse,
             int flags) {
+
         if (FunctionFlags.isObserved(flags)) {
             ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
                     callableUnitInfo.getName(), parentCtx);
         }
+        persistState(parentCtx);
         BLangScheduler.workerWaitForResponse(parentCtx);
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {
@@ -198,6 +201,11 @@ public class BLangFunctions {
         }
         resultCtx = BLangScheduler.resume(resultCtx, true);
         return resultCtx;
+    }
+
+    private static void persistState(WorkerExecutionContext ctx) {
+        String jsonPaylaod = PersistenceUtils.getJson(ctx);
+        PersistenceUtils.saveJsonFIle(jsonPaylaod, Integer.toString(ctx.programFile.getMagicValue()));
     }
 
     private static CallableWorkerResponseContext createWorkerResponseContext(BType[] retParamTypes,

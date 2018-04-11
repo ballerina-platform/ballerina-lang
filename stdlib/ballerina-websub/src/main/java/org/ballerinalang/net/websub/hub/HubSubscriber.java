@@ -59,8 +59,7 @@ class HubSubscriber extends Consumer {
         ProgramFile programFile = Hub.getInstance().getHubProgramFile();
         byte[] bytes = new byte[0];
         for (ContentChunk chunk:message.getContentChunks()) {
-            bytes = new byte[chunk.getBytes().readableBytes()];
-            chunk.getBytes().getBytes(0, bytes);
+            bytes = chunk.getBytes();
         }
         BValue[] args = {new BString(callback),
                 subscriptionDetails,
