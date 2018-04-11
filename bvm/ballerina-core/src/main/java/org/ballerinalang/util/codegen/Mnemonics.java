@@ -182,6 +182,9 @@ public class Mnemonics {
         mnemonics[InstructionCodes.JSON2B] = "json2b";
         mnemonics[InstructionCodes.T2JSON] = "t2json";
         mnemonics[InstructionCodes.JSON2T] = "json2t";
+        mnemonics[InstructionCodes.JSON2MAP] = "json2map";
+        mnemonics[InstructionCodes.MAP2JSON] = "map2json";
+        mnemonics[InstructionCodes.JSON2T] = "json2t";
         mnemonics[InstructionCodes.LENGTHOF] = "lengthof";
         mnemonics[InstructionCodes.NULL2S] = "null2s";
         mnemonics[InstructionCodes.ANY2SCONV] = "any2sconv";

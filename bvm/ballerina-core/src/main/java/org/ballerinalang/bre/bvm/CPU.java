@@ -27,6 +27,7 @@ import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
@@ -3054,8 +3055,23 @@ public class CPU {
         // TODO Union types, tuple types
         return false;
     }
+    
+    private static boolean checkUnionCast(BValue rhsValue, BType lhsType) {
+        BUnionType unionType = (BUnionType) lhsType;
+        for (BType memberType : unionType.getMemberTypes()) {
+            if (checkCast(rhsValue, memberType)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private static boolean checkCast(BValue rhsValue, BType lhsType) {
+        // Check union types
+        if (lhsType.getTag() == TypeTags.UNION_TAG) {
+            return checkUnionCast(rhsValue, lhsType);
+        }
+        
         BType rhsType = BTypes.typeNull;
         if (rhsValue != null) {
             rhsType = rhsValue.getType();
@@ -3605,7 +3621,7 @@ public class CPU {
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.convertJSONToMap(json, targetType);
+            sf.refRegs[j] = JSONUtils.jsonNodeToBMap(json.value(), targetType);
         } catch (Exception e) {
             String errorMsg = "cannot convert '" + json.getType() + "' to type '" + targetType + "': " +
                     e.getMessage();
