@@ -1,5 +1,11 @@
 import ballerina/http;
 import ballerina/mime;
+import ballerina/io;
+
+function testContentType (http:Response res, string contentTypeValue) returns (string?) {
+    res.setContentType(contentTypeValue);
+    return res.getContentType();
+}
 
 function testGetContentLength (http:Response res) returns (string) {
     return res.getHeader("content-length");
@@ -33,6 +39,12 @@ function testGetBinaryPayload (http:Response res) returns (blob | http:PayloadEr
 
 function testGetXmlPayload (http:Response res) returns (xml | http:PayloadError) {
     return res.getXmlPayload();
+}
+
+function testSetPayloadAndGetText ((string | xml | json | blob | io:ByteChannel) payload) returns string | http:PayloadError {
+    http:Response res = new;
+    res.setPayload(payload);
+    return res.getStringPayload();
 }
 
 function testRemoveHeader (http:Response res, string key) returns (http:Response) {

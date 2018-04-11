@@ -14,3 +14,4 @@ CREATE TABLE IF NOT EXISTS CustomersTrx(
 );
 /
 INSERT INTO CustomerTrx VALUES (30, 'Oliver', 200000, 'UK');
+/

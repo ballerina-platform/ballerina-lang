@@ -44,7 +44,7 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
                                            apiDocURLBodyPart, authorsBodyPart, keywordsBodyPart, licenseBodyPart];
     http:Request req = new;
     req.addHeader("Authorization", "Bearer " + accessToken);
-    req.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
+    req.setBodyParts(bodyParts, mime:MULTIPART_FORM_DATA);
     
     var result = httpEndpoint -> post("", req);
     http:Response httpResponse = check result;
