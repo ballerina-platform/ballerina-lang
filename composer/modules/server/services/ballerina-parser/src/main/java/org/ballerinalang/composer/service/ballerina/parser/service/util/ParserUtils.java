@@ -34,14 +34,10 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Pa
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.RecordModel;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Struct;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.StructField;
-import org.ballerinalang.langserver.CollectDiagnosticListener;
 import org.ballerinalang.langserver.LSPackageLoader;
-import org.ballerinalang.langserver.TextDocumentServiceUtil;
-import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
-import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.EnumNode;
@@ -67,7 +63,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -121,12 +116,12 @@ public class ParserUtils {
         untitledProject = untitledDir.toPath();
         // Now lets create a empty untitled.bal to fool compiler.
         File untitledBal = new File(Paths.get(untitledProject.toString(),
-                UNTITLED_BAL).toString());
+                                              UNTITLED_BAL).toString());
         try {
             untitledBal.createNewFile();
         } catch (IOException e) {
             logger.error("Unable to create untitled project directory, " +
-                    "unsaved files might not work properly.");
+                                 "unsaved files might not work properly.");
         }
     }
 
@@ -260,7 +255,7 @@ public class ParserUtils {
             }
         } catch (Exception e) {
             // Above catch is to fail safe composer front end due to core errors.
-            logger.warn("Error while loading packages");
+            logger.warn("Error while loading package: " + e.getMessage());
         }
         return modelPackage;
     }
@@ -393,7 +388,7 @@ public class ParserUtils {
             addActions(actions, connector.getActions());
 
             modelPackage.addConnectorsItem(createNewConnector(connector.getName().getValue(),
-                    annotations, actions, parameters, null, fileName));
+                                                              annotations, actions, parameters, null, fileName));
         } else {
             ModelPackage modelPackage = new ModelPackage();
             modelPackage.setName(packagePath);
@@ -408,7 +403,7 @@ public class ParserUtils {
             addActions(actions, connector.getActions());
 
             modelPackage.addConnectorsItem(createNewConnector(connector.getName().getValue(),
-                    annotations, actions, parameters, null, fileName));
+                                                              annotations, actions, parameters, null, fileName));
             packages.put(packagePath, modelPackage);
         }
     }
@@ -757,10 +752,11 @@ public class ParserUtils {
 
     /**
      * Create a new Record Model.
-     * @param name                  Record Name
-     * @param fields                List of Fields
-     * @param fileName              File name
-     * @return {@link RecordModel}  New Record Model  
+     *
+     * @param name     Record Name
+     * @param fields   List of Fields
+     * @param fileName File name
+     * @return {@link RecordModel}  New Record Model
      */
     private static RecordModel createNewRecord(String name, List<BLangVariable> fields, String fileName) {
         RecordModel recordModel = new RecordModel(name);
@@ -770,7 +766,7 @@ public class ParserUtils {
             recordModel.addField(objectField);
         });
         recordModel.setFileName(fileName);
-        
+
         return recordModel;
     }
 
@@ -868,89 +864,5 @@ public class ParserUtils {
                 pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(), Names.BUILTIN_PACKAGE.getValue()))));
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
-    }
-
-    /**
-     * Return a compilation unit for a given text.
-     *
-     * @param content
-     * @return
-     */
-    @Deprecated
-    public static BLangCompilationUnit compileFragment(String content) {
-        Path unsaved = Paths.get(untitledProject.toString(), UNTITLED_BAL);
-        synchronized (ParserUtils.class) {
-            // Since we use the same file name for all the fragment passes we need to make sure following -
-            // does not run parallelly.
-            documentManager.openFile(unsaved, content);
-            BallerinaFile model = compile(content, unsaved, CompilerPhase.DEFINE);
-            documentManager.closeFile(unsaved);
-            if (model.getBLangPackage() != null) {
-                return model.getBLangPackage().getCompilationUnits().stream().
-                        filter(compUnit -> UNTITLED_BAL.equals(compUnit.getName())).findFirst().get();
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Compile a Ballerina file.
-     *
-     * @param content file content
-     * @param path    file path
-     * @return
-     */
-    @Deprecated
-    public static BallerinaFile compile(String content, Path path) {
-        return compile(content, path, CompilerPhase.CODE_ANALYZE);
-    }
-
-    /**
-     * Compile a Ballerina file.
-     *
-     * @param content       file content
-     * @param path          file path
-     * @param compilerPhase {CompilerPhase} set phase for the compiler.
-     * @return
-     */
-    @Deprecated
-    public static BallerinaFile compile(String content, Path path, CompilerPhase compilerPhase) {
-        if (documentManager.isFileOpen(path)) {
-            documentManager.updateFile(path, content);
-        } else {
-            documentManager.openFile(path, content);
-        }
-
-        String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path);
-        String pkgName = TextDocumentServiceUtil.getPackageNameForGivenFile(sourceRoot, path.toString());
-        LSDocument sourceDocument = new LSDocument();
-        sourceDocument.setUri(path.toUri().toString());
-        sourceDocument.setSourceRoot(sourceRoot);
-
-        PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-        if ("".equals(pkgName)) {
-            Path filePath = path.getFileName();
-            if (filePath != null) {
-                pkgName = filePath.toString();
-            }
-        }
-        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
-                                         sourceDocument, true, documentManager, CompilerPhase.DEFINE, null);
-
-        List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
-        CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
-        context.put(DiagnosticListener.class, diagnosticListener);
-
-        BLangPackage bLangPackage = null;
-        try {
-            Compiler compiler = Compiler.getInstance(context);
-            bLangPackage = compiler.compile(pkgName);
-        } catch (Exception e) {
-            // Ignore.
-        }
-        BallerinaFile bfile = new BallerinaFile();
-        bfile.setBLangPackage(bLangPackage);
-        bfile.setDiagnostics(balDiagnostics);
-        return bfile;
     }
 }
