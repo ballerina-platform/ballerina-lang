@@ -82,6 +82,7 @@ public type TargetService {
 @Field {value:"failoverConfig: Failover configuration"}
 @Field {value:"cache: HTTP caching related configurations"}
 @Field {value:"acceptEncoding: Specifies the way of handling accept-encoding header."}
+@Field {value:"auth: HTTP authentication releated configurations."}
 public type ClientEndpointConfig {
     CircuitBreakerConfig? circuitBreaker,
     int timeoutMillis = 60000,
@@ -98,7 +99,7 @@ public type ClientEndpointConfig {
     string|FailoverConfig lbMode = ROUND_ROBIN,
     CacheConfig cache,
     string acceptEncoding = "auto",
-    AuthConfig? authConfig,
+    AuthConfig? auth,
 };
 
 public native function createHttpClient(string uri, ClientEndpointConfig config) returns HttpClient;

@@ -216,7 +216,7 @@ public type HttpSecureClient object {
 
 @Description {value:"Creates an HTTP client capable of securing HTTP requests with authentication."}
 public function createHttpSecureClient(string url, ClientEndpointConfig config) returns HttpClient {
-    match config.authConfig {
+    match config.auth {
         AuthConfig => {
             HttpClient httpClient = new(url, config);
             return httpClient;
@@ -232,10 +232,10 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 @Param {value:"req: An HTTP outbound request message"}
 @Param {value:"request:Client endpoint configurations"}
 public function prepareRequest(Request req, ClientEndpointConfig config) returns (()|HttpConnectorError) {
-    string scheme = config.authConfig.scheme;
+    string scheme = config.auth.scheme;
     if (scheme == BASIC_SCHEME){
-        string username = config.authConfig.username;
-        string password = config.authConfig.password;
+        string username = config.auth.username;
+        string password = config.auth.password;
         var encodedStringVar = util:base64EncodeString(username + ":" + password);
         string encodedString;
         match encodedStringVar {
@@ -248,11 +248,11 @@ public function prepareRequest(Request req, ClientEndpointConfig config) returns
         }
         req.setHeader(AUTHORIZATION, BASIC + encodedString);
     } else if (scheme == OAUTH_SCHEME){
-        if (config.authConfig.accessToken == EMPTY_STRING) {
-            string refreshToken = config.authConfig.refreshToken;
-            string clientId = config.authConfig.clientId;
-            string clientSecret = config.authConfig.clientSecret;
-            string refreshTokenUrl = config.authConfig.refreshTokenUrl;
+        if (config.auth.accessToken == EMPTY_STRING) {
+            string refreshToken = config.auth.refreshToken;
+            string clientId = config.auth.clientId;
+            string clientSecret = config.auth.clientSecret;
+            string refreshTokenUrl = config.auth.refreshTokenUrl;
 
             if (refreshToken != EMPTY_STRING && clientId != EMPTY_STRING && clientSecret != EMPTY_STRING) {
                 var accessTokenValueResponse = getAccessTokenFromRefreshToken(config);
@@ -266,7 +266,7 @@ public function prepareRequest(Request req, ClientEndpointConfig config) returns
                 return httpConnectorError;
             }
         } else {
-            req.setHeader(AUTHORIZATION, BEARER + config.authConfig.accessToken);
+            req.setHeader(AUTHORIZATION, BEARER + config.auth.accessToken);
         }
     } else if (scheme == JWT_SCHEME){
         string authToken = runtime:getInvocationContext().authenticationContext.authToken;
@@ -280,10 +280,10 @@ public function prepareRequest(Request req, ClientEndpointConfig config) returns
 @Return {value:"AccessToken received from the authorization server"}
 @Return {value:"Error occured during HTTP client invocation"}
 function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (string|HttpConnectorError) {
-    string refreshToken = config.authConfig.refreshToken;
-    string clientId = config.authConfig.clientId;
-    string clientSecret = config.authConfig.clientSecret;
-    string refreshTokenUrl = config.authConfig.refreshTokenUrl;
+    string refreshToken = config.auth.refreshToken;
+    string clientId = config.auth.clientId;
+    string clientSecret = config.auth.clientSecret;
+    string refreshTokenUrl = config.auth.refreshTokenUrl;
     HttpClient refreshTokenClient = createHttpSecureClient(refreshTokenUrl, {});
     string refreshTokenRequestPath = "/oauth2/v3/token";
     string requestParams = "refresh_token=" + refreshToken + "&grant_type=refresh_token&client_secret=" + clientSecret + "&client_id=" + clientId;
