@@ -22,11 +22,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
@@ -36,34 +35,24 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "task",
-        functionName = "scheduleAppointment",
-        args = {@Argument(name = "onTrigger", type = TypeKind.FUNCTION),
-                @Argument(name = "onError", type = TypeKind.FUNCTION),
-                @Argument(name = "scheduleCronExpression", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        functionName = "Appointment.schedule",
+        args = {@Argument(name = "app", type = TypeKind.STRUCT, structType = "Appointment",
+                structPackage = "ballerina.task")},
         isPublic = true
 )
-public class BalScheduleAppointment extends BlockingNativeCallableUnit {
+public class Schedule extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
-        FunctionRefCPEntry onTriggerFunctionRefCPEntry;
-        FunctionRefCPEntry onErrorFunctionRefCPEntry = null;
-        if (ctx.getLocalWorkerData().refRegs[0] != null &&
-                ctx.getLocalWorkerData().refRegs[0] instanceof BFunctionPointer) {
-            onTriggerFunctionRefCPEntry = ((BFunctionPointer) ctx.getRefArgument(0)).value();
-        } else {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_TASK_CONFIG);
-        }
-        if (ctx.getLocalWorkerData().refRegs[1] != null &&
-                ctx.getLocalWorkerData().refRegs[1] instanceof BFunctionPointer) {
-            onErrorFunctionRefCPEntry = ((BFunctionPointer) ctx.getRefArgument(1)).value();
-        }
-        String schedule = ctx.getStringArgument(0);
+        BStruct task = (BStruct) ctx.getRefArgument(0);
+        FunctionRefCPEntry onTriggerFunctionRefCPEntry = ((BFunctionPointer) task.getRefField(0)).value();
+        FunctionRefCPEntry onErrorFunctionRefCPEntry =
+                task.getRefField(1) != null ? ((BFunctionPointer) task.getRefField(1)).value() : null;
+        String schedule = task.getStringField(0);
 
         try {
             Appointment appointment =
                     new Appointment(this, ctx, schedule, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
-            ctx.setReturnValues(new BString(appointment.getId()));
+            task.setStringField(0, appointment.getId());
         } catch (SchedulingException e) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_TASK_CONFIG);
         }

@@ -16,37 +16,31 @@
  *  under the License.
  *
  */
-package org.ballerinalang.nativeimpl.task.stop;
+package org.ballerinalang.nativeimpl.task.appointment;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.task.TaskRegistry;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.model.task:stopTask.
+ * Native function ballerina.task:scheduleAppointment.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "task",
-        functionName = "stopTask",
-        args = {@Argument(name = "taskID", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        functionName = "Appointment.cancel",
+        args = {@Argument(name = "app", type = TypeKind.STRUCT, structType = "Appointment",
+                structPackage = "ballerina.task")},
         isPublic = true
 )
-public class BalStopTask extends BlockingNativeCallableUnit {
+public class Cancel extends BlockingNativeCallableUnit {
 
-    public void execute(Context context) {
-        String taskId = context.getStringArgument(0);
-        try {
-            TaskRegistry.getInstance().stopTask(taskId);
-        } catch (Exception e) {
-            context.setReturnValues(BLangVMErrors.createError(context, 0, e.getMessage()));
-        }
-        context.setReturnValues();
+    public void execute(Context ctx) {
+        BStruct task = (BStruct) ctx.getRefArgument(0);
+        String taskId = task.getStringField(0);
+        TaskRegistry.getInstance().stopTask(taskId);
     }
 }
-
