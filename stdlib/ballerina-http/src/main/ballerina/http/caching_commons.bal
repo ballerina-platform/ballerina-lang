@@ -263,14 +263,22 @@ function getExpirationDirectiveValue (string directive) returns int {
 
 function setRequestCacheControlHeader(Request request) {
     match request.cacheControl {
-        RequestCacheControl cacheControl => request.setHeader(CACHE_CONTROL, cacheControl.buildCacheControlDirectives());
+        RequestCacheControl cacheControl => {
+            if (!request.hasHeader(CACHE_CONTROL)) {
+                request.setHeader(CACHE_CONTROL, cacheControl.buildCacheControlDirectives());
+            }
+        }
         () => {}
     }
 }
 
 function setResponseCacheControlHeader(Response response) {
     match response.cacheControl {
-        ResponseCacheControl cacheControl => response.setHeader(CACHE_CONTROL, cacheControl.buildCacheControlDirectives());
+        ResponseCacheControl cacheControl => {
+            if (!response.hasHeader(CACHE_CONTROL)) {
+                response.setHeader(CACHE_CONTROL, cacheControl.buildCacheControlDirectives());
+            }
+        }
         () => {}
     }
 }
