@@ -51,12 +51,14 @@ public type HubClientConnector object {
      and the publisher will publish updates, with a secret which will be used in signature generation if specified"}
     @Param {value:"topic: The topic to register"}
     @Param {value:"secret: The secret the publisher will use to generate a signature when publishing updates"}
-    public function registerTopic (string topic, string secret = "");
+    @Return {value:"WebSubError if an error occurred registering the topic"}
+    public function registerTopic (string topic, string secret = "") returns (WebSubError | ());
 
     @Description {value:"Function to unregister a topic in a Ballerina WebSub Hub"}
     @Param {value:"topic: The topic to unregister"}
     @Param {value:"secret: The secret the publisher used when registering the topic"}
-    public function unregisterTopic (string topic, string secret = "");
+    @Return {value:"WebSubError if an error occurred unregistering the topic"}
+    public function unregisterTopic (string topic, string secret = "") returns (WebSubError | ());
 
     @Description {value:"Function to publish an update to a remote Ballerina WebSub Hub"}
     @Param {value:"topic: The topic for which the update occurred"}
@@ -85,16 +87,46 @@ public function HubClientConnector::unsubscribe (SubscriptionChangeRequest unsub
     return processHubResponse(self.hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint);
 }
 
-public function HubClientConnector::registerTopic (string topic, string secret = "") {
+public function HubClientConnector::registerTopic (string topic, string secret = "") returns (WebSubError | ()) {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic, secret);
-    _ = httpClientEndpoint -> post("", request);
+    var registrationResponse = httpClientEndpoint -> post("", request);
+    match (registrationResponse) {
+        http:Response response => {
+            if (response.statusCode != http:ACCEPTED_202) {
+                string payload = response.getStringPayload() but { http:PayloadError => "" };
+                WebSubError webSubError = { message: "Error occured during topic registration: " + payload };
+                return webSubError;
+            }
+            return;
+        }
+        http:HttpConnectorError err => {
+            WebSubError webSubError = { message: "Error sending topic registration request: " + err.message,
+                                        cause: err };
+            return webSubError;
+        }
+    }
 }
 
-public function HubClientConnector::unregisterTopic (string topic, string secret = "") {
+public function HubClientConnector::unregisterTopic (string topic, string secret = "") returns (WebSubError | ()) {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic, secret);
-    _ = httpClientEndpoint -> post("", request);
+    var unregistrationResponse = httpClientEndpoint -> post("", request);
+    match (unregistrationResponse) {
+        http:Response response => {
+            if (response.statusCode != http:ACCEPTED_202) {
+                string payload = response.getStringPayload() but { http:PayloadError => "" };
+                WebSubError webSubError = { message: "Error occured during topic unregistration: " + payload };
+                return webSubError;
+            }
+            return;
+        }
+        http:HttpConnectorError err => {
+            WebSubError webSubError = { message: "Error sending topic unregistration request: " + err.message,
+                cause: err };
+            return webSubError;
+        }
+    }
 }
 
 public function HubClientConnector::publishUpdate (string topic, json payload,
