@@ -58,7 +58,11 @@
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-core</artifactId>
     </dependency>
-    <dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>language-server-core</artifactId>
+        </dependency>
+        <dependency>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-lang</artifactId>
     </dependency>

@@ -1,4 +1,0 @@
-//The 'any' data type is the root of the Ballerina data types. It can represent a variable of any data type.
-//When you do not have prior knowledge of the data type of your variable, you can assign it the type 'any'.
-//Values of these variables can come from dynamic content such as request and response messages and user input.
-//The 'any' type allows you to skip compile-time data type checks.
