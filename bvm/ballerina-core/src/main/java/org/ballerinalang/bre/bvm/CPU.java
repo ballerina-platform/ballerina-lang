@@ -747,6 +747,7 @@ public class CPU {
         List<BClosure> closureVars = fp.getClosureVars();
         int[] argRegs = funcCallCPEntry.getArgRegs();
         if (closureVars.isEmpty()) {
+            argRegs = expandArgRegs(argRegs, functionInfo.getParamTypes());
             return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(), false);
         }
 
@@ -795,6 +796,18 @@ public class CPU {
         }
 
         return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, funcCallCPEntry.getRetRegs(), false);
+    }
+
+    private static int[] expandArgRegs(int[] argRegs, BType[] paramTypes) {
+        if (paramTypes.length == 0 || paramTypes.length == argRegs.length ||
+                TypeTags.STRUCT_TAG != paramTypes[0].getTag()) {
+            return argRegs;
+        }
+        int[] expandedArgs = new int[paramTypes.length];
+        // self object/struct param is always at the 0'th index
+        expandedArgs[0] = 0;
+        System.arraycopy(argRegs, 0, expandedArgs, 1, argRegs.length);
+        return expandedArgs;
     }
 
     private static int expandLongRegs(WorkerData sf, BFunctionPointer fp) {

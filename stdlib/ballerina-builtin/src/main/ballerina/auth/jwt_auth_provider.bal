@@ -35,7 +35,7 @@ public type JWTAuthProvider object {
     public new (jwtAuthProviderConfig) {
         authCache = caching:createCache(JWT_AUTH_CACHE, 300000, 100, 0.25);
         config:setConfig("trustStore.location", jwtAuthProviderConfig.trustStoreFilePath );
-        config:setConfig("trustStore.type","JKS");
+        config:setConfig("trustStore.type","pkcs12");
         config:setConfig("trustStore.trustStorePassword",jwtAuthProviderConfig.trustStorePassword);
     }
     public function authenticate (string jwtToken) returns (boolean|error);

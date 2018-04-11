@@ -43,14 +43,14 @@ public class UnaryBlockingHeaderTestCase {
     @BeforeClass
     private void setup() throws Exception {
         ballerinaServer = ServerInstance.initBallerinaServer(9090);
-        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "unary-service3.bal");
+        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "unary_service3.bal");
         ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
     }
 
     @Test
     public void testBlockingBallerinaClient() {
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary-client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
         final String serverMsg = "Hello WSO2";
@@ -62,9 +62,9 @@ public class UnaryBlockingHeaderTestCase {
     }
 
     @Test
-    public void testIntBlockingBallerinaClient() {
+    public void testBlockingHeaderClient() {
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary-client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
         final String serverMsg = "Header: 1234567890";
