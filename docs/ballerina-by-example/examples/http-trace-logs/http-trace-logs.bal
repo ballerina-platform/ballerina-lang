@@ -19,7 +19,7 @@ service<http:Service> helloWorld bind helloWorldEP{
         var resp = clientEP -> forward("/200", req);
         match resp {
             http:HttpConnectorError err => io:println(err.message);
-            http:Response response => _ = conn -> forward(response);
+            http:Response response => _ = conn -> respond(response);
         }
     }
 }

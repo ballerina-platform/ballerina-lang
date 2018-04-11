@@ -41,7 +41,6 @@ public enum OperatorKind {
     POW("^"),
     NOT("!"),
     LENGTHOF("lengthof"),
-    TYPEOF("typeof"),
     UNTAINT("untaint"),
     INCREMENT("++"),
     DECREMENT("--"),

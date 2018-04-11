@@ -1,1 +1,1 @@
-//Ballerina supports decoding of nested parts within a multipart entity upto any level.
+//Ballerina supports decoding of nested parts up to any level within a multipart entity.

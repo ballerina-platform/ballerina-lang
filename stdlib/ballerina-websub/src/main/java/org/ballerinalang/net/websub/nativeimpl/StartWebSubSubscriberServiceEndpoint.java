@@ -52,7 +52,7 @@ import java.util.logging.LogManager;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "startWebSubSubscriberServiceEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
                 structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH),
         isPublic = true
 )

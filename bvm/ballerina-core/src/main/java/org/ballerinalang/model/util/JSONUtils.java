@@ -343,10 +343,6 @@ public class JSONUtils {
         return bjson;
     }
     
-    public static BMap<String, ?> convertJSONToMap(BJSON json, BMapType targetType) {
-        return null;
-    }
-    
     /**
      * Convert {@link BTable} to {@link BJSON}.
      *
@@ -685,7 +681,7 @@ public class JSONUtils {
      * @return If the provided JSON is of object-type, this method will return a {@link BMap} containing the values
      * of the JSON object. Otherwise a {@link BallerinaException} will be thrown.
      */
-    private static BMap<String, ?> jsonNodeToBMap(JsonNode jsonNode, BMapType mapType) {
+    public static BMap<String, ?> jsonNodeToBMap(JsonNode jsonNode, BMapType mapType) {
         BMap<String, BValue> map = new BMap<>(mapType);
         if (!jsonNode.isObject()) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
@@ -695,14 +691,8 @@ public class JSONUtils {
         Iterator<Entry<String, JsonNode>> fields = jsonNode.fields();
         while (fields.hasNext()) {
             Entry<String, JsonNode> field = fields.next();
-            BValue bValue = getBValue(field.getValue());
-            if (mapType.getConstrainedType() == BTypes.typeAny ||
-                    mapType.getConstrainedType().equals(bValue.getType())) {
-                map.put(field.getKey(), bValue);
-            } else {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                        mapType.getConstrainedType(), getTypeName(field.getValue()));
-            }
+            BValue bValue = getBValue(field.getValue(), mapType.getConstrainedType());
+            map.put(field.getKey(), bValue);
         }
         return map;
     }
@@ -1028,27 +1018,60 @@ public class JSONUtils {
         }
         return booleanArray;
     }
+    
+    private static BValue getBValue(JsonNode json) {
+        return getBValue(json, null);
+    }
 
+    private static boolean checkTypes(BType lhs, BType rhs) {
+        if (lhs == null) {
+            return true;
+        }
+        if (lhs.getTag() == rhs.getTag()) {
+            return true;
+        }
+        if (lhs.getTag() == TypeTags.ANY_TAG) {
+            return true;
+        }
+        return false;
+    }
+    
     /**
      * Get the corresponding BValue to hold the json-value, depending on its type.
      * 
      * @param json json node to get the BValue
+     * @param type the type the value should be read as
      * @return BValue represents provided json
      */
-    private static BValue getBValue(JsonNode json) {
+    private static BValue getBValue(JsonNode json, BType type) {
         if (json == null || json.isNull()) {
             return null;
         } else if (json.isString()) {
-            return new BString(json.stringValue());
+            if (checkTypes(type, BTypes.typeString)) {
+                return new BString(json.stringValue());
+            }
         } else if (json.isLong()) {
-            return new BInteger(json.longValue());
+            if (checkTypes(type, BTypes.typeInt)) {
+                return new BInteger(json.longValue());
+            }
         } else if (json.isDouble()) {
-            return new BFloat(json.doubleValue());
+            if (checkTypes(type, BTypes.typeFloat)) {
+                return new BFloat(json.doubleValue());
+            }
         } else if (json.isBoolean()) {
-            return new BBoolean(json.booleanValue());
+            if (checkTypes(type, BTypes.typeBoolean)) {
+                return new BBoolean(json.booleanValue());
+            }
+        } else {
+            if (type == null || type.getTag() == BTypes.typeAny.getTag()) {
+                return new BJSON(json);
+            } else if (type instanceof BStructType) {
+                return convertJSONNodeToStruct(json, (BStructType) type);
+            }
         }
         
-        return new BJSON(json);
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+                type, getTypeName(json));
     }
     
     public static String getTypeName(JsonNode jsonValue) {

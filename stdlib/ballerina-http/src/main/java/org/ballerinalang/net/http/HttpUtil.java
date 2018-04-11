@@ -48,8 +48,6 @@ import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.codegen.AnnAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -82,6 +80,7 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
+import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -230,14 +229,13 @@ public class HttpUtil {
             try {
                 contentLength = lengthStr != null ? Integer.parseInt(lengthStr) : contentLength;
                 if (contentLength == NO_CONTENT_LENGTH_FOUND) {
-                    contentLength = httpCarbonMessage.getFullMessageLength();
+                    contentLength = httpCarbonMessage.countMessageLengthTill(BYTE_LIMIT);
                 }
-                MimeUtil.setContentLength(entity, contentLength);
             } catch (NumberFormatException e) {
                 throw new BallerinaException("Invalid content length");
             }
-            EntityBodyHandler.setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer
-                    .getInputStream());
+            EntityBodyHandler.setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer.getInputStream(),
+                    contentLength);
         }
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
@@ -294,23 +292,24 @@ public class HttpUtil {
 
     public static void addHTTPSessionAndCorsHeaders(Context context, HTTPCarbonMessage requestMsg,
                                                     HTTPCarbonMessage responseMsg) {
-        Session session = (Session) requestMsg.getProperty(HttpConstants.HTTP_SESSION);
-        if (session != null) {
-            boolean isSecureRequest = false;
-            AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
-                    HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
-            if (configAnn != null) {
-                AnnAttributeValue httpsPortAttrVal = configAnn
-                        .getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HTTPS_PORT);
-                if (httpsPortAttrVal != null) {
-                    Integer listenerPort = (Integer) requestMsg.getProperty(HttpConstants.LISTENER_PORT);
-                    if (listenerPort != null && httpsPortAttrVal.getIntValue() == listenerPort) {
-                        isSecureRequest = true;
-                    }
-                }
-            }
-            session.generateSessionHeader(responseMsg, isSecureRequest);
-        }
+        //TODO Remove once service session LC is introduced
+//        Session session = (Session) requestMsg.getProperty(HttpConstants.HTTP_SESSION);
+//        if (session != null) {
+//            boolean isSecureRequest = false;
+//            AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
+//                    HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
+//            if (configAnn != null) {
+//                AnnAttributeValue httpsPortAttrVal = configAnn
+//                        .getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HTTPS_PORT);
+//                if (httpsPortAttrVal != null) {
+//                    Integer listenerPort = (Integer) requestMsg.getProperty(HttpConstants.LISTENER_PORT);
+//                    if (listenerPort != null && httpsPortAttrVal.getIntValue() == listenerPort) {
+//                        isSecureRequest = true;
+//                    }
+//                }
+//            }
+//            session.generateSessionHeader(responseMsg, isSecureRequest);
+//        }
         //Process CORS if exists.
         if (requestMsg.getHeader(HttpHeaderNames.ORIGIN.toString()) != null) {
             CorsHeaderGenerator.process(requestMsg, responseMsg, true);
