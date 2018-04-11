@@ -15,21 +15,28 @@
 // under the License.
 package grpc;
 
-public type MessageContext object {
+public type Headers object {
 
     documentation {
         Check whether the requested header exists
 
         P{{headerName}} - The header name.
     }
-    public native function hasHeader (string headerName) returns (boolean);
+    public native function exists (string headerName) returns (boolean);
 
     documentation {
         Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned.
 
-        P{{headerName}} - headerName: The header name.
+        P{{headerName}} - The header name.
     }
-    public native function getHeader (string headerName) returns (string);
+    public native function get (string headerName) returns (string|());
+
+    documentation {
+        Gets transport headers from the request.
+
+        P{{headerName}} - The header name.
+    }
+    public native function getAll (string headerName) returns (string[]);
 
     documentation {
         Sets the value of a transport header.
@@ -37,14 +44,25 @@ public type MessageContext object {
         P{{headerName}} - The header name.
         P{{headerValue}} - The header value.
     }
-    public native function setHeader (string headerName, string headerValue);
+    public native function setEntry (string headerName, string headerValue);
+
+    documentation {
+        Adds the specified key/value pair as an HTTP header to the request.
+
+        P{{headerName}} - The header name.
+        P{{headerValue}} - The header value.
+    }
+    public native function addEntry (string headerName, string headerValue);
 
     documentation {
         Removes a transport header from the request.
 
         P{{headerName}} - The header name.
     }
-    public native function removeHeader (string headerName);
+    public native function remove (string headerName);
+
+    documentation {
+        Removes all transport headers from the message.
+    }
+    public native function removeAll ();
 };
-
-

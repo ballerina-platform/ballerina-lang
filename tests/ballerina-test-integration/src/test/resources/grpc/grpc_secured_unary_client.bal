@@ -26,12 +26,14 @@ function testUnarySecuredBlocking() returns (string) {
         }
     };
 
-    string|error unionResp = helloWorldBlockingEp -> hello("WSO2");
+    (string,grpc:Headers)|error unionResp = helloWorldBlockingEp -> hello("WSO2");
     match unionResp {
-        string payload => {
+        (string,grpc:Headers) payload => {
+            string result;
+            (result, _) = payload;
             io:println("Client Got Response : ");
-            io:println(payload);
-            return payload;
+            io:println(result);
+            return result;
         }
         error err => {
             io:println("Error from Connector: " + err.message);
@@ -53,15 +55,18 @@ public type HelloWorldBlockingStub object {
         self.serviceStub = navStub;
     }
 
-    function hello(string req) returns (string|error) {
-        any|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/hello", req);
+    function hello (string req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
+        (any,grpc:Headers)|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/hello", req, ...headers);
         match unionResp {
             grpc:ConnectorError payloadError => {
                 error err = {message:payloadError.message};
                 return err;
             }
-            any payload => {
-                return <string> payload;
+            (any,grpc:Headers) payload => {
+                any result;
+                grpc:Headers resHeaders;
+                (result, resHeaders)= payload;
+                return (<string>result,resHeaders);
             }
         }
     }
@@ -79,8 +84,8 @@ public type HelloWorldStub object {
         self.serviceStub = navStub;
     }
 
-    function hello(string req, typedesc listener) returns (error?) {
-        grpc:ConnectorError err1 = self.serviceStub.nonBlockingExecute("HelloWorld/hello", req, listener);
+    function hello (string req, typedesc listener, grpc:Headers... headers) returns (error| ()) {
+        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/hello", req, listener, ...headers);
         if (err1 != ()) {
             error err = {message:err1.message};
             return err;
