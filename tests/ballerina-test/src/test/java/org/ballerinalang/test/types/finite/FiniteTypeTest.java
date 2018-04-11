@@ -43,6 +43,42 @@ public class FiniteTypeTest {
     }
 
     @Test()
+    public void finiteAssignmentCompositeFiniteTypes() {
+        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentCompositeFiniteTypes");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "off");
+    }
+
+    @Test()
+    public void finiteTypeSetIntersectionCaseOne() {
+        BValue[] returns = BRunUtil.invoke(result, "finiteTypeSetIntersectionCaseOne");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "off");
+    }
+
+    @Test()
+    public void finiteTypeSetIntersectionCaseTwo() {
+        BValue[] returns = BRunUtil.invoke(result, "finiteTypeSetIntersectionCaseTwo");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+    }
+
+    @Test()
+    public void finiteTypeSetIntersectionCaseThree() {
+        BValue[] returns = BRunUtil.invoke(result, "finiteTypeSetIntersectionCaseThree");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "very good");
+    }
+
+    @Test()
     public void finiteAssignmentStateType() {
         BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentStateType");
         Assert.assertEquals(returns.length, 1);

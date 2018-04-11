@@ -1192,10 +1192,9 @@ public class Types {
 
         if (lhsType.tag == TypeTags.UNION) {
             BUnionType lhsUnionType = (BUnionType) lhsType;
-            lhsTypes.addAll(lhsUnionType.memberTypes);
+            lhsTypes.addAll(getUnionMemberTypesRecursive(lhsUnionType));
         } else if (lhsType.tag == TypeTags.SINGLETON) {
-            BType superType = ((BSingletonType) lhsType).superSetType;
-            lhsTypes.add(superType);
+            lhsTypes.add(resolveToSuperType(lhsType));
             lhsTypes.add(lhsType);
         } else {
             lhsTypes.add(lhsType);
@@ -1203,10 +1202,9 @@ public class Types {
 
         if (rhsType.tag == TypeTags.UNION) {
             BUnionType rhsUnionType = (BUnionType) rhsType;
-            rhsTypes.addAll(rhsUnionType.memberTypes);
+            rhsTypes.addAll(getUnionMemberTypesRecursive(rhsUnionType));
         } else if (rhsType.tag == TypeTags.SINGLETON) {
-            BType superType = ((BSingletonType) rhsType).superSetType;
-            rhsTypes.add(superType);
+            rhsTypes.add(resolveToSuperType(rhsType));
             rhsTypes.add(rhsType);
         } else {
             rhsTypes.add(rhsType);
@@ -1231,6 +1229,23 @@ public class Types {
             return ((BSingletonType) bType).superSetType;
         }
         return bType;
+    }
+
+    private Set<BType> getUnionMemberTypesRecursive(BUnionType unionType) {
+        Set<BType> memberTypes = new HashSet<>();
+
+        unionType.getMemberTypes().forEach(member -> {
+            if (member.tag == TypeTags.SINGLETON) {
+                memberTypes.add(resolveToSuperType(member));
+                memberTypes.add(member);
+            } else if (member.tag == TypeTags.UNION) {
+                memberTypes.addAll(getUnionMemberTypesRecursive((BUnionType) member));
+            } else {
+                memberTypes.add(member);
+            }
+        });
+
+        return memberTypes;
     }
 
 }

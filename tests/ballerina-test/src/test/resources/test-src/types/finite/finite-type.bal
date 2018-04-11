@@ -41,7 +41,17 @@ function finiteTypeSetIntersectionCaseTwo() returns int {
     if (v1 != v2) {
        v3 = 100;
     }
-    return 200;
+    return v3;
+}
+
+function finiteTypeSetIntersectionCaseThree() returns string {
+    string v1 = "off";
+    State v2 = "off";
+    string v3 = "good";
+    if (v1 == v2) {
+       v3 = "very good";
+    }
+    return v3;
 }
 
 function finiteAssignmentNumberSetType() returns NumberSet {
