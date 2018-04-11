@@ -19,6 +19,7 @@ import com.google.common.io.Files;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.CollectDiagnosticListener;
 import org.ballerinalang.langserver.LSGlobalContext;
+import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.modal.BallerinaFile;
@@ -98,6 +99,22 @@ public class LSParserUtils {
      * @return BallerinaFile
      */
     public static BallerinaFile compile(String content, CompilerPhase phase, LSGlobalContext lsGlobalContext) {
+        return compile(content, UNTITLED_BAL, phase, true, lsGlobalContext);
+    }
+
+    /**
+     * Compile an unsaved Ballerina file.
+     *
+     * Note: overloading for use, when the global context is not available
+     *
+     * @param content file content
+     * @param phase {CompilerPhase} CompilerPhase
+     * @return BallerinaFile
+     */
+    public static BallerinaFile compile(String content, CompilerPhase phase) {
+        LSGlobalContext lsGlobalContext = new LSGlobalContext();
+        CompilerContext compilerContext = CommonUtil.prepareTempCompilerContext();
+        lsGlobalContext.put(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT, compilerContext);
         return compile(content, UNTITLED_BAL, phase, true, lsGlobalContext);
     }
 
