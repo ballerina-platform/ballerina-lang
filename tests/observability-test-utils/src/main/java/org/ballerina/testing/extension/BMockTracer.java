@@ -38,11 +38,15 @@ public class BMockTracer implements OpenTracer {
     private static final String NAME = "BMockTracer";
 
     @Override
-    public Tracer getTracer(String tracerName, Map<String, String> configProperties, String serviceName)
-            throws InvalidConfigurationException {
+    public Tracer getTracer(String tracerName, String serviceName) throws InvalidConfigurationException {
         MockTracer mockTracer = new MockTracer();
         BMockTracer.tracerMap.add(mockTracer);
         return mockTracer;
+    }
+
+    @Override
+    public void init(Map<String, String> configProperties) {
+
     }
 
     @Override

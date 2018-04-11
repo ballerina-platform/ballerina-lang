@@ -35,9 +35,13 @@ public class BNoopTracer implements OpenTracer {
     private static final String NAME = "noop";
 
     @Override
-    public Tracer getTracer(String tracerName, Map<String, String> configProperties, String serviceName)
-            throws InvalidConfigurationException {
+    public Tracer getTracer(String tracerName, String serviceName) throws InvalidConfigurationException {
         return NoopTracer.INSTANCE;
+    }
+
+    @Override
+    public void init(Map<String, String> configProperties) {
+
     }
 
     @Override
