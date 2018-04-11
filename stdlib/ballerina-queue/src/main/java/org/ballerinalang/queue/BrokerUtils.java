@@ -16,13 +16,16 @@
 *  under the License.
 */
 
-package org.ballerinalang.util;
+package org.ballerinalang.queue;
 
+import io.ballerina.messaging.broker.common.ResourceNotFoundException;
 import io.ballerina.messaging.broker.common.StartupContext;
 import io.ballerina.messaging.broker.common.ValidationException;
 import io.ballerina.messaging.broker.common.config.BrokerCommonConfiguration;
 import io.ballerina.messaging.broker.common.config.BrokerConfigProvider;
 import io.ballerina.messaging.broker.common.data.types.FieldTable;
+import io.ballerina.messaging.broker.common.data.types.FieldValue;
+import io.ballerina.messaging.broker.core.Binding;
 import io.ballerina.messaging.broker.core.Broker;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.BrokerImpl;
@@ -66,14 +69,36 @@ public class BrokerUtils {
      * @param topic     the topic for which the subscription is registered
      * @param consumer  the consumer to register for the subscription
      */
+    public static void addSubscription(String topic, Consumer consumer, String selector) {
+        String queueName = consumer.getQueueName(); //need to rely on implementers of consumers to specify unique names
+        try {
+            if (broker.getQueue(topic) == null) {
+                broker.createQueue(queueName, false, false, true);
+            }
+
+            FieldTable selectorEntry = new FieldTable();
+            selectorEntry.add(Binding.JMS_SELECTOR_ARGUMENT, FieldValue.parseLongString(selector));
+            broker.bind(queueName, "amq.topic", topic, selectorEntry);
+            broker.addConsumer(consumer);
+        } catch (BrokerException | ValidationException e) {
+            logger.error("Error adding subscription: ", e);
+        } catch (ResourceNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void addSubscription(String topic, Consumer consumer) {
         String queueName = consumer.getQueueName(); //need to rely on implementers of consumers to specify unique names
         try {
-            broker.createQueue(queueName, false, false, true);
+            if (broker.getQueue(topic) == null) {
+                broker.createQueue(queueName, false, false, true);
+            }
             broker.bind(queueName, "amq.topic", topic, FieldTable.EMPTY_TABLE);
             broker.addConsumer(consumer);
         } catch (BrokerException | ValidationException e) {
             logger.error("Error adding subscription: ", e);
+        } catch (ResourceNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
@@ -89,20 +114,9 @@ public class BrokerUtils {
     /**
      * Method to publish to a topic in the broker operating in in-memory mode.
      *
-     * @param topic     the topic for which the subscription is registered
-     * @param payload   the payload to publish (message content)
      */
-    public static void publish(String topic, byte[] payload) {
-        Message message = new Message(Broker.getNextMessageId(),
-                                      new Metadata(topic, "amq.topic", payload.length));
-        ByteBuf content = Unpooled.copiedBuffer(payload);
-        message.addChunk(new ContentChunk(0, content));
-        Message newMessage = message.shallowCopyWith(Broker.getNextMessageId(), topic, "amq.topic");
-        try {
-            broker.publish(newMessage);
-        } catch (BrokerException e) {
-            logger.error("Error publishing to topic: ", e);
-        }
+    public static void publish(Message message) throws BrokerException {
+        broker.publish(message);
     }
 
     /**
@@ -138,5 +152,12 @@ public class BrokerUtils {
         void registerConfigurationObject(String namespace, Object configObject) {
             configMap.put(namespace, configObject);
         }
+    }
+
+    public static Message createMessage(String topic, byte[] payload) {
+        Message message = new Message(Broker.getNextMessageId(), new Metadata(topic, "amq.topic", payload.length));
+        ByteBuf content = Unpooled.copiedBuffer(payload);
+        message.addChunk(new ContentChunk(0, content));
+        return message.shallowCopyWith(Broker.getNextMessageId(), topic, "amq.topic");
     }
 }

@@ -68,6 +68,12 @@
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-queue-jar/META-INF/natives
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <files>
@@ -129,6 +135,7 @@
                 <include>org.ballerinalang:ballerina-http:jar</include>
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
                 <include>org.ballerinalang:ballerina-mime:jar</include>
+                <include>org.ballerinalang:ballerina-queue:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
                 <include>org.ballerinalang:ballerina-jms:jar</include>
                 <include>org.ballerinalang:strip-bouncycastle:jar</include>
@@ -185,9 +192,11 @@
                 <include>com.h2database:h2</include>
                 <include>io.ballerina.messaging:broker-core</include>
                 <include>io.ballerina.messaging:broker-common</include>
+                <include>io.ballerina.messaging:broker-auth</include>
                 <include>io.ballerina.messaging:broker-rest-runner</include>
                 <include>io.ballerina.messaging:broker-coordination</include>
                 <include>com.google.guava:guava</include>
+                <include>com.google.code.gson:gson</include>
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
                 <include>io.netty:netty-tcnative-boringssl-static</include>
 

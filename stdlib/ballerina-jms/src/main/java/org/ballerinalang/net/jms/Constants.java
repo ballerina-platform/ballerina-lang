@@ -72,6 +72,7 @@ public class Constants {
     public static final String BALLERINA_PACKAGE_JMS = "ballerina.jms";
     public static final String PROTOCOL_JMS = "jms";
     public static final String PROTOCOL_PACKAGE_JMS = "ballerina.net.jms";
+    public static final String PROTOCOL_PACKAGE_QUEUE = "ballerina.queue";
     public static final String JMS_SERVICE_ID = "JMS_SERVICE_ID";
     public static final String JMS_PACKAGE = "ballerina.net.jms";
     public static final String CLIENT_CONNECTOR = "ClientConnector";

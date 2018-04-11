@@ -138,8 +138,7 @@ public class BStream implements BRefType<Object> {
         protected void send(Message message) throws BrokerException {
             byte[] bytes = new byte[0];
             for (ContentChunk chunk : message.getContentChunks()) {
-                bytes = new byte[chunk.getBytes().readableBytes()];
-                chunk.getBytes().getBytes(0, bytes);
+                bytes = chunk.getBytes();
             }
             BJSON json = new BJSON(new String(bytes, StandardCharsets.UTF_8));
             BStruct data = JSONUtils.convertJSONToStruct(json, constraintType);
@@ -184,8 +183,7 @@ public class BStream implements BRefType<Object> {
         protected void send(Message message) throws BrokerException {
             byte[] bytes = new byte[0];
             for (ContentChunk chunk : message.getContentChunks()) {
-                bytes = new byte[chunk.getBytes().readableBytes()];
-                chunk.getBytes().getBytes(0, bytes);
+                bytes = chunk.getBytes();
             }
             BJSON json = new BJSON(new String(bytes, StandardCharsets.UTF_8));
             BStruct data = JSONUtils.convertJSONToStruct(json, constraintType);
