@@ -17,6 +17,7 @@
 package ballerina.http;
 
 import ballerina/log;
+import ballerina/auth;
 
 @Description {value:"Representation of Authentication handler chain"}
 public type AuthnHandlerChain object {
@@ -34,7 +35,13 @@ public function createAuthnHandlerChain () returns (AuthnHandlerChain) {
     AuthnHandlerChain authnHandlerChain = new;
     // TODO: read the authn handlers from a config file and load them dynamically. currently its hardcoded.
     HttpBasicAuthnHandler httpAuthnHandler = new;
-    HttpJwtAuthnHandler jwtAuthnHandler = new;
+
+    auth:JWTAuthProviderConfig jwtConfig = {};
+    jwtConfig.issuer = "wso2";
+    jwtConfig.audience = "ballerina";
+    jwtConfig.certificateAlias = "ballerina";
+    auth:JWTAuthProvider jwtAuthProvider = new (jwtConfig);
+    HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
     // add to map
     authnHandlerChain.authnHandlers[httpAuthnHandler.name] = httpAuthnHandler;
     authnHandlerChain.authnHandlers[jwtAuthnHandler.name] = jwtAuthnHandler;
