@@ -1,7 +1,9 @@
 package org.ballerinalang.net.http.compiler;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 
@@ -21,19 +23,19 @@ public class ResourceSignatureValidator {
     private static final String ENDPOINT_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + SERVICE_ENDPOINT;
     private static final String HTTP_REQUEST_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + REQUEST;
 
-    public static void validate(List<BLangVariable> signatureParams) {
+    public static void validate(List<BLangVariable> signatureParams, DiagnosticLog dlog, DiagnosticPos pos) {
         final int nParams = signatureParams.size();
 
         if (nParams < COMPULSORY_PARAM_COUNT) {
-            throw new BallerinaConnectorException("resource signature parameter count should be >= 2");
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "resource signature parameter count should be >= 2");
         }
 
         if (!isValidResourceParam(signatureParams.get(0), ENDPOINT_TYPE)) {
-            throw new BallerinaConnectorException("first parameter should be of type " + ENDPOINT_TYPE);
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "first parameter should be of type " + ENDPOINT_TYPE);
         }
 
         if (!isValidResourceParam(signatureParams.get(1), HTTP_REQUEST_TYPE)) {
-            throw new BallerinaConnectorException("second parameter should be of type " + HTTP_REQUEST_TYPE);
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "second parameter should be of type " + HTTP_REQUEST_TYPE);
         }
 
         if (nParams == COMPULSORY_PARAM_COUNT) {

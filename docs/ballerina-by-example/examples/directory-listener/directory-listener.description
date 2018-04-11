@@ -1,1 +1,0 @@
-// The Directory Listener can be used to listen to a directory in the local file system. It will keep listening to the specified directory and notify the create, delete and modify file actions in the directory.
