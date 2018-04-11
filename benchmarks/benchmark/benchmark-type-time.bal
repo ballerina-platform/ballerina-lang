@@ -37,7 +37,6 @@ function benchmarkCreateDateTimeFunction() {
     time:Time time = time:createTime(2017, 3, 28, 23, 42, 45, 554, "America/Panama");
 }
 
-
 function benchmarkParseTimeFunction() {
     time:Time time = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     int timeValue = time.time;

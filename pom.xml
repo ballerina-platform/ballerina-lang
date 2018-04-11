@@ -1105,9 +1105,9 @@
             </modules>
         </profile>
         <profile>
-            <id>benchmark</id>
+            <id>benchmarks</id>
             <modules>
-                <module>performance-benchmarks</module>
+                <module>benchmarks</module>
             </modules>
         </profile>
         <profile>

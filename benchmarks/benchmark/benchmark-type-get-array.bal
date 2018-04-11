@@ -77,11 +77,3 @@ public function getTypeBenchmarkArray() returns (functionRecord[]) {
     return functionArray;
 
 }
-
-public function addToBenchmarkArray(string functionNames) {
-
-    functionRecord[] functionArray2 = [];
-    functionArray2 = [{functionName:"benchmarkTypeAnyJSONCasting", f:benchmarkTypeAnyJSONCasting}];
-
-    // functionArray += {functionName:"benchmarkTypeAnyJSONCasting", f:benchmarkTypeAnyJSONCasting} ;
-}
