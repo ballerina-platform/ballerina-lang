@@ -134,3 +134,31 @@ function finiteAssignmentRefValueTypeCaseTwo() returns POrInt {
     POrInt pi = 4;
     return pi;
 }
+
+type CONSTANT "constant";
+
+function testRecursiveCallsSingletonParamReturn() returns CONSTANT {
+   CONSTANT ac = getAndReturnConstant("constant");
+   return ac;
+}
+
+function getAndReturnConstant(CONSTANT a) returns CONSTANT {
+    return getAndReturnConstantTwo(a);
+}
+
+function getAndReturnConstantTwo(CONSTANT a) returns CONSTANT {
+    return a;
+}
+
+function testSingletonInlineFunction() returns int {
+   int r = passSingletons(1, 2, 3);
+   return r;
+}
+
+type ONE 1;
+type TWO 2;
+type THREE 3;
+
+function passSingletons(ONE a, TWO b, THREE c) returns TWO {
+    return b;
+}
