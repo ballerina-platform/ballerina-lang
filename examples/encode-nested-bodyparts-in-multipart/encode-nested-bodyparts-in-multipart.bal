@@ -59,7 +59,7 @@ service<http:Service> test bind multipartEP {
                 resp1.statusCode = 500;
                 _ = conn -> respond(resp1);
             }
-            http:Response returnResult =>  _ = conn -> forward(returnResult);
+            http:Response returnResult =>  _ = conn -> respond(returnResult);
         }
     }
 }
