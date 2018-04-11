@@ -35,8 +35,8 @@ import org.testng.annotations.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class FileBasedUserstoreTest {
-    private static final Log log = LogFactory.getLog(FileBasedUserstoreTest.class);
+public class ConfigAuthProviderTest {
+    private static final Log log = LogFactory.getLog(ConfigAuthProviderTest.class);
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
     private String resourceRoot;
@@ -46,9 +46,9 @@ public class FileBasedUserstoreTest {
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         Path ballerinaConfPath = Paths
-                .get(resourceRoot, "datafiles", "config", "auth", "basicauth", "userstore", BALLERINA_CONF);
+                .get(resourceRoot, "datafiles", "config", "auth", "configauthprovider", BALLERINA_CONF);
 
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("file-based-userstore.bal").toString());
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("config_auth_provider_test.bal").toString());
 
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
@@ -56,8 +56,8 @@ public class FileBasedUserstoreTest {
     }
 
     @Test(description = "Test case for creating file based userstore")
-    public void testCreateFileBasedUserstore() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateFileBasedUserstore");
+    public void testCreateConfigAuthProvider() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateConfigAuthProvider");
         Assert.assertTrue(returns != null);
         Assert.assertTrue(returns[0] instanceof BStruct);
     }
@@ -84,19 +84,19 @@ public class FileBasedUserstoreTest {
     }
 
     @Test(description = "Test case for reading groups of non-existing user")
-    public void testReadGroupsOfNonExistingUser() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsOfNonExistingUser");
+    public void testReadScopesOfNonExistingUser() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReadScopesOfNonExistingUser");
         Assert.assertTrue(returns != null);
         Assert.assertEquals(((BStringArray) returns[0]).size(), 0);
     }
 
     @Test(description = "Test case for reading groups of a user")
-    public void testReadGroupsOfUser() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReadGroupsOfUser");
+    public void testReadScopesOfUser() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReadScopesOfUser");
         Assert.assertTrue(returns != null);
         BStringArray groups = ((BStringArray) returns[0]);
         Assert.assertEquals(groups.size(), 1);
 
-        Assert.assertEquals(groups.get(0), "xyz");
+        Assert.assertEquals(groups.get(0), "scope1");
     }
 }

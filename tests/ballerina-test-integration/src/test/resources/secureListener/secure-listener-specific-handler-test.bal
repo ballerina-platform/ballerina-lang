@@ -1,26 +1,24 @@
 import ballerina/http;
-import ballerina/io;
 import ballerina/auth;
 
-endpoint http:APIListener listener {
-    port:9090
+http:AuthProvider basicAuthProvider = {id: "basic1", scheme:"basic", authProvider:"config"};
+endpoint http:SecureListener listener {
+    port:9090,
+    authProviders:[basicAuthProvider]
 };
 
 @http:ServiceConfig {
     basePath:"/echo",
     authConfig:{
-        authentication:{enabled:false},
-        scopes:["xxx", "aaa"]
+        authProviders:["basic1"],
+        authentication:{enabled:true},
+        scopes:["scope2"]
     }
 }
-
 service<http:Service> echo bind listener {
     @http:ResourceConfig {
         methods:["GET"],
-        path:"/test",
-        authConfig:{
-            authentication:{enabled:true}
-        }
+        path:"/test"
     }
     echo (endpoint client, http:Request req) {
         http:Response res = new;

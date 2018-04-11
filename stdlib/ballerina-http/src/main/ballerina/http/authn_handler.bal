@@ -14,21 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.auth;
+package ballerina.http;
 
-@Description {value:"Representation of Auth Config"}
-@Field {value:"authentication: Authentication struct instance"}
-@Field {value:"scopes: scope names"}
-public type AuthConfig {
-    Authentication? authentication,
-    string[]? scopes,
+@Description {value:"Representation of Authentication handler for HTTP traffic. Any authention interceptor for
+basic authentication should be struct-wise similar to HttpAuthnInterceptor"}
+public type HttpAuthnHandler object {
+    public {
+        string name;
+    }
+    public function canHandle (Request req) returns (boolean);
+    public function handle (Request req) returns (boolean);
 };
-
-@Description {value:"Representation of Authentation Config"}
-@Field {value:"enabled: flag to enable/disable authentication"}
-public type Authentication {
-    boolean enabled,
-};
-
-@Description {value:"Authentication config annotation for a Service"}
-public annotation <service,resource> Config AuthConfig;

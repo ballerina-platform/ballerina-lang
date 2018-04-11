@@ -17,9 +17,12 @@
 package ballerina.http;
 
 import ballerina/internal;
+import ballerina/auth;
+import ballerina/caching;
 
-@Description {value:"Authz handler chain instance"}
-AuthzHandlerChain authzHandlerChain;
+caching:Cache authzCache = new(expiryTimeMillis = 300000);
+@Description {value:"Authz handler instance"}
+HttpAuthzHandler authzHandler = new(authzCache);
 
 @Description {value:"Representation of the Authorization filter"}
 @Field {value:"filterRequest: request filter method which attempts to authorize the request"}
@@ -29,18 +32,14 @@ public type AuthzFilter object {
         function (Request request, FilterContext context) returns (FilterResult) filterRequest;
         function (Response response, FilterContext context) returns (FilterResult) filterResponse;
     }
-
     public new (filterRequest, filterResponse) {
     }
-
     public function init ();
-
     public function terminate ();
 };
 
 @Description {value:"Initializes the AuthzFilter"}
 public function AuthzFilter::init () {
-    authzHandlerChain = createAuthzHandlerChain();
 }
 
 @Description {value:"Stops the AuthzFilter"}
@@ -54,16 +53,21 @@ public function AuthzFilter::terminate () {
 public function authzRequestFilterFunc (Request request, FilterContext context) returns (FilterResult) {
     // first check if the resource is marked to be authenticated. If not, no need to authorize.
     // TODO: check if we can remove this once the security context is there.
-    if (!isResourceSecured(context)) {
-        // let the request pass
-        return createAuthzResult(true);
-    }
+    //if (!isResourceSecured(context)) {
+    //    // let the request pass
+    //    return createAuthzResult(true);
+    //}
     // check if this resource is protected
     string[]? scopes = getScopesForResource(context);
     boolean authorized;
     match scopes {
         string[] scopeNames => {
-            authorized = authzHandlerChain.handle(request, scopeNames, context.resourceName);
+            if (authzHandler.canHandle(request)) {
+                authorized = authzHandler.handle(runtime:getInvocationContext().authenticationContext.username,
+                                            context.serviceName, context.resourceName, request.method, scopeNames);
+            } else {
+                authorized = false;
+            }
         }
         () => {
             // scopes are not defined, no need to authorize
@@ -90,41 +94,23 @@ function createAuthzResult (boolean authorized) returns (FilterResult) {
 @Param {value:"context: FilterContext object"}
 @Return {value:"string: Scope name if defined, else nil"}
 function getScopesForResource (FilterContext context) returns (string[]|()) {
-    string[]|() scope = getAuthzAnnotation(internal:getResourceAnnotations(context.serviceType,
-                                                                      context.resourceName));
-    match scope {
-        string[] scopeVal => {
-            return scopeVal;
+    ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
+        internal:getResourceAnnotations(context.serviceType, context.resourceName));
+    match resourceLevelAuthAnn.scopes {
+        string[] scopes => {
+            return scopes;
         }
         () => {
-            // if not found in resource level, check in service level
-            return getAuthzAnnotation(internal:getServiceAnnotations(context.serviceType));
-        }
-    }
-}
-
-@Description {value:"Tries to retrieve the annotation value for scope hierarchically - first from the resource level
-and then from the service level, if its not there in the resource level"}
-@Param {value:"annData: array of annotationData instances"}
-@Return {value:"string[]: array of scope name if defined, else nil"}
-function getAuthzAnnotation (internal:annotationData[] annData) returns (string[]|()) {
-    if (lengthof annData == 0) {
-        return ();
-    }
-    internal:annotationData|() authAnn;
-    foreach ann in annData {
-        if (ann.name == AUTH_ANN_NAME && ann.pkgName == AUTH_ANN_PACKAGE) {
-            authAnn = ann;
-            break;
-        }
-    }
-    match authAnn {
-        internal:annotationData annData1 => {
-            var authConfig = check <auth:AuthConfig> annData1.value;
-            return authConfig.scopes;
-        }
-        () => {
-            return ();
+            ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
+                internal:getServiceAnnotations(context.serviceType));
+            match serviceLevelAuthAnn.scopes {
+                string[] scopes => {
+                    return scopes;
+                }
+                () => {
+                    return ();
+                }
+            }
         }
     }
 }

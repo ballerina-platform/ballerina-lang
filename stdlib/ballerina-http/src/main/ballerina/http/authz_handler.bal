@@ -14,48 +14,41 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.auth.authz;
+package ballerina.http;
 
 import ballerina/caching;
-import ballerina/auth.authz.permissionstore;
 import ballerina/runtime;
 import ballerina/log;
+import ballerina/io;
 
-@Description {value:"Representation of AuthzChecker"}
+@Description {value:"Representation of AuthzHandler"}
 @Field {value:"authzCache: authorization cache instance"}
-public type AuthzChecker object {
+type HttpAuthzHandler object {
     public {
-        permissionstore:PermissionStore permissionstore;
         caching:Cache? authzCache;
     }
-    new (permissionstore, authzCache) {
+    new (authzCache) {
     }
-    public function authorize (string username, string resourceName, string method, string[] scopes) returns (boolean);
+    function canHandle(Request req) returns (boolean);
+    function handle(string username, string serviceName, string resourceName, string method,
+                                                                                    string[] scopes) returns (boolean);
     function authorizeFromCache(string authzCacheKey) returns (boolean|());
     function cacheAuthzResult (string authzCacheKey, boolean isAuthorized);
 };
 
-@Description {value:"Creates a Basic Authenticator"}
-@Param {value:"permissionstore: PermissionStore instance"}
-@Param {value:"cache: Cache instance"}
-@Return {value:"AuthzChecker: AuthzChecker instance"}
-public function createChecker (permissionstore:PermissionStore permissionstore, caching:Cache? cache)
-                                                                                        returns (AuthzChecker) {
-    AuthzChecker authzChecker = new(permissionstore, cache);
-    return authzChecker;
-}
-
 @Description {value:"Performs a authorization check, by comparing the groups of the user and the groups of the scope"}
 @Param {value:"username: user name"}
+@Param {value:"serviceName: service name"}
 @Param {value:"resourceName: resource name"}
 @Param {value:"method: method names"}
 @Param {value:"scopes: array of scope names"}
 @Return {value:"boolean: true if authorization check is a success, else false"}
-public function AuthzChecker::authorize (string username, string resourceName,
-                                                        string method, string[] scopes) returns (boolean) {
+function HttpAuthzHandler::handle (string username, string serviceName, string resourceName, string method,
+                                                                                    string[] scopes) returns (boolean) {
     // first, check in the cache. cache key is <username>-<resource>-<http method>,
     // since different resources can have different scopes
-    string authzCacheKey = username + "-" + resourceName + "-" + method;
+    string authzCacheKey = runtime:getInvocationContext().authenticationContext.username +
+                                                    "-" + serviceName +  "-" + resourceName + "-" + method;
     match self.authorizeFromCache(authzCacheKey) {
         boolean isAuthorized => {
             return isAuthorized;
@@ -65,26 +58,22 @@ public function AuthzChecker::authorize (string username, string resourceName,
             // match against those.
             string[] authCtxtScopes = runtime:getInvocationContext().authenticationContext.scopes;
             if (lengthof authCtxtScopes > 0) {
-                return matchScopes(scopes, authCtxtScopes);
-            }
-            // if there are groups set in the AuthenticationContext which are relevant to a user, can use the groups in
-            // authncontext and check if there is a match between those and the groups relevant to the scopes specified for
-            // the resource.
-            string[] groupsOfUser = runtime:getInvocationContext().authenticationContext.groups;
-            if (lengthof groupsOfUser > 0) {
-                return self.permissionstore.isAuthorizedByGroups(groupsOfUser, scopes);
-            }
-            // if unable to get either scopes or groups from AuthenticationContext, use the permissionstore to lookup the
-            // groups of the user and the groups of the scopes, and check for a match.
-            boolean authorized = self.permissionstore.isAuthorized(username, scopes);
-            if (authorized) {
-                log:printDebug("Successfully authorized to access resource: " + resourceName + ", method: " + method);
+                boolean authorized = matchScopes(scopes, authCtxtScopes);
+                if (authorized) {
+                    log:printDebug("Successfully authorized to access resource: " + resourceName + ", method: " +
+                            method);
+                } else {
+                    log:printDebug("Authorization failure for resource: " + resourceName + ", method: " + method);
+                }
+                // cache authz result
+                self.cacheAuthzResult(authzCacheKey, authorized);
+                return authorized;
             } else {
-                log:printDebug("Authorization failure for resource: " + resourceName + ", method: " + method);
+                // no scopes found for user, authorization failure
+                log:printDebug("No scopes found for user: " + username + " to access resource: " + resourceName + ",
+                                                                                                    method:" + method);
+                return false;
             }
-            // cache authz result
-            self.cacheAuthzResult(authzCacheKey, authorized);
-            return authorized;
         }
     }
 }
@@ -92,7 +81,7 @@ public function AuthzChecker::authorize (string username, string resourceName,
 @Description {value:"Retrieves the cached authorization result if any, for the given basic auth header value"}
 @Param {value:"authzCacheKey: cache key - <username>-<resource>"}
 @Return {value:"boolean|(): cached entry, or nill in a cache miss"}
-function AuthzChecker::authorizeFromCache(string authzCacheKey) returns (boolean|()) {
+function HttpAuthzHandler::authorizeFromCache(string authzCacheKey) returns (boolean|()) {
     try {
         match self.authzCache {
             caching:Cache cache => {
@@ -111,7 +100,7 @@ function AuthzChecker::authorizeFromCache(string authzCacheKey) returns (boolean
 @Description {value:"Caches the authorization result"}
 @Param {value:"authzCacheKey: cache key - <username>-<resource>"}
 @Param {value:"isAuthorized: authorization decision"}
-function AuthzChecker::cacheAuthzResult (string authzCacheKey, boolean isAuthorized) {
+function HttpAuthzHandler::cacheAuthzResult (string authzCacheKey, boolean isAuthorized) {
     match self.authzCache {
         caching:Cache cache => {
             cache.put(authzCacheKey, isAuthorized);
@@ -136,4 +125,16 @@ function matchScopes (string[] scopesOfResource, string[] scopesForRequest) retu
         }
     }
     return false;
+}
+
+@Description {value:"Checks if the provided request can be authorized. This method will validate if the username is
+already set in the authentication context. If not, the flow cannot continue."}
+@Param {value:"req: Request object"}
+@Return {value:"boolean: true if its possible authorize, else false"}
+function HttpAuthzHandler::canHandle (Request req) returns (boolean) {
+    if (runtime:getInvocationContext().authenticationContext.username.length() == 0) {
+        log:printError("Username not set in auth context. Unable to authorize");
+        return false;
+    }
+    return true;
 }
