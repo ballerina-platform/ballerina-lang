@@ -253,21 +253,6 @@ public class HttpUtil {
         }
     }
 
-//    /**
-//     * Helper method to start pending http server connectors.
-//     *
-//     * @throws BallerinaConnectorException
-//     */
-//    public static void startPendingHttpConnectors(BallerinaHttpServerConnector httpServerConnector)
-//            throws BallerinaConnectorException {
-//        try {
-//            // Starting up HTTP Server connectors
-//            HttpConnectionManager.getInstance().startPendingHTTPConnectors(httpServerConnector);
-//        } catch (ServerConnectorException e) {
-//            throw new BallerinaConnectorException(e);
-//        }
-//    }
-
     public static void prepareOutboundResponse(Context context, HTTPCarbonMessage inboundRequestMsg,
                                                HTTPCarbonMessage outboundResponseMsg, BStruct outboundResponseStruct) {
 
