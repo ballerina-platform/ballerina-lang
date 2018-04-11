@@ -19,13 +19,11 @@ package ballerina.http;
 import ballerina/io;
 import ballerina/util;
 import ballerina/runtime;
+import ballerina/mime;
 
 @final string EMPTY_STRING = "";
-@final string BASIC = "Basic ";
-@final string BEARER = "Bearer ";
-@final string AUTHORIZATION = "Authorization";
-@final string CONTENT_TYPE = "Content-Type";
-@final string APPLICATION_WWW_FORM_URL_ENCODED = "application/x-www-form-urlencoded";
+@final string WHITE_SPACE = " ";
+@final string CONTENT_TYPE_HEADER = "Content-Type";
 @final string BASIC_SCHEME = "basic";
 @final string OAUTH_SCHEME = "oauth";
 @final string JWT_SCHEME = "jwt";
@@ -222,7 +220,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
             return httpSecureClient;
         }
         () => {
-            HttpClient httpClient = new(url, config);
+            HttpClient httpClient = createHttpClient(url, config);
             return httpClient;
         }
     }
@@ -232,10 +230,10 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 @Param {value:"req: An HTTP outbound request message"}
 @Param {value:"request:Client endpoint configurations"}
 public function prepareRequest(Request req, ClientEndpointConfig config) returns (()|HttpConnectorError) {
-    string scheme = config.auth.scheme;
+    string scheme = config.auth.scheme but { () => EMPTY_STRING };
     if (scheme == BASIC_SCHEME){
-        string username = config.auth.username;
-        string password = config.auth.password;
+        string username = config.auth.username but { () => EMPTY_STRING };
+        string password = config.auth.password but { () => EMPTY_STRING };
         var encodedStringVar = util:base64EncodeString(username + ":" + password);
         string encodedString;
         match encodedStringVar {
@@ -246,18 +244,19 @@ public function prepareRequest(Request req, ClientEndpointConfig config) returns
                 return httpConnectorError;
             }
         }
-        req.setHeader(AUTHORIZATION, BASIC + encodedString);
+        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + encodedString);
     } else if (scheme == OAUTH_SCHEME){
-        if (config.auth.accessToken == EMPTY_STRING) {
-            string refreshToken = config.auth.refreshToken;
-            string clientId = config.auth.clientId;
-            string clientSecret = config.auth.clientSecret;
-            string refreshTokenUrl = config.auth.refreshTokenUrl;
+        string accessToken = config.auth.accessToken but { () => EMPTY_STRING };
+        if (accessToken == EMPTY_STRING) {
+            string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
+            string clientId = config.auth.clientId but { () => EMPTY_STRING };
+            string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
+            string refreshTokenUrl = config.auth.refreshTokenUrl but { () => EMPTY_STRING };
 
             if (refreshToken != EMPTY_STRING && clientId != EMPTY_STRING && clientSecret != EMPTY_STRING) {
                 var accessTokenValueResponse = getAccessTokenFromRefreshToken(config);
                 match accessTokenValueResponse {
-                    string accessTokenString => req.setHeader(AUTHORIZATION, BEARER + accessTokenString);
+                    string accessTokenString => req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + accessTokenString);
                     HttpConnectorError err => return err;
                 }
             } else {
@@ -266,11 +265,11 @@ public function prepareRequest(Request req, ClientEndpointConfig config) returns
                 return httpConnectorError;
             }
         } else {
-            req.setHeader(AUTHORIZATION, BEARER + config.auth.accessToken);
+            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + accessToken);
         }
     } else if (scheme == JWT_SCHEME){
         string authToken = runtime:getInvocationContext().authenticationContext.authToken;
-        req.setHeader(AUTHORIZATION, BEARER + authToken);
+        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + authToken);
     }
     return ();
 }
@@ -280,10 +279,10 @@ public function prepareRequest(Request req, ClientEndpointConfig config) returns
 @Return {value:"AccessToken received from the authorization server"}
 @Return {value:"Error occured during HTTP client invocation"}
 function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (string|HttpConnectorError) {
-    string refreshToken = config.auth.refreshToken;
-    string clientId = config.auth.clientId;
-    string clientSecret = config.auth.clientSecret;
-    string refreshTokenUrl = config.auth.refreshTokenUrl;
+    string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
+    string clientId = config.auth.clientId but { () => EMPTY_STRING };
+    string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
+    string refreshTokenUrl = config.auth.refreshTokenUrl but { () => EMPTY_STRING };
     HttpClient refreshTokenClient = createHttpSecureClient(refreshTokenUrl, {});
     string refreshTokenRequestPath = "/oauth2/v3/token";
     string requestParams = "refresh_token=" + refreshToken + "&grant_type=refresh_token&client_secret=" + clientSecret + "&client_id=" + clientId;
@@ -298,8 +297,8 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
         }
     }
     Request refreshTokenRequest;
-    refreshTokenRequest.addHeader(AUTHORIZATION, BASIC + base64ClientIdSecret);
-    refreshTokenRequest.addHeader(CONTENT_TYPE, APPLICATION_WWW_FORM_URL_ENCODED);
+    refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + base64ClientIdSecret);
+    refreshTokenRequest.addHeader(CONTENT_TYPE_HEADER, mime:APPLICATION_FORM_URLENCODED);
     refreshTokenRequest.setStringPayload("grant_type=refresh_token&refresh_token=" + refreshToken);
     refreshTokenRequest.setStringPayload(requestParams);
     refreshTokenRequestPath = refreshTokenRequestPath + "?" + requestParams;
