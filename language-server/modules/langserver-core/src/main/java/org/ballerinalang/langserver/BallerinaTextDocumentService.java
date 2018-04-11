@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
-import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
@@ -429,33 +428,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     private void compileAndSendDiagnostics(String content, LSDocument document, Path path) {
         BallerinaFile balFile;
-
-        String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path);
-        String pkgName = TextDocumentServiceUtil.getPackageNameForGivenFile(sourceRoot, path.toString());
-        LSDocument sourceDocument = new LSDocument();
-        sourceDocument.setUri(document.getURIString());
-        sourceDocument.setSourceRoot(sourceRoot);
-
-        PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-        if ("".equals(pkgName)) {
-            Path filePath = path.getFileName();
-            if (filePath != null) {
-                pkgName = filePath.toString();
-            }
-        }
-        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(pkgName, packageRepository,
-                sourceDocument, false, documentManager, CompilerPhase.CODE_ANALYZE, this.lsGlobalContext);
-
-        // In order to capture the syntactic errors, need to go through the default error strategy
-        context.put(DefaultErrorStrategy.class, null);
-
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         String tempFileId = LSParserUtils.getUnsavedFileIdOrNull(path.toString());
         if (tempFileId == null) {
-            balFile = LSParserUtils.compile(content, path, CompilerPhase.TAINT_ANALYZE, false);
+            balFile = LSParserUtils.compile(content, path, CompilerPhase.CODE_ANALYZE, false,
+                                            this.lsGlobalContext);
         } else {
-            balFile = LSParserUtils.compile(content, tempFileId, CompilerPhase.TAINT_ANALYZE, false,
-                    this.lsGlobalContext);
+            balFile = LSParserUtils.compile(content, tempFileId, CompilerPhase.CODE_ANALYZE, false,
+                                            this.lsGlobalContext);
         }
         if (balFile.getDiagnostics() != null) {
             balDiagnostics = balFile.getDiagnostics();
