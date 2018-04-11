@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.DocTag;
@@ -322,7 +323,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // Attempt to load the imported package.
-        BLangPackage pkgNode = pkgLoader.loadPackage(pkgId, env.enclPkg.packageRepository);
+        BLangPackage pkgNode = null;
+        try {
+            pkgNode = pkgLoader.loadPackage(pkgId, env.enclPkg.repos);
+        } catch (BLangCompilerException ex) {
+            System.out.println(ex.getMessage() + " " + env.enclPkg.packageID);
+            throw ex;
+        }
         if (pkgNode == null) {
             dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());

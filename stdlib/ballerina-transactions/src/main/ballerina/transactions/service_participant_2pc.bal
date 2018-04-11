@@ -16,8 +16,8 @@
 
 package ballerina.transactions;
 
-import ballerina/log;
 import ballerina/http;
+import ballerina/log;
 
 @http:ServiceConfig {
     basePath:participant2pcCoordinatorBasePath

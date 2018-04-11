@@ -22,7 +22,6 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.repository.PackageEntity;
-import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.ballerinalang.toml.model.Dependency;
@@ -57,6 +56,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -120,7 +120,7 @@ public class PackageLoader {
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
         Path balHomeDir = HomeRepoUtils.createAndGetHomeReposPath();
         Path projectHiddenDir = sourceRoot.resolve(".ballerina");
-        RepoHierarchyBuilder.RepoNode[] systemArr = loadSystemRepos();
+        RepoHierarchyBuilder.RepoNode systemArr = loadSystemRepos();
         Converter<Path> converter = sourceDirectory.getConverter();
 
         Repo remote = new RemoteRepo(URI.create("https://api.staging-central.ballerina.io/packages/"));
@@ -154,19 +154,17 @@ public class PackageLoader {
 
     }
 
-    private RepoHierarchyBuilder.RepoNode[] loadSystemRepos() {
-        List<RepoHierarchyBuilder.RepoNode> systemList;
+    private RepoHierarchyBuilder.RepoNode loadSystemRepos() {
         ServiceLoader<SystemPackageRepositoryProvider> loader
                 = ServiceLoader.load(SystemPackageRepositoryProvider.class);
-        systemList = StreamSupport.stream(loader.spliterator(), false)
-                                  .map(SystemPackageRepositoryProvider::loadRepository)
-                                  .filter(Objects::nonNull)
-                                  .map(r -> node(r))
-                                  .collect(Collectors.toList());
-        return systemList.toArray(new RepoHierarchyBuilder.RepoNode[systemList.size()]);
+        return StreamSupport.stream(loader.spliterator(), false)
+                            .sorted(new PkgComp())
+                            .map(SystemPackageRepositoryProvider::loadRepository)
+                            .filter(Objects::nonNull)
+                            .reduce(null, (k, r) -> node(r, k), (k, j) -> k);
     }
 
-    private PackageEntity loadPackageEntity(PackageID pkgId) {
+    private PackageEntity loadPackageEntity(PackageID pkgId, RepoHierarchy repos) {
         updateVersionFromToml(pkgId);
         Resolution resolution = repos.resolve(pkgId);
         if (resolution == Resolution.NOT_FOUND) {
@@ -196,18 +194,18 @@ public class PackageLoader {
     }
 
     public BLangPackage loadPackage(PackageID pkgId) {
-        BLangPackage packageNode = loadPackage(pkgId, null);
+        BLangPackage packageNode = loadPackage(pkgId, repos);
         addImportPkg(packageNode, Names.BUILTIN_ORG.value, Names.RUNTIME_PACKAGE.value, Names.EMPTY.value);
         return packageNode;
     }
 
-    public BLangPackage loadPackage(PackageID pkgId, PackageRepository packageRepo) {
+    public BLangPackage loadPackage(PackageID pkgId, RepoHierarchy repos) {
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
             return bLangPackage;
         }
 
-        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId));
+        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId, repos));
         if (packageNode == null) {
             throw ProjectDirs.getPackageNotFoundError(pkgId);
         }
@@ -231,7 +229,7 @@ public class PackageLoader {
     }
 
     public BLangPackage loadAndDefinePackage(PackageID pkgId) {
-        BLangPackage bLangPackage = loadPackage(pkgId, null);
+        BLangPackage bLangPackage = loadPackage(pkgId, repos);
         if (bLangPackage == null) {
             return null;
         }
@@ -304,5 +302,13 @@ public class PackageLoader {
 
     private BLangPackage sourceCompile(PackageSource pkgSource) {
         return this.parser.parse(pkgSource);
+    }
+
+    private static class PkgComp implements Comparator<SystemPackageRepositoryProvider> {
+
+        @Override
+        public int compare(SystemPackageRepositoryProvider o1, SystemPackageRepositoryProvider o2) {
+            return o1.dependentLevel() - o2.dependentLevel();
+        }
     }
 }

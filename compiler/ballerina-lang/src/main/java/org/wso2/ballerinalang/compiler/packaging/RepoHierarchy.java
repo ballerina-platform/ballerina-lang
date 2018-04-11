@@ -21,7 +21,7 @@ public class RepoHierarchy {
 
     private final Repo[] repos;
     private final RepoHierarchy[] dags;
-    private static final boolean verbose = false;
+    private static final boolean verbose = Boolean.parseBoolean(System.getenv("BALL_PKG_LOG"));
     private static final PrintStream out = System.out;
 
     RepoHierarchy(Repo[] repos, RepoHierarchy[] dags) {

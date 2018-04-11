@@ -30,6 +30,14 @@ import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 @JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
 public class BuiltinSystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
 
+    /**
+     * Does not depend on anything hence low dependentLevel.
+     */
+    @Override
+    public int dependentLevel() {
+        return -100;
+    }
+
     @Override
     public Repo loadRepository() {
         return new JarRepo(SystemPackageRepositoryProvider.getClassUri(this));

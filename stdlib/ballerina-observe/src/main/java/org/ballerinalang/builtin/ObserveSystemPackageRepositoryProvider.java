@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.testerina;
+package org.ballerinalang.builtin;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
@@ -28,11 +28,14 @@ import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
  * @since 0.94
  */
 @JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
-public class TesterinaSystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
+public class ObserveSystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
 
+    /**
+     * does not depend on anything hence low dependentLevel.
+     */
     @Override
     public int dependentLevel() {
-        return 300;
+        return 200;
     }
 
     @Override
