@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
-
 /**
  * {@link TraceManager} loads {@link TraceManager} implementation
  * and wraps it's functionality.
@@ -105,8 +103,11 @@ public class TraceManager {
             if (tracer != null) {
                 Span span = activeSpanEntry.getValue();
                 if (span != null) {
-                    tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS,
-                            new RequestInjector(TRACE_PREFIX, carrierMap));
+                    Map<String, String> tracerSpecificCarrier = new HashMap<>();
+                    RequestInjector requestInjector = new RequestInjector(tracerSpecificCarrier);
+                    tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, requestInjector);
+                    String value = requestInjector.getCarrierString();
+                    carrierMap.put(TraceConstants.TRACE_HEADER, value);
                 }
             }
         }
@@ -144,7 +145,8 @@ public class TraceManager {
         Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
         for (Map.Entry<String, Tracer> tracerEntry : tracers.entrySet()) {
             spanContext.put(tracerEntry.getKey(), tracerEntry.getValue()
-                    .extract(Format.Builtin.HTTP_HEADERS, new RequestExtractor(headers)));
+                    .extract(Format.Builtin.HTTP_HEADERS,
+                            new RequestExtractor(headers.get(TraceConstants.TRACE_HEADER))));
         }
         return spanContext;
     }

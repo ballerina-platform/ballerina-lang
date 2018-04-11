@@ -54,14 +54,14 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
     @BeforeClass
     private void setup() throws Exception {
         ballerinaServer = ServerInstance.initBallerinaServer(9090);
-        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "unary-server1.bal");
+        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "unary_server1.bal");
         ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
     }
 
     @Test
     public void testBlockingBallerinaClient() {
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1-blocking-client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1_blocking_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
         final String serverMsg = "Hello WSO2";
@@ -75,7 +75,7 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
     @Test
     public void testIntBlockingBallerinaClient() {
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1-blocking-client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1_blocking_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BInteger request = new BInteger(10);
         final int serverMsg = 8;
@@ -89,7 +89,7 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
     @Test
     public void testFloatBlockingBallerinaClient() {
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1-blocking-client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1_blocking_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BFloat request = new BFloat(1000.5);
         final double response = 880.44;
@@ -103,7 +103,7 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
     @Test
     public void testBooleanBlockingBallerinaClient() {
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1-blocking-client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1_blocking_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BBoolean request = new BBoolean(false);
         final boolean response = true;
@@ -117,7 +117,7 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
     @Test
     public void testStructBlockingBallerinaClient() {
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1-blocking-client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1_blocking_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo httpPackageInfo = result.getProgFile().getPackageInfo(".");
         StructInfo structInfo = httpPackageInfo.getStructInfo("Request");
@@ -137,7 +137,7 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
     @Test
     public void testNonBlockingBallerinaClient() {
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1-nonblocking-client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1_nonblocking_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         final String serverMsg = "Hello WSO2";
 

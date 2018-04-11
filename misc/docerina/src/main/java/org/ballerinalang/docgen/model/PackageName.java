@@ -78,7 +78,7 @@ public class PackageName extends Caption {
             if (!"".equals(prefix)) {
                 prefix += ".";
             }
-            String finalPrefix = prefix.substring(0, prefix.length() - 1);
+            String finalPrefix = "".equals(prefix) ? "" : prefix.substring(0, prefix.length() - 1);
             return packageNames.stream().map((packageName) -> new PackageName(finalPrefix, packageName.replace
                     (finalPrefix, ""))).map((packageObj -> new Link(packageObj, packageObj.value, true))).collect
                     (Collectors.toList());

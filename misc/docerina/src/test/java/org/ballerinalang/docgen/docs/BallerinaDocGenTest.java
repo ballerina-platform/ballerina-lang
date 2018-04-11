@@ -23,11 +23,16 @@ import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,6 +40,7 @@ import java.util.Map;
  */
 public class BallerinaDocGenTest {
 
+    private final PrintStream err = System.err;
     private String testResourceRoot;
     private String originalUserDir;
 
@@ -71,6 +77,7 @@ public class BallerinaDocGenTest {
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
         } catch (IOException e) {
+            err.println(e);
             Assert.fail();
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
@@ -83,8 +90,11 @@ public class BallerinaDocGenTest {
             String path = testResourceRoot + "balFiles/balFolder";
             createDir(path);
             setUserDir(path);
-            Map<String, PackageDoc> docsMap = BallerinaDocGenerator.generatePackageDocsFromBallerina(path, path);
-
+            SourceDirectory srcDirectory = new FileSystemProjectDirectory(Paths.get(path));
+            List<String> sourcePackageNames = srcDirectory.getSourcePackageNames();
+            BallerinaDocGenerator.generateApiDocs(path, testResourceRoot + File.separator + "api-docs", null, false,
+                    sourcePackageNames.toArray(new String[sourcePackageNames.size()]));
+            Map<String, PackageDoc> docsMap = BallerinaDocDataHolder.getInstance().getPackageMap();
             Assert.assertNotNull(docsMap);
             // this folder has 3 bal files. 2 bal files out of those are in same package.
             Assert.assertEquals(docsMap.size(), 2);
@@ -104,7 +114,8 @@ public class BallerinaDocGenTest {
             String path = testResourceRoot + "balFiles/balFolder";
             createDir(path);
             setUserDir(path);
-            BallerinaDocGenerator.generateApiDocs(path, null, null, false, "a.b");
+            BallerinaDocGenerator.generateApiDocs(path, testResourceRoot + File.separator + "api-docs2", null, false,
+                    "a.b");
 
             Assert.assertEquals(BallerinaDocDataHolder.getInstance().getPackageMap().size(), 1);
             // assert package names
