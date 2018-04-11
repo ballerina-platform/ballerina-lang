@@ -314,7 +314,7 @@ public function Response::setBinaryPayload (blob payload) {
     self.setEntity(entity);
 }
 
-public function Response::setBodyParts (mime:Entity[] bodyParts, string contentType) {
+public function Response::setBodyParts (mime:Entity[] bodyParts, @sensitive string contentType) {
     mime:Entity entity = self.getEntityWithoutBody();
     mime:MediaType mediaType = getMediaTypeFromResponse(self, mime:MULTIPART_MIXED);
     if (contentType != null && contentType != "") {
@@ -325,7 +325,7 @@ public function Response::setBodyParts (mime:Entity[] bodyParts, string contentT
     self.setEntity(entity);
 }
 
-public function Response::setFileAsPayload (file:Path filePath, string contentType) {
+public function Response::setFileAsPayload (file:Path filePath, @sensitive string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = self.getEntityWithoutBody();
     entity.contentType = mediaType;
@@ -349,7 +349,7 @@ public function Response::setPayload ((string | xml | json | blob | io:ByteChann
 @Param {value:"response: The outbound response message"}
 @Param {value:"defaultContentType: Default content-type to be used in case the content-type header doesn't contain any value"}
 @Return {value:"Return 'MediaType' struct"}
-function getMediaTypeFromResponse (Response response, string defaultContentType) returns (mime:MediaType) {
+function getMediaTypeFromResponse (Response response, @sensitive string defaultContentType) returns (mime:MediaType) {
     mime:MediaType mediaType = mime:getMediaType(defaultContentType);
 
     if (response.hasHeader(mime:CONTENT_TYPE)) {
