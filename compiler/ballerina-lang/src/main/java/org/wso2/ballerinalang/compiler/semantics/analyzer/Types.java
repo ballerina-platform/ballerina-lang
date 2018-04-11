@@ -578,7 +578,13 @@ public class Types {
 
         } else if (s.tag == TypeTags.ARRAY) {
             if (t.tag == TypeTags.JSON) {
-                return getExplicitArrayConversionOperator(symTable.jsonType, ((BArrayType) s).eType, origT, origS);
+                if (((BArrayType) s).eType.tag == TypeTags.JSON) {
+                    return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
+                } else {
+                    if (conversionVisitor.visit((BJSONType) t, ((BArrayType) s).eType) != symTable.notFoundSymbol) {
+                        return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.ARRAY2JSON);
+                    }
+                }
             }
 
             // If only the source type is an array type, then the target type must be of type 'any'
@@ -783,6 +789,9 @@ public class Types {
                 }
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
             } else if (s.tag == TypeTags.ARRAY) {
+                if (t.constraint != null && t.constraint.tag != TypeTags.NONE) {
+                    return symTable.notFoundSymbol;
+                }
                 return getExplicitArrayConversionOperator(t, s, t, s);
             } else if (s.tag == TypeTags.UNION) {
                 if (checkUnionTypeToJSONConvertibility((BUnionType) s, t)) {

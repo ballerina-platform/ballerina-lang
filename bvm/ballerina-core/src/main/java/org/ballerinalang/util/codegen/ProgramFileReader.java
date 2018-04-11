@@ -1419,6 +1419,8 @@ public class ProgramFileReader {
                 case InstructionCodes.AWAIT:
                 case InstructionCodes.CHECK_CONVERSION:
                 case InstructionCodes.XMLLOADALL:
+                case InstructionCodes.ARRAY2JSON:
+                case InstructionCodes.JSON2ARRAY:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));

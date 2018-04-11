@@ -2139,6 +2139,7 @@ public class CPU {
                 sf.stringRegs[j] = null;
                 break;
             case InstructionCodes.ARRAY2JSON:
+                convertArrayToJSON(ctx, operands, sf);
                 break;
             case InstructionCodes.JSON2ARRAY:
                 break;
@@ -3597,6 +3598,25 @@ public class CPU {
             sf.refRegs[j] = JSONUtils.convertStructToJSON(bStruct, targetType);
         } catch (Exception e) {
             String errorMsg = "cannot convert '" + bStruct.getType() + "' to type '" + targetType + "': " +
+                    e.getMessage();
+            handleTypeConversionError(ctx, sf, j, errorMsg);
+        }
+    }
+    
+    private static void convertArrayToJSON(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
+        int i = operands[0];
+        int j = operands[1];
+
+        BNewArray bArray = (BNewArray) sf.refRegs[i];
+        if (bArray == null) {
+            handleNullRefError(ctx);
+            return;
+        }
+
+        try {
+            sf.refRegs[j] = JSONUtils.convertArrayToJSON(bArray);
+        } catch (Exception e) {
+            String errorMsg = "cannot convert '" + bArray.getType() + "' to type '" + BTypes.typeJSON + "': " +
                     e.getMessage();
             handleTypeConversionError(ctx, sf, j, errorMsg);
         }
