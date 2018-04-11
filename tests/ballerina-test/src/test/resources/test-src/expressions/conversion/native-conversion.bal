@@ -716,3 +716,78 @@ function testStructArrayConversion2() returns T2 {
     return b[0];
 }
 
+public type T3 {
+  int x,
+  int y,
+};
+
+public type O1 object {
+  public {
+    int x;
+    int y;
+  }
+};
+
+public type O2 object {
+  public {
+    int x;
+    int y;
+    int z;
+  }
+};
+
+function testObjectRecordConversion1() returns T3 {
+    O1 a;
+    T3 b;
+    a = <O1> b;
+    b = <T3> a;
+    return b;
+}
+
+function testObjectRecordConversion2() returns T3 {
+    O2 a;
+    T3 b;
+    b = <T3> a;
+    return b;
+}
+
+function testObjectRecordConversion3() returns O2 {
+    O2 a;
+    T3 b;
+    b = <T3> a;
+    a = check <O2> b;
+    return a;
+}
+
+function testObjectRecordConversionFail() {
+    O2 a;
+    T3 b;
+    a = check <O2> b;
+}
+
+function testTupleConversion1() returns (T1, T1) {
+    T1 a;
+    T2 b;
+    (T1, T2) x = (a, b);
+    (T1, T1) x2;
+    any y = x;
+    x2 = check <(T1, T1)> y;
+    return x2;
+}
+
+function testTupleConversion2() returns (int, string) {
+    (int, string) x = (10, "XX");
+    any y = x;
+    x = check <(int, string)> y;
+    return x;
+}
+
+function testTupleConversionFail() {
+    T1 a;
+    T1 b;
+    (T1, T1) x = (a, b);
+    (T1, T2) x2;
+    any y = x;
+    x2 = check <(T1, T2)> y;
+}
+

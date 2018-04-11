@@ -36,6 +36,7 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * Test Cases for type conversion.
@@ -325,7 +326,6 @@ public class NativeConversionTest {
         BRunUtil.invoke(compileResult, "testStructWithIncompatibleTypeMapToJson");
     }
 
-    // TODO: certain types can be validated during the compile time. Validate those and throw semantic errors
     @Test(description = "Test converting a struct with map of blob to a JSON", expectedExceptions = {
             BLangRuntimeException.class }, 
             expectedExceptionsMessageRegExp = ".*cannot convert 'Info' to type 'json'.*")
@@ -617,6 +617,50 @@ public class NativeConversionTest {
         Assert.assertTrue(returns[0] instanceof BStruct);
         BStruct struct = (BStruct) returns[0];
         Assert.assertEquals(struct.getIntField(2), 2);
+    }
+    
+    @Test
+    public void testObjectRecordConversion1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectRecordConversion1");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+    }
+    
+    @Test
+    public void testObjectRecordConversion2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectRecordConversion2");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+    }
+    
+    @Test
+    public void testObjectRecordConversion3() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectRecordConversion3");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+    }
+    
+    @Test(description = "Test converting a null Struct to map", expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*'T3' cannot be cast to 'O2'.*")
+    public void testObjectRecordConversionFail() {
+        BRunUtil.invoke(compileResult, "testObjectRecordConversionFail");
+    }
+    
+    @Test
+    public void testTupleConversion1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleConversion1");
+        Assert.assertEquals(returns.length, 2);
+    }
+    
+    @Test
+    public void testTupleConversion2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleConversion2");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.INT);
+        Assert.assertEquals(returns[1].getType().getTag(), TypeTags.STRING);
+    }
+    
+    @Test(description = "Test converting a null Struct to map", expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*'\\(T1,T1\\)' cannot be cast to '\\(T1,T2\\)'.*")
+    public void testTupleConversionFail() {
+        BRunUtil.invoke(compileResult, "testTupleConversionFail");
     }
     
 }
