@@ -391,4 +391,4 @@ function getEncoding (MediaType contentType) returns (string) {
 @Description {value:"Given the Content-Type in string, get the MediaType struct populated with it."}
 @Param {value:"contentType: Content-Type in string"}
 @Return {value:"Return MediaType struct"}
-public native function getMediaType (@sensitive string contentType) returns (MediaType);
+public native function getMediaType (string contentType) returns (MediaType);
