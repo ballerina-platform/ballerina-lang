@@ -29,8 +29,8 @@ import ballerina/util;
 @Field {value:"name: Authentication handler name"}
 public type HttpBasicAuthnHandler object {
     public {
-        auth:AuthProvider authProvider;
         string name;
+        auth:AuthProvider authProvider;
     }
     new (authProvider) {
         name = "basic";

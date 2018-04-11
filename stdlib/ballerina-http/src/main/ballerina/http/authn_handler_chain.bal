@@ -22,39 +22,58 @@ import ballerina/auth.jwtAuth;
 
 @Description {value:"Representation of Authentication handler chain"}
 public type AuthnHandlerChain object {
-    public {
-        map authnHandlers;
-    }
     new () {
     }
     public function handle (Request req) returns (boolean);
+    public function handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req) returns (boolean);
 };
 
-@Description {value:"Creates a Authentication handler chain"}
-@Return {value:"AuthnHandlerChain: AuthnHandlerChain instance"}
-public function createAuthnHandlerChain () returns (AuthnHandlerChain) {
-    AuthnHandlerChain authnHandlerChain = new;
-    // TODO: read the authn handlers from a config file and load them dynamically. currently its hardcoded.
-    auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
-    HttpBasicAuthnHandler httpAuthnHandler = new(authProvider);
-    jwtAuth:JWTAuthenticator jwtAuthenticator = jwtAuth:createAuthenticator();
-    HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthenticator);
-    // add to map
-    authnHandlerChain.authnHandlers[httpAuthnHandler.name] = httpAuthnHandler;
-    authnHandlerChain.authnHandlers[jwtAuthnHandler.name] = jwtAuthnHandler;
-    return authnHandlerChain;
-}
+//@Description {value:"Creates a Authentication handler chain"}
+//@Return {value:"AuthnHandlerChain: AuthnHandlerChain instance"}
+//public function createAuthnHandlerChain () returns (AuthnHandlerChain) {
+//    AuthnHandlerChain authnHandlerChain = new;
+//    // TODO: read the authn handlers from a config file and load them dynamically. currently its hardcoded.
+//    auth:ConfigAuthProvider configAuthProvider = new;
+//    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
+//    HttpBasicAuthnHandler httpAuthnHandler = new(authProvider);
+//    jwtAuth:JWTAuthenticator jwtAuthenticator = jwtAuth:createAuthenticator();
+//    HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthenticator);
+//    // add to map
+//    authnHandlerChain.authnHandlers[httpAuthnHandler.name] = httpAuthnHandler;
+//    authnHandlerChain.authnHandlers[jwtAuthnHandler.name] = jwtAuthnHandler;
+//    return authnHandlerChain;
+//}
 
 @Description {value:"Tries to authenticate against any one of the available authentication handlers"}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if authenticated successfully, else false"}
 public function AuthnHandlerChain::handle (Request req) returns (boolean) {
-    foreach currentAuthHandlerType, currentAuthHandler in self.authnHandlers {
-        var authnHandler = check <HttpAuthnHandler> currentAuthHandler;
+    foreach currentAuthProviderType, currentAuthHandler in authHandlerRegistry.getAll() {
+        var authnHandler = <HttpAuthnHandler> currentAuthHandler;
         if (authnHandler.canHandle(req)) {
-            log:printDebug("trying to authenticate with the authn handler: " + currentAuthHandlerType);
+            log:printDebug("Trying to authenticate with the auth provider: " + currentAuthProviderType);
             return authnHandler.handle(req);
+        }
+    }
+    return false;
+}
+
+@Description {value:"Tries to authenticate against a specifc sub set of the authentication handlers, using the given 
+array of auth provider ids"}
+@Param {value:"authProviderIds: array of auth provider ids"}
+@Param {value:"req: Request object"}
+@Return {value:"boolean: true if authenticated successfully, else false"}
+public function AuthnHandlerChain::handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req)
+                                                                                                    returns (boolean) {
+    foreach authProviderId in authProviderIds {
+        match authHandlerRegistry.get(authProviderId) {
+            HttpAuthnHandler authnHandler => {
+                if (authnHandler.canHandle(req)) {
+                    log:printDebug("Trying to authenticate with the auth provider: " + authProviderId);
+                    return authnHandler.handle(req);
+                }
+            }
+            () => {}
         }
     }
     return false;

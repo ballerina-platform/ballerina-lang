@@ -19,6 +19,9 @@ package ballerina.http;
 @Description {value:"Representation of Authentication handler for HTTP traffic. Any authention interceptor for
 basic authentication should be struct-wise similar to HttpAuthnInterceptor"}
 public type HttpAuthnHandler object {
+    public {
+        string name;
+    }
     public function canHandle (Request req) returns (boolean);
     public function handle (Request req) returns (boolean);
 };

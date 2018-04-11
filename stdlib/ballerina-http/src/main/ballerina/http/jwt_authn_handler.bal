@@ -24,8 +24,8 @@ import ballerina/auth.jwtAuth;
 @Field {value:"name: Authentication handler name"}
 public type HttpJwtAuthnHandler object {
     public {
-        jwtAuth:JWTAuthenticator jwtAuthenticator;
         string name = "jwt";
+        jwtAuth:JWTAuthenticator jwtAuthenticator;
     }
     new (jwtAuthenticator) {
     }

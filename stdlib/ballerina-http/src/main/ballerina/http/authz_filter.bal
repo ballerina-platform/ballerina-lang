@@ -53,10 +53,10 @@ public function AuthzFilter::terminate () {
 public function authzRequestFilterFunc (Request request, FilterContext context) returns (FilterResult) {
     // first check if the resource is marked to be authenticated. If not, no need to authorize.
     // TODO: check if we can remove this once the security context is there.
-    if (!isResourceSecured(context)) {
-        // let the request pass
-        return createAuthzResult(true);
-    }
+    //if (!isResourceSecured(context)) {
+    //    // let the request pass
+    //    return createAuthzResult(true);
+    //}
     // check if this resource is protected
     string[]? scopes = getScopesForResource(context);
     boolean authorized;
@@ -94,41 +94,52 @@ function createAuthzResult (boolean authorized) returns (FilterResult) {
 @Param {value:"context: FilterContext object"}
 @Return {value:"string: Scope name if defined, else nil"}
 function getScopesForResource (FilterContext context) returns (string[]|()) {
-    string[]|() scope = getAuthzAnnotation(internal:getResourceAnnotations(context.serviceType,
-                                                                      context.resourceName));
-    match scope {
-        string[] scopeVal => {
-            return scopeVal;
+    AuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
+        internal:getResourceAnnotations(context.serviceType, context.resourceName));
+    match resourceLevelAuthAnn.scopes {
+        string[] scopes => {
+            return scopes;
         }
         () => {
-            // if not found in resource level, check in service level
-            return getAuthzAnnotation(internal:getServiceAnnotations(context.serviceType));
+            AuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
+                internal:getServiceAnnotations(context.serviceType));
+            match serviceLevelAuthAnn.scopes {
+                string[] scopes => {
+                    return scopes;
+                }
+                () => {
+                    return ();
+                }
+            }
         }
     }
 }
 
-@Description {value:"Tries to retrieve the annotation value for scope hierarchically - first from the resource level
-and then from the service level, if its not there in the resource level"}
-@Param {value:"annData: array of annotationData instances"}
-@Return {value:"string[]: array of scope name if defined, else nil"}
-function getAuthzAnnotation (internal:annotationData[] annData) returns (string[]|()) {
-    if (lengthof annData == 0) {
-        return ();
-    }
-    internal:annotationData|() authAnn;
-    foreach ann in annData {
-        if (ann.name == AUTH_ANN_NAME && ann.pkgName == AUTH_ANN_PACKAGE) {
-            authAnn = ann;
-            break;
-        }
-    }
-    match authAnn {
-        internal:annotationData annData1 => {
-            var authConfig = check <auth:AuthConfig> annData1.value;
-            return authConfig.scopes;
-        }
-        () => {
-            return ();
-        }
-    }
-}
+//@Description {value:"Tries to retrieve the annotation value for scope hierarchically - first from the resource level
+//and then from the service level, if its not there in the resource level"}
+//@Param {value:"annotationPackage: annotation package name"}
+//@Param {value:"annotationName: annotation name"}
+//@Param {value:"annData: array of annotationData instances"}
+//@Return {value:"string[]: array of scope name if defined, else nil"}
+//function getAuthzAnnotation (string annotationPackage, string annotationName, internal:annotationData[] annData)
+//                                                                                                returns (string[]|()) {
+//    if (lengthof annData == 0) {
+//        return ();
+//    }
+//    internal:annotationData|() authAnn;
+//    foreach ann in annData {
+//        if (ann.name == annotationName && ann.pkgName == annotationPackage) {
+//            authAnn = ann;
+//            break;
+//        }
+//    }
+//    match authAnn {
+//        internal:annotationData annData1 => {
+//            var authConfig = check <auth:AuthConfig> annData1.value;
+//            return authConfig.scopes;
+//        }
+//        () => {
+//            return ();
+//        }
+//    }
+//}

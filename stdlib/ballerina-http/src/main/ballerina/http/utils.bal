@@ -23,9 +23,11 @@ package ballerina.http;
 @Description {value:"Bearer authentication scheme"}
 @final string AUTH_SCHEME_BEARER = "Bearer";
 @Description {value:"Auth annotation package"}
-@final string AUTH_ANN_PACKAGE = "ballerina.auth";
-@Description {value:"Auth annotation name"}
-@final string AUTH_ANN_NAME = "Config";
+@final string ANN_PACKAGE = "ballerina.http";
+@Description {value:"Resource level annotation name"}
+@final string RESOURCE_ANN_NAME = "HttpResourceConfig";
+@Description {value:"Service level annotation name"}
+@final string SERVICE_ANN_NAME = "HttpServiceConfig";
 
 @Description {value:"Extracts the basic authentication header value from the request"}
 @Param {value:"req: Request instance"}
