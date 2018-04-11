@@ -23,6 +23,7 @@ import View from 'core/view/view';
 import { VIEWS } from './../constants';
 import './DebugConsole.css';
 
+let messageCache = [];
 /**
  * Debugger Console View
  */
@@ -40,7 +41,7 @@ class DebuggerConsole extends View {
             this.setState({ messages: nextState });
         },
         400);
-        let messageCache = [];
+
         props.LaunchManager.on('execution-started', () => {
             messageCache = [];
             this.setState({
@@ -52,6 +53,18 @@ class DebuggerConsole extends View {
             this.debouncedSetState(messageCache);
         });
     }
+
+    componentDidMount() {
+        const messages = this.props.LaunchManager.messages.filter( (message) => {
+            return message.type !== 'TRACE';
+        });
+        this.setState({
+            messages,
+        });
+        messageCache = messages;
+        console.log(messages);
+    }
+
 
     /**
      * @inheritdoc

@@ -76,6 +76,16 @@ class LogsConsole extends React.Component {
         });
     }
 
+    componentDidMount() {
+        const messages = this.props.LaunchManager.messages.filter( (message) => {
+            return message.type === 'TRACE' && message.message.meta.direction;
+        });
+        this.setState({
+            messages,
+            filteredMessages: messages,
+        });
+    }
+
     onFilteredMessages(filteredMessages) {
         this.setState({
             filteredMessages,
