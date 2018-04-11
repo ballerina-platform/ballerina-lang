@@ -76,7 +76,7 @@ public class BLangObject extends BLangNode implements ObjectNode {
     }
 
     @Override
-    public List<? extends FunctionNode> getFunctions() {
+    public List<BLangFunction> getFunctions() {
         return functions;
     }
 

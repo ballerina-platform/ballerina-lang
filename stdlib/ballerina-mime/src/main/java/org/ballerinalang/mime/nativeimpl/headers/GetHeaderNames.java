@@ -21,45 +21,55 @@ package org.ballerinalang.mime.nativeimpl.headers;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.Set;
+import java.util.TreeSet;
 
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 
 /**
- * Get a copy of all headers.
+ * Get all header names.
  *
  * @since 0.966.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "mime",
-        functionName = "getCopyOfAllHeaders",
+        functionName = "getHeaderNames",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.MAP)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY)},
         isPublic = true
 )
-public class GetCopyOfAllHeaders extends BlockingNativeCallableUnit {
+public class GetHeaderNames extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
-        BMap<String, BValue> headerMap = new BMap<>();
+        BStringArray bStringArray = new BStringArray();
         if (entityStruct.getNativeData(ENTITY_HEADERS) == null) {
-            context.setReturnValues(headerMap);
+            context.setReturnValues(bStringArray);
             return;
         }
         HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         if (httpHeaders != null && !httpHeaders.isEmpty()) {
-            context.setReturnValues(HeaderUtil.getAllHeadersAsBMap(httpHeaders));
+            int i = 0;
+            Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            for (String headerName : httpHeaders.names()) {
+                distinctNames.add(headerName);
+            }
+            for (String headerName : distinctNames) {
+                bStringArray.add(i, headerName);
+                i++;
+            }
+            context.setReturnValues(bStringArray);
         } else {
-            context.setReturnValues(headerMap);
+            context.setReturnValues(bStringArray);
         }
     }
 }
