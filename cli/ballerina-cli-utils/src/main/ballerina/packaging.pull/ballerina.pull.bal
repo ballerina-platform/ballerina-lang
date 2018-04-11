@@ -33,8 +33,8 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
     http:Response httpResponse = check result;
 
     http:Response res = new;
-    // To be fixed with redirect
-    if (httpResponse.statusCode == 302){
+    int statusCode = httpResponse.statusCode;
+    if (statusCode == 302){
         string locationHeader;
         if (httpResponse.hasHeader("Location")) {
             locationHeader = httpResponse.getHeader("Location");
@@ -43,6 +43,9 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
             throw err;
         }
         res = callFileServer(locationHeader);
+    } else if (statusCode == 500 || statusCode == 501 || statusCode == 502 || statusCode == 503 || statusCode == 504 ) {
+        error err = {message:"remote registry failed for url :" + url};
+        throw err;
     } else {
        error err = {message:"error occurred when pulling the package"};
        throw err;
