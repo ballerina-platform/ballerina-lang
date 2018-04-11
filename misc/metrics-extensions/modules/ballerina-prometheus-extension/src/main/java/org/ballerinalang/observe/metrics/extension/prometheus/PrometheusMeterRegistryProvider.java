@@ -58,15 +58,7 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
         PrometheusMeterRegistry registry = new PrometheusMeterRegistry(new BallerinaPrometheusConfig());
         String hostname = configRegistry.getAsString(METRICS_HOSTNAME);
         boolean hostnameAvailable = hostname != null && !hostname.isEmpty();
-        String portConfigValue = configRegistry.getAsString(METRICS_PORT);
-        int configuredPort = 0;
-        if (portConfigValue != null && portConfigValue.length() > 0) {
-            try {
-                configuredPort = Integer.parseInt(portConfigValue);
-            } catch (NumberFormatException e) {
-                throw new IllegalStateException("Invalid port used for Prometheus HTTP endpoint");
-            }
-        }
+        int configuredPort = Math.toIntExact(configRegistry.getAsInt(METRICS_PORT));
         // Start in default port if there is no configured port.
         int port = configuredPort > 0 ? configuredPort : DEFAULT_PORT;
         InetSocketAddress socketAddress = hostnameAvailable ? new InetSocketAddress(hostname, port) :

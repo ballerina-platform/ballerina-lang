@@ -95,7 +95,7 @@ public class ConfigRegistry {
      * @param key   The configuration key
      * @param value The configuration value
      */
-    public void addConfiguration(String key, String value) {
+    public void addConfiguration(String key, Object value) {
         configEntries.put(key, value);
     }
 
@@ -107,7 +107,7 @@ public class ConfigRegistry {
      * @param tableField  The config key under which the config value will be mapped in the table
      * @param value       The configuration value
      */
-    public void addConfiguration(String tableHeader, String tableField, String value) {
+    public void addConfiguration(String tableHeader, String tableField, Object value) {
         addConfiguration(getConfigKey(tableHeader, tableField), value);
     }
 
@@ -158,6 +158,12 @@ public class ConfigRegistry {
         return contains(getConfigKey(tableHeader, tableField));
     }
 
+    /**
+     * Retrieves the config value specified by the key.
+     *
+     * @param key The key of the config entry
+     * @return The associated config value if it exists
+     */
     public Object getConfiguration(String key) {
         if (contains(key)) {
             Object value = configEntries.get(key);
@@ -172,10 +178,23 @@ public class ConfigRegistry {
         return null;
     }
 
+    /**
+     * Retrieves the config value specified by the section header and the field.
+     *
+     * @param sectionHeader The header name
+     * @param field         The field in the section
+     * @return The associated config value if it exists
+     */
     public Object getConfiguration(String sectionHeader, String field) {
         return getConfiguration(getConfigKey(sectionHeader, field));
     }
 
+    /**
+     * Retrieves the config value specified by the key as a boolean.
+     *
+     * @param key The key of the config entry
+     * @return The associated config value if it exists
+     */
     public boolean getAsBoolean(String key) {
         if (contains(key)) {
             try {
@@ -188,10 +207,23 @@ public class ConfigRegistry {
         return false;
     }
 
+    /**
+     * Retrieves the config value specified by the section header and the field.
+     *
+     * @param sectionHeader The header name
+     * @param field         The field in the section
+     * @return The associated config value if it exists
+     */
     public boolean getAsBoolean(String sectionHeader, String field) {
         return getAsBoolean(getConfigKey(sectionHeader, field));
     }
 
+    /**
+     * Retrieves the config value specified by the key as an int.
+     *
+     * @param key The key of the config entry
+     * @return The associated config val
+     */
     public long getAsInt(String key) {
         if (contains(key)) {
             try {
@@ -204,10 +236,23 @@ public class ConfigRegistry {
         return 0;
     }
 
+    /**
+     * Retrieves the config value specified by the section header and the field.
+     *
+     * @param sectionHeader The header name
+     * @param field The field in the section
+     * @return The associated config value if it exists
+     */
     public long getAsInt(String sectionHeader, String field) {
         return getAsInt(getConfigKey(sectionHeader, field));
     }
 
+    /**
+     * Retrieves the config value specified by the key as a float.
+     *
+     * @param key The key of the config entry
+     * @return The associated config val
+     */
     public double getAsFloat(String key) {
         if (contains(key)) {
             try {
@@ -220,10 +265,23 @@ public class ConfigRegistry {
         return 0.0;
     }
 
+    /**
+     * Retrieves the config value specified by the section header and the field.
+     *
+     * @param sectionHeader The header name
+     * @param field The field in the section
+     * @return The associated config value if it exists
+     */
     public double getAsFloat(String sectionHeader, String field) {
         return getAsFloat(getConfigKey(sectionHeader, field));
     }
 
+    /**
+     * Retrieves the config value specified by the key as a float.
+     *
+     * @param key The key of the config entry
+     * @return The associated config val
+     */
     public Map<String, Object> getAsMap(String key) {
         Map<String, Object> section = new HashMap<>();
         int subStringIndex = key.length() + 1;
@@ -238,6 +296,13 @@ public class ConfigRegistry {
         return section;
     }
 
+    /**
+     * Retrieves the config value specified by the section header and the field.
+     *
+     * @param sectionHeader The header name
+     * @param field The field in the section
+     * @return The associated config value if it exists
+     */
     public Map<String, Object> getAsMap(String sectionHeader, String field) {
         return getAsMap(getConfigKey(sectionHeader, field));
     }
@@ -251,7 +316,7 @@ public class ConfigRegistry {
     public String getAsString(String key) {
         if (contains(key)) {
             try {
-                String value = (String) configEntries.get(key);
+                String value = String.valueOf(configEntries.get(key));
                 return resolveStringValue(value);
             } catch (ClassCastException e) {
                 throw new IllegalArgumentException(key + " does not map to a valid string");
