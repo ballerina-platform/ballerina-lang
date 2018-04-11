@@ -49,6 +49,8 @@ import org.ballerinalang.nativeimpl.sql.SQLDataIterator;
 import org.ballerinalang.nativeimpl.sql.SQLDatasource;
 import org.ballerinalang.nativeimpl.sql.SQLDatasourceUtils;
 import org.ballerinalang.util.TableResourceManager;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
@@ -98,10 +100,11 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         ResultSet rs = null;
         boolean isInTransaction = context.isInTransaction();
         try {
+            BRefValueArray generatedParams  = constructParameters(context, parameters);
             conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
-            String processedQuery = createProcessedQueryString(query, parameters);
+            String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = getPreparedStatement(conn, datasource, processedQuery);
-            createProcessedStatement(conn, stmt, parameters);
+            createProcessedStatement(conn, stmt, generatedParams);
             rs = stmt.executeQuery();
             TableResourceManager rm  = new TableResourceManager(conn, stmt);
             rm.addResultSet(rs);
@@ -117,10 +120,11 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         PreparedStatement stmt = null;
         boolean isInTransaction = context.isInTransaction();
         try {
+            BRefValueArray generatedParams  = constructParameters(context, parameters);
             conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
-            String processedQuery = createProcessedQueryString(query, parameters);
+            String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = conn.prepareStatement(processedQuery);
-            createProcessedStatement(conn, stmt, parameters);
+            createProcessedStatement(conn, stmt, generatedParams);
             int count = stmt.executeUpdate();
             context.setReturnValues(new BInteger(count));
         } catch (SQLException e) {
@@ -137,8 +141,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         ResultSet rs = null;
         boolean isInTransaction = context.isInTransaction();
         try {
+            BRefValueArray generatedParams  = constructParameters(context, parameters);
             conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
-            String processedQuery = createProcessedQueryString(query, parameters);
+            String processedQuery = createProcessedQueryString(query, generatedParams);
             int keyColumnCount = 0;
             if (keyColumns != null) {
                 keyColumnCount = (int) keyColumns.size();
@@ -152,7 +157,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             } else {
                 stmt = conn.prepareStatement(processedQuery, Statement.RETURN_GENERATED_KEYS);
             }
-            createProcessedStatement(conn, stmt, parameters);
+            createProcessedStatement(conn, stmt, generatedParams);
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
             rs = stmt.getGeneratedKeys();
@@ -181,11 +186,12 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         List<ResultSet> resultSets;
         boolean isInTransaction = context.isInTransaction();
         try {
-           conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
-            stmt = getPreparedCall(conn, datasource, query, parameters);
-            createProcessedStatement(conn, stmt, parameters, datasource.getDatabaseName());
+            BRefValueArray generatedParams  = constructParameters(context, parameters);
+            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
+            stmt = getPreparedCall(conn, datasource, query, generatedParams);
+            createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseName());
             resultSets = executeStoredProc(stmt);
-            boolean refCursorOutParamsPresent = parameters != null && isRefCursorOutParamPresent(parameters);
+            boolean refCursorOutParamsPresent = generatedParams != null && isRefCursorOutParamPresent(generatedParams);
             boolean resultSetsReturned = !resultSets.isEmpty();
             TableResourceManager rm = null;
             if (resultSetsReturned || refCursorOutParamsPresent) {
@@ -232,7 +238,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 paramArrayCount = (int) parameters.size();
                 for (int index = 0; index < paramArrayCount; index++) {
                     BRefValueArray params = (BRefValueArray) parameters.get(index);
-                    createProcessedStatement(conn, stmt, params);
+                    BRefValueArray generatedParams  = constructParameters(context, params);
+                    createProcessedStatement(conn, stmt, generatedParams);
                     stmt.addBatch();
                 }
             } else {
@@ -279,6 +286,50 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             structType = (BStructType) type.value();
         }
         return structType;
+    }
+
+    private BRefValueArray constructParameters(Context context, BRefValueArray parameters) {
+        BRefValueArray parametersNew = new BRefValueArray();
+        int paramCount = (int) parameters.size();
+        for (int i = 0; i < paramCount; ++i) {
+            BRefType typeValue = parameters.get(i);
+            BStruct paramStruct = getSQLParameter(context);
+            if (typeValue.getType().getTag() == TypeTags.TUPLE_TAG) {
+                if (((BRefValueArray) typeValue).size() == 3) {
+                    paramStruct.setRefField(0, ((BRefValueArray) typeValue).get(0));
+                    paramStruct.setRefField(1, ((BRefValueArray) typeValue).get(1));
+                    paramStruct.setRefField(2, ((BRefValueArray) typeValue).get(2));
+                } else if (((BRefValueArray) typeValue).size() == 2) {
+                    paramStruct.setRefField(0, ((BRefValueArray) typeValue).get(0));
+
+                    if (((BTupleType) typeValue.getType()).getTupleTypes().get(1).getTag()
+                            == TypeTags.FINITE_TYPE_TAG) {
+                        paramStruct.setRefField(1, null);
+                        paramStruct.setRefField(2, ((BRefValueArray) typeValue).get(1));
+                    } else {
+                        paramStruct.setRefField(1, ((BRefValueArray) typeValue).get(1));
+                        paramStruct.setRefField(2, new BString(Constants.QueryParamDirection.DIR_IN));
+                    }
+
+                } else {
+                    throw new BallerinaException("Invalid argument combination is given for input parameter:" + i);
+                }
+            } else if (typeValue.getType().getTag() == TypeTags.STRUCT_TAG) {
+                paramStruct = (BStruct) typeValue;
+            } else {
+                paramStruct.setRefField(0, new BString(SQLDatasourceUtils.getSQLType(typeValue.getType())));
+                paramStruct.setRefField(1, typeValue);
+                paramStruct.setRefField(2, new BString(Constants.QueryParamDirection.DIR_IN));
+            }
+            parametersNew.add(i, paramStruct);
+        }
+        return parametersNew;
+    }
+
+    private static BStruct getSQLParameter(Context context) {
+        PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(Constants.SQL_PACKAGE_PATH);
+        StructInfo paramStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_PARAMETER_TYPE);
+        return new BStruct(paramStructInfo.getType());
     }
 
     /**
@@ -636,6 +687,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         }
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
+            if (params.get(index).getType().getTag() != TypeTags.STRUCT_TAG) {
+                continue;
+            }
             BStruct paramValue = (BStruct) params.get(index);
             if (paramValue != null) {
                 String sqlType = getSQLType(paramValue);
