@@ -837,6 +837,9 @@ public class Types {
 
         @Override
         public BSymbol visit(BTupleType t, BType s) {
+            if (s == symTable.anyType) {
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+            }
             return symTable.notFoundSymbol;
         }
 
