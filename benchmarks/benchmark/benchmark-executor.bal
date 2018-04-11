@@ -31,7 +31,7 @@ function executeBenchmarks(functionRecord[] functionArray, int warmupIterations,
 
     // create results folder
     string resultsFolderName = "results";
-    file:Path dirPath = file:getPath(resultsFolderName);
+    file:Path dirPath = new(resultsFolderName);
 
     if (!file:exists(dirPath)){
         var dir = file:createDirectory(dirPath);
