@@ -40,13 +40,13 @@ public class SwaggerConverterUtilsTest {
             "\n" +
             "\n" +
             "@http:ServiceConfig {\n" +
-            "   methods:[\"GET\"],\n" +
             "   basePath:\"/hello\"\n" +
             "   \n" +
             "}\n" +
             "service hello bind backendEP {\n" +
             "\n" +
             "   @http:ResourceConfig {\n" +
+            "   methods:[\"GET\"],\n" +
             "       path:\"/\"\n" +
             "   }\n" +
             "   sayHello (endpoint outboundEP, http:Request request) {\n" +
@@ -69,13 +69,13 @@ public class SwaggerConverterUtilsTest {
             "\n" +
             "\n" +
             "@http:ServiceConfig {\n" +
-            "   methods:[\"GET\"],\n" +
             "   basePath:\"/hello\"\n" +
             "   \n" +
             "}\n" +
             "service hello bind backendEP {\n" +
             "\n" +
             "   @http:ResourceConfig {\n" +
+            "   methods:[\"GET\"],\n" +
             "       path:\"/\"\n" +
             "   }\n" +
             "   sayHello (endpoint outboundEP, http:Request request) {\n" +
@@ -124,9 +124,9 @@ public class SwaggerConverterUtilsTest {
     }
 
 
-    //@Test(description = "Test OAS definition generation from ballerina service with complex service")
+    @Test(description = "Test OAS definition generation from ballerina service with complex service")
     public void testOASGenerationWithEmptyServiceNameM() {
-        String serviceName = "mock";
+        String serviceName = "hello";
         try {
             String swaggerDefinition = SwaggerConverterUtils.generateOAS3Definitions(complexServiceSample,
                     serviceName);
