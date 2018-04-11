@@ -154,7 +154,7 @@ public class ResponseNativeFunctionSuccessTest {
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
                                                                resCacheControlStruct);
-        ResponseCacheControlStruct cacheControlStruct = new ResponseCacheControlStruct(cacheControl);
+        ResponseCacheControlStruct cacheControlStruct = new ResponseCacheControlStruct(cacheControl, true);
         HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControlStruct, inResponseMsg);
 
         BValue[] inputArg = {inResponse};
@@ -176,7 +176,7 @@ public class ResponseNativeFunctionSuccessTest {
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
                                                                resCacheControlStruct);
-        ResponseCacheControlStruct cacheControlStruct = new ResponseCacheControlStruct(cacheControl);
+        ResponseCacheControlStruct cacheControlStruct = new ResponseCacheControlStruct(cacheControl, true);
         HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControlStruct, inResponseMsg);
 
         BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
@@ -212,7 +212,7 @@ public class ResponseNativeFunctionSuccessTest {
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
                                                                resCacheControlStruct);
-        ResponseCacheControlStruct cacheControlStruct = new ResponseCacheControlStruct(cacheControl);
+        ResponseCacheControlStruct cacheControlStruct = new ResponseCacheControlStruct(cacheControl, true);
         HttpUtil.populateInboundResponse(inResponse, entity, mediaType, cacheControlStruct, inResponseMsg);
 
         BString key = new BString("test-header");
