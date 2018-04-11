@@ -109,20 +109,15 @@ public function getAsBoolean(string key, boolean default = false) returns boolea
 @Param {value:"key: The configuration to be retrieved" }
 @Return {value:"Configuration value mapped by the key" }
 public function getAsMap(string key) returns map {
-    if (contains(key)) {
-        var value = get(key, MAP);
+    var value = get(key, MAP);
 
-        match value {
-            map section => return section;
-            int|float|boolean|string|any[]|()|error=> {
-                error err = {message:"invalid value type"};
-                throw err;
-            }
+    match value {
+        map section => return section;
+        int|float|boolean|string|any[]|()|error=> {
+            error err = {message:"invalid value type"};
+            throw err;
         }
     }
-
-    map default;
-    return default;
 }
 
 @Description {value:"Checks whether the given key is in the configuration registry"}
