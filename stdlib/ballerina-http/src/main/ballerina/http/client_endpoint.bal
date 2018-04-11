@@ -209,7 +209,7 @@ public function Client::init(ClientEndpointConfig config) {
                 if (config.cache.enabled) {
                     self.httpClient = createHttpCachingClient(url, config, config.cache);
                 } else{
-                    self.httpClient = createHttpClient(url, config);
+                    self.httpClient = createHttpSecureClient(url, config);
                 }
             }
         }
@@ -245,8 +245,8 @@ public function Client::init(ClientEndpointConfig config) {
                         () => {
                             if (config.cache.enabled) {
                                 self.httpClient = createHttpCachingClient(url, config, config.cache);
-                            } else{
-                                self.httpClient = createHttpClient(url, config);
+                            } else {
+                                self.httpClient = createHttpSecureClient(url, config);
                             }
                         }
                     }
@@ -274,7 +274,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfig configurat
                     if (configuration.cache.enabled) {
                         cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cache);
                     } else{
-                        cbHttpClient = createHttpClient(uri, configuration);
+                        cbHttpClient = createHttpSecureClient(uri, configuration);
                     }
                 }
             }
@@ -303,7 +303,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfig configurat
             if (configuration.cache.enabled) {
                 return createHttpCachingClient(uri, configuration, configuration.cache);
             } else {
-                return createHttpClient(uri, configuration);
+                return createHttpSecureClient(uri, configuration);
             }
         }
     }
@@ -332,7 +332,7 @@ function createRetryClient (string url, ClientEndpointConfig configuration) retu
             if (configuration.cache.enabled) {
                 return new RetryClient(url, configuration, retry, createHttpCachingClient(url, configuration, configuration.cache));
             } else{
-                return new RetryClient(url, configuration, retry, createHttpClient(url, configuration));
+                return new RetryClient(url, configuration, retry, createHttpSecureClient(url, configuration));
             }
         }
         () => {
@@ -340,7 +340,7 @@ function createRetryClient (string url, ClientEndpointConfig configuration) retu
             if (configuration.cache.enabled) {
                 return createHttpCachingClient(url, configuration, configuration.cache);
             } else {
-                return createHttpClient(url, configuration);
+                return createHttpSecureClient(url, configuration);
             }
         }
     }
