@@ -407,12 +407,14 @@ public class ObjectTest {
     @Test (description = "Negative test to test uninitialized object variables")
     public void testObjectNegativeTestForNonInitializable() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_with_non_defaultable_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 5);
+        Assert.assertEquals(result.getErrorCount(), 6);
         BAssertUtil.validateError(result, 0, "variable 'pp' is not initialized", 2, 1);
         BAssertUtil.validateError(result, 1, "variable 'ee' is not initialized", 3, 1);
         BAssertUtil.validateError(result, 2, "variable 'p' is not initialized", 6, 5);
         BAssertUtil.validateError(result, 3, "variable 'e' is not initialized", 7, 5);
         BAssertUtil.validateError(result, 4, "undefined function 'attachInterface' in struct 'Person'", 8, 13);
+        BAssertUtil.validateError(result, 5, "object un-initializable field 'Person p' is " +
+                "not present as a constructor parameter", 25, 1);
     }
 
     @Test (description = "Negative test to test returning different type without type name")
@@ -426,6 +428,14 @@ public class ObjectTest {
                 32, 19);
         BAssertUtil.validateError(result, 4, "cannot infer type of the object from 'other'", 32, 19);
         BAssertUtil.validateError(result, 5, "invalid usage of 'new' with type 'error'", 33, 21);
+    }
+
+    @Test (description = "Negative test to test returning different type without type name")
+    public void testUnInitializableObjFieldAsParam() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_un_initializable_field.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "object un-initializable field 'Foo foo' is not " +
+                "present as a constructor parameter", 18, 1);
     }
 
 }

@@ -320,10 +320,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.processWorkers(funcNode, funcEnv);
     }
 
-    private List<BLangObject> findMatchingObject(BLangPackage pkgNode, String name) {
-        return pkgNode.objects.stream().filter(o -> o.name.value.equals(name)).collect(Collectors.toList());
-    }
-
     private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
         if (invNode.workers.size() > 0) {
             invEnv.scope.entries.putAll(invNode.body.scope.entries);
@@ -368,6 +364,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         objectNode.docAttachments.forEach(doc -> analyzeDef(doc, objectEnv));
 
         analyzeDef(objectNode.initFunction, objectEnv);
+
+        validateConstructor(objectNode);
 
         //Visit temporary init statements in the init function
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(objectNode.initFunction,
@@ -523,7 +521,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Analyze the init expression
         BLangExpression rhsExpr = varNode.expr;
         if (rhsExpr == null) {
-            if (varNode.global && !types.defaultValueExists(varNode.type)) {
+            if (varNode.symbol.owner.tag == SymTag.PACKAGE && !types.defaultValueExists(varNode.type)) {
                 dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
             }
             return;
@@ -892,6 +890,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         this.typeChecker.checkExpr(serviceNode.anonymousEndpointBind, env,
                 endpointSPIAnalyzer.getEndpointConfigType((BStructSymbol) serviceNode.endpointType.tsymbol));
+    }
+
+    private void validateConstructor(BLangObject objectNode) {
+        for (BLangVariable field : objectNode.fields) {
+            if (field.expr != null || types.defaultValueExists(field.symbol.type)) {
+                continue;
+            }
+            if (objectNode.initFunction.symbol.params.stream().filter(p -> p.field ? p.originalName.equals(field
+                    .symbol.name) : p.name.equals(field.symbol.name)).collect(Collectors.toList()).size() == 0) {
+                dlog.error(objectNode.pos, DiagnosticCode.OBJECT_UN_INITIALIZABLE_FIELD, field);
+            }
+        }
     }
 
     public void visit(BLangResource resourceNode) {

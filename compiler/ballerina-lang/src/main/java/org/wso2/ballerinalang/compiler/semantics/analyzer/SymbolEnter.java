@@ -845,7 +845,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BStructType structType = (BStructType) record.symbol.type;
             structType.fields = record.fields.stream()
                     .peek(field -> defineNode(field, structEnv))
-                    .map(field -> new BStructField(names.fromIdNode(field.name), field.symbol))
+                    .map(field -> new BStructField(names.fromIdNode(field.name), field.symbol, field.expr != null))
                     .collect(Collectors.toList());
         });
 
@@ -863,7 +863,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BStructType structType = (BStructType) struct.symbol.type;
             structType.fields = struct.fields.stream()
                     .peek(field -> defineNode(field, structEnv))
-                    .map(field -> new BStructField(names.fromIdNode(field.name), field.symbol))
+                    .map(field -> new BStructField(names.fromIdNode(field.name), field.symbol, field.expr != null))
                     .collect(Collectors.toList());
         });
 
@@ -881,7 +881,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BStructType objectType = (BStructType) object.symbol.type;
             objectType.fields = object.fields.stream()
                     .peek(field -> defineNode(field, objectEnv))
-                    .map(field -> new BStructField(names.fromIdNode(field.name), field.symbol))
+                    .map(field -> new BStructField(names.fromIdNode(field.name), field.symbol, field.expr != null))
                     .collect(Collectors.toList());
         });
     }
