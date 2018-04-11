@@ -42,7 +42,7 @@ public type QueueSenderEndpointConfiguration {
 };
 
 public type QueueSenderConnector object {
-    public native function send (Message m);
+    public native function send (Message m) returns (Error | ());
 };
 
 

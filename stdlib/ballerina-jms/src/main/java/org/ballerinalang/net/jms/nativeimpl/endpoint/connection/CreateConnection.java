@@ -29,8 +29,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
+import org.ballerinalang.net.jms.LoggingExceptionListener;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -53,14 +53,15 @@ public class CreateConnection implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct connectionBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct connectionBObject = BallerinaAdapter.getReceiverObject(context);
         Struct connectionConfig = connectionBObject.getStructField(Constants.CONNECTION_CONFIG);
 
         Connection connection = JMSUtils.createConnection(connectionConfig);
         try {
+            connection.setExceptionListener(new LoggingExceptionListener());
             connection.start();
         } catch (JMSException e) {
-            throw new BallerinaException("Error occurred while starting connection", e);
+            BallerinaAdapter.throwBallerinaException("Error occurred while starting connection.", context, e);
         }
         connectionBObject.addNativeData(Constants.JMS_CONNECTION, connection);
     }
@@ -69,4 +70,6 @@ public class CreateConnection implements NativeCallableUnit {
     public boolean isBlocking() {
         return true;
     }
+
+
 }

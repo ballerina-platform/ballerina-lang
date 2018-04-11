@@ -4,7 +4,7 @@ import ballerina/runtime;
 import ballerina/websub;
 
 //This is the WebSub Hub Client Endpoint to send subscription/unsubscription requests to a remote hub
-endpoint websub:HubClientEndpoint websubHubClientEP {
+endpoint websub:Client websubHubClientEP {
     url: "https://localhost:9999/websub/hub"
 };
 

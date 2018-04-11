@@ -1,7 +1,7 @@
 import ballerina/http;
 
 function testServiceType () returns (typedesc) {
-    typedesc ts = typeof HelloWorld;
+    typedesc ts = HelloWorld;
     return ts;
 }
 

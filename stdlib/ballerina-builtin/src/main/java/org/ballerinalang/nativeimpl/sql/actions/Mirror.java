@@ -44,8 +44,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
         },
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),
-                @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
-                            structPackage = "ballerina.sql")
+                @ReturnType(type = TypeKind.STRUCT, structType = "error",
+                            structPackage = "ballerina.builtin")
         }
 )
 public class Mirror extends AbstractSQLAction {

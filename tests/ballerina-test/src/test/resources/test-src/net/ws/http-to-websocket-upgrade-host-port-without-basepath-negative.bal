@@ -9,7 +9,7 @@ endpoint http:Listener servicEp {
     basePath:"/test",
     webSocketUpgrade:{
         upgradePath: "/ws",
-        upgradeService: typeof wsService
+        upgradeService: wsService
     }
 }
 service<http:Service> httpService bind servicEp {

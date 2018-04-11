@@ -60,7 +60,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAG
         functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_ENDPOINT_TYPE,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
+        args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfig")},
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {
