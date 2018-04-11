@@ -85,7 +85,7 @@ public type TargetService {
 public type ClientEndpointConfig {
     CircuitBreakerConfig? circuitBreaker,
     int timeoutMillis = 60000,
-    boolean keepAlive = true,
+    KeepAlive keepAlive = KEEPALIVE_AUTO,
     TransferEncoding transferEncoding = "CHUNKING",
     Chunking chunking = "AUTO",
     string httpVersion = "1.1",

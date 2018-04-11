@@ -19,13 +19,10 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.MessageLite;
-import io.grpc.Metadata;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
 
 /**
  * Generic Proto3 Message.
@@ -35,43 +32,16 @@ import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
 public class Message extends GeneratedMessageV3 {
     private static final long serialVersionUID = 0L;
     private Map<String, Object> fields = new HashMap<>();
-    private Map<String, Object> headers = new HashMap<>();
     private String messageName;
     
     // Use Message.newBuilder() to construct.
     protected Message(Builder builder) {
         super(builder);
         this.messageName = builder.messageName;
-        this.headers = retrieveHeaderMap();
     }
     
     protected Message(String messageName) {
         this.messageName = messageName;
-        this.headers = retrieveHeaderMap();
-    }
-    
-    private Map<String, Object> retrieveHeaderMap() {
-        Map<String, Object> headerMap = new HashMap<>();
-        if (MessageContext.isPresent()) {
-            MessageContext messageContext = MessageContext.DATA_KEY.get();
-            for (String keyValue : messageContext.keys()) {
-                if (keyValue.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
-                    headerMap.put(keyValue, messageContext.get(Metadata.Key.of(keyValue, Metadata
-                            .BINARY_BYTE_MARSHALLER)));
-                } else {
-                    headerMap.put(keyValue, messageContext.get(Metadata.Key.of(keyValue, ASCII_STRING_MARSHALLER)));
-                }
-            }
-        }
-        return headerMap;
-    }
-    
-    public Map<String, Object> getHeaders() {
-        return headers;
-    }
-    
-    public Object getHeader(String headerName) {
-        return headers.get(headerName);
     }
     
     void setFieldValues(Map<String, Object> fieldValues) {

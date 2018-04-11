@@ -176,7 +176,7 @@ public class KeyStore {
     public PrivateKey getDefaultPrivateKey() throws KeyStoreException {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
         char[] keyStorePassword = configRegistry.getConfigAsCharArray(KEY_STORE_CONFIG, KEY_PASSWORD);
-        String keyAlias = configRegistry.getConfiguration(KEY_STORE_CONFIG, KEY_ALIAS);
+        String keyAlias = configRegistry.getAsString(KEY_STORE_CONFIG, KEY_ALIAS);
         return getPrivateKey(keyAlias, keyStorePassword);
     }
 
@@ -188,7 +188,7 @@ public class KeyStore {
      *                           (loaded), or this operation fails for some other reason
      */
     public PublicKey getDefaultPublicKey() throws KeyStoreException {
-        String keyAlias = ConfigRegistry.getInstance().getConfiguration(KEY_STORE_CONFIG, KEY_ALIAS);
+        String keyAlias = ConfigRegistry.getInstance().getAsString(KEY_STORE_CONFIG, KEY_ALIAS);
         return getPublicKey(keyAlias);
     }
 
@@ -200,17 +200,17 @@ public class KeyStore {
      *                           (loaded), or this operation fails for some other reason
      */
     public Certificate getDefaultCertificate() throws KeyStoreException {
-        String keyAlias = ConfigRegistry.getInstance().getConfiguration(KEY_STORE_CONFIG, KEY_ALIAS);
+        String keyAlias = ConfigRegistry.getInstance().getAsString(KEY_STORE_CONFIG, KEY_ALIAS);
         return getCertificate(keyAlias);
     }
 
     private void loadKeyStore() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        String keyStoreLocation = configRegistry.getConfiguration(KEY_STORE_CONFIG, KEY_STORE_LOCATION);
+        String keyStoreLocation = configRegistry.getAsString(KEY_STORE_CONFIG, KEY_STORE_LOCATION);
         if (keyStoreLocation != null) {
             char[] keyStorePassword = configRegistry.getConfigAsCharArray(
                     KEY_STORE_CONFIG, KEY_STORE_PASSWORD);
-            String keystoreType = configRegistry.getConfiguration(KEY_STORE_CONFIG, KEY_STORE_TYPE);
+            String keystoreType = configRegistry.getAsString(KEY_STORE_CONFIG, KEY_STORE_TYPE);
             try (InputStream file = new FileInputStream(new File(keyStoreLocation))) {
                 keyStore = java.security.KeyStore.getInstance(keystoreType);
                 keyStore.load(file, keyStorePassword);
@@ -231,10 +231,10 @@ public class KeyStore {
 
     private void loadTrustStore() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        String trustStoreLocation = configRegistry.getConfiguration(TRUST_STORE_CONFIG, TRUST_STORE_LOCATION);
+        String trustStoreLocation = configRegistry.getAsString(TRUST_STORE_CONFIG, TRUST_STORE_LOCATION);
         if (trustStoreLocation != null) {
             char[] trustStorePassword = configRegistry.getConfigAsCharArray(TRUST_STORE_CONFIG, TRUST_STORE_PASSWORD);
-            String trustStoreType = configRegistry.getConfiguration(TRUST_STORE_CONFIG, TRUST_STORE_TYPE);
+            String trustStoreType = configRegistry.getAsString(TRUST_STORE_CONFIG, TRUST_STORE_TYPE);
             try (InputStream file = new FileInputStream(new File(trustStoreLocation))) {
                 trustStore = java.security.KeyStore.getInstance(trustStoreType);
                 trustStore.load(file, trustStorePassword);

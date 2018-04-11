@@ -17,7 +17,6 @@
 package ballerina.jwt;
 
 import ballerina/util;
-import ballerina/jwt.signature;
 import ballerina/io;
 
 @Description {value:"Represents JWT issuer configurations"}
@@ -40,7 +39,7 @@ public function issue (Header header, Payload payload, JWTIssuerConfig config) r
         string result => jwtPayload = result;
     }
     string jwtAssertion = jwtHeader + "." + jwtPayload;
-    string signature = signature:sign(jwtAssertion, header.alg, config.certificateAlias, config.keyPassword);
+    string signature = sign(jwtAssertion, header.alg, config.certificateAlias, config.keyPassword);
     return (jwtAssertion + "." + signature);
 }
 

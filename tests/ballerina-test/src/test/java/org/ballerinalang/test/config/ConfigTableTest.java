@@ -44,7 +44,7 @@ public class ConfigTableTest {
 
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
 
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetTable", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsMap", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                            "Invalid Return Values.");
@@ -62,7 +62,7 @@ public class ConfigTableTest {
 
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
 
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetTable", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsMap", inputArg);
         BMap table = (BMap) returnVals[0];
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -78,7 +78,7 @@ public class ConfigTableTest {
 
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
 
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetTable", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsMap", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                            "Invalid Return Values.");
