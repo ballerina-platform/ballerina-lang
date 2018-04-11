@@ -23,12 +23,12 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha3-SNAPSHOT</version>
+        <version>0.970.0-alpha5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>performance-benchmark</artifactId>
+    <artifactId>benchmarks</artifactId>
     <name>Ballerina - Microbenchmarks</name>
 
     <build>
@@ -44,9 +44,9 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <mkdir dir="${project.basedir}/.ballerina"/>
-                            </tasks>
+                            </target>
                         </configuration>
                     </execution>
                     <execution>
@@ -56,11 +56,11 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <unzip
                                         src="${project.basedir}/../distribution/zip/ballerina/target/ballerina-${project.version}.zip"
                                         dest="target"/>
-                            </tasks>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>
