@@ -16,12 +16,12 @@ function getFileRecordChannel (string filePath, string permission, string encodi
                     return delimitedRecordChannel;
                 }
                 io:IOError err => {
-                    throw err.cause;
+                    throw err.cause[0];
                 }
             }
         }
         io:IOError err => {
-            throw err.cause;
+            throw err.cause[0];
         }
     }
 }
@@ -34,7 +34,7 @@ function readNext(io:DelimitedRecordChannel channel)returns (string []){
             return records;
         }
         io:IOError err => {
-            throw err.cause;
+            throw err.cause[0];
         }
 
     }
@@ -44,7 +44,7 @@ function readNext(io:DelimitedRecordChannel channel)returns (string []){
 function write(io:DelimitedRecordChannel channel,string [] records){
     io:IOError err = channel.writeTextRecord(records);
     if(err != null){
-       throw err.cause;
+       throw err.cause[0];
     }
 }
 
