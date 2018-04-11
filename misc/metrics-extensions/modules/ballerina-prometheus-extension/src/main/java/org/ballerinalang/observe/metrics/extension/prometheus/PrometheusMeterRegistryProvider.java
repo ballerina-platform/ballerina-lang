@@ -56,9 +56,9 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
     public MeterRegistry get() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
         PrometheusMeterRegistry registry = new PrometheusMeterRegistry(new BallerinaPrometheusConfig());
-        String hostname = configRegistry.getConfiguration(METRICS_HOSTNAME);
+        String hostname = configRegistry.getAsString(METRICS_HOSTNAME);
         boolean hostnameAvailable = hostname != null && !hostname.isEmpty();
-        String portConfigValue = configRegistry.getConfiguration(METRICS_PORT);
+        String portConfigValue = configRegistry.getAsString(METRICS_PORT);
         int configuredPort = 0;
         if (portConfigValue != null && portConfigValue.length() > 0) {
             try {
