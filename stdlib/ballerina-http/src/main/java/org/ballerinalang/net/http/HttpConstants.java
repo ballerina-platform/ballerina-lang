@@ -206,7 +206,7 @@ public class HttpConstants {
     public static final int RESPONSE_STATUS_CODE_INDEX = 0;
     public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
     public static final int RESPONSE_SERVER_INDEX = 1;
-    public static final int IN_RESPONSE_CACHE_CONTROL_INDEX = 0;
+    public static final int RESPONSE_CACHE_CONTROL_INDEX = 0;
     public static final int IN_RESPONSE_RECEIVED_TIME_INDEX = 1;
 
     //PushPromise struct indexes
@@ -306,6 +306,8 @@ public class HttpConstants {
 
     //Client Endpoint
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
+    public static final int CLIENT_ENDPOINT_CONFIG_INDEX = 0;
+    public static final int CLIENT_ENDPOINT_URL_INDEX = 0;
 
     //Client Endpoint Config
     public static final String URI = "uri";
@@ -329,7 +331,7 @@ public class HttpConstants {
     public static final String FOLLOW_REDIRECT_MAXCOUNT = "maxCount";
 
     //Proxy Indexed
-    public static final String PROXY_STRUCT_REFERENCE = "proxyConfig";
+    public static final String PROXY_STRUCT_REFERENCE = "proxy";
     public static final String PROXY_HOST = "host";
     public static final String PROXY_PORT = "port";
     public static final String PROXY_USERNAME = "userName";

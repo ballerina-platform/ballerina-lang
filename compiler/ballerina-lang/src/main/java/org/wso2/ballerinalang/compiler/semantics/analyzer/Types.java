@@ -67,6 +67,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -100,6 +101,8 @@ public class Types {
     private SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
 
+    private Stack<BType> typeStack;
+
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
         if (types == null) {
@@ -115,6 +118,7 @@ public class Types {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.typeStack = new Stack<>();
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -561,9 +565,17 @@ public class Types {
             return getExplicitArrayConversionOperator(((BArrayType) t).eType, ((BArrayType) s).eType, origT, origS);
 
         } else if (t.tag == TypeTags.ARRAY) {
-            // If the target type is JSON array, and the source type is a JSON
-            if (s.tag == TypeTags.JSON && getElementType(t).tag == TypeTags.JSON) {
-                return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
+            if (s.tag == TypeTags.JSON) {
+                // If the source JSON is constrained, then it is not an array 
+                if (((BJSONType) s).constraint != null && ((BJSONType) s).constraint.tag != TypeTags.NONE) {
+                    return symTable.notFoundSymbol;
+                }
+                // If the target type is JSON array, and the source type is a JSON
+                if (getElementType(t).tag == TypeTags.JSON) {
+                    return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
+                } else {
+                    return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.JSON2ARRAY);
+                }
             }
 
             // If only the target type is an array type, then the source type must be of type 'any'
@@ -574,7 +586,15 @@ public class Types {
 
         } else if (s.tag == TypeTags.ARRAY) {
             if (t.tag == TypeTags.JSON) {
-                return getExplicitArrayConversionOperator(symTable.jsonType, ((BArrayType) s).eType, origT, origS);
+                if (((BArrayType) s).eType.tag == TypeTags.JSON) {
+                    return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
+                } else {
+                    // the conversion visitor below may report back a conversion symbol, which is
+                    // unsafe (e.g. T2JSON), so we must make our one also unsafe
+                    if (conversionVisitor.visit((BJSONType) t, ((BArrayType) s).eType) != symTable.notFoundSymbol) {
+                        return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.ARRAY2JSON);
+                    }
+                }
             }
 
             // If only the source type is an array type, then the target type must be of type 'any'
@@ -779,6 +799,9 @@ public class Types {
                 }
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
             } else if (s.tag == TypeTags.ARRAY) {
+                if (t.constraint != null && t.constraint.tag != TypeTags.NONE) {
+                    return symTable.notFoundSymbol;
+                }
                 return getExplicitArrayConversionOperator(t, s, t, s);
             } else if (s.tag == TypeTags.UNION) {
                 if (checkUnionTypeToJSONConvertibility((BUnionType) s, t)) {
@@ -832,6 +855,9 @@ public class Types {
 
         @Override
         public BSymbol visit(BTupleType t, BType s) {
+            if (s == symTable.anyType) {
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+            }
             return symTable.notFoundSymbol;
         }
 
@@ -1159,19 +1185,31 @@ public class Types {
      * @param type Type to check the existence if a default value
      * @return Flag indicating whether the given type has a default value
      */
-    public boolean defaultValueExists(BType type) {
-        if ((type.flags & TypeFlags.DEFAULTABLE_CHECKED) == TypeFlags.DEFAULTABLE_CHECKED) {
-            return (type.flags & TypeFlags.DEFAULTABLE) == TypeFlags.DEFAULTABLE;
+    public boolean defaultValueExists(DiagnosticPos pos, BType type) {
+        if (typeStack.contains(type)) {
+            dlog.error(pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, typeStack);
+            return false;
         }
-        if (checkDefaultable(type)) {
+        typeStack.add(type);
+
+        boolean result;
+
+        if ((type.flags & TypeFlags.DEFAULTABLE_CHECKED) == TypeFlags.DEFAULTABLE_CHECKED) {
+            result = (type.flags & TypeFlags.DEFAULTABLE) == TypeFlags.DEFAULTABLE;
+            typeStack.pop();
+            return result;
+        }
+        if (checkDefaultable(pos, type)) {
             type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED, TypeFlag.DEFAULTABLE));
+            typeStack.pop();
             return true;
         }
         type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED));
+        typeStack.pop();
         return false;
     }
 
-    private boolean checkDefaultable(BType type) {
+    private boolean checkDefaultable(DiagnosticPos pos, BType type) {
         if (type.isNullable()) {
             return true;
         }
@@ -1181,7 +1219,7 @@ public class Types {
 
             if (structType.tsymbol.kind == SymbolKind.RECORD) {
                 for (BStructField field : structType.fields) {
-                    if (!field.expAvailable && !defaultValueExists(field.type)) {
+                    if (!field.expAvailable && !defaultValueExists(pos, field.type)) {
                         return false;
                     }
                 }
@@ -1192,8 +1230,14 @@ public class Types {
             if (structSymbol.initializerFunc.symbol.params.size() > 0) {
                 return false;
             }
+
+            for (BAttachedFunction func : structSymbol.attachedFuncs) {
+                if ((func.symbol.flags & Flags.INTERFACE) == Flags.INTERFACE) {
+                    return false;
+                }
+            }
             for (BStructField field : structType.fields) {
-                if (!field.expAvailable && !defaultValueExists(field.type)) {
+                if (!field.expAvailable && !defaultValueExists(pos, field.type)) {
                     return false;
                 }
             }
@@ -1206,7 +1250,7 @@ public class Types {
 
         if (type.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (defaultValueExists(memberType)) {
+                if (defaultValueExists(pos, memberType)) {
                     return true;
                 }
             }

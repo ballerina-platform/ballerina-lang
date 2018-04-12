@@ -21,6 +21,7 @@ import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -28,6 +29,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.MessageUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER;
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER_REF_INDEX;
@@ -37,6 +40,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.RESPONSE_MESSAGE_REF_INDEX;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVER_ERROR;
+import static org.ballerinalang.net.grpc.MessageUtils.getContextHeader;
 
 /**
  * Native function to send server error the caller.
@@ -51,7 +55,8 @@ import static org.ballerinalang.net.grpc.MessageConstants.SERVER_ERROR;
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {
                 @Argument(name = "serverError", type = TypeKind.STRUCT, structType = SERVER_ERROR,
-                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
+                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
+                @Argument(name = "headers", type = TypeKind.ARRAY)
         },
         returnType = {
                 @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
@@ -60,11 +65,16 @@ import static org.ballerinalang.net.grpc.MessageConstants.SERVER_ERROR;
         isPublic = true
 )
 public class ErrorResponse extends BlockingNativeCallableUnit {
-    
+    private static final Logger LOG = LoggerFactory.getLogger(ErrorResponse.class);
+    private static final int MESSAGE_HEADER_REF_INDEX = 1;
+
     @Override
     public void execute(Context context) {
         BStruct endpointClient = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
+        BRefValueArray headerValues = (BRefValueArray) context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
         BValue responseValue = context.getRefArgument(RESPONSE_MESSAGE_REF_INDEX);
+        io.grpc.Context msgContext = getContextHeader(headerValues);
+
         if (responseValue instanceof BStruct) {
             BStruct responseStruct = (BStruct) responseValue;
             int statusCode = Integer.parseInt(String.valueOf(responseStruct.getIntField(0)));
@@ -75,8 +85,15 @@ public class ErrorResponse extends BlockingNativeCallableUnit {
                         .fromCode(Status.INTERNAL.getCode()).withDescription("Error while sending the error. Response" +
                                 " observer not found."))));
             } else {
-                responseObserver.onError(new StatusRuntimeException(Status.fromCodeValue(statusCode).withDescription
-                        (errorMsg)));
+                io.grpc.Context previous = msgContext != null ? msgContext.attach() : null;
+                try {
+                    responseObserver.onError(new StatusRuntimeException(Status.fromCodeValue(statusCode)
+                            .withDescription(errorMsg)));
+                } finally {
+                    if (previous != null) {
+                        msgContext.detach(previous);
+                    }
+                }
             }
         }
     }

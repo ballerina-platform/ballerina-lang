@@ -3,6 +3,8 @@ package ballerina.http;
 import ballerina/file;
 import ballerina/io;
 import ballerina/mime;
+import ballerina/security.crypto;
+import ballerina/time;
 
 @Description { value:"Represents an HTTP response message"}
 @Field {value:"statusCode: The response status code"}
@@ -14,7 +16,7 @@ public type Response object {
         int statusCode;
         string reasonPhrase;
         string server;
-        ResponseCacheControl cacheControl;
+        ResponseCacheControl? cacheControl;
     }
 
     private {
@@ -119,6 +121,13 @@ public type Response object {
     @Param {value:"response: The response message"}
     @Return {value:"Returns the body parts as an array of entities"}
     public function getBodyParts () returns (mime:Entity[] | mime:EntityError);
+
+    @Description {value:"Sets the ETag header for the given payload. The ETag is generated using a CRC32 hash function."}
+    @Param {value:"The payload for which the ETag should be set."}
+    public function setETag(json|xml|string|blob payload);
+
+    @Description {value:"Sets the current time as the Last-Modified header."}
+    public function setLastModified();
 
     @Description {value:"Sets a JSON as the outbound response payload"}
     @Param {value:"response: The response message"}
@@ -286,6 +295,17 @@ public function Response::getBodyParts () returns mime:Entity[] | mime:EntityErr
     }
 }
 
+public function Response::setETag(json|xml|string|blob payload) {
+    string etag = crypto:getCRC32(payload);
+    self.setHeader(ETAG, etag);
+}
+
+public function Response::setLastModified() {
+    time:Time currentT = time:currentTime();
+    string lastModified = currentT.formatTo(time:TIME_FORMAT_RFC_1123);
+    self.setHeader(LAST_MODIFIED, lastModified);
+}
+
 public function Response::setJsonPayload (json payload) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setJson(payload);
@@ -314,7 +334,7 @@ public function Response::setBinaryPayload (blob payload) {
     self.setEntity(entity);
 }
 
-public function Response::setBodyParts (mime:Entity[] bodyParts, string contentType) {
+public function Response::setBodyParts (mime:Entity[] bodyParts, @sensitive string contentType) {
     mime:Entity entity = self.getEntityWithoutBody();
     mime:MediaType mediaType = getMediaTypeFromResponse(self, mime:MULTIPART_MIXED);
     if (contentType != null && contentType != "") {
@@ -325,7 +345,7 @@ public function Response::setBodyParts (mime:Entity[] bodyParts, string contentT
     self.setEntity(entity);
 }
 
-public function Response::setFileAsPayload (file:Path filePath, string contentType) {
+public function Response::setFileAsPayload (file:Path filePath, @sensitive string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = self.getEntityWithoutBody();
     entity.contentType = mediaType;
@@ -349,7 +369,7 @@ public function Response::setPayload ((string | xml | json | blob | io:ByteChann
 @Param {value:"response: The outbound response message"}
 @Param {value:"defaultContentType: Default content-type to be used in case the content-type header doesn't contain any value"}
 @Return {value:"Return 'MediaType' struct"}
-function getMediaTypeFromResponse (Response response, string defaultContentType) returns (mime:MediaType) {
+function getMediaTypeFromResponse (Response response, @sensitive string defaultContentType) returns (mime:MediaType) {
     mime:MediaType mediaType = mime:getMediaType(defaultContentType);
 
     if (response.hasHeader(mime:CONTENT_TYPE)) {

@@ -58,13 +58,13 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/natives
+                ${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/natives
+                ${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
@@ -189,7 +189,7 @@
                 <include>io.ballerina.messaging:broker-common</include>
                 <include>io.ballerina.messaging:broker-rest-runner</include>
                 <include>io.ballerina.messaging:broker-coordination</include>
-                <include>com.google.guava:guava</include>
+                <include>io.ballerina.messaging:broker-auth</include>
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
                 <include>io.netty:netty-tcnative-boringssl-static</include>
 
@@ -220,8 +220,6 @@
 
                 <include>org.wso2.orbit.com.lmax:disruptor:jar</include>
                 <include>io.dropwizard.metrics:metrics-core:jar</include>
-                <include>io.ballerina.messaging:broker-common:jar</include>
-                <include>io.ballerina.messaging:broker-core:jar</include>
                 <include>org.wso2.transport.file:org.wso2.transport.local-file-system</include>
 
                 <!-- JMS connector dependencies -->

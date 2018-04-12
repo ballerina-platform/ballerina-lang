@@ -30,6 +30,6 @@ public type ConsumerConnector object {
 };
 
 public type ConsumerEndpointConfiguration {
-    Session session;
+    Session? session;
     string identifier;
 };

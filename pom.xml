@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.970.0-alpha5-SNAPSHOT</version>
+    <version>0.970.0-alpha6-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -811,6 +811,11 @@
                 <artifactId>broker-core</artifactId>
                 <version>${broker.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.ballerina.messaging</groupId>
+                <artifactId>broker-amqp</artifactId>
+                <version>${broker.version}</version>
+            </dependency>
 
             <!-- Observability dependency-->
             <dependency>
@@ -1105,6 +1110,12 @@
 
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-integration</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>benchmarks</id>
+            <modules>
+                <module>benchmarks</module>
             </modules>
         </profile>
         <profile>
@@ -1473,7 +1484,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.970.0-alpha5-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.970.0-alpha6-SNAPSHOT</ballerina.version>
         <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
@@ -1550,7 +1561,7 @@
         <jackson-core.version>2.8.6</jackson-core.version>
         <apache.mina.core>2.0.16</apache.mina.core>
         <mimepull.version>1.9.7</mimepull.version>
-        <broker.version>0.1.20</broker.version>
+        <broker.version>0.1.55</broker.version>
         <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>

@@ -352,7 +352,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return expTypes.stream()
                 .filter(type -> type.tag == TypeTags.JSON ||
                         type.tag == TypeTags.MAP ||
-                        type.tag == TypeTags.STRUCT ||
+                        (type.tag == TypeTags.STRUCT && type.tsymbol != null
+                                && type.tsymbol.kind == SymbolKind.RECORD) ||
                         type.tag == TypeTags.NONE ||
                         type.tag == TypeTags.ANY)
                 .collect(Collectors.toList());
@@ -563,6 +564,13 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = symTable.errType;
             return;
         }
+
+        //TODO cache this in symbol as a flag?
+        ((BStructSymbol) actualType.tsymbol).attachedFuncs.forEach(f -> {
+            if ((f.symbol.flags & Flags.INTERFACE) == Flags.INTERFACE) {
+                dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_OBJECT, actualType.tsymbol, f.symbol);
+            }
+        });
 
         cIExpr.objectInitInvocation.symbol = ((BStructSymbol) actualType.tsymbol).initializerFunc.symbol;
         cIExpr.objectInitInvocation.type = symTable.nilType;
@@ -1494,8 +1502,15 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env,
                 fieldName, structType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
-            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
-            return symTable.errType;
+            // check if it is an attached function pointer call
+            Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(structType.tsymbol.name.value,
+                    fieldName.value));
+            fieldSymbol = symResolver.resolveObjectField(varReferExpr.pos, env, objFuncName, structType.tsymbol);
+
+            if (fieldSymbol == symTable.notFoundSymbol) {
+                dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
+                return symTable.errType;
+            }
         }
 
         // Setting the field symbol. This is used during the code generation phase

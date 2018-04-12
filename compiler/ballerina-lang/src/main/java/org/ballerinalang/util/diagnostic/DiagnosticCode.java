@@ -41,10 +41,13 @@ public enum DiagnosticCode {
     UNDEFINED_OBJECT_FIELD("undefined.field.in.object"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
     OBJECT_UN_INITIALIZABLE_FIELD("object.non.initialised.field"),
+    CYCLIC_TYPE_REFERENCE("cyclic.type.reference"),
     ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
     UNDEFINED_PARAMETER("undefined.parameter"),
     CANNOT_FIND_MATCHING_FUNCTION("cannot.find.function.sig.for.function.in.object"),
     IMPLEMENTATION_ALREADY_EXIST("implementation.already.exist"),
+    CANNOT_INITIALIZE_OBJECT("cannot.initialize.object"),
+    CANNOT_FIND_MATCHING_INTERFACE("cannot.find.matching.interface.function"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),

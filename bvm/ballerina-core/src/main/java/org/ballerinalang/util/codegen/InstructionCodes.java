@@ -235,6 +235,9 @@ public interface InstructionCodes {
 
     int IS_ASSIGNABLE = 196;
     int CHECK_CONVERSION = 197;
+    
+    int ARRAY2JSON = 198;
+    int JSON2ARRAY = 199;
 
     int INEWARRAY = 200;
     int FNEWARRAY = 201;

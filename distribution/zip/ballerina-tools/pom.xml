@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha5-SNAPSHOT</version>
+        <version>0.970.0-alpha6-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -60,10 +60,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>protobuf-ballerina</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>swagger-to-ballerina-generator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -119,7 +115,42 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--plugin>
+            <!-- Copy resources -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven.resources.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/extracted-distributions/ballerina</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}/extracted-distributions/ballerina-builtin-jar/META-INF/ballerina</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/ballerina</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/ballerina</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/ballerina</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${project.build.directory}/extracted-distributions/ballerina-grpc-jar/META-INF/ballerina</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>docerina-maven-plugin</artifactId>
                 <executions>
@@ -131,13 +162,7 @@
                         <configuration>
                             <outputZip>${project.build.directory}/ballerina-api-docs-${project.version}.zip</outputZip>
                             <outputDir>${project.build.directory}/api-docs</outputDir>
-                            <sourceDir>
-                                ${project.build.directory}/extracted-distributions/ballerina-builtin-jar/META-INF/ballerina,
-                                ${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/ballerina,
-                                ${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/ballerina,
-                                ${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/ballerina,
-                                ${project.build.directory}/extracted-distributions/ballerina-grpc-jar/META-INF/ballerina
-                            </sourceDir>
+                            <sourceRoot>${project.build.directory}/extracted-distributions/ballerina</sourceRoot>
                             <nativeCode>true</nativeCode>
                         </configuration>
                     </execution>
@@ -154,7 +179,7 @@
                         <version>${project.version}</version>
                     </dependency>
                 </dependencies>
-            </plugin-->
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -186,6 +211,19 @@
                 <version>1.8</version>
                 <executions>
                     <execution>
+                        <id>1</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}/extracted-distributions/ballerina" />
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>2</id>
                         <phase>verify</phase>
                         <goals>
                             <goal>run</goal>

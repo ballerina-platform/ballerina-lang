@@ -8,6 +8,9 @@
             margin: 0 10px;
             line-height: 24px;
         }
+        .clear-button {
+            padding: 3px 6px 6px;
+        }
     }
     label {
         margin-right: 5px;
@@ -47,6 +50,12 @@
         .row.active{
             background-color: #364b6b;
         }
+        .path {
+            font-weight: 600;
+        }
+    }
+    .renderingError{
+        background-color: #333;
     }
     .detail-view {
         background-color: inherit;
@@ -74,6 +83,11 @@
         code{
             background-color: inherit;
             border: none;
+            font-size: 0.9em;
+            pre {
+                padding: 0 10px;
+                margin: 0;
+            }
         }
     }
     .clickable{

@@ -21,12 +21,15 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.sql.Constants;
 import org.ballerinalang.nativeimpl.sql.SQLDatasourceUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+
+import java.util.Map;
 
 /**
  * Returns the H2 Client connector.
@@ -47,8 +50,16 @@ public class CreateClient extends BlockingNativeCallableUnit {
         BStruct configBStruct = (BStruct) context.getRefArgument(0);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
 
-        BStruct sqlClient = SQLDatasourceUtils
-                .createMultiModeDBClient(context, Constants.DBTypes.H2, clientEndpointConfig);
+        BStruct sqlClient;
+        Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
+        String dbOptionsString = "";
+        if (dbOptions != null) {
+            dbOptionsString = SQLDatasourceUtils
+                    .createJDBCDbOptions(Constants.JDBCUrlSeparators.H2_PROPERTY_BEGIN_SYMBOL,
+                            Constants.JDBCUrlSeparators.H2_SEPARATOR, dbOptions);
+        }
+        sqlClient = SQLDatasourceUtils
+                .createMultiModeDBClient(context, Constants.DBTypes.H2, clientEndpointConfig, dbOptionsString);
         context.setReturnValues(sqlClient);
     }
 }

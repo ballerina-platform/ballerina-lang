@@ -123,7 +123,7 @@ function createHttpClientArray (ClientEndpointConfig config) returns HttpClient[
                     if (config.cache.enabled) {
                         httpClients[i] = createHttpCachingClient(uri, config, config.cache);
                     } else {
-                        httpClients[i] = createHttpClient(uri, config);
+                        httpClients[i] = createHttpSecureClient(uri, config);
                     }
                 }
             }

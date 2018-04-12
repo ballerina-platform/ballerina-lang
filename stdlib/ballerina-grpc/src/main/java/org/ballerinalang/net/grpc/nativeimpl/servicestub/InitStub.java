@@ -18,6 +18,7 @@
 package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
 import io.grpc.Channel;
+import io.grpc.MethodDescriptor;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import org.ballerinalang.bre.Context;
@@ -29,15 +30,16 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.grpc.ClientConnectorFactory;
+import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.ServiceDefinition;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
-import org.ballerinalang.net.grpc.stubs.ProtoFileDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
 import static org.ballerinalang.net.grpc.MessageConstants.BLOCKING_TYPE;
@@ -45,6 +47,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.CHANNEL_KEY;
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_REF_INDEX;
 import static org.ballerinalang.net.grpc.MessageConstants.DESCRIPTOR_KEY_STRING_INDEX;
 import static org.ballerinalang.net.grpc.MessageConstants.DESCRIPTOR_MAP_REF_INDEX;
+import static org.ballerinalang.net.grpc.MessageConstants.METHOD_DESCRIPTORS;
 import static org.ballerinalang.net.grpc.MessageConstants.NON_BLOCKING_TYPE;
 import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
@@ -93,34 +96,35 @@ public class InitStub extends BlockingNativeCallableUnit {
         try {
             // If there are more than one descriptors exist, other descriptors are considered as dependent
             // descriptors.  client supported only one depth descriptor dependency.
-            List<byte[]> depDescriptorData = new ArrayList<>();
-            byte[] descriptorValue = null;
+            List<byte[]> dependentDescriptors = new ArrayList<>();
+            byte[] fileDescriptor = null;
             for (String key : descriptorMap.keySet()) {
                 if (descriptorMap.get(key) == null) {
                     continue;
                 }
                 if (descriptorKey.equals(key)) {
-                    descriptorValue = hexStringToByteArray(descriptorMap.get(key).stringValue());
+                    fileDescriptor = hexStringToByteArray(descriptorMap.get(key).stringValue());
                 } else {
-                    depDescriptorData.add(hexStringToByteArray(descriptorMap.get(key).stringValue()));
+                    dependentDescriptors.add(hexStringToByteArray(descriptorMap.get(key).stringValue()));
                 }
             }
 
-            if (descriptorValue == null) {
+            if (fileDescriptor == null) {
                 context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                         .fromCode(Status.INTERNAL.getCode()).withDescription("Error while establishing the connection" +
                                 ". service descriptor is null."))));
                 return;
             }
-            ProtoFileDefinition protoFileDefinition = new ProtoFileDefinition(depDescriptorData);
-            protoFileDefinition.setRootDescriptorData(descriptorValue);
-            ClientConnectorFactory clientConnectorFactory = new ClientConnectorFactory(protoFileDefinition);
+            ServiceDefinition serviceDefinition = new ServiceDefinition(fileDescriptor, dependentDescriptors);
+            Map<String, MethodDescriptor<Message, Message>> methodDescriptorMap = serviceDefinition
+                    .getMethodDescriptors();
 
+            serviceStub.addNativeData(METHOD_DESCRIPTORS, methodDescriptorMap);
             if (BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
-                GrpcBlockingStub grpcBlockingStub = clientConnectorFactory.newBlockingStub(channel);
+                GrpcBlockingStub grpcBlockingStub = new GrpcBlockingStub(channel);
                 serviceStub.addNativeData(SERVICE_STUB, grpcBlockingStub);
             } else if (NON_BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
-                GrpcNonBlockingStub nonBlockingStub = clientConnectorFactory.newNonBlockingStub(channel);
+                GrpcNonBlockingStub nonBlockingStub = new GrpcNonBlockingStub(channel);
                 serviceStub.addNativeData(SERVICE_STUB, nonBlockingStub);
             } else {
                 context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status

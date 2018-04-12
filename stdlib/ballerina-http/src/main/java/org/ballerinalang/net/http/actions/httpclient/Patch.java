@@ -74,9 +74,8 @@ public class Patch extends AbstractHTTPAction {
         HTTPCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_PATCH);
 
-        ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
-                getParentWorkerExecutionContext());
-        Map<String, String> traceContext = ObservabilityUtils.getTraceContext();
+        ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context);
+        Map<String, String> traceContext = ObservabilityUtils.getTraceProperties();
         HttpUtil.injectHeaders(outboundRequestMsg, traceContext);
         observerContext.addTags(HttpUtil.extractTags(outboundRequestMsg));
 

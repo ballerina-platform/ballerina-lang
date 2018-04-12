@@ -64,7 +64,7 @@ service<http:Service> test bind mockEP {
                 outResponse.setStringPayload(err.message);
             }
             mime:Entity[] bodyParts => {
-                outResponse.setBodyParts(bodyParts, contentType);
+                outResponse.setBodyParts(bodyParts, untaint contentType);
             }
         }
         _ = conn -> respond(outResponse);
