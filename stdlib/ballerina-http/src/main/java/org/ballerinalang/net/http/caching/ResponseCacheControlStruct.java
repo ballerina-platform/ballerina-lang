@@ -51,22 +51,11 @@ public class ResponseCacheControlStruct {
 
     public ResponseCacheControlStruct(StructInfo structInfo) {
         responseCacheControl = BLangVMStructs.createBStruct(structInfo);
-
-        // Initialize the struct fields to default values we use
-        responseCacheControl.setBooleanField(RES_CACHE_CONTROL_NO_TRANSFORM_INDEX, 1);
-        responseCacheControl.setIntField(RES_CACHE_CONTROL_MAX_AGE_INDEX, -1);
-        responseCacheControl.setIntField(RES_CACHE_CONTROL_S_MAXAGE_INDEX, -1);
+        init();
     }
 
-    public ResponseCacheControlStruct(BStruct responseCacheControl, boolean initToDefaults) {
+    public ResponseCacheControlStruct(BStruct responseCacheControl) {
         this.responseCacheControl = responseCacheControl;
-
-        if (initToDefaults) {
-            // Initialize the struct fields to default values we use
-            responseCacheControl.setBooleanField(RES_CACHE_CONTROL_NO_TRANSFORM_INDEX, 1);
-            responseCacheControl.setIntField(RES_CACHE_CONTROL_MAX_AGE_INDEX, -1);
-            responseCacheControl.setIntField(RES_CACHE_CONTROL_S_MAXAGE_INDEX, -1);
-        }
     }
 
     public BStruct getStruct() {
@@ -75,6 +64,13 @@ public class ResponseCacheControlStruct {
 
     public void setStruct(BStruct responseCacheControl) {
         this.responseCacheControl = responseCacheControl;
+    }
+
+    public void init() {
+        // Initialize the struct fields to default values we use
+        responseCacheControl.setBooleanField(RES_CACHE_CONTROL_NO_TRANSFORM_INDEX, 1);
+        responseCacheControl.setIntField(RES_CACHE_CONTROL_MAX_AGE_INDEX, -1);
+        responseCacheControl.setIntField(RES_CACHE_CONTROL_S_MAXAGE_INDEX, -1);
     }
 
     public ResponseCacheControlStruct setMustRevalidate(boolean mustRevalidate) {

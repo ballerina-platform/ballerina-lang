@@ -82,7 +82,7 @@ public class Respond extends ConnectionAction {
         BStruct cacheControl = (BStruct) outboundRespStruct.getRefField(RESPONSE_CACHE_CONTROL_INDEX);
         if (cacheControl != null &&
                 outboundResponse.getHeader(HttpHeaderNames.CACHE_CONTROL.toString()) == null) {
-            ResponseCacheControlStruct respCC = new ResponseCacheControlStruct(cacheControl, false);
+            ResponseCacheControlStruct respCC = new ResponseCacheControlStruct(cacheControl);
             outboundResponse.setHeader(HttpHeaderNames.CACHE_CONTROL.toString(), respCC.buildCacheControlDirectives());
         }
     }
