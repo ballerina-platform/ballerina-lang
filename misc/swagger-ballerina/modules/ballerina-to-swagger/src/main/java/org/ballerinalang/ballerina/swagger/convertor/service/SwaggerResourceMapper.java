@@ -171,7 +171,7 @@ public class SwaggerResourceMapper {
      * This method will convert ballerina @Resource to ballerina @OperationAdaptor.
      *
      * @param resource Resource array to be convert.
-     * @return @OperationAdaptor of string and swagger path objects.
+     * @return Operation Adaptor object of given resource
      */
     private OperationAdaptor convertResourceToOperation(ResourceNode resource, String httpMethod) {
         OperationAdaptor op = new OperationAdaptor();
