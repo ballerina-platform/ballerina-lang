@@ -21,7 +21,7 @@
 
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-examples</artifactId>
-    <version>0.970.0-alpha5-SNAPSHOT</version>
+    <version>0.970.0-beta0</version>
     <packaging>pom</packaging>
     <name>Ballerina - Examples</name>
     <scm>

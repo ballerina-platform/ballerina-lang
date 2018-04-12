@@ -117,7 +117,7 @@ function testAssertFalse () {
 }
 
 // Assert fail allows you to fail a test intentionally
-// Failing a test with assert fail
+// Assert Fail example 1
 @test:Config
 function testAssertFail1 () {
     try {
