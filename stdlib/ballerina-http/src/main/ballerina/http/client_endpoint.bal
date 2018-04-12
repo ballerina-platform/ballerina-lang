@@ -96,7 +96,7 @@ public type ClientEndpointConfig {
     ProxyConfig? proxy,
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
-    string|FailoverConfig lbMode = ROUND_ROBIN,
+    string|FailoverConfig availabilityMode = ROUND_ROBIN,
     CacheConfig cache,
     string acceptEncoding = "auto",
     AuthConfig? auth,
@@ -195,7 +195,7 @@ public type AuthConfig {
 public function Client::init(ClientEndpointConfig config) {
     boolean httpClientRequired = false;
     string url = config.targets[0].url;
-    match config.lbMode {
+    match config.availabilityMode {
         FailoverConfig failoverConfig => {
             if (lengthof config.targets > 1) {
                 self.config = config;
@@ -281,7 +281,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfig configurat
             }
 
             time:Time circuitStartTime = time:currentTime();
-            int numberOfBuckets = (cb.rollingWindow.timeWindow / cb.rollingWindow.bucketSize);
+            int numberOfBuckets = (cb.rollingWindow.timeWindowMillies / cb.rollingWindow.bucketSizeMillies);
             Bucket[] bucketArray = [];
             int bucketIndex = 0;
             while (bucketIndex < numberOfBuckets) {
