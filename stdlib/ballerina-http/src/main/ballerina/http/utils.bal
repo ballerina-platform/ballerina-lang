@@ -23,9 +23,26 @@ package ballerina.http;
 @Description {value:"Bearer authentication scheme"}
 @final string AUTH_SCHEME_BEARER = "Bearer";
 @Description {value:"Auth annotation package"}
-@final string AUTH_ANN_PACKAGE = "ballerina.auth";
-@Description {value:"Auth annotation name"}
-@final string AUTH_ANN_NAME = "Config";
+@final string ANN_PACKAGE = "ballerina.http";
+@Description {value:"Resource level annotation name"}
+@final string RESOURCE_ANN_NAME = "ResourceConfig";
+@Description {value:"Service level annotation name"}
+@final string SERVICE_ANN_NAME = "ServiceConfig";
+@Description {value:"Auth provider config name"}
+@final string AUTH_PROVIDER_CONFIG = "config";
+@Description {value:"ldap auth provider config name"}
+@final string AUTH_PROVIDER_LDAP = "ldap";
+@Description {value:"jdbc auth provider config name"}
+@final string AUTH_PROVIDER_JDBC = "jdbc";
+@Description {value:"AD auth provider config name"}
+@final string AUTH_PROVIDER_AD = "activeDirectory";
+
+@Description {value:"Authn scheme basic"}
+@final string AUTHN_SCHEME_BASIC = "basic";
+@Description {value:"Authn scheme JWT"}
+@final string AUTH_SCHEME_JWT = "jwt";
+@Description {value:"Authn scheme OAuth2"}
+@final string AUTH_SCHEME_OAUTH2 = "oauth2";
 
 @Description {value:"Extracts the basic authentication header value from the request"}
 @Param {value:"req: Request instance"}

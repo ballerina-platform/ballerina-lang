@@ -148,7 +148,7 @@ class ServiceNode extends React.Component {
 
         // TODO: Check whether the service is a http/https and then only allow. JMS services does not need swagger defs.
         // eslint-disable-next-line no-constant-condition
-        if (this.props.model.getType() === 'HttpService') {
+        if (this.props.model.getType() === 'http') {
             // Pushing swagger edit button.
             rightComponents.push({
                 component: PanelDecoratorButton,

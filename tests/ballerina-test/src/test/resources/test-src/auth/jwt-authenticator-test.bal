@@ -1,7 +1,9 @@
 import ballerina/auth;
+import ballerina/caching;
 
 function testJwtAuthenticatorCreationWithCache () returns (auth:JWTAuthProvider) {
     auth:JWTAuthProviderConfig jwtConfig = {};
+    //caching:Cache authCache;
     jwtConfig.issuer = "wso2";
     jwtConfig.audience = "ballerina";
     jwtConfig.certificateAlias = "ballerina";
@@ -11,6 +13,7 @@ function testJwtAuthenticatorCreationWithCache () returns (auth:JWTAuthProvider)
 
 function testAuthenticationSuccess (string jwtToken) returns (boolean|error) {
     auth:JWTAuthProviderConfig jwtConfig = {};
+    caching:Cache authCache;
     jwtConfig.issuer = "wso2";
     jwtConfig.audience = "ballerina";
     jwtConfig.certificateAlias = "ballerina";

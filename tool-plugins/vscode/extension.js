@@ -89,12 +89,12 @@ exports.activate = function(context) {
 
 	const forceDebug = (process.env.LSDEBUG === "true");
 
-	const disposable = new LanguageClient('ballerina-vscode', 'Ballerina vscode lanugage client',
+	const langClientDisposable = new LanguageClient('ballerina-vscode', 'Ballerina vscode lanugage client',
 		serverOptions, clientOptions, forceDebug).start();
-
+	
 	// Push the disposable to the context's subscriptions so that the 
 	// client can be deactivated on extension deactivation
-	context.subscriptions.push(disposable);
+	context.subscriptions.push(langClientDisposable);
 	context.subscriptions.push(debug.registerDebugConfigurationProvider(
 		'ballerina', debugConfigResolver));
 }
@@ -123,8 +123,6 @@ workspace.onDidChangeConfiguration(params => {
 
 	oldConfig = newConfig;
 });
-
-
 
 // This channel ignores(drops) all requests it receives.
 // So the user won't see any output sent through this channel
