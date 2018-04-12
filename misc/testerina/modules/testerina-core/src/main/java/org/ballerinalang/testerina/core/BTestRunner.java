@@ -37,7 +37,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,7 +50,6 @@ import java.util.stream.Collectors;
  */
 public class BTestRunner {
 
-    private Path programDirPath = Paths.get(System.getProperty("user.dir"));
     private static PrintStream errStream = System.err;
     private static PrintStream outStream = System.out;
     private TesterinaReport tReport = new TesterinaReport();
@@ -139,8 +137,8 @@ public class BTestRunner {
 
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
             // compile
-            CompileResult compileResult = BCompileUtil.compile(sourceRoot == null ? programDirPath.toString() :
-                sourceRoot, sourcePackage.toString(), CompilerPhase.CODE_GEN);
+            CompileResult compileResult = BCompileUtil
+                .compile(sourceRoot, sourcePackage.toString(), CompilerPhase.CODE_GEN);
             // print errors
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
                 errStream.println(diagnostic.getKind() + ": " + diagnostic.getPosition() + " " + diagnostic
