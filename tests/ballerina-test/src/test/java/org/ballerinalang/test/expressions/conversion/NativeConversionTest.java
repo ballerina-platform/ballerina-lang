@@ -664,23 +664,29 @@ public class NativeConversionTest {
     }
     
     @Test
-    public void testJsonToArray1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToArray1");
+    public void testArrayToJson1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testArrayToJson1");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].toString(), "[10,15]");
     }
     
     @Test
-    public void testJsonToArray2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToArray2");
+    public void testArrayToJson2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testArrayToJson2");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].toString(), "[{\"x\":10,\"y\":0},{\"x\":15,\"y\":0}]");
     }
     
     @Test(description = "Test converting a null Struct to map", expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*cannot convert 'TX\\[\\]' to type 'json'.*")
-    public void testJsonToArrayFail() {
-        BRunUtil.invoke(compileResult, "testJsonToArrayFail");
+    public void testArrayToJsonFail() {
+        BRunUtil.invoke(compileResult, "testArrayToJsonFail");
+    }
+    
+    @Test
+    public void testJsonToArray1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToArray1");
+        Assert.assertEquals(returns.length, 1);
     }
     
 }
