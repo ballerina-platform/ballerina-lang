@@ -15,11 +15,15 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.resolvers;
 
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
+import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.LSPackageCache;
 import org.ballerinalang.langserver.LSServiceOperationContext;
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
@@ -37,12 +41,61 @@ public class PackageNameContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
+        int currentIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
+        if (tokenStream.get(currentIndex).getText().equals(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
+            completionItems.addAll(this.getOrgNameCompletionItems());
+        } else {
+            StringBuilder orgNameComponent = new StringBuilder();
+            while (true) {
+                if (currentIndex < 0) {
+                    return new ArrayList<>();
+                }
+                Token token = CommonUtil.getPreviousDefaultToken(tokenStream, currentIndex);
+                if (token.getText().equals(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
+                    break;
+                }
+                orgNameComponent.append(token.getText());
+                currentIndex = token.getTokenIndex();
+            }
+            
+            if (orgNameComponent.toString().contains("/")) {
+                String orgName = orgNameComponent.toString().replace("/", "").trim();
+                completionItems.addAll(this.getPackageNameCompletions(orgName)); 
+            } else {
+                completionItems.addAll(this.getOrgNameCompletionItems());
+            }
+        }
 
-        LSPackageCache.getInstance().getPackageMap().entrySet().forEach(pkgEntry -> {
+        return completionItems;
+    }
+    
+    private ArrayList<CompletionItem> getOrgNameCompletionItems() {
+        List<String> orgNames = new ArrayList<>();
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        LSPackageCache.getStaticPackageMap().entrySet().forEach(pkgEntry -> {
+            if (!orgNames.contains(pkgEntry.getValue().packageID.getOrgName().toString())) {
+                orgNames.add(pkgEntry.getValue().packageID.getOrgName().toString());
+            }
+        });
+        
+        orgNames.forEach(orgName -> {
+            String insertText = orgName + "/";
+            fillImportCompletion(orgName, insertText, completionItems);
+        });
+        
+        return completionItems;
+    }
+    
+    private ArrayList<CompletionItem> getPackageNameCompletions(String orgName) {
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        LSPackageCache.getStaticPackageMap().entrySet().forEach(pkgEntry -> {
             PackageID packageID = pkgEntry.getValue().packageID;
-            String label = packageID.getOrgName().getValue() + "/" + packageID.getName().getValue();
-            String insertText = label + ";";
-            fillImportCompletion(label, insertText, completionItems);
+            if (orgName.equals(packageID.orgName.getValue())) {
+                String label = packageID.getName().getValue();
+                String insertText = label + ";";
+                fillImportCompletion(label, insertText, completionItems);
+            }
         });
         
         return completionItems;

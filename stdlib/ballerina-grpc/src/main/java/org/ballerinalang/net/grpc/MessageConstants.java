@@ -45,7 +45,7 @@ public class MessageConstants {
     public static final String GRPC_SERVER = "SERVER";
     public static final String SERVICE_ENDPOINT_TYPE = "Service";
     public static final String CLIENT_RESPONDER = "ClientResponder";
-    public static final String MESSAGE_CONTEXT = "MessageContext";
+    public static final String MESSAGE_CONTEXT = "MessageHeaders";
     public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
     public static final int CLIENT_RESPONDER_REF_INDEX = 0;
@@ -57,6 +57,7 @@ public class MessageConstants {
     public static final String CHANNEL_KEY = "channel";
     public static final String ENUM_KEY = "enum";
     public static final String SERVICE_STUB = "ServiceStub";
+    public static final String METHOD_DESCRIPTORS = "MethodDescriptors";
     public static final int SERVICE_STUB_REF_INDEX = 0;
     public static final int CLIENT_ENDPOINT_REF_INDEX = 1;
     public static final int DESCRIPTOR_MAP_REF_INDEX = 2;

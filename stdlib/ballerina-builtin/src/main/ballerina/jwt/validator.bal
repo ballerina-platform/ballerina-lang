@@ -25,6 +25,7 @@ public type JWTValidatorConfig {
     string issuer,
     string audience,
     string certificateAlias,
+    int timeSkew,
 };
 
 @Description {value:"Validity given JWT token"}
@@ -33,7 +34,7 @@ public type JWTValidatorConfig {
 @Return {value:"boolean: If JWT token is valied true , else false"}
 @Return {value:"Payload: If JWT token is valied return the JWT payload"}
 @Return {value:"error: If token validation fails"}
-public function validate (string jwtToken, JWTValidatorConfig config) returns (Payload|boolean|error) {
+public function validate (string jwtToken, JWTValidatorConfig config) returns (boolean, Payload)|error {
     string[] encodedJWTComponents;
     match getJWTComponents(jwtToken) {
         string[] encodedJWT => encodedJWTComponents = encodedJWT;
@@ -51,7 +52,7 @@ public function validate (string jwtToken, JWTValidatorConfig config) returns (P
 
     match validateJWT(encodedJWTComponents, header, payload, config) {
         error e => return e;
-        boolean isValid => return isValid ? payload : false;
+        boolean isValid => return isValid ? (true, payload) : (false, ());
     }
 }
 
@@ -180,10 +181,10 @@ function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload j
     //    error err = {message:"Invalid audience"};
     //    return err;
     //}
-    if (!validateExpirationTime(jwtPayload)) {
-        error err = {message:"JWT token is expired"};
-        return err;
-    }
+    //if (!validateExpirationTime(jwtPayload)) {
+    //    error err = {message:"JWT token is expired"};
+    //    return err;
+    //}
     if (!validateNotBeforeTime(jwtPayload)) {
         error err = {message:"JWT token is used before Not_Before_Time"};
         return err;
@@ -202,7 +203,7 @@ function validateMandatoryFields (Payload jwtPayload) returns (boolean) {
 function validateSignature (string[] encodedJWTComponents, Header jwtHeader, JWTValidatorConfig config) returns (boolean) {
     string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
     string signPart = encodedJWTComponents[2];
-    return signature:verify(assertion, signPart, jwtHeader.alg, config.certificateAlias);
+    return verifySignature(assertion, signPart, jwtHeader.alg, config.certificateAlias);
 }
 
 function validateIssuer (Payload jwtPayload, JWTValidatorConfig config) returns (boolean) {

@@ -166,6 +166,26 @@ public class FileOperationTest {
     }
 
     @Test(description = "Test 'newByteChannel' function in ballerina.file package",
+            dependsOnMethods = {"testCreateFile", "testListDirectory"})
+    public void testFileMetaData() throws URISyntaxException {
+        final String fileName = "test.txt";
+        final String emptyString = "";
+        String path = currentDirectoryPath + "/parent/child1/" + fileName;
+        BString result;
+        //Will initialize the channel
+        BValue[] args = {new BString(path)};
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetFileName", args);
+        result = (BString) returns[0];
+
+        Assert.assertTrue(fileName.equals(result.stringValue()));
+
+        returns = BRunUtil.invoke(fileOperationProgramFile, "testGetModifiedTime", args);
+        result = (BString) returns[0];
+
+        Assert.assertFalse(emptyString.equals(result.stringValue()));
+    }
+
+    @Test(description = "Test 'newByteChannel' function in ballerina.file package",
             dependsOnMethods = {"testCreateFile", "testListDirectory", "testWriteBytesToFile"})
     public void testDirectoryExistanceAndDeletion() {
         BBoolean result;
