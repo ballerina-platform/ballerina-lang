@@ -96,7 +96,7 @@ public class BLangAnonymousModelHelper {
         return ANON_OBJECT + nextValue;
     }
 
-    String getNextAnonymousSingletonKey(PackageID packageID) {
+    public String getNextAnonymousSingletonKey(PackageID packageID) {
         Integer nextValue = Optional.ofNullable(anonSingletonCount.get(packageID)).orElse(0);
         anonSingletonCount.put(packageID, nextValue + 1);
         if (Names.BUILTIN_PACKAGE.equals(packageID.name)) {

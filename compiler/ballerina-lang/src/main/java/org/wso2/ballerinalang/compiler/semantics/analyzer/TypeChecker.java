@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -57,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangSingleton;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
@@ -145,6 +147,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private Types types;
     private IterableAnalyzer iterableAnalyzer;
     private BLangDiagnosticLog dlog;
+    private BLangAnonymousModelHelper anonymousModelHelper;
 
     private SymbolEnv env;
 
@@ -175,6 +178,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.iterableAnalyzer = IterableAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -223,7 +227,7 @@ public class TypeChecker extends BLangNodeVisitor {
     // Expressions
 
     public void visit(BLangLiteral literalExpr) {
-        BType literalType = new BSingletonType(null, literalExpr,
+        BType literalType = new BSingletonType((BTypeSymbol) defineSingletonNode(literalExpr), literalExpr,
                 this.symTable.getTypeFromTag(literalExpr.typeTag));
         resultType = types.checkType(literalExpr, literalType, expType);
     }
@@ -1947,5 +1951,19 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return new BUnionType(null, new LinkedHashSet<>(lhsTypes), false);
+    }
+
+    private BSymbol defineSingletonNode(BLangLiteral literalExpr) {
+        String genName = anonymousModelHelper.getNextAnonymousSingletonKey(literalExpr.pos.src.pkgID);
+        BLangIdentifier anonSingletonGenName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        anonSingletonGenName.setValue(genName);
+        anonSingletonGenName.setLiteral(false);
+        BLangSingleton singletonNode = (BLangSingleton) TreeBuilder.createSingletonNode();
+        singletonNode.name = anonSingletonGenName;
+        singletonNode.addFlag(Flag.PUBLIC);
+        singletonNode.valueSpace = literalExpr;
+        env.enclPkg.singletons.add(singletonNode);
+        symbolEnter.defineNode(singletonNode, env);
+        return singletonNode.symbol;
     }
 }
