@@ -88,14 +88,13 @@ public abstract class WebSocketUtil {
             @Override
             public void onSuccess(Session session) {
                 // TODO: Need to create new struct
-                BStruct webSocketEndpoint = BLangConnectorSPIUtil.createBStruct(
+                BStruct webSocketEndpoint = BLangConnectorSPIUtil.createObject(
                         wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo()
                                 .getProgramFile(), PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_ENDPOINT);
-                BStruct webSocketConnector = BLangConnectorSPIUtil.createBStruct(
+                BStruct webSocketConnector = BLangConnectorSPIUtil.createObject(
                         wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo()
                                 .getProgramFile(), PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
 
-                webSocketEndpoint.setRefField(0, new BMap()); // Set Attribute map
                 webSocketEndpoint.setRefField(1, webSocketConnector);
                 populateEndpoint(session, webSocketEndpoint);
                 webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
