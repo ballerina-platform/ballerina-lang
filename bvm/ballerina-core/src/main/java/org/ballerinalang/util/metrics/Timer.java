@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -128,11 +129,13 @@ public interface Timer extends Metric {
     double max(TimeUnit unit);
 
     /**
-     * @param percentile A percentile in the domain [0, 1]. For example, 0.5 represents the 50th percentile of the
-     *                   distribution.
-     * @param unit       The base unit of time to scale the percentile value to.
-     * @return The latency at a specific percentile. This value is non-aggregable across dimensions.
+     * Return a sorted map of latencies at specific percentiles. The percentile is the key, which is in the domain
+     * [0, 1]. For example, 0.5 represents the 50th percentile of the distribution. The keys will be specific to
+     * underlying implementation. These value are non-aggregable across dimensions.
+     *
+     * @param unit The base unit of time to scale the percentile value to.
+     * @return A map of latencies at specific percentiles.
      */
-    double percentile(double percentile, TimeUnit unit);
+    SortedMap<Double, Double> percentileValues(TimeUnit unit);
 
 }
