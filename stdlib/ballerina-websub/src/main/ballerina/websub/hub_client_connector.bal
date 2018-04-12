@@ -157,7 +157,7 @@ public function HubClientConnector::publishUpdate (string topic, json payload,
         request.setHeader(strHeaderKey, strHeaderValue);
     }
 
-    var response = httpClientEndpoint -> post("?" + queryParams, request);
+    var response = httpClientEndpoint -> post(untaint("?" + queryParams), request);
         match (response) {
             http:Response => return;
             http:HttpConnectorError httpConnectorError => { WebSubError webSubError = {
@@ -216,7 +216,7 @@ returns (http:Request) {
 @Return { value : "WebSubErrror indicating any errors that occurred, if the request was unsuccessful"}
 function processHubResponse(@sensitive string hub, @sensitive string mode,
                             SubscriptionChangeRequest subscriptionChangeRequest,
-                            Response|http:HttpConnectorError response, http:Client httpClientEndpoint)
+                            http:Response|http:HttpConnectorError response, http:Client httpClientEndpoint)
                             returns @tainted (SubscriptionChangeResponse | WebSubError) {
     string topic = subscriptionChangeRequest.topic;
     match response {

@@ -32,23 +32,24 @@ import ballerina/websub;
 @final string DEFAULT_DB_USERNAME = "ballerina";
 @final string DEFAULT_DB_PASSWORD = "ballerina";
 
-@final string hubHost = config:getAsString("hub.host", default=DEFAULT_HOST);
-@final int hubPort = config:getAsInt("hub.port", default=DEFAULT_PORT);
-@final int hubLeaseSeconds = config:getAsInt("hub.lease_seconds", default=DEFAULT_LEASE_SECONDS_VALUE);
-@final string hubSignatureMethod = config:getAsString("hub.signature_method", default=DEFAULT_SIGNATURE_METHOD);
-@final boolean hubRemotePublishingEnabled = config:getAsBoolean("hub.remote_publishing.enabled");
-@final string hubRemotePublishingMode = config:getAsString("hub.remote_publishing.mode",
+@final string hubHost = config:getAsString("b7a.websub.hub.host", default=DEFAULT_HOST);
+@final int hubPort = config:getAsInt("b7a.websub.hub.port", default=DEFAULT_PORT);
+@final int hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime", default=DEFAULT_LEASE_SECONDS_VALUE);
+@final string hubSignatureMethod = config:getAsString("b7a.websub.hub.signaturemethod",
+                                                                                    default=DEFAULT_SIGNATURE_METHOD);
+@final boolean hubRemotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish");
+@final string hubRemotePublishingMode = config:getAsString("b7a.websub.hub.remotepublish.mode",
                                                                         default=websub:REMOTE_PUBLISHING_MODE_DIRECT);
-@final boolean hubTopicRegistrationRequired = config:getAsBoolean("hub.topic_registration.required", default=true);
-@final string hubPublicUrl = config:getAsString("hub.url", default=getHubUrl());
+@final boolean hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration", default=true);
+@final string hubPublicUrl = config:getAsString("b7a.websub.hub.url", default=getHubUrl());
 
-@final boolean hubPersistenceEnabled = config:getAsBoolean("hub.persistence.enabled");
-@final string hubDatabaseUrl = config:getAsString("hub.db.url", default=DEFAULT_HOST);
-@final string hubDatabaseUsername = config:getAsString("hub.db.username", default=DEFAULT_DB_USERNAME);
-@final string hubDatabasePassword = config:getAsString("hub.db.password", default=DEFAULT_DB_PASSWORD);
+@final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
+@final string hubDatabaseUrl = config:getAsString("b7a.websub.hub.db.url", default=DEFAULT_HOST);
+@final string hubDatabaseUsername = config:getAsString("b7a.websub.hub.db.username", default=DEFAULT_DB_USERNAME);
+@final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default=DEFAULT_DB_PASSWORD);
 //TODO:add pool options
 
-@final boolean hubSslEnabled = config:getAsBoolean("hub.ssl.enabled", default=true);
+@final boolean hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default=true);
 http:ServiceSecureSocket? serviceSecureSocket = getServiceSecureSocketConfig();
 http:SecureSocket? secureSocket = getSecureSocketConfig();
 
@@ -79,9 +80,9 @@ function getServiceSecureSocketConfig() returns (http:ServiceSecureSocket | ()) 
         return;
     }
 
-    string keyStoreFilePath = config:getAsString("hub.ssl.key_store.file_path",
+    string keyStoreFilePath = config:getAsString("b7a.websub.hub.ssl.key_store.file_path",
                                                 default="${ballerina.home}/bre/security/ballerinaKeystore.p12");
-    string keyStorePassword = config:getAsString("hub.ssl.key_store.password", default="ballerina");
+    string keyStorePassword = config:getAsString("b7a.websub.hub.ssl.key_store.password", default="ballerina");
     http:ServiceSecureSocket serviceSecureSocket =
                                     { keyStore: { filePath: keyStoreFilePath, password: keyStorePassword } };
     return serviceSecureSocket;
@@ -92,11 +93,11 @@ function getSecureSocketConfig() returns (http:SecureSocket | ()) {
     string trustStorePassword;
 
     if (!hubSslEnabled) {
-        trustStoreFilePath = config:getAsString("hub.ssl.trust_store.file_path");
+        trustStoreFilePath = config:getAsString("b7a.websub.hub.ssl.trust_store.file_path");
         if (trustStoreFilePath == "") {
             return;
         }
-        trustStorePassword = config:getAsString("hub.ssl.trust_store.password");
+        trustStorePassword = config:getAsString("b7a.websub.hub.ssl.trust_store.password");
         if (trustStorePassword == "") {
             log:printWarn("Ignoring trust store file since password is not specified.");
             return;
@@ -108,9 +109,9 @@ function getSecureSocketConfig() returns (http:SecureSocket | ()) {
         return secureSocket;
     }
 
-    trustStoreFilePath = config:getAsString("hub.ssl.trust_store.file_path",
+    trustStoreFilePath = config:getAsString("b7a.websub.hub.ssl.trust_store.file_path",
                                                     default="${ballerina.home}/bre/security/ballerinaTruststore.p12");
-    trustStorePassword = config:getAsString("hub.ssl.trust_store.password", default="ballerina");
+    trustStorePassword = config:getAsString("b7a.websub.hub.ssl.trust_store.password", default="ballerina");
     http:SecureSocket secureSocket = { trustStore: { filePath: trustStoreFilePath, password: trustStorePassword},
                                         verifyHostname: false};
     return secureSocket;

@@ -265,7 +265,7 @@ function verifyIntent(string callback, string topic, map params) {
                          + "&" + websub:HUB_CHALLENGE + "=" + challenge
                          + "&" + websub:HUB_LEASE_SECONDS + "=" + leaseSeconds;
 
-    var subscriberResponse = callbackEp -> get("?" + queryParams, request);
+    var subscriberResponse = callbackEp -> get(untaint ("?" + queryParams), request);
 
     match (subscriberResponse) {
         http:Response response => {
@@ -324,8 +324,8 @@ function changeTopicRegistrationInDatabase(string mode, string topic, string sec
         poolOptions: {maximumPoolSize:5}
     };
 
-    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
-    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:secret};
+    sql:Parameter para1 = (sql:TYPE_VARCHAR, topic);
+    sql:Parameter para2 = (sql:TYPE_VARCHAR, secret);
     sql:Parameter[] sqlParams = [para1, para2];
     if (mode == websub:MODE_REGISTER) {
         var updateStatus = subscriptionDbEp -> update("INSERT INTO topics (topic,secret) VALUES (?,?)", sqlParams);
@@ -355,13 +355,13 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
         poolOptions: {maximumPoolSize:5}
     };
 
-    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.topic};
-    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.callback};
+    sql:Parameter para1 = (sql:TYPE_VARCHAR, subscriptionDetails.topic);
+    sql:Parameter para2 = (sql:TYPE_VARCHAR, subscriptionDetails.callback);
     sql:Parameter[] sqlParams;
     if (mode == websub:MODE_SUBSCRIBE) {
-        sql:Parameter para3 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.secret};
-        sql:Parameter para4 = {sqlType:sql:TYPE_BIGINT, value:subscriptionDetails.leaseSeconds};
-        sql:Parameter para5 = {sqlType:sql:TYPE_BIGINT, value:subscriptionDetails.createdAt};
+        sql:Parameter para3 = (sql:TYPE_VARCHAR, subscriptionDetails.secret);
+        sql:Parameter para4 = (sql:TYPE_BIGINT, subscriptionDetails.leaseSeconds);
+        sql:Parameter para5 = (sql:TYPE_BIGINT, subscriptionDetails.createdAt);
         sqlParams = [para1, para2, para3, para4, para5, para3, para4, para5];
         var updateStatus = subscriptionDbEp -> update("INSERT INTO subscriptions"
                                              + " (topic,callback,secret,lease_seconds,created_at) VALUES (?,?,?,?,?) ON"
@@ -404,7 +404,7 @@ function addTopicRegistrationsOnStartup() {
     };
     sql:Parameter[] sqlParams = [];
     table dt;
-    var dbResult = subscriptionDbEp -> select("SELECT topic, secret FROM topics", sqlParams, TopicRegistration);
+    var dbResult = subscriptionDbEp -> select("SELECT topic, secret FROM topics", TopicRegistration, sqlParams);
     match (dbResult) {
         table t => { dt = t; }
         error sqlErr => {
@@ -438,13 +438,13 @@ function addSubscriptionsOnStartup() {
     };
 
     int time = time:currentTime().time;
-    sql:Parameter para1 = {sqlType:sql:TYPE_BIGINT, value:time};
+    sql:Parameter para1 = (sql:TYPE_BIGINT, time);
     sql:Parameter[] sqlParams = [para1];
     _ = subscriptionDbEp -> update("DELETE FROM subscriptions WHERE ? - lease_seconds > created_at", sqlParams);
     sqlParams = [];
     table dt;
     var dbResult = subscriptionDbEp -> select("SELECT topic, callback, secret, lease_seconds, created_at"
-                                                + " FROM subscriptions", sqlParams, websub:SubscriptionDetails);
+                                                + " FROM subscriptions", websub:SubscriptionDetails, sqlParams);
     match (dbResult) {
         table t => { dt = t; }
         error sqlErr => {
