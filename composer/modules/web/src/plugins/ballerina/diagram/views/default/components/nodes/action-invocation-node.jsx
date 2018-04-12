@@ -52,11 +52,7 @@ class InvocationNode extends React.Component {
         let expression = model.viewState.expression;
 
         if (model.viewState.isActionInvocation) {
-            if (TreeUtil.isVariableDef(model)) {
-                expression = model.variable.getInitialExpression().getInvocationSignature();
-            } else {
-                expression = model.getExpression().getInvocationSignature();
-            }
+            expression = TreeUtil.getInvocationSignature(this.props.model);
         }
 
         return (

@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.StructInfo;
 
 import java.util.Map;
+import java.util.StringJoiner;
 
 import static org.ballerinalang.net.http.HttpConstants.RES_CACHE_CONTROL_IS_PRIVATE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RES_CACHE_CONTROL_MAX_AGE_INDEX;
@@ -50,24 +51,26 @@ public class ResponseCacheControlStruct {
 
     public ResponseCacheControlStruct(StructInfo structInfo) {
         responseCacheControl = BLangVMStructs.createBStruct(structInfo);
-
-        // Initialize the struct fields to default values we use
-        responseCacheControl.setBooleanField(RES_CACHE_CONTROL_NO_TRANSFORM_INDEX, 1);
-        responseCacheControl.setIntField(RES_CACHE_CONTROL_MAX_AGE_INDEX, -1);
-        responseCacheControl.setIntField(RES_CACHE_CONTROL_S_MAXAGE_INDEX, -1);
+        init();
     }
 
     public ResponseCacheControlStruct(BStruct responseCacheControl) {
         this.responseCacheControl = responseCacheControl;
-
-        // Initialize the struct fields to default values we use
-        responseCacheControl.setBooleanField(RES_CACHE_CONTROL_NO_TRANSFORM_INDEX, 1);
-        responseCacheControl.setIntField(RES_CACHE_CONTROL_MAX_AGE_INDEX, -1);
-        responseCacheControl.setIntField(RES_CACHE_CONTROL_S_MAXAGE_INDEX, -1);
     }
 
     public BStruct getStruct() {
         return responseCacheControl;
+    }
+
+    public void setStruct(BStruct responseCacheControl) {
+        this.responseCacheControl = responseCacheControl;
+    }
+
+    public void init() {
+        // Initialize the struct fields to default values we use
+        responseCacheControl.setBooleanField(RES_CACHE_CONTROL_NO_TRANSFORM_INDEX, 1);
+        responseCacheControl.setIntField(RES_CACHE_CONTROL_MAX_AGE_INDEX, -1);
+        responseCacheControl.setIntField(RES_CACHE_CONTROL_S_MAXAGE_INDEX, -1);
     }
 
     public ResponseCacheControlStruct setMustRevalidate(boolean mustRevalidate) {
@@ -168,5 +171,61 @@ public class ResponseCacheControlStruct {
                     break;
             }
         });
+    }
+
+    public String buildCacheControlDirectives() {
+        StringJoiner directivesBuilder = new StringJoiner(",");
+
+        if (responseCacheControl.getBooleanField(RES_CACHE_CONTROL_MUST_REVALIDATE_INDEX) == TRUE) {
+            directivesBuilder.add("must-revalidate");
+        }
+
+        if (responseCacheControl.getBooleanField(RES_CACHE_CONTROL_NO_CACHE_INDEX) == TRUE) {
+            directivesBuilder.add("no-cache" + appendFields(
+                    (BStringArray) responseCacheControl.getRefField(RES_CACHE_CONTROL_NO_CACHE_FIELDS_INDEX)));
+        }
+
+        if (responseCacheControl.getBooleanField(RES_CACHE_CONTROL_NO_STORE_INDEX) == TRUE) {
+            directivesBuilder.add("no-store");
+        }
+
+        if (responseCacheControl.getBooleanField(RES_CACHE_CONTROL_NO_TRANSFORM_INDEX) == TRUE) {
+            directivesBuilder.add("no-transform");
+        }
+
+        if (responseCacheControl.getBooleanField(RES_CACHE_CONTROL_IS_PRIVATE_INDEX) == TRUE) {
+            directivesBuilder.add("private" + appendFields(
+                    (BStringArray) responseCacheControl.getRefField(RES_CACHE_CONTROL_PRIVATE_FIELDS_INDEX)));
+        } else {
+            directivesBuilder.add("public");
+        }
+
+        if (responseCacheControl.getBooleanField(RES_CACHE_CONTROL_PROXY_REVALIDATE_INDEX) == TRUE) {
+            directivesBuilder.add("proxy-revalidate");
+        }
+
+        if (responseCacheControl.getIntField(RES_CACHE_CONTROL_MAX_AGE_INDEX) >= 0) {
+            directivesBuilder.add("max-age=" + responseCacheControl.getIntField(RES_CACHE_CONTROL_MAX_AGE_INDEX));
+        }
+
+        if (responseCacheControl.getIntField(RES_CACHE_CONTROL_S_MAXAGE_INDEX) >= 0) {
+            directivesBuilder.add("s-maxage=" + responseCacheControl.getIntField(RES_CACHE_CONTROL_S_MAXAGE_INDEX));
+        }
+
+        return directivesBuilder.toString();
+    }
+
+    private String appendFields(BStringArray values) {
+        if (values.size() > 0) {
+            StringJoiner joiner = new StringJoiner(",");
+
+            for (int i = 0; i < values.size(); i++) {
+                joiner.add(values.get(i));
+            }
+
+            return "=\"" + joiner.toString() + "\"";
+        }
+
+        return "";
     }
 }

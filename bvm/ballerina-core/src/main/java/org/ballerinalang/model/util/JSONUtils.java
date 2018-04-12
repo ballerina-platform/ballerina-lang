@@ -805,7 +805,7 @@ public class JSONUtils {
         return bStruct;
     }
 
-    private static Object convertJSON(JsonNode jsonValue, BType targetType) {
+    public static Object convertJSON(JsonNode jsonValue, BType targetType) {
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
                 return jsonNodeToInt(jsonValue);

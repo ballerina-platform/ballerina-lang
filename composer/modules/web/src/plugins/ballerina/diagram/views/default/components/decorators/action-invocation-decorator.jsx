@@ -255,12 +255,6 @@ class InvocationDecorator extends React.Component {
                         dashed
                     />
                 </g>
-                <StatementPropertyItemSelector
-                    model={this.props.model}
-                    bBox={this.props.model.viewState.components.dropDown}
-                    itemsMeta={dropDownItemMeta}
-                    show={this.state.active}
-                />
                 {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}
             </g>);

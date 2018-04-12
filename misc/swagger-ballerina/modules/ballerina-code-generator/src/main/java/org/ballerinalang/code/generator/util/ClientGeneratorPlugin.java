@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -80,7 +81,7 @@ public class ClientGeneratorPlugin extends AbstractCompilerPlugin {
     private String getOutputFilePath(ServiceNode serviceNode) {
         String cUnit = serviceNode.getPosition().getSource().getCompilationUnitName();
         String dir = cUnit.substring(0, cUnit.lastIndexOf(File.separator) + 1);
-        String file = serviceNode.getName().getValue() + "Client.bal";
+        String file = serviceNode.getName().getValue().toLowerCase(Locale.ENGLISH) + "_client.bal";
         return dir + file;
     }
 

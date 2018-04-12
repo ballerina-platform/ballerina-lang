@@ -17,7 +17,7 @@ public type Request object {
         string httpVersion;
         string userAgent;
         string extraPathInfo;
-        RequestCacheControl cacheControl;
+        RequestCacheControl? cacheControl;
     }
 
     @Description {value:"Set the entity to request"}

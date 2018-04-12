@@ -19,23 +19,27 @@
 package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
  * {@code BFiniteType} represents the finite type in Ballerina.
- *
  */
 public class BFiniteType extends BType {
 
     public Set<BType> memberTypes;
+    public List<TypeRefCPEntry> memberCPEntries;
     public Set<BValue> valueSpace;
 
     public BFiniteType(String typeName, String pkgPath) {
         super(typeName, pkgPath, BValue.class);
         this.memberTypes = new HashSet<>();
         this.valueSpace = new HashSet<>();
+        this.memberCPEntries = new ArrayList<>();
     }
 
     @Override
