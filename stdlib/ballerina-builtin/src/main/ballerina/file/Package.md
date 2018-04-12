@@ -1,85 +1,69 @@
 # Package overview
 
-The `wso2/ftp` package provides an FTP client and an FTP server listener implementation to facilitate an FTP connection to a remote location. 
+The `ballerina/file` package provides local file system operations, such as extending the `ballerina/io` package and performing I/O operations on files, and validating the files.
 
-## FTP client
-`ftp:Client` is used to connect to an FTP server and perform various operations on the files. It supports `get`, `delete`, `put`, `append`, `mkdir`, `rmdir`, `rename`, `size`, and `list` operations.
+## Perform file I/O operations
+File I/O operations, such as writing, updating, copying, and moving can be achieved in conjunction with the `ballerina/io` package when using Path. 
 
-An FTP client endpoint is defined using these parameters: `protocol`, `host`, `username`, `passPhrase`, and optionally, `port`.   
+## Create, delete, and modify files
+The `ballerina/file` package  provides functions to manage metadata in the files and perform operations, such as for creating, and deleting files. The package can make the file system operations listen to a directory, identify events, and resiprocate. 
 
-## FTP listener
-`ftp:Listener` is used to listen to a remote FTP location and trigger an event of type `FileEvent` when a new file is added to the directory. The `fileResource` function is invoked when a new file is added.
+## Validate files
+Validation is required to ensure that all the pre-conditions and post-conditions of an operation areis satisfied. This package supports pre-validation and post-validation actions through functions such as exists() and isDirectory()respectively.
 
-An FTP listener endpoint is defined using these parameters: `protocol`, `host`, `username`,  `passPhrase`, `path`, `pollingInterval`, `sftpIdentityPassPhrase`, and `sftpUserDirIsRoot`.
+## Types of file paths
+The Path is a unique identifier that can either be absolute or relative. The absolute path or the full path name is the location of a file relative to the root directory. The relative path indicates the location of a file relative to the current location of the execution. 
+ 
+```ballerina
+string relativePathValue = “./doc”;
+file:Path relativePath = new(relativePathValue);
+
+string absolutePathValue = “/home/user/ballerina/doc”;
+file:Path absolutePath = new(absolutePathValue);
+```
+
+## Absolute paths on different operating systems
+The absolute path differs from OS (Operating System ) to OS. For example, a Unix based OS defines the path as /home/user/ballerina/examples and a Windows based OS defines the path as  C:\windows\user\ballerina\examples.
+
+## Convert relative paths to absolute paths
+The toAbsolutePath() function converts a relative path to an absolute path.
+
+```ballerina
+file:Path absolutePath = relativePath.toAbsolutePath();
+```
+
+## Access denied error
+File and directories are protected entities. The file operations are restricted using various methods depending on the OS. Functions that access a protected or non-existant entity returns an AccessDenied error. 
 
 # Samples
 
-**Sample FTP client endpoint**
+The sample given below writes new content to a file. 
 
 ```ballerina
-endpoint ftp:Client client {
-    protocol: "sftp",
-    host:"ftp.ballerina.com",
-    username : "john",
-    passPhrase : "password"
+function testWriteFile(string pathValue,string accessMode,blob content){
+file:Path filePath = new(pathValue);
+//Get the absolute file path.
+string absolutePath = filePath.toAbsolutePath().getPathValue();
+// Open the file that is denoted by the absolute path. 
+io:ByteChannel channel =io:openFile(absolutePath,accessMode);
+//Write the content to the file.
+var result = channel.write(content,0);
+var closeResult = channel.close()
+}
+```
+
+The constructor new() creates a Path. The file write operation can be completed using the openFile() and write() functions that are exposed by the ballerina/io package. The openFile() function creates a streaming channel to a local file. Channels provide read or write access to different resources. The permission to perform operations on the file are defined using accessMode.
+
+The following sample shows how an endpoint is used to listen to the local folder and identify events, such as creating a new file. 
+
+```ballerina
+endpoint file:Listener localFolder {
+    path:"target/fs"
 };
-```
-
-**Sample FTP client operations**
-
-All of the following operations return `FTPClientError` in case of an error. 
-
-```ballerina
-// Make a directory in the remote FTP location.
-ftp:FTPClientError? dirCreErr client -> mkdir("/personal/files");  
-
-//Add Put a file to the FTP location.
-io:ByteChannel bchannel = io:openFile("/home/john/files/MyFile.xml", "r");
-ftp:FTPClientError? filePutErr = client -> put("/personal/files/MyFile.xml", bchannel);
-
-// List the files in the of FTP location.
-var listOrError = client -> list("/personal/files");
-
-// Rename or move a file in the FTP location.
-ftp:FTPClientError? renameErr = client -> rename("/personal/files/MyFile.xml", "/personal/New.xml");
-
-// Read the size of a file in the FTP location.
-var sizeOrError = client -> size("/personal/New.xml");
-
-// Download a file from the FTP location.
-var byteChannelOrError = client -> get("/personal/New.xml");
-
-// Delete a file in the FTP location.
-ftp:FTPClientError? fileDelErr = client -> delete("/personal/New.xml");
-
-// Delete a directory in the FTP location.
-ftp:FTPClientError? dirDelErr = client -> rmdir("/personal/files");    
-```
-
-**Sample FTP listener endpoint**
-
-```ballerina
-endpoint ftp:Listener remoteFolder {
-    protocol:"sftp",
-    host:"ftp.ballerina.com",
-    username : "john",
-    passPhrase : “password"
-    path:"/personal",
-    pollingInterval:"2000",
-    sftpIdentities:"/home/john/.ssh/id_rsa",
-    sftpIdentityPassPhrase:"",
-    sftpUserDirIsRoot:"true"
-};
-```
-
-**Sample service for the FTP listener endpoint**
-
-```ballerina
-service myRemoteFiles bind remoteFolder {
-    fileResource (ftp:FileEvent m) {
-	log:printInfo(m.uri);
-	log:printInfo(m.baseName);
-        	log:printInfo(m.path);
+service fileSystem bind localFolder {
+    onCreate (file:FileEvent m) {
     }
 }
 ```
+
+The onCreate() resource method gets invoked when a file is created inside the “target/fs” folder. In addition to the above operations, onDelete() and onModify() methods can be used to listen to the delete and modify events respectively.
