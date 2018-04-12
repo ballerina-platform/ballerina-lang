@@ -62,12 +62,7 @@ public class SwaggerConverterUtils {
         BFile balFile = new BFile();
         balFile.setContent(ballerinaSource);
 
-        LSGlobalContext lsGlobalContext = new LSGlobalContext();
-        CompilerContext compilerContext = CommonUtil.prepareTempCompilerContext();
-        lsGlobalContext.put(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT, compilerContext);
-        LSPackageCache.initiate(lsGlobalContext);
-        BallerinaFile ballerinaFile = LSParserUtils.compile(balFile.getContent(),
-                CompilerPhase.DEFINE, lsGlobalContext);
+        BallerinaFile ballerinaFile = LSParserUtils.compile(balFile.getContent(), CompilerPhase.DEFINE);
         BLangCompilationUnit topCompilationUnit  = ballerinaFile.getBLangPackage().getCompilationUnits().get(0);
         //BLangCompilationUnit topCompilationUnit = LSParserUtils.compile(balFile.getContent(),);
         String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
@@ -113,12 +108,7 @@ public class SwaggerConverterUtils {
         balFile.setContent(ballerinaSource);
         //Create empty swagger object.
         Swagger swaggerDefinition = new Swagger();
-        LSGlobalContext lsGlobalContext = new LSGlobalContext();
-        CompilerContext compilerContext = CommonUtil.prepareTempCompilerContext();
-        lsGlobalContext.put(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT, compilerContext);
-        LSPackageCache.initiate(lsGlobalContext);
-        BallerinaFile ballerinaFile = LSParserUtils.compile(balFile.getContent(),
-                CompilerPhase.DEFINE, lsGlobalContext);
+        BallerinaFile ballerinaFile = LSParserUtils.compile(balFile.getContent(), CompilerPhase.DEFINE);
         BLangCompilationUnit topCompilationUnit  = ballerinaFile.getBLangPackage().getCompilationUnits().get(0);
         String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
         String swaggerAlias = getAlias(topCompilationUnit, Constants.SWAGGER_PACKAGE_NAME);
