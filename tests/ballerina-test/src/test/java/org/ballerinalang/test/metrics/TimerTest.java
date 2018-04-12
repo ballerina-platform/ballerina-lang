@@ -22,10 +22,13 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.Map;
 
 /**
  * Tests for timer metric.
@@ -59,7 +62,13 @@ public class TimerTest extends MetricTest {
     @Test
     public void testPercentileTimer() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testPercentileTimer");
-        Assert.assertNotEquals(returns[0], new BFloat(0));
+        BMap<BFloat, BFloat> bMap = (BMap) returns[0];
+        Assert.assertEquals(bMap.size(), 5);
+        Map<BFloat, BFloat> map = bMap.getMap();
+        map.forEach((percentile, value) -> {
+            Assert.assertTrue(percentile.floatValue() >= 0 && percentile.floatValue() <= 1);
+            Assert.assertTrue(value.floatValue() > 0);
+        });
     }
 
     @Test

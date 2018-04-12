@@ -48,7 +48,8 @@ public enum RuntimeErrors {
     INVALID_MAP_INSERTION("invalid.map.insertion", "RUNTIME_0023"),
     INVALID_VALUE_LOAD("invalid.value.load", "RUNTIME_0024"),
     INVALID_TASK_CONFIG("invalid.task.config", "RUNTIME_0025"),
-    TASK_ALREADY_RUNNING("task.already.running", "RUNTIME_0026");
+    TASK_ALREADY_RUNNING("task.already.running", "RUNTIME_0026"),
+    TASK_NOT_RUNNING("task.not.running", "RUNTIME_0027");
     
     private String errorMsgKey;
     private String errorCode;

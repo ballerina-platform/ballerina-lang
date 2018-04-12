@@ -16,15 +16,15 @@
 
 package org.ballerinalang.swagger.model;
 
-import io.swagger.oas.models.Components;
-import io.swagger.oas.models.ExternalDocumentation;
-import io.swagger.oas.models.OpenAPI;
-import io.swagger.oas.models.PathItem;
-import io.swagger.oas.models.info.Info;
-import io.swagger.oas.models.media.Schema;
-import io.swagger.oas.models.security.SecurityRequirement;
-import io.swagger.oas.models.servers.Server;
-import io.swagger.oas.models.tags.Tag;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.tags.Tag;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 
 import java.util.AbstractMap;
@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Wrapper for <code>io.swagger.oas.models.OpenAPI</code>
+ * Wrapper for <code>io.swagger.v3.oas.models.OpenAPI</code>
  * <p>This class can be used to push additional context variables for handlebars</p>
  */
 public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi, OpenAPI> {
