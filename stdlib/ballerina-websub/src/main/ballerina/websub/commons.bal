@@ -267,7 +267,7 @@ public type WebSubHub object {
 
     @Description {value:"Stops the started up Ballerina Hub"}
     @Return {value:"Boolean indicating whether the internal Ballerina Hub was stopped"}
-    public function shutdownBallerinaHub () returns (boolean);
+    public function stop () returns (boolean);
 
     @Description {value:"Publishes an update against the topic in the initialized Ballerina Hub"}
     @Param {value:"topic: The topic for which the update should happen"}
@@ -287,7 +287,7 @@ public type WebSubHub object {
 
 };
 
-public function WebSubHub::shutdownBallerinaHub () returns (boolean) {
+public function WebSubHub::stop () returns (boolean) {
     //TODO: fix to stop
     return stopHubService(self.hubUrl);
 }

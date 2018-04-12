@@ -24,7 +24,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
         string method = req.method;
         http:Request clientRequest = new;
 
-        var response = endPoint -> execute(method, "/getQuote/stocks", clientRequest);
+        var response = endPoint -> execute(untaint method, "/getQuote/stocks", clientRequest);
         match response {
             http:Response httpResponse => {
                 _ = client -> respond(httpResponse);
@@ -79,7 +79,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
     }
     commonResource (endpoint client, http:Request req, string method) {
         http:Request clientRequest = new;
-        var response = endPoint -> execute(method, "/getQuote/stocks", clientRequest);
+        var response = endPoint -> execute(untaint method, "/getQuote/stocks", clientRequest);
         match response {
             http:Response httpResponse => {
                 _ = client -> respond(httpResponse);

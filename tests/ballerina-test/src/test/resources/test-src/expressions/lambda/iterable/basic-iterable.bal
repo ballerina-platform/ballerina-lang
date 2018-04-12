@@ -148,7 +148,8 @@ function concatString ((string, string) v) returns (string) {
 //    return (output, sa, i1, j1.count(), result);
 //}
 
-xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
+function xmlTest() returns (int, int, map) {
+    xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
         <p:name>bob</p:name>
         <p:address>
             <p:city>NY</p:city>
@@ -156,8 +157,6 @@ xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
         </p:address>
         <q:ID>1131313</q:ID>
     </p:person>`;
-
-function xmlTest () returns (int, int, map) {
     int nodeCount = xdata.*.count();
     int elementCount = xdata.*.elements().count();
     map<xml> m = xdata.*.elements()[1].*.elements()
@@ -194,10 +193,10 @@ function isBellow25 (person p) returns boolean {
 function testIgnoredValue () returns (string) {
     output = "";
     string[] s = ["abc", "cd", "pqr"];
-    _ = s.filter((string s) => boolean {return lengthof s == 3;})
-        .map((string s) => string {
-                 output = output + " " + s;
-                 return (s + s);
+    _ = s.filter((string ss) => boolean {return lengthof ss == 3;})
+    .map((string ss) => string {
+            output = output + " " + ss;
+            return (ss + ss);
              });
     return output.trim();
 }
@@ -211,7 +210,7 @@ function testInExpression () returns (string, int) {
     output = "";
     string[] s = ["abc", "cd", "pqr"];
     float[] r = [1.1, -2.2, 3.3, 4.4];
-    appendAny("total count " + s.filter((string s) => (boolean) {return lengthof s == 3;}).count());
+    appendAny("total count " + s.filter((string ss) => (boolean) {return lengthof ss == 3;}).count());
     int i = s.count() + r.count();
     return (output, i);
 }

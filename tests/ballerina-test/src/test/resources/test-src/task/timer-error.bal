@@ -8,9 +8,8 @@ function scheduleTimerWithError(int delay, int interval, string errMsg) {
     origErrMsg = errMsg;
     (function() returns error?) onTriggerFunction = triggerWithError;
     (function(error)) onErrorFunction = onError;
-    task:Timer t = new(onTriggerFunction, onErrorFunction, interval, delay = delay);
-    t.start();
-    timer = t;
+    timer = new task:Timer(onTriggerFunction, onErrorFunction, interval, delay = delay);
+    _ = timer.start();
 }
 
 function triggerWithError() returns error? {
