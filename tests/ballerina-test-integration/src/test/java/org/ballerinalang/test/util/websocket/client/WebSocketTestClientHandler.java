@@ -37,13 +37,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * WebSocket Client Handler for Testing.
  */
-public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
+public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Object> {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketTestClient.class);
 
     private final WebSocketClientHandshaker handshaker;
     private ChannelPromise handshakeFuture;
@@ -53,13 +54,18 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     private boolean isOpen;
     private boolean isPong;
     private boolean isPing;
+    private CountDownLatch countDownLatch = null;
 
-    public WebSocketClientHandler(WebSocketClientHandshaker handshaker) {
+    public WebSocketTestClientHandler(WebSocketClientHandshaker handshaker) {
         this.handshaker = handshaker;
     }
 
     public ChannelFuture handshakeFuture() {
         return handshakeFuture;
+    }
+
+    public void setCountDownLatch(CountDownLatch countDownLatch) {
+        this.countDownLatch = countDownLatch;
     }
 
     @Override
@@ -97,24 +103,33 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                             ", content=" + response.content().toString(CharsetUtil.UTF_8) + ')');
         }
 
-        WebSocketFrame frame = (WebSocketFrame) msg;
-        if (frame instanceof TextWebSocketFrame) {
-            TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-            textReceived = textFrame.text();
-        } else if (frame instanceof BinaryWebSocketFrame) {
-            BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) frame;
-            bufferReceived = binaryFrame.content().nioBuffer();
-        } else if (frame instanceof PingWebSocketFrame) {
-            PingWebSocketFrame pingFrame = (PingWebSocketFrame) frame;
-            isPing = true;
-            bufferReceived = pingFrame.content().nioBuffer();
-        } else if (frame instanceof PongWebSocketFrame) {
-            PongWebSocketFrame pongFrame = (PongWebSocketFrame) frame;
-            isPong = true;
-            bufferReceived = pongFrame.content().nioBuffer();
-        } else if (frame instanceof CloseWebSocketFrame) {
-            ch.close().sync();
-            isOpen = false;
+        if (msg instanceof WebSocketFrame) {
+            if (countDownLatch == null) {
+                throw new IllegalStateException("Cannot handle a WebSocket frame without a countdown latch.");
+            }
+
+            WebSocketFrame frame = (WebSocketFrame) msg;
+            if (frame instanceof TextWebSocketFrame) {
+                TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
+                textReceived = textFrame.text();
+            } else if (frame instanceof BinaryWebSocketFrame) {
+                BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) frame;
+                bufferReceived = binaryFrame.content().nioBuffer();
+            } else if (frame instanceof PingWebSocketFrame) {
+                PingWebSocketFrame pingFrame = (PingWebSocketFrame) frame;
+                isPing = true;
+                bufferReceived = pingFrame.content().nioBuffer();
+            } else if (frame instanceof PongWebSocketFrame) {
+                PongWebSocketFrame pongFrame = (PongWebSocketFrame) frame;
+                isPong = true;
+                bufferReceived = pongFrame.content().nioBuffer();
+            } else if (frame instanceof CloseWebSocketFrame) {
+                ch.close().sync();
+                isOpen = false;
+            }
+
+            countDownLatch.countDown();
+            countDownLatch = null;
         }
     }
 
