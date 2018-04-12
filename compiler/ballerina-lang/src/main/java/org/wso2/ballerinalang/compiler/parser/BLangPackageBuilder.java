@@ -1600,6 +1600,7 @@ public class BLangPackageBuilder {
         if (!bodyExists) {
             function.body = null;
             if (!nativeFunc) {
+                function.flagSet.add(Flag.INTERFACE);
                 function.interfaceFunction = true;
             }
         }

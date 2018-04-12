@@ -59,11 +59,6 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     }
 
     @Override
-    public boolean isInterfaceFunction() {
-        return interfaceFunction;
-    }
-
-    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }

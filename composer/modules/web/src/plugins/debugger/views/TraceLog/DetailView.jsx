@@ -17,51 +17,56 @@
  */
 
 import React from 'react';
-import { Segment, Icon, Accordion } from 'semantic-ui-react';
+import { Segment, Icon } from 'semantic-ui-react';
+import ReactJson from 'react-json-view';
+
+function isJson(text) {
+    if (typeof text !== 'string') {
+        return false;
+    }
+    try {
+        if (typeof JSON.parse(text) === 'string') {
+            return false;
+        }
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
 
 class DetailView extends React.Component {
-    constructor() {
-        super();
-        this.handleClick = this.handleClick.bind(this);
-
-        this.state = {
-            activeIndex: 0,
-        };
-    }
-
-    handleClick(e, titleProps) {
-        const { index } = titleProps;
-        const { activeIndex } = this.state;
-        const newIndex = activeIndex === index ? -1 : index;
-        this.setState({ activeIndex: newIndex });
-    }
-
     render() {
-        const { details, rawLog } = this.props;
-        const { activeIndex } = this.state;
-
+        const { meta } = this.props;
+        const payload = meta.payload;
         return (
             <Segment className='detail-view' inverted>
                 <Icon name='close' className='close' onClick={this.props.hideDetailView} />
-                <Accordion>
-                    <Accordion.Title index={0} onClick={this.handleClick} active={activeIndex === 0}>
-                        <Icon name='dropdown' />
-                        Headers
-                    </Accordion.Title>
-                    <Accordion.Content active={activeIndex === 0}>
-                        <code>{details}</code>
-                    </Accordion.Content>
-                    <Accordion.Title index={1} onClick={this.handleClick} active={activeIndex === 1}>
-                        <Icon name='dropdown' />
-                        Raw Log
-                    </Accordion.Title>
-                    <Accordion.Content active={activeIndex === 1}>
-                        <code>{JSON.stringify(rawLog)}</code>
-                    </Accordion.Content>
-                </Accordion>
+                <code>
+                    <pre>
+                        {meta.headers}
+                    </pre>
+                </code>
+                {
+                    meta.contentType === 'application/json' && isJson(payload) ?
+                        <ReactJson
+                            src={JSON.parse(payload)}
+                            theme='eighties'
+                            name={false}
+                            displayDataTypes={false}
+                            collapsed={1}
+                            displayObjectSize={false}
+                            style={{ marginTop: 10, background: 'inherit' }}
+                        /> : null
+                }
+
             </Segment>
         );
     }
 }
+
+
+DetailView.defaultProps = {
+
+};
 
 export default DetailView;
