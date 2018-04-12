@@ -137,8 +137,8 @@ public class BTestRunner {
 
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
             // compile
-            CompileResult compileResult = BCompileUtil
-                .compile(sourceRoot, sourcePackage.toString(), CompilerPhase.CODE_GEN);
+            CompileResult compileResult = BCompileUtil.compile(sourceRoot, sourcePackage.toString(),
+                CompilerPhase.CODE_GEN);
             // print errors
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
                 errStream.println(diagnostic.getKind() + ": " + diagnostic.getPosition() + " " + diagnostic
