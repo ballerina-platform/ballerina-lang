@@ -1432,6 +1432,7 @@ public class ProgramFileReader {
                 case InstructionCodes.AWAIT:
                 case InstructionCodes.CHECK_CONVERSION:
                 case InstructionCodes.XMLLOADALL:
+                case InstructionCodes.ARRAY2JSON:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1520,6 +1521,7 @@ public class ProgramFileReader {
                 case InstructionCodes.T2JSON:
                 case InstructionCodes.MAP2JSON:
                 case InstructionCodes.JSON2MAP:
+                case InstructionCodes.JSON2ARRAY:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
