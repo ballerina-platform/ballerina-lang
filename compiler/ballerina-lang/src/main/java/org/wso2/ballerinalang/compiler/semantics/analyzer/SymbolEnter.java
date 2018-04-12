@@ -132,6 +132,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private final BLangDiagnosticLog dlog;
     private final EndpointSPIAnalyzer endpointSPIAnalyzer;
+    private final Types types;
 
     private SymbolEnv env;
 
@@ -153,6 +154,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.endpointSPIAnalyzer = EndpointSPIAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.types = Types.getInstance(context);
 
         BLangPackage rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         rootPkgNode.symbol = symTable.rootPkgSymbol;
@@ -553,7 +555,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BInvokableType sourceType = (BInvokableType) funcNode.symbol.type;
-        if (Flags.asMask(funcNode.flagSet) != funcNode.symbol.flags) {
+        int flags = Flags.asMask(funcNode.flagSet);
+        if (((flags & Flags.NATIVE) != (funcNode.symbol.flags & Flags.NATIVE))
+                ||((flags & Flags.PUBLIC) != (funcNode.symbol.flags & Flags.PUBLIC))) {
             dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
             return;
         }
@@ -574,7 +578,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         if (funcNode.returnTypeNode.type.tag != sourceType.retType.tag) {
             dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
+            return;
         }
+        //Reset symbol flags to remove interface flag
+        funcNode.symbol.flags = funcNode.symbol.flags ^ Flags.INTERFACE;
     }
 
     private boolean typesMissMatch(List<BType> lhs, List<BType> rhs) {
@@ -583,7 +590,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         for (int i = 0; i < lhs.size(); i++) {
-            if (lhs.get(i) == rhs.get(i)) {
+            if (!types.isSameType(lhs.get(i), rhs.get(i))) {
                 return true;
             }
         }

@@ -499,4 +499,12 @@ public class ObjectTest {
                 "function 'test13' in the object 'Person'", 94, 1);
     }
 
+    @Test (description = "Negative test to test initializing objects with only interface functions")
+    public void testInitializingInterfaceObject() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_initialize_interface_object.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "cannot initialize object 'Person', " +
+                "no implementation for the interface 'Person.test'", 3, 16);
+    }
+
 }
