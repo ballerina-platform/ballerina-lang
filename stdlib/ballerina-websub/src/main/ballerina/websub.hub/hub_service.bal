@@ -57,7 +57,7 @@ service<http:Service> hubService bind hubServiceEP {
         string mode;
         string topic;
 
-        map params = request.getFormParams() but { mime:EntityError => {} };
+        map params = request.getFormParams() but { http:PayloadError => {} };
 
         if (params.hasKey(websub:HUB_MODE)) {
             mode = <string> params[websub:HUB_MODE];
