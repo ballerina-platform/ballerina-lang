@@ -64,9 +64,9 @@ public class JsonLogFormatterTest extends TestNG {
     public void testJsonLogFormat() {
         String formatterMessagePart = "[id: 0x65d56de4, correlatedSource: n/a, host:localhost/0:0:0:0:0:0:0:1:9090 - "
                 + "remote:/0:0:0:0:0:0:0:1:52872] OUTBOUND: DefaultFullHttpResponse(decodeResult: success, version: "
-                + "HTTP/1.1, content: CompositeByteBuf(ridx: 0, widx: 55, cap: 55, components=1)) , HTTP/1.1 200 OK , "
-                + "content-type: application/json , content-length: 55 , server: wso2-http-transport , date: Fri, "
-                + "16 Mar 2018 14:26:12 +0530, 55B , {\\\"message\\\":\\\"Max entity body size resource "
+                + "HTTP/1.1, content: CompositeByteBuf(ridx: 0, widx: 55, cap: 55, components=1))\\nHTTP/1.1 200 OK\\n"
+                + "content-type: application/json\\ncontent-length: 55\\nserver: wso2-http-transport\\ndate: Fri, "
+                + "16 Mar 2018 14:26:12 +0530, 55B\\n{\\\"message\\\":\\\"Max entity body size resource "
                 + "is invoked.\\\"}";
 
         String str = jsonLogFormatter.format(logRecord);

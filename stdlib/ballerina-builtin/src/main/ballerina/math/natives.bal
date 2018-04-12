@@ -38,10 +38,10 @@ public native function pow (float a, float b) returns (float);
 public native function random () returns (float);
 
 @Description {value:"Returns a random number between given start(inclusive) and end(exclusive) values"}
-@Param {value:"start: Range start value"}
-@Param {value:"end: Range end value"}
+@Param {value:"startRange: Range start value"}
+@Param {value:"endRange: Range end value"}
 @Return { value:"Random value"}
-public native function randomInRange (int start, int end) returns (int);
+public native function randomInRange (int startRange, int endRange) returns (int);
 
 @Description {value:"Returns rounded positive square root of the given value"}
 @Param {value:"val: Value to get square root"}

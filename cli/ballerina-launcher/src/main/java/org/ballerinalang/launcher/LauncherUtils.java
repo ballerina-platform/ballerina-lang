@@ -311,9 +311,9 @@ public class LauncherUtils {
 
             if (observeFlag) {
                 ConfigRegistry.getInstance()
-                        .addConfiguration(ObservabilityConstants.CONFIG_METRICS_ENABLED, String.valueOf(Boolean.TRUE));
+                        .addConfiguration(ObservabilityConstants.CONFIG_METRICS_ENABLED, Boolean.TRUE);
                 ConfigRegistry.getInstance()
-                        .addConfiguration(ObservabilityConstants.CONFIG_TRACING_ENABLED, String.valueOf(Boolean.TRUE));
+                        .addConfiguration(ObservabilityConstants.CONFIG_TRACING_ENABLED, Boolean.TRUE);
                 metricsParams.forEach(
                         (key, value) -> ConfigRegistry.getInstance()
                                 .addConfiguration(ObservabilityConstants.CONFIG_TABLE_METRICS + "." + key, value));

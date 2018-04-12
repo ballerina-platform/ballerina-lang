@@ -68,14 +68,14 @@ public type Span object {
 
     @Description {value:"Adds span headers when request chaining"}
     @Return {value:"The span context as a key value pair that should be passed out to an external function"}
-    public native function injectTraceContext (string traceGroup) returns map;
+    public native function injectSpanContext (string traceGroup) returns map;
 
     @Description {value:"Injects the span context the Request so it can be sent to another service"}
     @Param {value:"req: The http request used when calling an endpoint"}
     @Param {value:"traceGroup: The group that the span context is associated to"}
     @Return {value:"The http request which includes the span context related headers"}
-    public function injectTraceContextToHttpHeader (http:Request req, string traceGroup) returns http:Request {
-        map headers = self.injectTraceContext(traceGroup);
+    public function injectSpanContextToHttpHeader (http:Request req, string traceGroup) returns http:Request {
+        map headers = self.injectSpanContext(traceGroup);
         foreach key, v in headers {
             var value = <string>v;
             req.addHeader(key, value);
@@ -114,22 +114,22 @@ public function startSpan(string serviceName, string spanName, map | () tags, RE
 @Param {value:"headers: The map of headers"}
 @Param {value:"traceGroup: The kind of error. e.g. DBError"}
 @Return {value:"The SpanContext that was propogated from another service"}
-public native function extractTraceContext (map headers, string traceGroup) returns SpanContext;
+public native function extractSpanContext (map headers, string traceGroup) returns SpanContext;
 
 @Description {value:"Method to save the parent span and extract the span Id"}
 @Param {value:"req: The http request that contains the header maps"}
 @Param {value:"traceGroup: The group to which this span belongs to"}
 @Return {value:"The SpanContext that was propogated from another service"}
-public function extractTraceContextFromHttpHeader (http:Request req, string traceGroup) returns SpanContext {
+public function extractSpanContextFromHttpHeader (http:Request req, string traceGroup) returns SpanContext {
     map<string[]> headers;
     string[] headerNames = req.getHeaderNames();
     foreach headerName in headerNames {
         if (req.hasHeader(headerName)) {
-            string[] headerValues = req.getHeaders(headerName);
+            string[] headerValues = req.getHeaders(untaint headerName);
             headers[headerName] = headerValues;
         }
     }
-    return extractTraceContext(headers, traceGroup);
+    return extractSpanContext(headers, traceGroup);
 }
 
 @Description {value:"Start a root span which has no parent"}

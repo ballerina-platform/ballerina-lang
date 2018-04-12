@@ -39,7 +39,7 @@ import java.util.Set;
  * <p>This class can be used to push additional context variables for handlebars</p>
  */
 public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi, OpenAPI> {
-    private String apiPackage;
+    private String srcPackage;
     private String modelPackage;
     private String openapi = "3.0.0";
     private Info info = null;
@@ -152,9 +152,9 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
         }));
     }
 
-    public BallerinaOpenApi apiPackage(String apiPackage) {
-        if (apiPackage != null) {
-            this.apiPackage = apiPackage.replaceFirst("\\.", "/");
+    public BallerinaOpenApi srcPackage(String srcPackage) {
+        if (srcPackage != null) {
+            this.srcPackage = srcPackage.replaceFirst("\\.", "/");
         }
         return this;
     }
@@ -166,8 +166,8 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
         return this;
     }
 
-    public String getApiPackage() {
-        return apiPackage;
+    public String getSrcPackage() {
+        return srcPackage;
     }
 
     public String getModelPackage() {

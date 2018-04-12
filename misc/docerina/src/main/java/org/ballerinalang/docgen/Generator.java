@@ -456,7 +456,7 @@ public class Generator {
     public static String returnParamAnnotation(BLangNode node) {
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
             BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
-            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
+            if (bLangRecordLiteral == null || bLangRecordLiteral.getKeyValuePairs().size() != 1) {
                 continue;
             }
             if (annotation.getAnnotationName().getValue().equals("Return")) {
@@ -467,7 +467,7 @@ public class Generator {
 
         for (AnnotationAttachmentNode annotation : ((BLangFunction) node).getReturnTypeAnnotationAttachments()) {
             BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
-            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
+            if (bLangRecordLiteral == null || bLangRecordLiteral.getKeyValuePairs().size() != 1) {
                 continue;
             }
             if (annotation.getAnnotationName().getValue().equals("Return")) {

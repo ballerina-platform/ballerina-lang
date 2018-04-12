@@ -19,11 +19,11 @@
 package org.ballerinalang.net.websub.hub;
 
 import org.ballerinalang.BLangProgramRunner;
+import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.BrokerUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;

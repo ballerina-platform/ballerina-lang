@@ -19,6 +19,7 @@ import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,8 +52,9 @@ public class LSAnnotationCache {
     public static synchronized void initiate() {
         if (lsAnnotationCache == null) {
             lsAnnotationCache = new LSAnnotationCache();
-            List<BLangPackage> builtins = LSPackageLoader.getBuiltinPackages();
-            Map<String, BLangPackage> packages = LSPackageCache.getInstance().getPackageMap();
+            CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
+            List<BLangPackage> builtins = LSPackageLoader.getBuiltinPackages(context);
+            Map<String, BLangPackage> packages = LSPackageCache.getInstance(context).getPackageMap();
             builtins.forEach(bLangPackage -> packages.put(bLangPackage.packageID.getName().getValue(), bLangPackage));
             lsAnnotationCache.loadAnnotations(packages.values().stream().collect(Collectors.toList()));
         }

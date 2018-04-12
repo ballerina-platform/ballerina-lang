@@ -17,7 +17,6 @@ package org.ballerinalang.langserver;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,10 @@ import java.util.Map;
  */
 public class LSPackageCache {
 
-    private ExtendedPackageCache packageCache = null;
+    private static final CompilerContext.Key<LSPackageCache> LS_PACKAGE_CACHE_KEY =
+            new CompilerContext.Key<>();
+
+    private final ExtendedPackageCache packageCache;
     private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
 
     private static final String[] staticPkgNames = {"http", "http.swagger", "net.uri", "mime", "auth", "auth.authz",
@@ -41,23 +43,18 @@ public class LSPackageCache {
             "collections", "config", "sql", "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os",
             "reflect", "runtime", "security.crypto", "task", "time", "transactions", "user", "util"};
 
-    private static LSPackageCache lsPackageCache = null;
-
-    public static LSPackageCache getInstance() {
+    public static LSPackageCache getInstance(CompilerContext context) {
+        LSPackageCache lsPackageCache = context.get(LS_PACKAGE_CACHE_KEY);
+        if (lsPackageCache == null) {
+            lsPackageCache = new LSPackageCache(context);
+        }
         return lsPackageCache;
     }
-    
-    public static synchronized void initiate(LSGlobalContext lsGlobalContext) {
-        if (lsPackageCache == null) {
-            lsPackageCache = new LSPackageCache();
-            CompilerContext tempCompilerContext = CommonUtil.prepareTempCompilerContext();
-            lsPackageCache.packageCache = new ExtendedPackageCache(lsGlobalContext
-                    .get(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT));
-            loadPackagesMap(tempCompilerContext);
-        }
-    }
 
-    private LSPackageCache() {
+    private LSPackageCache(CompilerContext context) {
+        context.put(LS_PACKAGE_CACHE_KEY, this);
+        packageCache = new ExtendedPackageCache(context);
+//        loadPackagesMap(context);
     }
 
     /**
@@ -102,7 +99,7 @@ public class LSPackageCache {
         }
     }
     
-    private static void loadPackagesMap(CompilerContext tempCompilerContext) {
+    public static void loadPackagesMap(CompilerContext tempCompilerContext) {
         for (String staticPkgName : LSPackageCache.staticPkgNames) {
             PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
                     new org.wso2.ballerinalang.compiler.util.Name(staticPkgName),

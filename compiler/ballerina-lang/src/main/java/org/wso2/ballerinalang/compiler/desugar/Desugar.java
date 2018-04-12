@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
@@ -168,6 +169,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -359,13 +361,12 @@ public class Desugar extends BLangNodeVisitor {
         funcNode.endpoints = rewrite(funcNode.endpoints, fucEnv);
 
         //write closure vars
-        funcNode.closureVarList.stream()
-                .filter(var -> !funcNode.requiredParams.contains(var))
-                .forEach(var -> {
-                    BVarSymbol closureVarSymbol = var.symbol;
-                    closureVarSymbol.closure = true;
-                    funcNode.symbol.params.add(0, closureVarSymbol);
-                    ((BInvokableType) funcNode.symbol.type).paramTypes.add(0, closureVarSymbol.type);
+        funcNode.closureVarSymbols.stream()
+                .filter(symbol -> !isFunctionArgument(symbol, funcNode.symbol.params))
+                .forEach(symbol -> {
+                    symbol.closure = true;
+                    funcNode.symbol.params.add(0, symbol);
+                    ((BInvokableType) funcNode.symbol.type).paramTypes.add(0, symbol.type);
                 });
 
         funcNode.body = rewrite(funcNode.body, fucEnv);
@@ -382,6 +383,10 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         result = funcNode;
+    }
+
+    private boolean isFunctionArgument(BVarSymbol symbol, List<BVarSymbol> params) {
+        return params.stream().anyMatch(param -> (param.name.equals(symbol.name) && param.type.equals(symbol.type)));
     }
 
     @Override
@@ -1061,8 +1066,14 @@ public class Desugar extends BLangNodeVisitor {
             
             BType varRefType = fieldAccessExpr.expr.type;
             if (varRefType.tag == TypeTags.STRUCT) {
-                targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
-                        fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
+                if (fieldAccessExpr.symbol instanceof BInvokableSymbol &&
+                        ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
+                    targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr,
+                            (BVarSymbol) fieldAccessExpr.symbol);
+                } else {
+                    targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
+                            fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
+                }
             } else if (varRefType.tag == TypeTags.MAP) {
                 BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
                 targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
@@ -1431,6 +1442,11 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangStructFieldAccessExpr fieldAccessExpr) {
         result = fieldAccessExpr;
+    }
+
+    @Override
+    public void visit(BLangStructFunctionVarRef functionVarRef) {
+        result = functionVarRef;
     }
 
     @Override

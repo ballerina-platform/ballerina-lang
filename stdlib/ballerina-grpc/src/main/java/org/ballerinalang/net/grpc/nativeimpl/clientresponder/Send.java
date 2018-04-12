@@ -22,6 +22,7 @@ import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -30,7 +31,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
-import org.ballerinalang.net.grpc.MessageContext;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.RESPONSE_MESSAGE_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageContext.MESSAGE_CONTEXT_KEY;
+import static org.ballerinalang.net.grpc.MessageUtils.getContextHeader;
 
 /**
  * Native function to respond the caller.
@@ -56,7 +56,8 @@ import static org.ballerinalang.net.grpc.MessageContext.MESSAGE_CONTEXT_KEY;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_RESPONDER,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {
-                @Argument(name = "res", type = TypeKind.ANY)
+                @Argument(name = "res", type = TypeKind.ANY),
+                @Argument(name = "headers", type = TypeKind.ARRAY)
         },
         returnType = {
                 @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
@@ -66,28 +67,24 @@ import static org.ballerinalang.net.grpc.MessageContext.MESSAGE_CONTEXT_KEY;
 )
 public class Send extends BlockingNativeCallableUnit {
     private static final Logger LOG = LoggerFactory.getLogger(Send.class);
+    private static final int MESSAGE_HEADER_REF_INDEX = 2;
     
     @Override
     public void execute(Context context) {
         BStruct clientEndpoint = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
         BValue responseValue = context.getRefArgument(RESPONSE_MESSAGE_REF_INDEX);
+        BRefValueArray headerValues = (BRefValueArray) context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
         StreamObserver<Message> responseObserver = MessageUtils.getResponseObserver(clientEndpoint);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) clientEndpoint.getNativeData(MessageConstants
                 .RESPONSE_MESSAGE_DEFINITION);
-        // Set response headers.
-        if (context.getProperty(MESSAGE_CONTEXT_KEY) != null) {
-            io.grpc.Context msgContext = io.grpc.Context.current().withValue(MessageContext.DATA_KEY, (MessageContext)
-                    context.getProperty(MESSAGE_CONTEXT_KEY)).attach();
-            if (msgContext == null) {
-                LOG.error("Error while setting response headers. gRPC context is null");
-            }
-        }
+        io.grpc.Context msgContext = getContextHeader(headerValues);
 
         if (responseObserver == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                     .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
                     "response sender does not exist"))));
         } else {
+            io.grpc.Context previous = msgContext != null ? msgContext.attach() : null;
             try {
                 // If there is no response message like conn -> send(), system doesn't send the message.
                 if (!MessageUtils.isEmptyResponse(outputType)) {
@@ -97,6 +94,10 @@ public class Send extends BlockingNativeCallableUnit {
             } catch (Throwable e) {
                 LOG.error("Error while sending client response.", e);
                 context.setError(MessageUtils.getConnectorError(context, e));
+            } finally {
+                if (previous != null) {
+                    msgContext.detach(previous);
+                }
             }
         }
     }

@@ -399,7 +399,9 @@ class AbstractTreeUtil {
         return node.kind === 'PatternStreamingInput';
     }
 
-
+    isCheckExpr(node) {
+        return node.kind === 'CheckExpr';
+    }
 }
 
 export default AbstractTreeUtil;

@@ -352,7 +352,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return expTypes.stream()
                 .filter(type -> type.tag == TypeTags.JSON ||
                         type.tag == TypeTags.MAP ||
-                        type.tag == TypeTags.STRUCT ||
+                        (type.tag == TypeTags.STRUCT && type.tsymbol != null
+                                && type.tsymbol.kind == SymbolKind.RECORD) ||
                         type.tag == TypeTags.NONE ||
                         type.tag == TypeTags.ANY)
                 .collect(Collectors.toList());
@@ -388,10 +389,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
                 if (env.enclInvokable != null && env.enclInvokable.flagSet.contains(Flag.LAMBDA) &&
-                        env.enclEnv.enclEnv != null) {
-                    BLangVariable closureVar = symResolver.findClosureVar(env.enclEnv, symbol);
-                    if (closureVar != symTable.notFoundVariable) {
-                        ((BLangFunction) env.enclInvokable).closureVarList.add(closureVar);
+                        env.enclEnv.enclEnv != null && !(symbol.owner instanceof BPackageSymbol)) {
+                    BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(env.enclEnv,
+                            symbol.name, SymTag.VARIABLE_NAME);
+                    if (closureVarSymbol != symTable.notFoundSymbol &&
+                            !isFunctionArgument(closureVarSymbol, env.enclInvokable.requiredParams)) {
+                        ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
                     }
                 }
             } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
@@ -404,6 +407,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Check type compatibility
         resultType = types.checkType(varRefExpr, actualType, expType);
+    }
+
+    private boolean isFunctionArgument(BSymbol symbol, List<BLangVariable> params) {
+        return params.stream().anyMatch(param -> (param.symbol.name.equals(symbol.name) &&
+                param.type.equals(symbol.type)));
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
@@ -555,10 +563,17 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (actualType.tag != TypeTags.STRUCT) {
-            //TODO dlog error?
+            dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, actualType);
             resultType = symTable.errType;
             return;
         }
+
+        //TODO cache this in symbol as a flag?
+        ((BStructSymbol) actualType.tsymbol).attachedFuncs.forEach(f -> {
+            if ((f.symbol.flags & Flags.INTERFACE) == Flags.INTERFACE) {
+                dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_OBJECT, actualType.tsymbol, f.symbol);
+            }
+        });
 
         cIExpr.objectInitInvocation.symbol = ((BStructSymbol) actualType.tsymbol).initializerFunc.symbol;
         cIExpr.objectInitInvocation.type = symTable.nilType;
@@ -1490,8 +1505,15 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env,
                 fieldName, structType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
-            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
-            return symTable.errType;
+            // check if it is an attached function pointer call
+            Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(structType.tsymbol.name.value,
+                    fieldName.value));
+            fieldSymbol = symResolver.resolveObjectField(varReferExpr.pos, env, objFuncName, structType.tsymbol);
+
+            if (fieldSymbol == symTable.notFoundSymbol) {
+                dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
+                return symTable.errType;
+            }
         }
 
         // Setting the field symbol. This is used during the code generation phase

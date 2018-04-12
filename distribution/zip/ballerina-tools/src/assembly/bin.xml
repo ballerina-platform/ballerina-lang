@@ -38,7 +38,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/natives
+                ${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>

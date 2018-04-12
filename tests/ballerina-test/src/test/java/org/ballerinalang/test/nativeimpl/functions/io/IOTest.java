@@ -263,8 +263,6 @@ public class IOTest {
     public void testRecordOperationPermissionError() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample.csv";
         BStruct records;
-        BBoolean hasNextRecord;
-        int expectedRecordLength = 3;
 
         //Will initialize the channel with write permissions
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("w"), new BString("UTF-8"),
@@ -405,7 +403,7 @@ public class IOTest {
     private String readFileContent(String filePath) throws URISyntaxException {
         Path path = Paths.get(getAbsoluteFilePath(filePath));
         StringBuilder data = new StringBuilder();
-        Stream<String> lines = null;
+        Stream<String> lines;
         try {
             lines = Files.lines(path);
         } catch (IOException e) {

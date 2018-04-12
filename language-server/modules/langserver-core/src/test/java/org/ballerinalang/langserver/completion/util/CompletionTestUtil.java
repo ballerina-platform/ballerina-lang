@@ -20,13 +20,8 @@ package org.ballerinalang.langserver.completion.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.LSAnnotationCache;
-import org.ballerinalang.langserver.LSGlobalContext;
-import org.ballerinalang.langserver.LSGlobalContextKeys;
-import org.ballerinalang.langserver.LSPackageCache;
 import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
@@ -39,7 +34,6 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 
 import java.nio.file.Path;
@@ -122,16 +116,9 @@ public class CompletionTestUtil {
         LSServiceOperationContext completionContext = new LSServiceOperationContext();
         completionContext.put(DocumentServiceKeys.POSITION_KEY, pos);
         completionContext.put(DocumentServiceKeys.FILE_URI_KEY, pos.getTextDocument().getUri());
-        if (LSPackageCache.getInstance() != null) {
-            LSPackageCache.getInstance().clearCache();
-        }
-        LSGlobalContext lsGlobalContext = new LSGlobalContext();
-        CompilerContext globalCompilationContext = CommonUtil.prepareTempCompilerContext();
-        lsGlobalContext.put(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT, globalCompilationContext);
-        LSPackageCache.initiate(lsGlobalContext);
-        LSAnnotationCache.initiate();
+
         BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext,
-                documentManager, false, CompletionCustomErrorStrategy.class, false, lsGlobalContext)
+                documentManager, false, CompletionCustomErrorStrategy.class, false)
                 .get(0);
         completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                 bLangPackage.symbol.getName().getValue());

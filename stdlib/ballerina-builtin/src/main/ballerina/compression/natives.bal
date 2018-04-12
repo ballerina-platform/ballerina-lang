@@ -1,23 +1,35 @@
 package ballerina.compression;
 
-@Description {value:"Function to decompress compressed bytes"}
-@Param {value:"content: Byte array of the compressed file"}
-@Param {value:"destDir: Destination directory to place the decompressed file"}
-@Param {value:"folderToUnzip: Folder to unzip from the compressed bytes"}
-public native function unzipBytes (blob content, string destDir, string folderToUnzip);
+import ballerina/file;
 
-@Description {value:"Function to decompress a zipped file"}
-@Param {value:"content: Path of the zipped file"}
-@Param {value:"destDir: Destination directory to place the decompressed file"}
-@Param {value:"folderToUnzip: Folder to unzip from the compressed bytes"}
-public native function unzipFile (string dirPath, string destDir, string folderToUnzip);
+@Description {value:"Represent all compression related errors"}
+@Field {value:"message: The error message"}
+@Field {value:"cause: The error which caused the compression error"}
+public type CompressionError  {
+    string message,
+    error? cause,
+};
 
-@Description {value:"Function to compress a folder"}
+@Description {value:"Decompresses a blob into a directory"}
+@Param {value:"content: Blob of the compressed file"}
+@Param {value:"destDir: Path of the directory to decompress the file"}
+@Return {value:"An error if an error occurs during the decompression process"}
+public native function decompressFromBlob(blob content, file:Path destDir) returns (error);
+
+@Description {value:"Decompresses a compressed file"}
+@Param {value:"content: Path of the compressed file"}
+@Param {value:"destDir: Path of the directory to decompress the file"}
+@Return {value:"An error if an error occurs during the decompression process"}
+public native function decompress(file:Path dirPath, file:Path destDir) returns (error);
+
+@Description {value:"Compresses a directory"}
 @Param {value:"dirPath: Path of the directory to be compressed"}
-@Param {value:"destDir: Destination directory to place the compressed file"}
-public native function zipFile (string dirPath, string destDir);
+@Param {value:"destDir: Path of the directory to place the compressed file"}
+@Return {value:"An error if an error occurs during the compression process"}
+public native function compress(file:Path dirPath, file:Path destDir) returns (error);
 
-@Description {value:"Function to compress bytes"}
+@Description {value:"Compresses a directory into a blob"}
 @Param {value:"dirPath: Path of the directory to be compressed"}
-@Return {value:"Compressed bytes of the file"}
-public native function zipToBytes (string dirPath) returns (blob);
+@Return {value:"Compressed blob of the file"}
+@Return {value:"An error if an error occurs during the compression process"}
+public native function compressToBlob(file:Path dirPath) returns (blob|error);

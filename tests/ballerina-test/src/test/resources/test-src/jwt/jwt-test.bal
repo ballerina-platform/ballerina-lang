@@ -31,8 +31,10 @@ function testValidateJwt (string jwtToken) returns (boolean)|error {
     config.audience = "ballerinaSamples";
     var value = jwt:validate(jwtToken, config);
     match value {
-        jwt:Payload result => return true;
-        boolean isValid => return isValid;
+        (boolean, jwt:Payload) result => {
+        var (isValid, payload) = result;
+            return isValid;
+        }
         error err => return err;
     }
 }
