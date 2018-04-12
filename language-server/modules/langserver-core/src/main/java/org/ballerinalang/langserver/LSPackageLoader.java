@@ -31,6 +31,10 @@ import java.util.List;
  */
 public class LSPackageLoader {
 
+    public static final String[] staticPkgNames = {"http", "swagger", "mime", "auth", "caching", "config", "sql",
+            "file", "internal", "io", "jwt", "log", "math", "os", "reflect", "runtime", "security.crypto", "task",
+            "time", "transactions", "user", "util", "builtin"};
+
     /**
      * Get the Builtin Package.
      * @return {@link BLangPackage} Builtin BLang package
