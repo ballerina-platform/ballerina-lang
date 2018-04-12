@@ -26,7 +26,7 @@ import java.util.List;
 public abstract class Documentable {
     public final String name;
 
-    public final String icon;
+    public String icon;
 
     public final String description;
 
