@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
@@ -495,6 +496,8 @@ public class CPU {
                     case InstructionCodes.ANY2S:
                     case InstructionCodes.ANY2B:
                     case InstructionCodes.ANY2L:
+                    case InstructionCodes.ARRAY2JSON:
+                    case InstructionCodes.JSON2ARRAY:
                     case InstructionCodes.ANY2JSON:
                     case InstructionCodes.ANY2XML:
                     case InstructionCodes.ANY2MAP:
@@ -747,6 +750,7 @@ public class CPU {
         List<BClosure> closureVars = fp.getClosureVars();
         int[] argRegs = funcCallCPEntry.getArgRegs();
         if (closureVars.isEmpty()) {
+            argRegs = expandArgRegs(argRegs, functionInfo.getParamTypes());
             return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(), false);
         }
 
@@ -795,6 +799,18 @@ public class CPU {
         }
 
         return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, funcCallCPEntry.getRetRegs(), false);
+    }
+
+    private static int[] expandArgRegs(int[] argRegs, BType[] paramTypes) {
+        if (paramTypes.length == 0 || paramTypes.length == argRegs.length ||
+                TypeTags.STRUCT_TAG != paramTypes[0].getTag()) {
+            return argRegs;
+        }
+        int[] expandedArgs = new int[paramTypes.length];
+        // self object/struct param is always at the 0'th index
+        expandedArgs[0] = 0;
+        System.arraycopy(argRegs, 0, expandedArgs, 1, argRegs.length);
+        return expandedArgs;
     }
 
     private static int expandLongRegs(WorkerData sf, BFunctionPointer fp) {
@@ -2122,6 +2138,12 @@ public class CPU {
                 j = operands[1];
                 sf.stringRegs[j] = null;
                 break;
+            case InstructionCodes.ARRAY2JSON:
+                convertArrayToJSON(ctx, operands, sf);
+                break;
+            case InstructionCodes.JSON2ARRAY:
+                convertJSONToArray(ctx, operands, sf);
+                break;
             case InstructionCodes.CHECK_CONVERSION:
                 i = operands[0];
                 j = operands[1];
@@ -2967,6 +2989,10 @@ public class CPU {
         if (rhsValue == null) {
             return false;
         }
+        
+        if (lhsType.getTag() == TypeTags.UNION_TAG) {
+            return checkUnionCast(rhsValue, lhsType);
+        }
 
         BType rhsType = rhsValue.getType();
         if (rhsType.equals(lhsType)) {
@@ -2997,8 +3023,8 @@ public class CPU {
         }
 
         // Array casting
-        if (lhsType.getTag() == TypeTags.ARRAY_TAG || rhsType.getTag() == TypeTags.ARRAY_TAG) {
-            return checkArrayCast(rhsType, lhsType);
+        if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
+            return checkArrayCast((BNewArray) rhsValue, (BArrayType) lhsType);
         }
 
         // Check MAP casting
@@ -3020,8 +3046,11 @@ public class CPU {
                 lhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
             return true;
         }
-
-        // TODO Union types, tuple types
+        
+        if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
+            return checkTupleCast(rhsValue, lhsType);
+        }
+        
         return false;
     }
     
@@ -3064,14 +3093,19 @@ public class CPU {
         }
 
         // Array casting
-        if (lhsType.getTag() == TypeTags.ARRAY_TAG || rhsType.getTag() == TypeTags.ARRAY_TAG) {
-            return checkArrayCast(rhsType, lhsType);
+        if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
+            return checkArrayCast((BNewArray) rhsValue, (BArrayType) lhsType);
         }
 
         // Check MAP casting
         if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
             return checkMapCast(rhsType, lhsType);
         }
+        
+        // Check tuple casting
+        if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
+            return checkTupleCast(rhsValue, lhsType);
+        } 
 
         return false;
     }
@@ -3093,7 +3127,11 @@ public class CPU {
 
         return false;
     }
-
+    
+    private static boolean checkArrayCast(BNewArray sourceValue, BArrayType targetType) {
+        return checkArrayCast(sourceValue.getType(), targetType.getElementType());
+    }
+    
     private static boolean checkArrayCast(BType sourceType, BType targetType) {
         if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
             BArrayType sourceArrayType = (BArrayType) sourceType;
@@ -3108,6 +3146,21 @@ public class CPU {
         }
 
         return sourceType.equals(targetType);
+    }
+    
+    private static boolean checkTupleCast(BValue sourceValue, BType targetType) {
+        BRefValueArray source = (BRefValueArray) sourceValue;
+        BTupleType target = (BTupleType) targetType;
+        List<BType> targetTupleTypes = target.getTupleTypes();
+        if (source.size() != targetTupleTypes.size()) {
+            return false;
+        }
+        for (int i = 0; i < source.size(); i++) {
+            if (!checkCast(source.getBValue(i), targetTupleTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static BType getElementType(BType type) {
@@ -3550,6 +3603,46 @@ public class CPU {
             sf.refRegs[j] = JSONUtils.convertStructToJSON(bStruct, targetType);
         } catch (Exception e) {
             String errorMsg = "cannot convert '" + bStruct.getType() + "' to type '" + targetType + "': " +
+                    e.getMessage();
+            handleTypeConversionError(ctx, sf, j, errorMsg);
+        }
+    }
+    
+    private static void convertArrayToJSON(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
+        int i = operands[0];
+        int j = operands[1];
+
+        BNewArray bArray = (BNewArray) sf.refRegs[i];
+        if (bArray == null) {
+            handleNullRefError(ctx);
+            return;
+        }
+
+        try {
+            sf.refRegs[j] = JSONUtils.convertArrayToJSON(bArray);
+        } catch (Exception e) {
+            String errorMsg = "cannot convert '" + bArray.getType() + "' to type '" + BTypes.typeJSON + "': " +
+                    e.getMessage();
+            handleTypeConversionError(ctx, sf, j, errorMsg);
+        }
+    }
+    
+    private static void convertJSONToArray(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
+        int i = operands[0];
+        int cpIndex = operands[1];
+        int j = operands[2];
+        BArrayType targetType = (BArrayType) ((TypeRefCPEntry) ctx.constPool[cpIndex]).getType();
+
+        BJSON json = (BJSON) sf.refRegs[i];
+        if (json == null) {
+            handleNullRefError(ctx);
+            return;
+        }
+
+        try {
+            sf.refRegs[j] = (BRefType<?>) JSONUtils.convertJSON(json.value(), targetType);
+        } catch (Exception e) {
+            String errorMsg = "cannot convert '" + json.getType() + "' to type '" + targetType + "': " +
                     e.getMessage();
             handleTypeConversionError(ctx, sf, j, errorMsg);
         }

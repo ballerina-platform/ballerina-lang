@@ -68,8 +68,11 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     }
 
     private void fillContext(Parser parser, Token currentToken) {
+        // If the token index is overridden then we skip rest of the errors
+        if (overriddenTokenIndex) {
+            return;
+        }
         ParserRuleContext currentContext = parser.getContext();
-        overriddenTokenIndex = false;
         /*
         TODO: Specific check  is added in order to handle the completion inside an 
         endpoint context. This particular case need to remove after introducing a proper handling mechanism or with
@@ -114,8 +117,10 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         if (lastNonHiddenToken != null) {
             Token tokenBefore = CommonUtil.getPreviousDefaultToken(parser.getTokenStream(),
                     lastNonHiddenToken.getTokenIndex());
-            if (tokenBefore != null && UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY.equals(tokenBefore.getText())
-                    && parser.getContext() instanceof BallerinaParser.ServiceBodyContext) {
+            if (tokenBefore != null && ((UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY.equals(tokenBefore.getText())
+                    && parser.getContext() instanceof BallerinaParser.ServiceBodyContext)
+                    || (UtilSymbolKeys.IMPORT_KEYWORD_KEY.equals(tokenBefore.getText())
+                    && parser.getContext() instanceof BallerinaParser.ImportDeclarationContext))) {
                 overriddenTokenIndex = true;
                 this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, tokenBefore.getTokenIndex());
                 return true;

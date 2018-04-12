@@ -22,8 +22,6 @@ import io.grpc.Channel;
 import io.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.Message;
 
-import java.util.Map;
-
 import static io.grpc.stub.ClientCalls.blockingServerStreamingCall;
 import static io.grpc.stub.ClientCalls.blockingUnaryCall;
 
@@ -33,11 +31,9 @@ import static io.grpc.stub.ClientCalls.blockingUnaryCall;
  * @since 1.0.0
  */
 public class GrpcBlockingStub extends io.grpc.stub.AbstractStub<GrpcBlockingStub> {
-    private Map<String, MethodDescriptor<Message, Message>> descriptorMap;
 
-    public GrpcBlockingStub(Channel channel, Map<String, MethodDescriptor<Message, Message>> descriptorMap) {
+    public GrpcBlockingStub(Channel channel) {
         super(channel);
-        this.descriptorMap = descriptorMap;
     }
 
     private GrpcBlockingStub(Channel channel, CallOptions callOptions) {
@@ -53,12 +49,11 @@ public class GrpcBlockingStub extends io.grpc.stub.AbstractStub<GrpcBlockingStub
      * Executes server streaming call and blocks on the response.
      *
      * @param request  request message.
-     * @param methodID method name
+     * @param methodDescriptor method descriptor
      * @return  response message iterator.
      */
-    public java.util.Iterator<Message> executeServerStreaming(
-            Message request, String methodID) {
-        MethodDescriptor<Message, Message> methodDescriptor = descriptorMap.get(methodID);
+    public java.util.Iterator<Message> executeServerStreaming(Message request, MethodDescriptor<Message, Message>
+            methodDescriptor) {
         return blockingServerStreamingCall(
                 getChannel(), methodDescriptor, getCallOptions(), request);
     }
@@ -67,11 +62,10 @@ public class GrpcBlockingStub extends io.grpc.stub.AbstractStub<GrpcBlockingStub
      * Executes a unary call and blocks on the response.
      *
      * @param request  request message.
-     * @param methodID method name
+     * @param methodDescriptor method descriptor
      * @return the single response message.
      */
-    public Message executeUnary(Message request, String methodID) {
-        MethodDescriptor<Message, Message> methodDescriptor = descriptorMap.get(methodID);
+    public Message executeUnary(Message request, MethodDescriptor<Message, Message> methodDescriptor) {
         return blockingUnaryCall(getChannel(), methodDescriptor, getCallOptions(), request);
     }
 }

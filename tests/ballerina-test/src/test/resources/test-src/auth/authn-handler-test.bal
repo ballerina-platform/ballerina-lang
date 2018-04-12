@@ -1,8 +1,11 @@
 import ballerina/http;
 import ballerina/mime;
+import ballerina/auth;
 
 function testCanHandleHttpBasicAuthWithoutHeader () returns (boolean) {
-    http:HttpBasicAuthnHandler handler = new;
+    auth:ConfigAuthProvider configAuthProvider = new;
+    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
+    http:HttpBasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "123Basic xxxxxx";
     mime:Entity requestEntity = new;
@@ -12,7 +15,9 @@ function testCanHandleHttpBasicAuthWithoutHeader () returns (boolean) {
 }
 
 function testCanHandleHttpBasicAuth () returns (boolean) {
-    http:HttpBasicAuthnHandler handler = new;
+    auth:ConfigAuthProvider configAuthProvider = new;
+    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
+    http:HttpBasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic xxxxxx";
     mime:Entity requestEntity = new;
@@ -22,7 +27,9 @@ function testCanHandleHttpBasicAuth () returns (boolean) {
 }
 
 function testHandleHttpBasicAuthFailure () returns (boolean) {
-    http:HttpBasicAuthnHandler handler = new;
+    auth:ConfigAuthProvider configAuthProvider = new;
+    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
+    http:HttpBasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic YW1pbGE6cHFy";
     mime:Entity requestEntity = new;
@@ -32,7 +39,9 @@ function testHandleHttpBasicAuthFailure () returns (boolean) {
 }
 
 function testHandleHttpBasicAuth () returns (boolean) {
-    http:HttpBasicAuthnHandler handler = new;
+    auth:ConfigAuthProvider configAuthProvider = new;
+    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
+    http:HttpBasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
     mime:Entity requestEntity = new;

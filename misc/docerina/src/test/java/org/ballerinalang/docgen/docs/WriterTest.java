@@ -45,7 +45,7 @@ public class WriterTest {
         System.setOut(new PrintStream(outContent));
     }
     
-    @Test(description = "Test if writer class is working.")
+    @Test(description = "Test if writer class is working.", enabled = false)
     public void testWriter() {
         URL location = Writer.class.getProtectionDomain().getCodeSource().getLocation();
         String outputPath = location.getPath() + File.separator + "sample.html";
@@ -54,7 +54,7 @@ public class WriterTest {
                 "page", outputPath);
     }
     
-    @Test(description = "Test writer with invalid output path.")
+    @Test(description = "Test writer with invalid output path.", enabled = false)
     public void testWriterWithInvalidPath() {
         URL location = Writer.class.getProtectionDomain().getCodeSource().getLocation();
         String outputPath = location.getPath();

@@ -31,7 +31,6 @@ public type Filter object {
 
     public function init ();
     public function terminate ();
-
 };
 
 @Description {value:"Representation of filter Context."}
@@ -58,15 +57,3 @@ public type FilterResult {
     int statusCode;
     string message;
 };
-
-@Description {value:"Initializes the filter"}
-public function Filter::init () {
-    error e = {message:"Not implemented"};
-    throw e;
-}
-
-@Description {value:"Stops the filter"}
-public function Filter::terminate () {
-    error e = {message:"Not implemented"};
-    throw e;
-}

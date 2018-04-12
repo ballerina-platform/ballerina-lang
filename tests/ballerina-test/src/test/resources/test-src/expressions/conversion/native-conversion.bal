@@ -716,3 +716,143 @@ function testStructArrayConversion2() returns T2 {
     return b[0];
 }
 
+public type T3 {
+  int x,
+  int y,
+};
+
+public type O1 object {
+  public {
+    int x;
+    int y;
+  }
+};
+
+public type O2 object {
+  public {
+    int x;
+    int y;
+    int z;
+  }
+};
+
+function testObjectRecordConversion1() returns T3 {
+    O1 a;
+    T3 b;
+    a = <O1> b;
+    b = <T3> a;
+    return b;
+}
+
+function testObjectRecordConversion2() returns T3 {
+    O2 a;
+    T3 b;
+    b = <T3> a;
+    return b;
+}
+
+function testObjectRecordConversion3() returns O2 {
+    O2 a;
+    T3 b;
+    b = <T3> a;
+    a = check <O2> b;
+    return a;
+}
+
+function testObjectRecordConversionFail() {
+    O2 a;
+    T3 b;
+    a = check <O2> b;
+}
+
+function testTupleConversion1() returns (T1, T1) {
+    T1 a;
+    T2 b;
+    (T1, T2) x = (a, b);
+    (T1, T1) x2;
+    any y = x;
+    x2 = check <(T1, T1)> y;
+    return x2;
+}
+
+function testTupleConversion2() returns (int, string) {
+    (int, string) x = (10, "XX");
+    any y = x;
+    x = check <(int, string)> y;
+    return x;
+}
+
+function testTupleConversionFail() {
+    T1 a;
+    T1 b;
+    (T1, T1) x = (a, b);
+    (T1, T2) x2;
+    any y = x;
+    x2 = check <(T1, T2)> y;
+}
+
+function testArrayToJson1() returns json {
+    int[] x;
+    x[0] = 10;
+    x[1] = 15;
+    json j = check <json> x;
+    return j;
+}
+
+function testArrayToJson2() returns json {
+    T1[] x;
+    T1 a;
+    T1 b;
+    a.x = 10;
+    b.x = 15;
+    x[0] = a;
+    x[1] = b;
+    json j = check <json> x;
+    return j;
+}
+
+public type TX {
+  int x,
+  int y,
+  blob b,
+};
+
+function testArrayToJsonFail() {
+    TX[] x;
+    TX a;
+    TX b;
+    a.x = 10;
+    b.x = 15;
+    x[0] = a;
+    x[1] = b;
+    json j = check <json> x;
+}
+
+function testJsonToArray1() returns T1[] {
+    T1[] x;
+    x[0] = {};
+    x[0].x = 10;
+    json j = check <json> x;
+    x = check <T1[]> j;
+    return x;
+}
+
+function testJsonToArray2() returns int[] {
+    json j = [];
+    j[0] = 1;
+    j[1] = 2;
+    j[2] = 3;
+    int[] x = check <int[]> j;
+    return x;
+}
+
+function testJsonToArrayFail() {
+    json j = {};
+    j.x = 1;
+    j.y = 1.5;
+    int[] x = check <int[]> j;
+}
+
+
+
+
