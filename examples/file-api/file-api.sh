@@ -5,4 +5,3 @@ Iterating through directory content
 ./tmp/src
 File Details, test.txt yyyy-mm-dd
 Folder deleted successfully
-
