@@ -43,11 +43,11 @@ public class JMSConnectorTestCase extends IntegrationTestCase {
 
     @Test(description = "Test JMS Connector Queue consumer producer")
     public void testQueueConsumerProducer() throws Exception {
-        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("jms-queue-consumer.bal",
+        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("jms_queue_consumer.bal",
                                                                              "Message : Test Text");
         serviceHandler.start();
 
-        BallerinaClientHandler clientHandler = new BallerinaClientHandler("jms-queue-producer.bal",
+        BallerinaClientHandler clientHandler = new BallerinaClientHandler("jms_queue_producer.bal",
                                                                           "Message successfully sent by QueueSender");
         clientHandler.start();
 
@@ -60,12 +60,12 @@ public class JMSConnectorTestCase extends IntegrationTestCase {
 
     @Test(description = "Test JMS Connector topic subscriber producer")
     public void testTopicSubscriberPublisher() throws Exception {
-        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("jms-topic-subscriber.bal",
+        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("jms_topic_subscriber.bal",
                                                                              "Message : Test Text");
         serviceHandler.start();
 
         BallerinaClientHandler clientHandler
-                = new BallerinaClientHandler("jms-topic-publisher.bal",
+                = new BallerinaClientHandler("jms_topic_publisher.bal",
                                              "Message successfully sent by TopicPublisher");
         clientHandler.start();
 
@@ -78,13 +78,31 @@ public class JMSConnectorTestCase extends IntegrationTestCase {
 
     @Test(description = "Test JMS Connector durable topic subscriber producer")
     public void testDurableTopicSubscriberPublisher() throws Exception {
-        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("jms-durable-topic-subscriber.bal",
+        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("jms_durable_topic_subscriber.bal",
                                                                              "Message : Test Text");
         serviceHandler.start();
 
         BallerinaClientHandler clientHandler
-                = new BallerinaClientHandler("jms-durable-topic-publisher.bal",
+                = new BallerinaClientHandler("jms_durable_topic_publisher.bal",
                                              "Message successfully sent by DurableTopicPublisher");
+        clientHandler.start();
+
+        serviceHandler.waitForText(TimeUnit.SECONDS, 20);
+        clientHandler.waitForText(TimeUnit.SECONDS, 20);
+
+        serviceHandler.stop();
+        clientHandler.stop();
+    }
+
+    @Test(description = "Test JMS Connector simple queue receiver and producer")
+    public void testJmsSimpleQueueReceiverProducer() throws Exception {
+        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("jms_simple_queue_consumer.bal",
+                                                                             "Message : Test Text");
+        serviceHandler.start();
+
+        BallerinaClientHandler clientHandler
+                = new BallerinaClientHandler("jms_simple_queue_producer.bal",
+                                             "Message successfully sent by jms:SimpleQueueSender");
         clientHandler.start();
 
         serviceHandler.waitForText(TimeUnit.SECONDS, 20);
@@ -96,13 +114,31 @@ public class JMSConnectorTestCase extends IntegrationTestCase {
 
     @Test(description = "Test MB Connector simple queue receiver and producer")
     public void testMbSimpleQueueReceiverProducer() throws Exception {
-        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("mb-simple-queue-consumer.bal",
+        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("mb_simple_queue_consumer.bal",
                                                                              "Message : Test Text");
         serviceHandler.start();
 
         BallerinaClientHandler clientHandler
-                = new BallerinaClientHandler("mb-simple-queue-producer.bal",
+                = new BallerinaClientHandler("mb_simple_queue_producer.bal",
                                              "Message successfully sent by mb:SimpleQueueSender");
+        clientHandler.start();
+
+        serviceHandler.waitForText(TimeUnit.SECONDS, 20);
+        clientHandler.waitForText(TimeUnit.SECONDS, 20);
+
+        serviceHandler.stop();
+        clientHandler.stop();
+    }
+
+    @Test(description = "Test MB Connector simple topic subscriber and publisher")
+    public void testMbSimpleTopicSubscriberPublisher() throws Exception {
+        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("mb_simple_topic_subscriber.bal",
+                                                                             "Message : Test Text");
+        serviceHandler.start();
+
+        BallerinaClientHandler clientHandler
+                = new BallerinaClientHandler("mb_simple_topic_publisher.bal",
+                                             "Message successfully sent by mb:SimpleTopicPublisher");
         clientHandler.start();
 
         serviceHandler.waitForText(TimeUnit.SECONDS, 20);
