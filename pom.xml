@@ -811,6 +811,11 @@
                 <artifactId>broker-core</artifactId>
                 <version>${broker.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.ballerina.messaging</groupId>
+                <artifactId>broker-amqp</artifactId>
+                <version>${broker.version}</version>
+            </dependency>
 
             <!-- Observability dependency-->
             <dependency>
