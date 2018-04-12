@@ -7,20 +7,19 @@ endpoint http:APIListener listener {
 };
 
 @http:ServiceConfig {
-      basePath:"/echo"
-}
-
-@auth:Config {
-    authentication:{enabled:true},
-    scopes:["xxx"]
+    basePath:"/echo",
+    authConfig:{
+        authentication:{enabled:true},
+        scopes:["xxx"]
+    }
 }
 service<http:Service> echo bind listener {
     @http:ResourceConfig {
         methods:["GET"],
-        path:"/test"
-    }
-    @auth:Config {
-        scopes:["scope2", "scope4"]
+        path:"/test",
+        authConfig:{
+            scopes:["scope2", "scope4"]
+        }
     }
     echo (endpoint client, http:Request req) {
         http:Response res = new;

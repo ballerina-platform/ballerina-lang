@@ -105,6 +105,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -529,7 +530,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Analyze the init expression
         BLangExpression rhsExpr = varNode.expr;
         if (rhsExpr == null) {
-            if (varNode.symbol.owner.tag == SymTag.PACKAGE && !types.defaultValueExists(varNode.type)) {
+            if (varNode.symbol.owner.tag == SymTag.PACKAGE && !types.defaultValueExists(varNode.pos, varNode.type)) {
                 dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
             }
             return;
@@ -570,7 +571,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Check whether variable is initialized, if the type don't support default values.
         // eg: struct types.
-        if (varDefNode.var.expr == null && !types.defaultValueExists(varDefNode.var.type)) {
+        if (varDefNode.var.expr == null && !types.defaultValueExists(varDefNode.pos, varDefNode.var.type)) {
             dlog.error(varDefNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varDefNode.var.name);
         }
     }
@@ -903,7 +904,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void validateConstructorAndCheckDefaultable(BLangObject objectNode) {
         boolean defaultableStatus = true;
         for (BLangVariable field : objectNode.fields) {
-            if (field.expr != null || types.defaultValueExists(field.symbol.type)) {
+            if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
                 continue;
             }
             defaultableStatus = false;
@@ -927,7 +928,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void validateDefaultable(BLangRecord recordNode) {
         boolean defaultableStatus = true;
         for (BLangVariable field : recordNode.fields) {
-            if (field.expr != null || types.defaultValueExists(field.symbol.type)) {
+            if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
                 continue;
             }
             defaultableStatus = false;
@@ -1468,6 +1469,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTableLiteral tableLiteral) {
+        /* ignore */
+    }
+
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         /* ignore */
     }
 

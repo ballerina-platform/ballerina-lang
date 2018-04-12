@@ -19,7 +19,7 @@
 package org.ballerinalang.util.tracer;
 
 import io.opentracing.Span;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.ObservableContext;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,9 +57,9 @@ public class BSpan {
      */
     private String actionName = DEFAULT_ACTION_NAME;
     /**
-     * Active Ballerina {@link WorkerExecutionContext}.
+     * Active Ballerina {@link ObservableContext}.
      */
-    private WorkerExecutionContext executionContext = null;
+    private ObservableContext observableContext = null;
     /**
      * Map of spans belongs to each open tracer.
      */
@@ -73,10 +73,10 @@ public class BSpan {
 
     }
 
-    public BSpan(WorkerExecutionContext executionContext, boolean isClientContext) {
+    public BSpan(ObservableContext observableContext, boolean isClientContext) {
         this.properties = new HashMap<>();
         this.tags = new HashMap<>();
-        this.executionContext = executionContext;
+        this.observableContext = observableContext;
         this.isRoot = !isClientContext;
         this.tags.put(TraceConstants.TAG_KEY_SPAN_KIND, isClientContext
                 ? TraceConstants.TAG_SPAN_KIND_CLIENT
@@ -84,7 +84,7 @@ public class BSpan {
     }
 
     public void startSpan() {
-        manager.startSpan(executionContext);
+        manager.startSpan(observableContext);
     }
 
     public void finishSpan() {

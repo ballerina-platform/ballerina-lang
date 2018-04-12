@@ -151,7 +151,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         }
 
         if (port == HTTP_DEFAULT_PORT && configRegistry.contains("ballerina.http.port")) {
-            port = Long.parseLong(configRegistry.getConfiguration("ballerina.http.port"));
+            port = Long.parseLong(configRegistry.getAsString("ballerina.http.port"));
         }
         listenerConfiguration.setPort(Math.toIntExact(port));
 

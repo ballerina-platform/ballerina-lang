@@ -23,6 +23,7 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -891,6 +892,24 @@ public class SQLDatasourceUtils {
             return TypeKind.STRUCT;
         default:
             return TypeKind.NONE;
+        }
+    }
+
+    public static String getSQLType(BType value) {
+        int tag = value.getTag();
+        switch (tag) {
+        case TypeTags.INT_TAG:
+            return Constants.SQLDataTypes.INTEGER;
+        case TypeTags.STRING_TAG:
+            return Constants.SQLDataTypes.VARCHAR;
+        case TypeTags.FLOAT_TAG:
+            return Constants.SQLDataTypes.DOUBLE;
+        case TypeTags.BOOLEAN_TAG:
+            return Constants.SQLDataTypes.BOOLEAN;
+        case TypeTags.BLOB_TAG:
+            return Constants.SQLDataTypes.BLOB;
+        default:
+            throw new BallerinaException("unsupported data type for struct parameter: " + value.getName());
         }
     }
 

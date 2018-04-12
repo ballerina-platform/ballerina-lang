@@ -1524,8 +1524,15 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env,
                 fieldName, structType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
-            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
-            return symTable.errType;
+            // check if it is an attached function pointer call
+            Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(structType.tsymbol.name.value,
+                    fieldName.value));
+            fieldSymbol = symResolver.resolveObjectField(varReferExpr.pos, env, objFuncName, structType.tsymbol);
+
+            if (fieldSymbol == symTable.notFoundSymbol) {
+                dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
+                return symTable.errType;
+            }
         }
 
         // Setting the field symbol. This is used during the code generation phase

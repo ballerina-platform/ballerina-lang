@@ -82,7 +82,7 @@ lambdaFunction
     ;
 
 callableUnitSignature
-    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
+    :   anyIdentifierName LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
     ;
 
 typeDefinition
@@ -141,7 +141,7 @@ objectFunctionDefinition
 
 //TODO merge with callableUnitSignature later
 objectCallableUnitSignature
-    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
+    :   anyIdentifierName LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
     ;
 
 
@@ -483,7 +483,7 @@ xmlAttrib
     ;
 
 functionInvocation
-    : nameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    : functionNameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocation
@@ -501,7 +501,7 @@ invocationArg
     ;
 
 actionInvocation
-    : ASYNC? nameReference RARROW functionInvocation
+    : START? nameReference RARROW functionInvocation
     ;
 
 expressionList
@@ -572,7 +572,7 @@ expression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   tableLiteral                                                        # tableLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
-    |   ASYNC? variableReference                                            # variableReferenceExpression
+    |   START? variableReference                                            # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
@@ -611,6 +611,10 @@ matchExpressionPatternClause
 
 nameReference
     :   (Identifier COLON)? Identifier
+    ;
+
+functionNameReference
+    :   (Identifier COLON)? anyIdentifierName
     ;
 
 returnParameter
@@ -767,6 +771,7 @@ anyIdentifierName
 reservedWord
     :   FOREACH
     |   TYPE_MAP
+    |   START
     ;
 
 
@@ -860,7 +865,7 @@ outputRateLimit
     ;
 
 patternStreamingInput
-    :   patternStreamingEdgeInput FOLLOWED BY patternStreamingInput
+    :   patternStreamingEdgeInput ( FOLLOWED BY | COMMA ) patternStreamingInput
     |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
     |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR simpleLiteral)
     |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput

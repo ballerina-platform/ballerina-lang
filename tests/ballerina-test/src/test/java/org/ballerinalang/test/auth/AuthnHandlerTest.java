@@ -41,7 +41,7 @@ public class AuthnHandlerTest {
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         //Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         Path ballerinaConfPath = Paths
-                .get(resourceRoot, "datafiles", "config", "auth", "basicauth", "userstore", BALLERINA_CONF);
+                .get(resourceRoot, "datafiles", "config", "auth", "configauthprovider", BALLERINA_CONF);
 
         //compileResult = BCompileUtil.compile(sourceRoot.resolve("authn-handler-test.bal").toString());
         compileResult = BCompileUtil.compileAndSetup("test-src/auth/authn-handler-test.bal");

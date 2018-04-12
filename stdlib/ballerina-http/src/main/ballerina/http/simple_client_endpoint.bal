@@ -76,7 +76,7 @@ documentation {
     F{{chunking}} - The chunking behaviour of the request
     F{{followRedirects}} - Redirect related options
     F{{retry}} - Retry related options
-    F{{proxyConfig}} - Proxy related options
+    F{{proxy}} - Proxy related options
     F{{connectionThrottling}} - The configurations for controlling the number of connections allowed concurrently
     F{{cache}} - The configurations for controlling the caching behaviour
 }
@@ -87,12 +87,12 @@ public type SimpleClientEndpointConfiguration {
     int timeoutMillis = 60000,
     string httpVersion = "1.1",
     string forwarded = "disable",
-    boolean keepAlive = true,
+    KeepAlive keepAlive = KEEPALIVE_AUTO,
     TransferEncoding transferEncoding = "CHUNKING",
     Chunking chunking = "AUTO",
     FollowRedirects? followRedirects,
     Retry? retry,
-    Proxy? proxyConfig,
+    ProxyConfig? proxy,
     ConnectionThrottling? connectionThrottling,
     CacheConfig cache = {},
 };
@@ -122,7 +122,7 @@ public function SimpleClient::init(SimpleClientEndpointConfiguration simpleConfi
     self.httpEP.config.chunking = simpleConfig.chunking;
     self.httpEP.config.followRedirects = simpleConfig.followRedirects;
     self.httpEP.config.retry = simpleConfig.retry;
-    self.httpEP.config.proxyConfig = simpleConfig.proxyConfig;
+    self.httpEP.config.proxy = simpleConfig.proxy;
     self.httpEP.config.connectionThrottling = simpleConfig.connectionThrottling;
 
     var cbConfig = simpleConfig.circuitBreaker;
@@ -135,7 +135,7 @@ public function SimpleClient::init(SimpleClientEndpointConfiguration simpleConfi
                 self.httpEP.config.cache = simpleConfig.cache;
                 self.httpEP.httpClient = createHttpCachingClient(url, self.httpEP.config, self.httpEP.config.cache);
             } else {
-                self.httpEP.httpClient = createHttpClient(url, self.httpEP.config);
+                self.httpEP.httpClient = createHttpSecureClient(url, self.httpEP.config);
             }
         }
     }

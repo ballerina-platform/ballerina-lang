@@ -29,16 +29,12 @@ type TwoPhaseCommitTransaction object {
         boolean isInitiated; // Indicates whether this is a transaction that was initiated or is participated in
         map<Participant> participants;
         Protocol[] coordinatorProtocols;
-        int createdTime;
-        TransactionState state;
+        int createdTime = time:currentTime().time;
+        TransactionState state = TXN_STATE_ACTIVE;
         boolean possibleMixedOutcome;
     }
 
-    new(transactionId, transactionBlockId, string coordinationType = "2pc") {
-        self.createdTime = time:currentTime().time;
-        self.coordinationType = coordinationType;
-        self.state =  TXN_STATE_ACTIVE;
-    }
+    new(transactionId, transactionBlockId, coordinationType = "2pc") {}
 
     // This function will be called by the initiator
     function twoPhaseCommit() returns string|error {
