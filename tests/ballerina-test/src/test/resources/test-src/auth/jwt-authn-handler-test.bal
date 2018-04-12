@@ -2,7 +2,6 @@ import ballerina/http;
 import ballerina/mime;
 import ballerina/auth;
 
-
 function testCanHandleHttpJwtAuthWithoutHeader () returns (boolean) {
     http:HttpJwtAuthnHandler handler = new(createJwtAuthProvider());
     http:Request request = createRequest ();

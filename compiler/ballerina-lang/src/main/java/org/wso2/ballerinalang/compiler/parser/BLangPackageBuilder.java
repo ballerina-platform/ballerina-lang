@@ -2607,11 +2607,14 @@ public class BLangPackageBuilder {
     public void addIntRangeExpression(DiagnosticPos pos,
                                       Set<Whitespace> ws,
                                       boolean includeStart,
-                                      boolean includeEnd) {
+                                      boolean includeEnd,
+                                      boolean noUpperBound) {
         BLangIntRangeExpression intRangeExpr = (BLangIntRangeExpression) TreeBuilder.createIntRangeExpression();
         intRangeExpr.pos = pos;
         intRangeExpr.addWS(ws);
-        intRangeExpr.endExpr = (BLangExpression) this.exprNodeStack.pop();
+        if (!noUpperBound) {
+            intRangeExpr.endExpr = (BLangExpression) this.exprNodeStack.pop();
+        }
         intRangeExpr.startExpr = (BLangExpression) this.exprNodeStack.pop();
         intRangeExpr.includeStart = includeStart;
         intRangeExpr.includeEnd = includeEnd;
@@ -3069,8 +3072,9 @@ public class BLangPackageBuilder {
     }
 
     public void endPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isFollowedBy,
-            boolean enclosedInParenthesis, boolean andWithNotAvailable, boolean forWithNotAvailable,
-            boolean onlyAndAvailable, boolean onlyOrAvailable, boolean commaSeparated) {
+                                             boolean enclosedInParenthesis, boolean andWithNotAvailable,
+                                             boolean forWithNotAvailable, boolean onlyAndAvailable,
+                                             boolean onlyOrAvailable, boolean commaSeparated) {
         if (!this.patternStreamingInputStack.empty()) {
             PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.pop();
 
@@ -3106,7 +3110,7 @@ public class BLangPackageBuilder {
             }
 
             if (!(isFollowedBy || enclosedInParenthesis || forWithNotAvailable ||
-                  onlyAndAvailable || onlyOrAvailable || andWithNotAvailable || commaSeparated)) {
+                    onlyAndAvailable || onlyOrAvailable || andWithNotAvailable || commaSeparated)) {
                 patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
                 this.recentStreamingPatternInputNode = patternStreamingInputNode;
             }
@@ -3291,7 +3295,7 @@ public class BLangPackageBuilder {
         pattern.expr = (BLangExpression) this.exprNodeStack.pop();
         pattern.pos = pos;
         pattern.addWS(ws);
-        
+
         identifier = identifier == null ? Names.IGNORE.value : identifier;
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;

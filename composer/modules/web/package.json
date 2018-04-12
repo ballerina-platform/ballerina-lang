@@ -5,6 +5,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "cross-env NODE_ENV=production webpack --config webpack.config.js",
+    "build-library": "cross-env NODE_ENV=production webpack --config webpack.config.composer-library.js",
     "build-electron": "cross-env NODE_ENV=electron webpack --config webpack.config.js",
     "dev": "npm run clean && webpack-dev-server --hot --inline --progress",
     "dev-electron": "cross-env NODE_ENV=electron-dev webpack-dev-server --hot --inline --progress",

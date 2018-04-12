@@ -47,7 +47,8 @@ caching:Cache httpClientCache = new;
 
 function scheduleTimer (int delay, int interval) returns boolean {
     (function() returns error?) onTriggerFunction = cleanupTransactions;
-    _ = task:scheduleTimer(onTriggerFunction, (), {delay:delay, interval:interval});
+    task:Timer timer = new(onTriggerFunction, (), interval, delay = delay);
+    timer.start();
     return true;
 }
 

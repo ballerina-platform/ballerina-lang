@@ -120,10 +120,9 @@ public class H2ClientActionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testUpdateInMemory");
         Assert.assertEquals(returns.length, 2);
         BInteger retValue = (BInteger) returns[0];
-        BString retValue2 = (BString) returns[1];
         Assert.assertEquals(retValue.intValue(), 1);
-        Assert.assertEquals(retValue2.stringValue(),
-                "[{\"customerId\":15,\"name\":\"Anne\",\"creditLimit\":1000.0,\"country\":\"UK\"}]");
+        Assert.assertEquals(returns[1].stringValue(),
+                "[{\"customerId\":15,\"name\":\"Anne\",\"creditLimit\":1000.0," + "\"country\":\"UK\"}]");
     }
 
     @Test
