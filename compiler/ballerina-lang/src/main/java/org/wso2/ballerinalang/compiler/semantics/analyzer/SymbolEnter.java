@@ -557,7 +557,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BInvokableType sourceType = (BInvokableType) funcNode.symbol.type;
         int flags = Flags.asMask(funcNode.flagSet);
         if (((flags & Flags.NATIVE) != (funcNode.symbol.flags & Flags.NATIVE))
-                ||((flags & Flags.PUBLIC) != (funcNode.symbol.flags & Flags.PUBLIC))) {
+                || ((flags & Flags.PUBLIC) != (funcNode.symbol.flags & Flags.PUBLIC))) {
             dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
             return;
         }
