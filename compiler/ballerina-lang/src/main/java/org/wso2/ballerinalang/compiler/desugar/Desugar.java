@@ -1543,6 +1543,7 @@ public class Desugar extends BLangNodeVisitor {
 
         for (int i = 0; i < bLangMatchExpression.patternClauses.size(); i++) {
             BLangMatchExprPatternClause pattern = bLangMatchExpression.patternClauses.get(i);
+            pattern.expr = rewriteExpr(pattern.expr);
 
             // Create var ref for the temp result variable
             // eg: var ref for 'a'
@@ -2362,17 +2363,46 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void addMatchExprDefaultCase(BLangMatchExpression bLangMatchExpression) {
-        boolean defaultCaseExists = bLangMatchExpression.getPatternClauses()
-                .stream()
-                .anyMatch(pattern -> bLangMatchExpression.type == pattern.variable.type);
-        if (defaultCaseExists) {
+        List<BType> possibleTypes;
+        List<BType> unhandledTypes = new ArrayList<>();
+
+        if (bLangMatchExpression.expr.type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) bLangMatchExpression.expr.type;
+            possibleTypes = new ArrayList<>(unionType.memberTypes);
+        } else {
+            possibleTypes = Lists.of(bLangMatchExpression.type);
+        }
+
+        // find the types that do not appear in the patterns given.
+        boolean assignable = false;
+        for (BType type : possibleTypes) {
+            for (BLangMatchExprPatternClause pattern : bLangMatchExpression.patternClauses) {
+                if (this.types.isAssignable(type, pattern.variable.type)) {
+                    assignable = true;
+                    break;
+                }
+            }
+
+            if (!assignable) {
+                unhandledTypes.add(type);
+            }
+        }
+
+        if (unhandledTypes.isEmpty()) {
             return;
+        }
+
+        BType defaultPatternType;
+        if (unhandledTypes.size() == 1) {
+            defaultPatternType = unhandledTypes.get(0);
+        } else {
+            defaultPatternType = new BUnionType(null, new LinkedHashSet<>(unhandledTypes), false);
         }
 
         String patternCaseVarName = GEN_VAR_PREFIX.value + "t_match_default";
         BLangVariable patternMatchCaseVar = ASTBuilderUtil.createVariable(bLangMatchExpression.pos, patternCaseVarName,
-                bLangMatchExpression.type, null, new BVarSymbol(0, names.fromString(patternCaseVarName),
-                        this.env.scope.owner.pkgID, bLangMatchExpression.type, this.env.scope.owner));
+                defaultPatternType, null, new BVarSymbol(0, names.fromString(patternCaseVarName),
+                        this.env.scope.owner.pkgID, defaultPatternType, this.env.scope.owner));
 
         BLangMatchExprPatternClause defaultPattern =
                 (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
@@ -2380,6 +2410,14 @@ public class Desugar extends BLangNodeVisitor {
         defaultPattern.expr = ASTBuilderUtil.createVariableRef(bLangMatchExpression.pos, patternMatchCaseVar.symbol);
         defaultPattern.pos = bLangMatchExpression.pos;
         bLangMatchExpression.patternClauses.add(defaultPattern);
+    }
+
+    private void addIfNotHandled(BType sourceType, List<BType> typeList) {
+        for (BType type : typeList) {
+            if (this.types.isAssignable(sourceType, type)) {
+
+            }
+        }
     }
 
     private boolean safeNavigate(BLangAccessExpression accessExpr) {
