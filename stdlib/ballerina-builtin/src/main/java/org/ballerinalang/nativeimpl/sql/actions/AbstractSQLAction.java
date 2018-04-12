@@ -236,6 +236,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             setConnectionAutoCommit(conn, false);
             if (parameters != null) {
                 paramArrayCount = (int) parameters.size();
+                if (paramArrayCount == 0) {
+                    stmt.addBatch();
+                }
                 for (int index = 0; index < paramArrayCount; index++) {
                     BRefValueArray params = (BRefValueArray) parameters.get(index);
                     BRefValueArray generatedParams  = constructParameters(context, params);
