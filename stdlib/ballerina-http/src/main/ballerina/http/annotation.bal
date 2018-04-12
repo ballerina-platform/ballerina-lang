@@ -72,7 +72,7 @@ public type Versioning {
 public type WSServiceConfig {
     Listener[] endpoints,
     WebSocketListener[] webSocketEndpoints,
-    string basePath,
+    string path,
     string[] subProtocols,
     int idleTimeoutInSeconds,
 };

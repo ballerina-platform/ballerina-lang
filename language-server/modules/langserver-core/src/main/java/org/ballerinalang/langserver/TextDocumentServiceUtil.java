@@ -55,6 +55,7 @@ import java.util.regex.Pattern;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.langserver.LSContextManager.COMPILER_LOCK;
 
 /**
  * Compilation unit builder is for building ballerina compilation units.
@@ -268,13 +269,16 @@ public class TextDocumentServiceUtil {
                 File projectDir = new File(sourceRoot);
                 File[] files = projectDir.listFiles();
                 if (files != null) {
-                    for (File file : files) {
-                        if ((file.isDirectory() && !file.getName().startsWith(".")) ||
-                                (!file.isDirectory() && file.getName().endsWith(".bal"))) {
-                            PackageID packageID = new PackageID(fileName);
-                            Compiler compiler = getCompiler(context, fileName, packageID, packageRepository,
-                                    sourceDocument, preserveWhitespace, customErrorStrategy, docManager);
-                            packages.add(compiler.compile(file.getName()));
+                    synchronized (COMPILER_LOCK) {
+                        for (File file : files) {
+                            if ((file.isDirectory() && !file.getName().startsWith(".")) ||
+                                    (!file.isDirectory() && file.getName().endsWith(".bal"))) {
+                                PackageID packageID = new PackageID(fileName);
+                                Compiler compiler = getCompiler(context, fileName, packageID, packageRepository,
+                                                                sourceDocument, preserveWhitespace, customErrorStrategy,
+                                                                docManager);
+                                packages.add(compiler.compile(file.getName()));
+                            }
                         }
                     }
                 }
@@ -288,8 +292,11 @@ public class TextDocumentServiceUtil {
                 packageID = new PackageID(Names.ANON_ORG, new Name(pkgName), Names.DEFAULT_VERSION);
             }
             Compiler compiler = getCompiler(context, fileName, packageID, packageRepository, sourceDocument,
-                    preserveWhitespace, customErrorStrategy, docManager);
-            packages.add(compiler.compile(pkgName));
+                                            preserveWhitespace, customErrorStrategy, docManager);
+            synchronized (COMPILER_LOCK) {
+                packages.add(compiler.compile(pkgName));
+            }
+
         }
         return packages;
     }

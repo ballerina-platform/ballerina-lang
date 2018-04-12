@@ -87,17 +87,18 @@ public class HtmlDocTest {
     
     @Test(description = "Connectors in a package should be shown in the constructs")
     public void testConnectors() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " + "@Description {value:\"GitHub client " +
-                "connector\"}\n" + "public type TestConnector object {\n" + "    public {\n" + "        string url;" +
-                "\n" + "  " +
-                "      string path;\n" + "    }\n" + "\n" + "    @Description {value: \"Test Connector action " +
-                "testAction.\"}\n" + "    @Return {value:\"whether successful or not\"}\n" + "    public function " +
-                "testAction() returns boolean;\n" + "\n" + "    @Description {value: \"Test Connector action testSend" +
-                ".\"}\n" + "    @Param {value: \"ep: endpoint url\"}\n" + "    @Return {value:\"whether successful or" +
-                " not\"}\n" + "    public function testSend(string ep) returns boolean;\n" + "};");
+        BLangPackage bLangPackage = createPackage("package x.y; " + "@Connector\n@Description {value:\"GitHub client"
+                + " " + "connector\"}\n" + "public type TestConnector object {\n" + "    public {\n" + "        " +
+                "string url;" + "\n" + "  " + "      string path;\n" + "    }\n" + "\n" + "    @Description {value: " +
+                "\"Test Connector action " + "testAction.\"}\n" + "    @Return {value:\"whether successful or " +
+                "not\"}\n" + "    public function " + "testAction() returns boolean;\n" + "\n" + "    @Description " +
+                "{value: \"Test Connector action testSend" + ".\"}\n" + "    @Param {value: \"ep: endpoint url\"}\n"
+                + "    @Return {value:\"whether successful or" + " not\"}\n" + "    public function testSend(string " +
+                "ep) returns boolean;\n" + "};");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "TestConnector");
+        Assert.assertEquals(page.constructs.get(0).icon, "fw-connector");
         Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
         ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
         Assert.assertEquals(connectorDoc.parameters.size(), 2);
@@ -106,13 +107,51 @@ public class HtmlDocTest {
         Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
         FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
         Assert.assertEquals(functionDoc1.name, "testAction", "Invalid function name testAction");
+        Assert.assertEquals(functionDoc1.icon, "fw-action", "testAction function is not detected as an action");
         Assert.assertEquals(functionDoc1.parameters.size(), 0);
         Assert.assertEquals(functionDoc1.returnParams.get(0).toString(), "boolean", "Invalid return type");
         Assert.assertEquals(functionDoc1.returnParams.get(0).description, "whether successful or not");
 
         FunctionDoc functionDoc2 = (FunctionDoc) connectorDoc.children.get(1);
         Assert.assertEquals(functionDoc2.name, "testSend", "Invalid function name testSend");
+        Assert.assertEquals(functionDoc2.icon, "fw-action", "testSend function is not detected as an action");
         Assert.assertEquals(functionDoc2.parameters.size(), 1);
+        Assert.assertEquals(functionDoc2.parameters.get(0).description, "endpoint url");
+        Assert.assertEquals(functionDoc2.returnParams.get(0).toString(), "boolean", "Invalid return type");
+        Assert.assertEquals(functionDoc2.returnParams.get(0).description, "whether successful or not");
+    }
+
+    @Test(description = "Objects in a package should be shown in the constructs")
+    public void testObjects() throws Exception {
+        BLangPackage bLangPackage = createPackage("package x.y; " + "@Description {value:\"Object Test\"}\n" +
+                "public " + "type Test object {\n" + "    public {\n" + "        " + "string url;" + "\n" + "  " + " " +
+                "" + "     string path;\n" + "    }\n" + "\n" + "    @Description {value: " + "\"Test Object function" +
+                " " + "test1.\"}\n" + "    @Return {value:\"whether successful or " + "not\"}\n" + "    public " +
+                "function " + "test1() returns boolean;\n" + "\n" + "    @Description " + "{value: \"Test Object " +
+                "function test2" + ".\"}\n" + "    @Param {value: \"ep: endpoint url\"}\n" + "    @Return " +
+                "{value:\"whether successful " + "or" + " not\"}\n" + "    public function test2(string " + "ep) " +
+                "returns boolean;\n" + "};");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 1);
+        Assert.assertEquals(page.constructs.get(0).name, "Test");
+        Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
+        Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
+        ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
+        Assert.assertEquals(connectorDoc.parameters.size(), 2);
+        Assert.assertEquals(connectorDoc.parameters.get(0).toString(), "string url");
+        Assert.assertEquals(connectorDoc.children.size(), 2);
+        Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
+        FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
+        Assert.assertEquals(functionDoc1.name, "test1", "Invalid function name. Should be test1");
+        Assert.assertEquals(functionDoc1.icon, "fw-function", "test1 function is not detected as a function");
+        Assert.assertEquals(functionDoc1.parameters.size(), 0);
+        Assert.assertEquals(functionDoc1.returnParams.get(0).toString(), "boolean", "Invalid return type");
+        Assert.assertEquals(functionDoc1.returnParams.get(0).description, "whether successful or not");
+
+        FunctionDoc functionDoc2 = (FunctionDoc) connectorDoc.children.get(1);
+        Assert.assertEquals(functionDoc2.name, "test2", "Invalid function name test2");
+        Assert.assertEquals(functionDoc2.parameters.size(), 1);
+        Assert.assertEquals(functionDoc2.icon, "fw-function", "test2 function is not detected as a function");
         Assert.assertEquals(functionDoc2.parameters.get(0).description, "endpoint url");
         Assert.assertEquals(functionDoc2.returnParams.get(0).toString(), "boolean", "Invalid return type");
         Assert.assertEquals(functionDoc2.returnParams.get(0).description, "whether successful or not");
