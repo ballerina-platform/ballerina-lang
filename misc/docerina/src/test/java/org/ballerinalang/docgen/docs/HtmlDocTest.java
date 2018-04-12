@@ -431,11 +431,7 @@ public class HtmlDocTest {
      * @return BLangPackage
      */
     private BLangPackage createPackage(String source) {
-        LSGlobalContext lsGlobalContext = new LSGlobalContext();
-        CompilerContext compilerContext = CommonUtil.prepareTempCompilerContext();
-        lsGlobalContext.put(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT, compilerContext);
-        LSPackageCache.initiate(lsGlobalContext);
-        BallerinaFile ballerinaFile = LSParserUtils.compile(source, CompilerPhase.DEFINE, lsGlobalContext);
+        BallerinaFile ballerinaFile = LSParserUtils.compile(source, CompilerPhase.DEFINE);
         return ballerinaFile.getBLangPackage();
     }
 
