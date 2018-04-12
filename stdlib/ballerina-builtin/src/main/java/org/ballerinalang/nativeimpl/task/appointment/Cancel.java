@@ -42,5 +42,6 @@ public class Cancel extends BlockingNativeCallableUnit {
         BStruct task = (BStruct) ctx.getRefArgument(0);
         String taskId = task.getStringField(0);
         TaskRegistry.getInstance().stopTask(taskId);
+        task.setBooleanField(0, 0);
     }
 }
