@@ -18,11 +18,11 @@
 
 package org.ballerinalang.test.services.basics;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -30,49 +30,50 @@ import org.testng.annotations.Test;
  *
  * @since 0.95.6
  */
-@Test(groups = {"broken"})
 public class SignatureTest {
 
     private CompileResult compileResult;
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "resource signature parameter count should be >= 2")
     public void testSignatureWithSingleParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/no-request-param.bal").getPath());
-        BServiceUtil.runService(compileResult);
+
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
+                            "resource signature parameter count should be >= 2");
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "first parameter should be of type ballerina/http:ServerConnector")
     public void testSignatureWithoutConnectionParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/no-con-param.bal").getPath());
-        BServiceUtil.runService(compileResult);
+
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
+                            "first parameter should be of type ballerina.http:Listener");
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "second parameter should be of type ballerina/http:Request")
     public void testSignatureWithResponseParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/with-res-param.bal").getPath());
-        BServiceUtil.runService(compileResult);
+
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
+                            "second parameter should be of type ballerina.http:Request");
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "second parameter should be of type ballerina/http:Request")
     public void testSignatureWithIntParamAsSecondParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/int-param.bal").getPath());
-        BServiceUtil.runService(compileResult);
+
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
+                            "second parameter should be of type ballerina.http:Request");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible resource signature parameter type.*")
     public void testSignatureWithBooleanParamAsThirdParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/boolean-param.bal").getPath());
-        BServiceUtil.runService(compileResult);
+        Assert.assertEquals(compileResult.getErrorCount(), 0);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,

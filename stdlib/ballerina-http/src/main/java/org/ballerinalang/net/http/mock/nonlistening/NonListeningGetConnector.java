@@ -34,7 +34,7 @@ import org.ballerinalang.net.http.serviceendpoint.GetClient;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getClient",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListener",
                 structPackage = "ballerina.http"),
         returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true

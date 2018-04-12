@@ -39,7 +39,7 @@ public type ServiceStub object {
         P{{methodID}} - remote procedure call id.
         P{{payload}} - Any type of request payload.
     }
-    public native function blockingExecute (string methodID, any payload) returns (any | ConnectorError);
+    public native function blockingExecute (string methodID, any payload, Headers... headers) returns ((any,Headers)|ConnectorError);
 
     documentation {
         Non Blocking execute function implementation of the gRPC client stub.
@@ -48,8 +48,8 @@ public type ServiceStub object {
         P{{payload}} - Any type of request payload.
         P{{listenerService}} - call back listener service.
     }
-    public native function nonBlockingExecute (string methodID, any payload, typedesc listenerService) returns
-    (ConnectorError);
+    public native function nonBlockingExecute (string methodID, any payload, typedesc listenerService, Headers... headers) returns (ConnectorError);
+
 
     documentation {
         Blocking execute function implementation of the gRPC client stub.
@@ -57,10 +57,9 @@ public type ServiceStub object {
         P{{methodID}} - remote procedure call id.
         P{{listenerService}} - call back listener service.
     }
-    public native function streamingExecute (string methodID, typedesc listenerService) returns (Client |
-            ConnectorError);
-};
+    public native function streamingExecute (string methodID, typedesc listenerService, Headers... headers) returns (Client|ConnectorError);
 
+};
 
 documentation {
     Represents the gRPC client connector connection.
@@ -79,17 +78,17 @@ public type ClientConnection object {
 
         P{{res}} - The inbound request message.
     }
-    public native function send (any res) returns (ConnectorError);
+    public native function send (any res, Headers... headers) returns (ConnectorError);
 
     documentation {
         Informs the server, caller finished sending messages.
     }
-    public native function complete () returns (ConnectorError);
+    public native function complete (Headers... headers) returns (ConnectorError);
 
     documentation {
         Sends error response to the server.
 
         P{{clientError}} - error message.
     }
-    public native function errorResponse (ClientError clientError) returns (ConnectorError);
+    public native function errorResponse (ClientError clientError, Headers... headers) returns (ConnectorError);
 };

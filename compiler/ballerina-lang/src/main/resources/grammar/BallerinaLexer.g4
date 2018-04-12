@@ -118,12 +118,11 @@ RETRIES     : 'retries' ;
 ONABORT     : 'onabort' ;
 ONCOMMIT    : 'oncommit' ;
 LENGTHOF    : 'lengthof' ;
-TYPEOF      : 'typeof' ;
 WITH        : 'with' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
 UNTAINT     : 'untaint' ;
-ASYNC       : 'async' ;
+START       : 'start' ;
 AWAIT       : 'await' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
@@ -793,7 +792,7 @@ DocumentationTemplateText
 
 fragment
 DocumentationTemplateStringChar
-    :   ~[`{}\\FPTRV]
+    :   ~[`{}\\FPTRVE]
     |   '\\' [{}`]
     |   WS
     |   DocumentationEscapedSequence
@@ -801,7 +800,7 @@ DocumentationTemplateStringChar
 
 fragment
 AttributePrefix
-    :   [FPTRV]
+    :   [FPTRVE]
     ;
 
 fragment
@@ -816,9 +815,9 @@ DocumentationEscapedSequence
 
 fragment
 DocumentationValidCharSequence
-     :  [FPTRV] ~[`{}\\]
-     |  [FPTRV] '\\' [{}`]
-     |  [FPTRV] '\\' ~[{}`]
+     :  [FPTRVE] ~[`{}\\]
+     |  [FPTRVE] '\\' [{}`]
+     |  [FPTRVE] '\\' ~[{}`]
      |  '\\' ~'\\'
      ;
 

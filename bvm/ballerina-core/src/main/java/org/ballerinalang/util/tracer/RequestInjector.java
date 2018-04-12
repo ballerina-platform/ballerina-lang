@@ -20,6 +20,7 @@ package org.ballerinalang.util.tracer;
 
 import io.opentracing.propagation.TextMap;
 
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -29,10 +30,8 @@ import java.util.Map;
 public class RequestInjector implements TextMap {
 
     private final Map<String, String> carrier;
-    private final String prefix;
 
-    public RequestInjector(String prefix, Map<String, String> carrier) {
-        this.prefix = prefix;
+    public RequestInjector(Map<String, String> carrier) {
         this.carrier = carrier;
     }
 
@@ -44,6 +43,12 @@ public class RequestInjector implements TextMap {
 
     @Override
     public void put(String key, String value) {
-        carrier.put(prefix + key, value);
+        carrier.put(key, value);
+    }
+
+    public String getCarrierString() {
+        byte[] encoded = Base64.getEncoder()
+                .encode(carrier.toString().substring(1, carrier.toString().length() - 1).getBytes());
+        return new String(encoded);
     }
 }

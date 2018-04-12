@@ -17,16 +17,8 @@ public type Request object {
         string httpVersion;
         string userAgent;
         string extraPathInfo;
-        RequestCacheControl cacheControl;
+        RequestCacheControl? cacheControl;
     }
-
-    @Description {value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct."}
-    @Return {value:"HTTP Session record type"}
-    public native function createSessionIfAbsent() returns (Session);
-
-    @Description {value:"Gets the Session struct from the connection if it is present"}
-    @Return {value:"The HTTP Session record type assoicated with the request"}
-    public native function getSession() returns (Session);
 
     @Description {value:"Set the entity to request"}
     @Return {value:"Entity of the request"}
@@ -82,12 +74,20 @@ public type Request object {
     @Description {value:"Removes all transport headers from the message"}
     public function removeAllHeaders ();
 
-    @Description {value:"Get all transport headers from the request. Manipulating the return map does not have any impact to the original copy"}
-    public function getCopyOfAllHeaders () returns (map);
+    @Description {value:"Get all transport header names from the request."}
+    public function getHeaderNames () returns (string[]);
 
     @Description {value:"Checks whether the client expects a 100-continue response."}
     @Return {value:"Returns true if the client expects a 100-continue response. If not, returns false."}
     public function expects100Continue () returns (boolean);
+
+    @Description {value:"Set the content-type header to request"}
+    @Param {value:"contentType: Content type value that needs to be set to Content-Type header"}
+    public function setContentType (string contentType);
+
+    @Description {value:"Get the content-type value from the request"}
+    @Return {value:"Returns the content-type header value as a string."}
+    public function getContentType () returns (string?);
 
     @Description {value:"Gets the request payload in JSON format"}
     @Return {value:"The JSON reresentation of the message payload or 'PayloadError' in case of errors"}
@@ -106,17 +106,17 @@ public type Request object {
     public function getBinaryPayload () returns (blob | PayloadError);
 
     @Description {value:"Get the request payload as a byte channel except for multiparts. In case of multiparts,
-    please use 'getMultiparts()' instead."}
+    please use 'getBodyParts()' instead."}
     @Return {value:"A byte channel as the message payload or 'PayloadError' in case of errors"}
     public function getByteChannel () returns (io:ByteChannel | PayloadError);
 
     @Description {value:"Gets the form parameters from the HTTP request as a map"}
     @Return {value:"The map of form params or 'PayloadError' in case of errors"}
-    public function getFormParams () returns (map | PayloadError);
+    public function getFormParams () returns (map<string> | PayloadError);
 
     @Description {value:"Get multiparts from request"}
     @Return {value:"Returns the body parts as an array of entities"}
-    public function getMultiparts () returns (mime:Entity[] | mime:EntityError);
+    public function getBodyParts () returns (mime:Entity[] | mime:EntityError);
 
     @Description {value:"Sets a JSON as the request payload"}
     @Param {value:"payload: The JSON payload to be set to the request"}
@@ -137,7 +137,7 @@ public type Request object {
     @Description {value:"Set multiparts as the request payload"}
     @Param {value:"bodyParts: Represent body parts that needs to be set to the request"}
     @Param {value:"contentType: Content type of the top level message"}
-    public function setMultiparts (mime:Entity[] bodyParts, string contentType);
+    public function setBodyParts (mime:Entity[] bodyParts, string contentType);
 
     @Description {value:"Sets the entity body of the request with the given file content"}
     @Param {value:"filePath: Path to the file that needs to be set to the payload"}
@@ -147,6 +147,10 @@ public type Request object {
     @Description {value:"Set a byte channel as the request payload"}
     @Param {value:"payload: The byte channel representation of the message payload"}
     public function setByteChannel (io:ByteChannel payload);
+
+    @Description {value:"Set the request payload"}
+    @Param {value:"payload: Payload can be of type string, xml, json, blob or byte channel"}
+    public function setPayload ((string | xml | json | blob | io:ByteChannel | mime:Entity[]) payload);
 
     function parseCacheControlHeader();
 };
@@ -190,13 +194,25 @@ public function Request::removeAllHeaders () {
     entity.removeAllHeaders();
 }
 
-public function Request::getCopyOfAllHeaders () returns (map) {
+public function Request::getHeaderNames () returns (string[]) {
     mime:Entity entity = self.getEntityWithoutBody();
-    return entity.getCopyOfAllHeaders();
+    return entity.getHeaderNames();
 }
 
 public function Request::expects100Continue () returns (boolean) {
     return self.hasHeader(EXPECT) ? self.getHeader(EXPECT) ==  "100-continue" : false;
+}
+
+public function Request::setContentType (string contentType) {
+    mime:Entity entity = self.getEntityWithoutBody();
+    entity.setHeader(mime:CONTENT_TYPE, contentType);
+}
+
+public function Request::getContentType () returns (string?) {
+    if (self.hasHeader(mime:CONTENT_TYPE)) {
+        return self.getHeader(mime:CONTENT_TYPE);
+    }
+    return ();
 }
 
 public function Request::getJsonPayload () returns (json | PayloadError) {
@@ -259,13 +275,13 @@ public function Request::getByteChannel () returns (io:ByteChannel | PayloadErro
     }
 }
 
-public function Request::getFormParams () returns (map | PayloadError) {
+public function Request::getFormParams () returns (map<string> | PayloadError) {
     var mimeEntity = self.getEntity();
     match mimeEntity {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity entity => {
 
-            map parameters;
+            map<string> parameters;
             var entityText = entity.getText();
             match entityText {
                 mime:EntityError txtErr => return <PayloadError>txtErr; // TODO: Check if this is ok
@@ -294,7 +310,7 @@ public function Request::getFormParams () returns (map | PayloadError) {
     }
 }
 
-public function Request::getMultiparts () returns (mime:Entity[] | mime:EntityError) {
+public function Request::getBodyParts () returns (mime:Entity[] | mime:EntityError) {
     var mimeEntity = self.getEntity();
     match mimeEntity {
         mime:Entity entity => return entity.getBodyParts();
@@ -330,7 +346,7 @@ public function Request::setBinaryPayload (blob payload) {
     self.setEntity(entity);
 }
 
-public function Request::setMultiparts (mime:Entity[] bodyParts, string contentType) {
+public function Request::setBodyParts (mime:Entity[] bodyParts, @sensitive string contentType) {
     mime:Entity entity = self.getEntityWithoutBody();
     mime:MediaType mediaType = getMediaTypeFromRequest(self, mime:MULTIPART_MIXED);
     if (contentType != null && contentType != "") {
@@ -341,7 +357,7 @@ public function Request::setMultiparts (mime:Entity[] bodyParts, string contentT
     self.setEntity(entity);
 }
 
-public function Request::setFileAsPayload (file:Path filePath, string contentType) {
+public function Request::setFileAsPayload (file:Path filePath, @sensitive string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setFileAsEntityBody(filePath);
@@ -355,11 +371,17 @@ public function Request::setByteChannel (io:ByteChannel payload) {
     self.setEntity(entity);
 }
 
+public function Request::setPayload ((string | xml | json | blob | io:ByteChannel | mime:Entity[]) payload) {
+    mime:Entity entity = self.getEntityWithoutBody();
+    entity.setBody(payload);
+    self.setEntity(entity);
+}
+
 @Description {value:"Construct MediaType struct from the content-type header value"}
 @Param {value:"request: The outbound request message"}
 @Param {value:"defaultContentType: Default content-type to be used in case the content-type header doesn't contain any value"}
 @Return {value:"Return 'MediaType' struct"}
-function getMediaTypeFromRequest (Request request, string defaultContentType) returns (mime:MediaType) {
+function getMediaTypeFromRequest (Request request, @sensitive string defaultContentType) returns (mime:MediaType) {
     mime:MediaType mediaType = mime:getMediaType(defaultContentType);
 
     if (request.hasHeader(mime:CONTENT_TYPE)) {

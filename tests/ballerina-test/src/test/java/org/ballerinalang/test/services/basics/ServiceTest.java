@@ -32,6 +32,7 @@ import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.test.utils.ResponseReader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -116,18 +117,18 @@ public class ServiceTest {
         Assert.assertEquals(responseMsgPayload, "hello");
     }
 
-    @Test(description = "Test accessing service level variable in resource")
-    public void testGetServiceLevelString() {
-        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/getServiceLevelString", "GET");
-        HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
-        Assert.assertNotNull(responseMsg);
-
-        String responseMsgPayload = StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        StringDataSource stringDataSource = new StringDataSource(responseMsgPayload);
-        Assert.assertNotNull(stringDataSource);
-        Assert.assertEquals(stringDataSource.getValue(), "sample value");
-    }
+//    @Test(description = "Test accessing service level variable in resource")
+//    public void testGetServiceLevelString() {
+//        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/getServiceLevelString", "GET");
+//        HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+//        Assert.assertNotNull(responseMsg);
+//
+//        String responseMsgPayload = StringUtils
+//                .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
+//        StringDataSource stringDataSource = new StringDataSource(responseMsgPayload);
+//        Assert.assertNotNull(stringDataSource);
+//        Assert.assertEquals(stringDataSource.getValue(), "sample value");
+//    }
 
     @Test(description = "Test using constant as annotation attribute value")
     public void testConstantValueAsAnnAttributeVal() {
@@ -197,7 +198,7 @@ public class ServiceTest {
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertTrue(bJson.value().get("Team").isNull(), "Team variable not set properly.");
+        Assert.assertTrue(bJson.value().get("Team").stringValue().isEmpty(), "Team variable not set properly.");
     }
 
     @Test(description = "Test GetFormParams empty responseMsgPayloads")
@@ -209,21 +210,20 @@ public class ServiceTest {
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertNotNull(bJson);
-        Assert.assertNull(bJson.value().get("Name").stringValue());
-        Assert.assertNull(bJson.value().get("Team").stringValue());
+        Assert.assertEquals(bJson.value().get("Name").stringValue(), "");
+        Assert.assertEquals(bJson.value().get("Team").stringValue(), "");
     }
 
     @Test(description = "Test GetFormParams with unsupported media type")
     public void testGetFormParamsWithUnsupportedMediaType() {
         String path = "/echo/getFormParams";
-        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST",
+                "firstName=WSO2&company=BalDance");
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertNotNull(bJson);
-        Assert.assertEquals(bJson.value().get("Name").asText(), "WSO2", "Name variable not set properly.");
-        Assert.assertNull(bJson.value().get("Team").stringValue());
+        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "Entity body is not text compatible " +
+                "since the received content-type is : null");
     }
 
     @Test(description = "Test Http PATCH verb dispatching with a responseMsgPayload")

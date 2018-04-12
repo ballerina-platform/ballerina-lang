@@ -26,14 +26,15 @@ import org.ballerinalang.util.diagnostic.DiagnosticLog;
  * @since 0.965.0
  */
 @SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.websub",
-                        name = "SubscriberServiceEndpoint")
-        }
+        value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "websub", name = "Listener")}
 )
 public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
 
+//    private DiagnosticLog dlog = null;
+
     @Override
     public void init(DiagnosticLog diagnosticLog) {
+//        dlog = diagnosticLog;
     }
 
 }

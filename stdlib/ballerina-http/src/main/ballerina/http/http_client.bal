@@ -22,7 +22,7 @@ public type HttpClient object {
     //for retry and other few places.
     public {
         string serviceUri;
-        ClientEndpointConfiguration config;
+        ClientEndpointConfig config;
     }
 
     @Description {value:"The POST action implementation of the HTTP Connector."}
@@ -30,21 +30,21 @@ public type HttpClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public native function post(string path, Request req) returns (Response | HttpConnectorError);
+    public native function post(@sensitive string path, Request req) returns (Response | HttpConnectorError);
 
     @Description {value:"The HEAD action implementation of the HTTP Connector."}
     @Param {value:"path: Resource path "}
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public native function head(string path, Request req) returns (Response | HttpConnectorError);
+    public native function head(@sensitive string path, Request req) returns (Response | HttpConnectorError);
 
     @Description {value:"The PUT action implementation of the HTTP Connector."}
     @Param {value:"path: Resource path "}
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public native function put(string path, Request req) returns (Response | HttpConnectorError);
+    public native function put(@sensitive string path, Request req) returns (Response | HttpConnectorError);
 
     @Description {value:"Invokes an HTTP call with the specified HTTP verb."}
     @Param {value:"httpVerb: HTTP verb value"}
@@ -52,42 +52,42 @@ public type HttpClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public native function execute(string httpVerb, string path, Request req) returns (Response | HttpConnectorError);
+    public native function execute(@sensitive string httpVerb, @sensitive string path, Request req) returns (Response | HttpConnectorError);
 
     @Description {value:"The PATCH action implementation of the HTTP Connector."}
     @Param {value:"path: Resource path "}
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public native function patch(string path, Request req) returns (Response | HttpConnectorError);
+    public native function patch(@sensitive string path, Request req) returns (Response | HttpConnectorError);
 
     @Description {value:"The DELETE action implementation of the HTTP connector"}
     @Param {value:"path: Resource path "}
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public native function delete(string path, Request req) returns (Response | HttpConnectorError);
+    public native function delete(@sensitive string path, Request req) returns (Response | HttpConnectorError);
 
     @Description {value:"GET action implementation of the HTTP Connector"}
     @Param {value:"path: Request path"}
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public native function get(string path, Request req) returns (Response | HttpConnectorError);
+    public native function get(@sensitive string path, Request req) returns (Response | HttpConnectorError);
 
     @Description {value:"OPTIONS action implementation of the HTTP Connector"}
     @Param {value:"path: Request path"}
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public native function options(string path, Request req) returns (Response | HttpConnectorError);
+    public native function options(@sensitive string path, Request req) returns (Response | HttpConnectorError);
 
     @Description {value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP verb"}
     @Param {value:"path: Request path"}
     @Param {value:"req: An HTTP inbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public native function forward(string path, Request req) returns (Response | HttpConnectorError);
+    public native function forward(@sensitive string path, Request req) returns (Response | HttpConnectorError);
 
     @Description { value:"Submits an HTTP request to a service with the specified HTTP verb."}
     @Param { value:"httpVerb: The HTTP verb value" }
@@ -95,7 +95,7 @@ public type HttpClient object {
     @Param { value:"req: An HTTP outbound request message" }
     @Return { value:"The Future for further interactions" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    public native function submit(string httpVerb, string path, Request req) returns (HttpFuture | HttpConnectorError);
+    public native function submit(@sensitive string httpVerb, string path, Request req) returns (HttpFuture | HttpConnectorError);
 
     @Description { value:"Retrieves response for a previously submitted request."}
     @Param { value:"httpFuture: The Future which relates to previous async invocation" }
@@ -122,8 +122,7 @@ public type HttpClient object {
 
     @Description { value:"Rejects a push promise."}
     @Param { value:"promise: The Push Promise need to be rejected" }
-    @Return { value:"Whether operation is successful" }
-    public native function rejectPromise(PushPromise promise) returns (boolean);
+    public native function rejectPromise(PushPromise promise);
 };
 
 @Description { value:"HttpConnectorError record represents an error occured during the HTTP client invocation" }
@@ -132,7 +131,7 @@ public type HttpClient object {
 @Field {value:"statusCode: HTTP status code"}
 public type HttpConnectorError {
     string message,
-    error[] cause,
+    error? cause,
     int statusCode,
 };
 
@@ -142,6 +141,6 @@ public type HttpConnectorError {
 @Field {value:"statusCode: HTTP status code."}
 public type HttpTimeoutError {
     string message,
-    error[] cause,
+    error? cause,
     int statusCode,
 };

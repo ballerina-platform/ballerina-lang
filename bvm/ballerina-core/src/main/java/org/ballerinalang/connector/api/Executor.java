@@ -18,6 +18,7 @@
 package org.ballerinalang.connector.api;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.impl.ResourceExecutor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -43,8 +44,26 @@ public class Executor {
      * @param values     required for the resource.
      */
     public static void submit(Resource resource, CallableUnitCallback responseCallback, Map<String, Object> properties,
-                              ObserverContext observerContext, BValue... values) throws BallerinaConnectorException {
-        ResourceExecutor.execute(resource, responseCallback, properties, observerContext, values);
+                              ObserverContext observerContext, BValue... values)
+            throws BallerinaConnectorException {
+        WorkerExecutionContext context = new WorkerExecutionContext(resource.getResourceInfo().getPackageInfo()
+                .getProgramFile());
+        ResourceExecutor.execute(resource, responseCallback, properties, observerContext, context, values);
+    }
+
+    /**
+     * This method will execute Ballerina resource in non-blocking manner.
+     * It will use Ballerina worker-pool for the execution and will return the
+     * connector thread immediately.
+     *
+     * @param resource   to be executed.
+     * @param properties to be passed to context.
+     * @param values     required for the resource.
+     */
+    public static void submit(Resource resource, CallableUnitCallback responseCallback, Map<String, Object> properties,
+                              ObserverContext observerContext, WorkerExecutionContext context, BValue... values)
+            throws BallerinaConnectorException {
+        ResourceExecutor.execute(resource, responseCallback, properties, observerContext, context, values);
     }
 
 }

@@ -28,6 +28,21 @@ function readCharacters (int numberOfCharacters) returns (string|io:IOError) {
     }
 }
 
+function readAllCharacters() returns (string|io:IOError){
+    int fixedSize = 500;
+    boolean isDone = false;
+    string result;
+    while(!isDone){
+        string value = check readCharacters(fixedSize);
+        if(lengthof value == 0){
+            isDone = true;
+        }else{
+            result = result + value;
+        }
+    }
+    return result;
+}
+
 function writeCharacters (string content, int startOffset) returns (int|io:IOError) {
     var result = characterChannel.writeCharacters(content, startOffset);
     match result {
@@ -62,6 +77,14 @@ function readXml () returns (xml|io:IOError) {
             return err;
         }
     }
+}
+
+function writeJson(json content) {
+    var result = characterChannel.writeJson(content);
+}
+
+function writeXml(xml content) {
+    var result = characterChannel.writeXml(content);
 }
 
 function close () {

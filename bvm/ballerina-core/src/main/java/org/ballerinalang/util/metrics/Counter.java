@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.util.metrics;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A monotonically increasing counter metric. Use {@link Gauge} Gauge to track a value that goes up and down.
@@ -42,7 +43,7 @@ public interface Counter extends Metric {
 
         private final String name;
         // Expecting at least 10 tags
-        private final ArrayList<Tag> tags = new ArrayList<>(10);
+        private final Set<Tag> tags = new HashSet<>(10);
         private String description;
 
         private Builder(String name) {
@@ -81,7 +82,7 @@ public interface Counter extends Metric {
 
         @Override
         public Counter register() {
-            return register(MetricRegistry.getDefaultRegistry());
+            return register(DefaultMetricRegistry.getInstance());
         }
 
         @Override

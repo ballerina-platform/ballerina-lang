@@ -34,27 +34,41 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 
 public class AuthnHandlerChainTest {
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
     private String resourceRoot;
     private Path ballerinaConfCopyPath;
+    private String secretFile = "secret.txt";
+    private Path secretCopyPath;
 
     @BeforeClass
     public void setup() throws Exception {
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         Path ballerinaConfPath = Paths
-                .get(resourceRoot, "datafiles", "config", "auth", "basicauth", "userstore", BALLERINA_CONF);
+                .get(resourceRoot, "datafiles", "config", "auth", "configauthprovider", BALLERINA_CONF);
         ballerinaConfCopyPath = sourceRoot.resolve(BALLERINA_CONF);
 
         // Copy the ballerina.conf to the source root before starting the tests
         compileResult = BCompileUtil.compile(sourceRoot.resolve("authn-handler-chain-test.bal").toString());
 
+        Path secretFilePath = Paths.get(resourceRoot, "datafiles", "config", secretFile);
+        secretCopyPath = Paths.get(resourceRoot, "datafiles", "config", "auth", "configauthprovider",
+                secretFile);
+        Files.deleteIfExists(secretCopyPath);
+        copySecretFile(secretFilePath.toString(), secretCopyPath.toString());
+
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(null, ballerinaConfPath.toString(), null);
+        registry.initRegistry(Collections.singletonMap("ballerina.config.secret", secretCopyPath.toString()),
+                ballerinaConfPath.toString(), null);
+    }
+
+    private void copySecretFile (String from, String to) throws IOException {
+        Files.copy(Paths.get(from), Paths.get(to));
     }
 
     @Test(description = "Test case for creating authn handler chain")
@@ -71,7 +85,21 @@ public class AuthnHandlerChainTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test(description = "Test case for authn handler chain authn failure scenario with specific handlers")
+    public void testAuthFailureWithSpecificHandlers() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthFailureWithSpecificHandlers");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test(description = "Test case for authn handler chain authn success scenario")
+    public void testAuthSuccessWithSpecificHandlers() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthSuccessWithSpecificHandlers");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for authn handler chain authn success scenario with specific handlers")
     public void testAuthSuccess() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthSuccess");
         Assert.assertTrue(returns[0] instanceof BBoolean);
@@ -81,5 +109,6 @@ public class AuthnHandlerChainTest {
     @AfterClass
     public void tearDown() throws IOException {
         Files.deleteIfExists(ballerinaConfCopyPath);
+        Files.deleteIfExists(secretCopyPath);
     }
 }

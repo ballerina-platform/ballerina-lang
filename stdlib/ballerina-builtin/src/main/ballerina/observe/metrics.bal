@@ -24,7 +24,7 @@ public type Counter object {
     public {
         string name;
         string description;
-        map tags;
+        map | () tags;
     }
 
     public new(name, description, tags) {}
@@ -37,7 +37,7 @@ public type Counter object {
     public native function increment(float amount);
 
     @Description {value:"Return the value of the counter."}
-    @Return {value:"The value of a counter"}
+    @Return {value:"The value of a counter."}
     public native function count() returns (float);
 };
 
@@ -49,7 +49,7 @@ public type Gauge object {
     public {
         string name;
         string description;
-        map tags;
+        map | () tags;
     }
 
     public new(name, description, tags) {}
@@ -73,7 +73,7 @@ public type Gauge object {
     public native function setValue(float value);
 
     @Description {value:"Return the value of the gauge."}
-    @Return {value:"The value of a gauge"}
+    @Return {value:"The value of a gauge."}
     public native function value() returns (float);
 };
 
@@ -85,7 +85,7 @@ public type Summary object {
     public {
         string name;
         string description;
-        map tags;
+        map | () tags;
     }
 
     public new(name, description, tags) {}
@@ -102,10 +102,9 @@ public type Summary object {
     @Return {value: "The distribution average for all recorded events."}
     public native function mean() returns (float);
 
-    @Description {value: "Return the value at a specific percentile."}
-    @Param {value: "percentile: A percentile in the domain."}
-    @Return {value: "The value at a specific percentile."}
-    public native function percentile(float percentile) returns (float);
+    @Description {value: "Return a map of percentile values."}
+    @Return {value: "A map of values at specific percentiles."}
+    public native function percentileValues() returns (map);
 
     @Description {value: "Return the number of values recorded in the summary."}
     @Return {value: "The number of times that record has been called since this timer was created."}
@@ -130,7 +129,7 @@ public type Timer object {
     public {
         string name;
         string description;
-        map tags;
+        map | () tags;
     }
 
     public new(name, description, tags) {}
@@ -150,11 +149,10 @@ public type Timer object {
     @Return {value: "The distribution average for all recorded events."}
     public native function mean(TimeUnit timeUnit) returns (float);
 
-    @Description {value: "Return the latency at a specific percentile."}
-    @Param {value: "percentiles: A percentile in the domain."}
+    @Description {value: "Return a map of latencies scaled with the given base unit of time at specific percentiles."}
     @Param {value: "timeUnit: The base unit of time to scale the percentile value to."}
-    @Return {value: "The latency at a specific percentile."}
-    public native function percentile(float percentiles, TimeUnit timeUnit) returns (float);
+    @Return {value: "A map of latencies at specific percentiles."}
+    public native function percentileValues(TimeUnit timeUnit) returns (map);
 
     @Description {value: "Returns the number of times recorded in the timer."}
     @Return {value: "The number of times that stop has been called on this timer."}

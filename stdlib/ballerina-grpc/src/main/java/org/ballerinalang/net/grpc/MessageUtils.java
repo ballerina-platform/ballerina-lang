@@ -17,7 +17,6 @@ package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -25,16 +24,15 @@ import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -47,7 +45,6 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +52,9 @@ import static org.ballerinalang.net.grpc.MessageConstants.BOOLEAN;
 import static org.ballerinalang.net.grpc.MessageConstants.DOUBLE;
 import static org.ballerinalang.net.grpc.MessageConstants.FLOAT;
 import static org.ballerinalang.net.grpc.MessageConstants.INT;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.STRING;
+import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 
 /**
  * Util methods to generate protobuf message.
@@ -66,37 +65,60 @@ public class MessageUtils {
     private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
     private static final String UNKNOWN_ERROR = "Unknown Error";
 
-    public static BValue getHeader(Context context) {
-        String headerName = context.getStringArgument(0);
-        String headerValue = getHeaderValue(headerName);
-        
-        return new BString(headerValue);
-    }
-    
-    private static String getHeaderValue(String keyName) {
-        String headerValue = null;
-        if (MessageContext.isPresent()) {
-            MessageContext messageContext = MessageContext.DATA_KEY.get();
-            if (keyName.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
-                Metadata.Key<byte[]> key = Metadata.Key.of(keyName, Metadata.BINARY_BYTE_MARSHALLER);
-                byte[] byteValues = messageContext.get(key);
-                // Referred : https://stackoverflow
-                // .com/questions/1536054/how-to-convert-byte-array-to-string-and-vice-versa
-                // https://stackoverflow.com/questions/2418485/how-do-i-convert-a-byte-array-to-base64-in-java
-                headerValue = byteValues != null ? Base64.getEncoder().encodeToString(byteValues) : null;
-            } else {
-                Metadata.Key<String> key = Metadata.Key.of(keyName, Metadata.ASCII_STRING_MARSHALLER);
-                headerValue = messageContext.get(key);
+    public static BStruct getHeaderStruct(Resource resource) {
+        if (resource == null || resource.getParamDetails() == null) {
+            throw new RuntimeException("Invalid resource input arguments");
+        }
+        BStruct headerStruct = null;
+        for (ParamDetail detail : resource.getParamDetails()) {
+            BType paramType = detail.getVarType();
+            if (paramType != null && PROTOCOL_STRUCT_PACKAGE_GRPC.equals(paramType.getPackagePath()) &&
+                    "Headers".equals(paramType.getName())) {
+                headerStruct = BLangConnectorSPIUtil.createBStruct(getProgramFile(resource),
+                        paramType.getPackagePath(), paramType.getName());
+                break;
             }
         }
-        return headerValue;
+        return headerStruct;
     }
-    
+
+    public static io.grpc.Context getContextHeader(BRefValueArray headerValues) {
+
+        // Set response headers.
+        if (headerValues.size() != 0) {
+            if (headerValues.size() > 1) {
+                LOG.warn("No of Header objects found in input params:" + headerValues.size() + " , gRPC service can " +
+                        "only execute the first header object");
+            }
+            BStruct headerValue = (BStruct) headerValues.getBValue(0);
+            MessageHeaders metadata = (MessageHeaders) headerValue.getNativeData(METADATA_KEY);
+            if (metadata != null) {
+                return io.grpc.Context.current().withValue(MessageHeaders.DATA_KEY, metadata);
+            }
+        }
+        return null;
+    }
+
+
+
+    public static MessageHeaders getMessageHeaders(BRefValueArray headerValues) {
+
+        // Set request headers.
+        MessageHeaders metadata = null;
+        if (headerValues.size() != 0) {
+            if (headerValues.size() > 1) {
+                LOG.warn("No of Header objects found in input params:" + headerValues.size() + " , gRPC service can " +
+                        "only execute the first header object");
+            }
+            BStruct headerValue = (BStruct) headerValues.getBValue(0);
+            metadata = (MessageHeaders) headerValue.getNativeData(METADATA_KEY);
+        }
+        return metadata;
+    }
+
     public static StreamObserver<Message> getResponseObserver(BRefType refType) {
         Object observerObject = null;
-        if (refType instanceof BConnector) {
-            observerObject = ((BConnector) refType).getNativeData(MessageConstants.RESPONSE_OBSERVER);
-        } else if (refType instanceof BStruct) {
+        if (refType instanceof BStruct) {
             observerObject = ((BStruct) refType).getNativeData(MessageConstants.RESPONSE_OBSERVER);
         }
         if (observerObject instanceof StreamObserver) {
@@ -107,7 +129,7 @@ public class MessageUtils {
     
     public static BStruct getConnectorError(Context context, Throwable throwable) {
         PackageInfo grpcPackageInfo = context.getProgramFile()
-                .getPackageInfo(MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC);
+                .getPackageInfo(PROTOCOL_STRUCT_PACKAGE_GRPC);
         StructInfo errorStructInfo = grpcPackageInfo.getStructInfo(MessageConstants.CONNECTOR_ERROR);
         return getConnectorError(errorStructInfo.getType(), throwable);
     }
@@ -332,12 +354,6 @@ public class MessageUtils {
                         requestStruct.setRefField(refIndex++, (BRefType) generateRequestStruct(message, programFile,
                                 structFieldName, structField.getFieldType()));
                     }
-                } else if (structField.getFieldType() instanceof BEnumType) {
-                    int value = (Integer) request.getFields().get(structField.getFieldName());
-                    BEnumerator enumerator = new BEnumerator(((BEnumType) structField.getFieldType())
-                            .getEnumerator(value).getName(), (BEnumType) structField.getFieldType());
-                    requestStruct.setRefField(refIndex++, enumerator);
-
                 } else {
                     if (request.getFields().containsKey(structFieldName)) {
                         String fieldType = structField.getFieldType().getName();

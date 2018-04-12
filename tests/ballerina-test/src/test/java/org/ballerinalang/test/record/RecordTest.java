@@ -22,7 +22,6 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -42,36 +41,12 @@ public class RecordTest {
         compileResult = BCompileUtil.compile("test-src/record/record.bal");
     }
 
-    @Test(description = "Test Basic record operations")
-    public void testBasicStruct() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateStruct");
-
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Jack");
-
-        Assert.assertTrue(returns[1] instanceof BMap);
-        BMap<String, ?> adrsMap = ((BMap) returns[1]);
-        Assert.assertEquals(adrsMap.get("country"), new BString("USA"));
-        Assert.assertEquals(adrsMap.get("state"), new BString("CA"));
-
-        Assert.assertTrue(returns[2] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 25);
-    }
-
     @Test(description = "Test using expressions as index for record arrays")
     public void testExpressionAsIndex() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testExpressionAsIndex");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Jane");
     }
-    
-/*    @Test(description = "Test record operations inside a connector")
-    public void testStructInConnector() {
-        BValue[] returns = Functions.invoke(bLangProgram, "testAction1");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Jack");
-    }*/
 
     @Test(description = "Test using records inside records")
     public void testStructOfStructs() {
@@ -183,4 +158,13 @@ public class RecordTest {
                 "{name:\"default first name\", fname:\"\", lname:\"Doe\", adrs:{}, age:999, " +
                         "family:{spouse:\"Jane\", noOfChildren:0, children:[\"Alex\", \"Bob\"]}}");
     }
+
+//    @Test
+//    public void testStructLiteralAttachedFunc() {
+//        CompileResult result = BCompileUtil.compile("test-src/record/record_literal_with_attached_functions.bal");
+//        BValue[] returns = BRunUtil.invoke(result, "testCreateStruct");
+//        Assert.assertEquals(returns[0].stringValue(),
+//                "{name:\"default first name\", fname:\"\", lname:\"Doe\", adrs:{}, age:999, " +
+//                        "family:{spouse:\"Jane\", noOfChildren:0, children:[\"Alex\", \"Bob\"]}}");
+//    }
 }

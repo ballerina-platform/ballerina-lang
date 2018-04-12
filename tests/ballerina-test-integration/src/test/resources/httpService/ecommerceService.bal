@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 
-endpoint http:ServiceEndpoint serviceEndpoint {
+endpoint http:Listener serviceEndpoint {
     port:9090
 };
 
@@ -29,7 +29,7 @@ service<http:Service> CustomerMgtService bind serviceEndpoint {
     }
 }
 
-endpoint http:ClientEndpoint productsService {
+endpoint http:Client productsService {
     targets:[{url: "http://localhost:9090"}]
 };
 
@@ -43,7 +43,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         path:"/products/{prodId}"
     }
     productsInfo (endpoint outboundEP, http:Request req, string prodId) {
-        string reqPath = "/productsservice/" + prodId;
+        string reqPath = "/productsservice/" + untaint prodId;
         http:Request clientRequest = new;
         var clientResponse = productsService -> get(reqPath, clientRequest);
 
@@ -52,7 +52,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
                 io:println("Error occurred while reading product response");
             }
             http:Response product => {
-                _ = outboundEP -> forward(product);
+                _ = outboundEP -> respond(product);
             }
         }
 
@@ -84,7 +84,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
                 clientResponse = prod;
             }
         }
-        _ = outboundEP -> forward(clientResponse);
+        _ = outboundEP -> respond(clientResponse);
     }
 
     @http:ResourceConfig {
@@ -99,7 +99,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
                 io:println("Error occurred while reading orders response");
             }
             http:Response orders => {
-                _ = outboundEP -> forward(orders);
+                _ = outboundEP -> respond(orders);
             }
         }
     }
@@ -116,7 +116,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
                 io:println("Error occurred while writing orders response");
             }
             http:Response orders => {
-                _ = outboundEP -> forward(orders);
+                _ = outboundEP -> respond(orders);
             }
         }
 
@@ -134,7 +134,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
                 io:println("Error occurred while reading customers response");
             }
             http:Response customer => {
-                _ = outboundEP -> forward(customer);
+                _ = outboundEP -> respond(customer);
             }
         }
 
@@ -152,7 +152,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
                 io:println("Error occurred while writing customers response");
             }
             http:Response customer => {
-                _ = outboundEP -> forward(customer);
+                _ = outboundEP -> respond(customer);
             }
         }
     }

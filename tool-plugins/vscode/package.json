@@ -2,8 +2,8 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": " Ballerina is a flexible, powerful, beautiful programming language designed for integration",
-    "version": "0.970.0-alpha1-SNAPSHOT",
-    "publisher": "WSO2",
+    "version": "0.970.0-alpha4-SNAPSHOT",
+    "publisher": "ballerina",
     "repository": {
         "type": "git",
         "url": "https://github.com/ballerina-lang/ballerina"
@@ -149,10 +149,6 @@
         "ws": "^4.0.0"
     },
     "devDependencies": {
-        "@types/js-yaml": "^3.10.1",
-        "js-yaml": "^3.10.0",
-        "plist": "^2.1.0",
-        "typescript": "^2.7.2",
         "vsce": "^1.36.2"
     }
 }

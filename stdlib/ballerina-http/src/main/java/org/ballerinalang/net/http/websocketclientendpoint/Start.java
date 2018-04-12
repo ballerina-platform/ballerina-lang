@@ -24,7 +24,6 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -81,7 +80,12 @@ public class Start extends BlockingNativeCallableUnit {
         HandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
         handshakeFuture.setHandshakeListener(
                 new WsHandshakeListener(context, wsService, clientConnectorListener));
-        context.setReturnValues();
+        try {
+            handshakeFuture.sync();
+        } catch (InterruptedException e) {
+            throw new BallerinaConnectorException("Error occurred: " + e.getMessage());
+
+        }
     }
 
     static class WsHandshakeListener implements HandshakeListener {
@@ -101,11 +105,10 @@ public class Start extends BlockingNativeCallableUnit {
         public void onSuccess(Session session) {
             //using only one service endpoint in the client as there can be only one connection.
             BStruct webSocketClientEndpoint = ((BStruct) context.getRefArgument(0));
-            BStruct webSocketConnector = BLangConnectorSPIUtil.createBStruct(
+            BStruct webSocketConnector = BLangConnectorSPIUtil.createObject(
                     wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                     PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
             webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-            webSocketClientEndpoint.setRefField(0, new BMap());
             WebSocketUtil.populateEndpoint(session, webSocketClientEndpoint);
             WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
                                                                                          webSocketClientEndpoint);

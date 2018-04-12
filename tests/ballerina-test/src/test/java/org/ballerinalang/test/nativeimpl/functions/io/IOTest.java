@@ -27,8 +27,10 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLItem;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -108,6 +110,26 @@ public class IOTest {
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "close");
     }
 
+    @Test(description = "Test permission errors in byte read operations")
+    public void testByteOperationPermissionError() throws URISyntaxException {
+        int numberOfBytesToRead = 3;
+        String resourceToRead = "datafiles/io/text/6charfile.txt";
+        BStruct readBytes;
+
+        //Will initialize the channel with write permission
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("w")};
+        BRunUtil.invokeStateful(bytesInputOutputProgramFile, "initFileChannel", args);
+
+        //We try to read bytes
+        args = new BValue[]{new BInteger(numberOfBytesToRead)};
+        BValue[] returns = BRunUtil.invokeStateful(bytesInputOutputProgramFile, "readBytes", args);
+        readBytes = (BStruct) returns[0];
+
+        Assert.assertTrue(readBytes.toString().startsWith("{message:\"could not read"));
+
+        BRunUtil.invokeStateful(bytesInputOutputProgramFile, "close");
+    }
+
     @Test(description = "Test 'readCharacters' function in ballerina.io package")
     public void testReadCharacters() throws URISyntaxException {
         String resourceToRead = "datafiles/io/text/utf8file.txt";
@@ -141,6 +163,59 @@ public class IOTest {
 
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
 
+    }
+
+    @Test(description = "Test permission errors in byte read operations")
+    public void testCharacterOperationPermissionError() throws URISyntaxException {
+        String resourceToRead = "datafiles/io/text/utf8file.txt";
+        int numberOfCharactersToRead = 3;
+        BStruct readCharacters;
+
+        //Will initialize the channel with write permissions
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("w"), new BString("UTF-8")};
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "initCharacterChannel", args);
+
+        args = new BValue[]{new BInteger(numberOfCharactersToRead)};
+        BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readCharacters", args);
+        readCharacters = (BStruct) returns[0];
+
+        Assert.assertTrue(readCharacters.toString().startsWith("{message:\"Error occurred"));
+
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
+    }
+
+    @Test(description = "Test 'readCharacters' function in ballerina.io package")
+    public void testReadAllCharacters() throws URISyntaxException {
+        String resourceToRead = "datafiles/io/text/fileThatExceeds2MB.txt";
+        BString readCharacters;
+
+        //Will initialize the channel
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "initCharacterChannel", args);
+
+        int expectedNumberOfCharacters = 2265223;
+        BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readAllCharacters");
+        readCharacters = (BString) returns[0];
+
+        String returnedString = readCharacters.stringValue();
+        Assert.assertEquals(returnedString.length(), expectedNumberOfCharacters);
+    }
+
+    @Test(description = "Test 'readCharacters' function in ballerina.io package")
+    public void testReadAllCharactersFromEmptyFile() throws URISyntaxException {
+        String resourceToRead = "datafiles/io/text/emptyFile.txt";
+        BString readCharacters;
+
+        //Will initialize the channel
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "initCharacterChannel", args);
+
+        int expectedNumberOfCharacters = 0;
+        BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readAllCharacters");
+        readCharacters = (BString) returns[0];
+
+        String returnedString = readCharacters.stringValue();
+        Assert.assertEquals(returnedString.length(), expectedNumberOfCharacters);
     }
 
     @Test(description = "Test 'readRecords' function in ballerina.io package")
@@ -183,6 +258,25 @@ public class IOTest {
 
         BRunUtil.invokeStateful(recordsInputOutputProgramFile, "close");
     }
+
+    @Test(description = "Test permission errors in record read operations")
+    public void testRecordOperationPermissionError() throws URISyntaxException {
+        String resourceToRead = "datafiles/io/records/sample.csv";
+        BStruct records;
+
+        //Will initialize the channel with write permissions
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("w"), new BString("UTF-8"),
+                new BString("\n"), new BString(",")};
+        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "initDelimitedRecordChannel", args);
+
+        BValue[] returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
+        records = (BStruct) returns[0];
+
+        Assert.assertTrue(records.toString().startsWith("{message:\"Error occurred"));
+
+        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "close");
+    }
+
 
     @Test(description = "Test 'writeBytes' function in ballerina.io package")
     public void testWriteBytes() {
@@ -236,7 +330,7 @@ public class IOTest {
         String resourceToRead = "datafiles/io/text/web-app.json";
 
         //Will initialize the channel
-        BValue[] args = { new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8") };
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initCharacterChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readJson");
@@ -247,12 +341,55 @@ public class IOTest {
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
     }
 
+    @Test(description = "Test 'writeJson' function in ballerina.io package")
+    public void testWriteJsonCharacters() {
+        String content = "{\n" +
+                "  \"test\": { \"name\": \"Foo\" }\n" +
+                "}";
+
+        String sourceToWrite = currentDirectoryPath + "/jsonCharsFile.json";
+
+        //Will initialize the channel
+        BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8")};
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "initCharacterChannel", args);
+
+        args = new BValue[]{new BJSON(content)};
+        BValue[] result = BRunUtil.invokeStateful(characterInputOutputProgramFile, "writeJson", args);
+
+        //Assert if there's no error return
+        Assert.assertTrue(result.length == 0);
+
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
+    }
+
+    @Test(description = "Test 'writeXml' function in ballerina.io package")
+    public void testWriteXmlCharacters() {
+        String content = "\t<test>\n" +
+                "\t\t<name>Foo</name>\n" +
+                "\t</test>";
+
+        String sourceToWrite = currentDirectoryPath + "/xmlCharsFile.xml";
+
+        //Will initialize the channel
+        BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8")};
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "initCharacterChannel", args);
+
+        args = new BValue[]{new BXMLItem(content)};
+        BValue[] result = BRunUtil.invokeStateful(characterInputOutputProgramFile, "writeXml", args);
+
+        //Assert if there's no error return
+        Assert.assertTrue(result.length == 0);
+
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
+    }
+
+
     @Test(description = "Test 'readXml' function in ballerina.io package")
     public void testXmlCharacters() throws URISyntaxException {
         String resourceToRead = "datafiles/io/text/cd_catalog.xml";
 
         //Will initialize the channel
-        BValue[] args = { new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8") };
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initCharacterChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readXml");
@@ -266,7 +403,7 @@ public class IOTest {
     private String readFileContent(String filePath) throws URISyntaxException {
         Path path = Paths.get(getAbsoluteFilePath(filePath));
         StringBuilder data = new StringBuilder();
-        Stream<String> lines = null;
+        Stream<String> lines;
         try {
             lines = Files.lines(path);
         } catch (IOException e) {

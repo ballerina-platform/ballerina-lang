@@ -26,6 +26,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.langserver.CollectDiagnosticListener;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.LSDocument;
@@ -41,6 +42,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
@@ -545,8 +547,11 @@ public class CommonUtil {
 
     /**
      * Prepare a new compiler context.
+     * @deprecated use LSContextManager.createTempCompilerContext() instead. If you need global singleton compiler
+     * context please use LSContextManager.getBuiltInPackagesCompilerContext()
      * @return {@link CompilerContext} Prepared compiler context
      */
+    @Deprecated
     public static CompilerContext prepareTempCompilerContext() {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
@@ -554,6 +559,9 @@ public class CommonUtil {
         options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         context.put(SourceDirectory.class, new NullSourceDirectory());
+        List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
+        CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
+        context.put(DiagnosticListener.class, diagnosticListener);
 
         return context;
     }
@@ -639,14 +647,22 @@ public class CommonUtil {
             case BOOLEAN:
                 typeString = Boolean.toString(false);
                 break;
+            case ARRAY:
             case BLOB:
                 typeString = "[]";
                 break;
             case RECORD:
+            case STRUCT:
                 typeString = "{}";
                 break;
-            case STREAM:
+            case FINITE:
+                typeString = bType.toString();
+                break;
             case UNION:
+                String[] typeNameComps = bType.toString().split(UtilSymbolKeys.PKG_DELIMITER_KEYWORD);
+                typeString = typeNameComps[typeNameComps.length - 1];
+                break;
+            case STREAM:
             default:
                 typeString = "null";
                 break;

@@ -116,6 +116,7 @@ public class CompletionTestUtil {
         LSServiceOperationContext completionContext = new LSServiceOperationContext();
         completionContext.put(DocumentServiceKeys.POSITION_KEY, pos);
         completionContext.put(DocumentServiceKeys.FILE_URI_KEY, pos.getTextDocument().getUri());
+
         BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext,
                 documentManager, false, CompletionCustomErrorStrategy.class, false)
                 .get(0);

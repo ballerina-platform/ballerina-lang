@@ -17,24 +17,53 @@
 package ballerina.task;
 
 @Description {value:"Schedules a timer task"}
-@Param {value:"onTrigger: The function which gets called when the timer goes off"}
-@Param {value:"onError: The function that gets called if the onTrigger function returns an error"}
-@Param {value:"schedule: Specifies the initial delay and interval of the timer task"}
-@Return {value:"The unique ID of the timer task that was scheduled"}
-public native function scheduleTimer ((function() returns error?) onTrigger,
-                                      (function(error) returns ())? onError,
-                                      {int delay = 0; int interval;} schedule) returns string;
+public type Timer object {
 
-@Description {value:"Schedules an appointment task"}
-@Param {value:"onTrigger: The function which gets called when the appointment falls due"}
-@Param {value:"onError: The function that gets called if the onTrigger function returns an error"}
-@Param {value:"scheduleCronExpression: Specifies the Cron expression of the schedule"}
-@Return {value:"The unique ID of the appointment task that was scheduled"}
-public native function scheduleAppointment ((function () returns error?) onTrigger,
-                                            (function(error) returns ())? onError,
-                                            string scheduleCronExpression) returns string;
+    private {
+        // The function which gets called when the timer goes off
+        (function() returns error?) onTrigger,
+        // The function that gets called if the onTrigger function returns an error
+        (function(error) returns ())? onError,
+        // Initial delay before the timer gets triggerred
+        int delay;
+        // Timer trigger interval
+        int interval;
+        // Unique task ID which will be used when this timer is stopped
+        string taskId;
+        // Keeps track whether the task is started to ensure that a started task cannot be started again
+        // unless it is stopped
+        boolean isRunning;
+    }
 
-@Description {value:"Stops the timer task with ID taskID"}
-@Param {value:"taskID: The unique ID of the timer task that has to be stopped"}
-@Return {value:"This error will be returned if an error occurs while stopping the task"}
-public native function stopTask (string taskID) returns error?;
+    // defaultable delay is -1, which means the delay will be the same as the interval
+    new(onTrigger, onError, interval, delay = -1) {}
+
+    // Start the timer
+    public native function start();
+    // Stop the timer
+    public native function stop();
+};
+
+@Description {value:"Schedules an appointment"}
+public type Appointment object {
+    private {
+        // The function which gets called when the appointment is up
+        (function () returns error?) onTrigger,
+        // The function that gets called if the onTrigger function returns an error
+        (function(error) returns ())? onError,
+        // Specifies the Cron expression of the schedule
+        string scheduleCronExpression;
+        // Unique task ID which will be used when this appointment is cancelled
+        string taskId;
+        // Keeps track whether the appointment is scheduled to ensure that a scheduled appointment cannot be
+        // appointment again unless it is cancelled
+        boolean isRunning;
+    }
+
+    new(onTrigger, onError, scheduleCronExpression) {}
+
+    // Schedule the appointment
+    public native function schedule();
+    // Cancel the appointment
+    public native function cancel();
+};

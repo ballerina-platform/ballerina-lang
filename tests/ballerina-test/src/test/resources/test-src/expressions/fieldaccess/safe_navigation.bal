@@ -1,3 +1,5 @@
+import ballerina/io;
+
 type Person {
     int a;
     string fname = "John";
@@ -99,7 +101,7 @@ function testSafeNavigatingJSONWithNilInMiddle_2 () returns any {
 
 function testSafeNavigatingNilMap () returns any {
     map m;
-    return m.foo;
+    return m["foo"];
 }
 
 function testSafeNavigatingWithFuncInovc_1 () returns any {
@@ -118,4 +120,81 @@ function getNullablePerson() returns Person|() {
     Person prsn = {info2 : inf};
     Person|() p = prsn;
     return p;
+}
+
+type Employee object {
+  public function getName() returns string {
+     return ("John");
+  }
+};
+
+function testSafeNavigationOnObject_1() returns string {
+  Employee? p;
+
+  p = new Employee();
+  return p.getName() but { () => "null name"};
+}
+
+function testSafeNavigationOnObject_2() returns string {
+  Employee? p;
+  return p.getName() but { () => "null name"};
+}
+
+function testSafeNavigationOnObject_3() returns string {
+  Employee|error p;
+  p = new Employee();
+  return p!getName() but { error => "error name"};
+}
+
+function testSafeNavigationOnObject_4() returns string {
+  error e = {};
+  Employee|error p = e;
+  return p!getName() but { error => "error name"};
+}
+
+function testSafeNavigateArray_1() returns Person? {
+    Person[]|() p;
+    return p[0];
+}
+
+function testSafeNavigateArray_2() returns string? {
+    Person[]|() p;
+    return p[0].info2.address2.city;
+}
+
+function testNullLiftingOnError() returns string {
+    error e;
+    return e.message;
+}
+
+function testSafeNavigateOnErrorOrNull() returns string? {
+    error|() e;
+    return e.message;
+}
+
+function testSafeNavigateOnJSONArrayOfArray() returns json {
+    json j = {"values" : [ ["Alex", "Bob"] ] };
+    return j.values[0][1];
+}
+
+function testNilLiftingOnLHS_1() returns json {
+    json j = {};
+    j.info["address"].city = "Colombo";
+    return j;
+}
+
+function testNilLiftingOnLHS_2() returns json {
+    json j = [null];
+    j[0].address.city = "Colombo";
+    return j;
+}
+
+function testNonExistingMapKeyWithIndexAccess() returns string? {
+    map<string> m;
+    return m["a"];
+}
+
+function testNonExistingMapKeyWithFieldAccess() returns string {
+    map<string> m;
+    return m.a;
 }

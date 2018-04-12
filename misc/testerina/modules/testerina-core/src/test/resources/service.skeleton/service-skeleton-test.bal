@@ -16,7 +16,7 @@ function clean() {
 
 @test:Config{before: "init", after: "clean"}
 function testService () {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets:[{
             url:uri
         }]

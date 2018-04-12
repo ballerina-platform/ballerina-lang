@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.sql.Constants;
 import org.ballerinalang.nativeimpl.sql.SQLDatasource;
+import org.ballerinalang.nativeimpl.sql.SQLDatasourceUtils;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -36,8 +37,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
         functionName = "close",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.SQL_CLIENT),
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
-                            structPackage = "ballerina.sql")
+                @ReturnType(type = TypeKind.STRUCT, structType = "error",
+                            structPackage = "ballerina.builtin")
         }
 )
 public class Close extends AbstractSQLAction {

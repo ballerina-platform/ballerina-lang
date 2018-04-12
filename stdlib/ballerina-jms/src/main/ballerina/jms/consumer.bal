@@ -13,22 +13,25 @@ public type ConsumerTemplate object {
         ConsumerEndpointConfiguration config;
     }
 
-    public function init(ConsumerEndpointConfiguration config);
+    public function init(ConsumerEndpointConfiguration config) {}
 
-    public function register(typedesc serviceType);
+    public function register(typedesc serviceType) {}
 
-    public function start();
+    public function start() {}
 
-    public function stop();
+    public function stop() {}
 
-    public function getClient() returns (ConsumerConnector);
+    public function getClient() returns (ConsumerConnector) {
+        return new;
+    }
 
 };
 
 public type ConsumerConnector object {
+    public function acknowledge (Message message) returns (Error | ()) {}
 };
 
 public type ConsumerEndpointConfiguration {
-    Session session;
+    Session? session;
     string identifier;
 };

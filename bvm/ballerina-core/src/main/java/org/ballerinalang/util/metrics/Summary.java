@@ -17,8 +17,10 @@
  */
 package org.ballerinalang.util.metrics;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
 
 /**
  * Track the sample distribution of events.
@@ -42,7 +44,7 @@ public interface Summary extends Metric {
 
         private final String name;
         // Expecting at least 10 tags
-        private final ArrayList<Tag> tags = new ArrayList<>(10);
+        private final Set<Tag> tags = new HashSet<>(10);
         private String description;
 
         private Builder(String name) {
@@ -81,7 +83,7 @@ public interface Summary extends Metric {
 
         @Override
         public Summary register() {
-            return register(MetricRegistry.getDefaultRegistry());
+            return register(DefaultMetricRegistry.getInstance());
         }
 
         @Override
@@ -113,10 +115,12 @@ public interface Summary extends Metric {
     double max();
 
     /**
-     * @param percentile A percentile in the domain [0, 1]. For example, 0.5 represents the 50th percentile of the
-     *                   distribution.
-     * @return The value at a specific percentile. This value is non-aggregable across dimensions.
+     * Return a sorted map of percentile values. The percentile is the key, which is in the domain [0, 1]. For example,
+     * 0.5 represents the 50th percentile of the distribution. The keys will be specific to underlying implementation.
+     * These value are non-aggregable across dimensions.
+     *
+     * @return A map of values at specific percentiles.
      */
-    double percentile(double percentile);
+    SortedMap<Double, Double> percentileValues();
 
 }

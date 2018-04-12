@@ -126,18 +126,23 @@ function getPackageDefinition(fullPackageName) {
  * */
 class DefaultNodeFactory {
 
+    createImportWithOrg() {
+        const importSt = getStaticDefaultNode('createImportWithOrg');
+        return importSt;
+    }
+
     createHTTPServiceDef() {
         const service = getStaticDefaultNode('createHTTPServiceDef');
         const endpoint = getStaticDefaultNode('createHTTPEndpointDef');
-        service.setFullPackageName('ballerina/http');
-        return [ endpoint, service];
+        const importSt = getStaticDefaultNode('createImportWithOrg');
+        return [importSt, endpoint, service];
     }
 
     createWSServiceDef() {
         const service = getStaticDefaultNode('createWSServiceDef');
         const endpoint = getStaticDefaultNode('createWSEndpointDef');
-        service.setFullPackageName('ballerina/http');
-        return [ endpoint, service];
+        const importSt = getStaticDefaultNode('createImportWithOrg');
+        return [importSt, endpoint, service];
     }
 
     createJMSServiceDef() {

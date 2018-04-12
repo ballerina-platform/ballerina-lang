@@ -1,31 +1,29 @@
 import ballerina/task;
 
 int count;
+task:Appointment? app;
 
-function scheduleAppointment (string cronExpression) returns (string|error) {
+function scheduleAppointment(string cronExpression) {
     (function() returns error?) onTriggerFunction = onTrigger;
     (function (error)) onErrorFunction = cleanupError;
-    return task:scheduleAppointment(onTriggerFunction, onErrorFunction, cronExpression);
+    app = new task:Appointment(onTriggerFunction, onErrorFunction, cronExpression);
+    _ = app.schedule();
 }
 
-function getCount () returns (int) {
+function getCount() returns (int) {
     return count;
 }
 
-function onTrigger () returns error? {
+function onTrigger() returns error? {
     count = count + 1;
     return ();
 }
 
-function cleanupError (error e) {
+function cleanupError(error e) {
 
 }
 
-function stopTask (string taskId) returns error? {
-    error? stopError = task:stopTask(taskId);
-    match stopError {
-        error => {}
-        () => count = -1;
-    }
-    return stopError;
+function cancelAppointment() {
+    _ = app.cancel();
+    count = -1;
 }

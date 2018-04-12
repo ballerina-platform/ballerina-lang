@@ -87,7 +87,7 @@ import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeCastNode;
 import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.expressions.TypeInitNode;
-import org.ballerinalang.model.tree.expressions.TypeofExpressionNode;
+import org.ballerinalang.model.tree.expressions.TypedescExpressionNode;
 import org.ballerinalang.model.tree.expressions.UnaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLCommentLiteralNode;
@@ -207,7 +207,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -431,8 +431,8 @@ public class TreeBuilder {
         return new BLangTypeCastExpr();
     }
 
-    public static TypeofExpressionNode createTypeAccessNode() {
-        return new BLangTypeofExpr();
+    public static TypedescExpressionNode createTypeAccessNode() {
+        return new BLangTypedescExpr();
     }
 
     public static TypeConversionNode createTypeConversionNode() {

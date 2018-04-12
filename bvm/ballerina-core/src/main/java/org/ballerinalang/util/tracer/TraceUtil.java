@@ -18,9 +18,7 @@
 
 package org.ballerinalang.util.tracer;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-
-import java.util.HashMap;
+import org.ballerinalang.bre.bvm.ObservableContext;
 
 import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
 
@@ -37,17 +35,11 @@ public class TraceUtil {
         bSpan.finishSpan();
     }
 
-    public static void setBSpan(WorkerExecutionContext ctx, BSpan span) {
-        if (ctx.localProps == null) {
-            ctx.localProps = new HashMap<>();
-        }
-        ctx.localProps.put(KEY_SPAN, span);
+    public static void setBSpan(ObservableContext ctx, BSpan span) {
+        ctx.setLocalProperty(KEY_SPAN, span);
     }
 
-    public static BSpan getBSpan(WorkerExecutionContext ctx) {
-        if (ctx.localProps != null) {
-            return (BSpan) ctx.localProps.get(KEY_SPAN);
-        }
-        return null;
+    public static BSpan getBSpan(ObservableContext ctx) {
+        return (BSpan) ctx.getLocalProperty(KEY_SPAN);
     }
 }

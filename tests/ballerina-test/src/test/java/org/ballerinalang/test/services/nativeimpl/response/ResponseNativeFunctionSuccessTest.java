@@ -81,6 +81,16 @@ public class ResponseNativeFunctionSuccessTest {
     }
 
     @Test
+    public void testContentType() {
+        BStruct response = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
+        BString contentType = new BString("application/x-custom-type+json");
+        BValue[] inputArg = {response, contentType};
+        BValue[] returnVals = BRunUtil.invoke(result, "testContentType", inputArg);
+        Assert.assertNotNull(returnVals[0]);
+        Assert.assertEquals(((BString) returnVals[0]).value(), "application/x-custom-type+json");
+    }
+
+    @Test
     @SuppressWarnings("unchecked")
     public void testAddHeader() {
         BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
@@ -493,5 +503,14 @@ public class ResponseNativeFunctionSuccessTest {
         BXML xmlValue = (BXML) EntityBodyHandler.getMessageDataSource(entity);
         Assert.assertEquals(xmlValue.getTextValue().stringValue(), "Ballerina",
                 "Payload is not set properly");
+    }
+
+    @Test
+    public void testSetPayloadAndGetText() {
+        BString textContent = new BString("Hello Ballerina !");
+        BValue[] args = {textContent};
+        BValue[] returns = BRunUtil.invoke(result, "testSetPayloadAndGetText", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), textContent.stringValue());
     }
 }
