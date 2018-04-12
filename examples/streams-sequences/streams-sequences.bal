@@ -1,12 +1,14 @@
 import ballerina/runtime;
 import ballerina/io;
 
+// type representing the device temperature reading
 type DeviceTempInfo {
     int deviceID;
     int roomNo;
     float temp;
 };
 
+// type representing the inital temperature and the peak temperature
 type TempDiffInfo {
     float initialTemp;
     float peakTemp;

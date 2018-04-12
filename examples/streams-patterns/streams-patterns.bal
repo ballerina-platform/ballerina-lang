@@ -3,6 +3,7 @@ import ballerina/runtime;
 
 int index;
 
+// type representing the regulator state
 type RegulatorState {
     int deviceId;
     int roomNo;
@@ -10,6 +11,7 @@ type RegulatorState {
     string userAction;
 };
 
+// type representig the user actions on the hotel key
 type RoomKeyAction {
     int roomNo;
     string userAction;
@@ -22,6 +24,8 @@ stream<RegulatorState> regulatorStateChangeStream;
 stream<RoomKeyAction> roomKeyStream;
 stream<RoomKeyAction> regulatorActionStream;
 
+// function deploy the decision rules for regulator's next action based on current regulator state and user action on
+// hotel key
 function deployRegulatorActionDecisionRules() {
     forever {
         from every regulatorStateChangeStream where userAction == "on" as e1
