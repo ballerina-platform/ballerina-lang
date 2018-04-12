@@ -41,15 +41,13 @@ service<http:WebSocketService> SimpleProxyServer {
     //This resource is triggered when a new binary frame is received from a client.
     onBinary (endpoint ep, blob data) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(ep);
-        clientEp -> pushBinary(data) but {error e => log:printErrorCause("Error occurred when sending binary message",
-        e)};
+        clientEp -> pushBinary(data) but {error e => log:printErrorCause("Error occurred when sending binary message", e)};
     }
 
     //This resource is triggered when a client connection is closed from the client side.
     onClose (endpoint ep, int statusCode, string reason) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(ep);
-        clientEp -> close(statusCode, reason) but {error e => log:printErrorCause("Error occurred when closing the
-        connection", e)};
+        clientEp -> close(statusCode, reason) but {error e => log:printErrorCause("Error occurred when closing the connection", e)};
         _ = ep.attributes.remove(ASSOCIATED_CONNECTION);
     }
 }
@@ -67,15 +65,13 @@ service<http:WebSocketClientService> ClientService {
     //This resource is triggered when a new binary frame is received from the remote backend.
     onBinary (endpoint ep, blob data) {
         endpoint http:WebSocketListener parentEp = getAssociatedServerEndpoint(ep);
-        parentEp -> pushBinary(data) but {error e => log:printErrorCause("Error occurred when sending binary message",
-        e)};
+        parentEp -> pushBinary(data) but {error e => log:printErrorCause("Error occurred when sending binary message", e)};
     }
 
     //This resource is triggered when a client connection is closed by the remote backend.
     onClose (endpoint ep, int statusCode, string reason) {
         endpoint http:WebSocketListener parentEp = getAssociatedServerEndpoint(ep);
-        parentEp -> close(statusCode, reason) but {error e => log:printErrorCause("Error occurred when closing the
-        connection", e)};
+        parentEp -> close(statusCode, reason) but {error e => log:printErrorCause("Error occurred when closing the connection", e)};
         _ = ep.attributes.remove(ASSOCIATED_CONNECTION);
     }
 

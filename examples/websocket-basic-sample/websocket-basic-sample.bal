@@ -39,8 +39,7 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
             conn -> close(1001, "You asked me to close the connection")
                          but {error e => log:printErrorCause("Error occurred when closing the connection", e)};
         } else {
-            conn -> pushText("You said: " + text) but {error e => log:printErrorCause("Error occurred when sending
-            text", e)};
+            conn -> pushText("You said: " + text) but {error e => log:printErrorCause("Error occurred when sending text", e)};
         }
     }
 
