@@ -33,6 +33,7 @@ public class WebSocketConstants {
 
 
     public static final String WEBSOCKET_ANNOTATION_CONFIGURATION = "WebSocketServiceConfig";
+    public static final String ANNOTATION_ATTR_PATH = "path";
     public static final String ANNOTATION_ATTR_SUB_PROTOCOLS = "subProtocols";
     public static final String ANNOTATION_ATTR_IDLE_TIMEOUT = "idleTimeoutInSeconds";
     public static final String ANN_CONFIG_ATTR_WSS_PORT = "wssPort";
