@@ -57,14 +57,14 @@ public class SQLConnectorInitTest {
          Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testConnectorWithDataSourceClass() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDataSourceClass");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testConnectorWithDataSourceClassAndProps() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDataSourceClassAndProps");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
