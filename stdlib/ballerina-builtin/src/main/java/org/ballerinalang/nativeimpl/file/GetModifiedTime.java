@@ -21,18 +21,16 @@ package org.ballerinalang.nativeimpl.file;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.Utils;
+import org.ballerinalang.nativeimpl.file.utils.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.time.ZonedDateTime;
 
@@ -42,14 +40,11 @@ import static org.ballerinalang.nativeimpl.Utils.getTimeZoneStructInfo;
 /**
  * Retrieves the last modified time of the specified file.
  *
- * @since 0.94.1
+ * @since 0.970.0-alpha4
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "file",
         functionName = "getModifiedTime",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
-        returnType = {@ReturnType(type = TypeKind.STRUCT), @ReturnType(type = TypeKind.STRUCT),
-                @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class GetModifiedTime extends BlockingNativeCallableUnit {
@@ -58,12 +53,11 @@ public class GetModifiedTime extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct fileStruct = (BStruct) context.getRefArgument(0);
-        String path = fileStruct.getStringField(0);
-
+        BStruct pathStruct = (BStruct) context.getRefArgument(0);
+        Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         BStruct lastModifiedStruct;
         try {
-            FileTime lastModified = Files.getLastModifiedTime(Paths.get(path));
+            FileTime lastModified = Files.getLastModifiedTime(path);
             ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
             lastModifiedStruct = Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context),
                     lastModified.toMillis(), zonedDateTime.getZone().toString());

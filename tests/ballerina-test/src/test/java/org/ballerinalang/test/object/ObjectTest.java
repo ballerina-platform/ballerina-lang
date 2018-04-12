@@ -358,6 +358,18 @@ public class ObjectTest {
         Assert.assertEquals(returns[3].stringValue(), "");
     }
 
+    @Test(description = "Test object self reference with defaultable")
+    public void testObjectSelfreferenceWithDefaultable() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_cyclic_" +
+                "self_reference_with_default.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCyclicReferenceWithDefaultable");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 89);
+    }
+
 //    @Test(description = "Test object with default initialize global variable") //TODO fix
 //    public void testObjectWithDefaultInitializeGlobalVar1() {
 //        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_declaration_test1.bal");
@@ -437,5 +449,35 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 0, "object un-initializable field 'Foo foo' is not " +
                 "present as a constructor parameter", 18, 1);
     }
+
+    @Test (description = "Negative test to test self reference types")
+    public void testSelfReferenceType() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
+        Assert.assertEquals(result.getErrorCount(), 5);
+        BAssertUtil.validateError(result, 0, "object un-initializable field 'Employee emp' " +
+                "is not present as a constructor parameter", 7, 1);
+        BAssertUtil.validateError(result, 1, "cyclic type reference in '[Employee, Foo, Bar, Person]'", 10, 9);
+        BAssertUtil.validateError(result, 2, "object un-initializable field 'Foo foo' is " +
+                "not present as a constructor parameter", 14, 1);
+        BAssertUtil.validateError(result, 3, "object un-initializable field 'Bar bar' is " +
+                "not present as a constructor parameter", 14, 1);
+        BAssertUtil.validateError(result, 4, "object un-initializable field 'Bar bar1' is " +
+                "not present as a constructor parameter", 22, 1);
+    }
+
+//    @Test (description = "Negative test to test self reference types")
+//    public void testNonMatchingAttachedFunction() {
+//        CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
+//        Assert.assertEquals(result.getErrorCount(), 5);
+//        BAssertUtil.validateError(result, 0, "object un-initializable field 'Employee emp' " +
+//                "is not present as a constructor parameter", 7, 1);
+//        BAssertUtil.validateError(result, 1, "cyclic type reference in '[Employee, Foo, Bar, Person]'", 10, 9);
+//        BAssertUtil.validateError(result, 2, "object un-initializable field 'Foo foo' is " +
+//                "not present as a constructor parameter", 14, 1);
+//        BAssertUtil.validateError(result, 3, "object un-initializable field 'Bar bar' is " +
+//                "not present as a constructor parameter", 14, 1);
+//        BAssertUtil.validateError(result, 4, "object un-initializable field 'Bar bar1' is " +
+//                "not present as a constructor parameter", 22, 1);
+//    }
 
 }

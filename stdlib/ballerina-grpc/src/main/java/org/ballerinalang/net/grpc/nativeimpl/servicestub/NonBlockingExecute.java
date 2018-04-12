@@ -17,13 +17,16 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
+import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
+import io.grpc.stub.MetadataUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
@@ -32,6 +35,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
+import org.ballerinalang.net.grpc.MessageHeaders;
 import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
@@ -40,13 +44,17 @@ import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+
 import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.METHOD_DESCRIPTORS;
 import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageUtils.setRequestHeaders;
+import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
 
 /**
  * {@code NonBlockingExecute} is the NonBlockingExecute action implementation of the gRPC Connector.
@@ -62,7 +70,8 @@ import static org.ballerinalang.net.grpc.MessageUtils.setRequestHeaders;
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.ANY),
-                @Argument(name = "listenerService", type = TypeKind.TYPEDESC)
+                @Argument(name = "listenerService", type = TypeKind.TYPEDESC),
+                @Argument(name = "headers", type = TypeKind.ARRAY)
         },
         returnType = {
                 @ReturnType(type = TypeKind.ANY),
@@ -73,6 +82,8 @@ import static org.ballerinalang.net.grpc.MessageUtils.setRequestHeaders;
 )
 public class NonBlockingExecute extends AbstractExecute {
     private static final Logger LOG = LoggerFactory.getLogger(NonBlockingExecute.class);
+    private static final int MESSAGE_HEADER_REF_INDEX = 3;
+
     @Override
     public void execute(Context context) {
         BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
@@ -94,6 +105,15 @@ public class NonBlockingExecute extends AbstractExecute {
                     "set properly");
             return;
         }
+
+        Map<String, MethodDescriptor<Message, Message>> methodDescriptors = (Map<String, MethodDescriptor<Message,
+                Message>>) serviceStub.getNativeData(METHOD_DESCRIPTORS);
+        if (methodDescriptors == null) {
+            notifyErrorReply(context, "Error while processing the request. method descriptors " +
+                    "doesn't set properly");
+            return;
+        }
+
         com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = MessageRegistry.getInstance()
                 .getMethodDescriptor(methodName);
         if (methodDescriptor == null) {
@@ -101,24 +121,35 @@ public class NonBlockingExecute extends AbstractExecute {
             return;
         }
 
+
         // Update request headers when request headers exists in the context.
-        setRequestHeaders(context);
+        BRefValueArray headerValues = (BRefValueArray) context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
+        MessageHeaders headers = getMessageHeaders(headerValues);
 
         if (connectionStub instanceof GrpcNonBlockingStub) {
             BValue payloadBValue = context.getRefArgument(1);
             Message requestMsg = MessageUtils.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
             GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
+
+            // Attach header read/write listener to the service stub.
+            AtomicReference<Metadata> headerCapture = new AtomicReference<>();
+            AtomicReference<Metadata> trailerCapture = new AtomicReference<>();
+            if (headers != null) {
+                grpcNonBlockingStub = MetadataUtils.attachHeaders(grpcNonBlockingStub, headers.getMessageMetadata());
+            }
+            grpcNonBlockingStub = MetadataUtils.captureMetadata(grpcNonBlockingStub, headerCapture, trailerCapture);
+
             BTypeDescValue serviceType = (BTypeDescValue) context.getRefArgument(2);
             Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), getTypeField
                     (serviceType));
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
-                    grpcNonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(callbackService),
-                            methodName);
+                    grpcNonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(callbackService,
+                            headerCapture), methodDescriptors.get(methodName));
                 } else if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
-                    grpcNonBlockingStub.executeServerStreaming(requestMsg, new DefaultStreamObserver(callbackService)
-                            , methodName);
+                    grpcNonBlockingStub.executeServerStreaming(requestMsg, new DefaultStreamObserver(callbackService,
+                            headerCapture), methodDescriptors.get(methodName));
                 } else {
                     notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");

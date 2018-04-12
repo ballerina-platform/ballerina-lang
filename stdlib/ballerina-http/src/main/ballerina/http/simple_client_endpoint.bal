@@ -87,7 +87,7 @@ public type SimpleClientEndpointConfiguration {
     int timeoutMillis = 60000,
     string httpVersion = "1.1",
     string forwarded = "disable",
-    boolean keepAlive = true,
+    KeepAlive keepAlive = KEEPALIVE_AUTO,
     TransferEncoding transferEncoding = "CHUNKING",
     Chunking chunking = "AUTO",
     FollowRedirects? followRedirects,
@@ -135,7 +135,7 @@ public function SimpleClient::init(SimpleClientEndpointConfiguration simpleConfi
                 self.httpEP.config.cache = simpleConfig.cache;
                 self.httpEP.httpClient = createHttpCachingClient(url, self.httpEP.config, self.httpEP.config.cache);
             } else {
-                self.httpEP.httpClient = createHttpClient(url, self.httpEP.config);
+                self.httpEP.httpClient = createHttpSecureClient(url, self.httpEP.config);
             }
         }
     }
