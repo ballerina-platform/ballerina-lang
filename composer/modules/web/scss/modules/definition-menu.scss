@@ -30,13 +30,38 @@
     .item {
         border: 0;
         padding: 0 !important;
+        margin-top: 6px ;
+        a.item:hover{
+            background: pink !important;
+
+        }
         .menu-icon {
             width: 26px !important;
             height: 25px !important;
             color: #222;
-            margin-top: 10px !important;
-            padding: 0 19px 0 10px !important;
+            padding: 2px 0 26px 8px !important;
+            margin  : 9px 5px 0 0 !important;
+
+            &:hover{
+                width: 26px !important;
+                height: 25px !important;
+                border-radius: 0 !important;
+            }
         }
+        .menu-icon-right{
+            width: 26px !important;
+            height: 25px !important;
+            color: #222;
+            padding: 0 0 23px 8px !important;
+            margin  :16px 6px 0px 0 !important;
+            
+            &:hover{
+                width: 26px !important;
+                height: 25px !important;
+                border-radius: 0 !important;
+            }
+        }
+
     }
     .ui.menu .item:before {
         width: 0;
