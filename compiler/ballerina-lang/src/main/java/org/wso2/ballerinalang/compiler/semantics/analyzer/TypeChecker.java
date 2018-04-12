@@ -424,7 +424,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
-        if(!fieldAccessExpr.lhsVar) {
+        if (!fieldAccessExpr.lhsVar) {
             varRefType = getSafeType(varRefType, fieldAccessExpr.safeNavigate, fieldAccessExpr.pos);
         }
 

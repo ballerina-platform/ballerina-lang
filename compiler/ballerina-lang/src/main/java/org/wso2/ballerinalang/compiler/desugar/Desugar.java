@@ -2490,7 +2490,8 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Create the pattern for success scenario. i.e: not null and not error (if applicable).
-        BLangMatchStmtPatternClause successPattern = getSuccessPattern(accessExpr, tempResultVar, accessExpr.safeNavigate);
+        BLangMatchStmtPatternClause successPattern =
+                getSuccessPattern(accessExpr, tempResultVar, accessExpr.safeNavigate);
         matchStmt.patternClauses.add(successPattern);
         this.matchStmtStack.push(matchStmt);
         if (this.successPattern != null) {
