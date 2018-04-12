@@ -63,10 +63,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>swagger-to-ballerina-generator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>docerina</artifactId>
         </dependency>
         <dependency>
