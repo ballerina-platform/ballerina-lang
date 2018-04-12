@@ -32,7 +32,8 @@ service<jms:Consumer> jmsListener bind subscriber {
     }
 }
 
-// This is to make sure that the test case can detect the PID using port.
+// This is to make sure that the test case can detect the PID using port. Removing following will result in
+// intergration testframe work failing to kill the ballerina service.
 endpoint http:Listener helloWorldEp {
     port:9090
 };
