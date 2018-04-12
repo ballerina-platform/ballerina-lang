@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.util;
+package org.ballerinalang.broker;
 
 import io.ballerina.messaging.broker.common.StartupContext;
 import io.ballerina.messaging.broker.common.ValidationException;
@@ -25,6 +25,7 @@ import io.ballerina.messaging.broker.common.config.BrokerConfigProvider;
 import io.ballerina.messaging.broker.common.data.types.FieldTable;
 import io.ballerina.messaging.broker.core.Broker;
 import io.ballerina.messaging.broker.core.BrokerException;
+import io.ballerina.messaging.broker.core.BrokerImpl;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.ContentChunk;
 import io.ballerina.messaging.broker.core.Message;
@@ -36,12 +37,12 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Class providing utility methods to interact with the broker operating in in-memory mode.
- * TODO: Needs refactoring once the broker core is moved to the Ballerina core
  *
  * @since 0.965.0
  */
@@ -49,7 +50,7 @@ public class BrokerUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(BrokerUtils.class);
 
-    private static Broker broker;
+    private static BrokerImpl broker;
 
     static {
         try {
@@ -92,13 +93,12 @@ public class BrokerUtils {
      * @param payload   the payload to publish (message content)
      */
     public static void publish(String topic, byte[] payload) {
-        Message message = new Message(broker.getNextMessageId(),
+        Message message = new Message(Broker.getNextMessageId(),
                                       new Metadata(topic, "amq.topic", payload.length));
         ByteBuf content = Unpooled.copiedBuffer(payload);
         message.addChunk(new ContentChunk(0, content));
-        Message newMessage = message.shallowCopyWith(broker.getNextMessageId(), topic, "amq.topic");
         try {
-            broker.publish(newMessage);
+            broker.publish(message);
         } catch (BrokerException e) {
             logger.error("Error publishing to topic: ", e);
         }
@@ -107,7 +107,7 @@ public class BrokerUtils {
     /**
      * Method to start up the Ballerina Broker. TODO: change
      */
-    private static Broker startupBroker() throws Exception {
+    private static BrokerImpl startupBroker() throws Exception {
         BallerinaBrokerConfigProvider configProvider = new BallerinaBrokerConfigProvider();
         BrokerCommonConfiguration brokerCommonConfiguration = new BrokerCommonConfiguration();
         brokerCommonConfiguration.setEnableInMemoryMode(true);
@@ -117,7 +117,7 @@ public class BrokerUtils {
         configProvider.registerConfigurationObject(BrokerCoreConfiguration.NAMESPACE, brokerCoreConfiguration);
         StartupContext startupContext = new StartupContext();
         startupContext.registerService(BrokerConfigProvider.class, configProvider);
-        Broker brokerInstance = new Broker(startupContext);
+        BrokerImpl brokerInstance = new BrokerImpl(startupContext);
         brokerInstance.startMessageDelivery();
         return brokerInstance;
     }
@@ -137,5 +137,21 @@ public class BrokerUtils {
         void registerConfigurationObject(String namespace, Object configObject) {
             configMap.put(namespace, configObject);
         }
+    }
+
+    /**
+     * Retrieve byte array for a message received.
+     *
+     * @param message   The message received
+     * @return          Retrieved byte array
+     */
+    public static byte[] retrieveBytes(Message message) {
+        ByteBuffer messageByteBuffer = ByteBuffer.allocate((int) message.getMetadata().getContentLength());
+        for (ContentChunk messageContentChunk : message.getContentChunks()) {
+            byte[] contentChunkByteArray = messageContentChunk.getBytes();
+            messageByteBuffer = messageByteBuffer.put(contentChunkByteArray, (int) messageContentChunk.getOffset(),
+                                                      contentChunkByteArray.length);
+        }
+        return messageByteBuffer.array();
     }
 }
