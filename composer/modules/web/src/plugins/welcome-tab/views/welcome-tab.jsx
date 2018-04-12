@@ -125,13 +125,14 @@ class WelcomeTab extends React.Component {
                             <Button
                                 id='btn-welcome-open'
                                 className='btn-secondary'
-                                onClick={this.props.openFile}
+                                onClick={this.props.openDirectory}
                             >
                                 Open Project
                             </Button>
                             <Button
                                 id='btn-welcome-open'
                                 className='btn-secondary'
+                                onClick={this.props.openFile}
                             >
                                 Create Script
                             </Button>

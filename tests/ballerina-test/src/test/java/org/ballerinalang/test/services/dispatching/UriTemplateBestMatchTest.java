@@ -308,7 +308,7 @@ public class UriTemplateBestMatchTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo125").asText(), "null" , "param value is not null");
+        Assert.assertEquals(bJson.value().get("echo125").asText(), "" , "param value is not null");
     }
 
     @Test(description = "Test suitable method with URL. /echo13?foo=1 ")

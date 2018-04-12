@@ -360,7 +360,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isReceiverAttached = ctx.parameter() != null;
 
         this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc,
-                bodyExists, isReceiverAttached);
+                bodyExists, isReceiverAttached, false);
     }
 
     @Override
