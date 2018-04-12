@@ -81,7 +81,7 @@ public class JsonLogFormatter extends Formatter {
         writeJSON(strbuff, "thread", String.valueOf(threadNum));
 
         if (message != null) {
-            message = message.replaceAll("\\n", " , ");
+            message = message.replaceAll("\\n", "\\\\n");
             message = message.replaceAll("\"", "\\\\\"");
             strbuff.append(",");
             writeJSON(strbuff, "message", message);

@@ -3,6 +3,8 @@ package ballerina.http;
 import ballerina/file;
 import ballerina/io;
 import ballerina/mime;
+import ballerina/security.crypto;
+import ballerina/time;
 
 @Description { value:"Represents an HTTP response message"}
 @Field {value:"statusCode: The response status code"}
@@ -14,7 +16,7 @@ public type Response object {
         int statusCode;
         string reasonPhrase;
         string server;
-        ResponseCacheControl cacheControl;
+        ResponseCacheControl? cacheControl;
     }
 
     private {
@@ -119,6 +121,13 @@ public type Response object {
     @Param {value:"response: The response message"}
     @Return {value:"Returns the body parts as an array of entities"}
     public function getBodyParts () returns (mime:Entity[] | mime:EntityError);
+
+    @Description {value:"Sets the ETag header for the given payload. The ETag is generated using a CRC32 hash function."}
+    @Param {value:"The payload for which the ETag should be set."}
+    public function setETag(json|xml|string|blob payload);
+
+    @Description {value:"Sets the current time as the Last-Modified header."}
+    public function setLastModified();
 
     @Description {value:"Sets a JSON as the outbound response payload"}
     @Param {value:"response: The response message"}
@@ -284,6 +293,17 @@ public function Response::getBodyParts () returns mime:Entity[] | mime:EntityErr
         mime:Entity entity => return entity.getBodyParts();
         mime:EntityError err => return err;
     }
+}
+
+public function Response::setETag(json|xml|string|blob payload) {
+    string etag = crypto:getCRC32(payload);
+    self.setHeader(ETAG, etag);
+}
+
+public function Response::setLastModified() {
+    time:Time currentT = time:currentTime();
+    string lastModified = currentT.formatTo(time:TIME_FORMAT_RFC_1123);
+    self.setHeader(LAST_MODIFIED, lastModified);
 }
 
 public function Response::setJsonPayload (json payload) {

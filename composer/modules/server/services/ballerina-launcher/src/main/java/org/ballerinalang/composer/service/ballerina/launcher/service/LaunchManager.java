@@ -131,14 +131,16 @@ public class LaunchManager {
             };
             (new Thread(error)).start();
 
+            new Thread(new Runnable() {
+                public void run() {
+                    LogParser.getLogParserInstance().startListner(launchManagerInstance);
+                }
+            }).start();
+
         } catch (IOException e) {
             pushMessageToClient(launchSession, LauncherConstants.EXIT, LauncherConstants.ERROR, e.getMessage());
         }
-        new Thread(new Runnable() {
-            public void run() {
-                LogParser.getLogParserInstance().startListner(launchManagerInstance);
-            }
-        }).start();
+
 
     }
 
@@ -172,6 +174,7 @@ public class LaunchManager {
             }
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPPED, LauncherConstants.INFO,
                     LauncherConstants.END_MESSAGE);
+            LogParser.getLogParserInstance().stopListner();
         } catch (IOException e) {
             logger.error("Error while sending output stream to client.", e);
         } finally {

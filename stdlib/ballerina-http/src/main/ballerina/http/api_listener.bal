@@ -17,75 +17,41 @@
 package ballerina.http;
 
 @Description {value:"Representation of an API Listener"}
-@Field {value:"config: ServiceEndpointConfiguration instance"}
-@Field {value:"httpListener: HTTP Listener instance"}
+@Field {value:"config: SecureEndpointConfiguration instance"}
+@Field {value:"secureListener: Secure HTTP Listener instance"}
 public type APIListener object {
     public {
-        ServiceEndpointConfiguration config;
-        Listener httpListener;
+        SecureEndpointConfiguration config;
+        SecureListener secureListener;
     }
 
     new () {
-        httpListener = new;
+        secureListener = new;
     }
 
-    public function init (ServiceEndpointConfiguration config);
+    public function init (SecureEndpointConfiguration config);
     public function register (typedesc serviceType);
     public function start ();
     public function getClient () returns (Connection);
     public function stop ();
 };
 
-@Description {value:"Add authn and authz filters"}
-@Param {value:"config: ServiceEndpointConfiguration instance"}
-function addAuthFilters (ServiceEndpointConfiguration config) {
-    // add authentication and authorization filters as the first two filters.
-    // if there are any other filters specified, those should be added after the authn and authz filters.
-    if (config.filters == null) {
-        // can add authn and authz filters directly
-        config.filters = createAuthFilters();
-    } else {
-        Filter[] newFilters = createAuthFilters();
-        // add existing filters next
-        int i = 0;
-        while (i < lengthof config.filters) {
-            newFilters[i + (lengthof newFilters)] = config.filters[i];
-            i = i + 1;
-        }
-        config.filters = newFilters;
-    }
-}
-
-@Description {value:"Create an array of auth and authz filters"}
-@Return {value:"Array of Filters comprising of authn and authz Filters"}
-function createAuthFilters () returns (Filter[]) {
-    // TODO: currently hard coded. fix it.
-    Filter[] authFilters = [];
-    //TODO fix this object instantiation properly
-    AuthnFilter authnFilter = new (authnRequestFilterFunc, responseFilterFunc);
-    AuthzFilter authzFilter = new (authzRequestFilterFunc, responseFilterFunc);
-    authFilters[0] = authnFilter;
-    authFilters[1] = authzFilter;
-    return authFilters;
-}
-
-public function APIListener::init (ServiceEndpointConfiguration config) {
-    addAuthFilters(config);
-    self.httpListener.init(config);
+public function APIListener::init (SecureEndpointConfiguration config) {
+    self.secureListener.init(config);
 }
 
 public function APIListener::register (typedesc serviceType) {
-    self.httpListener.register(serviceType);
+    self.secureListener.register(serviceType);
 }
 
 public function APIListener::start () {
-    self.httpListener.start();
+    self.secureListener.start();
 }
 
 public function APIListener::getClient () returns (Connection) {
-    return self.httpListener.getClient();
+    return self.secureListener.getClient();
 }
 
 public function APIListener::stop () {
-    self.httpListener.stop();
+    self.secureListener.stop();
 }

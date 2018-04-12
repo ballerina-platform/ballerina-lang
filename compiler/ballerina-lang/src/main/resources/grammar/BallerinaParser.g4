@@ -873,7 +873,7 @@ outputRateLimit
     ;
 
 patternStreamingInput
-    :   patternStreamingEdgeInput FOLLOWED BY patternStreamingInput
+    :   patternStreamingEdgeInput ( FOLLOWED BY | COMMA ) patternStreamingInput
     |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
     |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR simpleLiteral)
     |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput

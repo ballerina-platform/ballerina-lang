@@ -136,7 +136,7 @@ class WelcomeTab extends React.Component {
                                 Create Script
                             </Button>
                         </Grid.Column>
-                        <Divider />
+                        {/* <Divider />
                         <Grid.Column>
                             <Grid.Column className='recentWrapper' as='h3'>
                                 Recently Opened
@@ -163,7 +163,7 @@ class WelcomeTab extends React.Component {
                                     <span>nyseStockQuoteService.bal</span>
                                 </List.Item>
                             </Grid.Column>
-                        </Grid.Column>
+                        </Grid.Column> */}
                     </Grid.Column>
                     <Grid.Column mobile={9} tablet={11} computer={13} className='rightContainer'>
                         <Grid>

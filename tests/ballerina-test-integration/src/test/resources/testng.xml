@@ -37,6 +37,13 @@
             <package name="org.ballerinalang.test.transaction"/>
             <package name="org.ballerinalang.test.filter"/>
             <package name="org.ballerinalang.test.auth"/>
+            <package name="org.ballerinalang.test.securelistener"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-jms-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.jms"/>
         </packages>
     </test>
 
