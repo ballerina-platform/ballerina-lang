@@ -151,6 +151,7 @@
                     <artifactSet>
                         <includes>
                             <include>com.github.jknack:handlebars</include>
+                            <include>com.atlassian.commonmark:commonmark</include>
                         </includes>
                     </artifactSet>
                     <filters>
