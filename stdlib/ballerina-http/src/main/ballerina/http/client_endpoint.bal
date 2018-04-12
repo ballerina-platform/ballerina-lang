@@ -93,7 +93,7 @@ public type ClientEndpointConfig {
     string forwarded = "disable",
     FollowRedirects? followRedirects,
     Retry? retry,
-    Proxy? proxyConfig,
+    ProxyConfig? proxy,
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
     string|FailoverConfig lbMode = ROUND_ROBIN,
@@ -144,12 +144,12 @@ public type FollowRedirects {
     int maxCount = 5,
 };
 
-@Description { value:"Proxy struct represents proxy server configurations to be used for HTTP client invocation" }
+@Description { value:"ProxyConfig struct represents proxy server configurations to be used for HTTP client invocation" }
 @Field {value:"proxyHost: host name of the proxy server"}
 @Field {value:"proxyPort: proxy server port"}
 @Field {value:"proxyUserName: Proxy server user name"}
 @Field {value:"proxyPassword: proxy server password"}
-public type Proxy {
+public type ProxyConfig {
     string host,
     int port,
     string userName,
