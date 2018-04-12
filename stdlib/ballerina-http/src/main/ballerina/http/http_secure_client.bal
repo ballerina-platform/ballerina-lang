@@ -50,10 +50,24 @@ public type HttpSecureClient object {
     public function post(string path, Request req) returns (Response|HttpConnectorError) {
         var details = prepareRequest(req, config);
         match details {
-            () => {}
+            () => {
+                var httpResponse = httpClient.post(path, req);
+                match httpResponse {
+                    HttpConnectorError err => return err;
+                    Response response => {
+                        string scheme = config.auth.scheme but { () => EMPTY_STRING };
+                        if (response.statusCode == UNAUTHORIZED_401 && scheme == OAUTH_SCHEME){
+                            match checkResponseAndRetry(config){
+                                Request request => return httpClient.post(path, request);
+                                HttpConnectorError err => return err;
+                            }
+                        }
+                        return response;
+                    }
+                }
+            }
             HttpConnectorError err => return err;
         }
-        return httpClient.post(path, req);
     }
 
     @Description {value:"The HEAD action implementation of the HTTP Connector."}
@@ -64,10 +78,24 @@ public type HttpSecureClient object {
     public function head(string path, Request req) returns (Response|HttpConnectorError) {
         var details = prepareRequest(req, config);
         match details {
-            () => {}
+            () => {
+                var httpResponse = httpClient.head(path, req);
+                match httpResponse {
+                    HttpConnectorError err => return err;
+                    Response response => {
+                        string scheme = config.auth.scheme but { () => EMPTY_STRING };
+                        if (response.statusCode == UNAUTHORIZED_401 && scheme == OAUTH_SCHEME){
+                            match checkResponseAndRetry(config){
+                                Request request => return httpClient.head(path, request);
+                                HttpConnectorError err => return err;
+                            }
+                        }
+                        return response;
+                    }
+                }
+            }
             HttpConnectorError err => return err;
         }
-        return httpClient.head(path, req);
     }
 
     @Description {value:"The PUT action implementation of the HTTP Connector."}
@@ -78,10 +106,24 @@ public type HttpSecureClient object {
     public function put(string path, Request req) returns (Response|HttpConnectorError) {
         var details = prepareRequest(req, config);
         match details {
-            () => {}
+            () => {
+                var httpResponse = httpClient.put(path, req);
+                match httpResponse {
+                    HttpConnectorError err => return err;
+                    Response response => {
+                        string scheme = config.auth.scheme but { () => EMPTY_STRING };
+                        if (response.statusCode == UNAUTHORIZED_401 && scheme == OAUTH_SCHEME){
+                            match checkResponseAndRetry(config){
+                                Request request => return httpClient.put(path, request);
+                                HttpConnectorError err => return err;
+                            }
+                        }
+                        return response;
+                    }
+                }
+            }
             HttpConnectorError err => return err;
         }
-        return httpClient.put(path, req);
     }
 
     @Description {value:"Invokes an HTTP call with the specified HTTP verb."}
@@ -93,10 +135,24 @@ public type HttpSecureClient object {
     public function execute(string httpVerb, string path, Request req) returns (Response|HttpConnectorError) {
         var details = prepareRequest(req, config);
         match details {
-            () => {}
+            () => {
+                var httpResponse = httpClient.execute(httpVerb, path, req);
+                match httpResponse {
+                    HttpConnectorError err => return err;
+                    Response response => {
+                        string scheme = config.auth.scheme but { () => EMPTY_STRING };
+                        if (response.statusCode == UNAUTHORIZED_401 && scheme == OAUTH_SCHEME){
+                            match checkResponseAndRetry(config){
+                                Request request => return httpClient.execute(httpVerb, path, request);
+                                HttpConnectorError err => return err;
+                            }
+                        }
+                        return response;
+                    }
+                }
+            }
             HttpConnectorError err => return err;
         }
-        return httpClient.execute(httpVerb, path, req);
     }
 
     @Description {value:"The PATCH action implementation of the HTTP Connector."}
@@ -107,10 +163,24 @@ public type HttpSecureClient object {
     public function patch(string path, Request req) returns (Response|HttpConnectorError) {
         var details = prepareRequest(req, config);
         match details {
-            () => {}
+            () => {
+                var httpResponse = httpClient.patch(path, req);
+                match httpResponse {
+                    HttpConnectorError err => return err;
+                    Response response => {
+                        string scheme = config.auth.scheme but { () => EMPTY_STRING };
+                        if (response.statusCode == UNAUTHORIZED_401 && scheme == OAUTH_SCHEME){
+                            match checkResponseAndRetry(config){
+                                Request request => return httpClient.patch(path, request);
+                                HttpConnectorError err => return err;
+                            }
+                        }
+                        return response;
+                    }
+                }
+            }
             HttpConnectorError err => return err;
         }
-        return httpClient.patch(path, req);
     }
 
     @Description {value:"The DELETE action implementation of the HTTP connector"}
@@ -121,10 +191,24 @@ public type HttpSecureClient object {
     public function delete(string path, Request req) returns (Response|HttpConnectorError) {
         var details = prepareRequest(req, config);
         match details {
-            () => {}
+            () => {
+                var httpResponse = httpClient.delete(path, req);
+                match httpResponse {
+                    HttpConnectorError err => return err;
+                    Response response => {
+                        string scheme = config.auth.scheme but { () => EMPTY_STRING };
+                        if (response.statusCode == UNAUTHORIZED_401 && scheme == OAUTH_SCHEME){
+                            match checkResponseAndRetry(config){
+                                Request request => return httpClient.delete(path, request);
+                                HttpConnectorError err => return err;
+                            }
+                        }
+                        return response;
+                    }
+                }
+            }
             HttpConnectorError err => return err;
         }
-        return httpClient.delete(path, req);
     }
 
     @Description {value:"GET action implementation of the HTTP Connector"}
@@ -135,10 +219,24 @@ public type HttpSecureClient object {
     public function get(string path, Request req) returns (Response|HttpConnectorError) {
         var details = prepareRequest(req, config);
         match details {
-            () => {}
+            () => {
+                var httpResponse = httpClient.get(path, req);
+                match httpResponse {
+                    HttpConnectorError err => return err;
+                    Response response => {
+                        string scheme = config.auth.scheme but { () => EMPTY_STRING };
+                        if (response.statusCode == UNAUTHORIZED_401 && scheme == OAUTH_SCHEME){
+                            match checkResponseAndRetry(config){
+                                Request request => return httpClient.get(path, request);
+                                HttpConnectorError err => return err;
+                            }
+                        }
+                        return response;
+                    }
+                }
+            }
             HttpConnectorError err => return err;
         }
-        return httpClient.get(path, req);
     }
 
     @Description {value:"OPTIONS action implementation of the HTTP Connector"}
@@ -149,10 +247,24 @@ public type HttpSecureClient object {
     public function options(string path, Request req) returns (Response|HttpConnectorError) {
         var details = prepareRequest(req, config);
         match details {
-            () => {}
+            () => {
+                var httpResponse = httpClient.options(path, req);
+                match httpResponse {
+                    HttpConnectorError err => return err;
+                    Response response => {
+                        string scheme = config.auth.scheme but { () => EMPTY_STRING };
+                        if (response.statusCode == UNAUTHORIZED_401 && scheme == OAUTH_SCHEME){
+                            match checkResponseAndRetry(config){
+                                Request request => return httpClient.options(path, request);
+                                HttpConnectorError err => return err;
+                            }
+                        }
+                        return response;
+                    }
+                }
+            }
             HttpConnectorError err => return err;
         }
-        return httpClient.options(path, req);
     }
 
     @Description {value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP verb"}
@@ -163,10 +275,24 @@ public type HttpSecureClient object {
     public function forward(string path, Request req) returns (Response|HttpConnectorError) {
         var details = prepareRequest(req, config);
         match details {
-            () => {}
+            () => {
+                var httpResponse = httpClient.forward(path, req);
+                match httpResponse {
+                    HttpConnectorError err => return err;
+                    Response response => {
+                        string scheme = config.auth.scheme but { () => EMPTY_STRING };
+                        if (response.statusCode == UNAUTHORIZED_401 && scheme == OAUTH_SCHEME){
+                            match checkResponseAndRetry(config){
+                                Request request => return httpClient.forward(path, request);
+                                HttpConnectorError err => return err;
+                            }
+                        }
+                        return response;
+                    }
+                }
+            }
             HttpConnectorError err => return err;
         }
-        return httpClient.forward(path, req);
     }
 
     @Description {value:"Submits an HTTP request to a service with the specified HTTP verb."}
@@ -178,10 +304,9 @@ public type HttpSecureClient object {
     public function submit(string httpVerb, string path, Request req) returns (HttpFuture|HttpConnectorError) {
         var details = prepareRequest(req, config);
         match details {
-            () => {}
+            () => return httpClient.submit(httpVerb, path, req);
             HttpConnectorError err => return err;
         }
-        return httpClient.submit(httpVerb, path, req);
     }
 
     @Description {value:"Retrieves response for a previously submitted request."}
@@ -229,7 +354,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 @Description {value:"Prepare HTTP request with the required headers for authentication."}
 @Param {value:"req: An HTTP outbound request message"}
 @Param {value:"request:Client endpoint configurations"}
-public function prepareRequest(Request req, ClientEndpointConfig config) returns (()|HttpConnectorError) {
+function prepareRequest(Request req, ClientEndpointConfig config) returns (()|HttpConnectorError) {
     string scheme = config.auth.scheme but { () => EMPTY_STRING };
     if (scheme == BASIC_SCHEME){
         string username = config.auth.username but { () => EMPTY_STRING };
@@ -251,7 +376,7 @@ public function prepareRequest(Request req, ClientEndpointConfig config) returns
             string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
             string clientId = config.auth.clientId but { () => EMPTY_STRING };
             string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
-            string refreshTokenUrl = config.auth.refreshTokenUrl but { () => EMPTY_STRING };
+            string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
 
             if (refreshToken != EMPTY_STRING && clientId != EMPTY_STRING && clientSecret != EMPTY_STRING) {
                 var accessTokenValueResponse = getAccessTokenFromRefreshToken(config);
@@ -282,8 +407,8 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
     string clientId = config.auth.clientId but { () => EMPTY_STRING };
     string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
-    string refreshTokenUrl = config.auth.refreshTokenUrl but { () => EMPTY_STRING };
-    HttpClient refreshTokenClient = createHttpSecureClient(refreshTokenUrl, {});
+    string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
+    HttpClient refreshTokenClient = createHttpSecureClient(refreshUrl, {});
     string refreshTokenRequestPath = "/oauth2/v3/token";
     string requestParams = "refresh_token=" + refreshToken + "&grant_type=refresh_token&client_secret=" + clientSecret + "&client_id=" + clientId;
     string base64ClientIdSecret;
@@ -311,9 +436,24 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     var requestAccessTokenJson = tokenResponse.getJsonPayload();
     json generatedToken = check requestAccessTokenJson;
 
-    if (tokenResponse.statusCode == 200) {
+    if (tokenResponse.statusCode == OK_200) {
         return generatedToken.access_token.toString() but { () => EMPTY_STRING };
     }
     return EMPTY_STRING;
+}
+
+@Description {value:"Check response for auth token expires."}
+@Return {value:"request:New request with headers."}
+@Return {value:"Error occured during HTTP client invocation."}
+function checkResponseAndRetry(ClientEndpointConfig config) returns (Request|HttpConnectorError) {
+    var accessTokenValueResponse = getAccessTokenFromRefreshToken(config);
+    match accessTokenValueResponse {
+        string accessTokenString => {
+            Request request = new();
+            request.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + accessTokenString);
+            return request;
+        }
+        HttpConnectorError err => return err;
+    }
 }
 
