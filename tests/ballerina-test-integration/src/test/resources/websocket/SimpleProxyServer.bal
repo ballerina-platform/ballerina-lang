@@ -1,7 +1,5 @@
-import ballerina/http;
 import ballerina/io;
-import ballerina/log;
-import ballerina/runtime;
+import ballerina/http;
 
 @final string REMOTE_BACKEND_URL = "ws://localhost:15500/websocket";
 @final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
@@ -24,10 +22,8 @@ service <http:Service> proxy bind ep {
             callbackService: clientCallbackService
         };
         http:WebSocketListener wsServiceEp = httpEp -> acceptWebSocketUpgrade({"some-header":"some-header-value"});
-        io:println("connections established");
         wsServiceEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsServiceEp;
-        io:println("connections saved");
     }
 }
 
@@ -39,39 +35,35 @@ service <http:WebSocketService> simpleProxy {
 
     onText (endpoint wsEp, string text) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
-        io:println("Listner service received text");
         clientEp -> pushText(text) but {error e => io:println("server text error")};
     }
 
     onBinary (endpoint wsEp, blob data) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
-        io:println("Listner service received binary");
         clientEp -> pushBinary(data) but {error e => io:println("server binary error")};
     }
 
     onClose (endpoint wsEp, int statusCode, string reason) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
-        _ = clientEp -> close(statusCode, reason);
+        clientEp -> close(statusCode, reason) but {error e => io:println("server closing error")};
     }
 
 }
 
 service <http:WebSocketClientService> clientCallbackService {
-onText (endpoint wsEp, string text) {
+    onText (endpoint wsEp, string text) {
         endpoint http:WebSocketListener serviceEp = getAssociatedListener(wsEp);
-        io:println("client service received text");
-        _ = serviceEp -> pushText(text)  but {error e => io:println("client text error")};
+        serviceEp -> pushText(text)  but {error e => io:println("client text error")};
     }
 
-onBinary (endpoint wsEp, blob data) {
-    endpoint http:WebSocketListener serviceEp = getAssociatedListener(wsEp);
-    io:println("client service received binary");
-    _ = serviceEp -> pushBinary(data) but {error e => io:println("client binary error")};
+    onBinary (endpoint wsEp, blob data) {
+        endpoint http:WebSocketListener serviceEp = getAssociatedListener(wsEp);
+        serviceEp -> pushBinary(data) but {error e => io:println("client binary error")};
     }
 
     onClose (endpoint wsEp, int statusCode, string reason) {
         endpoint http:WebSocketListener serviceEp = getAssociatedListener(wsEp);
-        _ = serviceEp -> close(statusCode, reason);
+        serviceEp -> close(statusCode, reason) but {error e => io:println("client closing error")};
     }
 }
 

@@ -1,7 +1,5 @@
 import ballerina/http;
 import ballerina/io;
-import ballerina/log;
-import ballerina/runtime;
 
 @final string REMOTE_BACKEND_URL = "ws://localhost:15500/websocket";
 @final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
@@ -26,10 +24,8 @@ service <http:Service> pingpong bind ep {
             callbackService: clientCallbackService
         };
         http:WebSocketListener wsServiceEp = httpEp -> acceptWebSocketUpgrade({"some-header":"some-header-value"});
-        io:println("connections established");
         wsServiceEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsServiceEp;
-        io:println("connections saved");
     }
 }
 

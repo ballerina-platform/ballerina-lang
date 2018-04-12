@@ -54,12 +54,11 @@ public class WebSocketQueryAndPathParamSupportTestCase extends WebSocketIntegrat
         String query2 = "query2";
         String url = String.format("ws://localhost:9090/simple/%s/%s?q1=%s&q2=%s", path1, path2, query1, query2);
         WebSocketTestClient client = new WebSocketTestClient(url);
-        client.handshake();
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
-        client.sendText("send");
-        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        client.handshake();
         String expectedMsg = String.format("path-params: %s, %s; query-params: %s, %s", path1, path2, query1, query2);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), expectedMsg);
         client.shutDown();
     }

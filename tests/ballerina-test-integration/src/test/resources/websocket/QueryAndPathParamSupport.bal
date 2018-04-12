@@ -30,15 +30,13 @@ service <http:Service> simple bind ep {
 
 service <http:WebSocketService> simpleProxy {
 
-    onText(endpoint ep, string text) {
-        if (text == "send") {
-            string path1 = <string> ep.attributes[PATH1];
-            string path2 = <string> ep.attributes[PATH2];
-            string query1 = <string> ep.attributes[QUERY1];
-            string query2 = <string> ep.attributes[QUERY2];
+    onOpen(endpoint wsEp) {
+        string path1 = <string> wsEp.attributes[PATH1];
+        string path2 = <string> wsEp.attributes[PATH2];
+        string query1 = <string> wsEp.attributes[QUERY1];
+        string query2 = <string> wsEp.attributes[QUERY2];
 
-            string msg = string `path-params: {{path1}}, {{path2}}; query-params: {{query1}}, {{query2}}`;
-            ep -> pushText(msg) but {error e => io:println("Error sending message. " + e.message)};
-        }
+        string msg = string `path-params: {{path1}}, {{path2}}; query-params: {{query1}}, {{query2}}`;
+        wsEp -> pushText(msg) but {error e => io:println("Error sending message. " + e.message)};
     }
 }
