@@ -2139,8 +2139,10 @@ public class CPU {
                 sf.stringRegs[j] = null;
                 break;
             case InstructionCodes.ARRAY2JSON:
+                convertArrayToJSON(ctx, operands, sf);
                 break;
             case InstructionCodes.JSON2ARRAY:
+                convertJSONToArray(ctx, operands, sf);
                 break;
             case InstructionCodes.CHECK_CONVERSION:
                 i = operands[0];
@@ -3021,8 +3023,8 @@ public class CPU {
         }
 
         // Array casting
-        if (lhsType.getTag() == TypeTags.ARRAY_TAG || rhsType.getTag() == TypeTags.ARRAY_TAG) {
-            return checkArrayCast(rhsType, lhsType);
+        if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
+            return checkArrayCast((BNewArray) rhsValue, (BArrayType) lhsType);
         }
 
         // Check MAP casting
@@ -3091,8 +3093,8 @@ public class CPU {
         }
 
         // Array casting
-        if (lhsType.getTag() == TypeTags.ARRAY_TAG || rhsType.getTag() == TypeTags.ARRAY_TAG) {
-            return checkArrayCast(rhsType, lhsType);
+        if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
+            return checkArrayCast((BNewArray) rhsValue, (BArrayType) lhsType);
         }
 
         // Check MAP casting
@@ -3125,7 +3127,11 @@ public class CPU {
 
         return false;
     }
-
+    
+    private static boolean checkArrayCast(BNewArray sourceValue, BArrayType targetType) {
+        return checkArrayCast(sourceValue.getType(), targetType.getElementType());
+    }
+    
     private static boolean checkArrayCast(BType sourceType, BType targetType) {
         if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
             BArrayType sourceArrayType = (BArrayType) sourceType;
@@ -3597,6 +3603,46 @@ public class CPU {
             sf.refRegs[j] = JSONUtils.convertStructToJSON(bStruct, targetType);
         } catch (Exception e) {
             String errorMsg = "cannot convert '" + bStruct.getType() + "' to type '" + targetType + "': " +
+                    e.getMessage();
+            handleTypeConversionError(ctx, sf, j, errorMsg);
+        }
+    }
+    
+    private static void convertArrayToJSON(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
+        int i = operands[0];
+        int j = operands[1];
+
+        BNewArray bArray = (BNewArray) sf.refRegs[i];
+        if (bArray == null) {
+            handleNullRefError(ctx);
+            return;
+        }
+
+        try {
+            sf.refRegs[j] = JSONUtils.convertArrayToJSON(bArray);
+        } catch (Exception e) {
+            String errorMsg = "cannot convert '" + bArray.getType() + "' to type '" + BTypes.typeJSON + "': " +
+                    e.getMessage();
+            handleTypeConversionError(ctx, sf, j, errorMsg);
+        }
+    }
+    
+    private static void convertJSONToArray(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
+        int i = operands[0];
+        int cpIndex = operands[1];
+        int j = operands[2];
+        BArrayType targetType = (BArrayType) ((TypeRefCPEntry) ctx.constPool[cpIndex]).getType();
+
+        BJSON json = (BJSON) sf.refRegs[i];
+        if (json == null) {
+            handleNullRefError(ctx);
+            return;
+        }
+
+        try {
+            sf.refRegs[j] = (BRefType<?>) JSONUtils.convertJSON(json.value(), targetType);
+        } catch (Exception e) {
+            String errorMsg = "cannot convert '" + json.getType() + "' to type '" + targetType + "': " +
                     e.getMessage();
             handleTypeConversionError(ctx, sf, j, errorMsg);
         }
