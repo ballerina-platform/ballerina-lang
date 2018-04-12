@@ -43,22 +43,22 @@ service<http:Service> test bind multipartEP {
 
 @Description {value:"The content logic that handles the body parts vary based on your requirement."}
 function handleContent (mime:Entity bodyPart) {
-    string contentType = bodyPart.contentType.toString();
-    if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
+    string baseType = bodyPart.contentType.getBaseType();
+    if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         //Extract the xml data from the body part and print it.
         var payload = bodyPart.getXml();
         match payload {
             mime:EntityError err => io:println("Error in getting xml payload");
             xml xmlContent => io:println(xmlContent);
         }
-    } else if (mime:APPLICATION_JSON == contentType) {
+    } else if (mime:APPLICATION_JSON == baseType) {
         //Extract the json data from the body part and print it.
         var payload = bodyPart.getJson();
         match payload {
             mime:EntityError err => io:println("Error in getting json payload");
             json jsonContent => io:println(jsonContent);
         }
-    } else if (mime:TEXT_PLAIN == contentType) {
+    } else if (mime:TEXT_PLAIN == baseType) {
         //Extract the text data from the body part and print it.
         var payload = bodyPart.getText();
         match payload {
