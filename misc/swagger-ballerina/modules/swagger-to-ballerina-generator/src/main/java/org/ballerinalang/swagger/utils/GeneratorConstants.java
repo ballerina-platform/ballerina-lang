@@ -28,11 +28,11 @@ public class GeneratorConstants {
 
     /**
      * Enum to select the code generation mode.
-     * Ballerina service, mock and connector generation is available
+     * Ballerina service, mock and client generation is available
      */
     public enum GenType {
         MOCK("mock"),
-        CONNECTOR("connector");
+        CLIENT("client");
 
         private String name;
 
@@ -46,7 +46,7 @@ public class GeneratorConstants {
         }
     }
 
-    public static final String CONNECTOR_TEMPLATE_NAME = "connector";
+    public static final String CLIENT_TEMPLATE_NAME = "client-ep";
     public static final String MOCK_TEMPLATE_NAME = "mock";
     public static final String IMPL_TEMPLATE_NAME = "impl";
     public static final String SCHEMA_TEMPLATE_NAME = "schemas";
@@ -59,11 +59,11 @@ public class GeneratorConstants {
     public static final String TEMPLATES_DIR_PATH_KEY = "templates.dir.path";
     public static final String DEFAULT_TEMPLATE_DIR = File.separator + "templates";
     public static final String DEFAULT_MOCK_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "mock";
-    public static final String DEFAULT_CONNECTOR_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "connector";
+    public static final String DEFAULT_CLIENT_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "client";
     public static final String DEFAULT_MODEL_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "model";
 
     public static final String GEN_SRC_DIR = "gen";
-    public static final String DEFAULT_CONNECTOR_PKG = "connector";
+    public static final String DEFAULT_CLIENT_PKG = "client";
     public static final String DEFAULT_MOCK_PKG = "mock";
 
     public static final List<String> RESERVED_KEYWORDS = Collections.unmodifiableList(

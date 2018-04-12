@@ -47,7 +47,7 @@ import java.util.Locale;
 import static org.ballerinalang.swagger.model.GenSrcFile.GenFileType;
 
 /**
- * This class generates Ballerina Services/Connectors for a provided OAS definition.
+ * This class generates Ballerina Services/Clients for a provided OAS definition.
  */
 public class CodeGenerator {
     private String srcPackage;
@@ -56,12 +56,12 @@ public class CodeGenerator {
     /**
      * Generates ballerina source for provided Open API Definition in {@code definitionPath}.
      * Generated source will be written to a ballerina package at {@code outPath}
-     * <p>Method can be user for generating Ballerina mock services and connectors</p>
+     * <p>Method can be user for generating Ballerina mock services and clients</p>
      *
      * @param type           Output type. Following types are supported
      *                       <ul>
      *                       <li>mock</li>
-     *                       <li>connector</li>
+     *                       <li>client</li>
      *                       </ul>
      * @param definitionPath Input Open Api Definition file path
      * @param outPath        Destination file path to save generated source files. If not provided
@@ -73,7 +73,7 @@ public class CodeGenerator {
             throws IOException, BallerinaOpenApiException {
         if (!CodegenUtils.isBallerinaProject(Paths.get(outPath))) {
             throw new BallerinaOpenApiException("Output path is not a valid ballerina project directory. Use "
-                    + "`ballerina init` to generate a new project");
+                    + "'ballerina init' to generate a new project");
         }
 
         Path srcPath = CodegenUtils.getSourcePath(srcPackage, outPath);
@@ -85,12 +85,12 @@ public class CodeGenerator {
     /**
      * Generates ballerina source for provided Open API Definition in {@code definitionPath}.
      * Generated code will be returned as a list of source files
-     * <p>Method can be user for generating Ballerina mock services and connectors</p>
+     * <p>Method can be user for generating Ballerina mock services and clients</p>
      *
      * @param type           Output type. Following types are supported
      *                       <ul>
      *                       <li>mock</li>
-     *                       <li>connector</li>
+     *                       <li>client</li>
      *                       </ul>
      * @param definitionPath Input Open Api Definition file path
      * @return a list of generated source files wrapped as {@link GenSrcFile}
@@ -108,8 +108,8 @@ public class CodeGenerator {
         List<GenSrcFile> sourceFiles;
 
         switch (type) {
-            case CONNECTOR:
-                sourceFiles = generateConnector(definitionContext);
+            case CLIENT:
+                sourceFiles = generateClient(definitionContext);
                 break;
             case MOCK:
                 sourceFiles = generateMock(definitionContext);
@@ -208,22 +208,22 @@ public class CodeGenerator {
     }
 
     /**
-     * Generate code for ballerina connector.
+     * Generate code for ballerina client.
      *
      * @param context model context to be used by the templates
      * @return generated source files as a list of {@link GenSrcFile}
      * @throws IOException when code generation with specified templates fails
      */
-    private List<GenSrcFile> generateConnector(BallerinaOpenApi context) throws IOException {
+    private List<GenSrcFile> generateClient(BallerinaOpenApi context) throws IOException {
         if (srcPackage == null || srcPackage.isEmpty()) {
-            srcPackage = GeneratorConstants.DEFAULT_CONNECTOR_PKG;
+            srcPackage = GeneratorConstants.DEFAULT_CLIENT_PKG;
         }
 
         List<GenSrcFile> sourceFiles = new ArrayList<>();
         String srcFile = context.getInfo().getTitle().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_") + ".bal";
 
-        String mainContent = getContent(context, GeneratorConstants.DEFAULT_CONNECTOR_DIR,
-                GeneratorConstants.CONNECTOR_TEMPLATE_NAME);
+        String mainContent = getContent(context, GeneratorConstants.DEFAULT_CLIENT_DIR,
+                GeneratorConstants.CLIENT_TEMPLATE_NAME);
         sourceFiles.add(new GenSrcFile(GenFileType.GEN_SRC, srcPackage, srcFile, mainContent));
 
         // Generate ballerina structs

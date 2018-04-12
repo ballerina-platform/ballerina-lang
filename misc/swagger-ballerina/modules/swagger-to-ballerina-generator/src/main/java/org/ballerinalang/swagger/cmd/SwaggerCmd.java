@@ -32,24 +32,24 @@ import java.util.Locale;
 
 /**
  * Class to implement "swagger" command for ballerina.
- * Ex: ballerina swagger (mock | connector) (swaggerFile) -p(package name) -d(output directory name)
+ * Ex: ballerina swagger (mock | client) (swaggerFile) -p(package name) -o(output directory name)
  */
-@Parameters(commandNames = "swagger", commandDescription = "Generate connector/service using swagger definition")
+@Parameters(commandNames = "swagger", commandDescription = "Generate client/service using swagger definition")
 public class SwaggerCmd implements BLauncherCmd {
-    private static final String connector = "CONNECTOR";
+    private static final String client = "CLIENT";
     private static final String mock = "MOCK";
 
     private static final PrintStream outStream = System.err;
     private JCommander parentCmdParser;
 
-    @Parameter(arity = 1, description = "<action> <swagger specification>. action : mock|connector")
+    @Parameter(arity = 1, description = "<action> <swagger specification>. action : mock|client")
     private List<String> argList;
 
     @Parameter(names = { "-o", "--output" },
                description = "where to write the generated files (current dir by default)")
     private String output = "";
 
-    @Parameter(names = { "-p", "--package" }, description = "Package name to be used in the generated source files")
+    @Parameter(names = { "-p", "--package" }, description = "package name to be used in the generated source files")
     private String srcPackage;
 
     @Parameter(names = { "-h", "--help" }, hidden = true)
@@ -71,7 +71,7 @@ public class SwaggerCmd implements BLauncherCmd {
 
         if (argList == null || argList.size() < 2) {
             throw LauncherUtils.createUsageException("Swagger action and a swagger file should be provided. "
-                    + "Ex: ballerina swagger connector swagger_file");
+                    + "Ex: ballerina swagger client swagger_file");
         }
         String action = argList.get(0).toUpperCase(Locale.ENGLISH);
         StringBuilder msg = new StringBuilder("successfully generated ballerina ");
@@ -81,13 +81,13 @@ public class SwaggerCmd implements BLauncherCmd {
                 generateFromSwagger(mock);
                 msg.append("mock service");
                 break;
-            case connector:
-                generateFromSwagger(connector);
-                msg.append("connector");
+            case client:
+                generateFromSwagger(client);
+                msg.append("client");
                 break;
             default:
                 throw LauncherUtils.createUsageException(
-                        "Only following actions(mock, connector) are " + "supported in swagger command");
+                        "Only following actions(mock, client) are " + "supported in swagger command");
         }
         msg.append(" for swagger file - " + argList.get(1));
         outStream.println(msg.toString());
@@ -100,17 +100,17 @@ public class SwaggerCmd implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Generates ballerina mock service and connector" + System.lineSeparator());
+        out.append("Generates ballerina mock service and client" + System.lineSeparator());
         out.append("for a given swagger definition" + System.lineSeparator());
         out.append(System.lineSeparator());
     }
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("  ballerina swagger <mock | connector> <swaggerFile> -p<package name> "
-                + "-o<output directory name>\n");
+        stringBuilder.append("  ballerina swagger <mock | client> <swaggerFile> -p<package name> "
+                + "[-o<output directory name>]\n");
         stringBuilder.append("\tmock      : generates a ballerina mock service\n");
-        stringBuilder.append("\tconnector : generates a ballerina connector\n");
+        stringBuilder.append("\tclient : generates a ballerina client endpoint\n");
     }
 
     private void generateFromSwagger(String targetLanguage) {
