@@ -28,8 +28,8 @@ import ballerina/util;
 @Description {value:"Map which stores all of the caches."}
 map cacheMap;
 
-@Description {value:"Cleanup task ID."}
-string cacheCleanupTaskID = createCacheCleanupTask();
+@Description {value:"Cleanup task"}
+task:Timer timer = createCacheCleanupTask();
 
 @Description {value:"Represents a cache."}
 public type Cache object {
@@ -166,7 +166,7 @@ function runCacheExpiry() returns error? {
         var value = <Cache>currentCacheValue;
         match (value) {
             Cache currentCache => {
-            // Get the entries in the current cache.
+                // Get the entries in the current cache.
                 map currentCacheEntries = currentCache.entries;
                 // Ge the keys in the current cache.
                 string[] currentCacheEntriesKeys = currentCacheEntries.keys();
@@ -208,7 +208,7 @@ function runCacheExpiry() returns error? {
     return ();
 }
 
-function checkAndAdd (int numberOfKeysToEvict, string[] cacheKeys, int[] timestamps, string key, int lastAccessTime) {
+function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestamps, string key, int lastAccessTime) {
     string myKey = key;
     int myLastAccessTime = lastAccessTime;
 
@@ -241,9 +241,9 @@ function checkAndAdd (int numberOfKeysToEvict, string[] cacheKeys, int[] timesta
 
 @Description {value:"Creates a new cache cleanup task."}
 @Return {value:"string: cache cleanup task ID"}
-function createCacheCleanupTask () returns (string) {
-    (function () returns error?)  onTriggerFunction = runCacheExpiry;
-    cacheCleanupTaskID = task:scheduleTimer(onTriggerFunction, (), {delay:CACHE_CLEANUP_START_DELAY,
-                                                                    interval:CACHE_CLEANUP_INTERVAL});
-    return cacheCleanupTaskID;
+function createCacheCleanupTask() returns task:Timer {
+    (function () returns error?) onTriggerFunction = runCacheExpiry;
+    task:Timer timer = new(onTriggerFunction, (), CACHE_CLEANUP_INTERVAL, delay = CACHE_CLEANUP_START_DELAY);
+    timer.start();
+    return timer;
 }
