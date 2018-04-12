@@ -19,18 +19,13 @@ package org.ballerinalang.net.http.compiler;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 
 import java.util.List;
-
-import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 
 /**
  * Compiler plugin for validating WebSocket service.
