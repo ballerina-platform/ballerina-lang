@@ -46,6 +46,9 @@ public class Start extends BlockingNativeCallableUnit {
                 task.getRefField(1) != null ? ((BFunctionPointer) task.getRefField(1)).value() : null;
         long delay = task.getIntField(0);
         long interval = task.getIntField(1);
+        if (delay == -1) {
+            delay = interval;
+        }
 
         try {
             Timer timer = new Timer(this, ctx, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);

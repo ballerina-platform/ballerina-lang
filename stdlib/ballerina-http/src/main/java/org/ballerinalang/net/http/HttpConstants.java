@@ -331,7 +331,7 @@ public class HttpConstants {
     public static final String FOLLOW_REDIRECT_MAXCOUNT = "maxCount";
 
     //Proxy Indexed
-    public static final String PROXY_STRUCT_REFERENCE = "proxyConfig";
+    public static final String PROXY_STRUCT_REFERENCE = "proxy";
     public static final String PROXY_HOST = "host";
     public static final String PROXY_PORT = "port";
     public static final String PROXY_USERNAME = "userName";
