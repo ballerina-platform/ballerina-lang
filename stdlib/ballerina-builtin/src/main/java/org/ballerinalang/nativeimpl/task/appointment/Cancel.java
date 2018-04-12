@@ -25,6 +25,8 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.task.TaskRegistry;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 /**
  * Native function ballerina.task:scheduleAppointment.
@@ -40,6 +42,10 @@ public class Cancel extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
         BStruct task = (BStruct) ctx.getRefArgument(0);
+        int isRunning = task.getBooleanField(0);
+        if (isRunning == 0) {
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.TASK_NOT_RUNNING);
+        }
         String taskId = task.getStringField(0);
         TaskRegistry.getInstance().stopTask(taskId);
         task.setBooleanField(0, 0);

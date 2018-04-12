@@ -25,6 +25,7 @@ import java.util.List;
  */
 public class ConnectorDoc extends Documentable {
     public final boolean isConnector;
+    public final boolean isObject;
     public final List<Variable> parameters;
 
     /**
@@ -34,9 +35,19 @@ public class ConnectorDoc extends Documentable {
      * @param children connector actions.
      * @param parameters parameters of the connector.
      */
-    public ConnectorDoc(String name, String description, List<Documentable> children, List<Variable> parameters) {
+    public ConnectorDoc(String name, String description, List<Documentable> children, List<Variable> parameters,
+                        boolean isConnector) {
         super(name, "fw-connector", description, children);
+        if (!isConnector) {
+            super.icon = "fw-struct";
+        }
+        if (isConnector) {
+            for (Documentable doc : children) {
+                doc.icon = "fw-action";
+            }
+        }
         this.parameters = parameters;
-        isConnector = true;
+        this.isConnector = isConnector;
+        this.isObject = !isConnector;
     }
 }
