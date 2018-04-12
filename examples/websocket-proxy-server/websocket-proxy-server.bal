@@ -30,10 +30,7 @@ service <http:Service> proxy bind serviceEndpoint {
     }
 }
 
-@http:WebSocketServiceConfig {
-    basePath:"/proxy/ws"
-}
-service<http:WebSocketService> SimpleProxyServer bind serviceEndpoint {
+service<http:WebSocketService> SimpleProxyServer {
 
     //This resource is triggered when a new text frame is received from a client.
     onText (endpoint ep, string text) {
