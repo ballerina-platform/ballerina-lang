@@ -1,8 +1,6 @@
 import ballerina/test;
 
-// ===== Assert Equals =====
 // Assert equal allows you to compare primitive types to composite objects
-
 // Comparing Integer values
 @test:Config
 function testAssertIntEquals (){
@@ -59,7 +57,6 @@ function testAssertStringArrayEquals () {
     string[] y = ["A", "B", "C"];
 
     test:assertEquals(x, y, msg = "String arrays are not equal");
-
 }
 
 // Comparing Integer arrays
@@ -82,9 +79,6 @@ function testAssertFloatArrayEquals () {
     test:assertEquals(x, y, msg = "failed");
 }
 
-// ===== Assert Not Equals ==== //
-// This is the negation of asset equals.
-
 // Comparing distinct strings
 @test:Config
 function testAssertNotEqualsString () {
@@ -93,7 +87,6 @@ function testAssertNotEqualsString () {
     string s2 = "def";
 
     test:assertNotEquals(s1, s2, msg = "Strings are equal");
-
 }
 
 // Comparing distinct Json
@@ -102,13 +95,12 @@ function testAssertNotEqualsJson () {
 
     json s1 = {"a":"b"};
     json s2 = {"a":"c"};
+
     test:assertNotEquals(s1, s2, msg = "Json are equal");
 }
 
 
-// ===== Assert True ===== //
 // Assert true allows you to compare a boolean value
-
 // Asserting true
 @test:Config
 function testAssertTrue () {
@@ -124,10 +116,8 @@ function testAssertFalse () {
     test:assertFalse(value, msg = "assertFalse failed");
 }
 
-// ==== Asset Fail ==== //
 // Assert fail allows you to fail a test intentionally
-
-// Failing a test with assert fail
+// Assert Fail example 1
 @test:Config
 function testAssertFail1 () {
     try {
@@ -148,8 +138,6 @@ function testAssertFail2 () {
     test:assertFail(msg = "assertFailed");
 }
 
-
-// Test functions
 function intAdd (int a, int b) returns (int) {
     return (a + b);
 }

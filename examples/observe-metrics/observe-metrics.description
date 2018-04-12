@@ -1,0 +1,4 @@
+//Ballerina metrics APIs enable users to define custom metrics in a Ballerina program.
+//This example outputs the metrics data in the terminal.
+//You can configure Prometheus to scrape metrics data from Ballerina using the HTTP endpoint running on the port 9797
+//and use Grafana to visualize metrics.
