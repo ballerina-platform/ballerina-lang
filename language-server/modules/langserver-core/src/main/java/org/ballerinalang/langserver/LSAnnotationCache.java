@@ -61,7 +61,7 @@ public class LSAnnotationCache {
 
     private static Map<String, BLangPackage> loadPackagesMap(CompilerContext tempCompilerContext) {
         Map<String, BLangPackage> staticPackages = new HashMap<>();
-        for (String staticPkgName : LSPackageLoader.STATIC_PKG_NAMES) {
+        for (String staticPkgName : LSPackageLoader.getStaticPkgNames()) {
             PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
                     new org.wso2.ballerinalang.compiler.util.Name(staticPkgName),
                     new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));

@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class LSPackageLoader {
 
-    static final String[] STATIC_PKG_NAMES = {"http", "swagger", "mime", "auth", "caching", "config", "sql",
+    private static final String[] STATIC_PKG_NAMES = {"http", "swagger", "mime", "auth", "caching", "config", "sql",
             "file", "internal", "io", "jwt", "log", "math", "os", "reflect", "runtime", "security.crypto", "task",
             "time", "transactions", "user", "util", "builtin"};
 
@@ -61,5 +61,14 @@ public class LSPackageLoader {
     public static BLangPackage getPackageById(CompilerContext context, PackageID packageID) {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         return pkgLoader.loadAndDefinePackage(packageID);
+    }
+
+    /**
+     * Returns a static packages list.
+     *
+     * @return static packages list
+     */
+    public static String[] getStaticPkgNames() {
+        return STATIC_PKG_NAMES.clone();
     }
 }
