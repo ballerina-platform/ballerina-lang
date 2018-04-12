@@ -32,6 +32,7 @@ import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.test.utils.ResponseReader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -194,10 +195,8 @@ public class ServiceTest {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
-
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertTrue(bJson.value().get("Team").isNull(), "Team variable not set properly.");
+        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "cannot find key 'team'");
     }
 
     @Test(description = "Test GetFormParams empty responseMsgPayloads")
@@ -207,23 +206,20 @@ public class ServiceTest {
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertNotNull(bJson);
-        Assert.assertNull(bJson.value().get("Name").stringValue());
-        Assert.assertNull(bJson.value().get("Team").stringValue());
+        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "cannot find key 'firstName'");
     }
 
     @Test(description = "Test GetFormParams with unsupported media type")
     public void testGetFormParamsWithUnsupportedMediaType() {
         String path = "/echo/getFormParams";
-        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST",
+                "firstName=WSO2&company=BalDance");
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertNotNull(bJson);
-        Assert.assertEquals(bJson.value().get("Name").stringValue(), "");
-        Assert.assertEquals(bJson.value().get("Team").stringValue(), "");
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "Entity body is not " +
+                "text compatible since the received content-type is : null");
     }
 
     @Test(description = "Test Http PATCH verb dispatching with a responseMsgPayload")

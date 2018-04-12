@@ -122,18 +122,18 @@ service<http:Service> echo bind echoEP {
         var params = req.getFormParams();
         string name;
         string team;
+        http:Response res = new;
         match params {
-            map p => {
-                name = <string>p.firstName;
-                team = <string>p.team;
+            map<string> p => {
+                name = p.firstName;
+                team = p.team;
+                json responseJson = {"Name":name , "Team":team};
+                res.setJsonPayload(responseJson);
             }
             http:PayloadError err => {
-                io:print(err);
+                res.setStringPayload(err.message);
             }
         }
-        json responseJson = {"Name":name , "Team":team};
-        http:Response res = new;
-        res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
     }
 
