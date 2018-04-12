@@ -54,7 +54,7 @@ function testAddToMirrorTable () returns (Employee[]) {
     var result1 = dt.add(e1);
     var result2 = dt.add(e2);
 
-    var temp2 = testDB -> select("SELECT  * from employeeAdd", (), Employee);
+    var temp2 = testDB -> select("SELECT  * from employeeAdd", Employee);
     table dt2 = check temp2;
 
     Employee [] employeeArray;
@@ -108,7 +108,7 @@ function testDeleteFromMirrorTable () returns (boolean, int) {
         TableOperationError e => removedCount = -1;
     }
 
-    var temp2 = testDB -> select("SELECT  * from employeeDel", (), Employee);
+    var temp2 = testDB -> select("SELECT  * from employeeDel", Employee);
     table dt2 = check temp2;
     boolean hasNext = dt2.hasNext();
 

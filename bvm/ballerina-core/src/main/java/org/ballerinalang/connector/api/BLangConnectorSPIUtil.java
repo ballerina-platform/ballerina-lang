@@ -99,6 +99,23 @@ public final class BLangConnectorSPIUtil {
         return BLangVMStructs.createBStruct(structInfo, values);
     }
 
+
+    public static BStruct createObject(Context context, String pkgPath, String structName, BValue... values) {
+        return createObject(context.getProgramFile(), pkgPath, structName, values);
+    }
+
+    public static BStruct createObject(ProgramFile programFile, String pkgPath, String structName, BValue... values) {
+        PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
+        if (packageInfo == null) {
+            throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
+        }
+        StructInfo structInfo = packageInfo.getStructInfo(structName);
+        if (structInfo == null) {
+            throw new BallerinaConnectorException("struct - " + structName + " does not exist");
+        }
+        return BLangVMStructs.createObject(structInfo, values);
+    }
+
     /**
      * Wrap BVM struct value to {@link Struct}
      *

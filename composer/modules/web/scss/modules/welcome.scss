@@ -1,6 +1,7 @@
 .welcome-page {
   background-color: $primaryBackgroundColor;
   height: auto;
+  margin:0 !important;
   .ballarina-top-strip {
     margin: 0;
     .brand-strip {
@@ -16,7 +17,7 @@
       padding-left: 35px !important;
     }
     .top-nav-links {
-      padding-right: 50px;
+      padding-right: 5px;
       float: right;
       .item {
         color: #333;
@@ -27,7 +28,6 @@
     }
   }
   .welcome-content-wrapper {
-    padding-right: 50px !important;
     margin-top: 20px;
     margin-bottom: 8%;
     .leftContainer {

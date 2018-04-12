@@ -35,14 +35,14 @@ function testMeanSummary() returns (float) {
     return summary3.mean();
 }
 
-function testPercentileSummary() returns (float) {
+function testPercentileSummary() returns (map) {
     summary4.record(1);
     summary4.record(2);
     summary4.record(3);
     summary4.record(4);
     summary4.record(5);
     summary4.record(6);
-    return summary4.percentile(0.5);
+    return summary4.percentileValues();
 }
 
 function testSummaryWithoutTags() returns (float) {

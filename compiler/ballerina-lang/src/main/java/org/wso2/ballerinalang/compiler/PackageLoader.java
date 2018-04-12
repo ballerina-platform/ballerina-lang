@@ -122,7 +122,7 @@ public class PackageLoader {
         RepoHierarchyBuilder.RepoNode[] systemArr = loadSystemRepos();
         Converter<Path> converter = sourceDirectory.getConverter();
 
-        Repo remote = new RemoteRepo(URI.create("https://api.staging-central.ballerina.io/packages/"));
+        Repo remote = new RemoteRepo(URI.create("https://api.central.ballerina.io/packages/"));
         Repo homeCacheRepo = new CacheRepo(balHomeDir);
         Repo homeRepo = new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir);

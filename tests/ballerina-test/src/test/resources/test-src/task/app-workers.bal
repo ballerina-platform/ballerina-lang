@@ -8,23 +8,19 @@ task:Appointment? app;
 
 function scheduleAppointment(string cronExpression, string errMsgW1) {
     worker default {
-        task:Appointment? appD;
         errorMsgW1 = errMsgW1;
-        appD <- w1;
-        app = appD;
+        app <- w1;
     }
     worker w1 {
         (function() returns error?) onTriggerFunction = onTriggerW1;
         task:Appointment? appW1;
         if (errMsgW1 == "") {
-            task:Appointment a1 = new(onTriggerFunction, (), cronExpression);
-            a1.schedule();
-            appW1 = a1;
+            appW1 = new task:Appointment(onTriggerFunction, (), cronExpression);
+            _ = appW1.schedule();
         } else {
             function(error) onErrorFunction = onErrorW1;
-            task:Appointment a1 = new(onTriggerFunction, onErrorFunction, cronExpression);
-            a1.schedule();
-            appW1 = a1;
+            appW1 = new task:Appointment(onTriggerFunction, onErrorFunction, cronExpression);
+            _ = appW1.schedule();
         }
         appW1 -> default;
     }

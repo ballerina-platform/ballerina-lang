@@ -167,8 +167,8 @@ public class SignatureHelpUtil {
         List<ParameterInfoModel> paramModels = new ArrayList<>();
         String functionName = signatureContext.get(SignatureKeys.CALLABLE_ITEM_NAME);
         CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        BLangPackage bLangPackage = LSPackageCache.getInstance().findPackage(compilerContext, bInvokableSymbol.pkgID);
-
+        LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
+        BLangPackage bLangPackage = lsPackageCache.findPackage(compilerContext, bInvokableSymbol.pkgID);
         BLangFunction blangFunction = bLangPackage.getFunctions().stream()
                 .filter(bLangFunction -> bLangFunction.getName().getValue().equals(functionName))
                 .findFirst()

@@ -792,7 +792,7 @@ DocumentationTemplateText
 
 fragment
 DocumentationTemplateStringChar
-    :   ~[`{}\\FPTRV]
+    :   ~[`{}\\FPTRVE]
     |   '\\' [{}`]
     |   WS
     |   DocumentationEscapedSequence
@@ -800,7 +800,7 @@ DocumentationTemplateStringChar
 
 fragment
 AttributePrefix
-    :   [FPTRV]
+    :   [FPTRVE]
     ;
 
 fragment
@@ -815,9 +815,9 @@ DocumentationEscapedSequence
 
 fragment
 DocumentationValidCharSequence
-     :  [FPTRV] ~[`{}\\]
-     |  [FPTRV] '\\' [{}`]
-     |  [FPTRV] '\\' ~[{}`]
+     :  [FPTRVE] ~[`{}\\]
+     |  [FPTRVE] '\\' [{}`]
+     |  [FPTRVE] '\\' ~[{}`]
      |  '\\' ~'\\'
      ;
 

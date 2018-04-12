@@ -62,6 +62,9 @@ public class ConnectorSPIModelHelper {
 
     private static void processAnnotations(String pkgPath, ProgramFile programFile, AnnotatableNode annotatableNode) {
         final BMap bMap = getAnnotationVariable(pkgPath, programFile);
+        if (!bMap.hasKey(annotatableNode.getAnnotationEntryKey())) {
+            return;
+        }
         final BValue map = bMap.get(annotatableNode.getAnnotationEntryKey());
         if (map == null || map.getType().getTag() != BTypes.typeMap.getTag()) {
             return;

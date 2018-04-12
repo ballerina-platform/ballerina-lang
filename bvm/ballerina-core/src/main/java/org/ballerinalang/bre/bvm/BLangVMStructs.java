@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Util Class for handling structs in Ballerina VM.
@@ -57,6 +58,23 @@ public class BLangVMStructs {
             BType paramType = structFields[i].getFieldType();
             setValue(bStruct, indexes, paramType.getTag(), values[i]);
         }
+        return bStruct;
+    }
+
+    /**
+     * Create ballerina object.
+     *
+     * @param structInfo {@link StructInfo} of the BStruct
+     * @param values     field values of the BStruct.
+     * @return BStruct instance.
+     */
+    public static BStruct createObject(StructInfo structInfo, BValue... values) {
+        BStructType structType = structInfo.getType();
+        BStruct bStruct = new BStruct(structType);
+        BValue[] vals = new BValue[values.length + 1];
+        vals[0] = bStruct;
+        System.arraycopy(values, 0, vals, 1, values.length);
+        BLangFunctions.invokeCallable(structInfo.initializer.functionInfo, vals);
         return bStruct;
     }
 

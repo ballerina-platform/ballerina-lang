@@ -32,18 +32,19 @@ import org.ballerinalang.util.metrics.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
 
 /**
- * Returns the value at a specific percentile.
+ * Return a map of percentile values.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "observe",
-        functionName = "percentile",
+        functionName = "percentileValues",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Summary",
                 structPackage = "ballerina.observe"),
         args = {@Argument(name = "summary", type = TypeKind.STRUCT, structType = "Summary",
-                structPackage = "ballerina.observe"), @Argument(name = "percentile", type = TypeKind.FLOAT)},
-        returnType = {@ReturnType(type = TypeKind.FLOAT)},
+                structPackage = "ballerina.observe")},
+        returnType = {@ReturnType(type = TypeKind.MAP)},
         isPublic = true
 )
 public class PercentileSummary extends BlockingNativeCallableUnit {
@@ -52,7 +53,6 @@ public class PercentileSummary extends BlockingNativeCallableUnit {
         BStruct summaryStruct = (BStruct) context.getRefArgument(0);
         String name = summaryStruct.getStringField(0);
         String description = summaryStruct.getStringField(1);
-        float percentile = (float) context.getFloatArgument(0);
         BMap tagsMap = (BMap) summaryStruct.getRefField(0);
 
         if (tagsMap != null) {
@@ -60,12 +60,18 @@ public class PercentileSummary extends BlockingNativeCallableUnit {
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            context.setReturnValues(new BFloat(Summary.builder(name).description(description).tags(tags).register()
-                    .percentile(percentile)));
-
+            context.setReturnValues(buildPercentileValuesMap(Summary.builder(name).description(description).tags(tags)
+                    .register()));
         } else {
-            context.setReturnValues(new BFloat(Summary.builder(name).description(description).register()
-                    .percentile(percentile)));
+            context.setReturnValues(buildPercentileValuesMap(Summary.builder(name).description(description)
+                    .register()));
         }
+    }
+
+    private BMap<String, BFloat> buildPercentileValuesMap(Summary summary) {
+        BMap<String, BFloat> map = new BMap<>();
+        SortedMap<Double, Double> percentileValues = summary.percentileValues();
+        percentileValues.forEach((percentile, value) -> map.put(percentile.toString(), new BFloat(value)));
+        return map;
     }
 }

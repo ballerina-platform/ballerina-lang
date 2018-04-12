@@ -132,12 +132,12 @@ ForkJoin
    ;
 
 Function
-   : <lambda?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function              ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <endpointNodes>* <body.source> <workers>* }
-   | <lambda?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function              ( <parameters-joined-by,>* ) { <endpointNodes>* <body.source> <workers>* }
+   : <lambda?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function                                                    ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <endpointNodes>* <body.source> <workers>* }
+   | <lambda?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function                                                    ( <parameters-joined-by,>* )                                 { <endpointNodes>* <body.source> <workers>* }
    | <hasReturns?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) returns <returnTypeNode.source> { <endpointNodes>* <body.source> <workers>* }
-   | <hasReturns?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) returns <returnTypeNode.source> { <endpointNodes>* <body.source> <workers>* }
-   |               <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) { <endpointNodes>* <body.source> <workers>* }
-   |               <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) { <endpointNodes>* <body.source> <workers>* }
+   | <hasReturns?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* ) returns <returnTypeNode.source> { <endpointNodes>* <body.source> <workers>* }
+   |               <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* )                                 { <endpointNodes>* <body.source> <workers>* }
+   |               <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* )                                 { <endpointNodes>* <body.source> <workers>* }
    ;
 
 FunctionType
@@ -241,10 +241,6 @@ SimpleVariableRef
 
 StringTemplateLiteral
    : string\u0020` <expressions>* `
-
-Struct
-   : <anonStruct?>                          <public?public> struct              { <fields-suffixed-by-;>* }
-   |                <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> struct <name.value> { <fields-suffixed-by-;>* }
    ;
 
 TernaryExpr
@@ -312,9 +308,9 @@ TypeofExpression
    ;
 
 TypeInitExpr
-   : <noExpressionAvailable?> new                                                ;
-   | <noTypeAttached?>        new                   ( <expressions-joined-by,>* );
-   |                          new <typeName.source> ( <expressions-joined-by,>* );
+   : <noExpressionAvailable?> new
+   | <noTypeAttached?>        new                   ( <expressions-joined-by,>* )
+   |                          new <typeName.source> ( <expressions-joined-by,>* )
    ;
 
 UnaryExpr
@@ -322,7 +318,8 @@ UnaryExpr
    ;
 
 UnionTypeNode
-   : <memberTypeNodes-joined-by|>*
+   : <withParantheses?> ( <memberTypeNodes-joined-by|>* )
+   |                      <memberTypeNodes-joined-by|>*
    ;
 
 UserDefinedType
@@ -334,7 +331,7 @@ UserDefinedType
 
 ValueType
    : <withParantheses?> ( <typeKind> )
-   : <typeKind>
+   :                      <typeKind>
    ;
 
 Variable

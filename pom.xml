@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.970.0-alpha5-SNAPSHOT</version>
+    <version>0.970.0-alpha6-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -258,6 +258,11 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>swagger-to-ballerina-generator</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-to-swagger</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -644,9 +649,19 @@
                 <scope>compile</scope>
             </dependency>
             <dependency>
+                <groupId>io.swagger.parser.v3</groupId>
+                <artifactId>swagger-parser</artifactId>
+                <version>${swagger.v3.parser.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-models</artifactId>
                 <version>${swagger.models.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-models</artifactId>
+                <version>${swagger.v3.models.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -809,6 +824,11 @@
             <dependency>
                 <groupId>io.ballerina.messaging</groupId>
                 <artifactId>broker-core</artifactId>
+                <version>${broker.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.ballerina.messaging</groupId>
+                <artifactId>broker-amqp</artifactId>
                 <version>${broker.version}</version>
             </dependency>
 
@@ -1479,7 +1499,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.970.0-alpha5-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.970.0-alpha6-SNAPSHOT</ballerina.version>
         <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
@@ -1545,6 +1565,8 @@
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
         <swagger.parser.version>1.0.34</swagger.parser.version>
         <swagger.models.version>1.5.16</swagger.models.version>
+        <swagger.v3.parser.version>2.0.0-rc3</swagger.v3.parser.version>
+        <swagger.v3.models.version>2.0.0</swagger.v3.models.version>
         <swagger.parser.v2.converter.version>2.0.0-rc3</swagger.parser.v2.converter.version>
         <com.fasterxml.jackson.core.annotations.version>2.8.0</com.fasterxml.jackson.core.annotations.version>
         <rs-api.version>2.0</rs-api.version>
@@ -1556,7 +1578,7 @@
         <jackson-core.version>2.8.6</jackson-core.version>
         <apache.mina.core>2.0.16</apache.mina.core>
         <mimepull.version>1.9.7</mimepull.version>
-        <broker.version>0.1.20</broker.version>
+        <broker.version>0.1.55</broker.version>
         <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>

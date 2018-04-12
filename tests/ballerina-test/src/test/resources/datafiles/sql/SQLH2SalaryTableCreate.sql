@@ -10,3 +10,4 @@ CREATE TABLE IF NOT EXISTS SalaryTrx (
 );
 /
 INSERT INTO SalaryTrx VALUES (20, 30000);
+/

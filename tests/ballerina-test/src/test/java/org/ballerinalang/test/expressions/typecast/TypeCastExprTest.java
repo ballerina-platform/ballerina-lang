@@ -478,7 +478,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting an array as any type to json",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: 'any\\[]' cannot be cast to 'json'.*")
+            expectedExceptionsMessageRegExp = ".*cannot convert 'any\\[\\]' to type 'json'.*")
     public void testAnyArrayToJson() {
         BRunUtil.invoke(result, "testAnyArrayToJson");
     }
