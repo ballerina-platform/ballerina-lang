@@ -184,10 +184,10 @@ public type AuthConfig {
     string password,
     string accessToken,
     string refreshToken,
-    string refreshTokenUrl,
+    string refreshUrl,
     string consumerKey,
     string consumerSecret,
-    string tokenURL,
+    string tokenUrl,
     string clientId,
     string clientSecret,
 };
