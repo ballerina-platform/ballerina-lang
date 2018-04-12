@@ -94,9 +94,8 @@ service<http:Service> participant2 bind participant2EP {
     }
     checkCustomerExists(endpoint ep, http:Request req, string uuid) {
         http:Response res = new;  res.statusCode = 200;
-        sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:uuid};
-        sql:Parameter[] params = [para1];
-        var x = testDB -> select("SELECT registrationID FROM Customers WHERE registrationID = ?", params, Registration);
+        sql:Parameter para1 = (sql:TYPE_VARCHAR, uuid);
+        var x = testDB -> select("SELECT registrationID FROM Customers WHERE registrationID = ?", Registration, para1);
         match x {
             table dt => {
                string payload;
@@ -129,7 +128,7 @@ function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbor
         string uuid = util:uuid();
 
         var result = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                                 values ('John', 'Doe', '" + uuid +"', 5000.75, 'USA')", ());
+                                                 values ('John', 'Doe', '" + uuid +"', 5000.75, 'USA')");
         match result {
             int insertCount => io:println(insertCount);
             error => io:println("");
