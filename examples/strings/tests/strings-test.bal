@@ -38,4 +38,3 @@ function testFunc() {
     test:assertEquals("Split: Town.", outputs[18]);
     test:assertEquals("Blob: Lion in Town. Catch the Lion ", outputs[19]);
 }
-
