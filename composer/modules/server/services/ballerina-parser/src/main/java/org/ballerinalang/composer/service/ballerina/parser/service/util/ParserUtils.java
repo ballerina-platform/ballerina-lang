@@ -158,7 +158,7 @@ public class ParserUtils {
                 loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
             }
 
-            for (String packageName : LSPackageLoader.staticPkgNames) {
+            for (String packageName : LSPackageLoader.STATIC_PKG_NAMES) {
                 PackageID packageID = new PackageID(new Name("ballerina"),
                         new Name(packageName), new Name("0.0.0"));
                 BLangPackage bLangPackage = LSPackageLoader.getPackageById(context, packageID);
