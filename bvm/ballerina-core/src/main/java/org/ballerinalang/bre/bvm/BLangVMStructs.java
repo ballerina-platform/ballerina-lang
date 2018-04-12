@@ -62,7 +62,7 @@ public class BLangVMStructs {
     }
 
     /**
-     * Create BStruct for given StructInfo and BValues.
+     * Create ballerina object.
      *
      * @param structInfo {@link StructInfo} of the BStruct
      * @param values     field values of the BStruct.
@@ -73,9 +73,7 @@ public class BLangVMStructs {
         BStruct bStruct = new BStruct(structType);
         BValue[] vals = new BValue[values.length + 1];
         vals[0] = bStruct;
-
         System.arraycopy(values, 0, vals, 1, values.length);
-
         BLangFunctions.invokeCallable(structInfo.initializer.functionInfo, vals);
         return bStruct;
     }

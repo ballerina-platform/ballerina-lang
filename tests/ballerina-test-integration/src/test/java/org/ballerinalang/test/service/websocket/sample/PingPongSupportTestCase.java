@@ -105,7 +105,4 @@ public class PingPongSupportTestCase extends WebSocketIntegrationTest {
         ballerinaServerInstance.stopServer();
         remoteServer.stop();
     }
-
-
-
 }

@@ -84,6 +84,4 @@ public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
         ballerinaServerInstance.stopServer();
         remoteServer.stop();
     }
-
-
 }
