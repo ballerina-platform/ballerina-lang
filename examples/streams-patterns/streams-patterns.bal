@@ -48,15 +48,15 @@ public function main(string[] args) {
     // other words the owner has left the room).
     RoomKeyAction roomKeyAction = {roomNo:2, userAction:"removed"};
 
-    // RegulatorActionStream is subscribed to the 'alertRoomAction' function. Whenever the stream receives a valid
-    // event, the function will be called
+    // RegulatorActionStream is subscribed to the 'alertRoomAction' function. Whenever the stream 'RegulatorActionStream'
+    // receives a valid event, the function will be called
     regulatorActionStream.subscribe(alertRoomAction);
 
     // Publish/simulate the sample event which reprements the regulator 'switch on' event.
     regulatorStateChangeStream.publish(regulatorState1);
     runtime:sleepCurrentWorker(200);
 
-    // Simulate the sample event which represents the door/room closed event.
+    // Simulate the sample event which represents the door/room closed event
     roomKeyStream.publish(roomKeyAction);
     runtime:sleepCurrentWorker(500);
 
