@@ -171,11 +171,11 @@ public type ConnectionThrottling {
 @Field {value:"accessToken: access token for oauth2 authentication"}
 @Field {value:"refreshToken: refresh token for oauth2 authentication"}
 @Field {value:"refreshToken: refresh token for oauth2 authentication"}
-@Field {value:"refreshTokenUrl: refresh token url for oauth2 authentication"}
+@Field {value:"refreshUrl: refresh token url for oauth2 authentication"}
 @Field {value:"consumerKey: consume key for oauth2 authentication"}
 @Field {value:"consumerKey: consume key for oauth2 authentication"}
 @Field {value:"consumerSecret: consume secret for oauth2 authentication"}
-@Field {value:"tokenURL: token url for oauth2 authentication"}
+@Field {value:"tokenUrl: token url for oauth2 authentication"}
 @Field {value:"clientId: clietnt id for oauth2 authentication"}
 @Field {value:"clientSecret: client secret for oauth2 authentication"}
 public type AuthConfig {
@@ -184,10 +184,10 @@ public type AuthConfig {
     string password,
     string accessToken,
     string refreshToken,
-    string refreshTokenUrl,
+    string refreshUrl,
     string consumerKey,
     string consumerSecret,
-    string tokenURL,
+    string tokenUrl,
     string clientId,
     string clientSecret,
 };

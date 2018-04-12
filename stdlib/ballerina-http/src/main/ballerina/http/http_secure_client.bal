@@ -254,7 +254,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 @Description {value:"Prepare HTTP request with the required headers for authentication."}
 @Param {value:"req: An HTTP outbound request message"}
 @Param {value:"request:Client endpoint configurations"}
-public function prepareRequest(Request req, ClientEndpointConfig config) returns (()|HttpConnectorError) {
+function prepareRequest(Request req, ClientEndpointConfig config) returns (()|HttpConnectorError) {
     string scheme = config.auth.scheme but { () => EMPTY_STRING };
     if (scheme == BASIC_SCHEME){
         string username = config.auth.username but { () => EMPTY_STRING };
@@ -276,7 +276,7 @@ public function prepareRequest(Request req, ClientEndpointConfig config) returns
             string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
             string clientId = config.auth.clientId but { () => EMPTY_STRING };
             string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
-            string refreshTokenUrl = config.auth.refreshTokenUrl but { () => EMPTY_STRING };
+            string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
 
             if (refreshToken != EMPTY_STRING && clientId != EMPTY_STRING && clientSecret != EMPTY_STRING) {
                 var accessTokenValueResponse = getAccessTokenFromRefreshToken(config);
@@ -307,8 +307,8 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
     string clientId = config.auth.clientId but { () => EMPTY_STRING };
     string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
-    string refreshTokenUrl = config.auth.refreshTokenUrl but { () => EMPTY_STRING };
-    HttpClient refreshTokenClient = createHttpSecureClient(refreshTokenUrl, {});
+    string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
+    HttpClient refreshTokenClient = createHttpSecureClient(refreshUrl, {});
     string refreshTokenRequestPath = "/oauth2/v3/token";
     string requestParams = "refresh_token=" + refreshToken + "&grant_type=refresh_token&client_secret=" + clientSecret + "&client_id=" + clientId;
     string base64ClientIdSecret;
