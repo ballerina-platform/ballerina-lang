@@ -12,16 +12,16 @@ jms:Session jmsSession = new (jmsConnection, {
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     });
 
-endpoint jms:QueueSender queueSender {
+endpoint jms:TopicPublisher publisher {
     session: jmsSession,
-    queueName: "MyQueue"
+    topicPattern: "testDurableTopicSubscriberPublisher"
 };
 
 public function main (string[] args) {
     // Create a Text message.
     jms:Message m = check jmsSession.createTextMessage("Test Text");
     // Send the Ballerina message to the JMS provider.
-    var _ = queueSender -> send(m);
+    var _ = publisher -> send(m);
 
-    io:println("Message successfully sent by QueueSender");
+    io:println("Message successfully sent by TopicPublisher");
 }
