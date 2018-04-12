@@ -565,9 +565,17 @@ public class Types {
             return getExplicitArrayConversionOperator(((BArrayType) t).eType, ((BArrayType) s).eType, origT, origS);
 
         } else if (t.tag == TypeTags.ARRAY) {
-            // If the target type is JSON array, and the source type is a JSON
-            if (s.tag == TypeTags.JSON && getElementType(t).tag == TypeTags.JSON) {
-                return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
+            if (s.tag == TypeTags.JSON) {
+                // If the source JSON is constrained, then it is not an array 
+                if (((BJSONType) s).constraint != null && ((BJSONType) s).constraint.tag != TypeTags.NONE) {
+                    return symTable.notFoundSymbol;
+                }
+                // If the target type is JSON array, and the source type is a JSON
+                if (getElementType(t).tag == TypeTags.JSON) {
+                    return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
+                } else {
+                    return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.JSON2ARRAY);
+                }
             }
 
             // If only the target type is an array type, then the source type must be of type 'any'
@@ -581,8 +589,10 @@ public class Types {
                 if (((BArrayType) s).eType.tag == TypeTags.JSON) {
                     return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
                 } else {
+                    // the conversion visitor below may report back a conversion symbol, which is
+                    // unsafe (e.g. T2JSON), so we must make our one also unsafe
                     if (conversionVisitor.visit((BJSONType) t, ((BArrayType) s).eType) != symTable.notFoundSymbol) {
-                        return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.ARRAY2JSON);
+                        return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.ARRAY2JSON);
                     }
                 }
             }

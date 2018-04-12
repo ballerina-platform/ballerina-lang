@@ -791,3 +791,40 @@ function testTupleConversionFail() {
     x2 = check <(T1, T2)> y;
 }
 
+function testJsonToArray1() returns json {
+    int[] x;
+    x[0] = 10;
+    x[1] = 15;
+    json j = check <json> x;
+    return j;
+}
+
+function testJsonToArray2() returns json {
+    T1[] x;
+    T1 a;
+    T1 b;
+    a.x = 10;
+    b.x = 15;
+    x[0] = a;
+    x[1] = b;
+    json j = check <json> x;
+    return j;
+}
+
+public type TX {
+  int x,
+  int y,
+  blob b,
+};
+
+function testJsonToArrayFail() {
+    TX[] x;
+    TX a;
+    TX b;
+    a.x = 10;
+    b.x = 15;
+    x[0] = a;
+    x[1] = b;
+    json j = check <json> x;
+}
+
