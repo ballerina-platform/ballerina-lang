@@ -31,17 +31,12 @@ import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.StaticCaption;
 import org.ballerinalang.docgen.model.StructDoc;
-import org.ballerinalang.langserver.LSGlobalContext;
-import org.ballerinalang.langserver.LSGlobalContextKeys;
-import org.ballerinalang.langserver.LSPackageCache;
 import org.ballerinalang.langserver.common.modal.BallerinaFile;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.LSParserUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.List;
