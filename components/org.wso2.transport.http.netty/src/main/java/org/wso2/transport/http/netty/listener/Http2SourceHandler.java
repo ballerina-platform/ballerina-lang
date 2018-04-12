@@ -85,7 +85,9 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         super.handlerAdded(ctx);
-        //ctx.pipeline().remove(Constants.HTTP2_TO_HTTP_FALLBACK_HANDLER);
+        // Remove unwanted handlers after upgrade
+        ctx.pipeline().remove(Constants.HTTP2_TO_HTTP_FALLBACK_HANDLER);
+        ctx.pipeline().remove(Constants.HTTP_COMPRESSOR);
         this.ctx = ctx;
     }
 
@@ -126,7 +128,6 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
             requestCarbonMessage.addHttpContent(new DefaultLastHttpContent(upgradedRequest.content()));
             notifyRequestListener(requestCarbonMessage, 1);
         }
-        //super.userEventTriggered(ctx, evt);
     }
 
     /**
@@ -240,7 +241,6 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         String uri = httpRequest.uri();
         sourceReqCMsg.setProperty(Constants.REQUEST_URL, uri);
         sourceReqCMsg.setProperty(Constants.TO, uri);
-
         return sourceReqCMsg;
     }
 }

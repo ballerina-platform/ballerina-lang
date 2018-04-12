@@ -172,16 +172,18 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                                    new HttpRequestDecoder(reqSizeValidationConfig.getMaxUriLength(),
                                                           reqSizeValidationConfig.getMaxHeaderSize(),
                                                           reqSizeValidationConfig.getMaxChunkSize()));
-        }
-        serverPipeline.addLast("compressor", new CustomHttpContentCompressor());
-        serverPipeline.addLast("chunkWriter", new ChunkedWriteHandler());
 
-        if (httpTraceLogEnabled) {
-            serverPipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
-                             new HTTPTraceLoggingHandler("tracelog.http.downstream"));
-        }
-        if (httpAccessLogEnabled) {
-            serverPipeline.addLast(Constants.HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler("accesslog.http"));
+            serverPipeline.addLast(Constants.HTTP_COMPRESSOR, new CustomHttpContentCompressor());
+            serverPipeline.addLast(Constants.HTTP_CHUNK_WRITER, new ChunkedWriteHandler());
+
+            if (httpTraceLogEnabled) {
+                serverPipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
+                                       new HTTPTraceLoggingHandler("tracelog.http.downstream"));
+            }
+            if (httpAccessLogEnabled) {
+                serverPipeline.addLast(Constants.HTTP_ACCESS_LOG_HANDLER,
+                                       new HttpAccessLoggingHandler("accesslog.http"));
+            }
         }
         serverPipeline.addLast("uriLengthValidator", new UriAndHeaderLengthValidator(this.serverName));
         if (reqSizeValidationConfig.getMaxEntityBodySize() > -1) {
@@ -223,6 +225,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             }
         };
         pipeline.addLast(Constants.HTTP_SERVER_CODEC, sourceCodec);
+        pipeline.addLast(Constants.HTTP_COMPRESSOR, new CustomHttpContentCompressor());
         if (httpTraceLogEnabled) {
             pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                                    new HTTPTraceLoggingHandler("tracelog.http.downstream"));

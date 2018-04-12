@@ -39,12 +39,6 @@ public class Http2ToHttpFallbackHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ChannelPipeline pipeline = ctx.pipeline();
         pipeline.remove(Constants.HTTP2_UPGRADE_HANDLER);
-        if (serverChannelInitializer.isHttpAccessLogEnabled()) {
-            pipeline.remove(Constants.HTTP_ACCESS_LOG_HANDLER);
-        }
-        if (serverChannelInitializer.isHttpTraceLogEnabled()) {
-            pipeline.remove(Constants.HTTP_TRACE_LOG_HANDLER);
-        }
         serverChannelInitializer.configureHttpPipeline(pipeline, Constants.HTTP2_CLEARTEXT_PROTOCOL);
         pipeline.remove(this);
         ctx.fireChannelRead(msg);
