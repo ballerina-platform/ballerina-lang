@@ -54,20 +54,15 @@ service<http:Service> hubService bind hubServiceEP {
     }
     hub (endpoint client, http:Request request) {
         http:Response response = new;
+        string mode;
+        string topic;
 
-        var reqFormParams = request.getFormParams();
-        map params;
-        match (reqFormParams) {
-            map reqParams => { params = reqParams; }
-            mime:EntityError => {
-                response.statusCode = http:BAD_REQUEST_400;
-                _ = client -> respond(response);
-                done;
-            }
+        map params = request.getFormParams() but { mime:EntityError => {} };
+
+        if (params.hasKey(websub:HUB_MODE)) {
+            mode = <string> params[websub:HUB_MODE];
         }
 
-        string mode = <string> params[websub:HUB_MODE];
-        string topic;
         if (params.hasKey(websub:HUB_TOPIC)) {
             string topicFromParams = <string> params[websub:HUB_TOPIC];
             topic = http:decode(topicFromParams, "UTF-8") but { error => topicFromParams };
