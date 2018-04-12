@@ -125,8 +125,12 @@ service<http:Service> echo bind echoEP {
         http:Response res = new;
         match params {
             map<string> p => {
-                name = p.firstName;
-                team = p.team;
+                if (p.hasKey("firstName")) {
+                    name = p.firstName;
+                }
+                if (p.hasKey("team")) {
+                    team = p.team;
+                }
                 json responseJson = {"Name":name , "Team":team};
                 res.setJsonPayload(responseJson);
             }

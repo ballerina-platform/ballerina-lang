@@ -195,8 +195,10 @@ public class ServiceTest {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "firstName=WSO2&company=BalDance");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "cannot find key 'team'");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertTrue(bJson.value().get("Team").stringValue().isEmpty(), "Team variable not set properly.");
     }
 
     @Test(description = "Test GetFormParams empty responseMsgPayloads")
@@ -206,7 +208,10 @@ public class ServiceTest {
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "cannot find key 'firstName'");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertNotNull(bJson);
+        Assert.assertEquals(bJson.value().get("Name").stringValue(), "");
+        Assert.assertEquals(bJson.value().get("Team").stringValue(), "");
     }
 
     @Test(description = "Test GetFormParams with unsupported media type")
@@ -217,9 +222,8 @@ public class ServiceTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "Entity body is not " +
-                "text compatible since the received content-type is : null");
+        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "Entity body is not text compatible " +
+                "since the received content-type is : null");
     }
 
     @Test(description = "Test Http PATCH verb dispatching with a responseMsgPayload")
