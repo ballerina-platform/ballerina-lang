@@ -39,7 +39,7 @@ public class HttpConstants {
     public static final String DEFAULT_SUB_PATH = "/*";
 
     public static final String PROTOCOL_HTTP = "http";
-    public static final String PROTOCOL_PACKAGE_HTTP = "http";
+    public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.http";
     public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.http:Listener";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
