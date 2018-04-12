@@ -193,6 +193,12 @@ public function SecureListener::register (typedesc serviceType) {
     self.httpListener.register(serviceType);
 }
 
+@Description {value:"Gets called when the endpoint is being initialize during package init time"}
+@Return {value:"Error occured during initialization"}
+public function SecureListener::initEndpoint() returns (error) {
+    return self.httpListener.initEndpoint();
+}
+
 @Description {value:"Starts the registered service"}
 public function SecureListener::start () {
     self.httpListener.start();
