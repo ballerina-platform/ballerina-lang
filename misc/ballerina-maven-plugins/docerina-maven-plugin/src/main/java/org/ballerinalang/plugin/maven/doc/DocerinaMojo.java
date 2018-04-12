@@ -110,7 +110,6 @@ public class DocerinaMojo extends AbstractMojo {
                     (new String[sources.size()]));
         } catch (Throwable e) {
             err.println(ExceptionUtils.getStackTrace(e));
-            System.exit(1);
         }
     }
 }

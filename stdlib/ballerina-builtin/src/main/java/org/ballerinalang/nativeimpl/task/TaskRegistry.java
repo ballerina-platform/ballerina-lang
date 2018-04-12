@@ -40,7 +40,7 @@ public class TaskRegistry {
         return instance;
     }
 
-    public void stopTask(String taskId) throws Exception {
+    public void stopTask(String taskId) {
         if (timers.containsKey(taskId)) {
             timers.get(taskId).stop();
         } else if (appointments.containsKey(taskId)) {
