@@ -352,7 +352,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return expTypes.stream()
                 .filter(type -> type.tag == TypeTags.JSON ||
                         type.tag == TypeTags.MAP ||
-                        type.tag == TypeTags.STRUCT ||
+                        (type.tag == TypeTags.STRUCT && type.tsymbol != null
+                                && type.tsymbol.kind == SymbolKind.RECORD) ||
                         type.tag == TypeTags.NONE ||
                         type.tag == TypeTags.ANY)
                 .collect(Collectors.toList());

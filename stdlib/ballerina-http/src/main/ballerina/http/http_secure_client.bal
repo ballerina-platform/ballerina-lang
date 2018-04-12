@@ -215,7 +215,7 @@ public type HttpSecureClient object {
 
 public function HttpSecureClient::getResponse (HttpFuture httpFuture) returns (Response|HttpConnectorError) {
     //TODO please fix properly
-    return new HttpConnectorError();
+    return {message : "dummmy", statusCode:-1};
 }
 
 public function HttpSecureClient::hasPromise (HttpFuture httpFuture) returns boolean {
@@ -225,15 +225,15 @@ public function HttpSecureClient::hasPromise (HttpFuture httpFuture) returns boo
 
 public function HttpSecureClient::getNextPromise (HttpFuture httpFuture) returns (PushPromise|HttpConnectorError) {
     //TODO please fix properly
-    return new HttpConnectorError();
+    return {message : "dummmy", statusCode:-1};
 }
 
 public function HttpSecureClient::getPromisedResponse (PushPromise promise) returns (Response|HttpConnectorError) {
     //TODO please fix properly
-    return new HttpConnectorError();
+    return {message : "dummmy", statusCode:-1};
 }
 
-public function rejectPromise (PushPromise promise) {
+public function HttpSecureClient::rejectPromise (PushPromise promise) {
     //TODO please fix properly
 }
 
