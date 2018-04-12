@@ -3,7 +3,7 @@ package ballerina.http;
 ///////////////////////////
 /// WebSocket Connector ///
 ///////////////////////////
-
+@Connector
 @Description {value:"Represents a WebSocket connector in ballerina. This include all connector oriented operations."}
 public type WebSocketConnector object {
 
