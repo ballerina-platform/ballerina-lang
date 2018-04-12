@@ -837,4 +837,22 @@ function testJsonToArray1() returns T1[] {
     return x;
 }
 
+function testJsonToArray2() returns int[] {
+    json j = [];
+    j[0] = 1;
+    j[1] = 2;
+    j[2] = 3;
+    int[] x = check <int[]> j;
+    return x;
+}
+
+function testJsonToArrayFail() {
+    json j = {};
+    j.x = 1;
+    j.y = 1.5;
+    int[] x = check <int[]> j;
+}
+
+
+
 
