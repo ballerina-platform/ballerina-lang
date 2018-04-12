@@ -45,7 +45,7 @@ public class Schedule extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
         BStruct task = (BStruct) ctx.getRefArgument(0);
         int isRunning = task.getBooleanField(0);
-        if(isRunning == 1) {
+        if (isRunning == 1) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.TASK_ALREADY_RUNNING);
         }
 
