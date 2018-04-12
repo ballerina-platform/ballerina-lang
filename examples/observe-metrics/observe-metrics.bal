@@ -83,7 +83,7 @@ function main (string[] args) {
 	timer.record(4, observe:TIME_UNIT_SECONDS);
 	timer.record(1, observe:TIME_UNIT_MINUTES);
 
-	//Return the number of times the record API timer has called
+	//Return the number of times that record has been called since this timer was created.
 	io:println("count: " + timer.count());
 
 	//Return the maximum time recorded in the timer
@@ -92,7 +92,7 @@ function main (string[] args) {
 	//Return the mean value of times recorded in the timer
 	io:println("mean: " + timer.mean(observe:TIME_UNIT_SECONDS) + " seconds");
 
-	//Return the latency at different percentiles
+	//Return the latencies at specific percentiles.
 	io:print("percentile values: ");
 	io:println(timer.percentileValues(observe:TIME_UNIT_SECONDS));
 }
