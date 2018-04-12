@@ -352,7 +352,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return expTypes.stream()
                 .filter(type -> type.tag == TypeTags.JSON ||
                         type.tag == TypeTags.MAP ||
-                        type.tag == TypeTags.STRUCT ||
+                        (type.tag == TypeTags.STRUCT && type.tsymbol != null
+                                && type.tsymbol.kind == SymbolKind.RECORD) ||
                         type.tag == TypeTags.NONE ||
                         type.tag == TypeTags.ANY)
                 .collect(Collectors.toList());
@@ -563,6 +564,13 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = symTable.errType;
             return;
         }
+
+        //TODO cache this in symbol as a flag?
+        ((BStructSymbol) actualType.tsymbol).attachedFuncs.forEach(f -> {
+            if ((f.symbol.flags & Flags.INTERFACE) == Flags.INTERFACE) {
+                dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_OBJECT, actualType.tsymbol, f.symbol);
+            }
+        });
 
         cIExpr.objectInitInvocation.symbol = ((BStructSymbol) actualType.tsymbol).initializerFunc.symbol;
         cIExpr.objectInitInvocation.type = symTable.nilType;

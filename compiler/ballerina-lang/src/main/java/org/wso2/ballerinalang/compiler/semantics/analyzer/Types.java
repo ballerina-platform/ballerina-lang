@@ -1230,6 +1230,12 @@ public class Types {
             if (structSymbol.initializerFunc.symbol.params.size() > 0) {
                 return false;
             }
+
+            for (BAttachedFunction func : structSymbol.attachedFuncs) {
+                if ((func.symbol.flags & Flags.INTERFACE) == Flags.INTERFACE) {
+                    return false;
+                }
+            }
             for (BStructField field : structType.fields) {
                 if (!field.expAvailable && !defaultValueExists(pos, field.type)) {
                     return false;

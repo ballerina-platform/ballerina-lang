@@ -26,6 +26,4 @@ public interface FunctionNode extends InvokableNode, AnnotatableNode, TopLevelNo
 
   void setReceiver(VariableNode receiver);
 
-  boolean isInterfaceFunction();
-
 }
