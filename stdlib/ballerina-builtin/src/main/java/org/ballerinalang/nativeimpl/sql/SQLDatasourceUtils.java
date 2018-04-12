@@ -908,8 +908,9 @@ public class SQLDatasourceUtils {
             return Constants.SQLDataTypes.BOOLEAN;
         case TypeTags.BLOB_TAG:
             return Constants.SQLDataTypes.BLOB;
+        default:
+            throw new BallerinaException("unsupported data type for struct parameter: " + value.getName());
         }
-        throw new BallerinaException("unsupported data type for struct parameter: " + value.getName());
     }
 
     /**
