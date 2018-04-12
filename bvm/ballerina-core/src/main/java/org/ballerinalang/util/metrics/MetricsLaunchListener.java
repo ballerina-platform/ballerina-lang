@@ -44,12 +44,12 @@ public class MetricsLaunchListener implements LaunchListener {
     @Override
     public void beforeRunProgram(boolean service) {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        if (!Boolean.valueOf(configRegistry.getConfiguration(CONFIG_METRICS_ENABLED))) {
+        if (!configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED)) {
             // Create default MetricRegistry with NoOpMetricProvider
             DefaultMetricRegistry.setInstance(new MetricRegistry(new NoOpMetricProvider()));
             return;
         }
-        String providerName = configRegistry.getConfiguration(METRIC_PROVIDER_NAME);
+        String providerName = configRegistry.getAsString(METRIC_PROVIDER_NAME);
         // Look for MetricProvider implementations
         Iterator<MetricProvider> metricProviders = ServiceLoader.load(MetricProvider.class).iterator();
         MetricProvider metricProvider = null;

@@ -181,7 +181,7 @@ public class HttpConnectionManager {
      * @return the access logto value from the ConfigRegistry
      */
     public String getHttpAccessLoggerConfig() {
-        return ConfigRegistry.getInstance().getConfiguration(HTTP_ACCESS_LOG, LOG_TO);
+        return ConfigRegistry.getInstance().getAsString(HTTP_ACCESS_LOG, LOG_TO);
     }
 
     private TransportsConfiguration buildDefaultTransportConfig() {

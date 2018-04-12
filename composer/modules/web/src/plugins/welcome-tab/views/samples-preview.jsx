@@ -39,8 +39,9 @@ class SamplesPreview extends React.Component {
         let previewThumbnails = (null);
         if (this.props.sampleConfigs) {
             previewThumbnails = this.props.sampleConfigs.map((config, index) => (
-                <Grid.Column key={config.sampleName} className='thumbnail-wrapper'>
-                    <Grid.Column mobile={16} tablet={8} computer={3} 
+                <Grid.Column mobile={16} tablet={7} computer={3} 
+                    key={config.sampleName} className='thumbnail-wrapper'>
+                    <Grid.Column   
                         className={'thumbnail'}
                         onClick={config.clickEventCallback}
                         style={{ textAlign: 'center' }}

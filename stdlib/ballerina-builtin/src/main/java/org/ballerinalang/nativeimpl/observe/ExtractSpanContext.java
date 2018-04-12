@@ -66,8 +66,8 @@ public class ExtractSpanContext extends BlockingNativeCallableUnit {
             Set headerSet = headers.keySet();
             for (Object aKey : headerSet) {
                 String key = aKey.toString();
-                if (key.startsWith(group)) {
-                    returnMap.put(key.substring(group.length()),
+                if (key.equals(TraceConstants.USER_TRACE_HEADER + group)) {
+                    returnMap.put(TraceConstants.USER_TRACE_HEADER,
                             new BString(((BStringArray) headers.get(aKey)).get(0)));
                 }
             }

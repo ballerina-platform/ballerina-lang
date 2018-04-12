@@ -7,3 +7,5 @@ target
 .gitignore
 ballerina-grammar/*
 !ballerina-grammar/syntaxes
+renderer/*
+renderer/**

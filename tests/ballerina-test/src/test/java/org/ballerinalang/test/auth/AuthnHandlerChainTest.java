@@ -46,7 +46,7 @@ public class AuthnHandlerChainTest {
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         Path ballerinaConfPath = Paths
-                .get(resourceRoot, "datafiles", "config", "auth", "basicauth", "userstore", BALLERINA_CONF);
+                .get(resourceRoot, "datafiles", "config", "auth", "configauthprovider", BALLERINA_CONF);
         ballerinaConfCopyPath = sourceRoot.resolve(BALLERINA_CONF);
 
         // Copy the ballerina.conf to the source root before starting the tests
@@ -71,7 +71,21 @@ public class AuthnHandlerChainTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test(description = "Test case for authn handler chain authn failure scenario with specific handlers")
+    public void testAuthFailureWithSpecificHandlers() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthFailureWithSpecificHandlers");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test(description = "Test case for authn handler chain authn success scenario")
+    public void testAuthSuccessWithSpecificHandlers() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthSuccessWithSpecificHandlers");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for authn handler chain authn success scenario with specific handlers")
     public void testAuthSuccess() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthSuccess");
         Assert.assertTrue(returns[0] instanceof BBoolean);

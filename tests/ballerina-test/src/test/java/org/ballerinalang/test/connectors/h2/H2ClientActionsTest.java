@@ -118,9 +118,9 @@ public class H2ClientActionsTest {
     public void testUpdateInMemory() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdateInMemory");
         BInteger retValue = (BInteger) returns[0];
-        BString retValue2 = (BString) returns[1];
         Assert.assertEquals(retValue.intValue(), 1);
-        //TODO: Need to be completed
+        Assert.assertEquals(returns[1].stringValue(), "[{\"customerId\":15,\"name\":\"Anne\",\"creditLimit\":1000.0,"
+                + "\"country\":\"UK\"}]");
     }
 
     @AfterSuite
