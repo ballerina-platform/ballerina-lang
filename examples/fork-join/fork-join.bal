@@ -19,12 +19,9 @@ function main (string[] args) {
             // The reply to the join block from worker w2.
             f -> fork;
         }
-
+    //The 'all' condition makes the join block wait until all the workers have sent in their replies.
+    //Once all the workers have replied, the replies are stored in the 'result' variable as a map.
     } join (all) (map results) {
-        // The 'all' condition makes the join block wait until all the workers have sent in their replies.
-        // Once all the workers have replied, the replies are stored in the 'result' variable as a map.
-
-
         // Get the values received from worker 'w1'.
         int iW1;
         string sW1;
