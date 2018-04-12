@@ -34,9 +34,9 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Pa
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.RecordModel;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Struct;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.StructField;
+import org.ballerinalang.langserver.LSContextManager;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.modal.BallerinaFile;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -241,12 +241,12 @@ public class ParserUtils {
                 "os", "reflect", "runtime", "security.crypto", "task", "time", "transactions.coordinator", "user",
                 "util"};
         try {
-            List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
+            CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
+            List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages(context);
             for (BLangPackage bLangPackage : builtInPackages) {
                 loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
             }
 
-            CompilerContext context = CommonUtil.prepareTempCompilerContext();
             for (String packageName : packageNames) {
                 PackageID packageID = new PackageID(new Name("ballerina"),
                         new Name(packageName), new Name("0.0.0"));

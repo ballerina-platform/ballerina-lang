@@ -183,10 +183,9 @@ public class TextDocumentServiceUtil {
      */
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
                                                          LSDocument sourceRoot, boolean preserveWhitespace,
-                                                         WorkspaceDocumentManager documentManager,
-                                                         LSGlobalContext lsGlobalContext) {
+                                                         WorkspaceDocumentManager documentManager) {
         return prepareCompilerContext(packageID, packageRepository, sourceRoot, preserveWhitespace, documentManager,
-                CompilerPhase.TAINT_ANALYZE, lsGlobalContext);
+                CompilerPhase.TAINT_ANALYZE);
     }
 
     /**
@@ -201,9 +200,9 @@ public class TextDocumentServiceUtil {
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
                                                          LSDocument sourceRoot, boolean preserveWhitespace,
                                                          WorkspaceDocumentManager documentManager,
-                                                         CompilerPhase compilerPhase, LSGlobalContext lsGlobalContext) {
-        CompilerContext context = lsGlobalContext.get(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT);
-        LSParserUtils.setGlobalPackageCache(packageID, context);
+                                                         CompilerPhase compilerPhase) {
+        LSContextManager lsContextManager = LSContextManager.getInstance();
+        CompilerContext context = lsContextManager.getCompilerContext(packageID, sourceRoot.getSourceRoot());
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot.getSourceRoot());
@@ -240,7 +239,7 @@ public class TextDocumentServiceUtil {
      */
     public static List<BLangPackage> getBLangPackage(LSContext context, WorkspaceDocumentManager docManager,
                                                      boolean preserveWhitespace, Class customErrorStrategy,
-                                                     boolean compileFullProject, LSGlobalContext lsGlobalContext) {
+                                                     boolean compileFullProject) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         String unsavedFileId = LSParserUtils.getUnsavedFileIdOrNull(uri);
         if (unsavedFileId != null) {
@@ -274,8 +273,7 @@ public class TextDocumentServiceUtil {
                                 (!file.isDirectory() && file.getName().endsWith(".bal"))) {
                             PackageID packageID = new PackageID(fileName);
                             Compiler compiler = getCompiler(context, fileName, packageID, packageRepository,
-                                    sourceDocument, preserveWhitespace, customErrorStrategy, docManager,
-                                    lsGlobalContext);
+                                    sourceDocument, preserveWhitespace, customErrorStrategy, docManager);
                             packages.add(compiler.compile(file.getName()));
                         }
                     }
@@ -290,7 +288,7 @@ public class TextDocumentServiceUtil {
                 packageID = new PackageID(Names.ANON_ORG, new Name(pkgName), Names.DEFAULT_VERSION);
             }
             Compiler compiler = getCompiler(context, fileName, packageID, packageRepository, sourceDocument,
-                    preserveWhitespace, customErrorStrategy, docManager, lsGlobalContext);
+                    preserveWhitespace, customErrorStrategy, docManager);
             packages.add(compiler.compile(pkgName));
         }
         return packages;
@@ -311,10 +309,10 @@ public class TextDocumentServiceUtil {
     private static Compiler getCompiler(LSContext context, String fileName, PackageID packageID,
                                         PackageRepository packageRepository, LSDocument sourceRoot,
                                         boolean preserveWhitespace, Class customErrorStrategy,
-                                        WorkspaceDocumentManager documentManager, LSGlobalContext lsGlobalContext) {
+                                        WorkspaceDocumentManager documentManager) {
         CompilerContext compilerContext =
                 TextDocumentServiceUtil.prepareCompilerContext(packageID, packageRepository, sourceRoot,
-                        preserveWhitespace, documentManager, lsGlobalContext);
+                        preserveWhitespace, documentManager);
         context.put(DocumentServiceKeys.FILE_NAME_KEY, fileName);
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
         context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new LSServiceOperationContext());
