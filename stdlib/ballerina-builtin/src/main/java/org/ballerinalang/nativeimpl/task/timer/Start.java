@@ -22,6 +22,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
@@ -59,7 +60,7 @@ public class Start extends BlockingNativeCallableUnit {
             Timer timer = new Timer(this, ctx, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
             task.setStringField(0, timer.getId());
             task.setBooleanField(0, 1);
-        } catch (Exception e) {
+        } catch (SchedulingException e) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_TASK_CONFIG);
         }
     }
