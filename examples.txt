@@ -136,3 +136,5 @@ Testerina Groups
 Streams
 Streams within services
 Streams Join
+Streams Sequences
+Streams Patterns
