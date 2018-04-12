@@ -188,28 +188,28 @@ public type HttpSecureClient object {
     @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"The HTTP response message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public native function getResponse (HttpFuture httpFuture) returns (Response|HttpConnectorError);
+    public function getResponse (HttpFuture httpFuture) returns (Response|HttpConnectorError);
 
     @Description {value:"Checks whether server push exists for a previously submitted request."}
     @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"Whether push promise exists"}
-    public native function hasPromise (HttpFuture httpFuture) returns boolean;
+    public function hasPromise (HttpFuture httpFuture) returns boolean;
 
     @Description {value:"Retrieves the next available push promise for a previously submitted request."}
     @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"The HTTP Push Promise message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public native function getNextPromise (HttpFuture httpFuture) returns (PushPromise|HttpConnectorError);
+    public function getNextPromise (HttpFuture httpFuture) returns (PushPromise|HttpConnectorError);
 
     @Description {value:"Retrieves the promised server push response."}
     @Param {value:"promise: The related Push Promise message"}
     @Return {value:"HTTP The Push Response message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public native function getPromisedResponse (PushPromise promise) returns (Response|HttpConnectorError);
+    public function getPromisedResponse (PushPromise promise) returns (Response|HttpConnectorError);
 
     @Description {value:"Rejects a push promise."}
     @Param {value:"promise: The Push Promise need to be rejected"}
-    public native function rejectPromise (PushPromise promise);
+    public function rejectPromise (PushPromise promise);
 };
 
 @Description {value:"Creates an HTTP client capable of securing HTTP requests with authentication."}
