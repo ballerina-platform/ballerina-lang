@@ -194,18 +194,28 @@ function createBasicAuthHandler () returns HttpAuthnHandler  {
 }
 
 function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler {
-    auth:AuthProvider authProvider1;
-    if (authProvider.authProvider == AUTH_PROVIDER_CONFIG) {
-        auth:ConfigAuthProvider configAuthProvider = new;
-        authProvider1 = <auth:AuthProvider> configAuthProvider;
-    } else {
-        // other auth providers are unsupported yet
-        error e = {message:"Invalid auth provider: " + authProvider.authProvider };
-        throw e;
-    }
     if (authProvider.scheme == AUTHN_SCHEME_BASIC) {
+        auth:AuthProvider authProvider1;
+        if (authProvider.authProvider == AUTH_PROVIDER_CONFIG) {
+            auth:ConfigAuthProvider configAuthProvider = new;
+            authProvider1 = <auth:AuthProvider> configAuthProvider;
+        } else {
+            // other auth providers are unsupported yet
+            error e = {message:"Invalid auth provider: " + authProvider.authProvider };
+            throw e;
+        }
         HttpBasicAuthnHandler basicAuthHandler = new(authProvider1);
         return check <HttpAuthnHandler> basicAuthHandler;
+    } else if(authProvider.scheme == AUTH_SCHEME_JWT){
+        auth:JWTAuthProviderConfig jwtConfig = {};
+        jwtConfig.issuer = authProvider.issuer;
+        jwtConfig.audience = authProvider.audience;
+        jwtConfig.certificateAlias = authProvider.certificateAlias;
+        jwtConfig.trustStoreFilePath = authProvider.trustStore.filePath but {() => ""};
+        jwtConfig.trustStorePassword = authProvider.trustStore.password but {() => ""};
+        auth:JWTAuthProvider jwtAuthProvider = new (jwtConfig);
+        HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
+        return check <HttpAuthnHandler> jwtAuthnHandler;
     } else {
         // TODO: create other HttpAuthnHandlers
         error e = {message:"Invalid auth scheme: " + authProvider.scheme };
