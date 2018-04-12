@@ -44,6 +44,11 @@ public class Schedule extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
         BStruct task = (BStruct) ctx.getRefArgument(0);
+        int isRunning = task.getBooleanField(0);
+        if (isRunning == 1) {
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.TASK_ALREADY_RUNNING);
+        }
+
         FunctionRefCPEntry onTriggerFunctionRefCPEntry = ((BFunctionPointer) task.getRefField(0)).value();
         FunctionRefCPEntry onErrorFunctionRefCPEntry =
                 task.getRefField(1) != null ? ((BFunctionPointer) task.getRefField(1)).value() : null;
@@ -53,6 +58,7 @@ public class Schedule extends BlockingNativeCallableUnit {
             Appointment appointment =
                     new Appointment(this, ctx, schedule, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
             task.setStringField(0, appointment.getId());
+            task.setBooleanField(0, 1);
         } catch (SchedulingException e) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_TASK_CONFIG);
         }
