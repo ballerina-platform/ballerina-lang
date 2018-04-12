@@ -67,7 +67,7 @@ public class BallerinaToSwaggerService implements ComposerService {
             String ballerinaSource = swaggerServiceContainer.getBallerinaDefinition();
 
             // Generate the swagger definitions using ballerina source.
-            String swaggerDefinition = SwaggerConverterUtils.generateOAS3Definitions(ballerinaSource, serviceName);
+            String swaggerDefinition = SwaggerConverterUtils.generateSwaggerDefinitions(ballerinaSource, serviceName);
             swaggerServiceContainer.setSwaggerDefinition(swaggerDefinition);
             return Response.ok().entity(swaggerServiceContainer).header(ACCESS_CONTROL_ALLOW_ORIGIN_NAME, '*').build();
         } catch (Exception ex) {
