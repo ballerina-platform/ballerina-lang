@@ -124,6 +124,7 @@ public final class Constants {
         public static final int IN = 0;
         public static final int OUT = 1;
         public static final int INOUT = 2;
+        public static final String DIR_IN = "IN";
         public static final String DIR_OUT = "OUT";
         public static final String DIR_INOUT = "INOUT";
 
@@ -178,6 +179,7 @@ public final class Constants {
     public static final String PASSWORD = "password";
 
     public static final String SQL_PACKAGE_PATH = "ballerina.sql";
+    public static final String SQL_PARAMETER_TYPE = "ParameterType";
     public static final String BUILTIN_PACKAGE_PATH = "ballerina.builtin";
     public static final String SQL_CLIENT = "SQLClient";
 
