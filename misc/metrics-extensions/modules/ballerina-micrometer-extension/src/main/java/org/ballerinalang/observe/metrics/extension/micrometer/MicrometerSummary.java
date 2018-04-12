@@ -19,10 +19,15 @@ package org.ballerinalang.observe.metrics.extension.micrometer;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
+import io.micrometer.core.instrument.distribution.HistogramSnapshot;
+import io.micrometer.core.instrument.distribution.ValueAtPercentile;
 import org.ballerinalang.util.metrics.AbstractMetric;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.Summary;
 
+import java.util.Collections;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 /**
@@ -63,7 +68,13 @@ public class MicrometerSummary extends AbstractMetric implements Summary {
     }
 
     @Override
-    public double percentile(double percentile) {
-        return summary.percentile(percentile);
+    public SortedMap<Double, Double> percentileValues() {
+        SortedMap<Double, Double> result = new TreeMap<>();
+        HistogramSnapshot snapshot = summary.takeSnapshot();
+        for (ValueAtPercentile valueAtPercentile : snapshot.percentileValues()) {
+            result.put(valueAtPercentile.percentile(), valueAtPercentile.value());
+        }
+        return Collections.unmodifiableSortedMap(result);
     }
+
 }
