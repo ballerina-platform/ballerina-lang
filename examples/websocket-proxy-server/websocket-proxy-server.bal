@@ -29,10 +29,7 @@ service <http:Service> proxy bind serviceEndpoint {
     }
 }
 
-@http:WebSocketServiceConfig {
-    basePath:"/proxy/ws"
-}
-service<http:WebSocketService> SimpleProxyServer bind serviceEndpoint {
+service<http:WebSocketService> SimpleProxyServer {
 
     onText (endpoint ep, string text) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(ep);
