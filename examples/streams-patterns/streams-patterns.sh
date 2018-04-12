@@ -1,0 +1,1 @@
+$ ballerina run streams-patterns.bal
