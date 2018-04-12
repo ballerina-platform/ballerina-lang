@@ -38,9 +38,6 @@ public class NotSoBasicWorkerTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/not-so-basic-worker-actions.bal");
-        for (Diagnostic d : this.result.getDiagnostics()) {
-            System.out.println("** X: " + d);
-        }
         Assert.assertEquals(result.getErrorCount(), 0);
     }
     
