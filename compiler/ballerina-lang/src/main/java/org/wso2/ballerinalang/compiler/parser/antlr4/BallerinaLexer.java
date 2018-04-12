@@ -1,17 +1,13 @@
 // Generated from BallerinaLexer.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
-import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Lexer;
-import org.antlr.v4.runtime.RuleContext;
-import org.antlr.v4.runtime.RuntimeMetaData;
-import org.antlr.v4.runtime.Vocabulary;
-import org.antlr.v4.runtime.VocabularyImpl;
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ATNDeserializer;
-import org.antlr.v4.runtime.atn.LexerATNSimulator;
-import org.antlr.v4.runtime.atn.PredictionContextCache;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.misc.Utils;
+import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class BallerinaLexer extends Lexer {
@@ -962,8 +958,8 @@ public class BallerinaLexer extends Lexer {
 		"\2ddhhppttvv\3\2//\7\2((>>bb}}\177\177\3\2bb\5\2\13\f\17\17\"\"\3\2\62"+
 		";\4\2/\60aa\5\2\u00b9\u00b9\u0302\u0371\u2041\u2042\t\2C\\c|\u2072\u2191"+
 		"\u2c02\u2ff1\u3003\ud801\uf902\ufdd1\ufdf2\uffff\7\2$$>>^^}}\177\177\7"+
-		"\2))>>^^}}\177\177\5\2@A}}\177\177\6\2//@@}}\177\177\13\2HHRRTTVVXX^^"+
-		"bb}}\177\177\5\2bb}}\177\177\7\2HHRRTTVVXX\6\2^^bb}}\177\177\3\2^^\5\2"+
+		"\2))>>^^}}\177\177\5\2@A}}\177\177\6\2//@@}}\177\177\13\2GHRRTTVVXX^^"+
+		"bb}}\177\177\5\2bb}}\177\177\7\2GHRRTTVVXX\6\2^^bb}}\177\177\3\2^^\5\2"+
 		"^^bb}}\4\2bb}}\u0a9a\2\17\3\2\2\2\2\21\3\2\2\2\2\23\3\2\2\2\2\25\3\2\2"+
 		"\2\2\27\3\2\2\2\2\31\3\2\2\2\2\33\3\2\2\2\2\35\3\2\2\2\2\37\3\2\2\2\2"+
 		"!\3\2\2\2\2#\3\2\2\2\2%\3\2\2\2\2\'\3\2\2\2\2)\3\2\2\2\2+\3\2\2\2\2-\3"+
