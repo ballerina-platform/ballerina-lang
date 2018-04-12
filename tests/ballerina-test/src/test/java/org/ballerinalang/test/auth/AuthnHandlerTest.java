@@ -25,16 +25,22 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 
 public class AuthnHandlerTest {
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
     private String resourceRoot;
+    private String secretFile = "secret.txt";
+    private Path secretCopyPath;
 
     @BeforeClass
     public void setup() throws Exception {
@@ -46,9 +52,20 @@ public class AuthnHandlerTest {
         //compileResult = BCompileUtil.compile(sourceRoot.resolve("authn-handler-test.bal").toString());
         compileResult = BCompileUtil.compileAndSetup("test-src/auth/authn-handler-test.bal");
 
+        Path secretFilePath = Paths.get(resourceRoot, "datafiles", "config", secretFile);
+        secretCopyPath = Paths.get(resourceRoot, "datafiles", "config", "auth", "configauthprovider",
+                secretFile);
+        Files.deleteIfExists(secretCopyPath);
+        copySecretFile(secretFilePath.toString(), secretCopyPath.toString());
+
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(null, ballerinaConfPath.toString(), null);
+        registry.initRegistry(Collections.singletonMap("ballerina.config.secret", secretCopyPath.toString()),
+                ballerinaConfPath.toString(), null);
+    }
+
+    private void copySecretFile (String from, String to) throws IOException {
+        Files.copy(Paths.get(from), Paths.get(to));
     }
 
     @Test(description = "Test case for basic auth interceptor canHandle method, without the basic auth header")
@@ -93,5 +110,10 @@ public class AuthnHandlerTest {
         Assert.assertTrue(returns != null);
         // no error should be returned
         Assert.assertEquals(returns[0].stringValue(), "Basic aXN1cnU6eHh4");
+    }
+
+    @AfterClass
+    public void tearDown() throws IOException {
+        Files.deleteIfExists(secretCopyPath);
     }
 }
