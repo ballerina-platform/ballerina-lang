@@ -96,7 +96,7 @@ service<http:Service> participant1 bind participant1EP {
     member (endpoint conn, http:Request req) {
 
         http:Request newReq = new;
-        newReq.setHeader("participant-id", req.getHeader("X-XID"));
+        newReq.setHeader("participant-id", req.getHeader("x-b7a-xid"));
         transaction {
             var forwardResult = participant2EP -> forward("/task1", req);
             match forwardResult {
