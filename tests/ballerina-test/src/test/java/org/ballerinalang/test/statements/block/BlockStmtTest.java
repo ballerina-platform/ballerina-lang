@@ -18,7 +18,11 @@ package org.ballerinalang.test.statements.block;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,6 +44,18 @@ public class BlockStmtTest {
     @Test
     public void blockStmtTest() {
         Assert.assertEquals(result.getErrorCount(), 0);
+    }
+
+    @Test
+    public void testVariableShadowingInCurrentScope1() {
+        BValue[] returns = BRunUtil.invoke(result, "test1");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+    }
+
+    @Test
+    public void testVariableShadowingInCurrentScope2() {
+        BValue[] returns = BRunUtil.invoke(result, "test2");
+        Assert.assertEquals(returns[0].stringValue(), "K17");
     }
 
     @Test(description = "Test block statement with errors")

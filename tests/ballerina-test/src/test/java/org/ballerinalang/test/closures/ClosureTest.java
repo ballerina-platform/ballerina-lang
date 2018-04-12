@@ -164,4 +164,16 @@ public class ClosureTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "test22");
         Assert.assertEquals((returns[0]).stringValue(), "7InnerInt41.2InnerFloat4.5Ballerina !!!");
     }
+
+    @Test(description = "Test closure with variable shadowing")
+    public void testClosureWithVariableShadowing1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test23");
+        Assert.assertEquals((returns[0]).stringValue(), "Ballerina22");
+    }
+
+    @Test(description = "Test multi level closure with variable shadowing")
+    public void testClosureWithVariableShadowing2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test24");
+        Assert.assertEquals((returns[0]).stringValue(), "Out22In52Ballerina!!!");
+    }
 }

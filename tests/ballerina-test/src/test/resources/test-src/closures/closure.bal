@@ -379,3 +379,67 @@ function test22() returns (string) {
     var fooIn = fooOut(1.2);
     return fooIn(4.5);
 }
+
+function testVariableShadowingInClosure1(int a) returns function (float) returns (string){
+    int b = 4;
+    float f = 5.6;
+
+    if (a < 10) {
+        int a = 4;
+        b = a + b + <int>f;
+    }
+
+    var foo = (float f) => (string) {
+        if (a > 8) {
+            int a = 6;
+            b = a + <int>f + b;
+        }
+        return "Ballerina" + b;
+    };
+    return foo;
+}
+
+
+function test23() returns string {
+    var foo = testVariableShadowingInClosure1(9);
+    string a = foo(3.4);
+    return a;
+}
+
+function testVariableShadowingInClosure2(int a) returns function (float) returns (function (float, boolean) returns (string)){
+    int b = 4;
+    float f = 5.6;
+    boolean boo = true;
+
+    if (a < 10) {
+        int a = 4;
+        b = a + b + <int>f;
+    }
+
+    var fooOut = (float f) => (function (float, boolean) returns (string)) {
+        if (a > 8) {
+            int a = 6;
+            b = a + <int>f + b;
+        }
+        string s = "Out" + b;
+
+        var fooIn = (float f, boolean boo) => (string) {
+            if (a > 8 && !boo) {
+                int a = 6;
+                b = a + <int>f + b;
+            }
+            return s + "In" + b + "Ballerina!!!";
+        };
+        return fooIn;
+    };
+    return fooOut;
+}
+
+
+function test24() returns string {
+    var foo = testVariableShadowingInClosure2(9);
+    var bar = foo(3.4);
+    string s = bar(24.6, false);
+    return s;
+}
+

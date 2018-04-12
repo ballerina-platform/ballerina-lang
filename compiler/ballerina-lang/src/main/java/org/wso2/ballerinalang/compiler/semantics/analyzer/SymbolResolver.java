@@ -117,6 +117,24 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (foundSym == symTable.notFoundSymbol) {
             return true;
         }
+        return isUniqueSymbol(pos, symbol, foundSym);
+    }
+
+    public boolean checkForUniqueSymbolInCurrentScope(DiagnosticPos pos, SymbolEnv env, BSymbol symbol,
+                                                      int expSymTag) {
+        BSymbol foundSym = lookupSymbolInGivenScope(env, symbol.name, expSymTag);
+
+        if (foundSym == symTable.notFoundSymbol && (env.enclEnv != null && env.enclEnv.node instanceof BLangFunction)) {
+            foundSym = lookupSymbolInGivenScope(env.enclEnv, symbol.name, expSymTag);
+        }
+
+        if (foundSym == symTable.notFoundSymbol) {
+            return true;
+        }
+        return isUniqueSymbol(pos, symbol, foundSym);
+    }
+
+    private boolean isUniqueSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
         if (symTable.rootPkgSymbol.pkgID.equals(foundSym.pkgID) &&
                 (foundSym.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
             if (handleSpecialBuiltinStructTypes(symbol)) {
@@ -132,6 +150,21 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         return true;
+    }
+
+    private BSymbol lookupSymbolInGivenScope(SymbolEnv env, Name name, int expSymTag) {
+        ScopeEntry entry = env.scope.lookup(name);
+        while (entry != NOT_FOUND_ENTRY) {
+            if (symTable.rootPkgSymbol.pkgID.equals(entry.symbol.pkgID) &&
+                    (entry.symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
+                return entry.symbol;
+            }
+            if ((entry.symbol.tag & expSymTag) == expSymTag) {
+                return entry.symbol;
+            }
+            entry = entry.next;
+        }
+        return symTable.notFoundSymbol;
     }
 
     public boolean checkForUniqueMemberSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol) {
