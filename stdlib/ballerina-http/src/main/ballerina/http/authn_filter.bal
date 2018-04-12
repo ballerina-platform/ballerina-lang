@@ -60,9 +60,10 @@ public function authnRequestFilterFunc (Request request, FilterContext context) 
             string[] providers => {
                 if (lengthof providers > 0) {
                     authenticated = authnHandlerChain.handleWithSpecificAuthnHandlers(providers, request);
+                } else {
+                    // if not, try to authenticate using any of available authn handlers
+                    authenticated = authnHandlerChain.handle(request);
                 }
-                // if not, try to authenticate using any of available authn handlers
-                authenticated = authnHandlerChain.handle(request);
             }
             () => {
                 authenticated = authnHandlerChain.handle(request);

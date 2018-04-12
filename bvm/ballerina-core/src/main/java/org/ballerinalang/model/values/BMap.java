@@ -68,6 +68,9 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     public V get(K key) {
         readLock.lock();
         try {
+            if (!map.containsKey(key)) {
+                throw new BallerinaException("cannot find key '" + key + "'");
+            }
             return map.get(key);
         } finally {
             readLock.unlock();

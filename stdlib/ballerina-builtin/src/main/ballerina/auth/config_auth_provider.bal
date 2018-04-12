@@ -29,8 +29,7 @@ public type ConfigAuthProvider object {
     @Param {value:"password: password"}
     @Return {value:"boolean: true if authentication is a success, else false"}
     public function authenticate (string user, string password) returns (boolean) {
-        string passwordHash = readPasswordHash(user);
-        return passwordHash == crypto:getHash(password, crypto:SHA256);
+        return password == readPassword(user);
     }
 
     @Description {value:"Reads the scope(s) for the user with the given username"}
@@ -47,7 +46,7 @@ public type ConfigAuthProvider object {
 @Description {value:"Reads the password hash for a user"}
 @Param {value:"string: username"}
 @Return {value:"string: password hash read from userstore, or nil if not found"}
-function readPasswordHash (string username) returns (string) {
+function readPassword (string username) returns (string) {
     // first read the user id from user->id mapping
     // read the hashed password from the userstore file, using the user id
     return getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "password");

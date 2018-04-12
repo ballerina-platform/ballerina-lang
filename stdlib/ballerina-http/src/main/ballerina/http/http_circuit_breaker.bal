@@ -68,12 +68,12 @@ public type CircuitBreakerConfig {
 documentation {
     Represents Circuit Breaker rolling window configuration.
 
-    F{{timeWindow}}  - Time period in which the failure threshold is calculated.
-    F{{bucketSize}} - The size of a sub unit that the timeWindow should be divided.
+    F{{timeWindowMillies}}  - Time period in milliseconds which the failure threshold is calculated.
+    F{{bucketSizeMillies}} - The size of a sub unit in milliseconds that the timeWindow should be divided.
 }
 public type RollingWindow {
-    int timeWindow,
-    int bucketSize,
+    int timeWindowMillies = 60000,
+    int bucketSizeMillies = 10000,
 };
 
 documentation {
@@ -550,8 +550,8 @@ function updateCircuitHealthFailure(CircuitHealth circuitHealth,
     lock {
         time:Time startTime = circuitHealth.startTime;
         time:Time currentTime = time:currentTime();
-        int elapsedTime = (currentTime.time - startTime.time) % circuitBreakerInferredConfig.rollingWindow.timeWindow;
-        int currentBucketId = ((elapsedTime/circuitBreakerInferredConfig.rollingWindow.bucketSize) + 1 )
+        int elapsedTime = (currentTime.time - startTime.time) % circuitBreakerInferredConfig.rollingWindow.timeWindowMillies;
+        int currentBucketId = ((elapsedTime/circuitBreakerInferredConfig.rollingWindow.bucketSizeMillies) + 1 )
                               % circuitBreakerInferredConfig.noOfBuckets;
         if (currentBucketId != circuitHealth.lastUsedBucketId) {
             resetBucketStats(circuitHealth, currentBucketId);
@@ -570,8 +570,8 @@ function updateCircuitHealthSuccess(CircuitHealth circuitHealth, Response inResp
     lock {
         time:Time startTime = circuitHealth.startTime;
         time:Time currentTime = time:currentTime();
-        int elapsedTime = (currentTime.time - startTime.time) % circuitBreakerInferredConfig.rollingWindow.timeWindow;
-        int currentBucketId = ((elapsedTime/circuitBreakerInferredConfig.rollingWindow.bucketSize) + 1 )
+        int elapsedTime = (currentTime.time - startTime.time) % circuitBreakerInferredConfig.rollingWindow.timeWindowMillies;
+        int currentBucketId = ((elapsedTime/circuitBreakerInferredConfig.rollingWindow.bucketSizeMillies) + 1 )
                               % circuitBreakerInferredConfig.noOfBuckets;
         if (currentBucketId != circuitHealth.lastUsedBucketId) {
             resetBucketStats(circuitHealth, currentBucketId);

@@ -20,7 +20,7 @@ import ballerina/http;
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///
 //////////////////////////////////////////
-@Description {value:"Struct representing the WebSubSubscriber Service Endpoint"}
+@Description {value:"Object representing the WebSubSubscriber Service Endpoint"}
 @Field {value:"config: The configuration for the endpoint"}
 @Field {value:"serviceEndpoint: The underlying HTTP service endpoint"}
 public type Listener object {
@@ -147,6 +147,10 @@ function Listener::sendSubscriptionRequest() {
     }
 }
 
+@Description {value:"Object representing the configuration for the WebSubSubscriber Service Endpoint"}
+@Field {value:"host: The configuration for the endpoint"}
+@Field {value:"port: The underlying HTTP service endpoint"}
+@Field {value:"secureSocket: The SSL configurations for the service endpoint"}
 public type SubscriberServiceEndpointConfiguration {
     string host;
     int port;
@@ -253,7 +257,7 @@ public function interceptWebSubRequest (http:Request request, http:FilterContext
         match (processedNotification) {
             WebSubError webSubError => {
                 http:FilterResult filterResult =
-                                {canProceed:false, statusCode:200, message:"validation failed for notification"};
+                                {canProceed:false, statusCode:404, message:"validation failed for notification"};
                 return filterResult;
             }
             () => {

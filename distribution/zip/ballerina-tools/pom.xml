@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha5-SNAPSHOT</version>
+        <version>0.970.0-alpha6-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -219,6 +219,7 @@
                         <configuration>
                             <target>
                                 <mkdir dir="${project.build.directory}/extracted-distributions/ballerina"/>
+                                <chmod file="${project.build.directory}/extracted-distributions/ballerina" perm="u+x" />
                             </target>
                         </configuration>
                     </execution>
