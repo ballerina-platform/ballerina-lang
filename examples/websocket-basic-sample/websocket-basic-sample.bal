@@ -37,9 +37,9 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
             conn -> ping(pingData) but {error e => log:printErrorCause("Error sending ping", e)};
         } else if (text == "closeMe") {
             conn -> close(1001, "You asked me to close the connection")
-                         but {error e => log:printErrorCause("Error occured when closing the connection", e)};
+                         but {error e => log:printErrorCause("Error occurred when closing the connection", e)};
         } else {
-            conn -> pushText("You said: " + text) but {error e => log:printErrorCause("Error occured when sending text", e)};
+            conn -> pushText("You said: " + text) but {error e => log:printErrorCause("Error occurred when sending text", e)};
         }
     }
 
@@ -47,12 +47,13 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
     onBinary (endpoint conn, blob b) {
         io:println("\nNew binary message received");
         io:println("UTF-8 decoded binary message: " + b.toString("UTF-8"));
-        conn -> pushBinary(b) but {error e => log:printErrorCause("Error occured when sending binary", e)};
+        conn -> pushBinary(b) but {error e => log:printErrorCause("Error occurred when sending binary", e)};
     }
 
-    @Description {value:"This resource is triggered when a ping message is received from the client. If this resource is not implemented then pong message will be sent automatically to the connected endpoint when a ping is received."}
+    @Description {value:"This resource is triggered when a ping message is received from the client. If this resource is
+     not implemented, a pong message is automatically sent to the connected endpoint when a ping is received."}
     onPing (endpoint conn, blob data) {
-        conn -> pong(data) but {error e => log:printErrorCause("Error occured when closing the connection", e)};
+        conn -> pong(data) but {error e => log:printErrorCause("Error occurred when closing the connection", e)};
     }
 
     @Description {value:"This resource is triggered when a pong message is received"}
@@ -60,7 +61,8 @@ service<http:WebSocketService> SimpleSecureServer bind ep {
         io:println("Pong received");
     }
 
-    @Description {value:"This resource is triggered when a particular client reaches it's idle timeout defined in the ws:configuration annotation."}
+    @Description {value:"This resource is triggered when a particular client reaches the idle timeout that is defined in
+     the `http:WebSocketServiceConfig` annotation."}
     onIdleTimeout (endpoint conn) {
         // This resource will be triggered after 180 seconds if there is no activity in a given channel.
         io:println("\nReached idle timeout");

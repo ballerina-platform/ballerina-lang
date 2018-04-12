@@ -1,5 +1,2 @@
-// This example explains how ballerina can act as a simple WebSocket proxy server.
-// When new client is connected to the WebSocket endpoint, onHandshake new WebSocket client connection is created and stored in the connection attributes.
-// When the endpoint client sends a message, get the client connection for remote server from attributes and send the same message to remote server.
-// That server will echo it back and it will be received to "ClientService" which will print the echoed message.
-// Then by the client connection from "onTextMessage" resource in "ClientService", get the associated server connection and send it.
+//Ballerina can act as a proxy to another remote service. Ballerina forwards the
+//requests sent by the clients that connect to it via a WebSocket to the respective remote service.

@@ -1,1 +1,2 @@
-//Ballerina supports variable declarations with "var".
+//Ballerina supports variable declarations with `var`. The variable type of `var` is inferred from the initial value
+//that is assigned to the variable.
