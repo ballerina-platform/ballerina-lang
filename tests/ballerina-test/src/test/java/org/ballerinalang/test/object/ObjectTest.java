@@ -400,20 +400,22 @@ public class ObjectTest {
             "attached function without function interface")
     public void testObjectNegativeTestForAttachFunctions() {
         CompileResult result = BCompileUtil.compile("test-src/object/object-with-interface-and-impl-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 4);
+        Assert.assertEquals(result.getErrorCount(), 5);
 
+        BAssertUtil.validateError(result, 0, "cannot initialize object 'Person', no " +
+                "implementation for the interface 'Person.attachInterface'", 3, 16);
         // test accessing object fields without "self" keyword in attached functions.
-        BAssertUtil.validateError(result, 0, "undefined symbol 'age'", 20, 17);
+        BAssertUtil.validateError(result, 1, "undefined symbol 'age'", 20, 17);
         // test duplicate matching attach function implementations
-        BAssertUtil.validateError(result, 1, "implementation already exist for the given " +
+        BAssertUtil.validateError(result, 2, "implementation already exist for the given " +
                 "function 'attachInterface' in same package", 24, 1);
 
         // test object without matching function signature within the object
-        BAssertUtil.validateError(result, 2, "cannot find function signature for" +
+        BAssertUtil.validateError(result, 3, "cannot find function signature for" +
                 " function 'attachInterfaceFunc' in object 'Employee'", 38, 1);
 
         // test accessing object fields without "self" keyword in attached functions.
-        BAssertUtil.validateError(result, 3, "undefined symbol 'age'", 39, 17);
+        BAssertUtil.validateError(result, 4, "undefined symbol 'age'", 39, 17);
     }
 
     @Test (description = "Negative test to test uninitialized object variables")
@@ -465,19 +467,60 @@ public class ObjectTest {
                 "not present as a constructor parameter", 22, 1);
     }
 
-//    @Test (description = "Negative test to test self reference types")
-//    public void testNonMatchingAttachedFunction() {
-//        CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
-//        Assert.assertEquals(result.getErrorCount(), 5);
-//        BAssertUtil.validateError(result, 0, "object un-initializable field 'Employee emp' " +
-//                "is not present as a constructor parameter", 7, 1);
-//        BAssertUtil.validateError(result, 1, "cyclic type reference in '[Employee, Foo, Bar, Person]'", 10, 9);
-//        BAssertUtil.validateError(result, 2, "object un-initializable field 'Foo foo' is " +
-//                "not present as a constructor parameter", 14, 1);
-//        BAssertUtil.validateError(result, 3, "object un-initializable field 'Bar bar' is " +
-//                "not present as a constructor parameter", 14, 1);
-//        BAssertUtil.validateError(result, 4, "object un-initializable field 'Bar bar1' is " +
-//                "not present as a constructor parameter", 22, 1);
-//    }
+    @Test (description = "Negative test to test self reference types")
+    public void testNonMatchingAttachedFunction() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_invalid_attached_func_def.bal");
+        Assert.assertEquals(result.getErrorCount(), 21);
+        BAssertUtil.validateError(result, 0, "cannot initialize object 'Person', no " +
+                "implementation for the interface 'Person.test0'", 3, 16);
+        BAssertUtil.validateError(result, 1, "cannot initialize object 'Person', no " +
+                "implementation for the interface 'Person.test1'", 3, 16);
+        BAssertUtil.validateError(result, 2, "cannot initialize object 'Person', no " +
+                "implementation for the interface 'Person.test2'", 3, 16);
+        BAssertUtil.validateError(result, 3, "cannot initialize object 'Person', no " +
+                "implementation for the interface 'Person.test3'", 3, 16);
+        BAssertUtil.validateError(result, 4, "cannot initialize object 'Person', no " +
+                "implementation for the interface 'Person.test5'", 3, 16);
+        BAssertUtil.validateError(result, 5, "cannot initialize object 'Person', no " +
+                "implementation for the interface 'Person.test6'", 3, 16);
+        BAssertUtil.validateError(result, 6, "cannot initialize object 'Person', no " +
+                "implementation for the interface 'Person.test7'", 3, 16);
+        BAssertUtil.validateError(result, 7, "cannot initialize object 'Person', no " +
+                "implementation for the interface 'Person.test9'", 3, 16);
+        BAssertUtil.validateError(result, 8, "cannot initialize object 'Person', no " +
+                "implementation for the interface 'Person.test12'", 3, 16);
+        BAssertUtil.validateError(result, 9, "cannot initialize object 'Person', no " +
+                "implementation for the interface 'Person.test13'", 3, 16);
+        BAssertUtil.validateError(result, 10, "cannot find matching interface " +
+                "function 'test0' in the object 'Person'", 42, 1);
+        BAssertUtil.validateError(result, 11, "cannot find matching interface " +
+                "function 'test1' in the object 'Person'", 46, 1);
+        BAssertUtil.validateError(result, 12, "cannot find matching interface " +
+                "function 'test2' in the object 'Person'", 50, 1);
+        BAssertUtil.validateError(result, 13, "cannot find matching interface " +
+                "function 'test3' in the object 'Person'", 54, 1);
+        BAssertUtil.validateError(result, 14, "incompatible types: expected " +
+                "'string', found 'int'", 54, 44);
+        BAssertUtil.validateError(result, 15, "cannot find matching interface " +
+                "function 'test5' in the object 'Person'", 62, 1);
+        BAssertUtil.validateError(result, 16, "cannot find matching interface " +
+                "function 'test6' in the object 'Person'", 66, 1);
+        BAssertUtil.validateError(result, 17, "cannot find matching interface " +
+                "function 'test7' in the object 'Person'", 70, 1);
+        BAssertUtil.validateError(result, 18, "cannot find matching interface " +
+                "function 'test9' in the object 'Person'", 78, 1);
+        BAssertUtil.validateError(result, 19, "cannot find matching interface " +
+                "function 'test12' in the object 'Person'", 90, 1);
+        BAssertUtil.validateError(result, 20, "cannot find matching interface " +
+                "function 'test13' in the object 'Person'", 94, 1);
+    }
+
+    @Test (description = "Negative test to test initializing objects with only interface functions")
+    public void testInitializingInterfaceObject() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_initialize_interface_object.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "cannot initialize object 'Person', " +
+                "no implementation for the interface 'Person.test'", 3, 16);
+    }
 
 }

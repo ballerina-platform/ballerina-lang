@@ -60,8 +60,8 @@ public class SQLDatasource implements BValue {
     public SQLDatasource() {}
 
     public boolean init(Struct options, String url, String dbType, String hostOrPath, int port, String username,
-            String password, String dbName) {
-        buildDataSource(options, url, dbType, hostOrPath, dbName, port, username, password);
+            String password, String dbName, String dbOptions) {
+        buildDataSource(options, url, dbType, hostOrPath, dbName, port, username, password, dbOptions);
         connectorId = UUID.randomUUID().toString();
         xaConn = isXADataSource();
         try (Connection con = getSQLConnection()) {
@@ -105,7 +105,7 @@ public class SQLDatasource implements BValue {
     }
 
     private void buildDataSource(Struct options, String url, String dbType, String hostOrPath, String dbName, int port,
-            String username, String password) {
+            String username, String password, String dbOptions) {
         try {
             HikariConfig config = new HikariConfig();
             //Set username password
@@ -114,7 +114,7 @@ public class SQLDatasource implements BValue {
             //Set URL
             String jdbcurl;
             if (url.isEmpty()) {
-                jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
+                jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password, dbOptions);
             } else {
                 jdbcurl = Constants.SQL_JDBC_PREFIX + url;
             }
@@ -228,7 +228,7 @@ public class SQLDatasource implements BValue {
     }
 
     private String constructJDBCURL(String dbType, String hostOrPath, int port, String dbName, String username,
-            String password) {
+            String password, String dbOptions) {
         StringBuilder jdbcUrl = new StringBuilder();
         dbType = dbType.toUpperCase(Locale.ENGLISH);
         hostOrPath = hostOrPath.replaceAll("/$", "");
@@ -305,7 +305,7 @@ public class SQLDatasource implements BValue {
         default:
             throw new BallerinaException("cannot generate url for unknown database type : " + dbType);
         }
-        return jdbcUrl.toString();
+        return dbOptions.isEmpty() ? jdbcUrl.toString() : jdbcUrl.append(dbOptions).toString();
     }
 
     private String getXADatasourceClassName(String dbType, String url, String userName, String password) {

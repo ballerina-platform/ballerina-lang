@@ -45,7 +45,7 @@ function test5(){
     int x;
     x = s.foreach((string s) => {word = word + s;});
 
-    var (x, y) = s.map(((int, string) tuple) => (int, string) { var (i, v) = tuple;
+    var (z, y) = s.map(((int, string) tuple) => (int, string) { var (i, v) = tuple;
                            return (i * 2, v + v);
                        });
 }
