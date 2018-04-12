@@ -26,16 +26,12 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  * Initializer for WebSocket server for Testing.
  */
 public class WebSocketRemoteServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private static final String WEBSOCKET_PATH = "/websocket";
-    public static final List<WebSocketRemoteServerFrameHandler> FRAME_HANDLERS = new LinkedList<>();
 
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
@@ -45,7 +41,6 @@ public class WebSocketRemoteServerInitializer extends ChannelInitializer<SocketC
         pipeline.addLast(new WebSocketServerCompressionHandler());
         pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
         WebSocketRemoteServerFrameHandler frameHandler = new WebSocketRemoteServerFrameHandler();
-//        FRAME_HANDLERS.add(frameHandler);
         pipeline.addLast(frameHandler);
     }
 }

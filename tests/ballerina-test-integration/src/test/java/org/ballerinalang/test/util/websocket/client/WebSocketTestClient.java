@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -86,16 +86,16 @@ public class WebSocketTestClient {
      */
     public void handshake() throws InterruptedException {
         group = new NioEventLoopGroup();
-        Bootstrap b = new Bootstrap();
-        b.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer<SocketChannel>() {
+        Bootstrap bootstrap = new Bootstrap();
+        bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) {
-                ChannelPipeline p = ch.pipeline();
-                p.addLast(new HttpClientCodec(), new HttpObjectAggregator(8192),
+                ChannelPipeline pipeline = ch.pipeline();
+                pipeline.addLast(new HttpClientCodec(), new HttpObjectAggregator(8192),
                           WebSocketClientCompressionHandler.INSTANCE, webSocketHandler);
             }
         });
-        channel = b.connect(uri.getHost(), uri.getPort()).sync().channel();
+        channel = bootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
         webSocketHandler.handshakeFuture().sync();
     }
 

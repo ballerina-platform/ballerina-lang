@@ -13,28 +13,21 @@ task:Timer? timer2;
 
 function scheduleTimer(int w1Delay, int w1Interval, int w2Delay, int w2Interval, string errMsgW1, string errMsgW2) {
     worker default {
-        task:Timer? t1;
-        task:Timer? t2;
         errorMsgW1 = errMsgW1;
         errorMsgW2 = errMsgW2;
-        t1 <- w1;
-        t2 <- w2;
-
-        timer1 = t1;
-        timer2 = t2;
+        timer1 <- w1;
+        timer2 <- w2;
     }
     worker w1 {
         task:Timer? t;
         (function() returns error?) onTriggerFunction = onTriggerW1;
         if (errMsgW1 == "") {
-            task:Timer t1 = new(onTriggerFunction, (), w1Interval, delay = w1Delay);
-            t1.start();
-            t = t1;
+            t = new task:Timer(onTriggerFunction, (), w1Interval, delay = w1Delay);
+            _ = t.start();
         } else {
             function (error) onErrorFunction = onErrorW1;
-            task:Timer t1 = new(onTriggerFunction, onErrorFunction, w1Interval, delay = w1Delay);
-            t1.start();
-            t = t1;
+            t = new task:Timer(onTriggerFunction, onErrorFunction, w1Interval, delay = w1Delay);
+            _ = t.start();
         }
         t -> default;
     }
@@ -42,14 +35,12 @@ function scheduleTimer(int w1Delay, int w1Interval, int w2Delay, int w2Interval,
         task:Timer? t;
         (function() returns error?) onTriggerFunction = onTriggerW2;
         if (errMsgW2 == "") {
-            task:Timer t2 = new(onTriggerFunction, (), w2Interval, delay = w2Delay);
-            t2.start();
-            t = t2;
+            t = new task:Timer(onTriggerFunction, (), w2Interval, delay = w2Delay);
+            _ = t.start();
         } else {
             function (error) onErrorFunction = onErrorW2;
-            task:Timer t2 = new(onTriggerFunction, onErrorFunction, w2Interval, delay = w2Delay);
-            t2.start();
-            t = t2;
+            t = new task:Timer(onTriggerFunction, onErrorFunction, w2Interval, delay = w2Delay);
+            _ = t.start();
         }
         t -> default;
     }
@@ -108,16 +99,4 @@ function stopTasks() {
     _ = timer2.stop();
     w1Count = -1;
     w2Count = -1;
-
-    //error? w1StopError = task:stopTask(w1TaskId);
-    //match w1StopError {
-    //    error err => {}
-    //    () => w1Count = -1;
-    //}
-    //error? w2StopError = task:stopTask(w2TaskId);
-    //match w2StopError {
-    //    error err => {}
-    //    () => w2Count = -1;
-    //}
-    //return (w1StopError, w2StopError);
 }

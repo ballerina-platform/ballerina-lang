@@ -72,8 +72,8 @@ public type Client object {
 
 @Description {value:"Object representing the WebSub Hub Client Endpoint configuration"}
 @Field {value:"url: The URL of the target Hub"}
+@Field {value:"secureSocket: SSL/TLS related options"}
 public type HubClientEndpointConfiguration {
     string url,
     http:SecureSocket? secureSocket,
-    //TODO: include header, topic-resource map
 };
