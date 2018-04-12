@@ -60,10 +60,8 @@ public class PercentileSummary extends BlockingNativeCallableUnit {
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-
             context.setReturnValues(buildPercentileValuesMap(Summary.builder(name).description(description).tags(tags)
                     .register()));
-
         } else {
             context.setReturnValues(buildPercentileValuesMap(Summary.builder(name).description(description)
                     .register()));

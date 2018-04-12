@@ -68,7 +68,6 @@ public class PercentileTimer extends BlockingNativeCallableUnit {
             }
             context.setReturnValues(buildPercentileValuesMap(Timer.builder(name).description(description).tags(tags).
                     register(), timeUnit));
-
         } else {
             context.setReturnValues(buildPercentileValuesMap(Timer.builder(name).description(description).register(),
                     timeUnit));
