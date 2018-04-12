@@ -33,6 +33,6 @@ public type ConsumerConnector object {
 };
 
 public type ConsumerEndpointConfiguration {
-    jms:Session session;
+    jms:Session? session;
     string identifier;
 };

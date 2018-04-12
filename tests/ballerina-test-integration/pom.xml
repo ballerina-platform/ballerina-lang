@@ -99,6 +99,11 @@
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.ballerina.messaging</groupId>
+            <artifactId>broker-amqp</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

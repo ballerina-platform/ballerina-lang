@@ -43,7 +43,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         path:"/products/{prodId}"
     }
     productsInfo (endpoint outboundEP, http:Request req, string prodId) {
-        string reqPath = "/productsservice/" + prodId;
+        string reqPath = "/productsservice/" + untaint prodId;
         http:Request clientRequest = new;
         var clientResponse = productsService -> get(reqPath, clientRequest);
 
