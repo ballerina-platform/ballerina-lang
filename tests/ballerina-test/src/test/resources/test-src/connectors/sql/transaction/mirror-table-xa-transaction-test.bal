@@ -108,7 +108,7 @@ function testXATransactionFailed1 () returns (int, int) {
         count1 = rs.COUNTVAL;
     }
 
-    temp = testDB2 -> select("Select COUNT(*) as countval from SalaryTrx where id = 2 ", (), ResultCount);
+    temp = testDB2 -> select("Select COUNT(*) as countval from SalaryTrx where id=20 AND value = 1000", (), ResultCount);
     dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
@@ -151,7 +151,7 @@ function testXATransactionFailed2 () returns (int, int) {
 
     }
     //check whether update action is performed
-    var temp = testDB1 -> select("Select COUNT(*) as countval from CustomersTrx where customerId = 2",
+    var temp = testDB1 -> select("Select COUNT(*) as countval from CustomersTrx where customerId = 30 AND name = 'John'",
                                   (), ResultCount);
     table dt = check temp;
     int count1;
@@ -161,7 +161,7 @@ function testXATransactionFailed2 () returns (int, int) {
         count1 = rs.COUNTVAL;
     }
 
-    temp = testDB2 -> select("Select COUNT(*) as countval from SalaryTrx where id = 2 ", (), ResultCount);
+    temp = testDB2 -> select("Select COUNT(*) as countval from SalaryTrx where id = 3 ", (), ResultCount);
     dt = check temp;
     
     while (dt.hasNext()) {

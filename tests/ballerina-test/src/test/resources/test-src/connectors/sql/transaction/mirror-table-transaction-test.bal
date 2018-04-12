@@ -87,8 +87,8 @@ function testTransactonRollback () returns (int, int) {
 
 
     //check whether update action is performed
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 210", (),
-                                 ResultCount);
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 200", (),
+    ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
@@ -112,9 +112,9 @@ function testTransactonAbort () returns (int, int) {
     table dt0 = check temp0;
 
     transaction {
-        CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:200,creditLimit:5000.75,
+        CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:220,creditLimit:5000.75,
                               country:"USA"};
-        CustomersTrx c2 = {firstName:"James",lastName:"Clerk",registrationID:200,creditLimit:5000.75,
+        CustomersTrx c2 = {firstName:"James",lastName:"Clerk",registrationID:220,creditLimit:5000.75,
                               country:"USA"};
         var result1 = dt0.add(c1);
         var result2 = dt0.add(c2);
@@ -154,7 +154,7 @@ function testTransactonErrorThrow () returns (int, int, int) {
 
     try {
         transaction {
-            CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:200,creditLimit:5000.75,
+            CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:260,creditLimit:5000.75,
                                   country:"USA"};
             var result = dt0.add(c1);
             int i = 0;
