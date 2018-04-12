@@ -23,7 +23,6 @@ import com.google.gson.JsonParser;
 import org.ballerinalang.composer.service.ballerina.launcher.service.LaunchManager;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -45,6 +44,8 @@ public class LogParser {
     static final Pattern HTTP_METHOD = Pattern.compile("(GET|POST|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)");
     static final Pattern PATH = Pattern.compile("(?:GET|POST|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)"
             + " ([^\\s]+)");
+
+    static final Pattern CONTENT_TYPE = Pattern.compile("(?:content-type): ?(.*)",  Pattern.CASE_INSENSITIVE);
 
     public static LogParser getLogParserInstance() {
         if (logParserInstance == null) {
@@ -79,9 +80,11 @@ public class LogParser {
 
     public void stopListner() {
         try {
-            logReader.close();
+            if (logReader != null) {
+                logReader.close();
+            }
             listenSocket.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
 
         }
     }
@@ -121,6 +124,7 @@ public class LogParser {
             return "";
         }
     }
+
     private String getPath(String logLine) {
         Matcher matcher = PATH.matcher(logLine);
         if (matcher.find()) {
@@ -130,16 +134,35 @@ public class LogParser {
         }
     }
 
+    private String getContentType(String logLine) {
+        Matcher matcher = CONTENT_TYPE.matcher(logLine);
+        if (matcher.find()) {
+            return matcher.group(1);
+        } else {
+            return "";
+        }
+    }
 
-    public String parseLogLine(String logLine) {
+    private String getPayload(String header) {
+        int startIndex = header.lastIndexOf("\n");
+        if (startIndex != -1 && startIndex != header.length()) {
+            return header.substring(startIndex + 1);
+        }
+        return "";
+    }
+
+    private String parseLogLine(String logLine) {
 
         Gson gson = new Gson();
         LogDTO log = new LogDTO();
         log.setId(getId(logLine));
         log.setDirection(getDirection(logLine));
-        log.setHeaders(getHeader(logLine));
+        String header = getHeader(logLine);
+        log.setHeaders(header);
+        log.setContentType(getContentType(logLine));
         log.setHttpMethod(getHttpMethod(logLine));
         log.setPath(getPath(logLine));
+        log.setPayload(getPayload(header));
 
         String json = gson.toJson(log);
         return json;
