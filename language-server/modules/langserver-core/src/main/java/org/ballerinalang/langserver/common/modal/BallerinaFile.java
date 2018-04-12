@@ -29,6 +29,7 @@ public class BallerinaFile {
 
     private BLangPackage bLangPackage = null;
     private List<Diagnostic> diagnostics = null;
+    private boolean isBallerinaProject = false;
 
     public List<Diagnostic> getDiagnostics() {
         if (diagnostics != null) {
@@ -47,5 +48,13 @@ public class BallerinaFile {
 
     public void setDiagnostics(List<Diagnostic> diagnostics) {
         this.diagnostics = diagnostics;
+    }
+
+    public void setBallerinaProject(boolean ballerinaProject) {
+        isBallerinaProject = ballerinaProject;
+    }
+
+    public boolean isBallerinaProject() {
+        return isBallerinaProject;
     }
 }
