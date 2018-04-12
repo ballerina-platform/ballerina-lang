@@ -74,10 +74,10 @@ public class PercentileTimer extends BlockingNativeCallableUnit {
         }
     }
 
-    private BMap<BFloat, BFloat> buildPercentileValuesMap(Timer timer, TimeUnit timeUnit) {
-        BMap<BFloat, BFloat> map = new BMap<>();
+    private BMap<String, BFloat> buildPercentileValuesMap(Timer timer, TimeUnit timeUnit) {
+        BMap<String, BFloat> map = new BMap<>();
         SortedMap<Double, Double> percentileValues = timer.percentileValues(timeUnit);
-        percentileValues.forEach((percentile, value) -> map.put(new BFloat(percentile), new BFloat(value)));
+        percentileValues.forEach((percentile, value) -> map.put(percentile.toString(), new BFloat(value)));
         return map;
     }
 }

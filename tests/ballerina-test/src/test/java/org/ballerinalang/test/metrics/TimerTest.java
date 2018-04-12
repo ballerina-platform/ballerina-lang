@@ -62,11 +62,10 @@ public class TimerTest extends MetricTest {
     @Test
     public void testPercentileTimer() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testPercentileTimer");
-        BMap<BFloat, BFloat> bMap = (BMap) returns[0];
+        BMap<String, BFloat> bMap = (BMap) returns[0];
         Assert.assertEquals(bMap.size(), 5);
-        Map<BFloat, BFloat> map = bMap.getMap();
+        Map<String, BFloat> map = bMap.getMap();
         map.forEach((percentile, value) -> {
-            Assert.assertTrue(percentile.floatValue() >= 0 && percentile.floatValue() <= 1);
             Assert.assertTrue(value.floatValue() > 0);
         });
     }

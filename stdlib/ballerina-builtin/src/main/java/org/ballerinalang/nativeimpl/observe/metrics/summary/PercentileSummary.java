@@ -68,10 +68,10 @@ public class PercentileSummary extends BlockingNativeCallableUnit {
         }
     }
 
-    private BMap<BFloat, BFloat> buildPercentileValuesMap(Summary summary) {
-        BMap<BFloat, BFloat> map = new BMap<>();
+    private BMap<String, BFloat> buildPercentileValuesMap(Summary summary) {
+        BMap<String, BFloat> map = new BMap<>();
         SortedMap<Double, Double> percentileValues = summary.percentileValues();
-        percentileValues.forEach((percentile, value) -> map.put(new BFloat(percentile), new BFloat(value)));
+        percentileValues.forEach((percentile, value) -> map.put(percentile.toString(), new BFloat(value)));
         return map;
     }
 }
