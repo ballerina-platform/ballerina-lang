@@ -32,7 +32,8 @@ public type Timer object {
         string taskId;
     }
 
-    new(onTrigger, onError, interval, delay = 0) {}
+    // defaultable delay is -1, which means the delay will be the same as the interval
+    new(onTrigger, onError, interval, delay = -1) {}
 
     // Start the timer
     public native function start();
@@ -40,9 +41,10 @@ public type Timer object {
     public native function stop();
 };
 
+@Description {value:"Schedules an appointment"}
 public type Appointment object {
     private {
-        // The function which gets called when the timer goes off
+        // The function which gets called when the appointment is up
         (function () returns error?) onTrigger,
         // The function that gets called if the onTrigger function returns an error
         (function(error) returns ())? onError,
