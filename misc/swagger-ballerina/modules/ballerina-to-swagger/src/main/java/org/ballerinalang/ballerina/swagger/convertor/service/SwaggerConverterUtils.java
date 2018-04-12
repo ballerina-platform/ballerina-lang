@@ -19,7 +19,7 @@ package org.ballerinalang.ballerina.swagger.convertor.service;
 import io.swagger.models.Swagger;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.parser.converter.SwaggerConverter;
-
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.ballerina.swagger.convertor.Constants;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -33,8 +33,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
-
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
 import java.util.stream.Collectors;
 
 /**
@@ -130,6 +133,65 @@ public class SwaggerConverterUtils {
         return Yaml.pretty(converter.readContents(swaggerSource, null, null).getOpenAPI());
     }
 
+    /**
+     * This method will read the contents of ballerina service in {@code servicePath} and write output to
+     * {@code outPath} in OAS3 format.
+     * @see {@link #generateOAS3Definitions(String, String)}
+     *
+     * @param servicePath path to ballerina service
+     * @param outPath output path to write generated swagger file
+     * @param serviceName if bal file contain multiple services, name of a specific service to build
+     * @throws IOException when file operations fail
+     */
+    public static void generateOAS3Definitions(Path servicePath, Path outPath, String serviceName) throws IOException {
+        String balSource = readFromFile(servicePath);
+        Path file = servicePath.getFileName();
+        String fileName = file != null ? file.toString() : null;
+        String swaggerName = StringUtils.isNotBlank(serviceName) ? serviceName : fileName;
+
+        String swagger = generateOAS3Definitions(balSource, serviceName);
+        writeFile(outPath.resolve(swaggerName + SwaggerBallerinaConstants.YAML_EXTENSION), swagger);
+    }
+
+    /**
+     * This method will read the contents of ballerina service in {@code servicePath} and write output to
+     * {@code outPath} in Swagger (OAS2) format.
+     * @see {@link #generateSwaggerDefinitions(String, String)}
+     *
+     * @param servicePath path to ballerina service
+     * @param outPath output path to write generated swagger file
+     * @param serviceName if bal file contain multiple services, name of a specific service to build
+     * @throws IOException when file operations fail
+     */
+    public static void generateSwaggerDefinitions(Path servicePath, Path outPath, String serviceName)
+            throws IOException {
+        String balSource = readFromFile(servicePath);
+        Path file = servicePath.getFileName();
+        String fileName = file != null ? file.toString() : null;
+        String swaggerName = StringUtils.isNotBlank(serviceName) ? serviceName : fileName;
+
+        String swagger = generateSwaggerDefinitions(balSource, serviceName);
+        writeFile(outPath.resolve(swaggerName + SwaggerBallerinaConstants.YAML_EXTENSION), swagger);
+    }
+
+    private static String readFromFile(Path servicePath) throws IOException {
+        String source = FileUtils.readFileToString(servicePath.toFile(), "UTF-8");
+        return source;
+    }
+
+    private static void writeFile(Path path, String content)
+            throws FileNotFoundException, UnsupportedEncodingException {
+        PrintWriter writer = null;
+
+        try {
+            writer = new PrintWriter(path.toString(), "UTF-8");
+            writer.print(content);
+        } finally {
+            if (writer != null) {
+                writer.close();
+            }
+        }
+    }
 
     /**
      * Gets the alias for a given package from a bLang file root node.
