@@ -32,6 +32,7 @@ public class Flags {
     public static final int DEPRECATED = 16;
     public static final int READONLY = 32;
     public static final int FUNCTION_FINAL = 64;
+    public static final int INTERFACE = 128;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -54,6 +55,12 @@ public class Flags {
                     break;
                 case READONLY:
                     mask |= READONLY;
+                    break;
+                case FUNCTION_FINAL:
+                    mask |= FUNCTION_FINAL;
+                    break;
+                case INTERFACE:
+                    mask |= INTERFACE;
                     break;
             }
         }

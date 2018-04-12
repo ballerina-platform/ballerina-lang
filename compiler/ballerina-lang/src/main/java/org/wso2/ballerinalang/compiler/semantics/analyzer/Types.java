@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -102,7 +101,7 @@ public class Types {
     private SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
 
-    private Stack<BTypeSymbol> typeStack;
+    private Stack<BType> typeStack;
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -566,9 +565,17 @@ public class Types {
             return getExplicitArrayConversionOperator(((BArrayType) t).eType, ((BArrayType) s).eType, origT, origS);
 
         } else if (t.tag == TypeTags.ARRAY) {
-            // If the target type is JSON array, and the source type is a JSON
-            if (s.tag == TypeTags.JSON && getElementType(t).tag == TypeTags.JSON) {
-                return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
+            if (s.tag == TypeTags.JSON) {
+                // If the source JSON is constrained, then it is not an array 
+                if (((BJSONType) s).constraint != null && ((BJSONType) s).constraint.tag != TypeTags.NONE) {
+                    return symTable.notFoundSymbol;
+                }
+                // If the target type is JSON array, and the source type is a JSON
+                if (getElementType(t).tag == TypeTags.JSON) {
+                    return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
+                } else {
+                    return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.JSON2ARRAY);
+                }
             }
 
             // If only the target type is an array type, then the source type must be of type 'any'
@@ -579,7 +586,15 @@ public class Types {
 
         } else if (s.tag == TypeTags.ARRAY) {
             if (t.tag == TypeTags.JSON) {
-                return getExplicitArrayConversionOperator(symTable.jsonType, ((BArrayType) s).eType, origT, origS);
+                if (getElementType(s).tag == TypeTags.JSON) {
+                    return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
+                } else {
+                    // the conversion visitor below may report back a conversion symbol, which is
+                    // unsafe (e.g. T2JSON), so we must make our one also unsafe
+                    if (conversionVisitor.visit((BJSONType) t, ((BArrayType) s).eType) != symTable.notFoundSymbol) {
+                        return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.ARRAY2JSON);
+                    }
+                }
             }
 
             // If only the source type is an array type, then the target type must be of type 'any'
@@ -784,6 +799,9 @@ public class Types {
                 }
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
             } else if (s.tag == TypeTags.ARRAY) {
+                if (t.constraint != null && t.constraint.tag != TypeTags.NONE) {
+                    return symTable.notFoundSymbol;
+                }
                 return getExplicitArrayConversionOperator(t, s, t, s);
             } else if (s.tag == TypeTags.UNION) {
                 if (checkUnionTypeToJSONConvertibility((BUnionType) s, t)) {
@@ -837,6 +855,9 @@ public class Types {
 
         @Override
         public BSymbol visit(BTupleType t, BType s) {
+            if (s == symTable.anyType) {
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+            }
             return symTable.notFoundSymbol;
         }
 
@@ -1165,12 +1186,11 @@ public class Types {
      * @return Flag indicating whether the given type has a default value
      */
     public boolean defaultValueExists(DiagnosticPos pos, BType type) {
-        if (typeStack.contains(type.tsymbol)) {
+        if (typeStack.contains(type)) {
             dlog.error(pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, typeStack);
-            typeStack.empty();
             return false;
         }
-        typeStack.add(type.tsymbol);
+        typeStack.add(type);
 
         boolean result;
 
@@ -1209,6 +1229,12 @@ public class Types {
             BStructSymbol structSymbol = (BStructSymbol) structType.tsymbol;
             if (structSymbol.initializerFunc.symbol.params.size() > 0) {
                 return false;
+            }
+
+            for (BAttachedFunction func : structSymbol.attachedFuncs) {
+                if ((func.symbol.flags & Flags.INTERFACE) == Flags.INTERFACE) {
+                    return false;
+                }
             }
             for (BStructField field : structType.fields) {
                 if (!field.expAvailable && !defaultValueExists(pos, field.type)) {

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha5-SNAPSHOT</version>
+        <version>0.970.0-alpha6-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -151,6 +151,7 @@
                     <artifactSet>
                         <includes>
                             <include>com.github.jknack:handlebars</include>
+                            <include>com.atlassian.commonmark:commonmark</include>
                         </includes>
                     </artifactSet>
                     <filters>
@@ -174,7 +175,7 @@
     </build>
 
     <properties>
-        <maven.test.skip>true</maven.test.skip>
+        <maven.test.skip>false</maven.test.skip>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>**/parser/*</maven.checkstyleplugin.excludes>
     </properties>

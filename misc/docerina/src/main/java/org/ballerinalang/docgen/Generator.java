@@ -37,8 +37,11 @@ import org.ballerinalang.docgen.model.Variable;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.DocumentableNode;
+import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.expressions.DocumentationAttributeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -229,15 +232,23 @@ public class Generator {
         String annotationName = annotationNode.getName().getValue();
         List<Variable> attributes = new ArrayList<>();
 
-        // Iterate through the attributes of the annotation
-        if (annotationNode.getAttributes().size() > 0) {
-            for (BLangAnnotAttribute annotAttribute : annotationNode.getAttributes()) {
-                String dataType = getTypeName(annotAttribute.getTypeNode());
-                String desc = annotFieldAnnotation(annotationNode, annotAttribute);
-                Variable variable = new Variable(annotAttribute.getName().value, dataType, desc);
-                attributes.add(variable);
+        if (!annotationNode.getDocumentationAttachments().isEmpty()) {
+            // new syntax
+
+
+        } else {
+            // older syntax
+            // Iterate through the attributes of the annotation
+            if (annotationNode.getAttributes().size() > 0) {
+                for (BLangAnnotAttribute annotAttribute : annotationNode.getAttributes()) {
+                    String dataType = getTypeName(annotAttribute.getTypeNode());
+                    String desc = annotFieldAnnotation(annotationNode, annotAttribute);
+                    Variable variable = new Variable(annotAttribute.getName().value, dataType, desc);
+                    attributes.add(variable);
+                }
             }
         }
+
         return new AnnotationDoc(annotationName, description(annotationNode), new ArrayList<>(), attributes);
     }
 
@@ -430,18 +441,31 @@ public class Generator {
      * @return description of the parameter.
      */
     private static String paramAnnotation(BLangNode node, BLangVariable param) {
-        String subName =
-                param.getName() == null ? param.type.tsymbol.name.value : param.getName().getValue();
-        for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
-            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
-            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
-                continue;
+        String subName = param.getName() == null ? param.type.tsymbol.name.value : param.getName().getValue();
+
+        if (node instanceof DocumentableNode && !((DocumentableNode) node).getDocumentationAttachments().isEmpty()) {
+            // new syntax
+            if (!((DocumentableNode) node).getDocumentationAttachments().isEmpty()) {
+                DocumentationNode bLangDocumentation = ((DocumentableNode) node).getDocumentationAttachments().get(0);
+                for (DocumentationAttributeNode attribute : bLangDocumentation.getAttributes()) {
+                    if (attribute.getDocumentationField().toString().equals(subName)) {
+                        return attribute.getDocumentationText();
+                    }
+                }
             }
-            BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
-            String attribVal = bLangLiteral.toString();
-            if ((annotation.getAnnotationName().getValue().equals("Param")) &&
-                    attribVal.startsWith(subName + ":")) {
-                return attribVal.split(subName + ":")[1].trim();
+        } else {
+            for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
+                BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
+                if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
+                    continue;
+                }
+                BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
+                String attribVal = bLangLiteral.toString();
+                if ((annotation.getAnnotationName().getValue().equals("Param")) && attribVal.startsWith(subName +
+                        ":")) {
+
+                    return attribVal.split(subName + ":")[1].trim();
+                }
             }
         }
         return "";
@@ -456,7 +480,7 @@ public class Generator {
     public static String returnParamAnnotation(BLangNode node) {
         for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
             BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
-            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
+            if (bLangRecordLiteral == null || bLangRecordLiteral.getKeyValuePairs().size() != 1) {
                 continue;
             }
             if (annotation.getAnnotationName().getValue().equals("Return")) {
@@ -465,16 +489,6 @@ public class Generator {
             }
         }
 
-        for (AnnotationAttachmentNode annotation : ((BLangFunction) node).getReturnTypeAnnotationAttachments()) {
-            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
-            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
-                continue;
-            }
-            if (annotation.getAnnotationName().getValue().equals("Return")) {
-                BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
-                return bLangLiteral.toString();
-            }
-        }
         return "";
     }
 

@@ -55,10 +55,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
@@ -139,15 +139,16 @@ public class BallerinaDocGenerator {
                     bLangPackage.getFunctions().sort(Comparator.comparing(f -> (f.getReceiver() == null ? "" : f
                             .getReceiver().getName()) + f.getName().getValue()));
                     bLangPackage.getObjects().sort(Comparator.comparing(c -> c.getName().getValue()));
-                    bLangPackage.getStructs().sort(Comparator.comparing(s -> s.getName().getValue()));
                     bLangPackage.getAnnotations().sort(Comparator.comparing(a -> a.getName().getValue()));
-                    bLangPackage.getEnums().sort(Comparator.comparing(a -> a.getName().getValue()));
+                    bLangPackage.getTypeDefinitions().sort(Comparator.comparing(a -> a.getName().getValue()));
+                    bLangPackage.getRecords().sort(Comparator.comparing(a -> a.getName().getValue()));
+                    bLangPackage.getGlobalVariables().sort(Comparator.comparing(a -> a.getName().getValue()));
 
                     // Sort connector actions
-                    if ((bLangPackage.getConnectors() != null) && (bLangPackage.getConnectors().size() > 0)) {
-                        bLangPackage.getConnectors().forEach(connector -> connector.getActions().sort(Comparator
-                                .comparing(a -> a.getName().getValue())));
-                    }
+//                    if ((bLangPackage.getConnectors() != null) && (bLangPackage.getConnectors().size() > 0)) {
+//                        bLangPackage.getConnectors().forEach(connector -> connector.getActions().sort(Comparator
+//                                .comparing(a -> a.getName().getValue())));
+//                    }
 
                     String packagePath = refinePackagePath(bLangPackage);
 
@@ -237,15 +238,17 @@ public class BallerinaDocGenerator {
      */
     protected static Map<String, PackageDoc> generatePackageDocsFromBallerina(
         String sourceRoot, Path packagePath, String packageFilter, boolean isNative) throws IOException {
-        final List<Path> packagePaths = new ArrayList<>();
-        final Map<String, Path> packageMdsMap = new HashMap<>();
+        Path packageMd;
+        Optional<Path> o = Files.find(Paths.get(sourceRoot).resolve(packagePath), 1, (path, attr) -> {
+            Path fileName = path.getFileName();
+            if (fileName != null) {
+                return fileName.toString().equals(PACKAGE_CONTENT_FILE);
+            }
+            return false;
+        }).findFirst();
 
-        if (Files.isDirectory(packagePath)) {
-            BallerinaSubPackageVisitor subPackageVisitor = new BallerinaSubPackageVisitor(packagePaths, packageMdsMap);
-            Files.walkFileTree(packagePath, subPackageVisitor);
-        } else {
-            packagePaths.add(packagePath);
-        }
+        packageMd = o.isPresent() ? o.get() : null;
+
         BallerinaDocDataHolder dataHolder = BallerinaDocDataHolder.getInstance();
         if (!isNative) {
             // This is necessary to be true in order to Ballerina to work properly
@@ -253,41 +256,35 @@ public class BallerinaDocGenerator {
         }
 
         BLangPackage bLangPackage;
-        int idx = 0;
-        for (Path path : packagePaths) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(CompilerOptionName.PROJECT_DIR, sourceRoot);
+        options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
+        options.put(CompilerOptionName.PRESERVE_WHITESPACE, "false");
+        context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(sourceRoot)));
 
-            CompilerContext context = new CompilerContext();
-            CompilerOptions options = CompilerOptions.getInstance(context);
-            options.put(CompilerOptionName.PROJECT_DIR, sourceRoot);
-            options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
-            options.put(CompilerOptionName.PRESERVE_WHITESPACE, "false");
-            context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(sourceRoot)));
+        Compiler compiler = Compiler.getInstance(context);
 
-            Compiler compiler = Compiler.getInstance(context);
+        // TODO: Remove this and the related constants once these are properly handled in the core
+        if (BAL_BUILTIN.equals(packagePath) || BAL_BUILTIN_CORE.equals(packagePath)) {
+            bLangPackage = loadBuiltInPackage(context);
+        } else {
+            // compile the given package
+            bLangPackage = compiler.compile(getPackageNameFromPath(packagePath));
+        }
 
-            // TODO: Remove this and the related constants once these are properly handled in the core
-            if (BAL_BUILTIN.equals(path) || BAL_BUILTIN_CORE.equals(path)) {
-                bLangPackage = loadBuiltInPackage(context);
-            } else {
-                // compile the given file
-//                loadBuiltInPackage(context);
-                bLangPackage = compiler.compile(getPackageNameFromPath(path));
-            }
-
-            if (bLangPackage == null) {
-                out.println(String.format("docerina: invalid Ballerina package: %s", packagePath));
-            } else {
-                String packageName = bLangPackage.symbol.pkgID.name.value;
-                if (isFilteredPackage(packageName, packageFilter)) {
-                    if (BallerinaDocUtils.isDebugEnabled()) {
-                        out.println("Package " + packageName + " excluded");
-                    }
-                    continue;
+        if (bLangPackage == null) {
+            out.println(String.format("docerina: invalid Ballerina package: %s", packagePath));
+        } else {
+            String packageName = bLangPackage.symbol.pkgID.name.value;
+            if (isFilteredPackage(packageName, packageFilter)) {
+                if (BallerinaDocUtils.isDebugEnabled()) {
+                    out.println("Package " + packageName + " excluded");
                 }
-                dataHolder.getPackageMap().put(packageName, new PackageDoc(packageMdsMap.containsKey(packageName) ?
-                        packageMdsMap.get(packageName) : null, bLangPackage));
+            } else {
+                dataHolder.getPackageMap().put(packageName, new PackageDoc(packageMd == null ? null : packageMd
+                        .toAbsolutePath(), bLangPackage));
             }
-            idx++;
         }
         return dataHolder.getPackageMap();
     }

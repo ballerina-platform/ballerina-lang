@@ -75,6 +75,10 @@ public interface PatternStreamingInputNode extends Node {
 
     boolean isOrOnly();
 
+    void setCommaSeparated(boolean isCommaSeparated);
+
+    boolean isCommaSeparated();
+
     void setTimeExpr(ExpressionNode timeExpr);
 
     ExpressionNode getTimeExpr();

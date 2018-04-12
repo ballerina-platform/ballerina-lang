@@ -90,11 +90,11 @@ class WelcomeTab extends React.Component {
         return (
             <Grid className='welcome-page'>
                 <Grid.Row className='welcome-navbar' columns={2}>
-                    <Grid.Column className='left floated left aligned nav-tagline'>
+                    <Grid.Column className='nav-tagline'>
                         Cloud Native Programming Language
                     </Grid.Column>
-                    <Grid.Column className='right floated right aligned'>
-                        <Menu className='top-nav-links right'>
+                    <Grid.Column>
+                        <Menu className='top-nav-links' position='right'>
                             <Menu.Item name='Getting started'/>
                             <Menu.Item name='Ballerina by Example' href={this.props.userGuide} target='_blank' rel='noopener noreferrer'/>
                             <Menu.Item name='API Reference'/>
@@ -102,7 +102,7 @@ class WelcomeTab extends React.Component {
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row className='welcome-content-wrapper'>
-                    <Grid.Column width={3} className='leftContainer'>
+                    <Grid.Column mobile={7} tablet={5} computer={3} className='leftContainer'>
                         <a href={undefined}>
                             <img
                                 className='img-responsive'
@@ -136,7 +136,7 @@ class WelcomeTab extends React.Component {
                                 Create Script
                             </Button>
                         </Grid.Column>
-                        <Divider />
+                        {/* <Divider />
                         <Grid.Column>
                             <Grid.Column className='recentWrapper' as='h3'>
                                 Recently Opened
@@ -163,15 +163,15 @@ class WelcomeTab extends React.Component {
                                     <span>nyseStockQuoteService.bal</span>
                                 </List.Item>
                             </Grid.Column>
-                        </Grid.Column>
+                        </Grid.Column> */}
                     </Grid.Column>
-                    <Grid.Column width={13} className='rightContainer'>
+                    <Grid.Column mobile={9} tablet={11} computer={13} className='rightContainer'>
                         <Grid>
-                            <Grid.Row columns={2} className='template-wrapper'>
-                                <Grid.Column width={1} className='wrapper-label'>
-                                    <span className=''>Templates</span> 
+                            <Grid.Row columns={2} className='sample-wrapper'>
+                                <Grid.Column mobile={1} tablet={1} computer={1} className='wrapper-label'>
+                                    <span>Samples</span> 
                                 </Grid.Column>
-                                <Grid.Column width={15} className='thumbnail-container'>
+                                <Grid.Column mobile={13} tablet={14} computer={15} className='thumbnail-container'>
                                     <Grid className='inner-samples' columns='equal'>
                                         {samplesView}
                                     </Grid>
@@ -179,11 +179,11 @@ class WelcomeTab extends React.Component {
                             </Grid.Row>
                         </Grid>
                         <Grid>
-                            <Grid.Row columns={2} className='sample-wrapper'>
-                                <Grid.Column width={1} className='wrapper-label'>
-                                    <span className=''>Samples</span> 
+                            <Grid.Row columns={2} className='template-wrapper'>
+                                <Grid.Column mobile={1} tablet={1} computer={1} className='wrapper-label'>
+                                    <span>Template</span> 
                                 </Grid.Column>
-                                <Grid.Column width={15} className='thumbnail-container'>
+                                <Grid.Column mobile={14} tablet={14} computer={15} className='thumbnail-container'>
                                     <Grid className='inner-samples' columns='equal'>
                                         {samplesView}
                                     </Grid>

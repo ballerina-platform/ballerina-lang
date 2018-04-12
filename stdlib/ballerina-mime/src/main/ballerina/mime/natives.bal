@@ -3,39 +3,6 @@ package ballerina.mime;
 import ballerina/file;
 import ballerina/io;
 
-@Description {value:"Represent 'application/x-www-form-urlencoded' media type value"}
-@final public string APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
-
-@Description {value:"Represent 'application/json' media type value"}
-@final public string APPLICATION_JSON = "application/json";
-
-@Description {value:"Represent 'application/octet-stream' media type value"}
-@final public string APPLICATION_OCTET_STREAM = "application/octet-stream";
-
-@Description {value:"Represent 'application/svg+xml' media type value"}
-@final public string APPLICATION_SVG_XML = "application/svg+xml";
-
-@Description {value:"Represent 'application/xhtml+xml' media type value"}
-@final public string APPLICATION_XHTML_XML = "application/xhtml+xml";
-
-@Description {value:"Represent 'application/xml' media type value"}
-@final public string APPLICATION_XML = "application/xml";
-
-@Description {value:"Represent 'multipart/form-data' media type value"}
-@final public string MULTIPART_FORM_DATA = "multipart/form-data";
-
-@Description {value:"Represent 'multipart/mixed' media type value"}
-@final public string MULTIPART_MIXED = "multipart/mixed";
-
-@Description {value:"Represent 'text/html' media type value"}
-@final public string TEXT_HTML = "text/html";
-
-@Description {value:"Represent 'text/plain' media type value"}
-@final public string TEXT_PLAIN = "text/plain";
-
-@Description {value:"Represent 'text/xml' media type value"}
-@final public string TEXT_XML = "text/xml";
-
 @Description {value:"Key name for 'boundary' parameter in MediaType. This is needed for composite type media types"}
 @final public string BOUNDARY = "boundary";
 

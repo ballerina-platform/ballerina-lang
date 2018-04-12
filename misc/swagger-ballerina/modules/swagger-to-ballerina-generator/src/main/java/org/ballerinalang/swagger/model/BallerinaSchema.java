@@ -16,8 +16,8 @@
 
 package org.ballerinalang.swagger.model;
 
-import io.swagger.oas.models.media.ArraySchema;
-import io.swagger.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.Schema;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 import org.ballerinalang.swagger.utils.GeneratorConstants;
 

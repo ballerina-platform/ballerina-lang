@@ -1,7 +1,7 @@
 .welcome-page {
   background-color: $primaryBackgroundColor;
   height: auto;
-  min-height: 100%;
+  margin:0 !important;
   .ballarina-top-strip {
     margin: 0;
     .brand-strip {
@@ -14,10 +14,10 @@
     margin-top: 50px;
     .nav-tagline {
       font-size: 16px;
-      padding-left: 58px !important;
+      padding-left: 35px !important;
     }
     .top-nav-links {
-      padding-right: 50px;
+      padding-right: 5px;
       float: right;
       .item {
         color: #333;
@@ -27,12 +27,11 @@
       }
     }
   }
-
   .welcome-content-wrapper {
-    padding-right: 50px !important;
-    margin-top: -140px !important;
+    margin-top: 20px;
+    margin-bottom: 8%;
     .leftContainer {
-      padding: 0 50px !important;
+      padding: 0 35px !important;
       color: $secondary-color;
       .button-wrapper {
         margin: 30px 0 40px;
@@ -93,20 +92,23 @@
           background: #fff;
           .inner-samples {
             padding: 10px 10px 10px 0;
-            .thumbnail {
-              background: #fff;
-              border: 1px solid #ccc;
-              margin: 10px 7px;
-              width: 100%;
-              .caption {
-                padding: 0 10px;
-                bottom: 0;
-                font-weight: 400 !important;
-                text-align: left;
-                h4 {
-                  margin-top: 10 !important;
+            .thumbnail-wrapper {
+              margin: 7px;
+              .thumbnail {
+                background: #fff;
+                border: 1px solid #ccc;
+                margin: 10px 7px;
+                width: 100%;
+                .caption {
+                  padding: 0 10px;
+                  bottom: 0;
                   font-weight: 400 !important;
                   text-align: left;
+                  h4 {
+                    margin-top: 10 !important;
+                    font-weight: 400 !important;
+                    text-align: left;
+                  }
                 }
               }
             }
@@ -114,15 +116,15 @@
         }
       }
       .wrapper-label {
-        width: auto;
+        min-width: 82px;
         height: 39px;
         -webkit-transform: rotate(-90deg) !important;
         -moz-transform: rotate(-90deg) !important;
         -ms-transform: rotate(-90deg) !important;
         -o-transform: rotate(-90deg) !important;
         filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3) !important;
-        margin-right: -22px !important;
-        padding: 10px;
+        margin-right: -34px !important;
+        padding: 6px 10px;
         background: #fff;
         overflow: hidden;
         margin-top: 21px !important;
@@ -189,22 +191,6 @@
               font-weight: 400;
             }
           }
-        }
-      }
-    }
-    .media-body {
-      width: 100%;
-      padding: 20px 20px 0 20px;
-      .welcome-details-wrapper {
-        .header-title {
-          font-size: 18px;
-          font-weight: 400;
-          margin-left: 20px;
-          margin-bottom: 20px;
-        }
-        .details-container {
-          margin: 0 0 25px 20px;
-          padding: 10px 20px;
         }
       }
     }

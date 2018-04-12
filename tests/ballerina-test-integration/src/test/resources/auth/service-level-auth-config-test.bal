@@ -7,11 +7,11 @@ endpoint http:APIListener listener {
 };
 
 @http:ServiceConfig {
-    basePath:"/echo"
-}
-@auth:Config {
-    authentication:{enabled:true},
-    scopes:["scope2"]
+    basePath:"/echo",
+    authConfig:{
+        authentication:{enabled:true},
+        scopes:["scope2"]
+    }
 }
 service<http:Service> echo bind listener {
     @http:ResourceConfig {
