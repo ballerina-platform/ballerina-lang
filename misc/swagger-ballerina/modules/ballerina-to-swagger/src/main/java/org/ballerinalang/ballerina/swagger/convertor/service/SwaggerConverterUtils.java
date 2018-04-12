@@ -24,11 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.ballerina.swagger.convertor.Constants;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BFile;
-import org.ballerinalang.langserver.LSGlobalContext;
-import org.ballerinalang.langserver.LSGlobalContextKeys;
-import org.ballerinalang.langserver.LSPackageCache;
 import org.ballerinalang.langserver.common.modal.BallerinaFile;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.LSParserUtils;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -36,7 +32,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 
