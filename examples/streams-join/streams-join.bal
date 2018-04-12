@@ -22,10 +22,6 @@ stream<ProductMaterial> productionInputStream;
 //This is the output stream that contains the events/alerts that generated based on streaming logic.
 stream<MaterialUsage> materialUsageStream;
 
-//Initialize the function that contains streaming queries.
-future ftr= async initRealtimeProductionAlert();
-
-
 function initRealtimeProductionAlert() {
 
     //Whenever materialUsageStream receives an event from the streaming rules defined in the forever block,
@@ -71,6 +67,9 @@ endpoint http:Listener productMaterialListener {
     basePath:"/"
 }
 service productMaterialService bind productMaterialListener {
+
+    //Initialize the function that contains streaming queries.
+    future ftr= start initRealtimeProductionAlert();
 
     @http:ResourceConfig {
         methods:["POST"],
