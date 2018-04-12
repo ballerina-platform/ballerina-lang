@@ -306,20 +306,8 @@ function forkJoinWithMessagePassingTimeoutNotTriggered() returns map {
          a -> fork;
        }
     } join (all) (map results) {
-        int b;
-        error e = {};
-		var result = <any[]> results["w1"];
-		any[] anyArray;
-		match result{
-			any[] arr => {
-				anyArray = arr;
-                b = check <int> arr[0];
-			}
-    		error err => e = err;
-		}
-        int a;
-        anyArray = check <any[]> results["w2"];
-        a = check <int> anyArray[0];
+        int b = check <int> results["w1"];
+        int a = check <int> results["w2"];
         m["x"] = (a + 1) * b;
     } timeout (5) (map results) { 
         m["x"] = 15; 
@@ -438,11 +426,9 @@ function forkJoinWithStruct () returns string {
             f -> fork;
         }
     } join (all) (map results) {
-        var resW1 = check <any[]> results["w1"];
-        var f = check <foo> resW1[0];
+        var f = check <foo> results["w1"];
         result = "[join-block] sW1: " + f.y;
-        var resW2 = check <any[]> results["w2"];
-        var fW2 = check <float> resW2[0];
+        var fW2 = check <float> results["w2"];
         result = result + "[join-block] fW2: " + fW2;
     }
     return result;
@@ -451,7 +437,7 @@ function forkJoinWithStruct () returns string {
 type foo {
     int x;
     string y;
-}
+};
 
 function forkJoinWithSameWorkerContent () returns string {
     string result;
@@ -477,12 +463,12 @@ function forkJoinWithSameWorkerContent () returns string {
             a -> fork;
         }
     } join (all) (map results) {
-        var resW1 = check <any[]> results["w1"];
-        var s1 = check <string[]> resW1[0];
-        result = "W1: " + s1[0];
-        var resW2 = check <any[]> results["w2"];
-        var s2 = check <string[]> resW2[0];
-        result = result + ", W2: " + s2[0];
+        string[] resW1 = check <string[]> results["w1"];
+        var s1 = resW1[0];
+        result = "W1: " + s1;
+        string[] resW2 = check <string[]> results["w2"];
+        var s2 = resW2[0];
+        result = result + ", W2: " + s2;
     }
     return result;
 }

@@ -41,7 +41,7 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
-        throw new BallerinaConnectorException("onOpen resource is yet supported for client services");
+        throw new BallerinaConnectorException("onOpen resource is not supported for client services");
     }
 
     @Override
