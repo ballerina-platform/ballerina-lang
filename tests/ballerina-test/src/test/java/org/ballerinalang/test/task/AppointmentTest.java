@@ -32,9 +32,7 @@ import java.util.Arrays;
 
 import static org.awaitility.Awaitility.await;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
@@ -56,21 +54,15 @@ public class AppointmentTest {
         printDiagnostics(compileResult);
 
         String cronExpression = "0/2 * * * * ?";
-        BValue[] returns =
-                BRunUtil.invokeStateful(compileResult, "scheduleAppointment",
-                        new BValue[]{new BString(cronExpression)});
-        String taskId = returns[0].stringValue();
-        assertNotEquals(taskId, "", "Invalid task ID");  // A non-null task ID should be returned
-        assertEquals(returns.length, 1); // There should be no errors
+        BRunUtil.invokeStateful(compileResult, "scheduleAppointment",
+                new BValue[]{new BString(cronExpression)});
         await().atMost(30, SECONDS).until(() -> {
             BValue[] counts = BRunUtil.invokeStateful(compileResult, "getCount");
             return ((BInteger) counts[0]).intValue() >= 5;
         });
 
         // Now let's try stopping the task
-        BValue[] stopResult = BRunUtil.invokeStateful(compileResult,
-                "stopTask", new BValue[]{new BString(taskId)});
-        assertNull(stopResult[0], "Task stopping resulted in an error");
+        BRunUtil.invokeStateful(compileResult, "cancelAppointment");
 
         // One more check to see whether the task really stopped
         BValue[] counts = BRunUtil.invokeStateful(compileResult, "getCount");
@@ -87,12 +79,9 @@ public class AppointmentTest {
         String w1CronExpression = "0/2 * * * * ?";
         String w1ErrMsg = "w1: Appointment error";
 
-        BValue[] returns =
-                BRunUtil.invokeStateful(compileResult, "scheduleAppointment",
-                        new BValue[]{
-                                new BString(w1CronExpression), new BString(w1ErrMsg)});
-        String w1TaskId = returns[0].stringValue();
-        assertNotEquals(w1TaskId, "", "Invalid task ID from worker w1");  // A non-null task ID should be returned
+        BRunUtil.invokeStateful(compileResult, "scheduleAppointment",
+                new BValue[]{
+                        new BString(w1CronExpression), new BString(w1ErrMsg)});
         await().atMost(10, SECONDS).until(() -> {
             BValue[] errors = BRunUtil.invokeStateful(compileResult, "getError");
             return errors != null && errors[0] != null && errors[0].stringValue() != null && !errors[0].stringValue()
@@ -105,8 +94,7 @@ public class AppointmentTest {
         assertEquals(error[0].stringValue(), w1ErrMsg, "Expected error message not returned.");
 
         // Now let's try stopping the tasks
-        BValue[] stopResult = BRunUtil.invokeStateful(compileResult, "stopTask", new BValue[]{new BString(w1TaskId)});
-        assertNull(stopResult[0], "Task stopping on worker w1 resulted in an error");
+        BRunUtil.invokeStateful(compileResult, "cancelAppointment");
 
         // One more check to see whether the task really stopped
         BValue[] counts = BRunUtil.invokeStateful(compileResult, "getCount");

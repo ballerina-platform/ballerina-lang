@@ -1,8 +1,9 @@
 import ballerina/http;
 import ballerina/mime;
+import ballerina/auth;
 
 function testCanHandleHttpJwtAuthWithoutHeader () returns (boolean) {
-    http:HttpJwtAuthnHandler handler = new;
+    http:HttpJwtAuthnHandler handler = new(createJwtAuthProvider());
     http:Request request = createRequest ();
     string authHeaderValue = "Basic xxxxxx";
     mime:Entity requestEntity = new;
@@ -12,7 +13,7 @@ function testCanHandleHttpJwtAuthWithoutHeader () returns (boolean) {
 }
 
 function testCanHandleHttpJwtAuth () returns (boolean) {
-    http:HttpJwtAuthnHandler handler = new;
+    http:HttpJwtAuthnHandler handler = new(createJwtAuthProvider());
     http:Request request = createRequest ();
     string authHeaderValue = "Bearer xxx.yyy.zzz";
     mime:Entity requestEntity = new;
@@ -22,7 +23,7 @@ function testCanHandleHttpJwtAuth () returns (boolean) {
 }
 
 function testHandleHttpJwtAuthFailure () returns (boolean) {
-    http:HttpJwtAuthnHandler handler = new;
+    http:HttpJwtAuthnHandler handler = new(createJwtAuthProvider());
     http:Request request = createRequest ();
     string authHeaderValue = "Bearer xxx.yyy.zzz";
     mime:Entity requestEntity = new;
@@ -32,7 +33,7 @@ function testHandleHttpJwtAuthFailure () returns (boolean) {
 }
 
 function testHandleHttpJwtAuth (string token) returns (boolean) {
-    http:HttpJwtAuthnHandler handler = new;
+    http:HttpJwtAuthnHandler handler = new(createJwtAuthProvider());
     http:Request request = createRequest ();
     string authHeaderValue = "Bearer " + token;
     mime:Entity requestEntity = new;
@@ -47,4 +48,13 @@ function createRequest () returns (http:Request) {
     inRequest.method = "GET";
     inRequest.httpVersion = "1.1";
     return inRequest;
+}
+
+function createJwtAuthProvider() returns auth:JWTAuthProvider {
+    auth:JWTAuthProviderConfig jwtConfig = {};
+    jwtConfig.issuer = "wso2";
+    jwtConfig.audience = "ballerina";
+    jwtConfig.certificateAlias = "ballerina";
+    auth:JWTAuthProvider jwtAuthProvider = new (jwtConfig);
+    return jwtAuthProvider;
 }

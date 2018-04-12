@@ -76,7 +76,7 @@ public type HttpCachingClient object {
     }
 
     public new(serviceUri, config, cacheConfig) {
-        self.httpClient = createHttpClient(serviceUri, config);
+        self.httpClient = createHttpSecureClient(serviceUri, config);
         self.cache = createHttpCache("http-cache", cacheConfig);
     }
 

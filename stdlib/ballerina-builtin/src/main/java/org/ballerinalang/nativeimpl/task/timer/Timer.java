@@ -21,7 +21,6 @@ package org.ballerinalang.nativeimpl.task.timer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
-import org.ballerinalang.nativeimpl.task.TaskException;
 import org.ballerinalang.nativeimpl.task.TaskExecutor;
 import org.ballerinalang.nativeimpl.task.TaskIdGenerator;
 import org.ballerinalang.nativeimpl.task.TaskRegistry;
@@ -85,7 +84,7 @@ public class Timer {
         return id;
     }
 
-    public void stop() throws TaskException {
+    public void stop() {
         //BLangScheduler.workerCountDown();
         executorService.shutdown();
         TaskRegistry.getInstance().remove(id);

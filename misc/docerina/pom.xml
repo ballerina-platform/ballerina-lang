@@ -151,6 +151,7 @@
                     <artifactSet>
                         <includes>
                             <include>com.github.jknack:handlebars</include>
+                            <include>com.atlassian.commonmark:commonmark</include>
                         </includes>
                     </artifactSet>
                     <filters>
@@ -174,7 +175,7 @@
     </build>
 
     <properties>
-        <maven.test.skip>true</maven.test.skip>
+        <maven.test.skip>false</maven.test.skip>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>**/parser/*</maven.checkstyleplugin.excludes>
     </properties>
