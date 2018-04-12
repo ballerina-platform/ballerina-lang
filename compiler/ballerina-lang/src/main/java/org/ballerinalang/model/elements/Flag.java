@@ -59,4 +59,12 @@ public enum Flag {
      * Indicates Flagged node is a read only node.
      */
     READONLY,
+    /**
+     * Indicates Flagged node is a final node.
+     */
+    FUNCTION_FINAL,
+    /**
+     * Indicates Flagged node is a interface node.
+     */
+    INTERFACE,
 }

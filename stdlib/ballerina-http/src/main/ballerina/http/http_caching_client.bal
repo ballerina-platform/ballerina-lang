@@ -188,6 +188,8 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
 }
 
 public function HttpCachingClient::post (string path, Request req) returns (Response|HttpConnectorError) {
+    setRequestCacheControlHeader(req);
+
     match self.httpClient.post(path, req) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
@@ -199,10 +201,13 @@ public function HttpCachingClient::post (string path, Request req) returns (Resp
 }
 
 public function HttpCachingClient::head (string path, Request req) returns (Response|HttpConnectorError) {
+    setRequestCacheControlHeader(req);
     return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared);
 }
 
 public function HttpCachingClient::put (string path, Request req) returns (Response|HttpConnectorError) {
+    setRequestCacheControlHeader(req);
+
     match self.httpClient.put(path, req) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
@@ -214,6 +219,8 @@ public function HttpCachingClient::put (string path, Request req) returns (Respo
 }
 
 public function HttpCachingClient::execute (string httpMethod, string path, Request req) returns (Response|HttpConnectorError) {
+    setRequestCacheControlHeader(req);
+
     if (httpMethod == GET || httpMethod == HEAD) {
         return getCachedResponse(self.cache, self.httpClient, req, httpMethod, path, self.cacheConfig.isShared);
     }
@@ -229,6 +236,8 @@ public function HttpCachingClient::execute (string httpMethod, string path, Requ
 }
 
 public function HttpCachingClient::patch (string path, Request req) returns (Response|HttpConnectorError) {
+    setRequestCacheControlHeader(req);
+
     match self.httpClient.patch(path, req) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
@@ -240,6 +249,8 @@ public function HttpCachingClient::patch (string path, Request req) returns (Res
 }
 
 public function HttpCachingClient::delete (string path, Request req) returns (Response|HttpConnectorError) {
+    setRequestCacheControlHeader(req);
+
     match self.httpClient.delete(path, req) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
@@ -251,10 +262,13 @@ public function HttpCachingClient::delete (string path, Request req) returns (Re
 }
 
 public function HttpCachingClient::get (string path, Request req) returns (Response|HttpConnectorError) {
+    setRequestCacheControlHeader(req);
     return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared);
 }
 
 public function HttpCachingClient::options (string path, Request req) returns (Response|HttpConnectorError) {
+    setRequestCacheControlHeader(req);
+
     match self.httpClient.options(path, req) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
@@ -317,7 +331,7 @@ function getCachedResponse (HttpCache cache, HttpClient httpClient, Request req,
         if (isFreshResponse(cachedResponse, isShared)) {
             // If the no-cache directive is not set, responses can be served straight from the cache, without
             // validating with the origin server.
-            if (!req.cacheControl.noCache && !cachedResponse.cacheControl.noCache && !req.hasHeader(PRAGMA)) {
+            if (!(req.cacheControl.noCache ?: true) && !(cachedResponse.cacheControl.noCache ?: true) && !req.hasHeader(PRAGMA)) {
                 setAgeHeader(cachedResponse);
                 log:printDebug("Serving a cached fresh response without validating with the origin server: " + io:sprintf("%r", [cachedResponse]));
                 return cachedResponse;
@@ -333,7 +347,7 @@ function getCachedResponse (HttpCache cache, HttpClient httpClient, Request req,
 
             // If the no-cache directive is not set, responses can be served straight from the cache, without
             // validating with the origin server.
-            if (!req.cacheControl.noCache && !cachedResponse.cacheControl.noCache
+            if (!(req.cacheControl.noCache ?: true) && ! (cachedResponse.cacheControl.noCache ?: true)
                                               && !req.hasHeader(PRAGMA)) {
                 log:printDebug("Serving cached stale response without validating with the origin server");
                 setAgeHeader(cachedResponse);
@@ -409,7 +423,10 @@ function getValidationResponse (HttpClient httpClient, Request req, Response cac
     } else {
         // Forward the received response and replace the stored responses
         validationResponse.requestTime = currentT.time;
-        cache.put(getCacheKey(httpMethod, path), req.cacheControl, validationResponse);
+        match req.cacheControl {
+            RequestCacheControl reqCC => cache.put(getCacheKey(httpMethod, path), reqCC, validationResponse);
+            () => {}
+        }
         log:printDebug("Received a full response. Storing it in cache and forwarding to the client");
         return validationResponse;
     }
@@ -467,12 +484,19 @@ function invalidateResponses (HttpCache httpCache, Response inboundResponse, str
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.1
 function getFreshnessLifetime (Response cachedResponse, boolean isSharedCache) returns int {
     // TODO: Ensure that duplicate directives are not counted towards freshness lifetime.
-    if (isSharedCache && cachedResponse.cacheControl.sMaxAge >= 0) {
-        return cachedResponse.cacheControl.sMaxAge;
-    }
+    match cachedResponse.cacheControl {
+        ResponseCacheControl respCC => {
+            if (isSharedCache && respCC.sMaxAge >= 0) {
+                return respCC.sMaxAge;
+            }
 
-    if (cachedResponse.cacheControl.maxAge >= 0) {
-        return cachedResponse.cacheControl.maxAge;
+            if (respCC.maxAge >= 0) {
+                return respCC.maxAge;
+            }
+        }
+
+
+        () => {}
     }
 
     // At this point, there should be exactly one Expires header to calculate the freshness lifetime.
@@ -506,31 +530,38 @@ function isFreshResponse (Response cachedResponse, boolean isSharedCache) return
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
-function isAllowedToBeServedStale (RequestCacheControl requestCacheControl, Response cachedResponse,
+function isAllowedToBeServedStale (RequestCacheControl? requestCacheControl, Response cachedResponse,
                                    boolean isSharedCache) returns boolean {
     // A cache MUST NOT generate a stale response if it is prohibited by an explicit in-protocol directive
-    if (isServingStaleProhibited(requestCacheControl, cachedResponse.cacheControl)) {
-        return false;
+    match cachedResponse.cacheControl {
+        ResponseCacheControl respCC => {
+            if (isServingStaleProhibited(requestCacheControl, respCC)) {
+                return false;
+            }
+        }
+
+        () => return false;
     }
+
     return isStaleResponseAccepted(requestCacheControl, cachedResponse, isSharedCache);
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
-function isServingStaleProhibited (RequestCacheControl requestCacheControl,
-                                   ResponseCacheControl responseCacheControl) returns boolean {
+function isServingStaleProhibited (RequestCacheControl? requestCacheControl,
+                                   ResponseCacheControl? responseCacheControl) returns boolean {
     // A cache MUST NOT generate a stale response if it is prohibited by an explicit in-protocol directive
-    return requestCacheControl.noStore ||
-           requestCacheControl.noCache ||
-           responseCacheControl.mustRevalidate ||
-           responseCacheControl.proxyRevalidate ||
-           (responseCacheControl.sMaxAge >= 0);
+    return (requestCacheControl.noStore ?: false) ||
+            (requestCacheControl.noCache ?: false) ||
+            (responseCacheControl.mustRevalidate ?: false)||
+            (responseCacheControl.proxyRevalidate ?: false) ||
+            ((responseCacheControl.sMaxAge ?: -1) >= 0);
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
-function isStaleResponseAccepted (RequestCacheControl requestCacheControl, Response cachedResponse, boolean isSharedCache) returns boolean {
-    if (requestCacheControl.maxStale == MAX_STALE_ANY_AGE) {
+function isStaleResponseAccepted (RequestCacheControl? requestCacheControl, Response cachedResponse, boolean isSharedCache) returns boolean {
+    if ((requestCacheControl.maxStale ?: -1) == MAX_STALE_ANY_AGE) {
         return true;
-    } else if (requestCacheControl.maxStale >=
+    } else if ((requestCacheControl.maxStale ?: -1) >=
                (getResponseAge(cachedResponse) - getFreshnessLifetime(cachedResponse, isSharedCache))) {
         return true;
     }

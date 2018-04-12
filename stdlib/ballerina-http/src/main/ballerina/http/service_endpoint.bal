@@ -177,8 +177,6 @@ public type WebSocketListener object {
     }
 
     public new () {
-        Listener httpEndpoint = new;
-        self.httpEndpoint = httpEndpoint;
     }
 
     @Description {value:"Gets called when the endpoint is being initialize during package init time"}

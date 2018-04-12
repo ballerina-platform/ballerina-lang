@@ -21,7 +21,7 @@ function search (string url, string querySearched) {
         ]
     };
     http:Request req = new;
-    var result = httpEndpoint -> get(querySearched, req);
+    var result = httpEndpoint -> get(untaint querySearched, req);
     http:Response httpResponse = check result;
 
     json jsonResponse = check (httpResponse.getJsonPayload());

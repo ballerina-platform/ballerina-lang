@@ -1,46 +1,56 @@
 import ballerina/io;
-import ballerina/mime;
 import ballerina/http;
 
 //=====================================
 //============Client Config============
 //=====================================
-struct {{name}}ClientConfig {
+public type {{name}}ClientConfig {
     string serviceUrl;
-}
+};
 
 //=======================================
 //============Client Endpoint============
 //=======================================
-struct {{name}}ClientEp {
-    http:Client client;
-    {{name}}ClientConfig config;
-}
+public type {{name}}ClientEp object {
+    public {
+        http:Client client;
+        {{name}}ClientConfig config;
+    }
 
-function <{{name}}ClientEp ep> init({{name}}ClientConfig config) {
+    public function init({{name}}ClientConfig config);
+    public function getClient() returns ({{name}}Client);
+};
+
+public function {{name}}ClientEp::init({{name}}ClientConfig config) {
     endpoint http:Client httpEp {
         targets:[{url: config.serviceUrl}]
     };
 
-    ep.client = httpEp;
-    ep.config = config;
+    self.client = httpEp;
+    self.config = config;
 }
 
-function <{{name}}ClientEp ep> getClient() returns ({{name}}Client) {
-    return {clientEp: ep};
+public function {{name}}ClientEp::getClient() returns ({{name}}Client) {
+    return new {{name}}Client(self);
 }
 
 //==============================
 //============Client============
 //==============================
-struct {{name}}Client {
-    {{name}}ClientEp clientEp;
-}
+public type {{name}}Client object {
+    public {
+        {{name}}ClientEp clientEp;
+    }
+
+    new (clientEp) {}
+    {{#resources}}
+    public function {{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error;{{/resources}}
+};
 
 {{#resources}}
-function <{{../name}}Client client> {{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error {
-    endpoint http:Client ep = client.clientEp.client;
-    http:Request request = {};
+public function {{../name}}Client::{{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error {
+    endpoint http:Client ep = self.clientEp.client;
+    http:Request request = new;
 
     //Create the required request as needed{{#contentType}}
     request.setHeader("Content-Type", "{{contentType}}");{{/contentType}}
@@ -72,9 +82,8 @@ function main (string[] args) { {{#endpoints}}
             http:Response resp => {
                 var payload = resp.getStringPayload();
                 match payload {
-                    mime:EntityError err =>io:println(err.message);
+                    http:PayloadError err => io:println(err.message);
                     string message => io:println(message);
-                    any | null => io:println("No response message");
                 }
             }
     }{{/resources.0}}

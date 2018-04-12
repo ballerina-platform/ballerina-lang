@@ -93,7 +93,6 @@ public type AuthProvider {
 };
 
 public function SecureListener::init (SecureEndpointConfiguration config) {
-    //TODO init auth handlers.
     addAuthFiltersForSecureListener(config);
     self.httpListener.init(config);
 }
@@ -118,40 +117,6 @@ function addAuthFiltersForSecureListener (SecureEndpointConfiguration config) {
     }
 }
 
-//@Description {value:"Create an array of auth and authz filters"}
-//@Param {value:"config: SecureEndpointConfiguration instance"}
-//@Return {value:"Array of Filters comprising of authn and authz Filters"}
-//function createAuthFiltersForSecureListener (SecureEndpointConfiguration config) returns (Filter[]) {
-//    // parse and create authentication handlers
-//    AuthHandlerRegistry registry = new;
-//    match config.authProviders {
-//        AuthProvider[] providers => {
-//            int i = 1;
-//            foreach provider in providers {
-//                if (lengthof provider.id > 0) {
-//                    registry.add(provider.scheme + "-" + i, createAuthHandler(provider));
-//                } else {
-//                    registry.add(provider.id, createAuthHandler(provider));
-//                }
-//                i++;
-//            }
-//        }
-//        () => {
-//            // add basic authn handler with config based auth provider
-//            registry.add("basic", createBasicAuthHandler());
-//            // TODO add other authn handlers as well
-//        }
-//    }
-//    // TODO: currently hard coded. fix it.
-//    Filter[] authFilters = [];
-//    AuthnHandlerChain authnHandlerChain = new(registry);
-//    AuthnFilter authnFilter = new (authnHandlerChain, authnRequestFilterFunc, responseFilterFunc);
-//    AuthzFilter authzFilter = new (authzRequestFilterFunc, responseFilterFunc);
-//    authFilters[0] = <Filter> authnFilter;
-//    authFilters[1] = authzFilter;
-//    return authFilters;
-//}
-
 @Description {value:"Create an array of auth and authz filters"}
 @Param {value:"config: SecureEndpointConfiguration instance"}
 @Return {value:"Array of Filters comprising of authn and authz Filters"}
@@ -163,27 +128,25 @@ function createAuthFiltersForSecureListener (SecureEndpointConfiguration config)
             int i = 1;
             foreach provider in providers {
                 if (lengthof provider.id > 0) {
-                    registry.add(provider.scheme + "-" + i, createAuthHandler(provider));
-                } else {
                     registry.add(provider.id, createAuthHandler(provider));
+                } else {
+                    registry.add(provider.scheme + "-" + i, createAuthHandler(provider));
                 }
                 i++;
             }
         }
         () => {
-    // add basic authn handler with config based auth provider
-    registry.add("basic", createBasicAuthHandler());
-    // TODO add other authn handlers as well
-}
-}
-// TODO: currently hard coded. fix it.
-Filter[] authFilters = [];
-//AuthnHandlerChain authnHandlerChain = new(registry);
-AuthnFilter authnFilter = new (authnRequestFilterFunc, responseFilterFunc);
-AuthzFilter authzFilter = new (authzRequestFilterFunc, responseFilterFunc);
-authFilters[0] = <Filter> authnFilter;
-authFilters[1] = authzFilter;
-                 return authFilters;
+            // if no auth providers are specified, add basic authn handler with config based auth provider
+            registry.add("basic", createBasicAuthHandler());
+        }
+    }
+    Filter[] authFilters = [];
+    //AuthnHandlerChain authnHandlerChain = new(registry);
+    AuthnFilter authnFilter = new(authnRequestFilterFunc, responseFilterFunc);
+    AuthzFilter authzFilter = new(authzRequestFilterFunc, responseFilterFunc);
+    authFilters[0] = <Filter>authnFilter;
+    authFilters[1] = authzFilter;
+    return authFilters;
 }
 
 function createBasicAuthHandler () returns HttpAuthnHandler  {
@@ -228,6 +191,12 @@ function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler 
 @Param {value:"serviceType: The type of the service to be registered"}
 public function SecureListener::register (typedesc serviceType) {
     self.httpListener.register(serviceType);
+}
+
+@Description {value:"Gets called when the endpoint is being initialize during package init time"}
+@Return {value:"Error occured during initialization"}
+public function SecureListener::initEndpoint() returns (error) {
+    return self.httpListener.initEndpoint();
 }
 
 @Description {value:"Starts the registered service"}

@@ -47,7 +47,7 @@ public class CodeGeneratorTest {
         String definitionPath = projectPath + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
         generator.setSrcPackage(pkgName);
-        Path outFile = projectPath.resolve(Paths.get(pkgName, "gen", "SwaggerPetstore.bal"));
+        Path outFile = projectPath.resolve(Paths.get(pkgName, "gen", "swagger_petstore.bal"));
 
         try {
             Path cachePath = projectPath.resolve(Paths.get(".ballerina"));
@@ -69,13 +69,13 @@ public class CodeGeneratorTest {
         }
     }
 
-    @Test(description = "Test Ballerina connector generation")
-    public void generateConnector() {
-        final String pkgName = "connector";
+    @Test(description = "Test Ballerina client generation")
+    public void generateClient() {
+        final String pkgName = "client";
         String definitionPath = projectPath + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
         generator.setSrcPackage(pkgName);
-        Path outFile = projectPath.resolve(Paths.get(pkgName, "gen", "SwaggerPetstore.bal"));
+        Path outFile = projectPath.resolve(Paths.get(pkgName, "gen", "swagger_petstore.bal"));
 
         try {
             Path cachePath = projectPath.resolve(Paths.get(".ballerina"));
@@ -83,12 +83,12 @@ public class CodeGeneratorTest {
                 Files.createDirectory(cachePath);
             }
 
-            generator.generate(GenType.CONNECTOR, definitionPath, projectPath.toString());
+            generator.generate(GenType.CLIENT, definitionPath, projectPath.toString());
             if (Files.exists(outFile)) {
                 String result = new String(Files.readAllBytes(outFile));
                 Assert.assertTrue(result != null && result.contains("public function listPets()"));
             } else {
-                Assert.fail("Service was not generated");
+                Assert.fail("Client was not generated");
             }
         } catch (IOException e) {
             Assert.fail("Error while generating the service. " + e.getMessage());

@@ -737,6 +737,7 @@ public class BLangPackageBuilder {
         if (retParamsAvail) {
             BLangVariable varNode = (BLangVariable) this.varStack.pop();
             returnTypeNode = varNode.getTypeNode();
+            returnTypeNode.addWS(varNode.getWS());
             varNode.getAnnotationAttachments().forEach(invNode::addReturnTypeAnnotationAttachment);
         } else {
             BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
@@ -1243,6 +1244,7 @@ public class BLangPackageBuilder {
         endEndpointDeclarationScope();
         function.pos = pos;
         function.addWS(ws);
+        function.addWS(invocationWsStack.pop());
 
         if (publicFunc) {
             function.flagSet.add(Flag.PUBLIC);
@@ -1604,6 +1606,7 @@ public class BLangPackageBuilder {
         if (!bodyExists) {
             function.body = null;
             if (!nativeFunc) {
+                function.flagSet.add(Flag.INTERFACE);
                 function.interfaceFunction = true;
             }
         }

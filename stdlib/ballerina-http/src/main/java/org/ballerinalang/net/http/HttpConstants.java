@@ -39,7 +39,7 @@ public class HttpConstants {
     public static final String DEFAULT_SUB_PATH = "/*";
 
     public static final String PROTOCOL_HTTP = "http";
-    public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.http";
+    public static final String PROTOCOL_PACKAGE_HTTP = "http";
     public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.http:Listener";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
@@ -206,7 +206,7 @@ public class HttpConstants {
     public static final int RESPONSE_STATUS_CODE_INDEX = 0;
     public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
     public static final int RESPONSE_SERVER_INDEX = 1;
-    public static final int IN_RESPONSE_CACHE_CONTROL_INDEX = 0;
+    public static final int RESPONSE_CACHE_CONTROL_INDEX = 0;
     public static final int IN_RESPONSE_RECEIVED_TIME_INDEX = 1;
 
     //PushPromise struct indexes

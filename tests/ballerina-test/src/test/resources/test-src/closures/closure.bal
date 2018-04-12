@@ -325,7 +325,7 @@ type Person object {
         return foo;
     }
 
-    function externalAttachedFP() returns (function (float) returns (string));
+    public function externalAttachedFP() returns (function (float) returns (string));
 
 };
 

@@ -334,7 +334,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return expTypes.stream()
                 .filter(type -> type.tag == TypeTags.JSON ||
                         type.tag == TypeTags.MAP ||
-                        type.tag == TypeTags.STRUCT ||
+                        (type.tag == TypeTags.STRUCT && type.tsymbol != null
+                                && type.tsymbol.kind == SymbolKind.RECORD) ||
                         type.tag == TypeTags.NONE ||
                         type.tag == TypeTags.ANY)
                 .collect(Collectors.toList());
@@ -404,8 +405,10 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
         }
 
-        varRefType = getSafeType(varRefType, fieldAccessExpr.safeNavigate, fieldAccessExpr.pos);
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
+        if (!fieldAccessExpr.lhsVar) {
+            varRefType = getSafeType(varRefType, fieldAccessExpr.safeNavigate, fieldAccessExpr.pos);
+        }
 
         // Get the effective types of the expression. If there are errors/nill propagating from parent
         // expressions, then the effective type will include those as well.
@@ -423,13 +426,14 @@ public class TypeChecker extends BLangNodeVisitor {
         BType varRefType = indexBasedAccessExpr.expr.type;
         varRefType = getSafeType(varRefType, indexBasedAccessExpr.safeNavigate, indexBasedAccessExpr.pos);
 
+        BType actualType = checkIndexAccessExpr(indexBasedAccessExpr, varRefType);
+        indexBasedAccessExpr.childType = actualType;
+
         // Get the effective types of the expression. If there are errors/nill propagating from parent
         // expressions, then the effective type will include those as well.
-        BType actualType = checkIndexAccessExpr(indexBasedAccessExpr, varRefType);
         actualType = getAccessExprFinalType(indexBasedAccessExpr, actualType);
 
         this.resultType = this.types.checkType(indexBasedAccessExpr, actualType, this.expType);
-        indexBasedAccessExpr.childType = this.resultType;
     }
 
     public void visit(BLangInvocation iExpr) {
@@ -548,6 +552,13 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = symTable.errType;
             return;
         }
+
+        //TODO cache this in symbol as a flag?
+        ((BStructSymbol) actualType.tsymbol).attachedFuncs.forEach(f -> {
+            if ((f.symbol.flags & Flags.INTERFACE) == Flags.INTERFACE) {
+                dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_OBJECT, actualType.tsymbol, f.symbol);
+            }
+        });
 
         cIExpr.objectInitInvocation.symbol = ((BStructSymbol) actualType.tsymbol).initializerFunc.symbol;
         cIExpr.objectInitInvocation.type = symTable.nilType;
