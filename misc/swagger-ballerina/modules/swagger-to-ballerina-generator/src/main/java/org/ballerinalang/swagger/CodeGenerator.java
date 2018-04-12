@@ -215,6 +215,10 @@ public class CodeGenerator {
      * @throws IOException when code generation with specified templates fails
      */
     private List<GenSrcFile> generateConnector(BallerinaOpenApi context) throws IOException {
+        if (srcPackage == null || srcPackage.isEmpty()) {
+            srcPackage = GeneratorConstants.DEFAULT_CONNECTOR_PKG;
+        }
+
         List<GenSrcFile> sourceFiles = new ArrayList<>();
         String srcFile = context.getInfo().getTitle().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_") + ".bal";
 
@@ -239,6 +243,10 @@ public class CodeGenerator {
      * @throws IOException when code generation with specified templates fails
      */
     private List<GenSrcFile> generateMock(BallerinaOpenApi context) throws IOException {
+        if (srcPackage == null || srcPackage.isEmpty()) {
+            srcPackage = GeneratorConstants.DEFAULT_MOCK_PKG;
+        }
+
         List<GenSrcFile> sourceFiles = new ArrayList<>();
         String concatTitle = context.getInfo().getTitle().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_");
         String srcFile = concatTitle + ".bal";
@@ -266,7 +274,7 @@ public class CodeGenerator {
     /**
      * Retrieve generated source content as a String value.
      *
-     * @param object       context to be used by temaplte engine
+     * @param object       context to be used by template engine
      * @param templateDir  templates directory
      * @param templateName name of the template to be used for this code generation
      * @return String with populated template

@@ -63,6 +63,8 @@ public class GeneratorConstants {
     public static final String DEFAULT_MODEL_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "model";
 
     public static final String GEN_SRC_DIR = "gen";
+    public static final String DEFAULT_CONNECTOR_PKG = "connector";
+    public static final String DEFAULT_MOCK_PKG = "mock";
 
     public static final List<String> RESERVED_KEYWORDS = Collections.unmodifiableList(
             Arrays.asList("package", "import", "as", "public", "private", "native", "service", "resource", "function",
