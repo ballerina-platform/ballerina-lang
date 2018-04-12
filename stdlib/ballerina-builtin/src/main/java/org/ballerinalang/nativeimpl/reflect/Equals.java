@@ -242,6 +242,13 @@ public class Equals extends BlockingNativeCallableUnit {
      * @return True if values are equal, else false.
      */
     private boolean isEqual(JsonNode lhsJson, JsonNode rhsJson) {
+        // JsonNode can become null
+        if (lhsJson == null && rhsJson == null) {
+            return true;
+        }
+        if (lhsJson == null || rhsJson == null) {
+            return false;
+        }
         if (lhsJson.getType() == JsonNode.Type.OBJECT) {
             // Converting iterators to maps as iterators are ordered.
             Iterator<Map.Entry<String, JsonNode>> lhJsonFieldsIterator = lhsJson.fields();
