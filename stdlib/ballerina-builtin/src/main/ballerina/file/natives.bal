@@ -17,6 +17,7 @@
 package ballerina.file;
 
 import ballerina/time;
+import ballerina/io;
 
 @Description { value: "Represents an I/O error that could occur when processing a file"}
 public type IOError {
@@ -83,3 +84,83 @@ public native function createFile(@sensitive Path path) returns (boolean | IOErr
 @Description {value: "Retrieves the last modified time of the path"}
 @Return {value : "Last modified time or an error if the path cannot be resolved"}
 public native function getModifiedTime(@sensitive Path path) returns (time:Time | IOError);
+
+@Description {value:"This function reads a specified number of bytes from the given channel."}
+function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, int) {
+
+    // Here is how the bytes are read from the channel.
+    var result = channel.read(numberOfBytes);
+    match result {
+        (blob, int) content => {
+            return content;
+        }
+        io:IOError readError => {
+            throw readError;
+        }
+    }
+}
+
+@Description {value:"This function writes a byte content with the given offset to a channel."}
+function writeBytes (io:ByteChannel channel, blob content, int startOffset = 0) returns (int) {
+
+    // Here is how the bytes are written to the channel.
+    var result = channel.write(content,startOffset);
+    match result {
+        int numberOfBytesWritten => {
+            return numberOfBytesWritten;
+        }
+        io:IOError err => {
+            throw err;
+        }
+    }
+}
+
+@Description {value:"This function copies content from the source channel to a destination channel."}
+function copy (io:ByteChannel src, io:ByteChannel dst) {
+    // Specifies the number of bytes that should be read from a single read operation.
+    int bytesChunk = 10000;
+    int numberOfBytesWritten = 0;
+    int readCount = 0;
+    int offset = 0;
+    blob readContent;
+    boolean doneCoping = false;
+    try {
+        // Here is how to read all the content from
+        // the source and copy it to the destination.
+        while (!doneCoping) {
+            (readContent, readCount) = readBytes(src,1000);
+            if (readCount <= 0) {
+                //If no content is read, the loop is ended.
+                doneCoping = true;
+            }
+            numberOfBytesWritten = writeBytes(dst, readContent);
+        }
+    } catch (error err) {
+        throw err;
+    }
+}
+
+public function move(@sensitive Path srcPath, @sensitive Path dstPath) returns (IOError | boolean){
+    if(!exists(srcPath)){
+        IOError err = {message:"the source path does not exist"};
+        return err;
+    }
+    if(isDirectory(srcPath)){
+        //If the path is a directory we need to create an equalant in destination
+        if(!exists(dstPath)){
+            var result = createDirectory(dstPath);
+        }
+        var paths =check list(srcPath);
+        foreach path in paths{
+            string destinationPathValue = dstPath.getPathValue() + "/" + path.getName();
+            Path destinationPath = new(destinationPathValue);
+            var result = move(path,destinationPath);
+        }
+    }else{
+        //If the path is a file we copy the file
+        io:ByteChannel srcChannel = io:openFile(srcPath.toAbsolutePath().getPathValue(),io:MODE_R);
+        io:ByteChannel dstChannel = io:openFile(dstPath.toAbsolutePath().getPathValue(),io:MODE_W);
+        copy(srcChannel,dstChannel);
+    }
+    return true;
+}

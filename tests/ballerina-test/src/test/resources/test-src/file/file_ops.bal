@@ -89,6 +89,12 @@ function testWriteFile(string pathValue,string accessMode,blob content) returns 
    }
 }
 
+function testMove(string src,string dst) {
+    file:Path srcPath = new(src);
+    file:Path dstPath = new(dst);
+    var result = file:move(srcPath,dstPath);
+}
+
 function testDirectoryExistance(string pathValue) returns (boolean){
     file:Path filePath = new(pathValue);
     return file:isDirectory(filePath);
