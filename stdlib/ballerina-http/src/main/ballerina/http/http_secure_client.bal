@@ -212,6 +212,31 @@ public type HttpSecureClient object {
     public function rejectPromise (PushPromise promise);
 };
 
+
+public function HttpSecureClient::getResponse (HttpFuture httpFuture) returns (Response|HttpConnectorError) {
+    //TODO please fix properly
+    return new HttpConnectorError();
+}
+
+public function HttpSecureClient::hasPromise (HttpFuture httpFuture) returns boolean {
+    //TODO please fix properly
+    return true;
+}
+
+public function HttpSecureClient::getNextPromise (HttpFuture httpFuture) returns (PushPromise|HttpConnectorError) {
+    //TODO please fix properly
+    return new HttpConnectorError();
+}
+
+public function HttpSecureClient::getPromisedResponse (PushPromise promise) returns (Response|HttpConnectorError) {
+    //TODO please fix properly
+    return new HttpConnectorError();
+}
+
+public function rejectPromise (PushPromise promise) {
+    //TODO please fix properly
+}
+
 @Description {value:"Creates an HTTP client capable of securing HTTP requests with authentication."}
 public function createHttpSecureClient(string url, ClientEndpointConfig config) returns HttpClient {
     match config.auth {
