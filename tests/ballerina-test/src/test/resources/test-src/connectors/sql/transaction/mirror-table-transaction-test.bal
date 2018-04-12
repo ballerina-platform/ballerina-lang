@@ -73,9 +73,9 @@ function testTransactonRollback () returns (int, int) {
     table dt1 = check temp1;
 
     transaction {
-        CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:200,creditLimit:5000.75,
+        CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:295,creditLimit:5000.75,
                               country:"USA"};
-        CustomersTrx2 c2 = {customerId:1, firstName:"James",lastName:"Clerk",registrationID:200,creditLimit:5000.75,
+        CustomersTrx2 c2 = {customerId:1, firstName:"James",lastName:"Clerk",registrationID:295,creditLimit:5000.75,
                               country:"USA"};
         var result1 = dt0.add(c1);
         var result2 = dt1.add(c2);
@@ -86,7 +86,7 @@ function testTransactonRollback () returns (int, int) {
 
 
     //check whether update action is performed
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 200", ResultCount);
+    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 295", ResultCount);
 
     table dt = check temp;
     while (dt.hasNext()) {
