@@ -94,7 +94,7 @@ public class BLogManager extends LogManager {
         keys.forEachRemaining(key -> {
             if (key.endsWith(LOG_LEVEL)) {
                 loggerLevels.put(key.substring(0, key.length() - LOG_LEVEL.length()),
-                                 BLogLevel.toBLogLevel(configRegistry.getConfiguration(key)));
+                                 BLogLevel.toBLogLevel(configRegistry.getAsString(key)));
             }
         });
 
