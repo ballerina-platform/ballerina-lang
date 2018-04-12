@@ -48,6 +48,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.ballerinalang.langserver.LSContextManager.COMPILER_LOCK;
+
 /**
  * Parser Utils.
  */
@@ -235,12 +237,10 @@ public class LSParserUtils {
         sourceDocument.setUri(path.toUri().toString());
         sourceDocument.setSourceRoot(sourceRoot);
 
-        PackageID packageID = new PackageID(Names.ANON_ORG, new Name(pkgName), Names.DEFAULT_VERSION);
         if ("".equals(pkgName)) {
             Path filePath = path.getFileName();
             if (filePath != null) {
                 pkgName = filePath.toString();
-                packageID = new PackageID(pkgName);
             }
         }
         BLangPackage bLangPackage = null;
@@ -250,7 +250,9 @@ public class LSParserUtils {
         try {
             BLangDiagnosticLog.getInstance(context).errorCount = 0;
             Compiler compiler = Compiler.getInstance(context);
-            bLangPackage = compiler.compile(pkgName);
+            synchronized (COMPILER_LOCK) {
+                bLangPackage = compiler.compile(pkgName);
+            }
         } catch (Exception e) {
             // Ignore.
         }
