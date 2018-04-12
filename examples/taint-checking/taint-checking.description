@@ -7,6 +7,6 @@
 //"secure by design". In order to provide this protection,
 //Ballerina compiler has the ability to perform comprehensive
 //taint analysis. Taint analyzer has the ability to identify
-//untrusted (tainted) data by observing how tainted data propagates
+//untrusted (tainted) data by observing how tainted data propagate
 //across the program. Ballerina compiler will generate errors
 //if untrusted data is passed to a security sensitive parameter.
