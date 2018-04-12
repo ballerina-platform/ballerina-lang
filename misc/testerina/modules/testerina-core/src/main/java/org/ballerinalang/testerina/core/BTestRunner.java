@@ -146,7 +146,7 @@ public class BTestRunner {
                 errStream.println(diagnostic.getKind() + ": " + diagnostic.getPosition() + " " + diagnostic
                     .getMessage());
             }
-            if (compileResult.getDiagnostics().length > 0) {
+            if (compileResult.getErrorCount() > 0) {
                 throw new BallerinaException("[ERROR] Compilation failed.");
             }
             // set the debugger
