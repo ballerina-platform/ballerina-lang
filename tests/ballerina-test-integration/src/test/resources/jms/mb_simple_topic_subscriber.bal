@@ -4,7 +4,7 @@ import ballerina/http;
 
 endpoint mb:SimpleTopicSubscriber subscriber {
     host: "localhost",
-    port: 5672,
+    port: 5772,
     topicPattern: "testMbSimpleTopicSubscriberPublisher"
 };
 

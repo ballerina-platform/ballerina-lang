@@ -4,7 +4,7 @@ import ballerina/io;
 // Create a queue sender
 endpoint mb:SimpleQueueSender queueSender {
     host: "localhost",
-    port: 5672,
+    port: 5772,
     queueName: "testMbSimpleQueueReceiverProducer"
 };
 

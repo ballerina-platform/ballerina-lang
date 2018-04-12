@@ -4,7 +4,7 @@ import ballerina/io;
 // Create a queue sender
 endpoint mb:SimpleTopicPublisher publisher {
     host: "localhost",
-    port: 5672,
+    port: 5772,
     topicPattern: "testMbSimpleTopicSubscriberPublisher"
 };
 
