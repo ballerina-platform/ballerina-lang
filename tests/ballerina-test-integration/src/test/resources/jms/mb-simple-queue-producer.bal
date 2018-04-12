@@ -10,7 +10,7 @@ endpoint mb:SimpleQueueSender queueSender {
 
 public function main (string[] args) {
     // Create a Text message.
-    mb:Message m = check jmsSession.createTextMessage("Test Text");
+    mb:Message m = check queueSender.createTextMessage("Test Text");
     // Send the Ballerina message to the JMS provider.
     var _ = queueSender -> send(m);
 
