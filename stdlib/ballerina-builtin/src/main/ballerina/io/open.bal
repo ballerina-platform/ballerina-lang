@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.io;
 
 @Description {value : "Permissions which will be used to open file"}
 public type Mode "r"|"w"|"rw"|"a";

@@ -1,4 +1,3 @@
-package ballerina.jms;
 
 public type Session object {
     public {

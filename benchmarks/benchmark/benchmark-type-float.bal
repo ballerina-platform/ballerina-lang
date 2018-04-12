@@ -1,4 +1,3 @@
-package benchmark;
 
 function benchmarkFloatAddition() {
     float b = 9.9;

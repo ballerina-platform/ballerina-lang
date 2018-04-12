@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.builtin;
 
 @Description { value:"Removes each element that matches the given key."}
 @Param { value:"j: A JSON object" }
