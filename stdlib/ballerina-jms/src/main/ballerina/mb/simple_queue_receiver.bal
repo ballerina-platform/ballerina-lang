@@ -10,7 +10,7 @@ public type SimpleQueueReceiver object {
     }
 
     private {
-        jms:SimpleQueueListener receiver;
+        jms:SimpleQueueReceiver receiver;
         QueueReceiverConnector? connector;
     }
 
