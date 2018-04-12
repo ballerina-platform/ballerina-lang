@@ -8,7 +8,7 @@ endpoint websub:Listener websubEP {
 };
 
 @websub:SubscriberServiceConfig {
-    basePath:"/websub",
+    path:"/websub",
     subscribeOnStartUp:true,
     topic: "http://www.websubpubtopic.com",
     hub: "https://localhost:9292/websub/hub",
