@@ -14,8 +14,8 @@ function main (string[] args) {
     io:println(strVar);
 
     //If multiple return values are declared in a function and you want to get these values, define the variables as
-    //comma separated values for the `var` variable type. In this example, the variable type is inferred from the
-    //return variable type that is defined in the function, which is int.
+    //comma separated values for the `var` variable type. In this example, the variable type is int. This is inferred
+    //from the return variable type that is defined in the function.
     var (q, r) = divideBy10(6);
     io:println("06/10: " + "quotient=" + q + " " + "remainder=" + r);
 
