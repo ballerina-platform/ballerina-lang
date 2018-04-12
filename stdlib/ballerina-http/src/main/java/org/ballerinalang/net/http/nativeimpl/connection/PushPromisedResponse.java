@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
@@ -28,6 +29,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -56,7 +58,8 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 public class PushPromisedResponse extends ConnectionAction {
 
     @Override
-    public void execute(Context context) {
+    public void execute(Context context, CallableUnitCallback callback) {
+        DataContext dataContext = new DataContext(context, callback);
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
@@ -72,12 +75,10 @@ public class PushPromisedResponse extends ConnectionAction {
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 
         HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
-        BValue[] outboundResponseStatus = pushResponseRobust(
-                context, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg, http2PushPromise);
-        context.setReturnValues(outboundResponseStatus);
+        pushResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg, http2PushPromise);
     }
 
-    private BValue[] pushResponseRobust(Context context, HTTPCarbonMessage requestMessage,
+    private void pushResponseRobust(DataContext dataContext, HTTPCarbonMessage requestMessage,
                                         BStruct outboundResponseStruct, HTTPCarbonMessage responseMessage,
                                         Http2PushPromise http2PushPromise) {
         BStruct entityStruct = MimeUtil.extractEntity(outboundResponseStruct);
@@ -85,8 +86,8 @@ public class PushPromisedResponse extends ConnectionAction {
                 HttpUtil.pushResponse(requestMessage, responseMessage, http2PushPromise);
         if (entityStruct != null) {
             MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-            serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture, entityStruct);
+            serializeMsgDataSource(dataContext, responseMessage, outboundMessageSource, outboundRespStatusFuture, entityStruct);
         }
-        return handleResponseStatus(context, outboundRespStatusFuture);
+        handleResponseStatus(dataContext.context, outboundRespStatusFuture);
     }
 }
