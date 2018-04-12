@@ -64,14 +64,12 @@ function checkTableCount(string tablePrefix) returns (int) {
         poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter  p1 = {value:tablePrefix, sqlType:sql:TYPE_VARCHAR};
-    sql:Parameter[] parameters = [p1];
+    sql:Parameter  p1 = (sql:TYPE_VARCHAR ,tablePrefix );
 
     int count;
     try {
         var temp = testDB -> select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like
-         ?",
-        parameters, ResultCount);
+         ?", ResultCount, p1);
         table dt = check temp;
         while (dt.hasNext()) {
             var rs = check <ResultCount> dt.getNext();
