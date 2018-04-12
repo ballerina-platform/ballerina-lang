@@ -103,9 +103,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
                     ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
                     engine.setOcspResponse(response.getEncoded());
-                    ch.pipeline().addLast(sslHandler, new Http2PipelineConfiguratorForServer());
+                    ch.pipeline().addLast(sslHandler, new Http2PipelineConfiguratorForServer(this));
                 } else {
-                    serverPipeline.addLast(sslCtx.newHandler(ch.alloc()), new Http2PipelineConfiguratorForServer());
+                    serverPipeline.addLast(sslCtx.newHandler(ch.alloc()),
+                                           new Http2PipelineConfiguratorForServer(this));
                 }
             } else {
                 configureH2cPipeline(serverPipeline);
@@ -210,7 +211,8 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
      */
     private void configureH2cPipeline(ChannelPipeline pipeline) {
         // Add handler to handle http2 requests without an upgrade
-        pipeline.addLast(new Http2WithPriorKnowledgeHandler(interfaceId, serverName, serverConnectorFuture));
+        pipeline.addLast(new Http2WithPriorKnowledgeHandler(
+                interfaceId, serverName, serverConnectorFuture, this));
         // Add http2 upgrade decoder and upgrade handler
         final HttpServerCodec sourceCodec = new HttpServerCodec(reqSizeValidationConfig.getMaxUriLength(),
                                                                 reqSizeValidationConfig.getMaxHeaderSize(),
@@ -218,8 +220,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
         final HttpServerUpgradeHandler.UpgradeCodecFactory upgradeCodecFactory = protocol -> {
             if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
-                return new Http2ServerUpgradeCodec(Constants.HTTP2_SOURCE_HANDLER, new Http2SourceHandlerBuilder(
-                        this.interfaceId, this.serverConnectorFuture, serverName).build());
+                return new Http2ServerUpgradeCodec(
+                        Constants.HTTP2_SOURCE_HANDLER,
+                        new Http2SourceHandlerBuilder(
+                                interfaceId, serverConnectorFuture, serverName, this).build());
             } else {
                 return null;
             }
@@ -319,8 +323,11 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
      */
     class Http2PipelineConfiguratorForServer extends ApplicationProtocolNegotiationHandler {
 
-        Http2PipelineConfiguratorForServer() {
+        private HttpServerChannelInitializer channelInitializer;
+
+        Http2PipelineConfiguratorForServer(HttpServerChannelInitializer channelInitializer) {
             super(ApplicationProtocolNames.HTTP_1_1);
+            this.channelInitializer = channelInitializer;
         }
 
         /**
@@ -330,9 +337,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         protected void configurePipeline(ChannelHandlerContext ctx, String protocol) throws Exception {
             if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
                 // handles pipeline for HTTP/2 requests after SSL handshake
-                ctx.pipeline().
-                        addLast(Constants.HTTP2_SOURCE_HANDLER,
-                                new Http2SourceHandlerBuilder(interfaceId, serverConnectorFuture, serverName).build());
+                ctx.pipeline().addLast(
+                        Constants.HTTP2_SOURCE_HANDLER,
+                        new Http2SourceHandlerBuilder(
+                                interfaceId, serverConnectorFuture, serverName, channelInitializer).build());
             } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
                 // handles pipeline for HTTP/1.x requests after SSL handshake
                 configureHttpPipeline(ctx.pipeline(), Constants.HTTP_SCHEME);

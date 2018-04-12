@@ -86,8 +86,8 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         super.handlerAdded(ctx);
         // Remove unwanted handlers after upgrade
-        ctx.pipeline().remove(Constants.HTTP2_TO_HTTP_FALLBACK_HANDLER);
-        ctx.pipeline().remove(Constants.HTTP_COMPRESSOR);
+        Util.safelyRemoveHandlers(ctx.pipeline(), Constants.HTTP2_TO_HTTP_FALLBACK_HANDLER, Constants.HTTP_COMPRESSOR,
+                                  Constants.HTTP_TRACE_LOG_HANDLER);
         this.ctx = ctx;
     }
 

@@ -57,7 +57,7 @@ import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
-import static io.netty.handler.logging.LogLevel.DEBUG;
+import static io.netty.handler.logging.LogLevel.TRACE;
 
 /**
  * A class that responsible for initialize target server pipeline.
@@ -87,10 +87,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     private SenderConfiguration senderConfiguration;
     private ConnectionAvailabilityFuture connectionAvailabilityFuture;
 
-    private static final Http2FrameLogger logger =
-            new Http2FrameLogger(DEBUG,     // Change mode to INFO for logging frames
-                                 HttpClientChannelInitializer.class);
-
     public HttpClientChannelInitializer(SenderConfiguration senderConfiguration, HttpRoute httpRoute,
             ConnectionManager connectionManager, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
         this.httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
@@ -115,9 +111,12 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         connection = new DefaultHttp2Connection(false);
         clientInboundHandler = new ClientInboundHandler();
         Http2FrameListener frameListener = new DelegatingDecompressorFrameListener(connection, clientInboundHandler);
-        http2ConnectionHandler  =
-                new Http2ConnectionHandlerBuilder().
-                        connection(connection).frameLogger(logger).frameListener(frameListener).build();
+
+        Http2ConnectionHandlerBuilder connectionHandlerBuilder = new Http2ConnectionHandlerBuilder();
+        if (httpTraceLogEnabled) {
+            connectionHandlerBuilder.frameLogger(new Http2FrameLogger(TRACE, "tracelog.http.upstream"));
+        }
+        http2ConnectionHandler = connectionHandlerBuilder.connection(connection).frameListener(frameListener).build();
         clientOutboundHandler = new ClientOutboundHandler(connection, http2ConnectionHandler.encoder());
     }
 
