@@ -266,14 +266,17 @@ public class SwaggerConverterUtilsTest {
         }
     }
 
-    @Test(description = "Test OAS definition generation from ballerina service with multiple resource which contains" +
-            "more than http method defined")
+    @Test(description = "Test OAS and Swagger definition generation from ballerina service with multiple resource" +
+            " which contains more than http method defined")
     public void testWithTwoResourceWithMultipleVerbs() {
         String serviceName = "hello";
         try {
-            String swaggerDefinition = SwaggerConverterUtils.generateOAS3Definitions(
+            String openAPIDefinition = SwaggerConverterUtils.generateOAS3Definitions(
+                    sampleSwaggerWithMultipleResourceAndVerbs, serviceName);
+            String swaggerDefinition = SwaggerConverterUtils.generateSwaggerDefinitions(
                     sampleSwaggerWithMultipleResourceAndVerbs, serviceName);
             Assert.assertNotNull(swaggerDefinition);
+            Assert.assertNotNull(openAPIDefinition);
         } catch (IOException e) {
             Assert.fail("Error while converting ballerina service to swagger definition with empty service name");
         }
