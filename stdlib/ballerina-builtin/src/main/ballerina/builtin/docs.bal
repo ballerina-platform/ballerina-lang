@@ -32,6 +32,3 @@ public annotation<function> Return docData;
 
 deprecated {}
 public annotation<annotation, type, object> Field docData;
-
-deprecated {}
-public annotation<object> Connector;
