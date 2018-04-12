@@ -51,7 +51,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WebSubIntegrationTestCase extends IntegrationTestCase {
 
-    private static String hubUrl = "https://localhost:9999/websub/hub";
+    private static String hubUrl = "https://localhost:9292/websub/hub";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_LOG = "\"Intent verified for subscription request\"";
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG =
             "WebSub Notification Received: {\"action\":\"publish\",\"mode\":\"internal-hub\"}";

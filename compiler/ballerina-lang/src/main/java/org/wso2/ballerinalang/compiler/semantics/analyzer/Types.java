@@ -586,7 +586,7 @@ public class Types {
 
         } else if (s.tag == TypeTags.ARRAY) {
             if (t.tag == TypeTags.JSON) {
-                if (((BArrayType) s).eType.tag == TypeTags.JSON) {
+                if (getElementType(s).tag == TypeTags.JSON) {
                     return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
                 } else {
                     // the conversion visitor below may report back a conversion symbol, which is

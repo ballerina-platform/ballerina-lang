@@ -218,7 +218,8 @@
                         </goals>
                         <configuration>
                             <target>
-                                <mkdir dir="${project.build.directory}/extracted-distributions/ballerina" />
+                                <mkdir dir="${project.build.directory}/extracted-distributions/ballerina"/>
+                                <chmod file="${project.build.directory}/extracted-distributions/ballerina" perm="u+x" />
                             </target>
                         </configuration>
                     </execution>

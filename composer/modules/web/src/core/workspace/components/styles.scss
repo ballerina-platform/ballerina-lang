@@ -26,6 +26,7 @@
         }
         &:hover {
             .root-actions {
+                background: #444;
                 .action {
                     opacity: 0.6;
                 }
@@ -35,6 +36,9 @@
             float: right;
             margin-right: 5px;
             font-size: 12px;
+            position: absolute;
+            right: 0;
+            
             &:hover {
                 .action {
                     opacity: 0.6;
@@ -55,6 +59,7 @@
             background: #444;
             color: #fff !important;
             .root-actions {
+                background: #444;
                 .action {
                     opacity: 0.6;
                     &:hover {
@@ -78,4 +83,9 @@
 
 .react-contextmenu-wrapper{
     color: #eee;
+}
+.explorer-item .root{
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }

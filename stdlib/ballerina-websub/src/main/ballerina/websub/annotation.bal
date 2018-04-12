@@ -26,7 +26,6 @@ package ballerina.websub;
 specified."}
 @Field {value:"hub: The hub at which the subscription should be registered."}
 @Field {value:"topic: The topic to which this WebSub subscriber (callback) should be registered."}
-@Field {value:"callback: The callback URL (part of this service) at which notifications are expected."}
 @Field {value:"leaseSeconds: The period for which the subscription is expected to be active."}
 @Field {value:"secret: The secret to be used for authenticated content distribution."}
 @Field {value:"callback: The callback to use when registering, if unspecified host:port/path will be used."}

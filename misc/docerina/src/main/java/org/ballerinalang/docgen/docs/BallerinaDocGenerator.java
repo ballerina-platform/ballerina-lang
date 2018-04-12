@@ -139,15 +139,16 @@ public class BallerinaDocGenerator {
                     bLangPackage.getFunctions().sort(Comparator.comparing(f -> (f.getReceiver() == null ? "" : f
                             .getReceiver().getName()) + f.getName().getValue()));
                     bLangPackage.getObjects().sort(Comparator.comparing(c -> c.getName().getValue()));
-                    bLangPackage.getStructs().sort(Comparator.comparing(s -> s.getName().getValue()));
                     bLangPackage.getAnnotations().sort(Comparator.comparing(a -> a.getName().getValue()));
-                    bLangPackage.getEnums().sort(Comparator.comparing(a -> a.getName().getValue()));
+                    bLangPackage.getTypeDefinitions().sort(Comparator.comparing(a -> a.getName().getValue()));
+                    bLangPackage.getRecords().sort(Comparator.comparing(a -> a.getName().getValue()));
+                    bLangPackage.getGlobalVariables().sort(Comparator.comparing(a -> a.getName().getValue()));
 
                     // Sort connector actions
-                    if ((bLangPackage.getConnectors() != null) && (bLangPackage.getConnectors().size() > 0)) {
-                        bLangPackage.getConnectors().forEach(connector -> connector.getActions().sort(Comparator
-                                .comparing(a -> a.getName().getValue())));
-                    }
+//                    if ((bLangPackage.getConnectors() != null) && (bLangPackage.getConnectors().size() > 0)) {
+//                        bLangPackage.getConnectors().forEach(connector -> connector.getActions().sort(Comparator
+//                                .comparing(a -> a.getName().getValue())));
+//                    }
 
                     String packagePath = refinePackagePath(bLangPackage);
 
@@ -237,19 +238,16 @@ public class BallerinaDocGenerator {
      */
     protected static Map<String, PackageDoc> generatePackageDocsFromBallerina(
         String sourceRoot, Path packagePath, String packageFilter, boolean isNative) throws IOException {
-        Path packageMd = null;
-        if (Files.isDirectory(packagePath)) {
-            Optional<Path> o = Files.find(packagePath, 1, (path, attr) -> {
-                Path fileName = path.getFileName();
-                if (fileName != null) {
-                    return fileName.toString().equals(PACKAGE_CONTENT_FILE);
-                }
-                return false;
+        Path packageMd;
+        Optional<Path> o = Files.find(Paths.get(sourceRoot).resolve(packagePath), 1, (path, attr) -> {
+            Path fileName = path.getFileName();
+            if (fileName != null) {
+                return fileName.toString().equals(PACKAGE_CONTENT_FILE);
+            }
+            return false;
+        }).findFirst();
 
-            }).findFirst();
-
-            packageMd = o.isPresent() ? o.get() : null;
-        }
+        packageMd = o.isPresent() ? o.get() : null;
 
         BallerinaDocDataHolder dataHolder = BallerinaDocDataHolder.getInstance();
         if (!isNative) {

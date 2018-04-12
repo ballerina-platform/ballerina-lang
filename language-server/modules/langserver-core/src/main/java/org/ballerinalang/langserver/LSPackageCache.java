@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.io.PrintStream;
 import java.util.Map;
 
 /**
@@ -38,11 +37,6 @@ public class LSPackageCache {
     private final ExtendedPackageCache packageCache;
     private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
 
-    private static final String[] staticPkgNames = {"http", "http.swagger", "net.uri", "mime", "auth", "auth.authz",
-            "auth.authz.permissionstore", "auth.basic", "auth.jwtAuth", "auth.userstore", "auth.utils", "caching",
-            "collections", "config", "sql", "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os",
-            "reflect", "runtime", "security.crypto", "task", "time", "transactions", "user", "util"};
-
     public static LSPackageCache getInstance(CompilerContext context) {
         LSPackageCache lsPackageCache = context.get(LS_PACKAGE_CACHE_KEY);
         if (lsPackageCache == null) {
@@ -54,7 +48,6 @@ public class LSPackageCache {
     private LSPackageCache(CompilerContext context) {
         context.put(LS_PACKAGE_CACHE_KEY, this);
         packageCache = new ExtendedPackageCache(context);
-//        loadPackagesMap(context);
     }
 
     /**
@@ -96,21 +89,6 @@ public class LSPackageCache {
         if (bLangPackage != null) {
             bLangPackage.packageID = packageID;
             packageCache.put(packageID, bLangPackage);
-        }
-    }
-    
-    public static void loadPackagesMap(CompilerContext tempCompilerContext) {
-        for (String staticPkgName : LSPackageCache.staticPkgNames) {
-            PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
-                    new org.wso2.ballerinalang.compiler.util.Name(staticPkgName),
-                    new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
-            try {
-                // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
-                LSPackageLoader.getPackageById(tempCompilerContext, packageID);
-            } catch (Exception e) {
-                PrintStream errPrintStream = System.err;
-                errPrintStream.println("Error while loading package :" + staticPkgName);
-            }
         }
     }
 

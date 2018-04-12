@@ -5,9 +5,8 @@ task:Timer? timer;
 
 function scheduleTimer(int delay, int interval) {
     (function() returns error?) onTriggerFunction = onTrigger;
-    task:Timer t = new(onTriggerFunction, (), interval, delay = delay);
-    t.start();
-    timer = t;
+    timer = new task:Timer(onTriggerFunction, (), interval, delay = delay);
+    _ = timer.start();
 }
 
 function getCount() returns (int) {
