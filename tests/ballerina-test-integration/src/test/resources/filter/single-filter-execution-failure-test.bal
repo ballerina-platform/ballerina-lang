@@ -2,12 +2,16 @@ import ballerina/http;
 import ballerina/log;
 
 public type Filter1 object {
-    public {
-        function (http:Request request, http:FilterContext context) returns (http:FilterResult) filterRequest;
-        function (http:Response response, http:FilterContext context) returns (http:FilterResult) filterResponse;
+    public function requestFilter (http:Request request, http:FilterContext context) returns http:FilterResult {
+        log:printInfo("Intercepting request for filter 1");
+        http:FilterResult filterResponse = {canProceed:false, statusCode:401, message:"Authentication failure"};
+        return filterResponse;
     }
 
-    public new (filterRequest, filterResponse) {
+    public function responseFilter(http:Response response, http:FilterContext context) returns http:FilterResult {
+        log:printInfo("Intercepting response for filter 1");
+        http:FilterResult filterResponse = {canProceed:true, statusCode:200, message:"successful"};
+        return filterResponse;
     }
 
     public function init () {
@@ -19,19 +23,7 @@ public type Filter1 object {
     }
 };
 
-public function interceptRequest1 (http:Request request, http:FilterContext context) returns (http:FilterResult) {
-    log:printInfo("Intercepting request for filter 1");
-    http:FilterResult filterResponse = {canProceed:false, statusCode:401, message:"Authentication failure"};
-    return filterResponse;
-}
-
-public function interceptResponse1 (http:Response response, http:FilterContext context) returns (http:FilterResult) {
-    log:printInfo("Intercepting response for filter 1");
-    http:FilterResult filterResponse = {canProceed:true, statusCode:200, message:"successful"};
-    return filterResponse;
-}
-
-Filter1 filter1 = new (interceptRequest1, interceptResponse1);
+Filter1 filter1;
 
 endpoint http:Listener echoEP {
     port:9090,
@@ -47,7 +39,7 @@ service<http:Service> echo bind echoEP {
         path:"/test"
     }
     echo (endpoint client, http:Request req) {
-    http:Response res = new;
-    _ = client -> respond(res);
+        http:Response res = new;
+        _ = client -> respond(res);
     }
 }
