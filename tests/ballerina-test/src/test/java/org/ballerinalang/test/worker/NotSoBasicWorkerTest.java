@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -29,7 +30,7 @@ import org.testng.annotations.Test;
 /**
  * Advanced worker related tests.
  */
-@Test(groups = {"broken"})
+@Test
 public class NotSoBasicWorkerTest {
 
     private CompileResult result;
@@ -37,6 +38,9 @@ public class NotSoBasicWorkerTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/not-so-basic-worker-actions.bal");
+        for (Diagnostic d : this.result.getDiagnostics()) {
+            System.out.println("** X: " + d);
+        }
         Assert.assertEquals(result.getErrorCount(), 0);
     }
     
@@ -172,15 +176,13 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(((BInteger) values[0]).intValue(), 1);
     }
 
-//    @Test
+    @Test
     public void testForkJoinWorkersWithNonBlockingConnector() {
         CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-blocking.bal");
         BValue[] vals = BRunUtil.invoke(result, "testForkJoin", new BValue[0]);
         Assert.assertEquals(vals.length, 2);
-        Assert.assertEquals(((BInteger) vals[0]).intValue(), 0);
-        Assert.assertTrue(((BInteger) vals[1]).intValue() > 0);
-        //ctx.await(20);
-        Assert.assertEquals(result.getProgFile().getGlobalMemoryBlock().getIntField(0), 10);
+        Assert.assertEquals(((BInteger) vals[0]).intValue(), 200);
+        Assert.assertEquals(((BInteger) vals[1]).intValue(), 100);
     }
 
     @Test
