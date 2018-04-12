@@ -341,6 +341,7 @@ public class HttpConstants {
     // Filter related
     public static final String ENDPOINT_CONFIG_FILTERS = "filters";
     public static final String FILTERS = "FILTERS";
+    public static final String HTTP_REQUEST_FILTER_FUNCTION_NAME = "requestFilter";
 
     // Retry Config
     public static final String CLIENT_EP_RETRY = "retry";
