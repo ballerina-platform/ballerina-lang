@@ -60,11 +60,6 @@ public class SQLDatasource implements BValue {
     public SQLDatasource() {}
 
     public boolean init(Struct options, String url, String dbType, String hostOrPath, int port, String username,
-            String password, String dbName) {
-        return init(options, url, dbType, hostOrPath, port, username, password, dbName, "");
-    }
-
-    public boolean init(Struct options, String url, String dbType, String hostOrPath, int port, String username,
             String password, String dbName, String dbOptions) {
         buildDataSource(options, url, dbType, hostOrPath, dbName, port, username, password, dbOptions);
         connectorId = UUID.randomUUID().toString();

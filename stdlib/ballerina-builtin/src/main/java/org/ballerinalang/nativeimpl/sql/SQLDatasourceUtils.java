@@ -1110,7 +1110,7 @@ public class SQLDatasourceUtils {
 
         String dbType = url.split(":")[0].toUpperCase(Locale.getDefault());
         SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, url, dbType, "", 0, username, password, "");
+        datasource.init(options, url, dbType, "", 0, username, password, "", "");
 
         BStruct sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
