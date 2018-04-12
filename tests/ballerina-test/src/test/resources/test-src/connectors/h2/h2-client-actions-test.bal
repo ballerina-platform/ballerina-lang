@@ -265,7 +265,7 @@ function testInitWithInvalidDbOptions() returns (int[]) {
 function selectFunction(h2:Client testDBClient) returns (int[]) {
     endpoint h2:Client testDB = testDBClient;
     try {
-        var val = testDB -> select("select * from Customers where customerId=1 OR customerId=2", (), Customer);
+        var val = testDB -> select("select * from Customers where customerId=1 OR customerId=2", Customer);
 
         int[] customerIds;
         match (val) {
