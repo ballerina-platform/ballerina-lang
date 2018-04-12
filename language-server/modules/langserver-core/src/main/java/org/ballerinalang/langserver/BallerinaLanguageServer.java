@@ -54,8 +54,6 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, WorkspaceDocumentManagerImpl.getInstance());
         LSAnnotationCache.initiate();
-        CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
-        LSPackageCache.loadPackagesMap(context);
 
         textService = new BallerinaTextDocumentService(lsGlobalContext);
         workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
