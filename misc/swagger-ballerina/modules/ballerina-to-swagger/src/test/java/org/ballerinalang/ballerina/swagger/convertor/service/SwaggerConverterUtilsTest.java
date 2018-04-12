@@ -202,7 +202,7 @@ public class SwaggerConverterUtilsTest {
 
     @Test(description = "Test ballerina to swagger conversion")
     public void testBallerinaToSwaggerConversion() {
-        String serviceName = "nyseStockQuote";
+        String serviceName = "";
         try {
             String swaggerDefinition = SwaggerConverterUtils.generateSwaggerDefinitions(
                     serviceWithMultipleHTTPMethodsInResourceLevel, serviceName);
@@ -211,7 +211,7 @@ public class SwaggerConverterUtilsTest {
             Assert.fail("Error while converting ballerina service to swagger definition");
         }
     }
-    
+
 
     @Test(description = "Test OAS definition generation from ballerina service which contains multiple HTTP methods" +
             "defined in same resource definition inline")

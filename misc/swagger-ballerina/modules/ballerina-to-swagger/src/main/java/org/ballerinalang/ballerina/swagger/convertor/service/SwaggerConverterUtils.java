@@ -56,10 +56,10 @@ public class SwaggerConverterUtils {
         // Get the ballerina model using the ballerina source code.
         BFile balFile = new BFile();
         balFile.setContent(ballerinaSource);
-
+        //Create empty swagger object.
+        Swagger swaggerDefinition = new Swagger();
         BallerinaFile ballerinaFile = LSParserUtils.compile(balFile.getContent(), CompilerPhase.DEFINE);
         BLangCompilationUnit topCompilationUnit  = ballerinaFile.getBLangPackage().getCompilationUnits().get(0);
-        //BLangCompilationUnit topCompilationUnit = LSParserUtils.compile(balFile.getContent(),);
         String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
         String swaggerAlias = getAlias(topCompilationUnit, Constants.SWAGGER_PACKAGE_NAME);
         SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper(httpAlias, swaggerAlias);
@@ -70,20 +70,17 @@ public class SwaggerConverterUtils {
                 // Generate swagger string for the mentioned service name.
                 if (StringUtils.isNotBlank(serviceName)) {
                     if (serviceDefinition.getName().getValue().equals(serviceName)) {
-                        Swagger swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition);
-                        swaggerSource = swaggerServiceMapper.generateSwaggerString(swaggerDefinition);
+                        swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition);
                         break;
                     }
                 } else {
                     // If no service name mentioned, then generate swagger definition for the first service.
-                    Swagger swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition);
-                    swaggerSource = swaggerServiceMapper.generateSwaggerString(swaggerDefinition);
+                    swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition);
                     break;
                 }
             }
         }
-    
-        return swaggerSource;
+        return swaggerServiceMapper.generateSwaggerString(swaggerDefinition);
     }
 
 
