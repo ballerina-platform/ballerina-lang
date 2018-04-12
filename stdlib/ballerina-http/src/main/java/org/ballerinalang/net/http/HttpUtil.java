@@ -93,11 +93,11 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSI
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
-import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
@@ -593,7 +593,7 @@ public class HttpUtil {
         if (inboundResponseMsg.getHeader(CACHE_CONTROL.toString()) != null) {
             responseCacheControl.populateStruct(inboundResponseMsg.getHeader(CACHE_CONTROL.toString()));
         }
-        inboundResponse.setRefField(IN_RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl.getStruct());
+        inboundResponse.setRefField(RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl.getStruct());
 
         populateEntity(entity, mediaType, inboundResponseMsg);
         inboundResponse.addNativeData(MESSAGE_ENTITY, entity);
