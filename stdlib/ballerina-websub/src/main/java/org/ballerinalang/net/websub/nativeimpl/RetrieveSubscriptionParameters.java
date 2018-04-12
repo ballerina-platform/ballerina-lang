@@ -95,7 +95,7 @@ public class RetrieveSubscriptionParameters extends AbstractHttpNativeFunction {
                 callback = getServerConnector(serviceEndpoint).getConnectorID() + callback;
             }
             if (!callback.contains("://")) {
-                if (serviceEndpointConfig.getRefField(3) != null) { //if secure socket is specified
+                if (serviceEndpointConfig.getRefField(2) != null) { //if secure socket is specified
                     callback = ("https://").concat(callback);
                 } else {
                     callback = ("http://").concat(callback);
