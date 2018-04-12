@@ -20,7 +20,7 @@ service<http:Service> test bind mockEP {
     }
     multipart1 (endpoint client, http:Request request) {
         http:Response response = new;
-        match request.getMultiparts() {
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -46,7 +46,7 @@ service<http:Service> test bind mockEP {
     }
     multipart2 (endpoint client, http:Request request) {
         http:Response response = new;
-        match request.getMultiparts() {
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -68,7 +68,7 @@ service<http:Service> test bind mockEP {
     }
     multipart3 (endpoint client, http:Request request) {
         http:Response response = new;
-        match request.getMultiparts() {
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -90,7 +90,7 @@ service<http:Service> test bind mockEP {
     }
     multipart4 (endpoint client, http:Request request) {
         http:Response response = new;
-        match request.getMultiparts() {
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -112,7 +112,7 @@ service<http:Service> test bind mockEP {
     }
     multipart5 (endpoint client, http:Request request) {
         http:Response response = new;
-        match request.getMultiparts() {
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -136,7 +136,7 @@ service<http:Service> test bind mockEP {
     }
     multipart6 (endpoint client, http:Request request) {
         http:Response response = new;
-        match (request.getMultiparts()) {
+        match (request.getBodyParts()) {
             mime:EntityError err => {
                 response.setStringPayload(err.message);
             }
@@ -153,7 +153,7 @@ service<http:Service> test bind mockEP {
     }
     multipart7 (endpoint client, http:Request request) {
         http:Response response = new;
-        match request.getMultiparts() {
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -194,14 +194,14 @@ function handleNestedParts (mime:Entity parentPart) returns (string) {
 }
 
 function handleContent (mime:Entity bodyPart) returns (string) {
-    string contentType = bodyPart.contentType.toString();
-    if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
+    string baseType = bodyPart.contentType.getBaseType();
+    if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         var payload = bodyPart.getXml();
         match payload {
             mime:EntityError err => return "Error in getting xml payload";
             xml xmlContent => return xmlContent.getTextValue();
         }
-    } else if (mime:APPLICATION_JSON == contentType) {
+    } else if (mime:APPLICATION_JSON == baseType) {
         var payload = bodyPart.getJson();
         match payload {
             mime:EntityError err => return "Error in getting json payload";
@@ -209,13 +209,13 @@ function handleContent (mime:Entity bodyPart) returns (string) {
                return extractFieldValue(jsonContent.bodyPart);
             }
         }
-    } else if (mime:TEXT_PLAIN == contentType) {
+    } else if (mime:TEXT_PLAIN == baseType) {
         var payload = bodyPart.getText();
         match payload {
             mime:EntityError err => return "Error in getting string payload";
             string textContent => return textContent;
         }
-    } else if (mime:APPLICATION_OCTET_STREAM == contentType) {
+    } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
         var payload = bodyPart.getBlob();
         match payload {
             mime:EntityError err => return "Error in getting blob payload";

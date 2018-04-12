@@ -45,7 +45,7 @@ under the License.
             <package name="org.ballerinalang.test.types.*">
                 <exclude name="org.ballerinalang.test.types.service.*"/>
                 <exclude name="org.ballerinalang.test.types.null.*"/>
-                
+
                 <!-- TODO: remove once constraint tests are fixed -->
                 <exclude name="org.ballerinalang.test.types.map.*"/>
             </package>
@@ -60,7 +60,6 @@ under the License.
             <package name="org.ballerinalang.test.endpoint.*"/>
             <package name="org.ballerinalang.test.closures.*"/>
             <!--<package name="org.ballerinalang.test.services.nativeimpl.*"/>-->
-            <package name="org.ballerinalang.test.services.session"/>
             <package name="org.ballerinalang.test.services.basics"/>
             <package name="org.ballerinalang.test.services.cors"/>
             <package name="org.ballerinalang.test.services.configuration"/>

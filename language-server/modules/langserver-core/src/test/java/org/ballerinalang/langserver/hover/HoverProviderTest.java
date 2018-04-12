@@ -17,15 +17,19 @@
  */
 package org.ballerinalang.langserver.hover;
 
+import org.ballerinalang.langserver.LSAnnotationCache;
+import org.ballerinalang.langserver.LSGlobalContext;
+import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.LSPackageCache;
 import org.ballerinalang.langserver.common.util.CommonUtil;
 import org.eclipse.lsp4j.Position;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,9 +57,15 @@ public class HoverProviderTest {
         org.apache.commons.io.FileUtils.copyDirectory(source, destination);
         byte[] encoded = Files.readAllBytes(Paths.get(balPath));
         balFileContent = new String(encoded);
+        LSGlobalContext lsGlobalContext = new LSGlobalContext();
+        CompilerContext globalCompilationContext =
+                org.ballerinalang.langserver.common.utils.CommonUtil.prepareTempCompilerContext();
+        lsGlobalContext.put(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT, globalCompilationContext);
+        LSPackageCache.initiate(lsGlobalContext);
+        LSAnnotationCache.initiate();
     }
     
-    @BeforeTest
+    @BeforeMethod
     public void clearPackageCache() {
         LSPackageCache.getInstance().clearCache();
     }

@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 
 /**
@@ -45,11 +44,9 @@ public class OpenTracerBallerinaWrapper {
     private final boolean enabled;
 
     public OpenTracerBallerinaWrapper() {
-        this.enabled =
-                Boolean.parseBoolean(ConfigRegistry.getInstance().getConfiguration(CONFIG_TRACING_ENABLED));
+        enabled = ConfigRegistry.getInstance().getAsBoolean(CONFIG_TRACING_ENABLED);
         if (enabled) {
-            Map<String, String> configurations = ConfigRegistry.getInstance().getConfigTable(CONFIG_TABLE_TRACING);
-            tracerStore = new TracersStore(configurations);
+            tracerStore = TracersStore.getInstance();
             spanStore = new SpanStore();
         }
     }
@@ -61,10 +58,10 @@ public class OpenTracerBallerinaWrapper {
     /**
      * Method to create an entry in span store by extracting a spanContext from a Map carrier.
      *
-     * @param spanHeaders map of headers used to extract a spanContext
+     * @param encodedHeader map of headers used to extract a spanContext
      * @return the map of span contexts for each tracer implementation
      */
-    public Map<String, SpanContext> extract(Map<String, String> spanHeaders) {
+    public Map<String, SpanContext> extract(String encodedHeader) {
         if (enabled) {
             Map<String, SpanContext> spanContextMap = new HashMap<>();
             Map<String, Tracer> tracers = tracerStore.getTracers(DEFAULT_TRACER);
@@ -72,7 +69,7 @@ public class OpenTracerBallerinaWrapper {
 
             for (Map.Entry<String, Tracer> tracerEntry : tracers.entrySet()) {
                 spanContextMap.put(tracerEntry.getKey(), tracerEntry.getValue().extract(Format.Builtin.HTTP_HEADERS,
-                        new RequestExtractor(spanHeaders)));
+                        new RequestExtractor(encodedHeader)));
                 if (spanContextMap.get(tracerEntry.getKey()) == null) {
                     hasParent = false;
                 }
@@ -91,7 +88,7 @@ public class OpenTracerBallerinaWrapper {
      * @param spanId the span Id of the span to be injected
      * @return the map carrier holding the span context
      */
-    public Map<String, String> inject(String prefix, String spanId) {
+    public Map<String, String> inject(String suffix, String spanId) {
         if (enabled) {
             Map<String, String> carrierMap = new HashMap<>();
             Map<String, Span> activeSpanMap = spanStore.getSpan(spanId);
@@ -99,8 +96,11 @@ public class OpenTracerBallerinaWrapper {
                 Map<String, Tracer> tracers = tracerStore.getTracers(DEFAULT_TRACER);
                 Tracer tracer = tracers.get(activeSpanEntry.getKey());
                 if (tracer != null && activeSpanEntry.getValue() != null) {
-                    tracer.inject(activeSpanEntry.getValue().context(),
-                            Format.Builtin.HTTP_HEADERS, new RequestInjector(prefix, carrierMap));
+                    Map<String, String> tracerSpecificCarrier = new HashMap<>();
+                    RequestInjector requestInjector = new RequestInjector(tracerSpecificCarrier);
+                    tracer.inject(activeSpanEntry.getValue().context(), Format.Builtin.HTTP_HEADERS, requestInjector);
+                    String value = requestInjector.getCarrierString();
+                    carrierMap.put(TraceConstants.USER_TRACE_HEADER + suffix, value);
                 }
             }
             return carrierMap;

@@ -47,7 +47,7 @@ service<http:Service> test bind mockEP {
         //Set the body parts to outbound response.
         http:Response outResponse = new;
         string contentType = mime:MULTIPART_MIXED + "; boundary=e3a0b9ad7b4e7cdb";
-        outResponse.setMultiparts(bodyParts, contentType);
+        outResponse.setBodyParts(bodyParts, contentType);
 
         _ = conn -> respond(outResponse);
     }
@@ -59,12 +59,12 @@ service<http:Service> test bind mockEP {
     nestedPartsInOutResponse (endpoint conn, http:Request request) {
         string contentType = request.getHeader("content-type");
         http:Response outResponse = new;
-        match (request.getMultiparts()) {
+        match (request.getBodyParts()) {
             mime:EntityError err => {
                 outResponse.setStringPayload(err.message);
             }
             mime:Entity[] bodyParts => {
-                outResponse.setMultiparts(bodyParts, contentType);
+                outResponse.setBodyParts(bodyParts, untaint contentType);
             }
         }
         _ = conn -> respond(outResponse);

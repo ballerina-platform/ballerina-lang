@@ -154,7 +154,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -1143,7 +1143,7 @@ public class BLangPackageBuilder {
     }
 
     public void createTypeAccessExpr(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangTypeofExpr typeAccessExpr = (BLangTypeofExpr) TreeBuilder.createTypeAccessNode();
+        BLangTypedescExpr typeAccessExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
         typeAccessExpr.pos = pos;
         typeAccessExpr.addWS(ws);
         typeAccessExpr.typeNode = (BLangType) typeNodeStack.pop();
@@ -2607,11 +2607,14 @@ public class BLangPackageBuilder {
     public void addIntRangeExpression(DiagnosticPos pos,
                                       Set<Whitespace> ws,
                                       boolean includeStart,
-                                      boolean includeEnd) {
+                                      boolean includeEnd,
+                                      boolean noUpperBound) {
         BLangIntRangeExpression intRangeExpr = (BLangIntRangeExpression) TreeBuilder.createIntRangeExpression();
         intRangeExpr.pos = pos;
         intRangeExpr.addWS(ws);
-        intRangeExpr.endExpr = (BLangExpression) this.exprNodeStack.pop();
+        if (!noUpperBound) {
+            intRangeExpr.endExpr = (BLangExpression) this.exprNodeStack.pop();
+        }
         intRangeExpr.startExpr = (BLangExpression) this.exprNodeStack.pop();
         intRangeExpr.includeStart = includeStart;
         intRangeExpr.includeEnd = includeEnd;
@@ -3069,8 +3072,9 @@ public class BLangPackageBuilder {
     }
 
     public void endPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isFollowedBy,
-            boolean enclosedInParenthesis, boolean andWithNotAvailable, boolean forWithNotAvailable,
-            boolean onlyAndAvailable, boolean onlyOrAvailable) {
+                                             boolean enclosedInParenthesis, boolean andWithNotAvailable,
+                                             boolean forWithNotAvailable, boolean onlyAndAvailable,
+                                             boolean onlyOrAvailable, boolean commaSeparated) {
         if (!this.patternStreamingInputStack.empty()) {
             PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.pop();
 
@@ -3101,8 +3105,12 @@ public class BLangPackageBuilder {
                 processNegationPatternWithTimeDuration(patternStreamingInputNode);
             }
 
+            if (commaSeparated) {
+                processCommaSeparatedSequence(patternStreamingInputNode);
+            }
+
             if (!(isFollowedBy || enclosedInParenthesis || forWithNotAvailable ||
-                  onlyAndAvailable || onlyOrAvailable || andWithNotAvailable)) {
+                    onlyAndAvailable || onlyOrAvailable || andWithNotAvailable || commaSeparated)) {
                 patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
                 this.recentStreamingPatternInputNode = patternStreamingInputNode;
             }
@@ -3112,6 +3120,13 @@ public class BLangPackageBuilder {
             this.patternStreamingInputStack.push(this.recentStreamingPatternInputNode);
             this.recentStreamingPatternInputNode = null;
         }
+    }
+
+    private void processCommaSeparatedSequence(PatternStreamingInputNode patternStreamingInputNode) {
+        patternStreamingInputNode.setCommaSeparated(true);
+        patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
+        patternStreamingInputNode.setPatternStreamingInput(this.recentStreamingPatternInputNode);
+        this.recentStreamingPatternInputNode = patternStreamingInputNode;
     }
 
     private void processNegationPatternWithTimeDuration(PatternStreamingInputNode patternStreamingInputNode) {
@@ -3280,7 +3295,7 @@ public class BLangPackageBuilder {
         pattern.expr = (BLangExpression) this.exprNodeStack.pop();
         pattern.pos = pos;
         pattern.addWS(ws);
-        
+
         identifier = identifier == null ? Names.IGNORE.value : identifier;
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;

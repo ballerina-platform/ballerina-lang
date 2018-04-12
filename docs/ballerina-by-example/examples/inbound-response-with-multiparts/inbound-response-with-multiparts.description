@@ -1,4 +1,0 @@
-// Multipart response handling is supported by the Ballerina server connector.
-// When you request multiparts from the HTTP inbound response, you get an array of body parts (An array of
-// entities). If the received parts contain nested parts, you can loop through the parent parts and get the child parts
-// as well.

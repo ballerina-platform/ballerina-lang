@@ -30,6 +30,7 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLItem;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -262,8 +263,6 @@ public class IOTest {
     public void testRecordOperationPermissionError() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample.csv";
         BStruct records;
-        BBoolean hasNextRecord;
-        int expectedRecordLength = 3;
 
         //Will initialize the channel with write permissions
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("w"), new BString("UTF-8"),
@@ -331,7 +330,7 @@ public class IOTest {
         String resourceToRead = "datafiles/io/text/web-app.json";
 
         //Will initialize the channel
-        BValue[] args = { new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8") };
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initCharacterChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readJson");
@@ -342,12 +341,55 @@ public class IOTest {
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
     }
 
+    @Test(description = "Test 'writeJson' function in ballerina.io package")
+    public void testWriteJsonCharacters() {
+        String content = "{\n" +
+                "  \"test\": { \"name\": \"Foo\" }\n" +
+                "}";
+
+        String sourceToWrite = currentDirectoryPath + "/jsonCharsFile.json";
+
+        //Will initialize the channel
+        BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8")};
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "initCharacterChannel", args);
+
+        args = new BValue[]{new BJSON(content)};
+        BValue[] result = BRunUtil.invokeStateful(characterInputOutputProgramFile, "writeJson", args);
+
+        //Assert if there's no error return
+        Assert.assertTrue(result.length == 0);
+
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
+    }
+
+    @Test(description = "Test 'writeXml' function in ballerina.io package")
+    public void testWriteXmlCharacters() {
+        String content = "\t<test>\n" +
+                "\t\t<name>Foo</name>\n" +
+                "\t</test>";
+
+        String sourceToWrite = currentDirectoryPath + "/xmlCharsFile.xml";
+
+        //Will initialize the channel
+        BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8")};
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "initCharacterChannel", args);
+
+        args = new BValue[]{new BXMLItem(content)};
+        BValue[] result = BRunUtil.invokeStateful(characterInputOutputProgramFile, "writeXml", args);
+
+        //Assert if there's no error return
+        Assert.assertTrue(result.length == 0);
+
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
+    }
+
+
     @Test(description = "Test 'readXml' function in ballerina.io package")
     public void testXmlCharacters() throws URISyntaxException {
         String resourceToRead = "datafiles/io/text/cd_catalog.xml";
 
         //Will initialize the channel
-        BValue[] args = { new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8") };
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initCharacterChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readXml");
@@ -361,7 +403,7 @@ public class IOTest {
     private String readFileContent(String filePath) throws URISyntaxException {
         Path path = Paths.get(getAbsoluteFilePath(filePath));
         StringBuilder data = new StringBuilder();
-        Stream<String> lines = null;
+        Stream<String> lines;
         try {
             lines = Files.lines(path);
         } catch (IOException e) {

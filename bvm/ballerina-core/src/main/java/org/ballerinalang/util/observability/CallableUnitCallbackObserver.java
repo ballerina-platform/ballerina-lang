@@ -18,7 +18,7 @@
 package org.ballerinalang.util.observability;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.ObservableContext;
 import org.ballerinalang.model.values.BStruct;
 
 /**
@@ -31,7 +31,7 @@ public class CallableUnitCallbackObserver extends CallbackObserver implements Ca
 
     private CallableUnitCallback callback;
 
-    public CallableUnitCallbackObserver(WorkerExecutionContext ctx,
+    public CallableUnitCallbackObserver(ObservableContext ctx,
                                         CallableUnitCallback callback) {
         super(ctx);
         this.callback = callback;

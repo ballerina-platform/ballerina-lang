@@ -50,18 +50,6 @@ public class InvalidSyntaxParserTest {
      */
 
     @Test
-    public void testParseIdentifierMissingSerivce() {
-        CompileResult result = BCompileUtil.compile("test-src/parser/identifier-missing-service-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid token ';'", 10, 10);
-    }
-
-    @Test
-    public void testParseIdentifierMissingMainFunc() {
-        CompileResult result = BCompileUtil.compile("test-src/parser/identifier-missing-func-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid token ';'", 3, 5);
-    }
-
-    @Test
     public void testReservedWordVariable() {
         CompileResult result = BCompileUtil.compile("test-src/parser/reserved-word-variable-negative.bal");
         BAssertUtil.validateError(result, 0, "invalid token 'resource'", 3, 9);

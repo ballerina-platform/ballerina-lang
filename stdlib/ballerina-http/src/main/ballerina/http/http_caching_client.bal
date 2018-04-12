@@ -76,7 +76,7 @@ public type HttpCachingClient object {
     }
 
     public new(serviceUri, config, cacheConfig) {
-        self.httpClient = createHttpClient(serviceUri, config);
+        self.httpClient = createHttpSecureClient(serviceUri, config);
         self.cache = createHttpCache("http-cache", cacheConfig);
     }
 
@@ -177,8 +177,7 @@ public type HttpCachingClient object {
 
     @Description {value:"Rejects a push promise."}
     @Param {value:"promise: The Push Promise need to be rejected"}
-    @Return {value:"Whether operation is successful"}
-    public function rejectPromise (PushPromise promise) returns boolean;
+    public function rejectPromise (PushPromise promise);
 };
 
 @Description {value:"Creates an HTTP client capable of caching HTTP responses."}
@@ -301,8 +300,8 @@ public function HttpCachingClient::getPromisedResponse (PushPromise promise) ret
     return self.httpClient.getPromisedResponse(promise);
 }
 
-public function HttpCachingClient::rejectPromise (PushPromise promise) returns boolean {
-    return self.httpClient.rejectPromise(promise);
+public function HttpCachingClient::rejectPromise (PushPromise promise) {
+    self.httpClient.rejectPromise(promise);
 }
 
 function getCachedResponse (HttpCache cache, HttpClient httpClient, Request req, string httpMethod, string path,
@@ -622,18 +621,14 @@ function isAStrongValidator (string etag) returns boolean {
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
 function replaceHeaders (Response cachedResponse, Response validationResponse) {
-    map uptodateHeaders = validationResponse.getCopyOfAllHeaders();
-
-    foreach headerName, headerValues in uptodateHeaders {
-        string[] valueArray = [];
-        match <string[]>headerValues {
-            string[] arr => valueArray = arr;
-            error => next; // Skip the current header if there was an error in retrieving the header values
-        }
-
-        cachedResponse.removeHeader(headerName); // Remove existing headers before adding the up-to-date headers
-        foreach value in valueArray {
-            cachedResponse.addHeader(headerName, value);
+    string[] headerNames = validationResponse.getHeaderNames();
+    foreach headerName in headerNames {
+        cachedResponse.removeHeader(headerName);
+        if (validationResponse.hasHeader(headerName)) {
+            string[] headerValues = validationResponse.getHeaders(headerName);
+            foreach value in headerValues {
+                cachedResponse.addHeader(headerName, value);
+            }
         }
     }
 }

@@ -52,6 +52,7 @@ public class WorkspaceUtils {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.DEFINE.toString());
         options.put(CompilerOptionName.PRESERVE_WHITESPACE, Boolean.TRUE.toString());
+        options.put(CompilerOptionName.PROJECT_DIR, "/tmp");
         return getBallerinaPackage(fileName, context);
     }
 

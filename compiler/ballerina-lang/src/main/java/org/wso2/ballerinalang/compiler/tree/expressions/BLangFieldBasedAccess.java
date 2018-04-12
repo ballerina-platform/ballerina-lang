@@ -36,6 +36,7 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
     public BLangIdentifier field;
 
     public FieldKind fieldKind;
+    public BVarSymbol varSymbol;
 
     @Override
     public BLangVariableReference getExpression() {
@@ -71,6 +72,23 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
             this.pos = pos;
             this.expr = varRef;
             this.symbol = fieldSymbol;
+            this.varSymbol = fieldSymbol;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * @since 0.97
+     */
+    public static class BLangStructFunctionVarRef extends BLangFieldBasedAccess {
+
+        public BLangStructFunctionVarRef(BLangVariableReference varRef, BVarSymbol varSymbol) {
+            this.expr = varRef;
+            this.symbol = varSymbol;
         }
 
         @Override
@@ -91,6 +109,7 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
             this.pos = pos;
             this.enumeratorName = enumeratorName;
             this.symbol = enumeratorSymbol;
+            this.varSymbol = enumeratorSymbol;
         }
 
         @Override

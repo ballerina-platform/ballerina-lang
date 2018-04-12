@@ -113,7 +113,7 @@ public type CircuitBreakerClient object {
         CircuitBreakerInferredConfig circuitBreakerInferredConfig;
         HttpClient httpClient;
         CircuitHealth circuitHealth;
-        CircuitState currentCircuitState;
+        CircuitState currentCircuitState = CB_CLOSED_STATE;
     }
 
     public new (string serviceUri, ClientEndpointConfig config, CircuitBreakerInferredConfig circuitBreakerInferredConfig,
@@ -123,7 +123,6 @@ public type CircuitBreakerClient object {
         self.circuitBreakerInferredConfig = circuitBreakerInferredConfig;
         self.httpClient = httpClient;
         self.circuitHealth = circuitHealth;
-        self.currentCircuitState = CB_CLOSED_STATE;
     }
 
     @Description {value:"The POST action implementation of the Circuit Breaker. Protects the invocation of the POST action of the underlying HTTP client connector."}
@@ -223,8 +222,7 @@ public type CircuitBreakerClient object {
 
     @Description { value:"The rejectPromise implementation of Circuit Breaker."}
     @Param { value:"promise: The Push Promise need to be rejected" }
-    @Return { value:"Whether operation is successful" }
-    public function rejectPromise (PushPromise promise) returns (boolean); 
+    public function rejectPromise (PushPromise promise);
 };
 
 public function CircuitBreakerClient::post (string path, Request request) returns (Response | HttpConnectorError) {
@@ -503,9 +501,7 @@ public function CircuitBreakerClient::getPromisedResponse (PushPromise promise) 
 
 @Description { value:"The rejectPromise implementation of Circuit Breaker."}
 @Param { value:"promise: The Push Promise need to be rejected" }
-@Return { value:"Whether operation is successful" }
-public function CircuitBreakerClient::rejectPromise (PushPromise promise) returns (boolean) {
-   return false;
+public function CircuitBreakerClient::rejectPromise (PushPromise promise) {
 }
 
 public function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentStateValue,

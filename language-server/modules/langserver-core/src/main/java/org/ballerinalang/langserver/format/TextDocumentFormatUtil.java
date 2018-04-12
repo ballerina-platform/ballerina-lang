@@ -20,6 +20,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
@@ -50,12 +51,12 @@ public class TextDocumentFormatUtil {
      * @return {@link JsonObject}   AST as a Json Object
      */
     public static JsonObject getAST(DocumentFormattingParams params, WorkspaceDocumentManager documentManager,
-                                    LSServiceOperationContext context) {
+                                    LSServiceOperationContext context, LSGlobalContext lsGlobalContext) {
         String documentUri = params.getTextDocument().getUri();
         String[] uriParts = documentUri.split(Pattern.quote(File.separator));
         String fileName = uriParts[uriParts.length - 1];
         final BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context, documentManager,
-                true, LSCustomErrorStrategy.class, false).get(0);
+                true, LSCustomErrorStrategy.class, false, lsGlobalContext).get(0);
         context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();

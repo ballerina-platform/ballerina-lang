@@ -82,10 +82,11 @@ public type TargetService {
 @Field {value:"failoverConfig: Failover configuration"}
 @Field {value:"cache: HTTP caching related configurations"}
 @Field {value:"acceptEncoding: Specifies the way of handling accept-encoding header."}
+@Field {value:"auth: HTTP authentication releated configurations."}
 public type ClientEndpointConfig {
     CircuitBreakerConfig? circuitBreaker,
     int timeoutMillis = 60000,
-    boolean keepAlive = true,
+    KeepAlive keepAlive = KEEPALIVE_AUTO,
     TransferEncoding transferEncoding = "CHUNKING",
     Chunking chunking = "AUTO",
     string httpVersion = "1.1",
@@ -98,6 +99,7 @@ public type ClientEndpointConfig {
     string|FailoverConfig lbMode = ROUND_ROBIN,
     CacheConfig cache,
     string acceptEncoding = "auto",
+    AuthConfig? auth,
 };
 
 public native function createHttpClient(string uri, ClientEndpointConfig config) returns HttpClient;
@@ -162,6 +164,34 @@ public type ConnectionThrottling {
     int waitTime = 60000,
 };
 
+@Description { value:"AuthConfig record represents the authentication mechanism that HTTP client uses" }
+@Field {value:"scheme: scheme of the configuration. (basic, oauth, jwt etc.)"}
+@Field {value:"username: username for basic authentication"}
+@Field {value:"username: password for basic authentication"}
+@Field {value:"accessToken: access token for oauth2 authentication"}
+@Field {value:"refreshToken: refresh token for oauth2 authentication"}
+@Field {value:"refreshToken: refresh token for oauth2 authentication"}
+@Field {value:"refreshTokenUrl: refresh token url for oauth2 authentication"}
+@Field {value:"consumerKey: consume key for oauth2 authentication"}
+@Field {value:"consumerKey: consume key for oauth2 authentication"}
+@Field {value:"consumerSecret: consume secret for oauth2 authentication"}
+@Field {value:"tokenURL: token url for oauth2 authentication"}
+@Field {value:"clientId: clietnt id for oauth2 authentication"}
+@Field {value:"clientSecret: client secret for oauth2 authentication"}
+public type AuthConfig {
+    string scheme,
+    string username,
+    string password,
+    string accessToken,
+    string refreshToken,
+    string refreshTokenUrl,
+    string consumerKey,
+    string consumerSecret,
+    string tokenURL,
+    string clientId,
+    string clientSecret,
+};
+
 public function Client::init(ClientEndpointConfig config) {
     boolean httpClientRequired = false;
     string url = config.targets[0].url;
@@ -180,7 +210,7 @@ public function Client::init(ClientEndpointConfig config) {
                 if (config.cache.enabled) {
                     self.httpClient = createHttpCachingClient(url, config, config.cache);
                 } else{
-                    self.httpClient = createHttpClient(url, config);
+                    self.httpClient = createHttpSecureClient(url, config);
                 }
             }
         }
@@ -216,8 +246,8 @@ public function Client::init(ClientEndpointConfig config) {
                         () => {
                             if (config.cache.enabled) {
                                 self.httpClient = createHttpCachingClient(url, config, config.cache);
-                            } else{
-                                self.httpClient = createHttpClient(url, config);
+                            } else {
+                                self.httpClient = createHttpSecureClient(url, config);
                             }
                         }
                     }
@@ -245,7 +275,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfig configurat
                     if (configuration.cache.enabled) {
                         cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cache);
                     } else{
-                        cbHttpClient = createHttpClient(uri, configuration);
+                        cbHttpClient = createHttpSecureClient(uri, configuration);
                     }
                 }
             }
@@ -274,7 +304,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfig configurat
             if (configuration.cache.enabled) {
                 return createHttpCachingClient(uri, configuration, configuration.cache);
             } else {
-                return createHttpClient(uri, configuration);
+                return createHttpSecureClient(uri, configuration);
             }
         }
     }
@@ -303,7 +333,7 @@ function createRetryClient (string url, ClientEndpointConfig configuration) retu
             if (configuration.cache.enabled) {
                 return new RetryClient(url, configuration, retry, createHttpCachingClient(url, configuration, configuration.cache));
             } else{
-                return new RetryClient(url, configuration, retry, createHttpClient(url, configuration));
+                return new RetryClient(url, configuration, retry, createHttpSecureClient(url, configuration));
             }
         }
         () => {
@@ -311,7 +341,7 @@ function createRetryClient (string url, ClientEndpointConfig configuration) retu
             if (configuration.cache.enabled) {
                 return createHttpCachingClient(url, configuration, configuration.cache);
             } else {
-                return createHttpClient(url, configuration);
+                return createHttpSecureClient(url, configuration);
             }
         }
     }
