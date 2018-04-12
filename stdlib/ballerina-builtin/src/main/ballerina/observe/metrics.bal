@@ -37,7 +37,7 @@ public type Counter object {
     public native function increment(float amount);
 
     @Description {value:"Return the value of the counter."}
-    @Return {value:"The value of a counter"}
+    @Return {value:"The value of a counter."}
     public native function count() returns (float);
 };
 
@@ -73,7 +73,7 @@ public type Gauge object {
     public native function setValue(float value);
 
     @Description {value:"Return the value of the gauge."}
-    @Return {value:"The value of a gauge"}
+    @Return {value:"The value of a gauge."}
     public native function value() returns (float);
 };
 
@@ -151,7 +151,7 @@ public type Timer object {
 
     @Description {value: "Return a map of latencies scaled with the given base unit of time at specific percentiles."}
     @Param {value: "timeUnit: The base unit of time to scale the percentile value to."}
-    @Return {value: "A map of latencies at specific percentiles"}
+    @Return {value: "A map of latencies at specific percentiles."}
     public native function percentileValues(TimeUnit timeUnit) returns (map);
 
     @Description {value: "Returns the number of times recorded in the timer."}
