@@ -266,7 +266,7 @@ function prepareRequest(Request req, ClientEndpointConfig config) returns (()|Ht
             if (refreshToken != EMPTY_STRING && clientId != EMPTY_STRING && clientSecret != EMPTY_STRING) {
                 var accessTokenValueResponse = getAccessTokenFromRefreshToken(config);
                 match accessTokenValueResponse {
-                    string accessTokenString => req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + accessTokenString);
+                    string accessTokenString => req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessTokenString);
                     HttpConnectorError err => return err;
                 }
             } else {
@@ -275,11 +275,11 @@ function prepareRequest(Request req, ClientEndpointConfig config) returns (()|Ht
                 return httpConnectorError;
             }
         } else {
-            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + accessToken);
+            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
         }
     } else if (scheme == JWT_SCHEME){
         string authToken = runtime:getInvocationContext().authenticationContext.authToken;
-        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + authToken);
+        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
     }
     return ();
 }
