@@ -19,6 +19,9 @@ package ballerina.http;
 import ballerina/internal;
 import ballerina/auth;
 
+AuthHandlerRegistry registry = new;
+AuthnHandlerChain authnHandlerChain = new(registry);
+
 @Description {value:"Representation of the Authentication filter"}
 @Field {value:"filterRequest: request filter method which attempts to authenticated the request"}
 @Field {value:"filterRequest: response filter method (not used this scenario)"}
@@ -26,10 +29,9 @@ public type AuthnFilter object {
     public {
         function (Request request, FilterContext context) returns (FilterResult) filterRequest;
         function (Response response, FilterContext context) returns (FilterResult) filterResponse;
-        AuthnHandlerChain authnHandlerChain;
     }
 
-    public new (authnHandlerChain, filterRequest, filterResponse) {
+    public new (filterRequest, filterResponse) {
     }
 
     public function init ();
@@ -93,9 +95,9 @@ function getResourceAuthConfig (FilterContext context) returns (boolean, string[
     boolean isResourceSecured;
     string[]? authProviderIds;
     // get authn details from the resource level
-    AuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
+    ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
                                     internal:getResourceAnnotations(context.serviceType, context.resourceName));
-    AuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
+    ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
                                     internal:getServiceAnnotations(context.serviceType));
     // check if authentication is enabled
     match resourceLevelAuthAnn.authentication {
@@ -146,9 +148,9 @@ and then from the service level, if its not there in the resource level"}
 @Param {value:"annotationPackage: annotation package name"}
 @Param {value:"annotationName: annotation name"}
 @Param {value:"annData: array of annotationData instances"}
-@Return {value:"AuthConfig: AuthConfig instance if its defined, else nil"}
+@Return {value:"ListenerAuthConfig: ListenerAuthConfig instance if its defined, else nil"}
 function getAuthAnnotation (string annotationPackage, string annotationName, internal:annotationData[] annData)
-                                                                                            returns (AuthConfig?) {
+                                                                                            returns (ListenerAuthConfig?) {
     if (lengthof annData == 0) {
         return ();
     }

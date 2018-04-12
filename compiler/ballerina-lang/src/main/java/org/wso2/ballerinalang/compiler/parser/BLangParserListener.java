@@ -1191,7 +1191,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.addIntRangeExpression(getCurrentPos(ctx), getWS(ctx),
-                ctx.LEFT_PARENTHESIS() == null, ctx.RIGHT_PARENTHESIS() == null);
+                ctx.LEFT_PARENTHESIS() == null, ctx.RIGHT_PARENTHESIS() == null,
+                ctx.expression(1) == null);
     }
 
     /**

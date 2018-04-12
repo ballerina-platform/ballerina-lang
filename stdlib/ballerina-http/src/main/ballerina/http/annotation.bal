@@ -34,7 +34,7 @@ public type HttpServiceConfig {
     Chunking chunking = CHUNKING_AUTO,
     CorsConfig cors,
     Versioning versioning,
-    AuthConfig? authConfig,
+    ListenerAuthConfig? authConfig,
 };
 
 @Description {value:"Configurations for CORS support"}
@@ -118,7 +118,7 @@ public type HttpResourceConfig {
         CorsConfig cors,
         boolean transactionInfectable = true,
         WebSocketUpgradeConfig? webSocketUpgrade,
-        AuthConfig? authConfig,
+        ListenerAuthConfig? authConfig,
 };
 
 public type WebSocketUpgradeConfig {
@@ -130,7 +130,7 @@ public type WebSocketUpgradeConfig {
 @Field {value:"authentication: Authentication instance"}
 @Field {value:"providers: array of providers"}
 @Field {value:"scopes: array of scopes"}
-public type AuthConfig {
+public type ListenerAuthConfig {
     Authentication? authentication,
     string[]? authProviders,
     string[]? scopes,

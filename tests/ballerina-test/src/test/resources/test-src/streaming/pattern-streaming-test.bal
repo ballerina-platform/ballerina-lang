@@ -44,7 +44,7 @@ stream<TempDiffInfo> tempDiffStream;
 function testPatternQuery () {
 
     forever {
-        from every regulatorStream as e1 followed by tempStream where e1.roomNo == roomNo [1..2) as e2
+        from every regulatorStream as e1 followed by tempStream where e1.roomNo == roomNo [1..2] as e2
         followed by regulatorStream where e1.roomNo == roomNo as e3
         select e1.roomNo, e2[1].temp - e2[0].temp as tempDifference
         => (TempDiffInfo[] emp) {
