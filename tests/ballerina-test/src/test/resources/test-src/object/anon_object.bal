@@ -15,11 +15,11 @@ function testAnonObjectAsLocalVar() returns (int) {
 }
 
 
-object { public {string fname; string lname; int age;} new (fname, lname) {}} person;
+object { public {string fname; string lname; int age;} new (fname = "default fname", lname = "default lname") {}} person;
 
 function testAnonObjectAsPkgVar() returns (string) {
 
-    person = new ("sameera", "jaya");
+    person = new (fname = "sameera", lname = "jaya");
     person.lname = person.lname + "soma";
     person.age = 100;
     return person.fname + ":" + person.lname + ":" + person.age;

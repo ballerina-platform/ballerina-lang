@@ -8,16 +8,12 @@ type Employee {
 
 function testIterateMirrorTable () returns (Employee[], Employee[]) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:2}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    var temp = testDB -> mirror("employeeItr", typeof Employee);
+    var temp = testDB -> mirror("employeeItr", Employee);
     table dt = check temp;
 
     Employee [] employeeArray1;
@@ -44,16 +40,12 @@ function testIterateMirrorTable () returns (Employee[], Employee[]) {
 
 function testAddToMirrorTable () returns (Employee[]) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:2}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    var temp = testDB -> mirror("employeeAdd", typeof Employee);
+    var temp = testDB -> mirror("employeeAdd", Employee);
     table dt = check temp;
 
     Employee e1 = {id: 1, name:"Manuri", address:"Sri Lanka"};
@@ -62,7 +54,7 @@ function testAddToMirrorTable () returns (Employee[]) {
     var result1 = dt.add(e1);
     var result2 = dt.add(e2);
 
-    var temp2 = testDB -> select("SELECT  * from employeeAdd", (), typeof Employee);
+    var temp2 = testDB -> select("SELECT  * from employeeAdd", Employee);
     table dt2 = check temp2;
 
     Employee [] employeeArray;
@@ -81,16 +73,12 @@ function testAddToMirrorTable () returns (Employee[]) {
 
 function testAddToMirrorTableNegative () returns (any) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:2}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    var temp = testDB -> mirror("employeeAddNegative", typeof Employee);
+    var temp = testDB -> mirror("employeeAddNegative", Employee);
     table dt = check temp;
 
     Employee e1 = {id: 1, name:"Manuri", address:"Sri Lanka"};
@@ -105,16 +93,12 @@ function testAddToMirrorTableNegative () returns (any) {
 
 function testDeleteFromMirrorTable () returns (boolean, int) {
     endpoint sql:Client testDB {
-        database: sql:DB_HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:2}
+        poolOptions: {maximumPoolSize:2}
     };
 
-    var temp = testDB -> mirror("employeeDel", typeof Employee);
+    var temp = testDB -> mirror("employeeDel", Employee);
     table dt = check temp;
 
     var val = dt.remove(idMatches);
@@ -124,7 +108,7 @@ function testDeleteFromMirrorTable () returns (boolean, int) {
         TableOperationError e => removedCount = -1;
     }
 
-    var temp2 = testDB -> select("SELECT  * from employeeDel", (), typeof Employee);
+    var temp2 = testDB -> select("SELECT  * from employeeDel", Employee);
     table dt2 = check temp2;
     boolean hasNext = dt2.hasNext();
 

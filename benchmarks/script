@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+export BAL_HOME=$1
+chmod +x ${BAL_HOME}/bin/ballerina
+export PATH=${BAL_HOME}/bin:$PATH
+ballerina run benchmark $2 $3 $4
+

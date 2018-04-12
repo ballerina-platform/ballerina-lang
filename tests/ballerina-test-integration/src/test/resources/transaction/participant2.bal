@@ -30,13 +30,9 @@ endpoint http:Listener participant2EP {
 //};
 
 endpoint sql:Client testDB {
-    database: sql:DB_HSQLDB_SERVER,
-    host: "localhost",
-    port: 9001,
-    name: "TEST_SQL_CONNECTOR",
+    url: "hsqldb:hsql://localhost:9001/TEST_SQL_CONNECTOR",
     username: "SA",
-    password: "",
-    options: {maximumPoolSize:10}
+    poolOptions: {maximumPoolSize:10}
 };
 
 State state = new;
@@ -98,9 +94,8 @@ service<http:Service> participant2 bind participant2EP {
     }
     checkCustomerExists(endpoint ep, http:Request req, string uuid) {
         http:Response res = new;  res.statusCode = 200;
-        sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:uuid};
-        sql:Parameter[] params = [para1];
-        var x = testDB -> select("SELECT registrationID FROM Customers WHERE registrationID = ?", params, typeof Registration);
+        sql:Parameter para1 = (sql:TYPE_VARCHAR, uuid);
+        var x = testDB -> select("SELECT registrationID FROM Customers WHERE registrationID = ?", Registration, para1);
         match x {
             table dt => {
                string payload;
@@ -111,7 +106,7 @@ service<http:Service> participant2 bind participant2EP {
                }
                res.setStringPayload(payload);
             }
-            sql:SQLConnectorError err1 => {
+            error err1 => {
                res.statusCode = 500;
             }
         }
@@ -133,7 +128,7 @@ function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbor
         string uuid = util:uuid();
 
         var result = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                                 values ('John', 'Doe', '" + uuid +"', 5000.75, 'USA')", ());
+                                                 values ('John', 'Doe', '" + uuid +"', 5000.75, 'USA')");
         match result {
             int insertCount => io:println(insertCount);
             error => io:println("");

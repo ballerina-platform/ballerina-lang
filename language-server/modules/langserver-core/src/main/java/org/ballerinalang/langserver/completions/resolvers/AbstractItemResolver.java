@@ -379,7 +379,8 @@ public abstract class AbstractItemResolver {
         symbolInfoList.removeIf(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             String symbolName = bSymbol.getName().getValue();
-            return (bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null)
+            return (bSymbol instanceof BInvokableSymbol && (((BInvokableSymbol) bSymbol).receiverSymbol) != null
+                    && !bSymbol.kind.equals(SymbolKind.RESOURCE))
                     || (bSymbol instanceof BPackageSymbol && invalidPkgs.contains(symbolName))
                     || (symbolName.startsWith("$anonStruct"));
         });

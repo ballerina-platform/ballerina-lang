@@ -19,12 +19,12 @@ package ballerina.os;
 @Description {value:"Returns the environment variable value associated with the provided name."}
 @Param {value:"name: Name of the environment variable"}
 @Return { value:"Environment variable value if it exists, otherwise an empty string"}
-public native function getEnv (string name) returns (string);
+public native function getEnv (@sensitive string name) returns (string);
 
 @Description {value:"Splits the value of an environment variable using path separator and returns the separated values as an array."}
 @Param {value:"name: Name of the environment variable"}
 @Return { value:"Environment variable values as an array if the provided environment variable exists, otherwise an empty array"}
-public native function getMultivaluedEnv (string name) returns (string[]);
+public native function getMultivaluedEnv (@sensitive string name) returns (string[]);
 
 @Description {value:"Returns the name of the operating system."}
 @Return { value:"OS name if the OS can be identified, an empty string otherwise"}

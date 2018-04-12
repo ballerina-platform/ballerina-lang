@@ -144,26 +144,26 @@ function testBooleanFalsePositive() returns (boolean) {
 // Start Type
 
 function testTypeTruePositive() returns (boolean) {
-    typedesc t1 = (typeof int);
-    typedesc t2 = (typeof int);
+    typedesc t1 = (int);
+    typedesc t2 = (int);
     return reflect:equals(t1,t2);
 }
 
 function testTypeTrueNegative() returns (boolean) {
-    typedesc t1 = (typeof int);
-    typedesc t2 = (typeof string);
+    typedesc t1 = (int);
+    typedesc t2 = (string);
     return reflect:equals(t1,t2);
 }
 
 function testTypeFalseNegative() returns (boolean) {
-    typedesc t1 = (typeof int);
-    typedesc t2 = (typeof int);
+    typedesc t1 = (int);
+    typedesc t2 = (int);
     return !reflect:equals(t1,t2);
 }
 
 function testTypeFalsePositive() returns (boolean) {
-    typedesc t1 = (typeof int);
-    typedesc t2 = (typeof string);
+    typedesc t1 = (int);
+    typedesc t2 = (string);
     return !reflect:equals(t1,t2);
 }
 
@@ -284,26 +284,26 @@ function testBooleanArrayFalsePositive() returns (boolean) {
 // Start Type Arrays
 
 function testTypeArrayTruePositive() returns (boolean) {
-    typedesc[] t1 = [(typeof int), (typeof string)];
-    typedesc[] t2 = [(typeof int), (typeof string)];
+    typedesc[] t1 = [(int), (string)];
+    typedesc[] t2 = [(int), (string)];
     return reflect:equals(t1,t2);
 }
 
 function testTypeArrayTrueNegative() returns (boolean) {
-    typedesc[] t1 = [(typeof int), (typeof string)];
-    typedesc[] t2 = [(typeof int), (typeof map)];
+    typedesc[] t1 = [(int), (string)];
+    typedesc[] t2 = [(int), (map)];
     return reflect:equals(t1,t2);
 }
 
 function testTypeArrayFalseNegative() returns (boolean) {
-    typedesc[] t1 = [(typeof int), (typeof string)];
-    typedesc[] t2 = [(typeof int), (typeof string)];
+    typedesc[] t1 = [(int), (string)];
+    typedesc[] t2 = [(int), (string)];
     return !reflect:equals(t1,t2);
 }
 
 function testTypeArrayFalsePositive() returns (boolean) {
-    typedesc[] t1 = [(typeof int), (typeof string)];
-    typedesc[] t2 = [(typeof int), (typeof map)];
+    typedesc[] t1 = [(int), (string)];
+    typedesc[] t2 = [(int), (map)];
     return !reflect:equals(t1,t2);
 }
 

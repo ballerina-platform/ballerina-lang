@@ -19,9 +19,12 @@ package org.ballerinalang.nativeimpl.sql;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -72,6 +75,7 @@ import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TimeZone;
@@ -893,6 +897,24 @@ public class SQLDatasourceUtils {
         }
     }
 
+    public static String getSQLType(BType value) {
+        int tag = value.getTag();
+        switch (tag) {
+        case TypeTags.INT_TAG:
+            return Constants.SQLDataTypes.INTEGER;
+        case TypeTags.STRING_TAG:
+            return Constants.SQLDataTypes.VARCHAR;
+        case TypeTags.FLOAT_TAG:
+            return Constants.SQLDataTypes.DOUBLE;
+        case TypeTags.BOOLEAN_TAG:
+            return Constants.SQLDataTypes.BOOLEAN;
+        case TypeTags.BLOB_TAG:
+            return Constants.SQLDataTypes.BLOB;
+        default:
+            throw new BallerinaException("unsupported data type for struct parameter: " + value.getName());
+        }
+    }
+
     /**
      * This will retrieve the string value for the given clob.
      *
@@ -1023,8 +1045,7 @@ public class SQLDatasourceUtils {
     }
 
     public static BStruct getSQLConnectorError(Context context, Throwable throwable) {
-        PackageInfo sqlPackageInfo = context.getProgramFile()
-                .getPackageInfo(Constants.SQL_PACKAGE_PATH);
+        PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(Constants.BUILTIN_PACKAGE_PATH);
         StructInfo errorStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_CONNECTOR_ERROR);
         BStruct sqlConnectorError = new BStruct(errorStructInfo.getType());
         if (throwable.getMessage() == null) {
@@ -1044,7 +1065,7 @@ public class SQLDatasourceUtils {
         throw new BallerinaException(BLangVMErrors.TRANSACTION_ERROR);
     }
 
-    public static void notifyTxMarkForAbort(Context context, LocalTransactionInfo localTransactionInfo) {
+    private static void notifyTxMarkForAbort(Context context, LocalTransactionInfo localTransactionInfo) {
         String globalTransactionId = localTransactionInfo.getGlobalTransactionId();
         int transactionBlockId = localTransactionInfo.getCurrentTransactionBlockId();
 
@@ -1058,6 +1079,76 @@ public class SQLDatasourceUtils {
 
         TransactionUtils.notifyTransactionAbort(context.getParentWorkerExecutionContext(), globalTransactionId,
                 transactionBlockId);
+    }
+
+    public static BStruct createServerBasedDBClient(Context context, String database,
+            org.ballerinalang.connector.api.Struct clientEndpointConfig, String dbOptions) {
+        String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
+        int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
+        String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
+        String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
+        String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
+        org.ballerinalang.connector.api.Struct options = clientEndpointConfig
+                .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
+
+        SQLDatasource datasource = new SQLDatasource();
+        datasource.init(options, "", database, host, port, username, password, name, dbOptions);
+
+        BStruct sqlClient = BLangConnectorSPIUtil
+                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
+        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
+        return sqlClient;
+    }
+
+    public static BStruct createSQLDBClient(Context context,
+            org.ballerinalang.connector.api.Struct clientEndpointConfig) {
+        String url = clientEndpointConfig.getStringField(Constants.EndpointConfig.URL);
+        String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
+        String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
+        org.ballerinalang.connector.api.Struct options = clientEndpointConfig
+                .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
+
+        String dbType = url.split(":")[0].toUpperCase(Locale.getDefault());
+        SQLDatasource datasource = new SQLDatasource();
+        datasource.init(options, url, dbType, "", 0, username, password, "", "");
+
+        BStruct sqlClient = BLangConnectorSPIUtil
+                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
+        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
+        return sqlClient;
+    }
+
+    public static BStruct createMultiModeDBClient(Context context, String database,
+            org.ballerinalang.connector.api.Struct clientEndpointConfig, String dbOptions) {
+        String dbType = Constants.SQL_MEMORY_DB_POSTFIX;
+        String hostOrPath = "";
+        String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
+        String path = clientEndpointConfig.getStringField(Constants.EndpointConfig.PATH);
+        if (!host.isEmpty()) {
+            dbType = Constants.SQL_SERVER_DB_POSTFIX;
+            hostOrPath = host;
+        } else if (!path.isEmpty()) {
+            dbType = Constants.SQL_FILE_DB_POSTFIX;
+            hostOrPath = path;
+        }
+        if (!host.isEmpty() && !path.isEmpty()) {
+            throw new BallerinaException("error in creating db connector: Provide either host or path");
+        }
+        database = database + dbType;
+        int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
+        String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
+        String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
+        String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
+        org.ballerinalang.connector.api.Struct options = clientEndpointConfig
+                .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
+
+        SQLDatasource datasource = new SQLDatasource();
+        datasource.init(options, "", database, hostOrPath, port, username, password, name, dbOptions);
+
+        BStruct sqlClient = BLangConnectorSPIUtil
+                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
+        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
+        return sqlClient;
     }
 
     private static String getString(Calendar calendar, String type) {
@@ -1422,5 +1513,31 @@ public class SQLDatasourceUtils {
             conn = ((SQLTransactionContext) txContext).getConnection();
         }
         return conn;
+    }
+
+    public static String createJDBCDbOptions(String propertiesBeginSymbol, String separator,
+            Map<String, Value> dbOptions) {
+        StringJoiner dbOptionsStringJoiner = new StringJoiner(separator, propertiesBeginSymbol, "");
+        for (Map.Entry<String, Value> entry : dbOptions.entrySet()) {
+            String dataValue = null;
+            Value value = entry.getValue();
+            if (value != null) {
+                switch (value.getType()) {
+                case INT:
+                    dataValue = Long.toString(value.getIntValue());
+                    break;
+                case FLOAT:
+                    dataValue = Double.toString(value.getFloatValue());
+                    break;
+                case BOOLEAN:
+                    dataValue = Boolean.toString(value.getBooleanValue());
+                    break;
+                default:
+                    dataValue = value.getStringValue();
+                }
+            }
+            dbOptionsStringJoiner.add(entry.getKey() + Constants.JDBCUrlSeparators.EQUAL_SYMBOL + dataValue);
+        }
+        return dbOptionsStringJoiner.toString();
     }
 }

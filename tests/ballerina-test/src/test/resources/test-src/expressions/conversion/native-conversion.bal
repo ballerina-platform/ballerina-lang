@@ -40,7 +40,7 @@ function testStructToMap () returns (map) {
 }
 
 
-function testMapToStruct () returns (Person | error) {
+function testMapToStruct () returns (Person) {
     int[] marks = [87, 94, 72];
     Person parent = {
                         name:"Parent",
@@ -395,7 +395,7 @@ function testJsonToIntArray () returns (IntArray) {
 
 
 type StringArray {
-    string[] a;
+    string[]? a;
 };
 
 function testJsonToStringArray () returns (StringArray) {
@@ -444,23 +444,11 @@ function testNullJsonToStruct () returns (Person | error) {
     return p;
 }
 
-//function testNullMapToStruct () returns (Person | error) {
-//    map|null m;
-//    var p = check <Person> m;
-//    return p;
-//}
-
 function testNullStructToJson () returns (json | error) {
     Person|() p;
     var j = check <json> p;
     return j;
 }
-
-//function testNullStructToMap () returns (map) {
-//    Person|null p;
-//    map m = <map>p;
-//    return m;
-//}
 
 function testIncompatibleJsonToStructWithErrors () returns (Person | error) {
     json j = {name:"Child",
@@ -520,22 +508,22 @@ type movie {
     person[] actors;
 };
 
-//function testStructToMapWithRefTypeArray () returns (map, int) {
-//    movie theRevenant = {title:"The Revenant",
-//                            year:2015,
-//                            released:"08 Jan 2016",
-//                            genre:["Adventure", "Drama", "Thriller"],
-//                            writers:[{fname:"Michael", lname:"Punke", age:30}],
-//                            actors:[{fname:"Leonardo", lname:"DiCaprio", age:35},
-//                                    {fname:"Tom", lname:"Hardy", age:34}]};
-//
-//    map m = <map>theRevenant;
-//
-//   any a = m["writers"];
-//    var writers = check (person[])a;
-//
-//    return (m, writers[0].age);
-//}
+function testStructToMapWithRefTypeArray () returns (map, int) {
+    movie theRevenant = {title:"The Revenant",
+                            year:2015,
+                            released:"08 Jan 2016",
+                            genre:["Adventure", "Drama", "Thriller"],
+                            writers:[{fname:"Michael", lname:"Punke", age:30}],
+                            actors:[{fname:"Leonardo", lname:"DiCaprio", age:35},
+                                    {fname:"Tom", lname:"Hardy", age:34}]};
+
+    map m = <map>theRevenant;
+
+    any a = m["writers"];
+    var writers = check <person[]> a;
+
+    return (m, writers[0].age);
+}
 
 type StructWithDefaults {
     string s = "string value";
@@ -640,3 +628,231 @@ function structWithComplexArraysToJson() returns (json | error) {
     var js = check <json> t;
     return js;
 }
+
+function testComplexMapToJson () returns (json) {
+    map m = {name:"Supun",
+                age:25,
+                gpa:2.81,
+                status:true
+            };
+    json j2 = check <json> m;
+    return j2;
+}
+
+function testJsonToMapUnconstrained() returns map {
+    json jx = {};
+    jx.x = 5;
+    jx.y = 10;
+    jx.z = 3.14;
+    jx.o = {};
+    jx.o.a = "A";
+    jx.o.b = "B";
+    jx.o.c = true;
+    map m = check <map> jx;
+    return m;
+}
+
+function testJsonToMapConstrained1() returns map {
+    json j = {};
+    j.x = "A";
+    j.y = "B";
+  
+    return check <map<string>> j;
+}
+
+type T1 {
+    int x;
+    int y;
+};
+
+function testJsonToMapConstrained2() returns map {
+    json j1 = {};
+    j1.x = 5;
+    j1.y = 10;
+    json j2 = {};
+    j2.a = j1;
+    map<T1> m;
+    m = check <map<T1>> j2;
+    return m;
+}
+
+function testJsonToMapConstrainedFail() returns map {
+    json j1 = {};
+    j1.x = 5;
+    j1.y = 10.5;
+    json j2 = {};
+    j2.a = j1;
+    map<T1> m;
+    m = check <map<T1>> j2;
+    return m;
+}
+
+type T2 {
+  int x;
+  int y;
+  int z;
+};
+
+function testStructArrayConversion1() returns T1 {
+    T1[] a;
+    T2[] b;
+    b[0] = {};
+    b[0].x = 5;
+    b[0].y = 1;
+    b[0].z = 2;
+    a = <T1[]> b;
+    return a[0];
+}
+
+function testStructArrayConversion2() returns T2 {
+    T1[] a;
+    T2[] b;
+    b[0] = {};
+    b[0].x = 5;
+    b[0].y = 1;
+    b[0].z = 2;
+    a = <T1[]> b;
+    b = check <T2[]> a;
+    return b[0];
+}
+
+public type T3 {
+  int x,
+  int y,
+};
+
+public type O1 object {
+  public {
+    int x;
+    int y;
+  }
+};
+
+public type O2 object {
+  public {
+    int x;
+    int y;
+    int z;
+  }
+};
+
+function testObjectRecordConversion1() returns T3 {
+    O1 a;
+    T3 b;
+    a = <O1> b;
+    b = <T3> a;
+    return b;
+}
+
+function testObjectRecordConversion2() returns T3 {
+    O2 a;
+    T3 b;
+    b = <T3> a;
+    return b;
+}
+
+function testObjectRecordConversion3() returns O2 {
+    O2 a;
+    T3 b;
+    b = <T3> a;
+    a = check <O2> b;
+    return a;
+}
+
+function testObjectRecordConversionFail() {
+    O2 a;
+    T3 b;
+    a = check <O2> b;
+}
+
+function testTupleConversion1() returns (T1, T1) {
+    T1 a;
+    T2 b;
+    (T1, T2) x = (a, b);
+    (T1, T1) x2;
+    any y = x;
+    x2 = check <(T1, T1)> y;
+    return x2;
+}
+
+function testTupleConversion2() returns (int, string) {
+    (int, string) x = (10, "XX");
+    any y = x;
+    x = check <(int, string)> y;
+    return x;
+}
+
+function testTupleConversionFail() {
+    T1 a;
+    T1 b;
+    (T1, T1) x = (a, b);
+    (T1, T2) x2;
+    any y = x;
+    x2 = check <(T1, T2)> y;
+}
+
+function testArrayToJson1() returns json {
+    int[] x;
+    x[0] = 10;
+    x[1] = 15;
+    json j = check <json> x;
+    return j;
+}
+
+function testArrayToJson2() returns json {
+    T1[] x;
+    T1 a;
+    T1 b;
+    a.x = 10;
+    b.x = 15;
+    x[0] = a;
+    x[1] = b;
+    json j = check <json> x;
+    return j;
+}
+
+public type TX {
+  int x,
+  int y,
+  blob b,
+};
+
+function testArrayToJsonFail() {
+    TX[] x;
+    TX a;
+    TX b;
+    a.x = 10;
+    b.x = 15;
+    x[0] = a;
+    x[1] = b;
+    json j = check <json> x;
+}
+
+function testJsonToArray1() returns T1[] {
+    T1[] x;
+    x[0] = {};
+    x[0].x = 10;
+    json j = check <json> x;
+    x = check <T1[]> j;
+    return x;
+}
+
+function testJsonToArray2() returns int[] {
+    json j = [];
+    j[0] = 1;
+    j[1] = 2;
+    j[2] = 3;
+    int[] x = check <int[]> j;
+    return x;
+}
+
+function testJsonToArrayFail() {
+    json j = {};
+    j.x = 1;
+    j.y = 1.5;
+    int[] x = check <int[]> j;
+}
+
+
+
+

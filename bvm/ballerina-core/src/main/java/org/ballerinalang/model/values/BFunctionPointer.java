@@ -55,12 +55,12 @@ public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
         return closureVars;
     }
 
-    public void addClosureVar(BClosure closure) {
+    public void addClosureVar(BClosure closure, int tag) {
         if (closureVars.contains(closure)) {
             return;
         }
         closureVars.add(closure);
-        additionalIndexes.merge(closure.getType().getTag(), 1, Integer::sum);
+        additionalIndexes.merge(tag, 1, Integer::sum);
     }
 
     public Integer getAdditionalIndexCount(int type) {

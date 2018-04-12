@@ -99,13 +99,13 @@ public class BLogManager extends LogManager {
         });
 
         // setup Ballerina user-level log level configuration
-        String userLogLevel = configRegistry.getConfiguration(BALLERINA_USER_LOG_LEVEL);
+        String userLogLevel = configRegistry.getAsString(BALLERINA_USER_LOG_LEVEL);
         if (userLogLevel != null) {
             ballerinaUserLogLevel = BLogLevel.toBLogLevel(userLogLevel);
         }
 
         // setup HTTP trace log level configuration
-        String traceLogLevel = configRegistry.getConfiguration(HTTP_TRACE_LOG, "level");
+        String traceLogLevel = configRegistry.getAsString(HTTP_TRACE_LOG, "level");
         if (traceLogLevel != null) {
             loggerLevels.put(HTTP_TRACE_LOG, BLogLevel.toBLogLevel(traceLogLevel));
         }
@@ -129,7 +129,7 @@ public class BLogManager extends LogManager {
             httpTraceLogger = Logger.getLogger(HTTP_TRACE_LOG);
         }
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        String logTo = configRegistry.getConfiguration(HTTP_TRACE_LOG, LOG_TO);
+        String logTo = configRegistry.getAsString(HTTP_TRACE_LOG, LOG_TO);
 
         if (logTo == null) {
             httpTraceLogger.addHandler(populateTraceHandlerConfiguration(LOG_TO_CONSOLE));

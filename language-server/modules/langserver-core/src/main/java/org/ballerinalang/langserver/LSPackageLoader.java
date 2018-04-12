@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver;
 
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
@@ -36,10 +35,8 @@ public class LSPackageLoader {
      * Get the Builtin Package.
      * @return {@link BLangPackage} Builtin BLang package
      */
-    public static List<BLangPackage> getBuiltinPackages() {
+    public static List<BLangPackage> getBuiltinPackages(CompilerContext context) {
         List<BLangPackage> builtins = new ArrayList<>();
-        CompilerContext context = CommonUtil.prepareTempCompilerContext();
-
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);

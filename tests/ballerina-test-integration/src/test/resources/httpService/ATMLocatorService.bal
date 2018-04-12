@@ -77,7 +77,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
                 io:println("Error occurred while writing info response");
             }
         }
-        _ = outboundEP -> forward(infomationResponse);
+        _ = outboundEP -> respond(infomationResponse);
     }
 }
 

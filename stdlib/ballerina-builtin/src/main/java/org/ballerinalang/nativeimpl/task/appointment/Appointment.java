@@ -21,7 +21,6 @@ package org.ballerinalang.nativeimpl.task.appointment;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
-import org.ballerinalang.nativeimpl.task.TaskException;
 import org.ballerinalang.nativeimpl.task.TaskIdGenerator;
 import org.ballerinalang.nativeimpl.task.TaskRegistry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
@@ -52,7 +51,7 @@ public class Appointment {
         return id;
     }
 
-    public void stop() throws TaskException {
+    public void stop() {
         //BLangScheduler.workerCountDown();
         AppointmentManager.getInstance().stop(id);
         TaskRegistry.getInstance().remove(id);

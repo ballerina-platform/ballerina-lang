@@ -240,8 +240,50 @@ class TreeUtil extends AbstractTreeUtil {
         } else if (this.isVariableDef(node)) {
             invocationExpression = _.get(node, 'variable.initialExpression');
         }
-        return (invocationExpression && this.isInvocation(invocationExpression) 
+
+        if (invocationExpression && this.isCheckExpr(invocationExpression)) {
+            invocationExpression = invocationExpression.expression;
+        }
+        return (invocationExpression && this.isInvocation(invocationExpression)
         && invocationExpression.actionInvocation);
+    }
+
+    /**
+     * Get variable ref of Action Invocation
+     * @param {object} node - variable def node object
+     * @returns {object} - whether the node is an invocation node
+     */
+    getVariableReference(node) {
+        let invocationExpression;
+        if (this.isAssignment(node) || this.isExpressionStatement(node)) {
+            invocationExpression = _.get(node, 'expression');
+        } else if (this.isVariableDef(node)) {
+            invocationExpression = _.get(node, 'variable.initialExpression');
+        }
+
+        if (invocationExpression && this.isCheckExpr(invocationExpression)) {
+            invocationExpression = invocationExpression.expression;
+        }
+        return invocationExpression.expression.variableName.value;
+    }
+
+    /**
+     * Get variable ref
+     * @param {object} node - variable def node object
+     * @returns {object} - whether the node is an invocation node
+     */
+    getInvocationSignature(node) {
+        let invocationExpression;
+        if (this.isAssignment(node) || this.isExpressionStatement(node)) {
+            invocationExpression = _.get(node, 'expression');
+        } else if (this.isVariableDef(node)) {
+            invocationExpression = _.get(node, 'variable.initialExpression');
+        }
+
+        if (invocationExpression && this.isCheckExpr(invocationExpression)) {
+            invocationExpression = invocationExpression.expression;
+        }
+        return invocationExpression.getInvocationSignature();
     }
 
     /**
@@ -330,11 +372,11 @@ class TreeUtil extends AbstractTreeUtil {
         if (!parent) {
             return [];
         }
-        let visibleEndpoints = [];
+        const visibleEndpoints = [];
         if (this.isFunction(parent) || this.isResource(parent) || this.isService(parent)) {
             return visibleEndpoints.concat(_.get(parent, 'endpointNodes'));
         }
-        
+
         return visibleEndpoints.concat(this.getAllVisibleEndpoints(parent.parent));
     }
 
@@ -777,11 +819,11 @@ class TreeUtil extends AbstractTreeUtil {
         return `${defaultName
             + (defaultIndex === 0 ? names.length + 1 + indexIncreament : defaultIndex + indexIncreament)}`;
     }
-    
+
     getAllEndpoints(node) {
         let endpoints = [];
         if (node.kind === 'CompilationUnit') {
-            endpoints = endpoints.concat(_.filter(node.topLevelNodes, function (topLevelNode) {
+            endpoints = endpoints.concat(_.filter(node.topLevelNodes, (topLevelNode) => {
                 return topLevelNode.kind === 'Endpoint';
             }));
         } else if (node.endpointNodes) {

@@ -2,25 +2,24 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/auth;
 
-endpoint http:ApiEndpoint ep {
+endpoint http:APIListener listener {
     port:9090
 };
 
 @http:ServiceConfig {
-      basePath:"/echo"
+    basePath:"/echo",
+    authConfig:{
+        authentication:{enabled:true},
+        scopes:["xxx"]
+    }
 }
-
-@auth:Config {
-    authentication:{enabled:true},
-    scopes:["xxx"]
-}
-service<http:Service> echo bind ep {
+service<http:Service> echo bind listener {
     @http:ResourceConfig {
         methods:["GET"],
-        path:"/test"
-    }
-    @auth:Config {
-        scopes:["scope2", "scope4"]
+        path:"/test",
+        authConfig:{
+            scopes:["scope2", "scope4"]
+        }
     }
     echo (endpoint client, http:Request req) {
         http:Response res = new;

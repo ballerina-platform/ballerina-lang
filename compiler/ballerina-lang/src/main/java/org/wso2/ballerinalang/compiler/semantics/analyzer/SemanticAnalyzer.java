@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.TypeFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -42,13 +43,11 @@ import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
@@ -105,6 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -157,6 +157,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
+import org.wso2.ballerinalang.util.TypeFlags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -320,10 +321,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.processWorkers(funcNode, funcEnv);
     }
 
-    private List<BLangObject> findMatchingObject(BLangPackage pkgNode, String name) {
-        return pkgNode.objects.stream().filter(o -> o.name.value.equals(name)).collect(Collectors.toList());
-    }
-
     private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
         if (invNode.workers.size() > 0) {
             invEnv.scope.entries.putAll(invNode.body.scope.entries);
@@ -369,6 +366,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         analyzeDef(objectNode.initFunction, objectEnv);
 
+        validateConstructorAndCheckDefaultable(objectNode);
+
         //Visit temporary init statements in the init function
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(objectNode.initFunction,
                 objectNode.initFunction.symbol.scope, objectEnv);
@@ -390,6 +389,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
 
         analyzeDef(record.initFunction, structEnv);
+
+        validateDefaultable(record);
+
         record.docAttachments.forEach(doc -> analyzeDef(doc, structEnv));
     }
 
@@ -523,6 +525,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Analyze the init expression
         BLangExpression rhsExpr = varNode.expr;
         if (rhsExpr == null) {
+            if (varNode.symbol.owner.tag == SymTag.PACKAGE && !types.defaultValueExists(varNode.pos, varNode.type)) {
+                dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
+            }
             return;
         }
 
@@ -561,7 +566,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Check whether variable is initialized, if the type don't support default values.
         // eg: struct types.
-        if (varDefNode.var.expr == null && !types.defaultValueExists(varDefNode.var.type)) {
+        if (varDefNode.var.expr == null && !types.defaultValueExists(varDefNode.pos, varDefNode.var.type)) {
             dlog.error(varDefNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varDefNode.var.name);
         }
     }
@@ -891,6 +896,47 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 endpointSPIAnalyzer.getEndpointConfigType((BStructSymbol) serviceNode.endpointType.tsymbol));
     }
 
+    private void validateConstructorAndCheckDefaultable(BLangObject objectNode) {
+        boolean defaultableStatus = true;
+        for (BLangVariable field : objectNode.fields) {
+            if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
+                continue;
+            }
+            defaultableStatus = false;
+            if (objectNode.initFunction.symbol.params.stream().filter(p -> p.field ? p.originalName.equals(field
+                    .symbol.name) : p.name.equals(field.symbol.name)).collect(Collectors.toList()).size() == 0) {
+                dlog.error(objectNode.pos, DiagnosticCode.OBJECT_UN_INITIALIZABLE_FIELD, field);
+            }
+        }
+
+        if (objectNode.initFunction.symbol.params.size() > 0) {
+            defaultableStatus = false;
+        }
+        if (defaultableStatus) {
+            objectNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED,
+                    TypeFlag.DEFAULTABLE));
+        } else {
+            objectNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED));
+        }
+    }
+
+    private void validateDefaultable(BLangRecord recordNode) {
+        boolean defaultableStatus = true;
+        for (BLangVariable field : recordNode.fields) {
+            if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
+                continue;
+            }
+            defaultableStatus = false;
+            break;
+        }
+        if (defaultableStatus) {
+            recordNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED,
+                    TypeFlag.DEFAULTABLE));
+        } else {
+            recordNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED));
+        }
+    }
+
     public void visit(BLangResource resourceNode) {
         BSymbol resourceSymbol = resourceNode.symbol;
         SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
@@ -1212,31 +1258,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeStmt((BLangStatement) streamingQueryStatement, env);
         }
 
-        List<BLangVariable> globalVariableList = this.env.enclPkg.globalVars;
-        if (globalVariableList != null) {
-            for (BLangVariable variable : globalVariableList) {
-                if (((variable).type.tsymbol) != null) {
-                    if ("stream".equals((((variable).type.tsymbol)).name.value)) {
-                        foreverStatement.addGlobalVariable(variable);
-                    }
-                }
-            }
-        }
-
-        List<BVarSymbol> functionParameterList = ((BInvokableSymbol) this.env.scope.owner).getParameters();
-        for (BVarSymbol varSymbol : functionParameterList) {
-            if ("stream".equals((((varSymbol).type.tsymbol)).name.value)) {
-                foreverStatement.addFunctionVariable(varSymbol);
-            }
-        }
-
-        List<Scope.ScopeEntry> localVariableList = new ArrayList<>(this.env.scope.entries.values());
-        for (Scope.ScopeEntry scopeEntry : localVariableList) {
-            if ("stream".equals(((scopeEntry).symbol.type.tsymbol).name.value)) {
-                foreverStatement.addFunctionVariable((BVarSymbol) scopeEntry.symbol);
-            }
-        }
-
         //Validate output attribute names with stream/struct
         for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
             checkOutputAttributes((BLangStatement) streamingQueryStatement);
@@ -1443,6 +1464,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTableLiteral tableLiteral) {
+        /* ignore */
+    }
+
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         /* ignore */
     }
 
