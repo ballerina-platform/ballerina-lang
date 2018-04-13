@@ -259,6 +259,10 @@ public final class Constants {
     public static final String CHUNKED = "chunked";
     public static final String CHUNKING_CONFIG = "chunking_config";
 
+    // Trace Logger related parameters
+    public static final String TRACE_LOG_UPSTREAM = "tracelog.http.upstream";
+    public static final String TRACE_LOG_DOWNSTREAM = "tracelog.http.downstream";
+
     public static final String LISTENER_PORT = "LISTENER_PORT";
 
     public static final String REQUEST_LINE_TOO_LONG = "An HTTP line is larger than";

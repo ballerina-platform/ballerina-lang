@@ -114,7 +114,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
 
         Http2ConnectionHandlerBuilder connectionHandlerBuilder = new Http2ConnectionHandlerBuilder();
         if (httpTraceLogEnabled) {
-            connectionHandlerBuilder.frameLogger(new FrameLogger(TRACE, "tracelog.http.upstream"));
+            connectionHandlerBuilder.frameLogger(new FrameLogger(TRACE, Constants.TRACE_LOG_UPSTREAM));
         }
         http2ConnectionHandler = connectionHandlerBuilder.connection(connection).frameListener(frameListener).build();
         clientOutboundHandler = new ClientOutboundHandler(connection, http2ConnectionHandler.encoder());
@@ -274,7 +274,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         pipeline.addLast(Constants.DECOMPRESSOR_HANDLER, new HttpContentDecompressor());
         if (httpTraceLogEnabled) {
             pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
-                    new HTTPTraceLoggingHandler("tracelog.http.upstream"));
+                    new HTTPTraceLoggingHandler(Constants.TRACE_LOG_UPSTREAM));
         }
         if (followRedirect) {
             if (log.isDebugEnabled()) {

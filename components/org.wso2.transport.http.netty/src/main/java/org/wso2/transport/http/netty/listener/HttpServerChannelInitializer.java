@@ -179,7 +179,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
             if (httpTraceLogEnabled) {
                 serverPipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
-                                       new HTTPTraceLoggingHandler("tracelog.http.downstream"));
+                                       new HTTPTraceLoggingHandler(Constants.TRACE_LOG_DOWNSTREAM));
             }
             if (httpAccessLogEnabled) {
                 serverPipeline.addLast(Constants.HTTP_ACCESS_LOG_HANDLER,
@@ -232,7 +232,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         pipeline.addLast(Constants.HTTP_COMPRESSOR, new CustomHttpContentCompressor());
         if (httpTraceLogEnabled) {
             pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
-                                   new HTTPTraceLoggingHandler("tracelog.http.downstream"));
+                                   new HTTPTraceLoggingHandler(Constants.TRACE_LOG_DOWNSTREAM));
         }
         if (httpAccessLogEnabled) {
             pipeline.addLast(Constants.HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler("accesslog.http"));
