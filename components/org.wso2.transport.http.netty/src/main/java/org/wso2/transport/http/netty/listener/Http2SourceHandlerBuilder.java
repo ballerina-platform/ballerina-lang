@@ -23,8 +23,8 @@ import io.netty.handler.codec.http2.DefaultHttp2Connection;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
-import io.netty.handler.codec.http2.Http2FrameLogger;
 import io.netty.handler.codec.http2.Http2Settings;
+import org.wso2.transport.http.netty.common.FrameLogger;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
 import static io.netty.handler.logging.LogLevel.TRACE;
@@ -52,7 +52,7 @@ public final class Http2SourceHandlerBuilder
     public Http2SourceHandler build() {
         Http2Connection conn = new DefaultHttp2Connection(true);
         if (serverChannelInitializer.isHttpTraceLogEnabled()) {
-            frameLogger(new Http2FrameLogger(TRACE, "tracelog.http.downstream"));
+            frameLogger(new FrameLogger(TRACE, "tracelog.http.downstream"));
         }
         connection(conn);
         return super.build();
