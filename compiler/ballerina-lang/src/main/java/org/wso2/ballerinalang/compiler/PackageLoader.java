@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageBinary;
 import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
@@ -34,6 +35,7 @@ import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
+import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
@@ -125,7 +127,7 @@ public class PackageLoader {
 
         Repo remote = new RemoteRepo(URI.create("https://api.central.ballerina.io/packages/"));
         Repo homeCacheRepo = new CacheRepo(balHomeDir);
-        Repo homeRepo = new ZipRepo(balHomeDir);
+        Repo homeRepo = new BinaryRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir);
         Repo projectRepo = new ZipRepo(projectHiddenDir);
 
@@ -172,7 +174,13 @@ public class PackageLoader {
         if (resolution == Resolution.NOT_FOUND) {
             return null;
         }
-        return new GenericPackageSource(pkgId, resolution.sources, resolution.resolvedBy);
+        CompilerInput firstEntry = resolution.inputs.get(0);
+        if (firstEntry.getEntryName().endsWith(PackageEntity.Kind.COMPILED.getExtension())) {
+            // Binary package has only one file, so using first entry
+            return new GenericPackageBinary(pkgId, firstEntry, resolution.resolvedBy);
+        } else {
+            return new GenericPackageSource(pkgId, resolution.inputs, resolution.resolvedBy);
+        }
     }
 
     private void updateVersionFromToml(PackageID pkgId) {

@@ -22,9 +22,10 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.CompilationUnitNode;
+import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
-import org.ballerinalang.repository.PackageSourceEntry;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorListener;
@@ -74,17 +75,17 @@ public class Parser {
     public BLangPackage parse(PackageSource pkgSource) {
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         pkgSource.getPackageSourceEntries()
-                .forEach(e -> pkgNode.addCompilationUnit(generateCompilationUnit(e)));
+                 .forEach(e -> pkgNode.addCompilationUnit(generateCompilationUnit(e, pkgSource.getPackageId())));
         pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgSource.getPackageId(),
                 pkgSource.getName()), 1, 1, 1, 1);
         pkgNode.repos = pkgSource.getRepoHierarchy();
         return pkgNode;
     }
 
-    private CompilationUnitNode generateCompilationUnit(PackageSourceEntry sourceEntry) {
+    private CompilationUnitNode generateCompilationUnit(CompilerInput sourceEntry, PackageID packageID) {
         try {
             int prevErrCount = dlog.errorCount;
-            BDiagnosticSource diagnosticSrc = getDiagnosticSource(sourceEntry);
+            BDiagnosticSource diagnosticSrc = getDiagnosticSource(sourceEntry, packageID);
             String entryName = sourceEntry.getEntryName();
 
             BLangCompilationUnit compUnit = (BLangCompilationUnit) TreeBuilder.createCompilationUnit();
@@ -122,9 +123,9 @@ public class Parser {
         }
     }
 
-    private BDiagnosticSource getDiagnosticSource(PackageSourceEntry sourceEntry) {
+    private BDiagnosticSource getDiagnosticSource(CompilerInput sourceEntry, PackageID packageID) {
         String entryName = sourceEntry.getEntryName();
-        return new BDiagnosticSource(sourceEntry.getPackageID(), entryName);
+        return new BDiagnosticSource(packageID, entryName);
     }
 
     private DefaultErrorStrategy getErrorStrategy(BDiagnosticSource diagnosticSrc) {

@@ -2,9 +2,9 @@ package org.ballerinalang.langserver.workspace.repository;
 
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
-import org.ballerinalang.repository.PackageSourceEntry;
 import org.ballerinalang.repository.fs.GeneralFSPackageRepository;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 
@@ -124,12 +124,12 @@ public class WorkspacePackageRepository extends GeneralFSPackageRepository {
         }
 
         @Override
-        public PackageSourceEntry getPackageSourceEntry(String name) {
-            return new WorkspacePackageSourceEntry(name);
+        public CompilerInput getPackageSourceEntry(String name) {
+            return new WorkspaceCompilerInput(name);
         }
 
         @Override
-        public List<PackageSourceEntry> getPackageSourceEntries() {
+        public List<CompilerInput> getPackageSourceEntries() {
             if (this.getEntryNames() == null) {
                 return new ArrayList<>();
             }
@@ -151,15 +151,15 @@ public class WorkspacePackageRepository extends GeneralFSPackageRepository {
         }
 
         /**
-         * This represents workspace based {@link PackageSourceEntry}.
+         * This represents workspace based {@link CompilerInput}.
          */
-        public class WorkspacePackageSourceEntry implements PackageSourceEntry {
+        public class WorkspaceCompilerInput implements CompilerInput {
 
             private String name;
 
             private byte[] code;
 
-            private WorkspacePackageSourceEntry(String name) {
+            private WorkspaceCompilerInput(String name) {
                 this.name = name;
                 Path filePath = getResolvedPathFromPackagePath(basePath.resolve(pkgPath)).resolve(name);
                 if (documentManager.isFileOpen(filePath)) {
@@ -177,11 +177,6 @@ public class WorkspacePackageRepository extends GeneralFSPackageRepository {
                                 "': " + e.getMessage(), e);
                     }
                 }
-            }
-
-            @Override
-            public PackageID getPackageID() {
-                return pkgID;
             }
 
             @Override

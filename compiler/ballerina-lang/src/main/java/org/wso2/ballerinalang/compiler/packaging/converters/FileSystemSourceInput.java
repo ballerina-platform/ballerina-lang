@@ -1,8 +1,7 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageSourceEntry;
+import org.ballerinalang.repository.CompilerInput;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,19 +10,12 @@ import java.nio.file.Path;
 /**
  * Source file in the real file system (as opposed to in memory).
  */
-public class FileSystemSourceEntry implements PackageSourceEntry {
+public class FileSystemSourceInput implements CompilerInput {
 
     private final Path path;
-    private PackageID pkgId;
 
-    public FileSystemSourceEntry(Path path, PackageID pkgId) {
+    public FileSystemSourceInput(Path path) {
         this.path = path;
-        this.pkgId = pkgId;
-    }
-
-    @Override
-    public PackageID getPackageID() {
-        return this.pkgId;
     }
 
     @Override
@@ -41,10 +33,6 @@ public class FileSystemSourceEntry implements PackageSourceEntry {
         }
     }
 
-    public void setPkgId(PackageID pkgId) {
-        this.pkgId = pkgId;
-    }
-    
     public Path getPath() {
         return this.path;
     }

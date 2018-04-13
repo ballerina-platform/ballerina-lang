@@ -17,22 +17,13 @@
 */
 package org.ballerinalang.repository;
 
-import org.ballerinalang.model.elements.PackageID;
-
 /**
  * This represents a Ballerina package source entry.
  * 
  * @since 0.94
  */
-public interface PackageSourceEntry {
+public interface CompilerInput {
 
-    /**
-     * Returns the package this source entry belongs to.
-     * 
-     * @return the package
-     */
-    PackageID getPackageID();
-    
     /**
      * Returns the entry name, e.g. file name. 
      * 
