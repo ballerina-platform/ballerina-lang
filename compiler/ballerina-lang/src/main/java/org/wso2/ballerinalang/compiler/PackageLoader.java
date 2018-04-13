@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.repository.PackageBinary;
 import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
@@ -201,6 +202,7 @@ public class PackageLoader {
     }
 
     public BLangPackage loadPackage(PackageID pkgId, PackageRepository packageRepo) {
+        // TODO loadPackageSymbol()
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
             return bLangPackage;
@@ -230,7 +232,23 @@ public class PackageLoader {
         return bLangPackage;
     }
 
-    public BPackageSymbol loadPackageSymbol(PackageID packageID, PackageRepository packageRepo) {
+    public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageRepository packageRepo) {
+        BPackageSymbol packageSymbol = this.packageCache.getSymbol(packageId);
+        if (packageSymbol != null) {
+            return packageSymbol;
+        }
+
+        PackageEntity pkgEntity = loadPackageEntity(packageId);
+        if (pkgEntity == null) {
+            return null;
+        }
+
+        if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
+            return parseAndDefine(packageId, (PackageSource) pkgEntity);
+        } else if (pkgEntity.getKind() == PackageEntity.Kind.COMPILED) {
+            return loadCompiledPackageAndDefine(packageId, (PackageBinary) pkgEntity);
+        }
+
         return null;
     }
 
@@ -275,17 +293,33 @@ public class PackageLoader {
                      .collect(Collectors.toList());
     }
 
+    private BPackageSymbol parseAndDefine(PackageID pkgId, PackageSource pkgSource) {
+        // 1) Parse the source package
+        BLangPackage pkgNode = parse(pkgSource);
+        this.packageCache.put(pkgId, pkgNode);
+
+        // 2) Define all package-level symbols
+        this.symbolEnter.definePackage(pkgNode);
+        this.packageCache.putSymbol(pkgId, pkgNode.symbol);
+        return pkgNode.symbol;
+    }
+
     private BLangPackage loadPackageFromEntity(PackageID pkgId, PackageEntity pkgEntity) {
         if (pkgEntity == null) {
             return null;
         }
 
-        BLangPackage bLangPackage = sourceCompile((PackageSource) pkgEntity);
+        BLangPackage bLangPackage = parse((PackageSource) pkgEntity);
         this.packageCache.put(pkgId, bLangPackage);
         return bLangPackage;
     }
 
-    private BLangPackage sourceCompile(PackageSource pkgSource) {
+    private BLangPackage parse(PackageSource pkgSource) {
         return this.parser.parse(pkgSource);
+    }
+
+    private BPackageSymbol loadCompiledPackageAndDefine(PackageID pkgId, PackageBinary pkgBinary) {
+        // TODO
+        return null;
     }
 }

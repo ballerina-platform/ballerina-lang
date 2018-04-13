@@ -49,6 +49,7 @@ public class PackageCache {
     protected PackageCache(CompilerContext context) {
         context.put(PACKAGE_CACHE_KEY, this);
         this.packageMap = new HashMap<>();
+        this.packageSymbolMap = new HashMap<>();
     }
 
     public BLangPackage get(PackageID packageID) {
