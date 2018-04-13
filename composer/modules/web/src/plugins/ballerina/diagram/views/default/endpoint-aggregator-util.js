@@ -43,11 +43,11 @@ class EndpointAggregatorUtil {
     
     aggregateAllVisibleEndpoints(node) {
         const visibleOuterEndpoints = TreeUtil.getAllEndpoints(node.parent);
-        const invocationStmts = _.filter(node.body.statements, function (statement) {
+        const invocationStmts = node.body? _.filter(node.body.statements, function (statement) {
             return ((TreeUtil.isExpressionStatement(statement) || TreeUtil.isAssignment(statement))
             && TreeUtil.isInvocation(statement.expression)
             && statement.expression.actionInvocation);
-        });
+        }) : [];
 
         node.endpointNodes = _.filter(node.endpointNodes, function (endpoint) {
             return endpoint.id;

@@ -124,6 +124,11 @@ public class SymbolEnv {
         return objectEnv;
     }
 
+    public static SymbolEnv createDummyEnv(BLangFunction node, Scope scope, SymbolEnv env) {
+        SymbolEnv dummyEnv = createPkgLevelSymbolEnv(node, scope, env);
+        return dummyEnv;
+    }
+
     public static SymbolEnv createStructEnv(BLangStruct node, Scope scope, SymbolEnv env) {
         SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, scope, env);
         objectEnv.enclStruct = node;

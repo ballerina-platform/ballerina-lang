@@ -93,10 +93,10 @@ public type ClientEndpointConfig {
     string forwarded = "disable",
     FollowRedirects? followRedirects,
     Retry? retry,
-    Proxy? proxyConfig,
+    ProxyConfig? proxy,
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
-    string|FailoverConfig lbMode = ROUND_ROBIN,
+    string|FailoverConfig availabilityMode = ROUND_ROBIN,
     CacheConfig cache,
     string acceptEncoding = "auto",
     AuthConfig? auth,
@@ -144,12 +144,12 @@ public type FollowRedirects {
     int maxCount = 5,
 };
 
-@Description { value:"Proxy struct represents proxy server configurations to be used for HTTP client invocation" }
+@Description { value:"ProxyConfig struct represents proxy server configurations to be used for HTTP client invocation" }
 @Field {value:"proxyHost: host name of the proxy server"}
 @Field {value:"proxyPort: proxy server port"}
 @Field {value:"proxyUserName: Proxy server user name"}
 @Field {value:"proxyPassword: proxy server password"}
-public type Proxy {
+public type ProxyConfig {
     string host,
     int port,
     string userName,
@@ -171,11 +171,11 @@ public type ConnectionThrottling {
 @Field {value:"accessToken: access token for oauth2 authentication"}
 @Field {value:"refreshToken: refresh token for oauth2 authentication"}
 @Field {value:"refreshToken: refresh token for oauth2 authentication"}
-@Field {value:"refreshTokenUrl: refresh token url for oauth2 authentication"}
+@Field {value:"refreshUrl: refresh token url for oauth2 authentication"}
 @Field {value:"consumerKey: consume key for oauth2 authentication"}
 @Field {value:"consumerKey: consume key for oauth2 authentication"}
 @Field {value:"consumerSecret: consume secret for oauth2 authentication"}
-@Field {value:"tokenURL: token url for oauth2 authentication"}
+@Field {value:"tokenUrl: token url for oauth2 authentication"}
 @Field {value:"clientId: clietnt id for oauth2 authentication"}
 @Field {value:"clientSecret: client secret for oauth2 authentication"}
 public type AuthConfig {
@@ -184,10 +184,10 @@ public type AuthConfig {
     string password,
     string accessToken,
     string refreshToken,
-    string refreshTokenUrl,
+    string refreshUrl,
     string consumerKey,
     string consumerSecret,
-    string tokenURL,
+    string tokenUrl,
     string clientId,
     string clientSecret,
 };
@@ -195,7 +195,7 @@ public type AuthConfig {
 public function Client::init(ClientEndpointConfig config) {
     boolean httpClientRequired = false;
     string url = config.targets[0].url;
-    match config.lbMode {
+    match config.availabilityMode {
         FailoverConfig failoverConfig => {
             if (lengthof config.targets > 1) {
                 self.config = config;
@@ -281,7 +281,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfig configurat
             }
 
             time:Time circuitStartTime = time:currentTime();
-            int numberOfBuckets = (cb.rollingWindow.timeWindow / cb.rollingWindow.bucketSize);
+            int numberOfBuckets = (cb.rollingWindow.timeWindowMillies / cb.rollingWindow.bucketSizeMillies);
             Bucket[] bucketArray = [];
             int bucketIndex = 0;
             while (bucketIndex < numberOfBuckets) {

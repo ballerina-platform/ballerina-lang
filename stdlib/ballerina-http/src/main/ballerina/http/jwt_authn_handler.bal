@@ -24,51 +24,55 @@ import ballerina/auth;
 @Field {value:"name: Authentication handler name"}
 public type HttpJwtAuthnHandler object {
     public {
+        string name;
         auth:JWTAuthProvider jwtAuthenticator;
-        string name = "jwt";
     }
     new (jwtAuthenticator) {
+        name = "jwt";
     }
-    @Description {value:"Intercepts a HTTP request for authentication"}
-    @Param {value:"req: Request object"}
-    @Return {value:"boolean: true if authentication is a success, else false"}
-    public function canHandle (Request req) returns (boolean) {
-        string authHeader;
-        try {
-            authHeader = req.getHeader(AUTH_HEADER);
-        } catch (error e) {
-            log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.message);
-            return false;
-        }
-        if (authHeader != null && authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
-            string[] authHeaderComponents = authHeader.split(" ");
-            if (lengthof authHeaderComponents == 2) {
-                string[] jwtComponents = authHeaderComponents[1].split("\\.");
-                if (lengthof jwtComponents == 3) {
-                    return true;
-                }
-            }
-        }
+    public function canHandle (Request req) returns (boolean);
+    public function handle (Request req) returns (boolean);
+};
+
+@Description {value:"Intercepts a HTTP request for authentication"}
+@Param {value:"req: Request object"}
+@Return {value:"boolean: true if authentication is a success, else false"}
+public function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
+    string authHeader;
+    try {
+        authHeader = req.getHeader(AUTH_HEADER);
+    } catch (error e) {
+        log:printDebug("Error in retrieving header " + AUTH_HEADER + ": " + e.message);
         return false;
     }
-
-    @Description {value:"Checks if the provided HTTP request can be authenticated with JWT authentication"}
-    @Param {value:"req: Request object"}
-    @Return {value:"boolean: true if its possible to authenticate with JWT auth, else false"}
-    public function handle (Request req) returns (boolean) {
-        string jwtToken = extractJWTToken(req);
-        var isAuthenticated = jwtAuthenticator.authenticate(jwtToken);
-        match isAuthenticated {
-            boolean authenticated => {
-                return authenticated;
-            }
-            error err => {
-                log:printErrorCause("Error while validating JWT token ", err);
-                return false;
+    if (authHeader != null && authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
+        string[] authHeaderComponents = authHeader.split(" ");
+        if (lengthof authHeaderComponents == 2) {
+            string[] jwtComponents = authHeaderComponents[1].split("\\.");
+            if (lengthof jwtComponents == 3) {
+                return true;
             }
         }
     }
-};
+    return false;
+}
+
+@Description {value:"Checks if the provided HTTP request can be authenticated with JWT authentication"}
+@Param {value:"req: Request object"}
+@Return {value:"boolean: true if its possible to authenticate with JWT auth, else false"}
+public function HttpJwtAuthnHandler::handle (Request req) returns (boolean) {
+    string jwtToken = extractJWTToken(req);
+    var isAuthenticated = self.jwtAuthenticator.authenticate(jwtToken);
+    match isAuthenticated {
+        boolean authenticated => {
+            return authenticated;
+        }
+        error err => {
+            log:printErrorCause("Error while validating JWT token ", err);
+            return false;
+        }
+    }
+}
 
 function extractJWTToken (Request req) returns (string) {
     string authHeader = req.getHeader(AUTH_HEADER);

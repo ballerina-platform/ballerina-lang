@@ -38,11 +38,8 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.BLangSo
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ModelPackage;
 import org.ballerinalang.composer.service.ballerina.parser.service.util.BLangFragmentParser;
 import org.ballerinalang.composer.service.ballerina.parser.service.util.ParserUtils;
-import org.ballerinalang.langserver.LSGlobalContext;
-import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.modal.BallerinaFile;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.LSParserUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
@@ -62,7 +59,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -425,15 +421,12 @@ public class BallerinaParserService implements ComposerService {
 
         BallerinaFile bFile;
         String programDir = "";
-        LSGlobalContext lsGlobalContext = new LSGlobalContext();
-        CompilerContext globalCompilationContext = CommonUtil.prepareTempCompilerContext();
-        lsGlobalContext.put(LSGlobalContextKeys.GLOBAL_COMPILATION_CONTEXT, globalCompilationContext);
         if (UNTITLED_BAL.equals(fileName)) {
-            bFile = LSParserUtils.compile(content, CompilerPhase.CODE_ANALYZE, lsGlobalContext);
+            bFile = LSParserUtils.compile(content, CompilerPhase.CODE_ANALYZE);
         } else {
             java.nio.file.Path filePath = Paths.get(bFileRequest.getFilePath(), bFileRequest.getFileName());
-            bFile = LSParserUtils.compile(content, filePath, CompilerPhase.CODE_ANALYZE, lsGlobalContext);
-            programDir = TextDocumentServiceUtil.getSourceRoot(filePath);
+            bFile = LSParserUtils.compile(content, filePath, CompilerPhase.CODE_ANALYZE);
+            programDir = (bFile.isBallerinaProject()) ? TextDocumentServiceUtil.getSourceRoot(filePath) : "";
         }
 
         final BLangPackage model = bFile.getBLangPackage();
@@ -441,7 +434,7 @@ public class BallerinaParserService implements ComposerService {
 
         ErrorCategory errorCategory = ErrorCategory.NONE;
         if (!diagnostics.isEmpty()) {
-            if (model == null) {
+            if (model == null || model.symbol == null) {
                 errorCategory = ErrorCategory.SYNTAX;
             } else {
                 errorCategory = ErrorCategory.SEMANTIC;
@@ -477,7 +470,7 @@ public class BallerinaParserService implements ComposerService {
         JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
         result.add("diagnostics", diagnosticsJson);
 
-        if (model != null && bFileRequest.needTree()) {
+        if (model != null && model.symbol != null && bFileRequest.needTree()) {
             BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
                     filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
             JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>());

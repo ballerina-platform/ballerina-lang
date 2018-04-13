@@ -33,20 +33,21 @@ import org.ballerinalang.util.metrics.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Returns the latency at a specific percentile. This value is non-aggregable across dimensions.
+ * Return a map of latencies scaled with the given base unit of time at specific percentiles.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "observe",
-        functionName = "percentile",
+        functionName = "percentileValues",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Timer",
                 structPackage = "ballerina.observe"),
         args = {@Argument(name = "timer", type = TypeKind.STRUCT, structType = "Timer",
-                structPackage = "ballerina.observe"), @Argument(name = "percentile", type = TypeKind.FLOAT),
+                structPackage = "ballerina.observe"),
                 @Argument(name = "timeUnit", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.FLOAT)},
+        returnType = {@ReturnType(type = TypeKind.MAP)},
         isPublic = true
 )
 public class PercentileTimer extends BlockingNativeCallableUnit {
@@ -56,7 +57,6 @@ public class PercentileTimer extends BlockingNativeCallableUnit {
         String name = timerStruct.getStringField(0);
         String description = timerStruct.getStringField(1);
         BMap tagsMap = (BMap) timerStruct.getRefField(0);
-        float percentile = (float) context.getFloatArgument(0);
         BString timeUnitType = (BString) context.getRefArgument(1);
 
         TimeUnit timeUnit = TimeUnit.valueOf(timeUnitType.stringValue());
@@ -66,12 +66,18 @@ public class PercentileTimer extends BlockingNativeCallableUnit {
             for (Object key : tagsMap.keySet()) {
                 tags.add(new Tag(key.toString(), tagsMap.get(key).stringValue()));
             }
-            context.setReturnValues(new BFloat(Timer.builder(name).description(description).tags(tags).register()
-                    .percentile(percentile, timeUnit)));
-
+            context.setReturnValues(buildPercentileValuesMap(Timer.builder(name).description(description).tags(tags).
+                    register(), timeUnit));
         } else {
-            context.setReturnValues(new BFloat(Timer.builder(name).description(description).register()
-                    .percentile(percentile, timeUnit)));
+            context.setReturnValues(buildPercentileValuesMap(Timer.builder(name).description(description).register(),
+                    timeUnit));
         }
+    }
+
+    private BMap<String, BFloat> buildPercentileValuesMap(Timer timer, TimeUnit timeUnit) {
+        BMap<String, BFloat> map = new BMap<>();
+        SortedMap<Double, Double> percentileValues = timer.percentileValues(timeUnit);
+        percentileValues.forEach((percentile, value) -> map.put(percentile.toString(), new BFloat(value)));
+        return map;
     }
 }

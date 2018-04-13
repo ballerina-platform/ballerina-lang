@@ -1,6 +1,6 @@
 import ballerina/http;
 
-endpoint http:NonListeningService echoEP {
+endpoint http:NonListener echoEP {
     port:9090
 };
 
@@ -13,7 +13,7 @@ service<http:Service> echo bind echoEP {
         methods:["POST"],
         body:"person"
     }
-    echo1 (http:ServerConnector conn, http:Request req, string key, int person) {
+    echo1 (endpoint conn, http:Request req, string key, int person) {
         http:Response res = new;
         _ = conn -> respond(res);
     }
