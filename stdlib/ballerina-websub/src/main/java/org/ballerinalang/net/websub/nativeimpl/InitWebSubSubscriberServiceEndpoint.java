@@ -73,7 +73,7 @@ public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunct
                 if (topicPayloadKeys != null) {
                     webSubServicesRegistry.setTopicPayloadKeys(topicPayloadKeys);
                 } else {
-                    throw new BallerinaConnectorException("Payload Key not specified to dispatch by Payload Key");
+                    throw new BallerinaConnectorException("Payload Keys not specified to dispatch by Payload Key");
                 }
             } else {
                 BString topicHeader = (BString) config.getRefField(2);
@@ -82,7 +82,7 @@ public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunct
                     webSubServicesRegistry.setTopicHeader(topicHeader.stringValue());
                     webSubServicesRegistry.setTopicPayloadKeys(topicPayloadKeys);
                 } else {
-                    throw new BallerinaConnectorException("Topic Header and/or Payload Key not specified to dispatch"
+                    throw new BallerinaConnectorException("Topic Header and/or Payload Keys not specified to dispatch"
                                                                   + " by Topic Header and Payload Key");
                 }
             }

@@ -46,10 +46,22 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
         super(webSocketServicesRegistry);
     }
 
-    public String getTopicIdentifier() {
+    /**
+     * Method to retrieve the identifier for topics based on which dispatching would happen for custom subscriber
+     * services.
+     *
+     * @return the identifier for topics
+     */
+    String getTopicIdentifier() {
         return topicIdentifier;
     }
 
+    /**
+     * Method to set the identifier for topics based on which dispatching should happen for custom subscriber
+     * services.
+     *
+     * @param topicIdentifier the identifier for topics to set
+     */
     public void setTopicIdentifier(String topicIdentifier) {
         this.topicIdentifier = topicIdentifier;
     }
@@ -59,7 +71,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      *
      * @return the topic header to consider
      */
-    public String getTopicHeader() {
+    String getTopicHeader() {
         return topicHeader;
     }
 
@@ -72,10 +84,20 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
         this.topicHeader = topicHeader;
     }
 
-    public BStringArray getTopicPayloadKeys() {
+    /**
+     * Method to retrieve the payload keys upon which routing would be based, if specified.
+     *
+     * @return the payload keys to consider
+     */
+    BStringArray getTopicPayloadKeys() {
         return topicPayloadKeys;
     }
 
+    /**
+     * Method to set the payload keys upon which routing should be based, if specified.
+     *
+     * @param topicPayloadKeys the payload keys to consider
+     */
     public void setTopicPayloadKeys(BStringArray topicPayloadKeys) {
         this.topicPayloadKeys = topicPayloadKeys;
     }
@@ -94,7 +116,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      *
      * @return the topic-resource map specified for the service
      */
-    public BMap<String, BMap<String, BString>> getTopicResourceMap() {
+    BMap<String, BMap<String, BString>> getTopicResourceMap() {
         return topicResourceMap;
     }
 

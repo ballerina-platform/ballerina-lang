@@ -109,6 +109,14 @@ class WebSubResourceDispatcher {
         return httpResource;
     }
 
+    /**
+     * Method to retrieve resource names for default WebSub subscriber services.
+     *
+     * @param method    the method of the received request
+     * @return          {@link WebSubSubscriberConstants#RESOURCE_NAME_ON_INTENT_VERIFICATION} if the method is GET,
+     *                  {@link WebSubSubscriberConstants#RESOURCE_NAME_ON_NOTIFICATION} if the method is POST
+     * @throws BallerinaConnectorException for any method other than GET or POST
+     */
     private static String retrieveResourceName(String method) {
         switch (method) {
             case HttpConstants.HTTP_METHOD_POST:
@@ -120,6 +128,18 @@ class WebSubResourceDispatcher {
         }
     }
 
+    /**
+     * Method to retrieve the resource name when the mapping between topic and resource for custom subscriber services
+     * is specified as a combination of a header and a key of the JSON payload.
+     *
+     * @param programFile       the program file representing the Ballerina Program
+     * @param inboundRequest    the request received
+     * @param topicHeader       the part of the topic specified in the header defined in the custom service
+     * @param payloadKeys       the keys of the payload containing elements of the topic, defined in the custom service
+     * @param topicResourceMap  the mapping between the topics defined as header + payload key and resources
+     * @return                  the name of the resource as identified based on the topic
+     * @throws BallerinaConnectorException if a resource could not be mapped to the topic identified
+     */
     private static String retrieveResourceNameForHeaderAndPayloadBasedDispatching(ProgramFile programFile,
                                                                  HTTPCarbonMessage inboundRequest,
                                                                  String topicHeader, BStringArray payloadKeys,
@@ -149,6 +169,17 @@ class WebSubResourceDispatcher {
                                                       + "Payload Key");
     }
 
+    /**
+     * Method to retrieve the resource name when the mapping between topic and resource for custom subscriber services
+     * is specified as a key of the JSON payload.
+     *
+     * @param programFile       the program file representing the Ballerina Program
+     * @param inboundRequest    the request received
+     * @param payloadKeys       the keys of the payload containing elements of the topic, defined in the custom service
+     * @param topicResourceMap  the mapping between the topics defined as a value of a payload key and resources
+     * @return                  the name of the resource as identified based on the topic
+     * @throws BallerinaConnectorException if a resource could not be mapped to the topic identified
+     */
     private static String retrieveResourceNameForPayloadBasedDispatching(ProgramFile programFile,
                                                                  HTTPCarbonMessage inboundRequest,
                                                                  BStringArray payloadKeys,
@@ -168,7 +199,13 @@ class WebSubResourceDispatcher {
         throw new BallerinaConnectorException("Matching resource not found for dispatching based on Payload Key");
     }
 
-
+    /**
+     * Method to retrieve the JSON body for a request received, to identify topic elements specified in the payload.
+     *
+     * @param httpRequest   the request received
+     * @return              the retrieved JSON representation
+     * @throws BallerinaConnectorException if an error occurs retrieving the payload, or the payload is not JSON
+     */
     private static BJSON retrieveJsonBody(BValue httpRequest) {
         BStruct entityStruct = MimeUtil.extractEntity((BStruct) httpRequest);
         if (entityStruct != null) {
@@ -183,6 +220,14 @@ class WebSubResourceDispatcher {
         }
     }
 
+    /**
+     * Method to retrieve the resource name from the topic -- resource map for a topic.
+     *
+     * @param topic             the topic for which the resource needs to be identified
+     * @param topicResourceMap  the mapping between the topics and resources
+     * @return                  the name of the resource as identified based on the topic
+     * @throws BallerinaConnectorException if a resource could not be mapped to the topic
+     */
     private static String retrieveResourceName(String topic, BMap<String, BString> topicResourceMap) {
         if (topicResourceMap.get(topic) != null) {
             return topicResourceMap.get(topic).stringValue();
@@ -190,7 +235,6 @@ class WebSubResourceDispatcher {
             throw new BallerinaConnectorException("resource not specified for topic : " + topic);
         }
     }
-
 
     private static BStruct getHttpRequest(ProgramFile programFile, HTTPCarbonMessage httpCarbonMessage) {
         BStruct httpRequest = createBStruct(programFile, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
