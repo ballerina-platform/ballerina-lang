@@ -62,18 +62,13 @@ public class FrameLogger extends Http2FrameLogger {
             StringBuilder stringBuilder = new StringBuilder(10 + 1 + 2 + rows * 80);
             stringBuilder.append(length).append('B').append(NEWLINE);
             try {
-                appendPayload(stringBuilder, msg);
+                CharsetDecoder decoder = Charset.forName("UTF8").newDecoder();
+                CharBuffer buffer = decoder.decode(msg.nioBuffer());
+                stringBuilder.append(buffer);
             } catch (CharacterCodingException e) {
                 return "<< Payload could not be decoded >>";
             }
             return stringBuilder.toString();
         }
     }
-
-    private void appendPayload(StringBuilder stringBuilder, ByteBuf content) throws CharacterCodingException {
-        CharsetDecoder decoder = Charset.forName("UTF8").newDecoder();
-        CharBuffer buffer = decoder.decode(content.nioBuffer());
-        stringBuilder.append(buffer);
-    }
-
 }
