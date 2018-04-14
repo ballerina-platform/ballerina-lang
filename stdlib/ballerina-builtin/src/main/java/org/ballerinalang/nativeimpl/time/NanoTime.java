@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "time",
-                   functionName = "nanoTime",
+                   functionName = "Time.nanoTime",
                    returnType = { @ReturnType(type = TypeKind.INT) },
                    isPublic = true)
 public class NanoTime extends AbstractTimeFunction {
