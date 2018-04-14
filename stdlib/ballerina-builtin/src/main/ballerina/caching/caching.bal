@@ -60,20 +60,20 @@ public type Cache object {
         cacheMap[util:uuid()] = self;
     }
 
-    public function hasKey (string key) returns (boolean) {
+    public function hasKey(string key) returns (boolean) {
         return self.entries.hasKey(key);
     }
 
     @Description {value:"Returns the size of the cache."}
     @Return {value:"int: The size of the cache"}
-    public function size () returns (int) {
+    public function size() returns (int) {
         return lengthof self.entries;
     }
 
     @Description {value:"Adds the given key, value pair to the provided cache."}
     @Param {value:"key: value which should be used as the key"}
     @Param {value:"value: value to be cached"}
-    public function put (string key, any value) {
+    public function put(string key, any value) {
         int cacheCapacity = self.capacity;
         int cacheSize = lengthof self.entries;
 
@@ -88,7 +88,7 @@ public type Cache object {
     }
 
     @Description {value:"Evicts the cache when cache is full."}
-    function evictCache () {
+    function evictCache() {
         int maxCapacity = self.capacity;
         float evictionFactor = self.evictionFactor;
         int numberOfKeysToEvict = <int>(maxCapacity * evictionFactor);
@@ -104,23 +104,36 @@ public type Cache object {
     an error will be thrown. So use the hasKey function to check for the existance of a particular key."}
     @Param {value:"key: key which is used to retrieve the cached value"}
     @Return {value:"The cached value associated with the given key"}
-    public function get (string key) returns any? {
-        // If the key is not found, an error will be thrown from here.
+    public function get(string key) returns any? {
+        // Check whether the required cache is available.
+        if (!self.hasKey(key)){
+            return ();
+        }
+        // Get the required cache from the map.
         any value = self.entries[key];
-        // So the value will be always not null here.
         var entry = <CacheEntry>value;
+        // Check whether the cache is already expired. Since the cache cleaning task runs in predefined intervals,
+        // somethimes the cache might not be expired. So this gurentees that the expired caches will not be returened.
         match (entry) {
             CacheEntry ce => {
+                // Get the current system time.
+                int currentSystemTime = time:currentTime().time;
+                if (currentSystemTime >= ce.lastAccessedTime + expiryTimeMillis) {
+                    // If it is expired, remove the cache and return nil.
+                    self.remove(key);
+                    return ();
+                }
+                // Modify the last accessed time and return the cache if it is not expired.
                 ce.lastAccessedTime = time:currentTime().time;
                 return ce.value;
             }
-            error e => return ();
+            error => return ();
         }
     }
 
     @Description {value:"Removes a cached value from a cache."}
     @Param {value:"key: key of the cache entry which needs to be removed"}
-    public function remove (string key) {
+    public function remove(string key) {
         _ = self.entries.remove(key);
     }
 
@@ -130,7 +143,7 @@ public type Cache object {
 
     @Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is full."}
     @Return {value:"numberOfKeysToEvict - number of keys to be evicted"}
-    function getLRUCacheKeys (int numberOfKeysToEvict) returns (string[]) {
+    function getLRUCacheKeys(int numberOfKeysToEvict) returns (string[]) {
         // Create new arrays to hold keys to be removed and hold the corresponding timestamps.
         string[] cacheKeysToBeRemoved = [];
         int[] timestamps = [];
@@ -181,7 +194,8 @@ function runCacheExpiry() returns error? {
                     // Get the corresponding entry from the cache.
                     var entry = <CacheEntry>currentCacheEntries[key];
                     match (entry) {
-                        CacheEntry ce => {// Get the current system time.
+                        CacheEntry ce => {
+                            // Get the current system time.
                             int currentSystemTime = time:currentTime().time;
                             // Check whether the cache entry needs to be removed.
                             if (currentSystemTime >= ce.lastAccessedTime + currentCacheExpiryTime) {
