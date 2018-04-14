@@ -105,15 +105,16 @@ public type Cache object {
     @Param {value:"key: key which is used to retrieve the cached value"}
     @Return {value:"The cached value associated with the given key"}
     public function get(string key) returns any? {
-        // Check whether the required cache is available.
+        // Check whether the requested cache is available.
         if (!self.hasKey(key)){
             return ();
         }
-        // Get the required cache from the map.
+        // Get the requested cache entry from the map.
         any value = self.entries[key];
         var entry = <CacheEntry>value;
-        // Check whether the cache is already expired. Since the cache cleaning task runs in predefined intervals,
-        // somethimes the cache might not be expired. So this gurentees that the expired caches will not be returened.
+        // Check whether the cache entry is already expired. Since the cache cleaning task runs in predefined intervals,
+        // sometimes the cache entry might not have been removed at this point even though it is expired. So this check
+        // gurentees that the expired cache entries will not be returened.
         match (entry) {
             CacheEntry ce => {
                 // Get the current system time.
