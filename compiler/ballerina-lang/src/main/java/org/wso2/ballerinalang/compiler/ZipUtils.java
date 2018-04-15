@@ -21,7 +21,6 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,7 +63,7 @@ class ZipUtils {
             }
         }
         String fileName = packageID.getName() + ".zip";
-        String baloDirPath = destPath.resolve(fileName).toString();
+        Path baloDirPath = destPath.resolve(fileName);
         createArchive(paths, baloDirPath);
     }
 
@@ -72,12 +71,12 @@ class ZipUtils {
      * Create archive when creating the balo.
      *
      * @param filesToBeArchived files to be archived
-     * @param outFileName       output archive name
+     * @param outDirPath        output archive file path
      */
-    private static void createArchive(Stream<Path> filesToBeArchived, String outFileName) {
+    private static void createArchive(Stream<Path> filesToBeArchived, Path outDirPath) {
         Map<String, String> zipFSEnv = new HashMap<>();
         zipFSEnv.put("create", "true");
-        URI filepath = Paths.get(outFileName).toUri();
+        URI filepath = outDirPath.toUri();
         URI zipFileURI;
         try {
             zipFileURI = new URI("jar:" + filepath.getScheme(),
@@ -85,12 +84,12 @@ class ZipUtils {
                                  filepath.getPath() + "!/",
                                  filepath.getQuery(), filepath.getFragment());
         } catch (URISyntaxException ignore) {
-            throw new BLangCompilerException("error creating artifact" + outFileName);
+            throw new BLangCompilerException("error creating artifact" + outDirPath.getFileName());
         }
         try (FileSystem zipFS = FileSystems.newFileSystem(zipFileURI, zipFSEnv)) {
-            addFileToArchive(filesToBeArchived, zipFS, outFileName);
+            addFileToArchive(filesToBeArchived, zipFS, outDirPath);
         } catch (IOException e) {
-            throw new BLangCompilerException("error creating artifact" + outFileName);
+            throw new BLangCompilerException("error creating artifact" + outDirPath.getFileName());
         }
     }
 
@@ -99,22 +98,21 @@ class ZipUtils {
      *
      * @param filesToBeArchived files to be archived
      * @param zipFS             Zip file system
-     * @param outFileName       output archive name
+     * @param outDirPath        output archive name
      */
-    private static void addFileToArchive(Stream<Path> filesToBeArchived, FileSystem zipFS, String outFileName) {
+    private static void addFileToArchive(Stream<Path> filesToBeArchived, FileSystem zipFS, Path outDirPath) {
         filesToBeArchived.forEach((path) -> {
-            Path root = zipFS.getPath(SRC_DIR);
             String fileName = path.getFileName().toString();
-            Path dest = zipFS.getPath(root.toString(), fileName);
-            if (path.getFileName().toString().equals("Package.md")) {
-                dest = zipFS.getPath(File.separator, fileName);
+            Path dest = zipFS.getPath(SRC_DIR, fileName);
+            if (fileName.equals("Package.md")) {
+                dest = zipFS.getPath(zipFS.getSeparator(), fileName);
             }
             try {
                 if (Files.exists(path)) {
-                    copyFileToArchive(new FileInputStream(path.toString()), dest);
+                    copyFileToArchive(new FileInputStream(path.toFile()), dest);
                 }
             } catch (IOException e) {
-                throw new BLangCompilerException("error generating artifact " + outFileName);
+                throw new BLangCompilerException("error generating artifact " + outDirPath.getFileName());
             }
         });
     }
