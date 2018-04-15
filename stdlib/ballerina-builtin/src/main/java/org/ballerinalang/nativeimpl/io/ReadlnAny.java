@@ -29,17 +29,17 @@ import java.nio.charset.Charset;
 import java.util.Scanner;
 
 /**
- * Native function ballerina.io:expect.
+ * Native function ballerina.io:readln.
  *
  * @since 0.97
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "expect",
+        functionName = "readln",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Expect extends BlockingNativeCallableUnit {
+public class ReadlnAny extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
         BValue result = ctx.getNullableRefArgument(0);

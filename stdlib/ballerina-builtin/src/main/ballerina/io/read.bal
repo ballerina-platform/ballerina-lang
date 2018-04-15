@@ -18,4 +18,4 @@ package ballerina.io;
 
 @Description { value:"Returns the input read from STDIN"}
 @Param { value:"a: any value to be printed" }
-public native function expect (any a) returns (string);
+public native function readln (any a) returns (string);
