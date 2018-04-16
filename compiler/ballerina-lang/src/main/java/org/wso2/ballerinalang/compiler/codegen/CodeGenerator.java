@@ -366,20 +366,22 @@ public class CodeGenerator extends BLangNodeVisitor {
     private BLangFunction getMainFunction(BLangPackage pkgNode) {
         List<BLangFunction> functions = pkgNode.functions.stream()
                 .filter(f -> (f.name.value.equals(MAIN_FUNCTION_NAME) &&
-                        f.symbol.params.size() == 1 &&
+                        f.symbol.params.size() == 0 &&
+                        f.symbol.defaultableParams.size() == 0 &&
+                        f.symbol.restParam != null &&
                         f.symbol.retType == symTable.nilType))
                 .collect(Collectors.toList());
         if (functions.isEmpty()) {
             return null;
         }
         for (BLangFunction f : functions) {
-            BType paramType = f.symbol.params.get(0).type;
-            if (paramType.tag != TypeTags.ARRAY) {
+            if (f.symbol.restParam.type.tag == TypeTags.ARRAY) {
+                BArrayType argsType = (BArrayType) f.symbol.restParam.type;
+                if (argsType.eType.tag == TypeTags.STRING) {
+                    return f;
+                }
+            } else {
                 continue;
-            }
-            BArrayType arrayType = (BArrayType) paramType;
-            if (arrayType.eType.tag == TypeTags.STRING) {
-                return f;
             }
         }
         return null;

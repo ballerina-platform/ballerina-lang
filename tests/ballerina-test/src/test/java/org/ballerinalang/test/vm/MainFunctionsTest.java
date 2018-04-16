@@ -54,4 +54,10 @@ public class MainFunctionsTest {
                 "the main function cannot be explicitly marked as public"));
     }
     
+    @Test
+    public void invalidSigMainFunctionInvocationTest() {
+        CompileResult result = BCompileUtil.compile("test-src/vm/main-functions-negative2.bal");
+        Assert.assertFalse(result.getProgFile().isMainEPAvailable());
+    }
+    
 }
