@@ -66,21 +66,18 @@ public class DirectoryListenerCompilerPlugin extends AbstractCompilerPlugin {
         final ExpressionNode configurationExpression = endpointNode.getConfigurationExpression();
         if (NodeKind.RECORD_LITERAL_EXPR.equals(configurationExpression.getKind())) {
             BLangRecordLiteral recordLiteral = (BLangRecordLiteral) configurationExpression;
-            boolean valid = false;
             for (BLangRecordLiteral.BLangRecordKeyValue config : recordLiteral.getKeyValuePairs()) {
                 final String key = ((BLangSimpleVarRef) config.getKey()).variableName.value;
                 if (ANNOTATION_PATH.equals(key)) {
                     final Object value = ((BLangLiteral) config.getValue()).getValue();
-                    if (value != null && !value.toString().isEmpty()) {
-                        valid = true;
+                    if (value == null || value.toString().isEmpty()) {
+                        String msg =
+                                "'" + ANNOTATION_PATH + "' field either empty or not "
+                                        + "available in Directory Listener endpoint.";
+                        dlog.logDiagnostic(ERROR, endpointNode.getPosition(), msg);
                         break;
                     }
                 }
-            }
-            if (!valid) {
-                String msg =
-                        "'" + ANNOTATION_PATH + "' field either empty or not available in Directory Listener endpoint.";
-                dlog.logDiagnostic(ERROR, endpointNode.getPosition(), msg);
             }
         }
     }
