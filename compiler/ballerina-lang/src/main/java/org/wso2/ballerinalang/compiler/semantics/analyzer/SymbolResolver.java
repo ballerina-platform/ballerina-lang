@@ -141,25 +141,28 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     /**
-     * This method will check whether the symbol being defined is unique comparing it with the looked up symbol
+     * This method will check whether the symbol being defined is unique comparing it with the found symbol
      * from the scope.
      *
      * @param pos symbol pos for diagnostic purpose.
      * @param symbol symbol that is being defined.
-     * @param foundSym symbol that is looked up from the scope.
+     * @param foundSym symbol that is found from the scope.
      * @return true if the symbol is unique, false otherwise.
      */
     private boolean isUniqueSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
+        //check for symbols defined at root package level.
         if (symTable.rootPkgSymbol.pkgID.equals(foundSym.pkgID) &&
                 (foundSym.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
+            //check whether given symbol is a built in struct type.
             if (handleSpecialBuiltinStructTypes(symbol)) {
                 return false;
             }
             dlog.error(pos, DiagnosticCode.REDECLARED_BUILTIN_SYMBOL, symbol.name);
             return false;
         }
+        //check whether the given symbol owner is same as found symbol's owner
         if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE || foundSym.owner == symbol.owner) {
-            // Found symbol is a type symbol.
+            //found symbol is a type symbol.
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
@@ -168,12 +171,12 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     /**
-     * Lookup the symbol using given name only in the given environment scope.
+     * Lookup the symbol using given name in the given environment scope only.
      *
      * @param env environment to lookup the symbol.
      * @param name name of the symbol to lookup.
      * @param expSymTag expected tag of the symbol.
-     * @return if a symbol is found return it, else return not found symbol.
+     * @return if a symbol is found return it.
      */
     private BSymbol lookupSymbolInGivenScope(SymbolEnv env, Name name, int expSymTag) {
         ScopeEntry entry = env.scope.lookup(name);
