@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
+
 /**
  * Get executed when the response is available.
  */
@@ -115,10 +117,18 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private void writeOutboundResponse(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive,
             HttpContent httpContent) {
         ChannelFuture outboundChannelFuture;
+        ChunkConfig responseChunkConfig = outboundResponseMsg.getProperty(CHUNKING_CONFIG) != null ?
+                (ChunkConfig) outboundResponseMsg.getProperty(CHUNKING_CONFIG) : null;
+        if (responseChunkConfig != null) {
+            this.setChunkConfig(responseChunkConfig);
+        }
+
         if (Util.isLastHttpContent(httpContent)) {
             if (!headerWritten) {
-                if (chunkConfig == ChunkConfig.ALWAYS
-                        && Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion())) {
+                if (chunkConfig == ChunkConfig.ALWAYS && (
+                        Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion()) || Util
+                                .shouldEnforceChunkingforHttpOneZero(chunkConfig,
+                                        requestDataHolder.getHttpVersion()))) {
                     Util.setupChunkedRequest(outboundResponseMsg);
                     writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
                     outboundChannelFuture = writeOutboundResponseBody(httpContent);
@@ -140,8 +150,9 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
             }
             resetState(outboundResponseMsg);
         } else {
-            if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO)
-                    && Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion())) {
+            if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) && (
+                    Util.isVersionCompatibleForChunking(requestDataHolder.getHttpVersion()) || Util
+                            .shouldEnforceChunkingforHttpOneZero(chunkConfig, requestDataHolder.getHttpVersion()))) {
                 if (!headerWritten) {
                     Util.setupChunkedRequest(outboundResponseMsg);
                     writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
@@ -217,5 +228,13 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     @Override
     public void onError(Throwable throwable) {
         log.error("Couldn't send the outbound response", throwable);
+    }
+
+    public ChunkConfig getChunkConfig() {
+        return chunkConfig;
+    }
+
+    public void setChunkConfig(ChunkConfig chunkConfig) {
+        this.chunkConfig = chunkConfig;
     }
 }

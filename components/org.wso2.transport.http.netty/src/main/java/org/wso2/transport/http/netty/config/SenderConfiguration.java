@@ -90,11 +90,7 @@ public class SenderConfiguration {
     @XmlAttribute
     private int maxRedirectCount;
 
-    @XmlAttribute
-    private boolean isKeepAlive = true;
-
-    @XmlAttribute
-    private int http2MaxActiveStreams = Integer.MAX_VALUE;
+    private KeepAliveConfig keepAliveConfig = KeepAliveConfig.AUTO;
 
     @XmlAttribute
     private boolean forceHttp2 = false;
@@ -253,12 +249,12 @@ public class SenderConfiguration {
         this.maxRedirectCount = maxRedirectCount;
     }
 
-    public boolean isKeepAlive() {
-        return isKeepAlive;
+    public KeepAliveConfig getKeepAliveConfig() {
+        return keepAliveConfig;
     }
 
-    public void setKeepAlive(boolean keepAlive) {
-        isKeepAlive = keepAlive;
+    public void setKeepAliveConfig(KeepAliveConfig keepAliveConfig) {
+        this.keepAliveConfig = keepAliveConfig;
     }
 
     public void setProxyServerConfiguration(ProxyServerConfiguration proxyServerConfiguration) {
@@ -277,14 +273,6 @@ public class SenderConfiguration {
         if (!httpVersion.isEmpty()) {
             this.httpVersion = httpVersion;
         }
-    }
-
-    public int getHttp2MaxActiveStreams() {
-        return http2MaxActiveStreams;
-    }
-
-    public void setHttp2MaxActiveStreams(int http2MaxActiveStreams) {
-        this.http2MaxActiveStreams = http2MaxActiveStreams;
     }
 
     public boolean isForceHttp2() {

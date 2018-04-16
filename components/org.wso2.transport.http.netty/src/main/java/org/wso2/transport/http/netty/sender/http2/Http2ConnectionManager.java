@@ -90,8 +90,8 @@ public class Http2ConnectionManager {
                 perRouteConnectionPool = fetchConnectionPool(key);
 
                 if (perRouteConnectionPool == null) {
-                    perRouteConnectionPool =
-                            new PerRouteConnectionPool(senderConfig.getHttp2MaxActiveStreams());
+                    perRouteConnectionPool = new PerRouteConnectionPool(
+                            senderConfig.getPoolConfiguration().getHttp2MaxActiveStreamsPerConnection());
                     registerConnectionPool(key, perRouteConnectionPool);
                 }
                 perRouteConnectionPool.addChannel(http2ClientChannel);
