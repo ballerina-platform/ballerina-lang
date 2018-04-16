@@ -134,8 +134,7 @@ public class RedirectUtil {
                 String port = originalRequest.getProperty(Constants.HTTP_PORT) != null ?
                               Integer.toString((Integer) originalRequest.getProperty(Constants.HTTP_PORT)) : null;
                 if (port == null) {
-                    port = protocol.equalsIgnoreCase(Constants.HTTPS_SCHEME) ?
-                           String.valueOf(Constants.DEFAULT_HTTPS_PORT) : String.valueOf(Constants.DEFAULT_HTTP_PORT);
+                    port = String.valueOf(getDefaultPort(protocol));
                 }
 
                 if (locationUrl.getProtocol().equals(protocol) && locationUrl.getHost().equals(host)
@@ -199,7 +198,7 @@ public class RedirectUtil {
     }
 
     /**
-     * Check whether the location includes an absolute path or a relative path.
+     * Checks whether the location includes an absolute path or a relative path.
      *
      * @param location value of location header
      * @return a boolean indicating url state
@@ -216,10 +215,6 @@ public class RedirectUtil {
      * @return default port as an int
      */
     private static int getDefaultPort(String protocol) {
-
-        return Constants.HTTPS_SCHEME.equals(protocol) ?
-               Constants.DEFAULT_HTTPS_PORT :
-               Constants.DEFAULT_HTTP_PORT;
+        return Constants.HTTPS_SCHEME.equals(protocol) ? Constants.DEFAULT_HTTPS_PORT : Constants.DEFAULT_HTTP_PORT;
     }
-
 }
