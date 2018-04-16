@@ -23,14 +23,11 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMessage;
-import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -50,11 +47,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import javax.net.ssl.SSLEngine;
 
+import javax.net.ssl.SSLEngine;
 /**
  * Class responsible for handling redirects for client connector.
  */
@@ -231,7 +227,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 LOG.debug("Handling redirect state for channel : " + ctx.channel().id());
             }
             if (isRedirectEligible()) {
-                isCrossDoamin = isCrossDomain(location, originalRequest);
+                isCrossDoamin = RedirectUtil.isCrossDomain(location, originalRequest);
                 currentRedirectCount = updateAndGetRedirectCount(ctx);
                 if (currentRedirectCount <= maxRedirectCount) {
                     if (LOG.isDebugEnabled()) {
@@ -279,7 +275,10 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                     LOG.debug("Getting ready for actual redirection for channel " + ctx.channel().id());
                 }
                 URL locationUrl = new URL(redirectState.get(HttpHeaderNames.LOCATION.toString()));
-                HTTPCarbonMessage httpCarbonRequest = createHttpCarbonRequest();
+                HTTPCarbonMessage httpCarbonRequest = RedirectUtil.createRedirectCarbonRequest(
+                        redirectState.get(HttpHeaderNames.LOCATION.toString()),
+                        redirectState.get(Constants.HTTP_METHOD),
+                        redirectState.get(HttpHeaderNames.USER_AGENT.toString()));
                 HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
 
                 if (isCrossDoamin) {
@@ -394,7 +393,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      *
      * @param msg HttpResponse message
      * @return a string containing location value
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException if url decoding fails
      */
     private String getLocationFromResponseHeader(HttpResponse msg) throws UnsupportedEncodingException {
         return msg.headers().get(HttpHeaderNames.LOCATION) != null ?
@@ -448,7 +447,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 if (Constants.HTTP_GET_METHOD.equals(originalRequestMethod) || Constants.HTTP_HEAD_METHOD
                         .equals(originalRequestMethod)) {
                     redirectState.put(Constants.HTTP_METHOD, originalRequestMethod);
-                    redirectState.put(HttpHeaderNames.LOCATION.toString(), getLocationURI(location, originalRequest));
+                    redirectState.put(HttpHeaderNames.LOCATION.toString(),
+                                      RedirectUtil.getLocationURI(location, originalRequest));
                 }
                 break;
             case 301:
@@ -456,12 +456,14 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 if (Constants.HTTP_GET_METHOD.equals(originalRequestMethod) || Constants.HTTP_HEAD_METHOD
                         .equals(originalRequestMethod)) {
                     redirectState.put(Constants.HTTP_METHOD, Constants.HTTP_GET_METHOD);
-                    redirectState.put(HttpHeaderNames.LOCATION.toString(), getLocationURI(location, originalRequest));
+                    redirectState.put(HttpHeaderNames.LOCATION.toString(),
+                                      RedirectUtil.getLocationURI(location, originalRequest));
                 }
                 break;
             case 303:
                 redirectState.put(Constants.HTTP_METHOD, Constants.HTTP_GET_METHOD);
-                redirectState.put(HttpHeaderNames.LOCATION.toString(), getLocationURI(location, originalRequest));
+                redirectState.put(HttpHeaderNames.LOCATION.toString(),
+                                  RedirectUtil.getLocationURI(location, originalRequest));
                 break;
             default:
                 return null;
@@ -471,166 +473,6 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                     originalRequest.getHeader(HttpHeaderNames.USER_AGENT.toString()));
         }
         return redirectState;
-    }
-
-    /**
-     * Build redirect url from the location header value.
-     *
-     * @param location        value of location header
-     * @param originalRequest Original request
-     * @return a string that holds redirect url
-     * @throws UnsupportedEncodingException
-     */
-    private String getLocationURI(String location, HTTPCarbonMessage originalRequest)
-            throws UnsupportedEncodingException {
-        if (location != null) {
-            //if location url starts either with http ot https that means an absolute path has been set in header
-            if (!isRelativePath(location)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Location contain an absolute path : " + location);
-                }
-                return location;
-            } else {
-                //Use relative path to build redirect url
-                String requestPath =
-                        originalRequest != null ? (String) originalRequest.getProperty(Constants.TO) : null;
-                String protocol = originalRequest != null ?
-                        (String) originalRequest.getProperty(Constants.PROTOCOL) :
-                        Constants.HTTP_SCHEME;
-                String host = originalRequest != null ? (String) originalRequest.getProperty(Constants.HTTP_HOST) :
-                        null;
-                if (host == null) {
-                    return null;
-                }
-                int defaultPort = getDefaultPort(protocol);
-                Integer port = originalRequest != null ?
-                        originalRequest.getProperty(Constants.HTTP_PORT) != null ?
-                                (Integer) originalRequest.getProperty(Constants.HTTP_PORT) :
-                                defaultPort :
-                        defaultPort;
-                return buildRedirectURL(requestPath, location, protocol, host, port);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Build redirect URL from relative path.
-     *
-     * @param requestPath request path of the original request
-     * @param location    relative path received as the location
-     * @param protocol    protocol used in the request
-     * @param host        host used in the request
-     * @param port        port used in the request
-     * @return a string containing absolute path for redirection
-     * @throws UnsupportedEncodingException
-     */
-    private String buildRedirectURL(String requestPath, String location, String protocol, String host, Integer port)
-            throws UnsupportedEncodingException {
-        String newPath = requestPath == null ? Constants.FORWRD_SLASH : URLDecoder.decode(requestPath, Constants.UTF8);
-        if (location.startsWith(Constants.FORWRD_SLASH)) {
-            newPath = location;
-        } else if (newPath.endsWith(Constants.FORWRD_SLASH)) {
-            newPath += location;
-        } else {
-            newPath += Constants.FORWRD_SLASH + location;
-        }
-        StringBuilder newLocation = new StringBuilder(protocol);
-        newLocation.append(Constants.URL_AUTHORITY).append(host);
-        if (Constants.DEFAULT_HTTP_PORT != port) {
-            newLocation.append(Constants.COLON).append(port);
-        }
-        if (newPath.charAt(0) != Constants.FORWRD_SLASH.charAt(0)) {
-            newLocation.append(Constants.FORWRD_SLASH.charAt(0));
-        }
-        newLocation.append(newPath);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Redirect URL build from relative path is : " + newLocation.toString());
-        }
-        return newLocation.toString();
-    }
-
-    /**
-     * Check whether the location indicates a cross domain.
-     *
-     * @param location        Response message
-     * @param originalRequest Original request
-     * @return a boolean to denote whether the location is cross domain or not
-     * @throws UnsupportedEncodingException
-     */
-    private boolean isCrossDomain(String location, HTTPCarbonMessage originalRequest)
-            throws UnsupportedEncodingException, MalformedURLException {
-        if (!isRelativePath(location)) {
-            try {
-                URL locationUrl = new URL(location);
-                String protocol =
-                        originalRequest != null ? (String) originalRequest.getProperty(Constants.PROTOCOL) : null;
-                String host = originalRequest != null ? (String) originalRequest.getProperty(Constants.HTTP_HOST) :
-                        null;
-                String port = originalRequest != null ?
-                        originalRequest.getProperty(Constants.HTTP_PORT) != null ?
-                                Integer.toString((Integer) originalRequest.getProperty(Constants.HTTP_PORT)) :
-                                null :
-                        null;
-                if (locationUrl.getProtocol().equals(protocol) && locationUrl.getHost().equals(host)
-                        && locationUrl.getPort() == Integer.parseInt(port)) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Is cross domain url : " + false);
-                    }
-                    return false;
-                } else {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Is cross domain url : " + true);
-                    }
-                    return true;
-                }
-            } catch (MalformedURLException exception) {
-                LOG.error("MalformedURLException occurred while deciding whether the redirect url is cross domain",
-                        exception);
-                throw exception;
-            }
-        }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Is cross domain url : " + false);
-        }
-        return false;
-    }
-
-    /**
-     * Create redirect request.
-     *
-     * @return HTTPCarbonMessage with request properties
-     * @throws MalformedURLException
-     */
-    private HTTPCarbonMessage createHttpCarbonRequest() throws MalformedURLException {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Create redirect request with http method  : " + redirectState.get(Constants.HTTP_METHOD));
-        }
-        URL locationUrl = new URL(redirectState.get(HttpHeaderNames.LOCATION.toString()));
-
-        HttpMethod httpMethod = new HttpMethod(redirectState.get(Constants.HTTP_METHOD));
-        HTTPCarbonMessage httpCarbonRequest = new HTTPCarbonMessage(
-                new DefaultHttpRequest(HttpVersion.HTTP_1_1, httpMethod, ""));
-        httpCarbonRequest.setProperty(Constants.HTTP_PORT,
-                locationUrl.getPort() != -1 ? locationUrl.getPort() : getDefaultPort(locationUrl.getProtocol()));
-        httpCarbonRequest.setProperty(Constants.PROTOCOL, locationUrl.getProtocol());
-        httpCarbonRequest.setProperty(Constants.HTTP_HOST, locationUrl.getHost());
-        httpCarbonRequest.setProperty(Constants.HTTP_METHOD, redirectState.get(Constants.HTTP_METHOD));
-        httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.getPath());
-        httpCarbonRequest.setProperty(Constants.TO, locationUrl.getPath());
-
-        StringBuffer host = new StringBuffer(locationUrl.getHost());
-        if (locationUrl.getPort() != -1 && locationUrl.getPort() != Constants.DEFAULT_HTTP_PORT
-                && locationUrl.getPort() != Constants.DEFAULT_HTTPS_PORT) {
-            host.append(Constants.COLON).append(locationUrl.getPort());
-        }
-        if (redirectState.get(HttpHeaderNames.USER_AGENT.toString()) != null) {
-            httpCarbonRequest.setHeader(HttpHeaderNames.USER_AGENT.toString(),
-                    redirectState.get(HttpHeaderNames.USER_AGENT.toString()));
-        }
-        httpCarbonRequest.setHeader(HttpHeaderNames.HOST.toString(), host.toString());
-        httpCarbonRequest.completeMessage();
-        return httpCarbonRequest;
     }
 
     /**
@@ -764,20 +606,6 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     private long getRemainingTimeForRedirection(long channelStartTime, int timeoutOfOriginalRequest) {
         long timeElapsedSinceOriginalRequest = System.currentTimeMillis() - channelStartTime;
         return timeoutOfOriginalRequest - timeElapsedSinceOriginalRequest;
-    }
-
-    /**
-     * Check whether the location includes an absolute path or a relative path.
-     *
-     * @param location value of location header
-     * @return a boolean indicating url state
-     */
-    private boolean isRelativePath(String location) {
-        if (location.toLowerCase(Locale.ROOT).startsWith(Constants.HTTP_SCHEME + Constants.URL_AUTHORITY) || location
-                .toLowerCase(Locale.ROOT).startsWith(Constants.HTTPS_SCHEME + Constants.URL_AUTHORITY)) {
-            return false;
-        }
-        return true;
     }
 
     /**
