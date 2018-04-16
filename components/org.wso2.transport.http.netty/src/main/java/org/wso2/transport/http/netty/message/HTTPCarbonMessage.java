@@ -51,6 +51,7 @@ public class HTTPCarbonMessage {
     private MessageFuture messageFuture;
     private final ServerConnectorFuture httpOutboundRespFuture = new HttpWsServerConnectorFuture();
     private final DefaultHttpResponseFuture httpOutboundRespStatusFuture = new DefaultHttpResponseFuture();
+    private final Observable contentObservable = new DefaultObservable();
 
     public HTTPCarbonMessage(HttpMessage httpMessage) {
         this.httpMessage = httpMessage;
@@ -70,8 +71,10 @@ public class HTTPCarbonMessage {
     public synchronized void addHttpContent(HttpContent httpContent) {
         if (this.messageFuture != null) {
             this.messageFuture.notifyMessageListener(httpContent);
+            this.contentObservable.notifyGetListener(httpContent);
         } else {
             this.blockingEntityCollector.addHttpContent(httpContent);
+            this.contentObservable.notifyAddListener(httpContent);
         }
     }
 
@@ -81,7 +84,9 @@ public class HTTPCarbonMessage {
      * @return HttpContent.
      */
     public HttpContent getHttpContent() {
-        return this.blockingEntityCollector.getHttpContent();
+        HttpContent httpContent = this.blockingEntityCollector.getHttpContent();
+        this.contentObservable.notifyGetListener(httpContent);
+        return httpContent;
     }
 
     public synchronized MessageFuture getHttpContentAsync() {
