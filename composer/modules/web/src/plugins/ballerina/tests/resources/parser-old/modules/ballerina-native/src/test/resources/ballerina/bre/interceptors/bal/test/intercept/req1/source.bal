@@ -9,6 +9,6 @@ function requestInterceptor (message msg) (boolean, message) {
     return true, msg;
 }
 
-function main (string[] args) {
+function main (string... args) {
     system:println("Hello, World!");
 }

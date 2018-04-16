@@ -5,7 +5,7 @@ import ballerina/lang.messages;
 
 int i = 0;
 
-function main (string[] args) {
+function main (string... args) {
     system:println("Hello, World!");
 }
 

@@ -152,6 +152,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -300,9 +301,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     private int workerChannelCount = 0;
     private int forkJoinCount = 0;
 
-
-    private static final String MAIN_FUNCTION_NAME = "main";
-
     public static CodeGenerator getInstance(CompilerContext context) {
         CodeGenerator codeGenerator = context.get(CODE_GENERATOR_KEY);
         if (codeGenerator == null) {
@@ -364,22 +362,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private BLangFunction getMainFunction(BLangPackage pkgNode) {
-        List<BLangFunction> functions = pkgNode.functions.stream()
-                .filter(f -> (f.name.value.equals(MAIN_FUNCTION_NAME) &&
-                        f.symbol.params.size() == 1 &&
-                        f.symbol.retType == symTable.nilType))
-                .collect(Collectors.toList());
-        if (functions.isEmpty()) {
-            return null;
-        }
-        for (BLangFunction f : functions) {
-            BType paramType = f.symbol.params.get(0).type;
-            if (paramType.tag != TypeTags.ARRAY) {
-                continue;
-            }
-            BArrayType arrayType = (BArrayType) paramType;
-            if (arrayType.eType.tag == TypeTags.STRING) {
-                return f;
+        for (BLangFunction funcNode : pkgNode.functions) {
+            if (CompilerUtils.isMainFunction(funcNode)) {
+                return funcNode;
             }
         }
         return null;

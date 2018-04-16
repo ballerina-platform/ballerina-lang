@@ -230,15 +230,16 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
             int responseStatusCode = httpResponse.statusCode;
             if (responseStatusCode == http:TEMPORARY_REDIRECT_307 || responseStatusCode == 308) {
                 string redirected_hub = httpResponse.getHeader("Location");
-                return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest);
+                return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
+                                                            httpClientEndpoint.config.auth);
             } else if (responseStatusCode != http:ACCEPTED_202) {
                 var responsePayload = httpResponse.getStringPayload();
                 string errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub +"]";
                 match (responsePayload) {
                     string responseErrorPayload => { errorMessage = errorMessage + " - " + responseErrorPayload; }
                     http:PayloadError payloadError => { errorMessage = errorMessage + " - "
-                                                                       + "Error occurred identifying"
-                                                                       + "cause: " + payloadError.message; }
+                                                                       + "Error occurred identifying cause: "
+                                                                       + payloadError.message; }
                 }
                 WebSubError webSubError = { message:errorMessage };
                 return webSubError;
@@ -256,8 +257,9 @@ redirection from original hub"}
 @Param {value:"mode: Whether the request is for subscription or unsubscription"}
 @Param {value:"subscriptionChangeRequest: The request containing subscription details"}
 function invokeClientConnectorOnRedirection (@sensitive string hub, @sensitive string mode,
-SubscriptionChangeRequest subscriptionChangeRequest) returns @tainted (SubscriptionChangeResponse | WebSubError) {
-    endpoint Client websubHubClientEP { url:hub };
+SubscriptionChangeRequest subscriptionChangeRequest, http:AuthConfig | () auth) returns @tainted
+(SubscriptionChangeResponse | WebSubError) {
+    endpoint Client websubHubClientEP { url:hub, auth:auth  };
     if (mode == MODE_SUBSCRIBE) {
         var response = websubHubClientEP -> subscribe(subscriptionChangeRequest);
         return response;
