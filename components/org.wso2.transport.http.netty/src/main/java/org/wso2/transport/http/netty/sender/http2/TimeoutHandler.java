@@ -82,6 +82,13 @@ public class TimeoutHandler  implements Http2DataEventListener {
     }
 
     @Override
+    public boolean onPushPromiseRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers,
+                                     boolean endOfStream) {
+        updateLastReadTime(streamId, endOfStream);
+        return true;
+    }
+
+    @Override
     public boolean onHeadersWrite(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream) {
         updateLastWriteTime(streamId);
         return true;

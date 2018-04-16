@@ -175,7 +175,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
                       http2ClientChannel.toString(), streamId, promisedStreamId);
         }
         for (Http2DataEventListener listener : http2ClientChannel.getDataEventListeners()) {
-            if (!listener.onHeadersRead(ctx, streamId, headers, false)) {
+            if (!listener.onPushPromiseRead(ctx, streamId, headers, false)) {
                 return;
             }
         }

@@ -55,6 +55,16 @@ public interface Http2DataEventListener {
     boolean onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, boolean endOfStream);
 
     /**
+     * Gets notified for an event on a push promise read on a particular stream.
+     *
+     * @param ctx         the channel handler context
+     * @param streamId    the related stream id
+     * @param headers     http2 headers
+     * @param endOfStream whether stream terminate with this data read operation
+     */
+    boolean onPushPromiseRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream);
+
+    /**
      * Gets notified for an event on a headers write on a particular stream.
      *
      * @param ctx         the channel handler context
