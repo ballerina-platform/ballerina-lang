@@ -49,7 +49,7 @@ public class Init extends BlockingNativeCallableUnit {
     /**
      * Retrieves the path from the given location.
      *
-     * @param path the values of the path.
+     * @param path     the values of the path.
      * @param subPaths the list of sub paths
      * @return reference to the path location.
      */
@@ -62,6 +62,10 @@ public class Init extends BlockingNativeCallableUnit {
         String basePath = context.getStringArgument(0);
         BStruct path = (BStruct) context.getRefArgument(0);
         BStringArray subPaths = (BStringArray) context.getRefArgument(1);
-        path.addNativeData(Constants.PATH_DEFINITION_NAME, getPath(basePath, subPaths.getStringArray()));
+        if (subPaths.size() > 0) {
+            path.addNativeData(Constants.PATH_DEFINITION_NAME, getPath(basePath, subPaths.getStringArray()));
+        } else {
+            path.addNativeData(Constants.PATH_DEFINITION_NAME, getPath(basePath));
+        }
     }
 }

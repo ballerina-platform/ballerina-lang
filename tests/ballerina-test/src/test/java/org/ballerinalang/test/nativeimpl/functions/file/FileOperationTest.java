@@ -191,7 +191,7 @@ public class FileOperationTest {
         String srcPath = currentDirectoryPath + "/parent";
         String dstPath = currentDirectoryPath + "/dst";
         //Will initialize the channel
-        BValue[] args = {new BString(srcPath),new BString(dstPath)};
+        BValue[] args = {new BString(srcPath), new BString(dstPath)};
         BRunUtil.invoke(fileOperationProgramFile, "testMove", args);
 
         BValue[] args2 = {new BString(dstPath)};
