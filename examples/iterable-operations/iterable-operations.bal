@@ -22,7 +22,7 @@ public function main (string[] args) {
     io:println("Average of positive numbers " + avg);
 
     io:println("\nExecution Order");
-    // This is an example of multiple iterable operations.
+    // This is an example for multiple iterable operations.
     json j = {name:"apple", colors:["red", "green"], price:5};
     j.map((json j) => string {
                     string s = j.toString() but {() => ""};
