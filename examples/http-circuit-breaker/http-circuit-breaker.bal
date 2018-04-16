@@ -54,8 +54,9 @@ service<http:Service> circuitbreaker bind passthruEP {
 
 public  int counter = 1;
 
-// This sample service can be used to mock connection timeouts and service outages. Service outage can be mocked by stopping/starting this service.
-// This should be run separately from the circuitBreakerDemo service.
+// This sample service can be used to mock connection timeouts and service outages. 
+// Service outage can be mocked by stopping/starting this service.
+// This should be run separately from the `circuitBreakerDemo` service.
 @http:ServiceConfig {basePath:"/hello"}
 service<http:Service> helloWorld bind backendEP {
     @http:ResourceConfig {
