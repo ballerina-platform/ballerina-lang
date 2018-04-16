@@ -36,6 +36,8 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<BLangNode> PREVIOUS_NODE_KEY
             = new LSContext.Key<>();
+    public static final LSContext.Key<BLangNode> NEXT_NODE_KEY
+            = new LSContext.Key<>();
     public static final LSContext.Key<Integer> LOOP_COUNT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> CURRENT_NODE_TRANSACTION_KEY
@@ -43,6 +45,8 @@ public class CompletionKeys {
     public static final LSContext.Key<Integer> TRANSACTION_COUNT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> INVOCATION_STATEMENT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> ATTACHMENT_POINT_NODE_TYPE_KEY
             = new LSContext.Key<>();
     
     // Meta context Keys

@@ -19,7 +19,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
-import ExpressionEditor from 'plugins/ballerina/expression-editor/expression-editor-utils';
 import ActionBox from './action-box';
 import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import './statement-decorator.css';
@@ -107,20 +106,6 @@ class InvocationDecorator extends React.Component {
             this.context.activeArbiter.readyToActivate(this);
         } else {
             this.context.activeArbiter.readyToDeactivate(this);
-        }
-    }
-
-    /**
-     * renders an ExpressionEditor in the statement box.
-     */
-    openEditor() {
-        const options = this.props.editorOptions;
-        const packageScope = this.context.environment;
-        const ballerinaFileEditor = this.context.editor;
-        if (options) {
-            new ExpressionEditor(this.state.statementBox,
-                text => this.onUpdate(text), options, packageScope, ballerinaFileEditor)
-                        .render(this.context.getOverlayContainer());
         }
     }
 
@@ -234,27 +219,11 @@ class InvocationDecorator extends React.Component {
                     className='life-line-hider'
                 />
                 { children }
-                <DropZone
-                    model={this.props.model}
-                    x={dropZone.x}
-                    y={dropZone.y}
-                    width={dropZone.w}
-                    height={dropZone.h}
-                    baseComponent='rect'
-                    dropTarget={this.props.model.parent}
-                    dropBefore={this.props.model}
-                    renderUponDragStart
-                    enableDragBg
-                    enableCenterOverlayLine
-                />
                 <text
                     x={statementBox.x +
                         (designer.config.actionInvocationStatement.width / 2) +
                         designer.config.statement.gutter.h}
-                    y={invocationComponent.start.y
-                         - (designer.config.actionInvocationStatement.text.height / 2)}
-                    className='action-invocation-text'
-                    onClick={e => this.openEditor(e)}
+                    y={invocationComponent.start.y - 5}
                 >
                     {expression}
                 </text>
@@ -286,12 +255,6 @@ class InvocationDecorator extends React.Component {
                         dashed
                     />
                 </g>
-                <StatementPropertyItemSelector
-                    model={this.props.model}
-                    bBox={this.props.model.viewState.components.dropDown}
-                    itemsMeta={dropDownItemMeta}
-                    show={this.state.active}
-                />
                 {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}
             </g>);

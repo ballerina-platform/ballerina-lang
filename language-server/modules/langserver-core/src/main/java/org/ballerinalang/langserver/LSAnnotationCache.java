@@ -15,14 +15,18 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -32,15 +36,49 @@ import java.util.stream.Collectors;
  * 
  * @since 0.970.0
  */
-class LSAnnotationCache {
+public class LSAnnotationCache {
     
     private final HashMap<PackageID, List<BLangAnnotation>> serviceAnnotations = new HashMap<>();
     private HashMap<PackageID, List<BLangAnnotation>> resourceAnnotations = new HashMap<>();
     private HashMap<PackageID, List<BLangAnnotation>> functionAnnotations = new HashMap<>();
-    private HashMap<PackageID, List<BLangAnnotation>> constantAnnotations = new HashMap<>();
+    private static LSAnnotationCache lsAnnotationCache = null;
+    private static final String[] staticPkgNames = {"http", "swagger", "mime", "auth", "caching", "config", "sql",
+            "file", "internal", "io", "jwt", "log", "math", "os", "reflect", "runtime", "security.crypto", "task",
+            "time", "transactions", "user", "util", "builtin"};
+    
+    private LSAnnotationCache() {
+    }
+    
+    public static LSAnnotationCache getInstance() {
+        return lsAnnotationCache;
+    }
+    
+    public static synchronized void initiate() {
+        if (lsAnnotationCache == null) {
+            lsAnnotationCache = new LSAnnotationCache();
+            CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
+            Map<String, BLangPackage> packages = loadPackagesMap(context);
+            lsAnnotationCache.loadAnnotations(packages.values().stream().collect(Collectors.toList()));
+        }
+    }
 
-    LSAnnotationCache(LSPackageCache lsPackageCache) {
-        loadAnnotations(lsPackageCache.getPackageMap().values().stream().collect(Collectors.toList()));
+    private static Map<String, BLangPackage> loadPackagesMap(CompilerContext tempCompilerContext) {
+        Map<String, BLangPackage> staticPackages = new HashMap<>();
+        for (String staticPkgName : staticPkgNames) {
+            PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
+                    new org.wso2.ballerinalang.compiler.util.Name(staticPkgName),
+                    new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
+            try {
+                // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
+                BLangPackage bLangPackage = LSPackageLoader.getPackageById(tempCompilerContext, packageID);
+                staticPackages.put(bLangPackage.packageID.bvmAlias(), bLangPackage);
+            } catch (Exception e) {
+                PrintStream errPrintStream = System.err;
+                errPrintStream.println("Error while loading package :" + staticPkgName);
+            }
+        }
+
+        return staticPackages;
     }
     
     private void loadAnnotations(List<BLangPackage> packageList) {
@@ -56,9 +94,6 @@ class LSAnnotationCache {
                             break;
                         case FUNCTION:
                             this.addAttachment(bLangAnnotation, functionAnnotations, bLangPackage.packageID);
-                            break;
-                        case CONST:
-                            this.addAttachment(bLangAnnotation, constantAnnotations, bLangPackage.packageID);
                             break;
                         default:
                             break;
@@ -89,7 +124,33 @@ class LSAnnotationCache {
         return functionAnnotations;
     }
 
-    public HashMap<PackageID, List<BLangAnnotation>> getConstantAnnotations() {
-        return constantAnnotations;
+    /**
+     * Get the annotation map for the given type.
+     * @param attachmentPoint   Attachment point
+     * @return {@link HashMap}  Map of annotation lists
+     */
+    public HashMap<PackageID, List<BLangAnnotation>> getAnnotationMapForType(AttachmentPoint attachmentPoint) {
+        HashMap<PackageID, List<BLangAnnotation>> annotationMap;
+        if (attachmentPoint == null) {
+            // TODO: Here return the common annotations
+            annotationMap = new HashMap<>();
+        } else {
+            switch (attachmentPoint) {
+                case SERVICE:
+                    annotationMap = serviceAnnotations;
+                    break;
+                case RESOURCE:
+                    annotationMap = resourceAnnotations;
+                    break;
+                case FUNCTION:
+                    annotationMap = functionAnnotations;
+                    break;
+                default:
+                    annotationMap = new HashMap<>();
+                    break;
+            }
+        }
+
+        return annotationMap;
     }
 }

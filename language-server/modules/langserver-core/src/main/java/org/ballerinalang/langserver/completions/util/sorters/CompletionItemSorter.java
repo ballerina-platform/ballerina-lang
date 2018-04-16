@@ -77,17 +77,8 @@ public abstract class CompletionItemSorter {
                 case ItemResolverConstants.B_TYPE:
                     completionItem.setSortText(Priority.PRIORITY170.toString());
                     break;
-                case ItemResolverConstants.ENUM_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY160.toString());
-                    break;
-                case ItemResolverConstants.STRUCT:
-                    completionItem.setSortText(Priority.PRIORITY150.toString());
-                    break;
                 case ItemResolverConstants.PACKAGE_TYPE:
                     completionItem.setSortText(Priority.PRIORITY140.toString());
-                    break;
-                case ItemResolverConstants.ACTION_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY130.toString());
                     break;
                 case ItemResolverConstants.FUNCTION_TYPE:
                     completionItem.setSortText(Priority.PRIORITY120.toString());

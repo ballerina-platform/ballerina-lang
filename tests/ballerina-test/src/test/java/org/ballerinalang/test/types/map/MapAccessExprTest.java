@@ -90,9 +90,11 @@ public class MapAccessExprTest {
     @Test(description = "Test nested map access")
     public void testNestedMapAccess() {
         CompileResult incorrectCompileResult = BCompileUtil.compile("test-src/types/map/nested-map-access.bal");
-        Assert.assertTrue(incorrectCompileResult.getDiagnostics().length == 1);
+        Assert.assertTrue(incorrectCompileResult.getDiagnostics().length == 2);
         Assert.assertEquals(incorrectCompileResult.getDiagnostics()[0].getMessage(),
                 "invalid operation: type 'any' does not support field access");
+        Assert.assertEquals(incorrectCompileResult.getDiagnostics()[1].getMessage(),
+                "incompatible types: expected 'string', found 'other?'");
     }
 
     @Test(description = "Test array access expression as the index of a map")

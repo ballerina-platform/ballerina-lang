@@ -161,6 +161,6 @@ public class MatchExpressionTest {
         // TODO: uncomment this once union type is fixed
         // BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'string', found
         // 'float|int|string'", 8, 23);
-        BAssertUtil.validateError(negativeResult, 1, "undefined symbol 's'", 21, 31);
+        BAssertUtil.validateError(negativeResult, 2, "undefined symbol 's'", 21, 31);
     }
 }

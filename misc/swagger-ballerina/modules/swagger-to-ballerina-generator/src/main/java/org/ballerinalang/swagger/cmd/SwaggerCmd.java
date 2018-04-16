@@ -21,37 +21,47 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.ballerinalang.ballerina.swagger.convertor.service.SwaggerConverterUtils;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.swagger.CodeGenerator;
 import org.ballerinalang.swagger.utils.GeneratorConstants.GenType;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 
 /**
  * Class to implement "swagger" command for ballerina.
- * Ex: ballerina swagger (connector | skeleton | mock) (swaggerFile) -p(package name) -d(output directory name)
+ * Ex: ballerina swagger (mock | client) (swaggerFile | balFile) -p(package name) -o(output directory name)
  */
-@Parameters(commandNames = "swagger", commandDescription = "Generate connector/service using swagger definition")
+@Parameters(commandNames = "swagger",
+            commandDescription = "Generate client/service using swagger definition or "
+                    + "export swagger file for a ballerina service")
 public class SwaggerCmd implements BLauncherCmd {
-    private static final String connector = "CONNECTOR";
-    private static final String skeleton = "SKELETON";
+    private static final String client = "CLIENT";
     private static final String mock = "MOCK";
+    private static final String export = "EXPORT";
 
     private static final PrintStream outStream = System.err;
     private JCommander parentCmdParser;
 
-    @Parameter(arity = 1, description = "<action> <swagger specification>. action : connector|skeleton|mock")
+    @Parameter(arity = 1, description = "<action> <swagger spec| ballerina file>. action : mock|client|export")
     private List<String> argList;
 
     @Parameter(names = { "-o", "--output" },
                description = "where to write the generated files (current dir by default)")
     private String output = "";
 
-    @Parameter(names = { "-p", "--package" }, description = "Package name to be used in the generated source files")
-    private String apiPackage;
+    @Parameter(names = { "-p", "--package" }, description = "package name to be used in the generated source files")
+    private String srcPackage;
+
+    @Parameter(names = { "-s", "--service" }, description = "Name of the service to export. "
+            + "This will extract a service with the specified name in the .bal file")
+    private String serviceName;
 
     @Parameter(names = { "-h", "--help" }, hidden = true)
     private boolean helpFlag;
@@ -71,30 +81,29 @@ public class SwaggerCmd implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() < 2) {
-            throw LauncherUtils.createUsageException("Swagger action and a swagger file should be provided. "
-                    + "Ex: ballerina swagger connector swagger_file");
+            throw LauncherUtils.createUsageException("action and a input file should be provided. "
+                    + "Ex: ballerina swagger client swagger_file");
         }
         String action = argList.get(0).toUpperCase(Locale.ENGLISH);
-        StringBuilder msg = new StringBuilder("successfully generated ballerina ");
+        StringBuilder msg = new StringBuilder("successfully ");
 
         switch (action) {
-            case connector:
-                generateFromSwagger(connector);
-                msg.append("connector");
-                break;
-            case skeleton:
-                generateFromSwagger(skeleton);
-                msg.append("skeleton");
-                break;
             case mock:
                 generateFromSwagger(mock);
-                msg.append("mock service");
+                msg.append("generated ballerina mock service");
+                break;
+            case client:
+                generateFromSwagger(client);
+                msg.append("generated ballerina client");
+                break;
+            case export:
+                exportFromBal();
                 break;
             default:
                 throw LauncherUtils.createUsageException(
-                        "Only following actions(connector, skeleton, mock) are " + "supported in swagger command");
+                        "Only following actions(mock, client) are " + "supported in swagger command");
         }
-        msg.append(" for swagger file - " + argList.get(1));
+        msg.append(" for input file - " + argList.get(1));
         outStream.println(msg.toString());
     }
 
@@ -105,23 +114,27 @@ public class SwaggerCmd implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Generates ballerina connector, service skeleton and mock service" + System.lineSeparator());
-        out.append("for a given swagger definition" + System.lineSeparator());
+        out.append("Generates ballerina mock service, client for a given swagger definition ");
+        out.append(System.lineSeparator());
+        out.append("or exports swagger definition of a ballerina service");
+        out.append(System.lineSeparator());
         out.append(System.lineSeparator());
     }
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("  ballerina swagger <connector | skeleton | mock> <swaggerFile> -p<package name> "
-                + "-d<output directory name>\n");
-        stringBuilder.append("\tconnector : generates a ballerina connector\n");
-        stringBuilder.append("\tskeleton  : generates a ballerina service skeleton\n");
-        stringBuilder.append("\tmock      : generates a ballerina mock service with sample responses\n");
+        stringBuilder.append("  ballerina swagger <mock | client> <swagger file> -p<package name> "
+                + "-o[<output directory name>]\n");
+        stringBuilder.append("  ballerina swagger export <ballerina service file> -o[<output directory name>] "
+                + "-s<service name>\n");
+        stringBuilder.append("\tmock      : generates a ballerina mock service\n");
+        stringBuilder.append("\tclient    : generates a ballerina client\n");
+        stringBuilder.append("\texport    : exports swagger definition of a ballerina service\n");
     }
 
     private void generateFromSwagger(String targetLanguage) {
         CodeGenerator generator = new CodeGenerator();
-        generator.setApiPackage(apiPackage);
+        generator.setSrcPackage(srcPackage);
 
         try {
             generator.generate(GenType.valueOf(targetLanguage), argList.get(1), output);
@@ -134,6 +147,25 @@ public class SwaggerCmd implements BLauncherCmd {
             }
             throw LauncherUtils.createUsageException(
                     "Error occurred when generating " + targetLanguage + " for " + "swagger file at " + argList.get(1)
+                            + ". " + e.getMessage() + ". " + causeMessage);
+        }
+    }
+
+    private void exportFromBal() {
+        Path outPath = Paths.get(output);
+        Path servicePath = Paths.get(argList.get(1));
+
+        try {
+            SwaggerConverterUtils.generateOAS3Definitions(servicePath, outPath, serviceName);
+        } catch (IOException e) {
+            String causeMessage = "";
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+
+            if (rootCause != null) {
+                causeMessage = rootCause.getMessage();
+            }
+            throw LauncherUtils.createUsageException(
+                    "Error occurred when exporting swagger file for service file at " + argList.get(1)
                             + ". " + e.getMessage() + ". " + causeMessage);
         }
     }

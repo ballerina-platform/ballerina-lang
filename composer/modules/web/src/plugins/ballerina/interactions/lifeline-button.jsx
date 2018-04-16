@@ -23,7 +23,7 @@ import Menu from './menu';
 import Item from './item';
 import Search from './search';
 import DefaultNodeFactory from '../model/default-node-factory';
-import Connector from '../env/connector';
+import Endpoint from "../env/endpoint";
 
 // Use your imagination to render suggestions.
 const renderSuggestion = (suggestion, value) => {
@@ -31,8 +31,8 @@ const renderSuggestion = (suggestion, value) => {
         return (
             <div className='add-new-connector-area'>
                 <a className='add-new-connector-button'>
-                    <i className='fw fw-connector' />
-                    {' Create new connector "'}
+                    <i className='fw fw-connector'/>
+                    {' Create new endpoint "'}
                     <b>{value.query + '"'}</b>
                 </a>
             </div>
@@ -40,9 +40,10 @@ const renderSuggestion = (suggestion, value) => {
     }
     return (<div>
         <div className='pkg-name'>{suggestion.pkg.getName()}</div>
-        {suggestion.connector.getName()}
+        {suggestion.endpoint.getName()}
     </div>);
 };
+
 /**
  * Interaction lifeline button component
  */
@@ -51,39 +52,39 @@ class LifelineButton extends React.Component {
     constructor() {
         super();
         this.state = {
-            listConnectors: false,
+            listEndpoints: false,
             value: '',
             suggestions: [],
         };
-        this.showConnectors = this.showConnectors.bind(this);
-        this.hideConnectors = this.hideConnectors.bind(this);
+        this.showEndpoints = this.showEndpoints.bind(this);
+        this.hideEndpoints = this.hideEndpoints.bind(this);
         this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
         this.storeInputReference = this.storeInputReference.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
         this.getSuggestionValue = this.getSuggestionValue.bind(this);
-        this.createConnector = this.createConnector.bind(this);
+        this.createEndpoint = this.createEndpoint.bind(this);
         this.getAllSuggestions = this.getAllSuggestions.bind(this);
     }
 
     // Autosuggest will call this function every time you need to update suggestions.
     // You already implemented this logic above, so just use it.
-    onSuggestionsFetchRequested({ value }) {
+    onSuggestionsFetchRequested({value}) {
         const environment = this.context.editor.environment;
         const packages = environment.getFilteredPackages([]);
         const suggestions = [];
         packages.forEach((pkg) => {
             const pkgname = pkg.getName();
-            const connectors = pkg.getConnectors();
-            connectors.forEach((connector) => {
-                const conName = connector.getName();
+            const endpoints = pkg.getEndpoints();
+            endpoints.forEach((endpoint) => {
+                const conName = endpoint.getName();
                 // do the match
                 if (value === ''
                     || pkgname.toLowerCase().includes(value)
                     || conName.toLowerCase().includes(value)) {
                     suggestions.push({
                         pkg,
-                        connector,
+                        endpoint,
                         packageName: pkg.getName(),
                         fullPackageName: pkg.getName(),
                     });
@@ -92,14 +93,14 @@ class LifelineButton extends React.Component {
         });
 
         if (value !== '') {
-            suggestions.push({ addNewValue: true });
+            suggestions.push({addNewValue: true});
         }
         this.setState({
             suggestions,
         });
     }
 
-    onChange(event, { newValue, method }) {
+    onChange(event, {newValue, method}) {
         this.setState({
             value: newValue,
         });
@@ -107,7 +108,7 @@ class LifelineButton extends React.Component {
 
     onSuggestionSelected(event, item) {
         if (item.suggestion.addNewValue) {
-            this.createConnector();
+            this.createEndpoint();
         } else {
             const node = DefaultNodeFactory.createEndpoint(item.suggestion);
             this.props.model.acceptDrop(node);
@@ -120,11 +121,11 @@ class LifelineButton extends React.Component {
         const suggestions = [];
         packages.forEach((pkg) => {
             const pkgname = pkg.getName();
-            const connectors = pkg.getConnectors();
-            connectors.forEach((connector) => {
+            const endpoints = pkg.getEndpoints();
+            endpoints.forEach((endpoint) => {
                 suggestions.push({
                     pkg,
-                    connector,
+                    endpoint,
                     packageName: pkgname,
                     fullPackageName: pkgname,
                 });
@@ -144,27 +145,30 @@ class LifelineButton extends React.Component {
         }
     }
 
-    showConnectors() {
-        this.setState({ listConnectors: true, suggestions: this.getAllSuggestions() });
+    showEndpoints() {
+        this.setState({listEndpoints: true, suggestions: this.getAllSuggestions()});
     }
 
-    hideConnectors() {
-        this.setState({ listConnectors: false });
+    hideEndpoints() {
+        this.setState({listEndpoints: false});
     }
 
-    createConnector() {
-        const connectorNode = DefaultNodeFactory.createConnector();
-        connectorNode.name.setValue(this.state.value);
+    createEndpoint() {
+        const endpointNode = DefaultNodeFactory.createEndpoint();
+        endpointNode.name.setValue(this.state.value);
         const currentPackage = this.context.editor.environment.getCurrentPackage();
 
         const node = DefaultNodeFactory.createEndpoint({
             pkg: currentPackage,
-            connector: new Connector({ name: this.state.value, id: '', actions: [], params: [] }),
+            endpoint: new Endpoint({
+                name: this.state.value, id: '', actions: [], fields: [],
+                packageName: currentPackage.name
+            }),
             packageName: currentPackage.getName(),
             fullPackageName: currentPackage.getName(),
         });
         this.props.model.acceptDrop(node);
-        this.props.model.getRoot().addTopLevelNodes(connectorNode);
+        this.props.model.getRoot().addTopLevelNodes(endpointNode);
     }
 
     /**
@@ -172,7 +176,7 @@ class LifelineButton extends React.Component {
      * @return {object} button rendering object
      */
     render() {
-        const { value, suggestions } = this.state;
+        const {value, suggestions} = this.state;
 
         const inputProps = {
             placeholder: 'Search',
@@ -180,11 +184,11 @@ class LifelineButton extends React.Component {
             onChange: this.onChange,
         };
 
-        let connectorCssClass = 'connector-select-hidden';
-        let connectorListCssClass = 'connector-list';
-        if (this.state.listConnectors) {
-            connectorCssClass = 'connector-select';
-            connectorListCssClass = 'connector-list-hidden';
+        let endpointCssClass = 'connector-select-hidden';
+        let endpointListCssClass = 'connector-list';
+        if (this.state.listEndpoints) {
+            endpointCssClass = 'connector-select';
+            endpointListCssClass = 'connector-list-hidden';
         }
 
         return (
@@ -198,23 +202,23 @@ class LifelineButton extends React.Component {
                     buttonIconColor='#333'
                 >
                     <Menu>
-                        <div className={connectorListCssClass}>
+                        <div className={endpointListCssClass}>
                             {this.props.items}
                             <Item
                                 label='Endpoint'
                                 icon='fw fw-endpoint'
-                                callback={this.showConnectors}
+                                callback={this.showEndpoints}
                                 closeMenu={false}
                             />
                         </div>
 
                         <div
-                            className={connectorCssClass}
+                            className={endpointCssClass}
                         >
                             <div className='endpoint-select-header'>
                                 <div className='connector-select-close'>
-                                    <i onClick={this.hideConnectors} className='nav-button fw fw-left' />
-                                    Select a connector
+                                    <i onClick={this.hideEndpoints} className='nav-button fw fw-left'/>
+                                    Select an endpoint
                                 </div>
                             </div>
                             <Search
@@ -244,9 +248,7 @@ LifelineButton.propTypes = {
     }).isRequired,
 };
 
-LifelineButton.defaultProps = {
-
-};
+LifelineButton.defaultProps = {};
 
 LifelineButton.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,

@@ -19,39 +19,51 @@
 import FragmentUtils from '../../src/plugins/ballerina/utils/fragment-utils';
 
 export default {
+    createImportWithOrg: () => {
+        return FragmentUtils.createTopLevelNodeFragment(
+`import ballerina/http;
+`);
+    },
     createHTTPServiceDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `
-                service<http:Service> serviceName bind serviceEp {
-                    resourceName (endpoint conn, http:Request req) {
-
-                    }
+            service<http:Service> serviceName bind endpointName {
+                getAction (endpoint client){
+                    http:Response res = new;
+                    res.setStringPayload("Successful");
+                    _ = client -> respond(res);
                 }
+            }
             `);
     },
     createHTTPEndpointDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `
-                endpoint http:ServiceEndpoint serviceEp {
-                    port:9090
-                };
+            endpoint http:Listener endpointName {
+                port:9095
+            };
             `);
     },
     createWSServiceDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `
-            service<http:WebSocketService> SimpleSecureServer bind ep {
+            @http:WebSocketServiceConfig {
+                basePath:"/basic/ws",
+                subProtocols:["xml", "json"],
+                idleTimeoutInSeconds:120
+            }
+            service<http:WebSocketService> WSServer bind wsEnpointName {
             
-                onOpen (endpoint ep) {
+                onOpen (endpoint conn) {
 
                 }
             
-                onTextMessage (endpoint conn, http:TextFrame frame) {
+
+                onText (endpoint conn, string text, boolean more) {
 
                 }
             
-                onClose (endpoint conn, http:CloseFrame closeFrame) {
-
+                onClose (endpoint conn, int statusCode, string reason) {
                 }
             }
             `);
@@ -59,15 +71,15 @@ export default {
     createWSEndpointDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `
-endpoint http:ServiceEndpoint ep {
-    port:9090
-};
+            endpoint http:Listener wsEnpointName {
+                port:9090
+            };
             `);
     },
     createJMSServiceDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `
-                service<jms> service1 {
+                service service1 {
                     resource echo1 (jms:JMSMessage request) {
 
                     }
@@ -143,13 +155,13 @@ endpoint http:ServiceEndpoint ep {
             }
         `);
     },
-    createTransformer: () => {
+    /*createTransformer: () => {
         return FragmentUtils.createTopLevelNodeFragment(`
             transformer <Source a, Target b> newTransformer (){
 
             }
         `);
-    },
+    },*/
     createWorkerFragment: () => {
         return FragmentUtils.createWorkerFragment(`
             worker worker1 {
@@ -239,8 +251,8 @@ endpoint http:ServiceEndpoint ep {
         return FragmentUtils.createStatementFragment(`
             transaction {
 
-            } failed {
-
+            } onretry {
+        
             }
         `);
     },

@@ -37,14 +37,15 @@ public class MessageConstants {
             ASCII_STRING_MARSHALLER);
     
     //gRPC package name.
-    public static final String PROTOCOL_PACKAGE_GRPC = "net.grpc";
-    public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = "ballerina.net.grpc";
+    public static final String PROTOCOL_PACKAGE_GRPC = "grpc";
+    public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = "ballerina.grpc";
     public static final String ORG_NAME = "ballerina";
     //server side endpoint constants.
     public static final String SERVICE_BUILDER = "SERVICE_BUILDER";
     public static final String GRPC_SERVER = "SERVER";
     public static final String SERVICE_ENDPOINT_TYPE = "Service";
     public static final String CLIENT_RESPONDER = "ClientResponder";
+    public static final String MESSAGE_CONTEXT = "MessageHeaders";
     public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
     public static final int CLIENT_RESPONDER_REF_INDEX = 0;
@@ -54,7 +55,9 @@ public class MessageConstants {
     public static final String CLIENT_ENDPOINT_TYPE = "Client";
     public static final String DEFAULT_HOSTNAME = "localhost";
     public static final String CHANNEL_KEY = "channel";
+    public static final String ENUM_KEY = "enum";
     public static final String SERVICE_STUB = "ServiceStub";
+    public static final String METHOD_DESCRIPTORS = "MethodDescriptors";
     public static final int SERVICE_STUB_REF_INDEX = 0;
     public static final int CLIENT_ENDPOINT_REF_INDEX = 1;
     public static final int DESCRIPTOR_MAP_REF_INDEX = 2;
@@ -86,7 +89,6 @@ public class MessageConstants {
     
     static {
         Map<DescriptorProtos.FieldDescriptorProto.Type, Integer> wireMap = new HashMap<>();
-        ;
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE, 1);
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT, 5);
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32, 0);
@@ -100,6 +102,7 @@ public class MessageConstants {
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_SFIXED32, 5);
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_SFIXED64, 1);
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL, 0);
+        wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM, 0);
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING, 2);
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES, 2);
         WIRE_TYPE_MAP = Collections.unmodifiableMap(wireMap);
@@ -117,7 +120,7 @@ public class MessageConstants {
     public static final String FLOAT = "float";
     public static final String DOUBLE = "double";
     public static final String BOOLEAN = "boolean";
-    public static final String BOLB = "blob";
+    public static final String BLOB = "blob";
     
     
 }

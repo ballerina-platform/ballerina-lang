@@ -19,13 +19,12 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.List;
 import java.util.Map;
@@ -41,6 +40,7 @@ public class WebSocketService implements Service {
     private final int idleTimeoutInSeconds;
     private final Map<String, Resource> resourceMap = new ConcurrentHashMap<>();
     private String basePath;
+    private Resource upgradeResource;
 
     public WebSocketService(Service service) {
         this.service = service;
@@ -58,6 +58,21 @@ public class WebSocketService implements Service {
             negotiableSubProtocols = null;
             idleTimeoutInSeconds = 0;
         }
+        basePath = findFullWebSocketUpgradePath(this);
+        upgradeResource = null;
+    }
+
+    public WebSocketService(String httpBasePath, Resource upgradeResource, Service service) {
+        this(service);
+        Annotation resourceConfigAnnotation = HttpResource.getResourceConfigAnnotation(upgradeResource);
+        if (resourceConfigAnnotation == null) {
+            throw new BallerinaException("Cannot find a resource config for resource " + upgradeResource.getName());
+        }
+        Struct webSocketConfig =
+                resourceConfigAnnotation.getValue().getStructField(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
+        String upgradePath = webSocketConfig.getStringField(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH);
+        this.basePath = httpBasePath.concat(upgradePath);
+        this.upgradeResource = upgradeResource;
     }
 
     @Override
@@ -90,6 +105,11 @@ public class WebSocketService implements Service {
         return service.getServiceInfo();
     }
 
+    @Override
+    public String getPackageVersion() {
+        return null;
+    }
+
     public Resource getResourceByName(String resourceName) {
         return resourceMap.get(resourceName);
     }
@@ -98,38 +118,12 @@ public class WebSocketService implements Service {
         return negotiableSubProtocols;
     }
 
+    public Resource getUpgradeResource() {
+        return upgradeResource;
+    }
+
     public int getIdleTimeoutInSeconds() {
         return idleTimeoutInSeconds;
-    }
-
-    public BStruct createTextFrameStruct() {
-        return BLangConnectorSPIUtil.createBStruct(WebSocketUtil.getProgramFile(service.getResources()[0]),
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                   WebSocketConstants.STRUCT_WEBSOCKET_TEXT_FRAME);
-    }
-
-    public BStruct createBinaryFrameStruct() {
-        return BLangConnectorSPIUtil.createBStruct(WebSocketUtil.getProgramFile(service.getResources()[0]),
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                   WebSocketConstants.STRUCT_WEBSOCKET_BINARY_FRAME);
-    }
-
-    public BStruct createCloseFrameStruct() {
-        return BLangConnectorSPIUtil.createBStruct(WebSocketUtil.getProgramFile(service.getResources()[0]),
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                   WebSocketConstants.STRUCT_WEBSOCKET_CLOSE_FRAME);
-    }
-
-    public BStruct createPingFrameStruct() {
-        return BLangConnectorSPIUtil.createBStruct(WebSocketUtil.getProgramFile(service.getResources()[0]),
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                   WebSocketConstants.STRUCT_WEBSOCKET_PING_FRAME);
-    }
-
-    public BStruct createPongFrameStruct() {
-        return BLangConnectorSPIUtil.createBStruct(WebSocketUtil.getProgramFile(service.getResources()[0]),
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                   WebSocketConstants.STRUCT_WEBSOCKET_PONG_FRAME);
     }
 
     private String[] findNegotiableSubProtocols(Struct annAttrSubProtocols) {
@@ -161,7 +155,28 @@ public class WebSocketService implements Service {
         return basePath;
     }
 
-    public void setBasePath(String basePath) {
-        this.basePath = basePath;
+    /**
+     * Find the Full path for WebSocket upgrade.
+     *
+     * @param service {@link WebSocketService} which the full path should be found.
+     * @return the full path of the WebSocket upgrade.
+     */
+    private String findFullWebSocketUpgradePath(WebSocketService service) {
+        // Find Base path for WebSocket
+        Annotation configAnnotation = WebSocketUtil.getServiceConfigAnnotation(service,
+                                                                               HttpConstants.PROTOCOL_PACKAGE_HTTP);
+        String basePath = null;
+        if (configAnnotation != null) {
+            Struct annStruct = configAnnotation.getValue();
+            String basePathVal = annStruct.getStringField(WebSocketConstants.ANNOTATION_ATTR_PATH);
+            if (basePathVal != null && !basePathVal.trim().isEmpty()) {
+                basePath = WebSocketUtil.refactorUri(basePathVal);
+            }
+        }
+
+        if (basePath == null) {
+            basePath = "/".concat(service.getName());
+        }
+        return basePath;
     }
 }

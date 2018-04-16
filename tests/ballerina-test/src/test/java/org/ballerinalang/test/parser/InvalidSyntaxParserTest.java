@@ -50,18 +50,6 @@ public class InvalidSyntaxParserTest {
      */
 
     @Test
-    public void testParseIdentifierMissingSerivce() {
-        CompileResult result = BCompileUtil.compile("test-src/parser/identifier-missing-service-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid token ';'", 10, 10);
-    }
-
-    @Test
-    public void testParseIdentifierMissingMainFunc() {
-        CompileResult result = BCompileUtil.compile("test-src/parser/identifier-missing-func-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid token ';'", 3, 5);
-    }
-
-    @Test
     public void testReservedWordVariable() {
         CompileResult result = BCompileUtil.compile("test-src/parser/reserved-word-variable-negative.bal");
         BAssertUtil.validateError(result, 0, "invalid token 'resource'", 3, 9);
@@ -75,14 +63,14 @@ public class InvalidSyntaxParserTest {
     public void testServiceWithoutResourceName() {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-name-negative.bal");
         BAssertUtil.validateError(result, 0, "invalid token 'endpoint'", 6, 6);
-        BAssertUtil.validateError(result, 3, "invalid token ';'", 8, 15);
+        BAssertUtil.validateError(result, 3, "extraneous input ';'", 8, 7);
     }
 
     @Test
     public void testParseMainFuncWithoutName() {
         CompileResult result = BCompileUtil.compile("test-src/parser/func-without-name-negative.bal");
         BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting {'[', '?', '|', Identifier}", 1, 30);
-        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', '?', '|', Identifier}", 3, 10);
+        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', '?', '|', Identifier}", 3, 6);
     }
 
     /**

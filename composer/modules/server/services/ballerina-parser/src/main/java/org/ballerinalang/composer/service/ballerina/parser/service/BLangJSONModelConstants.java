@@ -33,6 +33,8 @@ public class BLangJSONModelConstants {
 
     public static final String TOP_LEVEL_NODES = "topLevelNodes";
 
+    public static final String ENDPOINT_NODES = "endpointNodes";
+
     public static final String DEFINITION_TYPE = "type";
 
     public static final String CONNECTOR_DEFINITION = "connector_definition";

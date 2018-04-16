@@ -22,18 +22,19 @@ import TreeUtil from './../../../model/tree-util';
 import * as DesignerDefaults from './designer-defaults';
 import splitVariableDefByLambda from '../../../model/lambda-util';
 
+const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+svg.setAttribute('style', 'border: 0px');
+svg.setAttribute('width', '600');
+svg.setAttribute('height', '50');
+svg.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xlink', 'http://www.w3.org/1999/xlink');
+const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+svg.appendChild(textElement);
+document.body.appendChild(svg);
+
 class SizingUtil {
 
     constructor() {
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('style', 'border: 0px');
-        svg.setAttribute('width', '600');
-        svg.setAttribute('height', '50');
-        svg.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xlink', 'http://www.w3.org/1999/xlink');
-        this.textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        svg.appendChild(this.textElement);
-        document.body.appendChild(svg);
-
+        this.textElement = textElement;
         this.config = DesignerDefaults;
     }
 
@@ -348,10 +349,8 @@ class SizingUtil {
         cmp.client.h = maxWorkerHeight;
         cmp.client.arrowLine = (cmp.client.w / 2);
         const paramText = node.parameters.filter((param) => {
-            // skip connection on client invocation arrow
-            param.typeNode = param.typeNode || {};
-            param.typeNode.typeName = param.typeNode.typeName || {};
-            return param.typeNode.typeName.value !== 'Connection';
+            // skip if the param is service endpoint.
+            return !param.serviceEndpoint;
         }).map((param) => {
             return param.name.value;
         }).join(', ');
@@ -359,6 +358,7 @@ class SizingUtil {
             (this.config.clientLine.width + this.config.lifeLine.gutter.h));
         cmp.client.text = paramTextWidth.text;
         cmp.client.fullText = paramText;
+        cmp.client.title = this.getTextWidth(node.getClientTitle(), 0, (this.config.clientLine.head.width)).text;
 
         // calculate default worker
         cmp.defaultWorker.w = workers.length > 0 ? 0 : node.body.viewState.bBox.w;
@@ -409,6 +409,8 @@ class SizingUtil {
                 // add the endpoint width to panel body width.
                 endpointWidth += this.config.lifeLine.gutter.h + this.config.lifeLine.width;
                 endpoint.viewState.bBox.h = node.viewState.components.defaultWorker.h;
+                endpoint.viewState.endpointIdentifier =
+                    this.getTextWidth(endpoint.name.value, 0, endpointWidth).text;
             });
         }
 
@@ -727,13 +729,13 @@ class SizingUtil {
         bBox.h = workerBody.viewState.bBox.h
             + this.config.lifeLine.head.height + this.config.lifeLine.footer.height;
 
-        if (!TreeUtil.isForkJoin(node.parent)) {
+        if (node.parent && !TreeUtil.isForkJoin(node.parent)) {
             bBox.h += (this.config.statement.height * 2); // Top gap for client invoke line
         }
 
         bBox.w = workerBody.viewState.bBox.w;
-        if (workerBody.viewState.components['left-margin']) {
-            bBox.w += workerBody.viewState.components['left-margin'].w;
+        if (workerBody.viewState.leftMargin) {
+            bBox.w += workerBody.viewState.leftMargin;
         }
         // set the size of the lifeline.
         const cmp = node.viewState.components;
@@ -1036,23 +1038,23 @@ class SizingUtil {
 
 
     /**
-     * Calculate dimention of XmlTextLiteral nodes.
+     * Calculate dimention of MatchExpression nodes.
      *
      * @param {object} node
      *
      */
-    sizeXmlTextLiteralNode(node) {
+    sizeMatchExpressionNode(node) {
         // Not implemented.
     }
 
 
     /**
-     * Calculate dimention of XmlCommentLiteral nodes.
+     * Calculate dimention of MatchExpressionPatternClause nodes.
      *
      * @param {object} node
      *
      */
-    sizeXmlCommentLiteralNode(node) {
+    sizeMatchExpressionPatternClauseNode(node) {
         // Not implemented.
     }
 
@@ -1115,12 +1117,7 @@ class SizingUtil {
         const viewState = node.viewState;
         const statements = node.getStatements();
         this.setContainerSize(statements, viewState, this.config.statement.width);
-        const leftMargin = this.calcLeftMargin(statements);
-        if (leftMargin > 0) {
-            viewState.components['left-margin'] = {
-                w: leftMargin,
-            };
-        }
+        this.calcLeftMargin(viewState.bBox, statements, false, false);
         if (viewState.compound) {
             this.sizeCompoundNode(node);
         }
@@ -1280,14 +1277,7 @@ class SizingUtil {
         components['block-header'].setOpaque(true);
 
         // calculate left margin from the lifeline centre
-        let leftMargin = this.calcLeftMargin(node.body.statements);
-        leftMargin = (leftMargin === 0) ? this.config.flowChartControlStatement.gap.left
-                                        // since there is no left expansion for if,
-                                        // we take the left margin as it is
-                                        : leftMargin;
-        viewState.components['left-margin'] = {
-            w: leftMargin,
-        };
+        this.calcLeftMargin(node.viewState.bBox, node.body.statements);
 
         // for compound statement like if , while we need to render condition expression
         // we will calculate the width of the expression and adjust the block statement
@@ -1324,6 +1314,54 @@ class SizingUtil {
     }
 
     /**
+     * Calculate dimention of Match nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeMatchNode(node) {
+        const components = node.viewState.components;
+        let height = this.config.statement.height;
+        let width = 0;
+
+        node.patternClauses.forEach((element) => {
+            height += element.viewState.bBox.h;
+            if (width < element.viewState.bBox.w) {
+                width = element.viewState.bBox.w;
+            }
+        });
+
+        // Calculate the left margin.
+        this.calcLeftMargin(node.viewState.bBox, node.patternClauses, true);
+
+        node.viewState.bBox.h = height;
+        node.viewState.bBox.w = (this.config.statement.width < width) ? width :
+            100;
+        components.expression = this.getTextWidth(node.expression.getSource(true), 0,
+            node.viewState.bBox.w / 2);
+    }
+
+
+    /**
+     * Calculate dimention of MatchPatternClause nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeMatchPatternClauseNode(node) {
+        const components = node.viewState.components;
+        node.viewState.bBox.h = node.statement.viewState.bBox.h + this.config.statement.height;
+        node.viewState.bBox.w = node.statement.viewState.bBox.w;
+        components.expression = this.getTextWidth(node.variableNode.getSource(true), 0,
+            node.viewState.bBox.w / 2);
+
+        node.viewState.bBox.h += 10;
+        // Calculate the left margin.
+        this.calcLeftMargin(node.viewState.bBox, [node.statement], false, false);
+    }
+
+
+    /**
      * Calculate dimention of Reply nodes.
      *
      * @param {object} node
@@ -1343,6 +1381,9 @@ class SizingUtil {
         this.sizeStatement(node.getSource(true), viewState);
         this.adjustToLambdaSize(node, viewState);
         this.sizeClientResponderStatement(node);
+        if (viewState.displayText === '()') {
+            viewState.displayText = '';
+        }
     }
 
 
@@ -1413,14 +1454,7 @@ class SizingUtil {
         components['block-header'].setOpaque(true);
 
         // calculate left margin from the lifeline centre
-        let leftMargin = this.calcLeftMargin(node.transactionBody.statements);
-        leftMargin = (leftMargin === 0) ? this.config.compoundStatement.gap.left
-                                        // since there is a left expansion for try when nested,
-                                        // add a left padding
-                                        : (leftMargin + this.config.compoundStatement.padding.left);
-        viewState.components['left-margin'] = {
-            w: leftMargin,
-        };
+        this.calcLeftMargin(node.viewState.bBox, node.transactionBody.statements);
 
         // end of try block sizing
 
@@ -1501,14 +1535,7 @@ class SizingUtil {
         components['block-header'].setOpaque(true);
 
         // calculate left margin from the lifeline centre
-        let leftMargin = this.calcLeftMargin(node.body.statements);
-        leftMargin = (leftMargin === 0) ? this.config.compoundStatement.gap.left
-                                        // since there is a left expansion for try when nested,
-                                        // add a left padding
-                                        : (leftMargin + this.config.compoundStatement.padding.left);
-        viewState.components['left-margin'] = {
-            w: leftMargin,
-        };
+        this.calcLeftMargin(viewState.bBox, node.body.statements);
 
         // end of try block sizing
 
@@ -1539,14 +1566,8 @@ class SizingUtil {
                                     finallyViewState.components['statement-box'].h;
 
             // calculate left margin from the lifeline centre
-            let finallyLeftMargin = this.calcLeftMargin(finallyBody.statements);
-            finallyLeftMargin = (finallyLeftMargin === 0) ? this.config.compoundStatement.gap.left
-                                        // since there is a left expansion for try when nested,
-                                        // add a left padding
-                                        : (leftMargin + this.config.compoundStatement.padding.left);
-            finallyViewState.components['left-margin'] = {
-                w: finallyLeftMargin,
-            };
+            this.calcLeftMargin(finallyViewState, finallyBody.statements);
+
             nodeHeight += finallyViewState.h;
         }
 
@@ -1561,12 +1582,12 @@ class SizingUtil {
                 viewState.components['statement-box'].w += widthDiff;
                 node.body.viewState.bBox.w += widthDiff;
                 viewState.bBox.w += widthDiff;
-                viewState.components['left-margin'].w = finallyViewState.components['left-margin'].w;
+                viewState.bBox.leftMargin = finallyViewState.leftMargin;
             } else if (widthDiff < 0) {
                 // resize finally block component width
                 finallyViewState.w += (-widthDiff);
                 finallyViewState.components['statement-box'].w += (-widthDiff);
-                finallyViewState.components['left-margin'].w = viewState.components['left-margin'].w;
+                finallyViewState.leftMargin = viewState.bBox.leftMargin;
             }
         }
 
@@ -1620,9 +1641,7 @@ class SizingUtil {
             viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
             viewState.alias = 'ClientResponderNode';
             if (TreeUtil.isReturn(node)) {
-                const paramText = node.expressions.map((exp) => {
-                    return exp.getSource(true);
-                }).join(', ');
+                const paramText = node.expression.getSource(true);
                 const displayText = this.getTextWidth(paramText, 0,
                     (this.config.clientLine.width + this.config.lifeLine.gutter.h));
                 viewState.displayText = displayText.text;
@@ -1702,14 +1721,7 @@ class SizingUtil {
         viewState.bBox.w = bodyWidth;
 
         // calculate left margin from the lifeline centre
-        let leftMargin = this.calcLeftMargin(node.body.statements);
-        leftMargin = (leftMargin === 0) ? this.config.flowChartControlStatement.gap.left
-                                        // since there is a left expansion for while when nested,
-                                        // add a left padding
-                                        : (leftMargin + this.config.flowChartControlStatement.padding.left);
-        viewState.components['left-margin'] = {
-            w: leftMargin,
-        };
+        this.calcLeftMargin(viewState.bBox, node.body.statements, true);
 
         components['block-header'].setOpaque(true);
 
@@ -1728,16 +1740,16 @@ class SizingUtil {
      * At the moment, left margin is only needed by while node.
      * @param {*} nodes nodes to calculate left margin from
      */
-    calcLeftMargin(nodes) {
+    calcLeftMargin(bBox, children, acumilate = true, setDefault = true) {
         let leftMargin = 0;
-        nodes.forEach((node) => {
-            if (node.viewState.components['left-margin']) {
-                if (node.viewState.components['left-margin'].w > leftMargin) {
-                    leftMargin = node.viewState.components['left-margin'].w;
-                }
+        children.forEach((child) => {
+            if (child.viewState.bBox.leftMargin > leftMargin) {
+                leftMargin = child.viewState.bBox.leftMargin;
             }
         });
-        return leftMargin;
+        const defaultGap = (setDefault) ? this.config.flowChartControlStatement.gap.left : 0;
+        bBox.leftMargin = (leftMargin === 0) ? defaultGap :
+            (leftMargin + ((acumilate) ? this.config.flowChartControlStatement.padding.left : 0));
     }
 
     /**

@@ -9,6 +9,9 @@ public function testSimpleObjectAsStructWithNew () returns (int, string, int, st
     return (p.age, p.name, p.year, p.month);
 }
 
+function test() {
+}
+
 type Person object {
     public {
         int age = 10,
@@ -18,6 +21,6 @@ type Person object {
         int year = 50;
         string month = "february";
     }
-}
+};
 
 

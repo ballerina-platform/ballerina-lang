@@ -21,11 +21,12 @@ import ballerina/time;
 import ballerina/util;
 
 @Description {value:"Represents JWT validator configurations"}
-public struct JWTValidatorConfig {
-    string issuer;
-    string audience;
-    string certificateAlias;
-}
+public type JWTValidatorConfig {
+    string issuer,
+    string audience,
+    string certificateAlias,
+    int timeSkew,
+};
 
 @Description {value:"Validity given JWT token"}
 @Param {value:"jwtToken: JWT token that need to validate"}
@@ -33,7 +34,7 @@ public struct JWTValidatorConfig {
 @Return {value:"boolean: If JWT token is valied true , else false"}
 @Return {value:"Payload: If JWT token is valied return the JWT payload"}
 @Return {value:"error: If token validation fails"}
-public function validate (string jwtToken, JWTValidatorConfig config) returns (Payload|boolean|error) {
+public function validate (string jwtToken, JWTValidatorConfig config) returns (boolean, Payload)|error {
     string[] encodedJWTComponents;
     match getJWTComponents(jwtToken) {
         string[] encodedJWT => encodedJWTComponents = encodedJWT;
@@ -51,7 +52,7 @@ public function validate (string jwtToken, JWTValidatorConfig config) returns (P
 
     match validateJWT(encodedJWTComponents, header, payload, config) {
         error e => return e;
-        boolean isValid => return isValid ? payload : false;
+        boolean isValid => return isValid ? (true, payload) : (false, ());
     }
 }
 
@@ -81,8 +82,8 @@ function parseJWT (string[] encodedJWTComponents) returns ((Header, Payload)|err
 }
 
 function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json, json)|error) {
-    string jwtHeader = util:base64Decode(urlDecode(encodedJWTComponents[0]));
-    string jwtPayload = util:base64Decode(urlDecode(encodedJWTComponents[1]));
+    string jwtHeader = check util:base64DecodeString(urlDecode(encodedJWTComponents[0]));
+    string jwtPayload = check util:base64DecodeString(urlDecode(encodedJWTComponents[1]));
     json jwtHeaderJson = {};
     json jwtPayloadJson = {};
 
@@ -99,22 +100,26 @@ function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json,
 
 function parseHeader (json jwtHeaderJson) returns (Header) {
     Header jwtHeader = {};
-    map customClaims = {};
-    foreach key in jwtHeaderJson.getKeys() {
+    map customClaims;
+    
+    string [] keys;
+    keys = jwtHeaderJson.getKeys() but { () => keys };
+    
+    foreach key in keys {
         //TODO get alg from a constant
         if (key == "alg") {
-            jwtHeader.alg = jwtHeaderJson[key].toString();
+            jwtHeader.alg = jwtHeaderJson[key].toString() but {() => ""}; // TODO: Double check if this is right
         } else if (key == TYP) {
-            jwtHeader.typ = jwtHeaderJson[key].toString();
+            jwtHeader.typ = jwtHeaderJson[key].toString() but {() => ""}; // TODO: Double check if this is right
         } else if (key == CTY) {
-            jwtHeader.cty = jwtHeaderJson[key].toString();
+            jwtHeader.cty = jwtHeaderJson[key].toString() but {() => ""}; // TODO: Double check if this is right
         } else if (key == KID) {
-            jwtHeader.kid = jwtHeaderJson[key].toString();
+            jwtHeader.kid = jwtHeaderJson[key].toString() but {() => ""}; // TODO: Double check if this is right
         } else {
             if (lengthof jwtHeaderJson[key] > 0) {
                 customClaims[key] = convertToStringArray(jwtHeaderJson[key]);
             } else {
-                customClaims[key] = jwtHeaderJson[key].toString();
+                customClaims[key] = jwtHeaderJson[key].toString() but {() => ""}; // TODO: Double check if this is right
             }
         }
     }
@@ -124,31 +129,33 @@ function parseHeader (json jwtHeaderJson) returns (Header) {
 
 function parsePayload (json jwtPayloadJson) returns (Payload) {
     Payload jwtPayload = {};
-    map customClaims = {};
-    foreach key in jwtPayloadJson.getKeys() {
+    map customClaims;
+    string [] keys;
+    keys = jwtPayloadJson.getKeys() but { () => keys };
+    foreach key in keys {
         if (key == ISS) {
-            jwtPayload.iss = jwtPayloadJson[key].toString();
+            jwtPayload.iss = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
         } else if (key == SUB) {
-            jwtPayload.sub = jwtPayloadJson[key].toString();
+            jwtPayload.sub = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
         } else if (key == AUD) {
             jwtPayload.aud = convertToStringArray(jwtPayloadJson[key]);
         } else if (key == JTI) {
-            jwtPayload.jti = jwtPayloadJson[key].toString();
+            jwtPayload.jti = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
         } else if (key == EXP) {
-            var value = jwtPayloadJson[key].toString();
-            jwtPayload.exp =? <int>value;
+            var value = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            jwtPayload.exp = <int>value but {error => 0};
         } else if (key == NBF) {
-            var value = jwtPayloadJson[key].toString();
-            jwtPayload.nbf =? <int>value;
+            var value = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            jwtPayload.nbf = <int>value but {error => 0};
         } else if (key == IAT) {
-            var value = jwtPayloadJson[key].toString();
-            jwtPayload.iat =? <int>value;
+            var value = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            jwtPayload.iat = <int>value but {error => 0};
         }
         else {
             if (lengthof jwtPayloadJson[key] > 0) {
                 customClaims[key] = convertToStringArray(jwtPayloadJson[key]);
             } else {
-                customClaims[key] = jwtPayloadJson[key].toString();
+                customClaims[key] = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
             }
         }
     }
@@ -196,7 +203,7 @@ function validateMandatoryFields (Payload jwtPayload) returns (boolean) {
 function validateSignature (string[] encodedJWTComponents, Header jwtHeader, JWTValidatorConfig config) returns (boolean) {
     string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
     string signPart = encodedJWTComponents[2];
-    return signature:verify(assertion, signPart, jwtHeader.alg, config.certificateAlias);
+    return verifySignature(assertion, signPart, jwtHeader.alg, config.certificateAlias);
 }
 
 function validateIssuer (Payload jwtPayload, JWTValidatorConfig config) returns (boolean) {
@@ -225,11 +232,11 @@ function convertToStringArray (json jsonData) returns (string[]) {
     if (lengthof jsonData > 0) {
         int i = 0;
         while (i < lengthof jsonData) {
-            outData[i] = jsonData[i].toString();
+            outData[i] = jsonData[i].toString() but {() => ""}; // TODO: Double check if this is right
             i = i + 1;
         }
     } else {
-        outData[0] = jsonData.toString();
+        outData[0] = jsonData.toString() but {() => ""}; // TODO: Double check if this is right
     }
     return outData;
 }

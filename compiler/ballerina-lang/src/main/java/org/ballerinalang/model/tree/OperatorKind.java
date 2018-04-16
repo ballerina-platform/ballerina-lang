@@ -41,11 +41,11 @@ public enum OperatorKind {
     POW("^"),
     NOT("!"),
     LENGTHOF("lengthof"),
-    TYPEOF("typeof"),
     UNTAINT("untaint"),
     INCREMENT("++"),
     DECREMENT("--"),
-    CHECK("check");
+    CHECK("check"),
+    ELVIS("?:");
 
     private final String opValue;
 

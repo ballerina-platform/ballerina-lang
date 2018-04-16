@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.sql.Constants;
 import org.ballerinalang.nativeimpl.sql.SQLDatasource;
+import org.ballerinalang.nativeimpl.sql.SQLDatasourceUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -43,7 +44,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
         functionName = "select",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.SQL_CLIENT),
         args = {
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
@@ -51,8 +52,8 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
         },
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),
-                @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
-                            structPackage = "ballerina.sql")
+                @ReturnType(type = TypeKind.STRUCT, structType = "error",
+                            structPackage = "ballerina.builtin")
         }
 )
 public class Select extends AbstractSQLAction {
@@ -61,13 +62,14 @@ public class Select extends AbstractSQLAction {
     public void execute(Context context) {
         try {
             BStruct bConnector = (BStruct) context.getRefArgument(0);
-            String query = context.getStringArgument(0);
-            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
-            BStructType structType = getStructType(context);
-            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
 
-            ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
-                    getParentWorkerExecutionContext());
+            String query = context.getStringArgument(0);
+            BStructType structType = getStructType(context, 1);
+
+            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(2);
+            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
+
+            ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context);
             observerContext.addTag(TAG_KEY_DB_STATEMENT, query);
             observerContext.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
 

@@ -19,10 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.tree.OperatorKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -42,7 +39,6 @@ import java.util.Set;
  */
 public class Symbols {
 
-    public static final String ANON_STRUCT = "$anonStruct$";
 
     public static BTypeSymbol createStructSymbol(int flags,
                                                  Name name,
@@ -61,7 +57,16 @@ public class Symbols {
                                                  BSymbol owner) {
         BStructSymbol typeSymbol = new BStructSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.OBJECT;
-        typeSymbol.isObject = true;
+        return typeSymbol;
+    }
+
+    public static BTypeSymbol createRecordSymbol(int flags,
+                                                 Name name,
+                                                 PackageID pkgID,
+                                                 BType type,
+                                                 BSymbol owner) {
+        BStructSymbol typeSymbol = new BStructSymbol(SymTag.RECORD, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.RECORD;
         return typeSymbol;
     }
 
@@ -72,6 +77,16 @@ public class Symbols {
                                                BSymbol owner) {
         BTypeSymbol typeSymbol = createTypeSymbol(SymTag.ENUM, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.ENUM;
+        return typeSymbol;
+    }
+
+    public static BTypeSymbol createTypeDefinitionSymbol(int flags,
+                                                         Name name,
+                                                         PackageID pkgID,
+                                                         BType type,
+                                                         BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE_DEF, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.TYPE_DEF;
         return typeSymbol;
     }
 
@@ -248,19 +263,6 @@ public class Symbols {
         symbol.kind = SymbolKind.TRANSFORMER;
         symbol.scope = new Scope(symbol);
         return symbol;
-    }
-
-    public static BOperatorSymbol createTypeofOperatorSymbol(BType exprType, Types types,
-                                                             SymbolTable symTable, Names names) {
-        List<BType> paramTypes = Lists.of(exprType);
-        BInvokableType opType = new BInvokableType(paramTypes, symTable.typeDesc, null);
-        if (types.isValueType(exprType)) {
-            return new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
-                    symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPELOAD);
-        } else {
-            return new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
-                    symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPEOF);
-        }
     }
 
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {

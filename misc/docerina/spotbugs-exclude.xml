@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <Match>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD,BC_UNCONFIRMED_CAST,BC_UNCONFIRMED_CAST_OF_RETURN_VALUE,DM_EXIT"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.docgen.model"/>
+        <Class name="org.ballerinalang.docgen.Generator"/>
+    </Match>
+</FindBugsFilter>

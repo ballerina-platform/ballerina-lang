@@ -122,33 +122,34 @@ function concatString ((string, string) v) returns (string) {
     var (v1, v2) = v;
     return v1 + v2;
 }
+//
+//json j1 = {name:"bob", age:10, pass:true, subjects:[{subject:"maths", marks:75}, {subject:"English", marks:85}]};
+//function jsonTest () returns (string, string[], int, int, string[]) {
+//    output = "";
+//    j1.foreach((json j) => {
+//                   output = output + (j.toString() but { () => "" });
+//               });
+//
+//    string[] sa = j1.map((json j) => (string) {
+//                             return (j.toString() but { () => "" });
+//                         })
+//                  .filter((string s) => (boolean) {
+//                              return s == "bob";
+//                          });
+//
+//    int i1 = j1.count();
+//
+//    var ja = check <json[]>j1.subjects;
+//    string[] result = ja.map(((int, json) tuple) => (string) {
+//                                 var (i, j) = tuple;
+//                                 return  i + "->" + (j.toString() but { () => "" });
+//                             });
+//
+//    return (output, sa, i1, j1.count(), result);
+//}
 
-json j1 = {name:"bob", age:10, pass:true, subjects:[{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-function jsonTest () returns (string, string[], int, int, string[]) {
-    output = "";
-    j1.foreach((json j) => {
-                   output = output + j.toString();
-               });
-
-    string[] sa = j1.map((json j) => (string) {
-                             return j.toString();
-                         })
-                  .filter((string s) => (boolean) {
-                              return s == "bob";
-                          });
-
-    int i = j1.count();
-
-    var ja =? <json[]>j1.subjects;
-    string[] result = ja.map(((int, json) tuple) => (string) {
-                                 var (i, j) = tuple;
-                                 return i + "->" + j.toString();
-                             });
-
-    return (output, sa, i, j1.count(), result);
-}
-
-xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
+function xmlTest() returns (int, int, map) {
+    xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
         <p:name>bob</p:name>
         <p:address>
             <p:city>NY</p:city>
@@ -156,8 +157,6 @@ xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
         </p:address>
         <q:ID>1131313</q:ID>
     </p:person>`;
-
-function xmlTest () returns (int, int, map) {
     int nodeCount = xdata.*.count();
     int elementCount = xdata.*.elements().count();
     map<xml> m = xdata.*.elements()[1].*.elements()
@@ -168,10 +167,10 @@ function xmlTest () returns (int, int, map) {
     return (nodeCount, elementCount, m);
 }
 
-struct person {
+type person {
     string name;
     int age;
-}
+};
 
 function structTest () returns (int, string[]) {
     person bob = {name:"bob", age:30};
@@ -194,10 +193,10 @@ function isBellow25 (person p) returns boolean {
 function testIgnoredValue () returns (string) {
     output = "";
     string[] s = ["abc", "cd", "pqr"];
-    _ = s.filter((string s) => boolean {return lengthof s == 3;})
-        .map((string s) => string {
-                 output = output + " " + s;
-                 return (s + s);
+    _ = s.filter((string ss) => boolean {return lengthof ss == 3;})
+    .map((string ss) => string {
+            output = output + " " + ss;
+            return (ss + ss);
              });
     return output.trim();
 }
@@ -211,7 +210,7 @@ function testInExpression () returns (string, int) {
     output = "";
     string[] s = ["abc", "cd", "pqr"];
     float[] r = [1.1, -2.2, 3.3, 4.4];
-    appendAny("total count " + s.filter((string s) => (boolean) {return lengthof s == 3;}).count());
+    appendAny("total count " + s.filter((string ss) => (boolean) {return lengthof ss == 3;}).count());
     int i = s.count() + r.count();
     return (output, i);
 }

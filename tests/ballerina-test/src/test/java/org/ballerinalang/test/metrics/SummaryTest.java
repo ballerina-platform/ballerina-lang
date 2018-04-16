@@ -17,28 +17,28 @@
  */
 package org.ballerinalang.test.metrics;
 
-import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.Map;
 
 /**
  * Tests for summary metric.
  */
-public class SummaryTest {
+public class SummaryTest extends MetricTest {
     private CompileResult compileResult;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/metrics/summary-test.bal");
-        Metrics.globalRegistry.add(new SimpleMeterRegistry());
     }
 
     @Test
@@ -62,6 +62,17 @@ public class SummaryTest {
     @Test
     public void testPercentileSummary() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testPercentileSummary");
-        Assert.assertNotEquals(returns[0], new BFloat(0));
+        BMap<String, BFloat> bMap = (BMap) returns[0];
+        Assert.assertEquals(bMap.size(), 5);
+        Map<String, BFloat> map = bMap.getMap();
+        map.forEach((percentile, value) -> {
+            Assert.assertTrue(value.floatValue() > 0);
+        });
+    }
+
+    @Test
+    public void testSummaryWithoutTags() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSummaryWithoutTags");
+        Assert.assertEquals(returns[0], new BFloat(3));
     }
 }

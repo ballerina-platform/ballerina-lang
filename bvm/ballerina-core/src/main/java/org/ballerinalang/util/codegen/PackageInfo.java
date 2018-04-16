@@ -39,6 +39,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public int nameCPIndex;
     public String pkgPath;
+    public int versionCPIndex;
+    public String pkgVersion;
     private FunctionInfo initFunctionInfo, startFunctionInfo, stopFunctionInfo;
 
     private ConstantPoolEntry[] constPool;
@@ -53,11 +55,7 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private Map<String, FunctionInfo> functionInfoMap = new LinkedHashMap<>();
 
-    private Map<String, ConnectorInfo> connectorInfoMap = new LinkedHashMap<>();
-
     private Map<String, StructInfo> structInfoMap = new HashMap<>();
-
-    private Map<String, EnumInfo> enumInfoMap = new HashMap<>();
 
     private Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
 
@@ -66,6 +64,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
     private Map<String, TransformerInfo> transformerInfoMap = new LinkedHashMap<>();
+
+    public Map<String, TypeDefinitionInfo> typeDefInfoMap = new HashMap<>();
 
     // cache values.
     ProgramFile programFile;
@@ -78,7 +78,13 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return pkgPath;
     }
 
-    // CP
+    public int getPackageVersionCPIndex() {
+        return versionCPIndex;
+    }
+
+    public String getPackageVersion() {
+        return pkgVersion;
+    }
 
     public int addCPEntry(ConstantPoolEntry cpEntry) {
         if (constantPoolEntries.contains(cpEntry)) {
@@ -150,31 +156,17 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return structInfoMap.values().toArray(new StructInfo[0]);
     }
 
-    public EnumInfo getEnumInfo(String enumName) {
-        return enumInfoMap.get(enumName);
+    public void addTypeDefinitionInfo(String typeDefinitionName, TypeDefinitionInfo typeDefinitionInfo) {
+        typeDefInfoMap.put(typeDefinitionName, typeDefinitionInfo);
+        structureTypeInfoMap.put(typeDefinitionName, typeDefinitionInfo);
     }
 
-    public void addEnumInfo(String enumName, EnumInfo enumInfo) {
-        enumInfoMap.put(enumName, enumInfo);
-        structureTypeInfoMap.put(enumName, enumInfo);
+    public TypeDefinitionInfo[] getTypeDefinitionInfoEntries() {
+        return typeDefInfoMap.values().toArray(new TypeDefinitionInfo[0]);
     }
 
-    public EnumInfo[] getEnumInfoEntries() {
-        return enumInfoMap.values().toArray(new EnumInfo[0]);
-    }
-
-    public ConnectorInfo getConnectorInfo(String connectorName) {
-        return connectorInfoMap.get(connectorName);
-    }
-
-    public void addConnectorInfo(String connectorName, ConnectorInfo connectorInfo) {
-        connectorInfo.setPackageInfo(this);
-        connectorInfoMap.put(connectorName, connectorInfo);
-        structureTypeInfoMap.put(connectorName, connectorInfo);
-    }
-
-    public ConnectorInfo[] getConnectorInfoEntries() {
-        return connectorInfoMap.values().toArray(new ConnectorInfo[0]);
+    public TypeDefinitionInfo getTypeDefinitionInfo(String typeDefName) {
+        return typeDefInfoMap.get(typeDefName);
     }
 
     public ServiceInfo[] getServiceInfoEntries() {

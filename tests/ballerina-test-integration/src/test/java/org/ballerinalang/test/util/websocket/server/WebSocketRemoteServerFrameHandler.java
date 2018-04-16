@@ -21,6 +21,7 @@ package org.ballerinalang.test.util.websocket.server;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -29,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Simple WebSocket frame handler for testing
@@ -61,10 +63,17 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
             String text = ((TextWebSocketFrame) frame).text();
             if (PING.equals(text)) {
                 ctx.channel().writeAndFlush(new PingWebSocketFrame(
-                        Unpooled.wrappedBuffer(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}))));
+                        Unpooled.wrappedBuffer(ByteBuffer.wrap("data".getBytes(StandardCharsets.UTF_8)))));
                 return;
             }
             ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
+        } else if (frame instanceof BinaryWebSocketFrame) {
+            ByteBuffer originalBuffer = frame.content().nioBuffer();
+            ByteBuffer bufferCopy = ByteBuffer.allocate(originalBuffer.capacity());
+            originalBuffer.rewind();
+            bufferCopy.put(originalBuffer);
+            bufferCopy.flip();
+            ctx.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(bufferCopy)));
         } else if (frame instanceof CloseWebSocketFrame) {
             ctx.close();
             isOpen = false;

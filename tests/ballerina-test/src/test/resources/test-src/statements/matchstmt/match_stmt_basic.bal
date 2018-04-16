@@ -48,15 +48,15 @@ function openFileSuccess(string path) returns (File | error) {
     return f;
 }
 
-struct File {
+type File {
     string path;
-}
+};
 
 
-struct MyFile {
+type MyFile {
     string path;
     int bytes;
-}
+};
 
 function testMatchStatementBasics4() returns (string) {
     any a = "This is working";
@@ -96,11 +96,11 @@ function testMatchStatementBasics7() returns (string | int | boolean) {
 }
 
 function testMatchStatementBasics8() returns (string | int | boolean) {
-    any a = null;
+    any a = ();
 
     match a {
         int e => return 1;
-        string | null  k => return "string | null matched";
+        string | ()  k => return "string | null matched";
         any k => return "found any";
     }
 }
@@ -108,7 +108,7 @@ function testMatchStatementBasics8() returns (string | int | boolean) {
 function testMatchStatementBasics9(json aa) returns (string | int | boolean) {
     any a = aa;
     match a {
-        int | null e => return "json int| null matched";
+        int | () e => return "json int| null matched";
         string | boolean k => return "json string | boolean matched";
         json  k => return "json matched";
         any k => return "found any";
@@ -117,27 +117,27 @@ function testMatchStatementBasics9(json aa) returns (string | int | boolean) {
 
 function testMatchStatementBasics11() returns (string | int | boolean) {
 
-    string | int | boolean | null a = 5;
+    string | int | boolean | () a = 5;
 
     match a {
-        int | null e => return "int| null matched";
+        int | () e => return "int| null matched";
         string | boolean k => return "string | boolean matched";
     }
 }
 
 function testMatchStatementBasics12() returns (string | int | boolean) {
 
-    string | int | boolean | null a = false;
+    string | int | boolean | () a = false;
 
     match a {
-        int | null e => return "int| null matched";
+        int | () e => return "int| null matched";
         string | boolean k => return "string | boolean matched";
     }
 }
 
 function testMatchStatementBasics13() returns (string | int | boolean) {
 
-    string | int | boolean | null a = null;
+    string | int | boolean | () a = ();
 
     match a {
         int  e => return "int matched";
@@ -148,23 +148,23 @@ function testMatchStatementBasics13() returns (string | int | boolean) {
 
 function testMatchStatementBasics14(json a) returns (string | int | boolean) {
     match a {
-        int | null e => return "int| null matched";
+        int | () e => return "int| null matched";
         string | boolean k => return "json string | boolean matched";
         json  k => return "json matched";
     }
 }
 
 
-struct Human {
+type Human {
     string name;
-    function (int, string) returns string | null foo;
-}
+    function (int, string) returns string | () foo;
+};
 
-struct Man {
+type Man {
     string name;
-    function (int, string) returns string | null foo;
+    function (int, string) returns string | () foo;
     int age;
-}
+};
 
 function testMatchStatementBasics16() returns (string | int | boolean) {
 
@@ -176,12 +176,12 @@ function testMatchStatementBasics16() returns (string | int | boolean) {
     }
 }
 
-struct Woman {
+type Woman {
     string fname;
     (function (int, string) returns string) | Human foo;
     int age;
     string color;
-}
+};
 
 function fp_xyz (int a, string k) returns string {
     return "fp call return";

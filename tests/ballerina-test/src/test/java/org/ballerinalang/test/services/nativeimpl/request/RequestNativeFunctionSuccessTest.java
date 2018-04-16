@@ -86,8 +86,6 @@ public class RequestNativeFunctionSuccessTest {
     private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
     private final String reqCacheControlStruct = REQUEST_CACHE_CONTROL;
-    public static final String PROTOCOL_PACKAGE_FILE = "ballerina.file";
-    public static final String FILE = "File";
     private static final String MOCK_ENDPOINT_NAME = "mockEP";
 
     @BeforeClass
@@ -98,6 +96,16 @@ public class RequestNativeFunctionSuccessTest {
         result = BCompileUtil.compile(sourceRoot.resolve("in-request-native-function.bal").toString());
         serviceResult = BServiceUtil.setupProgramFile(this, sourceRoot.resolve("in-request-native-function.bal")
                 .toString());
+    }
+
+    @Test
+    public void testContentType() {
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BString contentType = new BString("application/x-custom-type+json");
+        BValue[] inputArg = {inRequest, contentType};
+        BValue[] returnVals = BRunUtil.invoke(result, "testContentType", inputArg);
+        Assert.assertNotNull(returnVals[0]);
+        Assert.assertEquals(((BString) returnVals[0]).value(), "application/x-custom-type+json");
     }
 
     @Test
@@ -178,7 +186,7 @@ public class RequestNativeFunctionSuccessTest {
                 jsonString);
         inRequestMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(length));
 
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
@@ -584,9 +592,7 @@ public class RequestNativeFunctionSuccessTest {
         bufferedWriter.write("{'name':'wso2'}");
         bufferedWriter.close();
 
-        BStruct fileStruct = BCompileUtil.createAndGetStruct(result.getProgFile(), PROTOCOL_PACKAGE_FILE, FILE);
-        fileStruct.setStringField(0, file.getAbsolutePath());
-        BValue[] inputArg = {fileStruct, new BString(APPLICATION_JSON)};
+        BValue[] inputArg = {new BString(file.getAbsolutePath()), new BString(APPLICATION_JSON)};
         BValue[] returnVals = BRunUtil.invoke(result, "testSetEntityBody", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -600,5 +606,14 @@ public class RequestNativeFunctionSuccessTest {
 
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
 
+    }
+
+    @Test
+    public void testSetPayloadAndGetText() {
+        BString textContent = new BString("Hello Ballerina !");
+        BValue[] args = {textContent};
+        BValue[] returns = BRunUtil.invoke(result, "testSetPayloadAndGetText", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), textContent.stringValue());
     }
 }

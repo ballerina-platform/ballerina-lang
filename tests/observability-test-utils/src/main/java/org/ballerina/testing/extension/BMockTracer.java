@@ -20,26 +20,38 @@ package org.ballerina.testing.extension;
 
 import io.opentracing.Tracer;
 import io.opentracing.mock.MockTracer;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.util.tracer.OpenTracer;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
 /**
  * Tracer extension that returns an instance of Mock tracer.
  */
+@JavaSPIService("org.ballerinalang.util.tracer.OpenTracer")
 public class BMockTracer implements OpenTracer {
 
     private static List<MockTracer> tracerMap = new ArrayList<>();
+    private static final String NAME = "BMockTracer";
 
     @Override
-    public Tracer getTracer(String tracerName, Properties configProperties, String serviceName)
-            throws InvalidConfigurationException {
+    public Tracer getTracer(String tracerName, String serviceName) throws InvalidConfigurationException {
         MockTracer mockTracer = new MockTracer();
         BMockTracer.tracerMap.add(mockTracer);
         return mockTracer;
+    }
+
+    @Override
+    public void init(Map<String, String> configProperties) {
+        // Do Nothing
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     public static List<MockTracer> getTracerMap() {

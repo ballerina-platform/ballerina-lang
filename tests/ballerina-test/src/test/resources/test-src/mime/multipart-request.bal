@@ -7,7 +7,7 @@ function setErrorResponse(http:Response response,  mime:EntityError err) {
     response.setStringPayload(err.message);
 }
 
-endpoint http:NonListeningServiceEndpoint mockEP {
+endpoint http:NonListener mockEP {
     port:9090
 };
 
@@ -19,8 +19,8 @@ service<http:Service> test bind mockEP {
         path:"/textbodypart"
     }
     multipart1 (endpoint client, http:Request request) {
-        http:Response response = {};
-        match request.getMultiparts() {
+        http:Response response = new;
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -30,7 +30,7 @@ service<http:Service> test bind mockEP {
                          setErrorResponse(response, err);
                     }
                     string textPayload => {
-                            mime:Entity entity = {};
+                            mime:Entity entity = new;
                             entity.setText(textPayload);
                             response.setEntity(entity);
                     }
@@ -45,8 +45,8 @@ service<http:Service> test bind mockEP {
         path:"/jsonbodypart"
     }
     multipart2 (endpoint client, http:Request request) {
-        http:Response response = {};
-        match request.getMultiparts() {
+        http:Response response = new;
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -67,8 +67,8 @@ service<http:Service> test bind mockEP {
         path:"/xmlbodypart"
     }
     multipart3 (endpoint client, http:Request request) {
-        http:Response response = {};
-        match request.getMultiparts() {
+        http:Response response = new;
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -89,8 +89,8 @@ service<http:Service> test bind mockEP {
         path:"/binarybodypart"
     }
     multipart4 (endpoint client, http:Request request) {
-        http:Response response = {};
-        match request.getMultiparts() {
+        http:Response response = new;
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -111,8 +111,8 @@ service<http:Service> test bind mockEP {
         path:"/multipleparts"
     }
     multipart5 (endpoint client, http:Request request) {
-        http:Response response = {};
-        match request.getMultiparts() {
+        http:Response response = new;
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -135,8 +135,8 @@ service<http:Service> test bind mockEP {
         path:"/emptyparts"
     }
     multipart6 (endpoint client, http:Request request) {
-        http:Response response = {};
-        match (request.getMultiparts()) {
+        http:Response response = new;
+        match (request.getBodyParts()) {
             mime:EntityError err => {
                 response.setStringPayload(err.message);
             }
@@ -152,8 +152,8 @@ service<http:Service> test bind mockEP {
         path:"/nestedparts"
     }
     multipart7 (endpoint client, http:Request request) {
-        http:Response response = {};
-        match request.getMultiparts() {
+        http:Response response = new;
+        match request.getBodyParts() {
             mime:EntityError err => {
                 setErrorResponse(response, err);
             }
@@ -194,14 +194,14 @@ function handleNestedParts (mime:Entity parentPart) returns (string) {
 }
 
 function handleContent (mime:Entity bodyPart) returns (string) {
-    string contentType = bodyPart.contentType.toString();
-    if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
+    string baseType = bodyPart.contentType.getBaseType();
+    if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         var payload = bodyPart.getXml();
         match payload {
             mime:EntityError err => return "Error in getting xml payload";
             xml xmlContent => return xmlContent.getTextValue();
         }
-    } else if (mime:APPLICATION_JSON == contentType) {
+    } else if (mime:APPLICATION_JSON == baseType) {
         var payload = bodyPart.getJson();
         match payload {
             mime:EntityError err => return "Error in getting json payload";
@@ -209,13 +209,13 @@ function handleContent (mime:Entity bodyPart) returns (string) {
                return extractFieldValue(jsonContent.bodyPart);
             }
         }
-    } else if (mime:TEXT_PLAIN == contentType) {
+    } else if (mime:TEXT_PLAIN == baseType) {
         var payload = bodyPart.getText();
         match payload {
             mime:EntityError err => return "Error in getting string payload";
             string textContent => return textContent;
         }
-    } else if (mime:APPLICATION_OCTET_STREAM == contentType) {
+    } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
         var payload = bodyPart.getBlob();
         match payload {
             mime:EntityError err => return "Error in getting blob payload";
@@ -231,7 +231,6 @@ function extractFieldValue(json fieldValue) returns string {
         int i => return "error";
         string s => return s;
         boolean b => return "error";
-        null  => return "error";
         json j => return "error";
     }
 }

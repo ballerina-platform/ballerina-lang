@@ -15,13 +15,15 @@
  */
 package org.ballerinalang.langserver;
 
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.ballerinalang.model.elements.PackageID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,17 +31,29 @@ import java.util.Map;
  */
 public class LSPackageCache {
 
-    private Map<String, BLangPackage> packageMap = new HashMap<>();
+    private static final CompilerContext.Key<LSPackageCache> LS_PACKAGE_CACHE_KEY =
+            new CompilerContext.Key<>();
 
-    private static final String[] staticPkgNames = {"http", "http.swagger", "net.uri", "mime", "auth", "auth.authz",
-            "auth.authz.permissionstore", "auth.basic", "auth.jwtAuth", "auth.userstore", "auth.utils", "caching",
-            "collections", "config", "sql", "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os",
-            "reflect", "runtime", "security.crypto", "task", "time", "transactions", "user", "util"};
+    private static final Object LOCK = new Object();
 
-    public LSPackageCache() {
-        List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
-        builtInPackages.forEach(this::addPackage);
-        this.loadPackagesMap();
+    private final ExtendedPackageCache packageCache;
+    private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
+
+    public static LSPackageCache getInstance(CompilerContext context) {
+        LSPackageCache lsPackageCache = context.get(LS_PACKAGE_CACHE_KEY);
+        if (lsPackageCache == null) {
+            synchronized (LOCK) {
+                if (context.get(LS_PACKAGE_CACHE_KEY) == null) {
+                    lsPackageCache = new LSPackageCache(context);
+                }
+            }
+        }
+        return lsPackageCache;
+    }
+
+    private LSPackageCache(CompilerContext context) {
+        context.put(LS_PACKAGE_CACHE_KEY, this);
+        packageCache = new ExtendedPackageCache(context);
     }
 
     /**
@@ -49,23 +63,27 @@ public class LSPackageCache {
      * @return {@link BLangPackage} BLang Package resolved
      */
     public BLangPackage findPackage(CompilerContext compilerContext, PackageID pkgId) {
-        if (containsPackage(pkgId.getName().getValue())) {
-            return packageMap.get(pkgId.getName().getValue());
+        BLangPackage bLangPackage = packageCache.get(pkgId);
+        if (bLangPackage != null) {
+            return bLangPackage;
         } else {
-            BLangPackage bLangPackage = LSPackageLoader.getPackageById(compilerContext, pkgId);
-            addPackage(bLangPackage);
+            bLangPackage = LSPackageLoader.getPackageById(compilerContext, pkgId);
+            addPackage(bLangPackage.packageID, bLangPackage);
             return bLangPackage;
         }
     }
 
     /**
-     * get the package name by composing from given identifier list.
+     * removes package from the package map.
      *
-     * @param pkgID             package ID
-     * @return {@link String}   Full package name with orgName
+     * @param packageID ballerina package id to be removed.
      */
-    private String getPackageName(PackageID pkgID) {
-        return pkgID.getOrgName().getValue() + "/" + pkgID.getName().getValue();
+    public void removePackage(PackageID packageID) {
+        packageCache.remove(packageID);
+    }
+    
+    public void clearCache() {
+        packageCache.clearCache();
     }
 
     /**
@@ -73,36 +91,43 @@ public class LSPackageCache {
      *
      * @param bLangPackage ballerina package to be added.
      */
-    void addPackage(BLangPackage bLangPackage) {
-        if (bLangPackage.getPackageDeclaration() == null) {
-            this.packageMap.put(".", bLangPackage);
-        } else {
-            this.packageMap.put(getPackageName(bLangPackage.packageID), bLangPackage);
+    void addPackage(PackageID packageID, BLangPackage bLangPackage) {
+        if (bLangPackage != null) {
+            bLangPackage.packageID = packageID;
+            packageCache.put(packageID, bLangPackage);
         }
     }
 
-    /**
-     * Check whether the package exist in the current package context.
-     * @param packageName       package name
-     * @return {@link Boolean}  package exist or not
-     */
-    private boolean containsPackage(String packageName) {
-        return this.packageMap.containsKey(packageName);
-    }
-    
-    private void loadPackagesMap() {
-        CompilerContext tempCompilerContext = CommonUtil.prepareTempCompilerContext();
-        for (String staticPkgName : staticPkgNames) {
-            PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
-                    new org.wso2.ballerinalang.compiler.util.Name(staticPkgName),
-                    new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
-            
-            this.packageMap.put(getPackageName(packageID),
-                    LSPackageLoader.getPackageById(tempCompilerContext, packageID));
-        }
+    public ExtendedPackageCache getPackageCache() {
+        return packageCache;
     }
 
     public Map<String, BLangPackage> getPackageMap() {
-        return packageMap;
+        return packageCache.getMap();
+    }
+
+    static class ExtendedPackageCache extends PackageCache {
+
+        private static final long MAX_CACHE_COUNT = 100L;
+
+        private ExtendedPackageCache(CompilerContext context) {
+            super(context);
+            Cache<String, BLangPackage> cache = CacheBuilder.newBuilder().maximumSize(MAX_CACHE_COUNT).build();
+            this.packageMap = cache.asMap();
+        }
+
+        public Map<String, BLangPackage> getMap() {
+            return this.packageMap;
+        }
+
+        public void remove(PackageID packageID) {
+            if (packageID != null) {
+                this.packageMap.remove(packageID.bvmAlias());
+            }
+        }
+        
+        public void clearCache() {
+            this.packageMap.clear();
+        }
     }
 }

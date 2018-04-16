@@ -18,7 +18,7 @@
 package org.ballerinalang.util.tracer;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.ObservableContext;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.observability.BallerinaObserver;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -40,24 +40,24 @@ import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_MESSAGE;
 public class BallerinaTracingObserver implements BallerinaObserver {
 
     @Override
-    public void startServerObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
-        BSpan span = new BSpan(executionContext, false);
+    public void startServerObservation(ObserverContext observerContext, ObservableContext observableContext) {
+        BSpan span = new BSpan(observableContext, false);
         span.setConnectorName(observerContext.getServiceName());
         span.setActionName(observerContext.getResourceName());
         Map<String, String> httpHeaders = (Map<String, String>) observerContext.getProperty(PROPERTY_TRACE_PROPERTIES);
         if (httpHeaders != null) {
             httpHeaders.entrySet().stream()
-                    .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
+                    .filter(c -> TraceConstants.TRACE_HEADER.equals(c.getKey()))
                     .forEach(e -> span.addProperty(e.getKey(), e.getValue()));
         }
-        TraceUtil.setBSpan(executionContext, span);
+        TraceUtil.setBSpan(observableContext, span);
         span.startSpan();
     }
 
     @Override
-    public void startClientObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
-        BSpan activeSpan = new BSpan(executionContext, true);
-        TraceUtil.setBSpan(executionContext, activeSpan);
+    public void startClientObservation(ObserverContext observerContext, ObservableContext observableContext) {
+        BSpan activeSpan = new BSpan(observableContext, true);
+        TraceUtil.setBSpan(observableContext, activeSpan);
         activeSpan.setConnectorName(observerContext.getConnectorName());
         activeSpan.setActionName(observerContext.getActionName());
         observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, activeSpan.getProperties());
@@ -65,17 +65,17 @@ public class BallerinaTracingObserver implements BallerinaObserver {
     }
 
     @Override
-    public void stopServerObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
-        stopObservation(observerContext, executionContext);
+    public void stopServerObservation(ObserverContext observerContext, ObservableContext observableContext) {
+        stopObservation(observerContext, observableContext);
     }
 
     @Override
-    public void stopClientObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
-        stopObservation(observerContext, executionContext);
+    public void stopClientObservation(ObserverContext observerContext, ObservableContext observableContext) {
+        stopObservation(observerContext, observableContext);
     }
 
-    public void stopObservation(ObserverContext observerContext, WorkerExecutionContext executionContext) {
-        BSpan span = TraceUtil.getBSpan(executionContext);
+    public void stopObservation(ObserverContext observerContext, ObservableContext observableContext) {
+        BSpan span = TraceUtil.getBSpan(observableContext);
         if (span != null) {
             BStruct error = (BStruct) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
             if (error != null) {

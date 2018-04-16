@@ -1,8 +1,8 @@
-struct Person {
+type Person {
     string fname;
     string lname;
     function (string, string) returns (string) getName;
-}
+};
 
 function getFullName (string f, string l) returns (string){
     return l + ", " + f;

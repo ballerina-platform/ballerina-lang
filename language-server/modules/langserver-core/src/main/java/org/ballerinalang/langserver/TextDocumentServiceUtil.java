@@ -22,20 +22,24 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.CustomErrorStrategyFactory;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.LSParserUtils;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.workspace.repository.LangServerFSProgramDirectory;
 import org.ballerinalang.langserver.workspace.repository.LangServerFSProjectDirectory;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +55,7 @@ import java.util.regex.Pattern;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.langserver.LSContextManager.COMPILER_LOCK;
 
 /**
  * Compilation unit builder is for building ballerina compilation units.
@@ -171,31 +176,34 @@ public class TextDocumentServiceUtil {
     /**
      * Prepare the compiler context.
      *
+     * @param packageID        Package Name
      * @param packageRepository  Package Repository
      * @param sourceRoot         LSDocument for Source Root
      * @param preserveWhitespace Preserve Whitespace
      * @return {@link CompilerContext}     Compiler context
      */
-    public static CompilerContext prepareCompilerContext(PackageRepository packageRepository, LSDocument sourceRoot,
-                                                         boolean preserveWhitespace,
+    public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
+                                                         LSDocument sourceRoot, boolean preserveWhitespace,
                                                          WorkspaceDocumentManager documentManager) {
-        return prepareCompilerContext(packageRepository, sourceRoot, preserveWhitespace, documentManager,
-                CompilerPhase.CODE_ANALYZE);
+        return prepareCompilerContext(packageID, packageRepository, sourceRoot, preserveWhitespace, documentManager,
+                CompilerPhase.TAINT_ANALYZE);
     }
 
     /**
      * Prepare the compiler context.
      *
+     * @param packageID        Package ID
      * @param packageRepository  Package Repository
      * @param sourceRoot         LSDocument for Source Root
      * @param preserveWhitespace Preserve Whitespace
      * @return {@link CompilerContext}     Compiler context
      */
-    public static CompilerContext prepareCompilerContext(PackageRepository packageRepository, LSDocument sourceRoot,
-                                                         boolean preserveWhitespace,
+    public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
+                                                         LSDocument sourceRoot, boolean preserveWhitespace,
                                                          WorkspaceDocumentManager documentManager,
                                                          CompilerPhase compilerPhase) {
-        org.wso2.ballerinalang.compiler.util.CompilerContext context = new CompilerContext();
+        LSContextManager lsContextManager = LSContextManager.getInstance();
+        CompilerContext context = lsContextManager.getCompilerContext(packageID, sourceRoot.getSourceRoot());
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot.getSourceRoot());
@@ -206,6 +214,9 @@ public class TextDocumentServiceUtil {
 
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
+
+        // In order to capture the syntactic errors, need to go through the default error strategy
+        context.put(DefaultErrorStrategy.class, null);
 
         if (isProjectDir(sourceRoot.getSourceRoot(), sourceRoot.getURIString())) {
             context.put(SourceDirectory.class,
@@ -231,6 +242,12 @@ public class TextDocumentServiceUtil {
                                                      boolean preserveWhitespace, Class customErrorStrategy,
                                                      boolean compileFullProject) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        String unsavedFileId = LSParserUtils.getUnsavedFileIdOrNull(uri);
+        if (unsavedFileId != null) {
+            // if it is an unsaved file; overrides the file path
+            uri = LSParserUtils.createAndGetTempFile(unsavedFileId).toUri().toString();
+            context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
+        }
         LSDocument document = new LSDocument(uri);
         Path filePath = CommonUtil.getPath(document);
         Path fileNamePath = filePath.getFileName();
@@ -238,7 +255,6 @@ public class TextDocumentServiceUtil {
         if (fileNamePath != null) {
             fileName = fileNamePath.toString();
         }
-
 
         String sourceRoot = TextDocumentServiceUtil.getSourceRoot(filePath);
         String pkgName = TextDocumentServiceUtil.getPackageNameForGivenFile(sourceRoot, filePath.toString());
@@ -253,24 +269,34 @@ public class TextDocumentServiceUtil {
                 File projectDir = new File(sourceRoot);
                 File[] files = projectDir.listFiles();
                 if (files != null) {
-                    for (File file : files) {
-                        if ((file.isDirectory() && !file.getName().startsWith(".")) ||
-                                (!file.isDirectory() && file.getName().endsWith(".bal"))) {
-                            Compiler compiler = getCompiler(context, fileName, packageRepository, sourceDocument,
-                                    preserveWhitespace, customErrorStrategy, docManager);
-                            packages.add(compiler.compile(file.getName()));
+                    synchronized (COMPILER_LOCK) {
+                        for (File file : files) {
+                            if ((file.isDirectory() && !file.getName().startsWith(".")) ||
+                                    (!file.isDirectory() && file.getName().endsWith(".bal"))) {
+                                PackageID packageID = new PackageID(fileName);
+                                Compiler compiler = getCompiler(context, fileName, packageID, packageRepository,
+                                                                sourceDocument, preserveWhitespace, customErrorStrategy,
+                                                                docManager);
+                                packages.add(compiler.compile(file.getName()));
+                            }
                         }
                     }
                 }
             }
         } else {
-            Compiler compiler = getCompiler(context, fileName, packageRepository, sourceDocument, preserveWhitespace,
-                    customErrorStrategy, docManager);
+            PackageID packageID;
             if ("".equals(pkgName)) {
-                packages.add(compiler.compile(fileName));
+                packageID = new PackageID(fileName);
+                pkgName = fileName;
             } else {
+                packageID = new PackageID(Names.ANON_ORG, new Name(pkgName), Names.DEFAULT_VERSION);
+            }
+            Compiler compiler = getCompiler(context, fileName, packageID, packageRepository, sourceDocument,
+                                            preserveWhitespace, customErrorStrategy, docManager);
+            synchronized (COMPILER_LOCK) {
                 packages.add(compiler.compile(pkgName));
             }
+
         }
         return packages;
     }
@@ -280,27 +306,28 @@ public class TextDocumentServiceUtil {
      *
      * @param context             Language server context
      * @param fileName            File name which is currently open
+     * @param packageID         Package ID
      * @param packageRepository   package repository
      * @param sourceRoot          LSDocument for root path of the source
      * @param preserveWhitespace  enable/disable preserve white space in compiler
      * @param customErrorStrategy custom error strategy class
      * @return {@link Compiler} ballerina compiler
      */
-    private static Compiler getCompiler(LSContext context, String fileName,
+    private static Compiler getCompiler(LSContext context, String fileName, PackageID packageID,
                                         PackageRepository packageRepository, LSDocument sourceRoot,
                                         boolean preserveWhitespace, Class customErrorStrategy,
                                         WorkspaceDocumentManager documentManager) {
         CompilerContext compilerContext =
-                TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceRoot,
+                TextDocumentServiceUtil.prepareCompilerContext(packageID, packageRepository, sourceRoot,
                         preserveWhitespace, documentManager);
         context.put(DocumentServiceKeys.FILE_NAME_KEY, fileName);
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
         context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new LSServiceOperationContext());
-        List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
-        CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
-        compilerContext.put(DiagnosticListener.class, diagnosticListener);
-        compilerContext.put(DefaultErrorStrategy.class,
-                CustomErrorStrategyFactory.getCustomErrorStrategy(customErrorStrategy, context));
+        if (customErrorStrategy != null) {
+            compilerContext.put(DefaultErrorStrategy.class,
+                                CustomErrorStrategyFactory.getCustomErrorStrategy(customErrorStrategy, context));
+        }
+        BLangDiagnosticLog.getInstance(compilerContext).errorCount = 0;
         return Compiler.getInstance(compilerContext);
     }
 }

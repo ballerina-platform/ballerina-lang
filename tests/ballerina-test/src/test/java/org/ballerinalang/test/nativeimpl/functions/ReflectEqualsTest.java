@@ -91,19 +91,19 @@ public class ReflectEqualsTest {
     
     @Test
     public void testStructsReflectEqual() {
-        BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testStructsWithArrays");
+        BValue[] returns = BRunUtil.invoke(compileResultForComplex, "testTypesWithArrays");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         boolean actual = ((BBoolean) returns[0]).booleanValue();
         Assert.assertTrue(actual, "Condition should give TRUE");
         
-        returns = BRunUtil.invoke(compileResultForComplex, "testPrimitiveStructs");
+        returns = BRunUtil.invoke(compileResultForComplex, "testPrimitiveTypes");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         actual = ((BBoolean) returns[0]).booleanValue();
         Assert.assertTrue(actual, "Condition should give TRUE");
         
-        returns = BRunUtil.invoke(compileResultForComplex, "testNestedStructs");
+        returns = BRunUtil.invoke(compileResultForComplex, "testNestedTypes");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         actual = ((BBoolean) returns[0]).booleanValue();

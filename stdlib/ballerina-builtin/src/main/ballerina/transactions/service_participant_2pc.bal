@@ -22,10 +22,10 @@ import ballerina/http;
 @http:ServiceConfig {
     basePath:participant2pcCoordinatorBasePath
 }
-documentation {
-    Service on the participant which handles protocol messages related to the 2-phase commit (2PC) coordination type.
-}
-service<http:Service> Participant2pcService bind coordinatorServerEP {
+//documentation {
+//    Service on the participant which handles protocol messages related to the 2-phase commit (2PC) coordination type.
+//}
+service Participant2pcService bind coordinatorListener {
 
     @http:ResourceConfig {
         methods:["POST"],
@@ -42,8 +42,8 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
                                   participant as part of the participant protocol endpoint. The initiator isn't aware
                                   of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
-    prepare (endpoint conn, http:Request req, int transactionBlockId, PrepareRequest prepareReq) {
-        http:Response res = {};
+    prepare(endpoint conn, http:Request req, int transactionBlockId, PrepareRequest prepareReq) {
+        http:Response res = new;
         string transactionId = prepareReq.transactionId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
         log:printInfo("Prepare received for transaction: " + participatedTxnId);
@@ -54,7 +54,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
             prepareRes.message = "Transaction-Unknown";
         } else {
             TwoPhaseCommitTransaction txn = participatedTransactions[participatedTxnId];
-            if (txn.state == TransactionState.ABORTED) {
+            if (txn.state == TXN_STATE_ABORTED) {
                 res.statusCode = http:OK_200;
                 prepareRes.message = OUTCOME_ABORTED;
                 removeParticipatedTransaction(participatedTxnId);
@@ -63,26 +63,26 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
                 boolean prepareSuccessful = prepareResourceManagers(transactionId, transactionBlockId);
                 if (prepareSuccessful) {
                     res.statusCode = http:OK_200;
-                    txn.state = TransactionState.PREPARED;
+                    txn.state = TXN_STATE_PREPARED;
                     //PrepareResponse prepareRes = {message:"read-only"};
                     prepareRes.message = OUTCOME_PREPARED;
                     log:printInfo("Prepared transaction: " + transactionId);
                 } else {
                     res.statusCode = http:OK_200;
                     prepareRes.message = OUTCOME_ABORTED;
-                    txn.state = TransactionState.ABORTED;
+                    txn.state = TXN_STATE_ABORTED;
                     removeParticipatedTransaction(participatedTxnId);
                     log:printInfo("Aborted transaction: " + transactionId);
                 }
             }
         }
-        json j =? <json>prepareRes;
+        json j = check <json>prepareRes;
         res.setJsonPayload(j);
         var resResult = conn -> respond(res);
         match resResult {
             http:HttpConnectorError err => log:printErrorCause("Sending response for prepare request for transaction " +
                                                                transactionId + " failed", err);
-            null => {}
+            () => {}
         }
     }
 
@@ -101,8 +101,8 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
                                   participant as part of the participant protocol endpoint. The initiator isn't aware
                                   of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
-    notify (endpoint conn, http:Request req, int transactionBlockId, NotifyRequest notifyReq) {
-        http:Response res = {};
+    notify(endpoint conn, http:Request req, int transactionBlockId, NotifyRequest notifyReq) {
+        http:Response res = new;
         string transactionId = notifyReq.transactionId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
         log:printInfo("Notify(" + notifyReq.message + ") received for transaction: " + participatedTxnId);
@@ -113,7 +113,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
         } else {
             TwoPhaseCommitTransaction txn = participatedTransactions[participatedTxnId];
             if (notifyReq.message == COMMAND_COMMIT) {
-                if (txn.state != TransactionState.PREPARED) {
+                if (txn.state != TXN_STATE_PREPARED) {
                     res.statusCode = http:BAD_REQUEST_400;
                     notifyRes.message = OUTCOME_NOT_PREPARED;
                 } else {
@@ -122,7 +122,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
                     if (commitSuccessful) {
                         res.statusCode = http:OK_200;
                         notifyRes.message = OUTCOME_COMMITTED;
-                        txn.state = TransactionState.COMMITTED;
+                        txn.state = TXN_STATE_COMMITTED;
                     } else {
                         res.statusCode = http:INTERNAL_SERVER_ERROR_500;
                         log:printError("Committing resource managers failed. Transaction:" + participatedTxnId);
@@ -135,7 +135,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
                 if (abortSuccessful) {
                     res.statusCode = http:OK_200;
                     notifyRes.message = OUTCOME_ABORTED;
-                    txn.state = TransactionState.ABORTED;
+                    txn.state = TXN_STATE_ABORTED;
                 } else {
                     res.statusCode = http:INTERNAL_SERVER_ERROR_500;
                     log:printError("Aborting resource managers failed. Transaction:" + participatedTxnId);
@@ -144,13 +144,13 @@ service<http:Service> Participant2pcService bind coordinatorServerEP {
             }
             removeParticipatedTransaction(participatedTxnId);
         }
-        json j =? <json>notifyRes;
+        json j = check <json>notifyRes;
         res.setJsonPayload(j);
-        var connErr = conn -> respond(res);
-        match connErr {
+        var resResult = conn -> respond(res);
+        match resResult {
             error err => log:printErrorCause("Sending response for notify request for transaction " + transactionId +
                                              " failed", err);
-            null => {}
+            () => {}
         }
     }
 }

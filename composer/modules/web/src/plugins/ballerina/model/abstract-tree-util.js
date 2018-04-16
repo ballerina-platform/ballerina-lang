@@ -352,7 +352,7 @@ class AbstractTreeUtil {
     }
 
     isEndpointType(node) {
-        return node.kind === 'EndpointType';
+        return node.kind === 'Endpoint';
     }
 
     isValueType(node) {
@@ -399,7 +399,9 @@ class AbstractTreeUtil {
         return node.kind === 'PatternStreamingInput';
     }
 
-
+    isCheckExpr(node) {
+        return node.kind === 'CheckExpr';
+    }
 }
 
 export default AbstractTreeUtil;

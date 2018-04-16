@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.csv.Format;
@@ -43,7 +42,8 @@ import org.slf4j.LoggerFactory;
         functionName = "createCsvChannel",
         args = {
                 @Argument(name = "path", type = TypeKind.STRING),
-                @Argument(name = "rf", type = TypeKind.ENUM),
+                @Argument(name = "mode", type = TypeKind.STRING),
+                @Argument(name = "rf", type = TypeKind.STRING),
                 @Argument(name = "charset", type = TypeKind.STRING)
         },
         returnType = {
@@ -60,13 +60,17 @@ public class CreateCsvChannel extends BlockingNativeCallableUnit {
      */
     private static final int PATH_INDEX = 0;
     /**
+     * The index of the access mode.
+     */
+    private static final int MODE_INDEX = 1;
+    /**
      * Specifies the index of the format enum.
      */
-    private static final int FORMAT_INDEX = 0;
+    private static final int FORMAT_INDEX = 2;
     /**
      * Specifies the index in which the charset is defined.
      */
-    private static final int CHARSET_INDEX = 1;
+    private static final int CHARSET_INDEX = 3;
     /**
      * The package path of the delimited record channel.
      */
@@ -84,17 +88,18 @@ public class CreateCsvChannel extends BlockingNativeCallableUnit {
         try {
             //File which holds access to the channel information
             String filePath = context.getStringArgument(PATH_INDEX);
-            BEnumerator format = (BEnumerator) context.getRefArgument(FORMAT_INDEX);
+            String format = context.getStringArgument(FORMAT_INDEX);
             String charset = context.getStringArgument(CHARSET_INDEX);
+            String accessMode = context.getStringArgument(MODE_INDEX);
             BStruct textRecordChannel = BLangConnectorSPIUtil.createBStruct(context, RECORD_CHANNEL_PACKAGE,
                     STRUCT_TYPE);
             DelimitedRecordChannel delimitedRecordChannel = IOUtils.createDelimitedRecordChannel(filePath, charset,
-                    Format.valueOf(format.getName()));
+                    accessMode, Format.valueOf(format));
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, delimitedRecordChannel);
             context.setReturnValues(textRecordChannel);
         } catch (Throwable e) {
-            String message =
-                    "Error occurred while converting character channel to textRecord channel:" + e.getMessage();
+            String message = "Error occurred while converting character channel to textRecord channel:" + e
+                    .getMessage();
             log.error(message, e);
             context.setReturnValues(IOUtils.createError(context, message));
         }

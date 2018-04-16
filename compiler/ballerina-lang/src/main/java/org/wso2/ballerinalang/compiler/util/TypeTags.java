@@ -55,6 +55,7 @@ public class TypeTags {
     public static final int TUPLE = ITERATOR + 1;
     public static final int FUTURE = TUPLE + 1;
     public static final int INTERMEDIATE_COLLECTION = FUTURE + 1;
+    public static final int FINITE = INTERMEDIATE_COLLECTION + 1;
 
     private TypeTags() {
     }

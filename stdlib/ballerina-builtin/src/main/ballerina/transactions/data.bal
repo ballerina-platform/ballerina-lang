@@ -17,45 +17,71 @@
 package ballerina.transactions;
 import ballerina/io;
 
-const string PROTOCOL_COMPLETION = "completion";
-const string PROTOCOL_VOLATILE = "volatile";
-const string PROTOCOL_DURABLE = "durable";
+type TransactionState "active" | "prepared" | "committed" | "aborted";
+@final TransactionState TXN_STATE_ACTIVE = "active";
+@final TransactionState TXN_STATE_PREPARED = "prepared";
+@final TransactionState TXN_STATE_COMMITTED = "committed";
+@final TransactionState TXN_STATE_ABORTED = "aborted";
 
-enum Protocols {
-    COMPLETION, DURABLE, VOLATILE
-}
+@final string TRANSACTION_CONTEXT_VERSION = "1.0";
 
-public enum TransactionState {
-    ACTIVE, PREPARED, COMMITTED, ABORTED
-}
+@final public string COMMAND_PREPARE = "prepare";
+@final public string COMMAND_COMMIT = "commit";
+@final public string COMMAND_ABORT = "abort";
 
-const string TRANSACTION_CONTEXT_VERSION = "1.0";
+@final public string OUTCOME_PREPARED = "prepared";
+@final public string OUTCOME_NOT_PREPARED = "Not-Prepared";
+@final public string OUTCOME_MIXED = "mixed";
+@final public string OUTCOME_ABORTED = "aborted";
+@final public string OUTCOME_COMMITTED = "committed";
+@final public string OUTCOME_HAZARD = "Hazard-Outcome";
+@final public string OUTCOME_FAILED_EOT = "Failed-EOT";
+@final public string OUTCOME_READ_ONLY = "read-only";
 
-public const string COMMAND_PREPARE = "prepare";
-public const string COMMAND_COMMIT = "commit";
-public const string COMMAND_ABORT = "abort";
+public type TransactionContext {
+    @readonly string contextVersion = "1.0";
+    @readonly string transactionId;
+    @readonly int transactionBlockId;
+    @readonly string coordinationType;
+    @readonly string registerAtURL;
+};
 
-public const string OUTCOME_PREPARED = "prepared";
-public const string OUTCOME_NOT_PREPARED = "Not-Prepared";
-public const string OUTCOME_MIXED = "mixed";
-public const string OUTCOME_ABORTED = "aborted";
-public const string OUTCOME_COMMITTED = "committed";
-public const string OUTCOME_HAZARD = "Hazard-Outcome";
-public const string OUTCOME_FAILED_EOT = "Failed-EOT";
-public const string OUTCOME_READ_ONLY = "read-only";
-
-public struct TransactionContext {
-    string contextVersion = "1.0";
-    string transactionId;
-    int transactionBlockId;
-    string coordinationType;
-    string registerAtURL;
-}
-
-struct Participant {
+type Participant {
     string participantId;
-    Protocol[] participantProtocols;
+};
+
+type LocalParticipant {
+    string participantId;
+    LocalProtocol[] participantProtocols;
+};
+
+type RemoteParticipant {
+    string participantId;
+    RemoteProtocol[] participantProtocols;
+};
+
+documentation {
+    This represents the protocol associated with the coordination type.
+
+    F{{name}} - protocol name
 }
+public type Protocol {
+    @readonly string name;
+};
+
+documentation {
+    This represents the protocol associated with the coordination type.
+
+    F{{name}} - protocol name
+    F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
+}
+public type LocalProtocol {
+    @readonly string name;
+    @readonly int transactionBlockId;
+    @readonly (function (string transactionId,
+                            int transactionBlockId,
+                            string protocolAction) returns boolean) protocolFn;
+};
 
 documentation {
     This represents the protocol associated with the coordination type.
@@ -63,22 +89,17 @@ documentation {
     F{{name}} - protocol name
     F{{url}}  - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
                 the `protocolFn` will be called
-    F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
 }
-public struct Protocol {
-    string name;
-    string url;
-    int transactionBlockId;
-    (function (string transactionId,
-               int transactionBlockId,
-               string protocolAction) returns boolean)|null protocolFn;
-}
+public type RemoteProtocol {
+    @readonly string name;
+    @readonly string url;
+};
 
-public struct RegistrationRequest {
+public type RegistrationRequest {
     string transactionId;
     string participantId;
-    Protocol[] participantProtocols;
-}
+    RemoteProtocol[] participantProtocols;
+};
 
 public function regRequestToJson (RegistrationRequest req) returns json {
     json j = {};
@@ -86,25 +107,24 @@ public function regRequestToJson (RegistrationRequest req) returns json {
     j.participantId = req.participantId;
     json[] protocols = [];
     foreach proto in req.participantProtocols {
-        json j2 = {name:proto.name, url:proto.url};
+        json j2 = {name: proto.name, url:proto.url};
         protocols[lengthof protocols] = j2;
     }
     j.participantProtocols = protocols;
-    //j.participantProtocols = [{name:req.participantProtocols[0].name, url:req.participantProtocols[0].url}];
     return j;
 }
 
-public struct RegistrationResponse {
+public type RegistrationResponse {
     string transactionId;
-    Protocol[] coordinatorProtocols;
-}
+    RemoteProtocol[] coordinatorProtocols;
+};
 
 public function regResponseToJson (RegistrationResponse res) returns json {
     json j = {};
     j.transactionId = res.transactionId;
     json[] protocols;
     foreach proto in res.coordinatorProtocols {
-        json j2 = {name:proto.name, url:proto.url};
+        json j2 = {name: proto.name, url:proto.url};
         protocols[lengthof protocols] = j2;
     }
     j.coordinatorProtocols = protocols;
@@ -112,21 +132,26 @@ public function regResponseToJson (RegistrationResponse res) returns json {
 }
 
 public function jsonToRegResponse (json j) returns RegistrationResponse {
-    io:println(j.transactionId);
-    //string transactionId =? <string>j.transactionId; //TODO: Fix
     string transactionId = <string>jsonToAny(j.transactionId);
     RegistrationResponse res = {transactionId:transactionId};
-    Protocol[] protocols;
+    RemoteProtocol[] protocols;
     foreach proto in j.coordinatorProtocols {
         string name = <string>jsonToAny(proto.name);
         string url = <string>jsonToAny(proto.url);
-        //string name =? <string>proto.name; //TODO: Fix
-        //string url =? <string>proto.url; //TODO: Fix
-        Protocol p = {name:name, url:url};
+        RemoteProtocol p = {name:name, url:url};
         protocols[lengthof protocols] = p;
     }
     res.coordinatorProtocols = protocols;
     return res;
+}
+
+function toProtocolArray(RemoteProtocol[] remoteProtocols) returns Protocol[] {
+    Protocol[] protocols;
+    foreach remoteProtocol in remoteProtocols {
+        Protocol proto = {name: remoteProtocol.name};
+        protocols[lengthof protocols] = proto;
+    }
+    return protocols;
 }
 
 // TODO: temp function. Remove when =? is fixed for json
@@ -135,28 +160,28 @@ function jsonToAny(json j) returns any {
         int i => return i;
         string s => return s;
         boolean b => return b;
-        null => return null;
+        () => return null;
         json j2 => return j2;
     }
 }
 
-public struct RequestError {
+public type RequestError {
     string errorMessage;
-}
+};
 
-public struct PrepareRequest {
+public type PrepareRequest {
     string transactionId;
-}
+};
 
-public struct PrepareResponse {
+public type PrepareResponse {
     string message;
-}
+};
 
-public struct NotifyRequest {
+public type NotifyRequest {
     string transactionId;
     string message;
-}
+};
 
-public struct NotifyResponse {
+public type NotifyResponse {
     string message;
-}
+};

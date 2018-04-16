@@ -40,10 +40,14 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
@@ -58,7 +62,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
         orgName = "ballerina", packageName = "http",
         functionName = "createHttpClient",
         args = {@Argument(name = "uri", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
+                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfig")},
         isPublic = true
 )
 public class CreateHttpClient extends BlockingNativeCallableUnit {
@@ -68,18 +72,18 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct configBStruct = (BStruct) context.getRefArgument(0);
+        BStruct configBStruct = (BStruct) context.getRefArgument(HttpConstants.CLIENT_ENDPOINT_CONFIG_INDEX);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
-        String url = context.getStringArgument(0);
+        String urlString = context.getStringArgument(HttpConstants.CLIENT_ENDPOINT_URL_INDEX);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
         String scheme;
-        if (url.startsWith("http://")) {
-            scheme = HttpConstants.PROTOCOL_HTTP;
-        } else if (url.startsWith("https://")) {
-            scheme = HttpConstants.PROTOCOL_HTTPS;
-        } else {
-            throw new BallerinaException("malformed URL: " + url);
+        URL url;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            throw new BallerinaException("Malformed URL: " + urlString);
         }
+        scheme = url.getProtocol();
         Map<String, Object> properties =
                 HTTPConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
         SenderConfiguration senderConfiguration =
@@ -109,7 +113,7 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         HttpClientConnector httpClientConnector = httpConnectorFactory
                 .createHttpClientConnector(properties, senderConfiguration);
         BStruct httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), HTTP_PACKAGE_PATH,
-                HTTP_CLIENT, url, clientEndpointConfig);
+                HTTP_CLIENT, urlString, clientEndpointConfig);
         httpClient.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
         httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
         context.setReturnValues(httpClient);
@@ -159,8 +163,11 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
                     }
                 }
                 if (protocols != null) {
-                    String sslEnabledProtocols = protocols.getStringField(HttpConstants.ENABLED_PROTOCOLS);
-                    if (StringUtils.isNotBlank(sslEnabledProtocols)) {
+                    List<Value> sslEnabledProtocolsValueList = Arrays
+                            .asList(protocols.getArrayField(HttpConstants.ENABLED_PROTOCOLS));
+                    if (sslEnabledProtocolsValueList.size() > 0) {
+                        String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
+                                .collect(Collectors.joining(",", "", ""));
                         Parameter clientProtocols = new Parameter(HttpConstants.SSL_ENABLED_PROTOCOLS,
                                 sslEnabledProtocols);
                         clientParams.add(clientProtocols);
@@ -186,10 +193,15 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
                 }
                 boolean hostNameVerificationEnabled = secureSocket
                         .getBooleanField(HttpConstants.SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED);
+                boolean ocspStaplingEnabled = secureSocket.getBooleanField(HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
+                senderConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
                 senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
 
-                String ciphers = secureSocket.getStringField(HttpConstants.SSL_CONFIG_CIPHERS);
-                if (StringUtils.isNotBlank(ciphers)) {
+                List<Value> ciphersValueList = Arrays
+                        .asList(secureSocket.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
+                if (ciphersValueList.size() > 0) {
+                    String ciphers = ciphersValueList.stream().map(Value::getStringValue)
+                            .collect(Collectors.joining(",", "", ""));
                     Parameter clientCiphers = new Parameter(HttpConstants.CIPHERS, ciphers);
                     clientParams.add(clientCiphers);
                 }
@@ -228,23 +240,25 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
 
         // For the moment we don't have to pass it down to transport as we only support
         // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
-        String transferEncoding = clientEndpointConfig.getEnumField(HttpConstants.CLIENT_EP_TRNASFER_ENCODING);
+        String transferEncoding =
+                clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_TRNASFER_ENCODING).getStringValue();
         if (transferEncoding != null && !HttpConstants.ANN_CONFIG_ATTR_CHUNKING.equalsIgnoreCase(transferEncoding)) {
             throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
                     + transferEncoding);
         }
 
-        String chunking = clientEndpointConfig.getEnumField(HttpConstants.CLIENT_EP_CHUNKING);
+        String chunking = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_CHUNKING).getStringValue();
         senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
 
-        long endpointTimeout = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
-        if (endpointTimeout < 0 || !isInteger(endpointTimeout)) {
-            throw new BallerinaConnectorException("invalid idle timeout: " + endpointTimeout);
+        long timeoutMillis = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
+        if (timeoutMillis < 0 || !isInteger(timeoutMillis)) {
+            throw new BallerinaConnectorException("invalid idle timeout: " + timeoutMillis);
         }
-        senderConfiguration.setSocketIdleTimeout((int) endpointTimeout);
+        senderConfiguration.setSocketIdleTimeout((int) timeoutMillis);
 
-        boolean isKeepAlive = clientEndpointConfig.getBooleanField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE);
-        senderConfiguration.setKeepAlive(isKeepAlive);
+        String keepAliveConfig = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE)
+                .getStringValue();
+        senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
 
         String httpVersion = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_HTTP_VERSION);
         if (httpVersion != null) {

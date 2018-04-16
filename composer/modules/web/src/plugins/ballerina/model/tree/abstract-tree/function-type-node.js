@@ -22,6 +22,33 @@ import Node from '../node';
 class AbstractFunctionTypeNode extends Node {
 
 
+    setReturnTypeNode(newValue, silent, title) {
+        const oldValue = this.returnTypeNode;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.returnTypeNode = newValue;
+
+        this.returnTypeNode.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'returnTypeNode',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getReturnTypeNode() {
+        return this.returnTypeNode;
+    }
+
+
+
     setParamTypeNode(newValue, silent, title) {
         const oldValue = this.paramTypeNode;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -141,125 +168,6 @@ class AbstractFunctionTypeNode extends Node {
     }
 
 
-    setReturnParamTypeNode(newValue, silent, title) {
-        const oldValue = this.returnParamTypeNode;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.returnParamTypeNode = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'returnParamTypeNode',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getReturnParamTypeNode() {
-        return this.returnParamTypeNode;
-    }
-
-
-    addReturnParamTypeNode(node, i = -1, silent) {
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.returnParamTypeNode.push(node);
-            index = this.returnParamTypeNode.length;
-        } else {
-            this.returnParamTypeNode.splice(i, 0, node);
-        }
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeReturnParamTypeNode(node, silent) {
-        const index = this.getIndexOfReturnParamTypeNode(node);
-        this.removeReturnParamTypeNodeByIndex(index, silent);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeReturnParamTypeNodeByIndex(index, silent) {
-        this.returnParamTypeNode.splice(index, 1);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceReturnParamTypeNode(oldChild, newChild, silent) {
-        const index = this.getIndexOfReturnParamTypeNode(oldChild);
-        this.returnParamTypeNode[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceReturnParamTypeNodeByIndex(index, newChild, silent) {
-        this.returnParamTypeNode[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    getIndexOfReturnParamTypeNode(child) {
-        return _.findIndex(this.returnParamTypeNode, ['id', child.id]);
-    }
-
-    filterReturnParamTypeNode(predicateFunction) {
-        return _.filter(this.returnParamTypeNode, predicateFunction);
-    }
-
-
 
     isReturnKeywordExists() {
         return this.returnKeywordExists;
@@ -276,6 +184,52 @@ class AbstractFunctionTypeNode extends Node {
                 title,
                 data: {
                     attributeName: 'returnKeywordExists',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+
+    isNullable() {
+        return this.nullable;
+    }
+
+    setNullable(newValue, silent, title) {
+        const oldValue = this.nullable;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.nullable = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'nullable',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+
+    isGrouped() {
+        return this.grouped;
+    }
+
+    setGrouped(newValue, silent, title) {
+        const oldValue = this.grouped;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.grouped = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'grouped',
                     newValue,
                     oldValue,
                 },

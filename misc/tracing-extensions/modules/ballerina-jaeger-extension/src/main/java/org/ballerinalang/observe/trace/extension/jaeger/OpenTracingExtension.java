@@ -17,13 +17,15 @@
  */
 package org.ballerinalang.observe.trace.extension.jaeger;
 
+import com.uber.jaeger.Configuration;
 import io.opentracing.Tracer;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.util.tracer.OpenTracer;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.Properties;
+import java.io.PrintStream;
+import java.util.Map;
+import java.util.Objects;
 
 import static org.ballerinalang.observe.trace.extension.jaeger.Constants.DEFAULT_REPORTER_FLUSH_INTERVAL;
 import static org.ballerinalang.observe.trace.extension.jaeger.Constants.DEFAULT_REPORTER_HOSTNAME;
@@ -44,83 +46,65 @@ import static org.ballerinalang.observe.trace.extension.jaeger.Constants.TRACER_
 /**
  * This is the open tracing extension class for {@link OpenTracer}.
  */
+@JavaSPIService("org.ballerinalang.util.tracer.OpenTracer")
 public class OpenTracingExtension implements OpenTracer {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenTracingExtension.class);
+    private static final PrintStream console = System.out;
+    private static final PrintStream consoleError = System.err;
+    private Map<String, String> configProperties;
 
     @Override
-    public Tracer getTracer(String tracerName, Properties configProperties, String serviceName)
-            throws InvalidConfigurationException {
-        if (!tracerName.equalsIgnoreCase(TRACER_NAME)) {
-            throw new InvalidConfigurationException("Unexpected tracer name! " +
-                    "The tracer name supported by this extension is : " + TRACER_NAME + " but found : "
-                    + tracerName);
+    public void init(Map<String, String> configProperties) {
+        console.println("ballerina: started publishing tracers to Jaeger on "
+                + configProperties.getOrDefault(REPORTER_HOST_NAME_CONFIG, DEFAULT_REPORTER_HOSTNAME) + ":" +
+                getValidIntegerConfig(configProperties.get(REPORTER_PORT_CONFIG),
+                        DEFAULT_REPORTER_PORT, REPORTER_PORT_CONFIG));
+        this.configProperties = configProperties;
+    }
+
+    @Override
+    public Tracer getTracer(String tracerName, String serviceName) throws InvalidConfigurationException {
+
+        if (Objects.isNull(configProperties)) {
+            throw new InvalidConfigurationException("Tracer not initialized with configurations");
         }
-        validateConfiguration(configProperties);
-        return new com.uber.jaeger.Configuration(serviceName,
-                new com.uber.jaeger.Configuration.SamplerConfiguration(
-                        (String) configProperties.get(SAMPLER_TYPE_CONFIG)
-                        , (Integer) configProperties.get(SAMPLER_PARAM_CONFIG)),
-                new com.uber.jaeger.Configuration.ReporterConfiguration(
-                        (Boolean) configProperties.get(REPORTER_LOG_SPANS_CONFIG),
-                        (String) configProperties.get(REPORTER_HOST_NAME_CONFIG),
-                        (Integer) configProperties.get(REPORTER_PORT_CONFIG),
-                        (Integer) configProperties.get(REPORTER_FLUSH_INTERVAL_MS_CONFIG),
-                        (Integer) configProperties.get(REPORTER_MAX_BUFFER_SPANS_CONFIG))
+
+        return new Configuration(
+                serviceName,
+                new Configuration.SamplerConfiguration(
+                        configProperties.getOrDefault(SAMPLER_TYPE_CONFIG, DEFAULT_SAMPLER_TYPE),
+                        getValidIntegerConfig(configProperties.get(SAMPLER_PARAM_CONFIG),
+                                DEFAULT_SAMPLER_PARAM, SAMPLER_PARAM_CONFIG)
+                ),
+                new Configuration.ReporterConfiguration(
+                        Boolean.parseBoolean(String.valueOf(configProperties
+                                .getOrDefault(REPORTER_LOG_SPANS_CONFIG, String.valueOf(DEFAULT_REPORTER_LOG_SPANS)))),
+                        configProperties.getOrDefault(REPORTER_HOST_NAME_CONFIG, DEFAULT_REPORTER_HOSTNAME),
+                        getValidIntegerConfig(configProperties.get(REPORTER_PORT_CONFIG),
+                                DEFAULT_REPORTER_PORT, REPORTER_PORT_CONFIG),
+                        getValidIntegerConfig(configProperties.get(REPORTER_FLUSH_INTERVAL_MS_CONFIG),
+                                DEFAULT_REPORTER_FLUSH_INTERVAL, REPORTER_FLUSH_INTERVAL_MS_CONFIG),
+                        getValidIntegerConfig(configProperties.get(REPORTER_MAX_BUFFER_SPANS_CONFIG),
+                                DEFAULT_REPORTER_MAX_BUFFER_SPANS, REPORTER_MAX_BUFFER_SPANS_CONFIG)
+                )
         ).getTracerBuilder().withScopeManager(NoOpScopeManager.INSTANCE).build();
     }
 
-    private void validateConfiguration(Properties configuration) {
-        setValidatedStringConfig(configuration, SAMPLER_TYPE_CONFIG, DEFAULT_SAMPLER_TYPE);
-        setValidatedIntegerConfig(configuration, SAMPLER_PARAM_CONFIG, DEFAULT_SAMPLER_PARAM.intValue());
-        setValidatedBooleanConfig(configuration, REPORTER_LOG_SPANS_CONFIG, DEFAULT_REPORTER_LOG_SPANS);
-        setValidatedStringConfig(configuration, REPORTER_HOST_NAME_CONFIG, DEFAULT_REPORTER_HOSTNAME);
-        setValidatedIntegerConfig(configuration, REPORTER_PORT_CONFIG, DEFAULT_REPORTER_PORT);
-        setValidatedIntegerConfig(configuration, REPORTER_FLUSH_INTERVAL_MS_CONFIG, DEFAULT_REPORTER_FLUSH_INTERVAL);
-        setValidatedIntegerConfig(configuration, REPORTER_MAX_BUFFER_SPANS_CONFIG, DEFAULT_REPORTER_MAX_BUFFER_SPANS);
+    @Override
+    public String getName() {
+        return TRACER_NAME;
     }
 
-    private void setValidatedStringConfig(Properties configuration, String configName, String defaultValue) {
-        Object configValue = configuration.get(configName);
-        if (configValue == null || configValue.toString().trim().isEmpty()) {
-            configuration.put(configName, defaultValue);
-        } else {
-            configuration.put(configName, configValue.toString().trim());
-        }
-    }
-
-    private void setValidatedIntegerConfig(Properties configuration, String configName, int defaultValue) {
-        Object configValue = configuration.get(configName);
-        if (configValue == null) {
-            configuration.put(configName, defaultValue);
+    private int getValidIntegerConfig(String config, int defaultValue, String configName) {
+        if (config == null) {
+            return defaultValue;
         } else {
             try {
-                configuration.put(configName, Integer.parseInt(configValue.toString()));
+                return Integer.parseInt(config);
             } catch (NumberFormatException ex) {
-                logger.warn(String.format("Open tracing configuration for tracer name - %s expects " +
-                                "configuration element : %swith integer type but found non integer : %s ! Therefore " +
-                                "assigning default value : %d for %s configuration.", TRACER_NAME, configName,
-                        configValue.toString(), defaultValue, configName));
-                configuration.put(configName, defaultValue);
-            }
-        }
-    }
-
-    private void setValidatedBooleanConfig(Properties configuration, String configName, boolean defaultValue) {
-        Object configValue = configuration.get(configName);
-        if (configValue == null) {
-            configuration.put(configName, defaultValue);
-        } else {
-            String configStringValue = configValue.toString().trim();
-            if (configStringValue.equalsIgnoreCase(Boolean.TRUE.toString())
-                    || configStringValue.equalsIgnoreCase(Boolean.FALSE.toString())) {
-                configuration.put(configName, Boolean.parseBoolean(configStringValue));
-            } else {
-                logger.warn(String.format("Open tracing configuration for tracer name - %s expects " +
-                                "configuration element : %swith boolean type (true/false) but found non boolean :" +
-                                " %s ! Therefore assigning default value : %s for %s configuration.",
-                        TRACER_NAME, configName, configStringValue, defaultValue, configName));
-                configuration.put(configName, defaultValue);
+                consoleError.println("ballerina: observability tracing configuration " + configName
+                        + " is invalid. Default value of " + defaultValue + " will be used.");
+                return defaultValue;
             }
         }
     }

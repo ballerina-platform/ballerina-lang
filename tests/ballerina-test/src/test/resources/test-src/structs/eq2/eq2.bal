@@ -1,6 +1,6 @@
 package eq2;
 
-public struct employee {
+public type employee {
     int age;
     string name;
     string address;
@@ -8,7 +8,7 @@ public struct employee {
     string ssn;
     int id;
     int employeeId = 123456;
-}
+};
 
 public function <employee e> getName() returns (string) {
     return e.name;

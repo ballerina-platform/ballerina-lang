@@ -69,6 +69,9 @@ class ActionNode extends AbstractActionNode {
         }
     }
 
+    getClientTitle() {
+        return 'caller';
+    }
 }
 
 export default ActionNode;

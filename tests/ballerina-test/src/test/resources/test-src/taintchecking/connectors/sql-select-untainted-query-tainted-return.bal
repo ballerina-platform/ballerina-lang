@@ -1,23 +1,22 @@
-import ballerina/sql;
+import ballerina/mysql;
 
-struct Employee {
+type Employee {
     int id;
     string name;
-}
+};
 
 public function main (string[] args) {
     testSelectWithUntaintedQueryProducingTaintedReturn(args);
 }
 
 public function testSelectWithUntaintedQueryProducingTaintedReturn(string[] args) {
-    endpoint sql:Client testDB {
-        database: sql:DB.MYSQL,
+    endpoint mysql:Client testDB {
         host: "localhost",
         port: 3306,
         name: "testdb",
         username: "root",
         password: "root",
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
 
     var output = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
@@ -31,7 +30,7 @@ public function testSelectWithUntaintedQueryProducingTaintedReturn(string[] args
                 }
             }
 	}
-        sql:SQLConnectorError => return;
+        error => return;
     }
     var closeStatus = testDB -> close();
     return;

@@ -5,7 +5,7 @@ function main (string[] args) {
     string permission = args[0];
     string chars = args[0];
 
-    int intArg =? <int> args[0];
+    int intArg = check <int> args[0];
 
     io:ByteChannel bchannel = io:openFile(filePath, permission);
     var channelResult = io:createCharacterChannel(bchannel, "UTF-8");

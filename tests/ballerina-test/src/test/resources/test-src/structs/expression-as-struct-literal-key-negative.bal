@@ -1,7 +1,7 @@
-struct Department {
+type Department {
     string dptName;
     boolean y;
-}
+};
 
 function testVarRefAsKey() {
     Department p = {(a): "HR"};

@@ -16,6 +16,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
@@ -78,7 +79,10 @@ public class EndpointSPIAnalyzer {
         }
         isValidEndpointType(endpoint.pos, endpoint.symbol.type);
         // Update endpoint variable symbol
-        populateEndpointSymbol((BStructSymbol) endpoint.symbol.type.tsymbol, endpoint.symbol);
+        if (endpoint.symbol.type.tsymbol.kind == SymbolKind.OBJECT
+                || endpoint.symbol.type.tsymbol.kind == SymbolKind.RECORD) {
+            populateEndpointSymbol((BStructSymbol) endpoint.symbol.type.tsymbol, endpoint.symbol);
+        }
     }
 
     public BStructType getEndpointTypeFromServiceType(DiagnosticPos pos, BType type) {
@@ -178,7 +182,8 @@ public class EndpointSPIAnalyzer {
         // validate init function.
         final BStructSymbol.BAttachedFunction init = ep.attachedFunctionMap.get(EP_SPI_INIT);
         if (init.type.getParameterTypes().size() != 1 || init.type.retType != symTable.nilType
-                || init.type.getParameterTypes().get(0).tag != TypeTags.STRUCT) {
+                || init.type.getParameterTypes().get(0).tag != TypeTags.STRUCT
+                || init.type.getParameterTypes().get(0).tsymbol.kind == SymbolKind.OBJECT) {
             dlog.error(ep.pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_INIT);
             invalidSPIs.putIfAbsent(ep.structSymbol, ep);
             return;
@@ -280,8 +285,9 @@ public class EndpointSPIAnalyzer {
 
         endpointVarSymbol.interactable = endPoint.interactable;
         endpointVarSymbol.getClientFunction = endPoint.getClientFunction;
-        endpointVarSymbol.clientSymbol = (BStructSymbol) endPoint.clientStruct.tsymbol;
-
+        if (endPoint.clientStruct != null && endPoint.clientStruct.tag == TypeTags.STRUCT) {
+            endpointVarSymbol.clientSymbol = (BStructSymbol) endPoint.clientStruct.tsymbol;
+        }
         endpointVarSymbol.startFunction = endPoint.startFunction;
         endpointVarSymbol.stopFunction = endPoint.stopFunction;
 

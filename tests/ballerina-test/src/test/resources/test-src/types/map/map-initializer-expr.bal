@@ -5,7 +5,7 @@ function mapInitTest() returns (map) {
 }
 
 function testNestedMapInit () returns (map) {
-    map m = {"name":"Supun", "info":{"city":"Colombo", "country":"SriLanka"}};
+    map<map> m = {"info":{"city":"Colombo", "country":"SriLanka"}};
     return m;
 }
 
@@ -16,18 +16,21 @@ function testMapInitWithJson () returns (map) {
 }
 
 function testComplexMapInit() returns (map) {
-    map m = { name:"Supun", 
+    map address = {city:"CA", "country":"USA"};
+    int[] intArray = [7,8,9];
+    map<map>[]  addressArray = [
+                         {address:{city:"Colombo", "country":"SriLanka"}},
+                         {address:{city:"Kandy", "country":"SriLanka"}},
+                         {address:{city:"Galle", "country":"SriLanka"}}
+                         ];
+    map m = { name:"Supun",
               age:25,
               gpa:2.81,
               status:true,
-              info:null, 
-              address:{city:"CA", "country":"USA"},
-              intArray:[7,8,9],
-              addressArray:[
-                    {address:{city:"Colombo", "country":"SriLanka"}},
-                    {address:{city:"Kandy", "country":"SriLanka"}},
-                    {address:{city:"Galle", "country":"SriLanka"}}
-              ]
+              info:null,
+              address:address,
+              intArray:intArray,
+              addressArray:addressArray
             };
     return m;
 }

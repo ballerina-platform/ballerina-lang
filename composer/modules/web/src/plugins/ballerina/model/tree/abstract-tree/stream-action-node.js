@@ -22,12 +22,12 @@ import Node from '../node';
 class AbstractStreamActionNode extends Node {
 
 
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
+    setInvokableBody(newValue, silent, title) {
+        const oldValue = this.invokableBody;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
+        this.invokableBody = newValue;
 
-        this.expression.parent = this;
+        this.invokableBody.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractStreamActionNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'expression',
+                    attributeName: 'invokableBody',
                     newValue,
                     oldValue,
                 },
@@ -43,202 +43,8 @@ class AbstractStreamActionNode extends Node {
         }
     }
 
-    getExpression() {
-        return this.expression;
-    }
-
-
-
-    setIdentifier(newValue, silent, title) {
-        const oldValue = this.identifier;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.identifier = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'identifier',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getIdentifier() {
-        return this.identifier;
-    }
-
-
-
-    setSetClause(newValue, silent, title) {
-        const oldValue = this.setClause;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.setClause = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'setClause',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getSetClause() {
-        return this.setClause;
-    }
-
-
-    addSetClause(node, i = -1, silent) {
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.setClause.push(node);
-            index = this.setClause.length;
-        } else {
-            this.setClause.splice(i, 0, node);
-        }
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeSetClause(node, silent) {
-        const index = this.getIndexOfSetClause(node);
-        this.removeSetClauseByIndex(index, silent);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeSetClauseByIndex(index, silent) {
-        this.setClause.splice(index, 1);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceSetClause(oldChild, newChild, silent) {
-        const index = this.getIndexOfSetClause(oldChild);
-        this.setClause[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceSetClauseByIndex(index, newChild, silent) {
-        this.setClause[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    getIndexOfSetClause(child) {
-        return _.findIndex(this.setClause, ['id', child.id]);
-    }
-
-    filterSetClause(predicateFunction) {
-        return _.filter(this.setClause, predicateFunction);
-    }
-
-
-    setActionType(newValue, silent, title) {
-        const oldValue = this.actionType;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.actionType = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'actionType',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getActionType() {
-        return this.actionType;
-    }
-
-
-
-    setOutputEventType(newValue, silent, title) {
-        const oldValue = this.outputEventType;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.outputEventType = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'outputEventType',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getOutputEventType() {
-        return this.outputEventType;
+    getInvokableBody() {
+        return this.invokableBody;
     }
 
 

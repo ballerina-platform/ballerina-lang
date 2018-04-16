@@ -5,7 +5,7 @@ import ballerina/io;
 import ballerina/test;
 import ballerina/config;
 
-endpoint http:ServiceEndpoint eventEP {
+endpoint http:Listener eventEP {
     port: 9092
 };
 
@@ -25,7 +25,7 @@ service<http:Service> EventServiceMock bind eventEP {
         path:"/"
     }
     getEvents (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json j = {"a":"b"};
         res.setJsonPayload(j);
         _ = client -> respond(res);
@@ -40,13 +40,11 @@ function init() {
 
 function verify() {
     // verifies whether the service got stopped correctly
-    endpoint http:ClientEndpoint httpEndpoint {
-        targets:[{
-                     url:url2
-                 }]
+    endpoint http:Client httpEndpoint {
+        targets:[{ url:url2 }]
     };
 
-    http:Request req = {};
+    http:Request req = new;
     // Send a GET request to the specified endpoint - this should return connection refused
     var response = httpEndpoint -> get("/events", req);
     match response {
@@ -55,22 +53,19 @@ function verify() {
             test:assertEquals(err.message, "Connection refused: /0.0.0.0:9090");
         }
     }
-
 }
 
 @test:Config{before: "init", after: "verify"}
 function testService () {
-    endpoint http:ClientEndpoint httpEndpoint {
-        targets:[{
-            url:url2
-        }]
+    endpoint http:Client httpEndpoint {
+        targets:[{ url:url2 }]
     };
 
     test:assertTrue(isEventServiceStarted, msg = "Event service failed to start");
     test:assertTrue(isPortalServiceStarted, msg = "Portal service failed to start");
     test:assertFalse(isNonExistingServiceStarted);
 
-    http:Request req = {};
+    http:Request req = new;
     // Send a GET request to the specified endpoint
     var response = httpEndpoint -> get("/events", req);
     match response {

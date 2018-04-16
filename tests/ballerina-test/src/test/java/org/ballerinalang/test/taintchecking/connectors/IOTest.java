@@ -31,32 +31,26 @@ public class IOTest {
 
     @Test
     public void testCharacterIO() {
-        CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/connectors/character-io.bal");
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/character-io.bal");
         Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
     @Test
     public void testCharacterIONegative() {
-        CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/connectors/character-io-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 3);
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/character-io-negative.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 4);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'path'", 10, 43);
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'accessMode'", 10, 53);
         BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'numberOfChars'", 15, 53);
-        // Blocked on return annotation support
-        // BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'sensitiveValue'", 22, 18);
+        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'sensitiveValue'", 18, 34);
     }
 
     @Test
     public void testFileIONegative() {
-        CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/connectors/file-read-negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/file-read-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 3);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'accessMode'", 6, 17);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'accessMode'", 8, 50);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'nBytes'", 11, 36);
-        // Blocked on return annotation support
-        // BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'sensitiveValue'", 16, 18);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'accessMode'", 7, 57);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'nBytes'", 10, 36);
+        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'sensitiveValue'", 16, 26);
     }
 }

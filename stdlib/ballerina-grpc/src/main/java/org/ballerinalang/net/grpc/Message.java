@@ -19,13 +19,10 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.MessageLite;
-import io.grpc.Metadata;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
 
 /**
  * Generic Proto3 Message.
@@ -35,65 +32,38 @@ import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
 public class Message extends GeneratedMessageV3 {
     private static final long serialVersionUID = 0L;
     private Map<String, Object> fields = new HashMap<>();
-    private Map<String, Object> headers = new HashMap<>();
     private String messageName;
-
+    
     // Use Message.newBuilder() to construct.
     protected Message(Builder builder) {
         super(builder);
         this.messageName = builder.messageName;
-        this.headers = retrieveHeaderMap();
     }
-
+    
     protected Message(String messageName) {
         this.messageName = messageName;
-        this.headers = retrieveHeaderMap();
     }
-
-    private Map<String, Object> retrieveHeaderMap() {
-        Map<String, Object> headerMap = new HashMap<>();
-        if (MessageContext.isPresent()) {
-            MessageContext messageContext = MessageContext.DATA_KEY.get();
-            for (String keyValue : messageContext.keys()) {
-                if (keyValue.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
-                    headerMap.put(keyValue, messageContext.get(Metadata.Key.of(keyValue, Metadata
-                            .BINARY_BYTE_MARSHALLER)));
-                } else {
-                    headerMap.put(keyValue, messageContext.get(Metadata.Key.of(keyValue, ASCII_STRING_MARSHALLER)));
-                }
-            }
-        }
-        return headerMap;
-    }
-
-    public Map<String, Object> getHeaders() {
-        return headers;
-    }
-
-    public Object getHeader(String headerName) {
-        return headers.get(headerName);
-    }
-
+    
     void setFieldValues(Map<String, Object> fieldValues) {
         this.fields = fieldValues;
     }
-
+    
     public Map<String, Object> getFields() {
         return fields;
     }
-
+    
     @Override
     public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
         return this.unknownFields;
     }
-
+    
     public Message(
             String messageName,
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws com.google.protobuf.InvalidProtocolBufferException {
         this(messageName);
-
+        
         Descriptors.Descriptor messageDescriptor = getDescriptor();
         Map<Integer, Descriptors.FieldDescriptor> fields = new HashMap<>();
         for (Descriptors.FieldDescriptor fieldDescriptor : messageDescriptor.getFields()) {
@@ -102,7 +72,7 @@ public class Message extends GeneratedMessageV3 {
             int byteCode = ((number << 3) + MessageUtils.getFieldWireType(fieldType));
             fields.put(byteCode, fieldDescriptor);
         }
-
+        
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
                 com.google.protobuf.UnknownFieldSet.newBuilder();
         try {
@@ -160,6 +130,17 @@ public class Message extends GeneratedMessageV3 {
                             this.fields.put(name, value);
                             break;
                         }
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
+                            int value = input.readEnum();
+                            this.fields.put(name, value);
+                            break;
+                        }
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
+                            Message message = input.readMessage(new MessageParser(fieldDescriptor.getMessageType()
+                                            .getName()), extensionRegistry);
+                            this.fields.put(name, message);
+                            break;
+                        }
                         default: {
                             throw new UnsupportedFieldTypeException("Error while decoding request message. Field " +
                                     "type is not supported : " + fieldDescriptor.getType());
@@ -182,17 +163,17 @@ public class Message extends GeneratedMessageV3 {
             makeExtensionsImmutable();
         }
     }
-
+    
     public com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-        return MessageRegistry.getInstance().getMessageDecriptor(messageName);
+        return MessageRegistry.getInstance().getMessageDescriptor(messageName);
     }
-
+    
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
         throw new UnsupportedOperationException("Operation is not supported");
     }
-
+    
     private byte memoizedIsInitialized = -1;
-
+    
     public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
         if (isInitialized == 1) {
@@ -201,11 +182,11 @@ public class Message extends GeneratedMessageV3 {
         if (isInitialized == 0) {
             return false;
         }
-
+        
         memoizedIsInitialized = 1;
         return true;
     }
-
+    
     public void writeTo(com.google.protobuf.CodedOutputStream output)
             throws java.io.IOException {
         Descriptors.Descriptor messageDescriptor = getDescriptor();
@@ -333,12 +314,18 @@ public class Message extends GeneratedMessageV3 {
                         }
                         break;
                     }
+                    case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
+                        Object msgObject = fields.get(fieldDescriptor.getName());
+                        output.writeEnum(fieldDescriptor.getNumber(), ((Descriptors.EnumValueDescriptor)
+                                msgObject).getNumber());
+                        break;
+                    }
                     default: {
                         throw new UnsupportedFieldTypeException("Error while writing output stream. Field " +
                                 "type is not supported : " + fieldDescriptor.getType());
                     }
                 }
-
+                
             }
         }
         unknownFields.writeTo(output);
@@ -349,7 +336,7 @@ public class Message extends GeneratedMessageV3 {
         if (size != -1) {
             return size;
         }
-
+        
         size = 0;
         Descriptors.Descriptor messageDescriptor = getDescriptor();
         for (Descriptors.FieldDescriptor fieldDescriptor : messageDescriptor.getFields()) {
@@ -495,6 +482,21 @@ public class Message extends GeneratedMessageV3 {
                         }
                         break;
                     }
+                    case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
+                        Object msgObject = fields.get(fieldDescriptor.getName());
+                        if (MessageUtils.isArray(msgObject)) {
+                            Descriptors.EnumValueDescriptor[] messages = (Descriptors.EnumValueDescriptor[]) msgObject;
+                            for (Descriptors.EnumValueDescriptor message : messages) {
+                                size += com.google.protobuf.CodedOutputStream.computeEnumSize(fieldDescriptor
+                                        .getNumber(), message.getNumber());
+                            }
+                        } else {
+                            size += com.google.protobuf.CodedOutputStream.computeEnumSize(fieldDescriptor
+                                    .getNumber(), fieldDescriptor
+                                    .getNumber());
+                        }
+                        break;
+                    }
                     default: {
                         throw new UnsupportedFieldTypeException("Error while calculating the serialized type. Field " +
                                 "type is not supported : " + fieldDescriptor.getType());
@@ -506,24 +508,24 @@ public class Message extends GeneratedMessageV3 {
         memoizedSize = size;
         return size;
     }
-
+    
     public Builder newBuilderForType() {
         throw new UnsupportedOperationException("This method is not supported.");
     }
-
+    
     public static Builder newBuilder(String messageName) {
         return new Message.Builder(messageName);
     }
-
+    
     public Builder toBuilder() {
         throw new UnsupportedOperationException("This method is not supported.");
     }
-
+    
     @Override
     protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         throw new UnsupportedOperationException("This method is not supported.");
     }
-
+    
     /**
      * <pre>
      * The request message containing the user's name.
@@ -532,38 +534,38 @@ public class Message extends GeneratedMessageV3 {
      * Protobuf type {@code org.ballerinalang.net.grpc.Message}
      */
     public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder> {
-
+        
         private Map<String, Object> fields = new HashMap<>();
         private final String messageName;
-
+        
         protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
             throw new UnsupportedOperationException("Operation is not supported");
         }
-
+        
         // Construct using org.ballerinalang.net.grpc.Message.newBuilder()
         private Builder(String messageName) {
             this.messageName = messageName;
         }
-
+        
         private Descriptors.Descriptor getDescriptor() {
-            return MessageRegistry.getInstance().getMessageDecriptor(messageName);
+            return MessageRegistry.getInstance().getMessageDescriptor(messageName);
         }
-
+        
         public Builder clear() {
             super.clear();
             fields.clear();
-
+            
             return this;
         }
-
+        
         public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
             return getDescriptor();
         }
-
+        
         public Message getDefaultInstanceForType() {
             return new Message(messageName);
         }
-
+        
         public Message build() {
             Message result = buildPartial();
             if (!result.isInitialized()) {
@@ -571,7 +573,7 @@ public class Message extends GeneratedMessageV3 {
             }
             return result;
         }
-
+        
         public Message buildPartial() {
             Message result = new Message(this);
             if (!fields.isEmpty()) {
@@ -580,12 +582,12 @@ public class Message extends GeneratedMessageV3 {
             onBuilt();
             return result;
         }
-
+        
         public Builder addField(String name, Object value) {
             fields.put(name, value);
             return this;
         }
-
+        
         @Override
         public String toString() {
             return "Builder{" +
@@ -594,14 +596,14 @@ public class Message extends GeneratedMessageV3 {
                     '}';
         }
     }
-
+    
     @Override
     public com.google.protobuf.Parser<Message> getParserForType() {
         return new MessageParser(messageName);
     }
-
+    
     public Message getDefaultInstanceForType() {
         throw new UnsupportedOperationException("Default instance is not supported.");
     }
-
+    
 }

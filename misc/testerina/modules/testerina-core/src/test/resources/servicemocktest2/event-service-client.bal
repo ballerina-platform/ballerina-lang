@@ -9,12 +9,10 @@ string eventServiceEP = "http://localhost:9092/events";
 
 public function getEvents () returns (json) {
 
-    endpoint http:ClientEndpoint httpEndpoint {
-        targets:[{
-            url:eventServiceEP
-        }]
+    endpoint http:Client httpEndpoint {
+        targets:[{ url:eventServiceEP }]
     };
-    http:Request req = {};
+    http:Request req = new;
     var response = httpEndpoint -> get("/", req);
 
     match response {

@@ -32,9 +32,11 @@ under the License.
             <class name="org.ballerinalang.testerina.test.GroupFilterTest"/>
             <class name="org.ballerinalang.testerina.test.DisableFunctionsTest"/>
             <class name="org.ballerinalang.testerina.test.TesterinaSamplesTest"/>
-            <class name="org.ballerinalang.testerina.test.ServiceSkeletonTest"/>
+            <!--<class name="org.ballerinalang.testerina.test.ServiceSkeletonTest"/>-->
             <class name="org.ballerinalang.testerina.test.ListGroupsTest"/>
+            <class name="org.ballerinalang.testerina.test.DependsOnTest"/>
+            <class name="org.ballerinalang.testerina.test.SkipTest"/>
+            <class name="org.ballerinalang.testerina.test.BeforeAfterTest"/>
         </classes>
     </test>
-
 </suite>

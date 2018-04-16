@@ -20,9 +20,9 @@ package org.ballerinalang.model.values;
 
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
-import io.ballerina.messaging.broker.core.ContentChunk;
 import io.ballerina.messaging.broker.core.Message;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -30,7 +30,6 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
-import org.ballerinalang.util.BrokerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -57,7 +56,7 @@ public class BStream implements BRefType<Object> {
 
     public BStream(BType type, String name) {
         if (((BStreamType) type).getConstrainedType() == null) {
-            throw new BallerinaException("a stream cannot be created without a constraint");
+            throw new BallerinaException("a stream cannot be declared without a constraint");
         }
         this.constraintType = (BStructType) ((BStreamType) type).getConstrainedType();
         this.topicName = TOPIC_NAME_PREFIX + ((BStreamType) type).getConstrainedType().getName().toUpperCase() + "_"
@@ -89,6 +88,10 @@ public class BStream implements BRefType<Object> {
         return null;
     }
 
+    public BStructType getConstraintType() {
+        return constraintType;
+    }
+
     /**
      * Method to publish to a topic representing the stream in the broker.
      *
@@ -96,7 +99,7 @@ public class BStream implements BRefType<Object> {
      */
     public void publish(BStruct data) {
         if (data.getType() != this.constraintType) {
-            throw new BallerinaException("incompatible types: struct of type:" + data.getType().getName()
+            throw new BallerinaException("incompatible types: object of type:" + data.getType().getName()
                     + " cannot be added to a stream of type:" + this.constraintType.getName());
         }
         BrokerUtils.publish(topicName, JSONUtils.convertStructToJSON(data).stringValue().getBytes());
@@ -114,7 +117,7 @@ public class BStream implements BRefType<Object> {
         if (!(parameters[0] instanceof BStructType)
                 || ((BStructType) parameters[0]).structInfo.getType() != constraintType) {
             throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
-                    + " a struct of type:" + this.constraintType.getName());
+                    + " an object of type:" + this.constraintType.getName());
         }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
         BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
@@ -136,11 +139,7 @@ public class BStream implements BRefType<Object> {
 
         @Override
         protected void send(Message message) throws BrokerException {
-            byte[] bytes = new byte[0];
-            for (ContentChunk chunk : message.getContentChunks()) {
-                bytes = new byte[chunk.getBytes().readableBytes()];
-                chunk.getBytes().getBytes(0, bytes);
-            }
+            byte[] bytes = BrokerUtils.retrieveBytes(message);
             BJSON json = new BJSON(new String(bytes, StandardCharsets.UTF_8));
             BStruct data = JSONUtils.convertJSONToStruct(json, constraintType);
             BValue[] args = {data};
@@ -182,11 +181,7 @@ public class BStream implements BRefType<Object> {
 
         @Override
         protected void send(Message message) throws BrokerException {
-            byte[] bytes = new byte[0];
-            for (ContentChunk chunk : message.getContentChunks()) {
-                bytes = new byte[chunk.getBytes().readableBytes()];
-                chunk.getBytes().getBytes(0, bytes);
-            }
+            byte[] bytes = BrokerUtils.retrieveBytes(message);
             BJSON json = new BJSON(new String(bytes, StandardCharsets.UTF_8));
             BStruct data = JSONUtils.convertJSONToStruct(json, constraintType);
             Object[] event = createEvent(data);

@@ -93,8 +93,10 @@ public class BLangDiagnosticLog implements DiagnosticLog {
 
     @Override
     public void logDiagnostic(Diagnostic.Kind kind, Diagnostic.DiagnosticPosition pos, CharSequence message) {
-        BDiagnostic diagnostic = new BDiagnostic(Diagnostic.Kind.WARNING,
-                pos, message.toString());
+        if (kind == Diagnostic.Kind.ERROR) {
+            errorCount++;
+        }
+        BDiagnostic diagnostic = new BDiagnostic(kind, pos, message.toString());
         listener.received(diagnostic);
     }
 }

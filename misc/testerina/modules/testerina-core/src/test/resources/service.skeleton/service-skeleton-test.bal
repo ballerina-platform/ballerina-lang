@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/io;
 import ballerina/test;
 import ballerina/config;
 
@@ -17,7 +16,7 @@ function clean() {
 
 @test:Config{before: "init", after: "clean"}
 function testService () {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets:[{
             url:uri
         }]
@@ -25,7 +24,7 @@ function testService () {
 
     test:assertTrue(isServiceSkeletonStarted, msg = "Service skeleton failed to start");
 
-    http:Request req = {};
+    http:Request req = new;
     // Send a GET request to the specified endpoint
     var response = httpEndpoint -> get("/pets", req);
     match response {

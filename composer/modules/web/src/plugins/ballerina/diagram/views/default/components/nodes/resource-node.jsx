@@ -119,6 +119,8 @@ class ResourceNode extends React.Component {
             };
         }
 
+        const client = this.props.model.viewState.components.client;
+
         return (
             <g>
                 <PanelDecorator
@@ -133,8 +135,8 @@ class ResourceNode extends React.Component {
                     {...panelAdditionalProps}
                 >
                     <Client
-                        title={protocolPkgIdentifier + ' conn'}
-                        bBox={this.props.model.viewState.components.client}
+                        title={client.title}
+                        bBox={client}
                     />
                     <g>
                         { this.props.model.getWorkers().length === 0 &&

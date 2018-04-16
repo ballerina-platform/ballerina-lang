@@ -5,7 +5,7 @@
         line-height: 24px;
         vertical-align: middle;
         color: rgb(199, 199, 199);
-        font-family: "lucida grande", tahoma, verdana, arial, sans-serif;
+        font-family: "Roboto", Arial, Helvetica, sans-serif;
         font-size: 14px;
         .arrow, .fw, .root-label {
             margin-left: 5px;
@@ -26,6 +26,7 @@
         }
         &:hover {
             .root-actions {
+                background: #444;
                 .action {
                     opacity: 0.6;
                 }
@@ -35,6 +36,9 @@
             float: right;
             margin-right: 5px;
             font-size: 12px;
+            position: absolute;
+            right: 0;
+            
             &:hover {
                 .action {
                     opacity: 0.6;
@@ -55,6 +59,7 @@
             background: #444;
             color: #fff !important;
             .root-actions {
+                background: #444;
                 .action {
                     opacity: 0.6;
                     &:hover {
@@ -74,4 +79,13 @@
             display: none;
         }
     }
+}
+
+.react-contextmenu-wrapper{
+    color: #eee;
+}
+.explorer-item .root{
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }

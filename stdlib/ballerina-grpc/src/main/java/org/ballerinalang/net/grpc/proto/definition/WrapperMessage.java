@@ -33,8 +33,7 @@ public class WrapperMessage extends Message {
 
     private WrapperMessage(Descriptors.Descriptor descriptor) {
         this.descriptor = descriptor;
-        this.messageName = descriptor.getName();
-        this.messageType = descriptor.getFullName();
+        this.messageName = descriptor.getFullName();
     }
 
     @Override
@@ -57,10 +56,6 @@ public class WrapperMessage extends Message {
     @Override
     public String getDependency() {
         return "google/protobuf/wrappers.proto";
-    }
-
-    private WrapperMessage(String messageName) {
-        this.messageName = messageName;
     }
 
     /**

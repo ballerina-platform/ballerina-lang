@@ -70,7 +70,7 @@ public class BTupleType extends BType {
     @Override
     public String toString() {
         List<String> list = tupleTypes.stream().map(BType::toString).collect(Collectors.toList());
-        return "(" + String.join("|", list) + ")";
+        return "(" + String.join(",", list) + ")";
     }
 
     @Override

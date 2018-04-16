@@ -1,9 +1,8 @@
 package ballerina.http;
 
-public struct WebSocketService {
-}
-
-function <WebSocketService s> getEndpoint() returns WebSocketEndpoint {
-    WebSocketEndpoint ep = {};
-    return ep;
-}
+public type WebSocketService object {
+    public function getEndpoint() returns WebSocketListener {
+        WebSocketListener ep = new;
+        return ep;
+    }
+};

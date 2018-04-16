@@ -1,26 +1,28 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.langserver.common.util;
 
 import com.google.gson.Gson;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.ReferenceContext;
+import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
@@ -52,20 +54,51 @@ public class CommonUtil {
         Gson gson = new Gson();
         BallerinaLanguageServer ballerinaLanguageServer = new BallerinaLanguageServer();
         Endpoint serviceEndpoint = ServiceEndpoints.toEndpoint(ballerinaLanguageServer);
-        TextDocumentPositionParams positionParams = new TextDocumentPositionParams();
-        TextDocumentIdentifier identifier = new TextDocumentIdentifier();
-        identifier.setUri(Paths.get(file).toUri().toString());
-        positionParams.setTextDocument(identifier);
-        positionParams.setPosition(position);
+        CompletableFuture result = null;
+        switch (method) {
+            case "textDocument/hover":
+            case "textDocument/definition":
+                TextDocumentPositionParams positionParams = new TextDocumentPositionParams();
+                TextDocumentIdentifier identifier = new TextDocumentIdentifier();
+                identifier.setUri(Paths.get(file).toUri().toString());
+                positionParams.setTextDocument(identifier);
+                positionParams.setPosition(position);
 
-        DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
-        TextDocumentItem textDocumentItem = new TextDocumentItem();
-        textDocumentItem.setUri(identifier.getUri());
-        textDocumentItem.setText(fileContent);
-        documentParams.setTextDocument(textDocumentItem);
+                DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
+                TextDocumentItem textDocumentItem = new TextDocumentItem();
+                textDocumentItem.setUri(identifier.getUri());
+                textDocumentItem.setText(fileContent);
+                documentParams.setTextDocument(textDocumentItem);
 
-        serviceEndpoint.notify("textDocument/didOpen", documentParams);
-        CompletableFuture result = serviceEndpoint.request(method, positionParams);
+                serviceEndpoint.notify("textDocument/didOpen", documentParams);
+                result = serviceEndpoint.request(method, positionParams);
+                break;
+            case "textDocument/references":
+                ReferenceParams referenceParams = new ReferenceParams();
+
+                TextDocumentIdentifier textDocumentIdentifier = new TextDocumentIdentifier();
+                textDocumentIdentifier.setUri(Paths.get(file).toUri().toString());
+
+                ReferenceContext referenceContext = new ReferenceContext();
+                referenceContext.setIncludeDeclaration(true);
+
+                referenceParams.setPosition(position);
+                referenceParams.setTextDocument(textDocumentIdentifier);
+                referenceParams.setContext(referenceContext);
+
+                DidOpenTextDocumentParams didOpenTextDocumentParams = new DidOpenTextDocumentParams();
+                TextDocumentItem textDocument = new TextDocumentItem();
+                textDocument.setUri(textDocumentIdentifier.getUri());
+                textDocument.setText(fileContent);
+                didOpenTextDocumentParams.setTextDocument(textDocument);
+
+                serviceEndpoint.notify("textDocument/didOpen", didOpenTextDocumentParams);
+                result = serviceEndpoint.request(method, referenceParams);
+                break;
+            default:
+                break;
+        }
+
         ResponseMessage jsonrpcResponse = new ResponseMessage();
         try {
             jsonrpcResponse.setId("324");

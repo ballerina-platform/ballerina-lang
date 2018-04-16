@@ -47,22 +47,23 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
  *
  * @since 0.94
  */
-public class HttpService {
+public class HttpService implements Cloneable {
 
     private static final Logger log = LoggerFactory.getLogger(HttpService.class);
 
     protected static final String BASE_PATH_FIELD = "basePath";
     private static final String COMPRESSION_FIELD = "compression";
     private static final String CORS_FIELD = "cors";
-    private static final String WEBSOCKET_UPGRADE_FIELD = "webSocketUpgrade";
+    private static final String VERSIONING_FIELD = "versioning";
+    protected static final String WEBSOCKET_UPGRADE_FIELD = "webSocketUpgrade";
 
     private Service balService;
     private List<HttpResource> resources;
+    private List<Resource> upgradeToWebSocketResources;
     private List<String> allAllowedMethods;
     private String basePath;
     private CorsHeaders corsHeaders;
     private URITemplate<HttpResource, HTTPCarbonMessage> uriTemplate;
-    private Struct webSocketUpgradeConfig;
     private boolean keepAlive = true; //default behavior
     private String compression = AUTO; //default behavior
 
@@ -72,6 +73,10 @@ public class HttpService {
 
     protected HttpService(Service service) {
         this.balService = service;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
     public boolean isKeepAlive() {
@@ -144,6 +149,15 @@ public class HttpService {
         }
     }
 
+    public List<Resource> getUpgradeToWebSocketResources() {
+        return upgradeToWebSocketResources;
+    }
+
+    public void setUpgradeToWebSocketResources(
+            List<Resource> upgradeToWebSocketResources) {
+        this.upgradeToWebSocketResources = upgradeToWebSocketResources;
+    }
+
     public URITemplate<HttpResource, HTTPCarbonMessage> getUriTemplate() throws URITemplateException {
         if (uriTemplate == null) {
             uriTemplate = new URITemplate<>(new Literal<>(new HttpResourceDataElement(), "/"));
@@ -151,45 +165,114 @@ public class HttpService {
         return uriTemplate;
     }
 
-    public Struct getWebSocketUpgradeConfig() {
-        return webSocketUpgradeConfig;
-    }
-
-    public void setWebSocketUpgradeConfig(Struct webSocketUpgradeConfig) {
-        this.webSocketUpgradeConfig = webSocketUpgradeConfig;
-    }
-
-    public static HttpService buildHttpService(Service service) {
+    public static List<HttpService> buildHttpService(Service service) {
+        List<HttpService> serviceList = new ArrayList<>();
+        List<String> basePathList = new ArrayList<>();
         HttpService httpService = new HttpService(service);
         Annotation serviceConfigAnnotation = getHttpServiceConfigAnnotation(service);
 
         if (serviceConfigAnnotation == null) {
             log.debug("serviceConfig not specified in the Service instance, using default base path");
             //service name cannot start with / hence concat
-            httpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
+//            httpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
+            basePathList.add(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
         } else {
             Struct serviceConfig = serviceConfigAnnotation.getValue();
-            httpService.setBasePath(serviceConfig.getStringField(BASE_PATH_FIELD));
-            httpService.setCompression(serviceConfig.getEnumField(COMPRESSION_FIELD));
+
+            httpService.setCompression(serviceConfig.getRefField(COMPRESSION_FIELD).getStringValue());
             httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getStructField(CORS_FIELD)));
-            httpService.setWebSocketUpgradeConfig(serviceConfig.getStructField(WEBSOCKET_UPGRADE_FIELD));
+
+            String basePath = serviceConfig.getStringField(BASE_PATH_FIELD);
+            if (basePath.contains(HttpConstants.VERSION)) {
+                prepareBasePathList(serviceConfig.getStructField(VERSIONING_FIELD),
+                                    serviceConfig.getStringField(BASE_PATH_FIELD), basePathList,
+                                    httpService.getBallerinaService().getPackageVersion());
+            } else {
+                basePathList.add(basePath);
+            }
         }
 
-        List<HttpResource> resources = new ArrayList<>();
+        List<HttpResource> httpResources = new ArrayList<>();
+        List<Resource> upgradeToWebSocketResources = new ArrayList<>();
         for (Resource resource : httpService.getBallerinaService().getResources()) {
-            HttpResource httpResource = HttpResource.buildHttpResource(resource, httpService);
-            try {
-                httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
-                                                   new HttpResourceElementFactory());
-            } catch (URITemplateException | UnsupportedEncodingException e) {
-                throw new BallerinaConnectorException(e.getMessage());
+            Annotation resourceConfigAnnotation =
+                    HttpUtil.getResourceConfigAnnotation(resource, HttpConstants.HTTP_PACKAGE_PATH);
+            if (resourceConfigAnnotation != null
+                    && resourceConfigAnnotation.getValue().getStructField(WEBSOCKET_UPGRADE_FIELD) != null) {
+                upgradeToWebSocketResources.add(resource);
+            } else {
+                HttpResource httpResource = HttpResource.buildHttpResource(resource, httpService);
+                try {
+                    httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
+                                                       new HttpResourceElementFactory());
+                } catch (URITemplateException | UnsupportedEncodingException e) {
+                    throw new BallerinaConnectorException(e.getMessage());
+                }
+                httpResources.add(httpResource);
             }
-            resources.add(httpResource);
         }
-        httpService.setResources(resources);
+        httpService.setResources(httpResources);
+        httpService.setUpgradeToWebSocketResources(upgradeToWebSocketResources);
         httpService.setAllAllowedMethods(DispatcherUtil.getAllResourceMethods(httpService));
 
-        return httpService;
+        if (basePathList.size() == 1) {
+            httpService.setBasePath(basePathList.get(0));
+            serviceList.add(httpService);
+            return serviceList;
+        }
+
+        for (String basePath : basePathList) {
+            HttpService tempHttpService;
+            try {
+                tempHttpService = (HttpService) httpService.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new BallerinaConnectorException("Service registration failed");
+            }
+            tempHttpService.setBasePath(basePath);
+            serviceList.add(tempHttpService);
+        }
+        return serviceList;
+    }
+
+    private static void prepareBasePathList(Struct versioningConfig, String basePath, List<String> basePathList,
+                                            String packageVersion) {
+        String patternAnnotValue = HttpConstants.DEFAULT_VERSION;
+        Boolean allowNoVersionAnnotValue = false;
+        Boolean matchMajorVersionAnnotValue = false;
+        if (versioningConfig != null) {
+            patternAnnotValue = versioningConfig.getStringField(HttpConstants.ANN_CONFIG_ATTR_PATTERN);
+            allowNoVersionAnnotValue = versioningConfig.getBooleanField(HttpConstants.ANN_CONFIG_ATTR_ALLOW_NO_VERSION);
+            matchMajorVersionAnnotValue = versioningConfig.getBooleanField(
+                    HttpConstants.ANN_CONFIG_ATTR_MATCH_MAJOR_VERSION);
+        }
+        patternAnnotValue = patternAnnotValue.toLowerCase();
+        basePathList.add(replaceServiceVersion(basePath, packageVersion, patternAnnotValue));
+
+        if (allowNoVersionAnnotValue) {
+            basePathList.add(basePath.replace(HttpConstants.VERSION, "").replace("//", "/"));
+        }
+        if (matchMajorVersionAnnotValue) {
+            String patternWithMajor = patternAnnotValue.replace(HttpConstants.MINOR_VERSION, "");
+            patternWithMajor = patternWithMajor.endsWith(".") ?
+                    patternWithMajor.substring(0, patternWithMajor.length() - 1) : patternWithMajor;
+            basePathList.add(replaceServiceVersion(basePath, packageVersion, patternWithMajor));
+        }
+    }
+
+    private static String replaceServiceVersion(String basePath, String version, String pattern) {
+        pattern = pattern.toLowerCase();
+        String[] versionElements = version.split("\\.");
+        String majorVersion = versionElements[0];
+        String minorVersion = versionElements.length > 1 ? versionElements[1] : "";
+
+        if (pattern.contains(HttpConstants.MAJOR_VERSION) || pattern.contains(HttpConstants.MINOR_VERSION)) {
+            String patternReplaced = pattern.replace(HttpConstants.MAJOR_VERSION, majorVersion);
+            String result = patternReplaced.replace(HttpConstants.MINOR_VERSION, minorVersion);
+
+            return basePath.replace(HttpConstants.VERSION, result);
+        }
+        throw new BallerinaConnectorException("Invalid versioning pattern: expect \"" + HttpConstants.MAJOR_VERSION +
+                                              "," + HttpConstants.MINOR_VERSION + "\" elements");
     }
 
     private static Annotation getHttpServiceConfigAnnotation(Service service) {

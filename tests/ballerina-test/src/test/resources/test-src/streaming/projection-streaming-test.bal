@@ -17,37 +17,38 @@
 import ballerina/runtime;
 import ballerina/io;
 
-struct Employee {
+type Employee {
     string name;
     int age;
     string status;
-}
+};
 
-struct Teacher {
+type Teacher {
     string name;
     int age;
     string status;
     string batch;
     string school;
-}
+};
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-stream<Employee> employeeStream2 = {};
-stream<Teacher> teacherStream4 = {};
 
-function testProjectionQuery () {
+stream<Employee> employeeStream2;
+stream<Teacher> teacherStream4;
 
-    forever{
+function testProjectionQuery() {
+
+    forever {
         from teacherStream4
         select name, age, status
-        => (Employee [] emp) {
-                employeeStream2.publish(emp);
+        => (Employee[] emp) {
+            employeeStream2.publish(emp);
         }
     }
 }
 
-function startProjectionQuery( ) returns (Employee []) {
+function startProjectionQuery() returns (Employee[]) {
 
     testProjectionQuery();
 
@@ -66,12 +67,12 @@ function startProjectionQuery( ) returns (Employee []) {
     return globalEmployeeArray;
 }
 
-function printEmployeeNumber (Employee e) {
+function printEmployeeNumber(Employee e) {
     io:println("printEmployeeName function invoked for Employee event for Employee employee name:" + e.name);
     addToGlobalEmployeeArray(e);
 }
 
-function addToGlobalEmployeeArray (Employee e) {
+function addToGlobalEmployeeArray(Employee e) {
     globalEmployeeArray[employeeIndex] = e;
     employeeIndex = employeeIndex + 1;
 }

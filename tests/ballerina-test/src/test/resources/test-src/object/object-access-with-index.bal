@@ -7,7 +7,7 @@ type Department object {
     new (dptName = "", employees) {
         
     }
-}
+};
 
 type Person object {
     public {
@@ -17,7 +17,7 @@ type Person object {
         int age = 999;
         Family family;
     }
-}
+};
 
 type Family object {
     public {
@@ -25,7 +25,7 @@ type Family object {
         int noOfChildren;
         string[] children;
     }
-}
+};
 
 function testCreateObject () returns (string, map, int) {
     map address1;
@@ -112,7 +112,8 @@ function testDefaultVal () returns (string, string, int) {
 function testNestedFieldDefaultVal () returns (string, string, int) {
     Department dpt = new ([]);
     dpt["employees"] = [];
-    dpt["employees"][0] = {lname:"Smith"};
+    dpt["employees"][0]= new Person();
+    dpt["employees"][0]["lname"] = "Smith";
     return (dpt["employees"][0]["name"], dpt["employees"][0]["lname"], dpt["employees"][0]["age"]);
 }
 

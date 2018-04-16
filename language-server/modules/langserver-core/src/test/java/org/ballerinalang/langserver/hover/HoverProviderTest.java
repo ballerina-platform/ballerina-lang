@@ -1,27 +1,30 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.langserver.hover;
 
+import org.ballerinalang.langserver.LSAnnotationCache;
+import org.ballerinalang.langserver.LSContextManager;
 import org.ballerinalang.langserver.common.util.CommonUtil;
 import org.eclipse.lsp4j.Position;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -34,11 +37,12 @@ import java.nio.file.Paths;
 /**
  * Test hover feature in language server.
  */
+@Test(groups = "broken")
 public class HoverProviderTest {
     private static final String TESTS_SAMPLES = "src" + File.separator + "test" + File.separator + "resources"
-            + File.separator + "hover.test";
+            + File.separator + "hover";
     private static final String ROOT_DIR = Paths.get("").toAbsolutePath().toString() + File.separator;
-    private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "hover.test";
+    private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "hover";
     private static final String METHOD = "textDocument/hover";
     private String balPath = SAMPLES_COPY_DIR + File.separator + "hover.bal";
     private String balFileContent;
@@ -50,9 +54,16 @@ public class HoverProviderTest {
         org.apache.commons.io.FileUtils.copyDirectory(source, destination);
         byte[] encoded = Files.readAllBytes(Paths.get(balPath));
         balFileContent = new String(encoded);
+        LSAnnotationCache.initiate();
+    }
+    
+    @BeforeMethod
+    public void clearPackageCache() {
+        LSContextManager.getInstance().clearAllContexts();
     }
 
-    //@Test(description = "Test Hover for built in functions", dataProvider = "hoverBuiltinFuncPosition")
+    @Test(description = "Test Hover for built in functions", dataProvider = "hoverBuiltinFuncPosition",
+            enabled = false)
     public void hoverForBuiltInFunctionTest(Position position, String expectedFile)
             throws URISyntaxException, InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath,
@@ -61,7 +72,7 @@ public class HoverProviderTest {
     }
 
     @Test(description = "Test Hover for current package's functions",
-            dataProvider = "hoverCurrentPackageFuncPosition", enabled = false)
+            dataProvider = "hoverCurrentPackageFuncPosition")
     public void hoverForCurrentPackageFunctionTest(Position position, String expectedFile)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath,
@@ -78,9 +89,9 @@ public class HoverProviderTest {
                 + expectedFile + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-    @Test(description = "Test Hover for current package's structs",
-            dataProvider = "hoverCurrentPackageStructPosition", enabled = false)
-    public void hoverForCurrentPackageStructTest(Position position, String expectedFile)
+    @Test(description = "Test Hover for current package's records",
+            dataProvider = "hoverCurrentPackageRecordPosition")
+    public void hoverForCurrentPackageRecordTest(Position position, String expectedFile)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath,
                 balFileContent, METHOD), getExpectedValue(expectedFile), "Did not match the hover content for "
@@ -114,12 +125,12 @@ public class HoverProviderTest {
         };
     }
 
-    @DataProvider(name = "hoverCurrentPackageStructPosition")
+    @DataProvider(name = "hoverCurrentPackageRecordPosition")
     public Object[][] getCurrentPackageStructPositions() {
         return new Object[][]{
-                {new Position(44, 7), "currentPkg-struct.json"},
-                {new Position(49, 19), "currentPkg-struct.json"},
-                {new Position(50, 8), "currentPkg-struct.json"}
+                {new Position(44, 7), "currentPkg-record.json"},
+                {new Position(49, 19), "currentPkg-record.json"},
+                {new Position(50, 8), "currentPkg-record.json"}
         };
     }
 

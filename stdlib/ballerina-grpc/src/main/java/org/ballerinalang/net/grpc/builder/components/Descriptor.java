@@ -47,11 +47,11 @@ public class Descriptor {
         this.descriptorData = descriptorData;
     }
     
-    public String getEOE() {
+    public String getEoe() {
         return eoe;
     }
     
-    public void setEOE(String eoe) {
+    public void setEoe(String eoe) {
         this.eoe = eoe;
     }
 }

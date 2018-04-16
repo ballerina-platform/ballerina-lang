@@ -1,37 +1,37 @@
 import ballerina/sql;
 
-struct Person {
+type Person {
     int id;
     int age;
     float salary;
     string name;
-}
+};
 
-struct ResultCount {
+type ResultCount {
     int COUNTVAL;
-}
+};
 
-struct Employee {
+type Employee {
     int id;
     string name;
     float salary;
-}
+};
 
-struct EmployeeCompatible {
+type EmployeeCompatible {
     int id;
     string name;
     float salary;
-}
+};
 
-struct EmployeeSalary {
+type EmployeeSalary {
     int id;
     float salary;
-}
+};
 
-struct EmployeeSalaryCompatible {
+type EmployeeSalaryCompatible {
     int id;
     float salary;
-}
+};
 
 int idValue = -1;
 int ageValue = -1;
@@ -40,17 +40,13 @@ string nameValue = "";
 
 function testForEachInTableWithStmt () returns (int, int, float, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt1 =? testDB -> select("SELECT * from Person where id = 1", null, typeof Person);
-    table<Person> dt = dt1; //TODO:remove this
+    var temp = testDB -> select("SELECT * from Person where id = 1", Person);
+    table<Person> dt = check temp;
 
     int id;
     int age;
@@ -69,17 +65,13 @@ function testForEachInTableWithStmt () returns (int, int, float, string) {
 
 function testForEachInTable () returns (int, int, float, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt1 =? testDB-> select("SELECT * from Person where id = 1", null, typeof Person);
-    table<Person> dt = dt1; //TODO:remove this
+    var temp = testDB-> select("SELECT * from Person where id = 1", Person);
+    table<Person> dt = check temp;
 
     dt.foreach ((Person p) => {
                     idValue = p.id;
@@ -98,17 +90,13 @@ function testForEachInTable () returns (int, int, float, string) {
 
 function testCountInTable () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt1 =? testDB -> select("SELECT * from Person where id < 10", null, typeof Person);
-    table<Person> dt = dt1; //TODO:remove this
+    var temp = testDB -> select("SELECT * from Person where id < 10",Person);
+    table<Person> dt = check temp;
     int count = dt.count();
     _ = testDB -> close();
     return count;
@@ -116,17 +104,13 @@ function testCountInTable () returns (int) {
 
 function testFilterTable () returns (int, int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt1 =? testDB -> select("SELECT * from Person", null, typeof Person);
-    table<Person> dt = dt1; //TODO:remove this
+    var temp = testDB -> select("SELECT * from Person", Person);
+    table<Person> dt = check temp;
     Person[] personBelow35 = dt.filter(isBellow35);
     int count = lengthof personBelow35;
     int id1 = personBelow35[0].id;
@@ -137,17 +121,13 @@ function testFilterTable () returns (int, int, int) {
 
 function testFilterWithAnnonymousFuncOnTable () returns (int, int, int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt1 =? testDB -> select("SELECT * from Person", null, typeof Person);
-    table<Person> dt = dt1; //TODO:remove this
+    var temp = testDB -> select("SELECT * from Person", Person);
+    table<Person> dt = check temp;
     Person[] personBelow35 = dt.filter((Person p) => (boolean) {
                                            return p.age < 35;
                                        });
@@ -160,17 +140,13 @@ function testFilterWithAnnonymousFuncOnTable () returns (int, int, int) {
 
 function testFilterTableWithCount () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt1 =? testDB -> select("SELECT * from Person", null, typeof Person);
-    table<Person> dt = dt1; //TODO:remove this
+    var temp = testDB -> select("SELECT * from Person", Person);
+    table<Person> dt = check temp;
     int count = dt.filter(isBellow35).count();
     _ = testDB -> close();
     return count;
@@ -178,17 +154,13 @@ function testFilterTableWithCount () returns (int) {
 
 function testMapTable () returns (string[]) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    table<Person> dt = dt1; //TODO:remove this
+    var temp = testDB -> select("SELECT * from Person order by id", Person);
+    table<Person> dt = check temp;
     string[] names = dt.map(getName);
     _ = testDB -> close();
     return names;
@@ -196,17 +168,13 @@ function testMapTable () returns (string[]) {
 
 function testMapWithFilterTable () returns (string[]) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    table<Person> dt = dt1; //TODO:remove this
+    var temp = testDB -> select("SELECT * from Person order by id", Person);
+    table<Person> dt = check temp;
     string[] names = dt.map(getName).filter(isGeraterThan4String);
     _ = testDB -> close();
     return names;
@@ -214,17 +182,13 @@ function testMapWithFilterTable () returns (string[]) {
 
 function testFilterWithMapTable () returns (string[]) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    table<Person> dt = dt1; //TODO:remove this
+    var temp = testDB -> select("SELECT * from Person order by id", Person);
+    table<Person> dt = check temp;
     string[] names = dt.filter(isGeraterThan4).map(getName);
     _ = testDB -> close();
     return names;
@@ -232,17 +196,13 @@ function testFilterWithMapTable () returns (string[]) {
 
 function testFilterWithMapAndCountTable () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    table<Person> dt = dt1; //TODO:remove this
+    var temp = testDB -> select("SELECT * from Person order by id", Person);
+    table<Person> dt = check temp;
     int count = dt.filter(isGeraterThan4).map(getName).count();
     _ = testDB -> close();
     return count;
@@ -250,17 +210,13 @@ function testFilterWithMapAndCountTable () returns (int) {
 
 function testAverageWithTable () returns (float) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    table<Person> dt = dt1; //TODO:remove this
+    var temp = testDB -> select("SELECT * from Person order by id", Person);
+    table<Person> dt = check temp;
     float avgSal = dt.map(getSalary).average();
     _ = testDB -> close();
     return avgSal;
@@ -268,17 +224,13 @@ function testAverageWithTable () returns (float) {
 
 function testMinWithTable () returns (float) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    table<Person> dt = dt1; //TODO:remove this
+    var temp = testDB -> select("SELECT * from Person order by id", Person);
+    table<Person> dt = check temp;
     float avgSal = dt.map(getSalary).min();
     _= testDB -> close();
     return avgSal;
@@ -286,17 +238,13 @@ function testMinWithTable () returns (float) {
 
 function testMaxWithTable () returns (float) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    table<Person> dt = dt1; //TODO:remove this
+    var temp = testDB -> select("SELECT * from Person order by id", Person);
+    table<Person> dt = check temp;
     float avgSal = dt.map(getSalary).max();
     _ =testDB -> close();
     return avgSal;
@@ -304,17 +252,13 @@ function testMaxWithTable () returns (float) {
 
 function testSumWithTable () returns (float) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt1 =? testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    table<Person> dt = dt1; //TODO:remove this
+    var temp = testDB -> select("SELECT * from Person order by id", Person);
+    table<Person> dt = check temp;
     float avgSal = dt.map(getSalary).sum();
     _ = testDB -> close();
     return avgSal;
@@ -322,21 +266,16 @@ function testSumWithTable () returns (float) {
 
 function testCloseConnectionPool () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_DATA_TABLE__ITR_DB",
+        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt1 =? testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
-                              typeof ResultCount);
-    table<Person> dt = dt1; //TODO:remove this
+    var temp = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount);
+    table<Person> dt = check temp;
     int count;
     while (dt.hasNext()) {
-        var rs =? <ResultCount> dt.getNext();
+        var rs = check <ResultCount> dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -399,9 +338,9 @@ function createTable() returns (table<Employee>) {
     Employee e2 = {id:2, name:"B", salary:200};
     Employee e3 = {id:3, name:"C", salary:300};
 
-    dt.add(e1);
-    dt.add(e2);
-    dt.add(e3);
+    _ = dt.add(e1);
+    _ = dt.add(e2);
+    _ = dt.add(e3);
 
     return dt;
 }

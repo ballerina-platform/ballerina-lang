@@ -1,10 +1,10 @@
 package req2;
 
-public struct userPB {
+public type userPB {
     int age;
     string name;
     string address;
-}
+};
 
 public function <userPB ub> userPB() {
 }

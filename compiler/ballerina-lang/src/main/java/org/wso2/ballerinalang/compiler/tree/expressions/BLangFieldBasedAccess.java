@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.util.FieldType;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
@@ -31,13 +31,12 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
  *
  * @since 0.94
  */
-public class BLangFieldBasedAccess extends BLangVariableReference implements FieldBasedAccessNode {
+public class BLangFieldBasedAccess extends BLangAccessExpression implements FieldBasedAccessNode {
 
     public BLangIdentifier field;
 
-    public BLangVariableReference expr;
-
-    public FieldType fieldType;
+    public FieldKind fieldKind;
+    public BVarSymbol varSymbol;
 
     @Override
     public BLangVariableReference getExpression() {
@@ -73,6 +72,23 @@ public class BLangFieldBasedAccess extends BLangVariableReference implements Fie
             this.pos = pos;
             this.expr = varRef;
             this.symbol = fieldSymbol;
+            this.varSymbol = fieldSymbol;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * @since 0.97
+     */
+    public static class BLangStructFunctionVarRef extends BLangFieldBasedAccess {
+
+        public BLangStructFunctionVarRef(BLangVariableReference varRef, BVarSymbol varSymbol) {
+            this.expr = varRef;
+            this.symbol = varSymbol;
         }
 
         @Override
@@ -93,6 +109,7 @@ public class BLangFieldBasedAccess extends BLangVariableReference implements Fie
             this.pos = pos;
             this.enumeratorName = enumeratorName;
             this.symbol = enumeratorSymbol;
+            this.varSymbol = enumeratorSymbol;
         }
 
         @Override

@@ -17,7 +17,7 @@ function getGlobalVars() returns (int, string, float, any) {
 
 function accessGlobalVar() returns int {
     int value;
-    value =? <int>glbVarAny;
+    value = check <int>glbVarAny;
     return (glbVarInt + value);
 }
 

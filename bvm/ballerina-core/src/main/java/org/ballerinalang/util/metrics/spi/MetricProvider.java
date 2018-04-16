@@ -32,6 +32,19 @@ import java.util.function.ToDoubleFunction;
  */
 public interface MetricProvider {
 
+    /**
+     * Returns a unique name of the Metric Provider. This will be used when loading the metric provider implementation
+     * in {@link MetricRegistry}
+     *
+     * @return the Metric Provider name.
+     */
+    String getName();
+
+    /**
+     * This will be called when initializing the default {@link MetricRegistry}.
+     */
+    void initialize();
+
     Counter newCounter(MetricId metricId);
 
     Gauge newGauge(MetricId metricId);

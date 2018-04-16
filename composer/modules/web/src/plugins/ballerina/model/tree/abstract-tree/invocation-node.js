@@ -17,36 +17,9 @@
  */
 
 import _ from 'lodash';
-import ExpressionNode from '../expression-node';
+import Node from '../node';
 
-class AbstractInvocationNode extends ExpressionNode {
-
-
-    setPackageAlias(newValue, silent, title) {
-        const oldValue = this.packageAlias;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.packageAlias = newValue;
-
-        this.packageAlias.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'packageAlias',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getPackageAlias() {
-        return this.packageAlias;
-    }
-
+class AbstractInvocationNode extends Node {
 
 
     setExpression(newValue, silent, title) {
@@ -72,6 +45,33 @@ class AbstractInvocationNode extends ExpressionNode {
 
     getExpression() {
         return this.expression;
+    }
+
+
+
+    setPackageAlias(newValue, silent, title) {
+        const oldValue = this.packageAlias;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.packageAlias = newValue;
+
+        this.packageAlias.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'packageAlias',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getPackageAlias() {
+        return this.packageAlias;
     }
 
 

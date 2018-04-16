@@ -18,12 +18,20 @@
 package org.ballerinalang.util.metrics;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.bre.bvm.BLangScheduler;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.LaunchListener;
-import org.ballerinalang.util.observability.ObservabilityConfig;
+import org.ballerinalang.util.metrics.noop.NoOpMetricProvider;
+import org.ballerinalang.util.metrics.spi.MetricProvider;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.util.Iterator;
+import java.util.ServiceLoader;
+
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
 
 /**
  * Listen to Launcher events and initialize Metrics.
@@ -31,11 +39,62 @@ import java.lang.management.RuntimeMXBean;
 @JavaSPIService("org.ballerinalang.util.LaunchListener")
 public class MetricsLaunchListener implements LaunchListener {
 
+    private static final String METRIC_PROVIDER_NAME = CONFIG_TABLE_METRICS + ".provider";
+
     @Override
     public void beforeRunProgram(boolean service) {
-        if (ObservabilityConfig.getInstance().isMetricsEnabled()) {
-            ObservabilityUtils.addObserver(new BallerinaMetricsObserver());
+        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+        if (!configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED)) {
+            // Create default MetricRegistry with NoOpMetricProvider
+            DefaultMetricRegistry.setInstance(new MetricRegistry(new NoOpMetricProvider()));
+            return;
         }
+        String providerName = configRegistry.getAsString(METRIC_PROVIDER_NAME);
+        // Look for MetricProvider implementations
+        Iterator<MetricProvider> metricProviders = ServiceLoader.load(MetricProvider.class).iterator();
+        MetricProvider metricProvider = null;
+        while (metricProviders.hasNext()) {
+            MetricProvider temp = metricProviders.next();
+            if (providerName != null && providerName.equalsIgnoreCase(temp.getName())) {
+                metricProvider = temp;
+                break;
+            } else {
+                if (!NoOpMetricProvider.class.isInstance(temp)) {
+                    metricProvider = temp;
+                    break;
+                }
+            }
+        }
+        if (metricProvider == null) {
+            metricProvider = new NoOpMetricProvider();
+        }
+
+        // Initialize Metric Provider
+        metricProvider.initialize();
+        // Create default MetricRegistry
+        DefaultMetricRegistry.setInstance(new MetricRegistry(metricProvider));
+        // Register Ballerina specific metrics
+        registerBallerinaMetrics();
+
+        // Add Metrics Observer
+        ObservabilityUtils.addObserver(new BallerinaMetricsObserver());
+    }
+
+    private void registerBallerinaMetrics() {
+        final BLangScheduler.SchedulerStats schedulerStats = BLangScheduler.getStats();
+        final String prefix = "ballerina_scheduler_";
+        CallbackGauge.builder(prefix + "ready_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getReadyWorkerCount).register();
+        CallbackGauge.builder(prefix + "running_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getRunningWorkerCount).register();
+        CallbackGauge.builder(prefix + "excepted_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getExceptedWorkerCount).register();
+        CallbackGauge.builder(prefix + "paused_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getPausedWorkerCount).register();
+        CallbackGauge.builder(prefix + "waiting_for_response_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getWaitingForResponseWorkerCount).register();
+        CallbackGauge.builder(prefix + "waiting_for_lock_worker_count", schedulerStats,
+                BLangScheduler.SchedulerStats::getWaitingForLockWorkerCount).register();
     }
 
     @Override

@@ -1,0 +1,169 @@
+<!--
+  ~ Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-parent</artifactId>
+        <version>0.970.0-beta1-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>strip-bouncycastle</artifactId>
+    <packaging>jar</packaging>
+    <name>Ballerina - Strip - Bouncycastle</name>
+    <url>http://ballerinalang.org</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.59</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>1.59</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
+                            <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <minimizeJar>false</minimizeJar>
+                            <artifactSet>
+                                <includes>
+                                    <include>org.bouncycastle:bcprov-jdk15on</include>
+                                    <include>org.bouncycastle:bcpkix-jdk15on</include>
+                                </includes>
+                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <version>2.0.14</version>
+                <executions>
+                    <execution>
+                        <id>obfuscation-packaging</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
+                        <configuration>
+                            <libs>
+                                <lib>${java.home}/lib/rt.jar</lib>
+                            </libs>
+                            <injar>${project.build.finalName}.jar</injar>
+                            <outjar>${project.build.finalName}.jar</outjar>
+                            <options>
+                                <option>-dontnote</option>
+                                <option>-dontwarn
+                                    org.bouncycastle.**
+                                </option>
+                                <option>-dontoptimize</option>
+                                <option>-dontobfuscate</option>
+                                <option>-dontwarn sun.misc.Unsafe</option>
+                                <option>-keep class org.bouncycastle.asn1.ocsp.OCSPResponseStatus { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ASN1ObjectIdentifier { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ASN1Sequence { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ocsp.BasicOCSPResponse { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ocsp.ResponseData { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ocsp.SingleResponse { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.x509.AlgorithmIdentifier { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.x509.Certificate { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.x509.Extension { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.x509.Extensions { *; }</option>
+                                <option>-keep class org.bouncycastle.util.Encodable { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ASN1Exception { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ASN1InputStream { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ASN1OutputStream { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ocsp.OCSPRequest { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ocsp.Request { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.x509.GeneralName { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ASN1Primitive { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ocsp.OCSPResponse { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ocsp.ResponseBytes { *; }</option>
+                                <option>-keep class org.bouncycastle.cert.CertIOException { *; }</option>
+                                <option>-keep class org.bouncycastle.cert.ocsp.OCSPResp { *; }</option>
+                                <option>-keep class org.bouncycastle.cert.ocsp.SingleResp { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ocsp.CertStatus { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.ocsp.RevokedInfo { *; }</option>
+                                <option>-keep class org.bouncycastle.cert.ocsp.BasicOCSPResp { *; }</option>
+                                <option>-keep class org.bouncycastle.cert.ocsp.CertificateStatus { *; }</option>
+                                <option>-keep class org.bouncycastle.cert.ocsp.OCSPResp { *; }</option>
+                                <option>-keep class org.bouncycastle.cert.ocsp.SingleResp { *; }</option>
+                                <option>-keep class org.bouncycastle.cert.ocsp.OCSPException { *; }</option>
+                                <option>-keep class org.bouncycastle.cert.ocsp.OCSPReq { *; }</option>
+                                <option>-keep class org.bouncycastle.jce.provider.BouncyCastleProvider { *; }</option>
+                                <option>-keep class org.bouncycastle.operator.DigestCalculatorProvider { *; }</option>
+                                <option>-keep class org.bouncycastle.operator.OperatorCreationException { *; }</option>
+                                <option>-keep class org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.DERIA5String { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.DEROctetString { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.x509.AccessDescription { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.x509.AuthorityInformationAccess { *; }</option>
+                                <option>-keep class org.bouncycastle.cert.X509CertificateHolder { *; }</option>
+                                <option>-keep class org.bouncycastle.cert.ocsp.CertificateID { *; }</option>
+                                <option>-keep class org.bouncycastle.cert.ocsp.OCSPReqBuilder { *; }</option>
+                                <option>-keep class org.bouncycastle.cert.ocsp.RevokedStatus { *; }</option>
+                                <option>-keep class org.bouncycastle.cert.ocsp.UnknownStatus { *; }</option>
+                                <option>-keep class org.bouncycastle.asn1.x509.CRLDistPoint { *; }</option>
+                                <option>-keep class org.bouncycastle.jce.provider.** { *; }</option>
+                                <option>-keep class org.bouncycastle.jcajce.** </option>
+                                <option>-keepattributes SourceFile,LineNumberTable,Exceptions,InnerClasses,Signature</option>
+                            </options>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>net.sf.proguard</groupId>
+                        <artifactId>proguard-base</artifactId>
+                        <version>5.3.3</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+</project>

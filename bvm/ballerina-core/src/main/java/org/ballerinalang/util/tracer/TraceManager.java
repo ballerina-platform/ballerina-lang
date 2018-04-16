@@ -22,17 +22,12 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.util.tracer.config.ConfigLoader;
-import org.ballerinalang.util.tracer.config.OpenTracingConfig;
+import org.ballerinalang.bre.bvm.ObservableContext;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 import java.util.stream.Collectors;
-
-import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
-import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX_LENGTH;
 
 /**
  * {@link TraceManager} loads {@link TraceManager} implementation
@@ -46,8 +41,7 @@ public class TraceManager {
     private Stack<BSpan> bSpanStack;
 
     private TraceManager() {
-        OpenTracingConfig openTracingConfig = ConfigLoader.load();
-        tracerStore = new TracersStore(openTracingConfig);
+        tracerStore = TracersStore.getInstance();
         bSpanStack = new Stack<>();
     }
 
@@ -55,7 +49,7 @@ public class TraceManager {
         return instance;
     }
 
-    public void startSpan(WorkerExecutionContext ctx) {
+    public void startSpan(ObservableContext ctx) {
         BSpan activeBSpan = TraceUtil.getBSpan(ctx);
         if (activeBSpan != null) {
             BSpan parentBSpan = !bSpanStack.empty() ? bSpanStack.peek() : null;
@@ -71,7 +65,7 @@ public class TraceManager {
                         .entrySet().stream().collect(
                                 Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))
                         );
-                spanList = startSpan(resource, extractSpanContext(removeTracePrefix(spanHeaders), service),
+                spanList = startSpan(resource, extractSpanContext(spanHeaders, service),
                         activeBSpan.getTags(), service, true);
             }
 
@@ -109,8 +103,11 @@ public class TraceManager {
             if (tracer != null) {
                 Span span = activeSpanEntry.getValue();
                 if (span != null) {
-                    tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS,
-                            new RequestInjector(TRACE_PREFIX, carrierMap));
+                    Map<String, String> tracerSpecificCarrier = new HashMap<>();
+                    RequestInjector requestInjector = new RequestInjector(tracerSpecificCarrier);
+                    tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, requestInjector);
+                    String value = requestInjector.getCarrierString();
+                    carrierMap.put(TraceConstants.TRACE_HEADER, value);
                 }
             }
         }
@@ -148,16 +145,10 @@ public class TraceManager {
         Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
         for (Map.Entry<String, Tracer> tracerEntry : tracers.entrySet()) {
             spanContext.put(tracerEntry.getKey(), tracerEntry.getValue()
-                    .extract(Format.Builtin.HTTP_HEADERS, new RequestExtractor(headers)));
+                    .extract(Format.Builtin.HTTP_HEADERS,
+                            new RequestExtractor(headers.get(TraceConstants.TRACE_HEADER))));
         }
         return spanContext;
-    }
-
-    private static Map<String, String> removeTracePrefix(Map<String, String> map) {
-        return map.entrySet().stream()
-                .collect(Collectors.toMap(
-                        e -> e.getKey().substring(TRACE_PREFIX_LENGTH),
-                        Map.Entry::getValue));
     }
 
 }

@@ -2,111 +2,96 @@ import ballerina/sql;
 import ballerina/time;
 import ballerina/io;
 
-struct ResultCustomers {
-    string FIRSTNAME;
-}
+type ResultCustomers {
+    string FIRSTNAME,
+};
 
-struct ResultIntType {
-    int INT_TYPE;
-}
+type ResultIntType {
+    int INT_TYPE,
+};
 
-struct ResultBlob {
-    blob BLOB_TYPE;
-}
+type ResultBlob {
+    blob BLOB_TYPE,
+};
 
-struct ResultDataType {
-    int INT_TYPE;
-    int LONG_TYPE;
-    float FLOAT_TYPE;
-    float DOUBLE_TYPE;
-}
+type ResultDataType {
+    int INT_TYPE,
+    int LONG_TYPE,
+    float FLOAT_TYPE,
+    float DOUBLE_TYPE,
+};
 
-struct ResultCount {
-    int COUNTVAL;
-}
+type ResultCount {
+    int COUNTVAL,
+};
 
-struct ResultArrayType {
-    map INT_ARRAY;
-    map LONG_ARRAY;
-    map DOUBLE_ARRAY;
-    map BOOLEAN_ARRAY;
-    map STRING_ARRAY;
-    map FLOAT_ARRAY;
-}
+type ResultArrayType {
+    map INT_ARRAY,
+    map LONG_ARRAY,
+    map DOUBLE_ARRAY,
+    map BOOLEAN_ARRAY,
+    map STRING_ARRAY,
+    map FLOAT_ARRAY,
+};
 
-struct ResultDates {
-    string DATE_TYPE;
-    string TIME_TYPE;
-    string TIMESTAMP_TYPE;
-    string DATETIME_TYPE;
-}
+type ResultDates {
+    string DATE_TYPE,
+    string TIME_TYPE,
+    string TIMESTAMP_TYPE,
+    string DATETIME_TYPE,
+};
 
 function testInsertTableData () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
-     };
+        poolOptions: {maximumPoolSize:1}
+    };
 
-    int insertCount =? testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                         values ('James', 'Clerk', 2, 5000.75, 'USA')", null);
+    var insertCountRet = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                         values ('James', 'Clerk', 2, 5000.75, 'USA')");
+    int insertCount = check insertCountRet;
     _ = testDB -> close();
     return insertCount;
 }
 
 function testCreateTable () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    int returnValue =? testDB -> update("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))",
-                              null);
+    var returnValueRet = testDB -> update("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))");
+    int returnValue = check returnValueRet;
     _ = testDB -> close();
     return returnValue;
 }
 
 function testUpdateTableData () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter[] parameters = [];
-    int updateCount =? testDB -> update("Update Customers set country = 'UK' where registrationID = 1", parameters);
+    var updateCountRet  = testDB -> update("Update Customers set country = 'UK' where registrationID = 1");
     _ = testDB -> close();
+    int updateCount = check updateCountRet;
     return updateCount;
 }
 
 function testGeneratedKeyOnInsert () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     string returnVal;
 
     var x = testDB -> updateWithGeneratedKeys("insert into Customers (firstName,lastName,
-    registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", null, null);
+            registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", ());
 
     match x {
         (int, string[]) y  =>{
@@ -115,7 +100,7 @@ function testGeneratedKeyOnInsert () returns (string) {
             (a, b) = y;
             returnVal = b[0];
         }
-        sql:SQLConnectorError err1 =>{
+        error err1 =>{
             returnVal = err1.message;
         }
     }
@@ -126,23 +111,18 @@ function testGeneratedKeyOnInsert () returns (string) {
 
 function testGeneratedKeyWithColumn () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int insertCount;
     string[] generatedID;
-    string[] keyColumns;
-    keyColumns = ["CUSTOMERID"];
+    string[] keyColumns = ["CUSTOMERID"];
     string returnVal;
     var x = testDB -> updateWithGeneratedKeys("insert into Customers (firstName,lastName,
                                registrationID,creditLimit,country) values ('Kathy', 'Williams', 4, 5000.75, 'USA')",
-                                                              null, keyColumns);
+                                keyColumns);
     match x {
         (int, string[]) y  =>{
             int a;
@@ -150,7 +130,7 @@ function testGeneratedKeyWithColumn () returns (string) {
             (a, b) = y;
             returnVal = b[0];
         }
-        sql:SQLConnectorError err1 =>{
+        error err1 =>{
             returnVal = err1.message;
         }
     }
@@ -161,22 +141,17 @@ function testGeneratedKeyWithColumn () returns (string) {
 
 function testSelectData () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null,
-                             typeof ResultCustomers);
-
+    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", ResultCustomers);
+    table dt = check dtRet;
     string firstName;
 
     while (dt.hasNext()) {
-        var rs =? <ResultCustomers>dt.getNext();
+        ResultCustomers rs = check <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
@@ -185,24 +160,20 @@ function testSelectData () returns (string) {
 
 function testSelectIntFloatData () returns (int, int, float, float) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table dt =? testDB -> select("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
-        where row_id = 1", null, typeof ResultDataType);
-
+    var dtRet = testDB -> select("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
+        where row_id = 1", ResultDataType);
+    table dt = check dtRet;
     int int_type;
     int long_type;
     float float_type;
     float double_type;
     while (dt.hasNext()) {
-        var rs =? <ResultDataType>dt.getNext();
+        ResultDataType rs = check <ResultDataType>dt.getNext();
         int_type = rs.INT_TYPE;
         long_type = rs.LONG_TYPE;
         float_type = rs.FLOAT_TYPE;
@@ -214,21 +185,17 @@ function testSelectIntFloatData () returns (int, int, float, float) {
 
 function testCallProcedure () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-                     host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    _ = testDB -> call("{call InsertPersonData(100,'James')}", null, null);
-    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = 100", null,
-                             typeof ResultCustomers);
+    _ = testDB -> call("{call InsertPersonData(100,'James')}", ());
+    var dtRet = testDB -> select("SELECT  FirstName from Customers where registrationID = 100", ResultCustomers);
+    table dt = check dtRet;
     string firstName;
     while (dt.hasNext()) {
-        var rs =? <ResultCustomers>dt.getNext();
+        ResultCustomers rs = check <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
@@ -237,20 +204,17 @@ function testCallProcedure () returns (string) {
 
 function testCallProcedureWithResultSet () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table[] dts =? testDB -> call("{call SelectPersonData()}", null, typeof ResultCustomers);
-    string firstName;
+    var dtsRet = testDB -> call("{call SelectPersonData()}", ResultCustomers);
+    table[] dts = check dtsRet;
 
+    string firstName;
     while (dts[0].hasNext()) {
-        var rs =? <ResultCustomers>dts[0].getNext();
+        ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
         firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
@@ -259,26 +223,24 @@ function testCallProcedureWithResultSet () returns (string) {
 
 function testCallProcedureWithMultipleResultSets () returns (string, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    table[] dts =? testDB -> call("{call SelectPersonDataMultiple()}", null, typeof ResultCustomers);
+    var dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", ResultCustomers);
+    table[] dts = check dtsRet;
+
     string firstName1;
     string firstName2;
 
     while (dts[0].hasNext()) {
-        var rs =? <ResultCustomers>dts[0].getNext();
+        ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
         firstName1 = rs.FIRSTNAME;
     }
 
     while (dts[1].hasNext()) {
-        var rs =? <ResultCustomers>dts[1].getNext();
+        ResultCustomers rs = check <ResultCustomers>dts[1].getNext();
         firstName2 = rs.FIRSTNAME;
     }
 
@@ -288,24 +250,38 @@ function testCallProcedureWithMultipleResultSets () returns (string, string) {
 
 function testQueryParameters () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:1};
-    sql:Parameter[] parameters = [para1];
-    table dt =? testDB -> select("SELECT  FirstName from Customers where registrationID = ?", parameters,
-        typeof ResultCustomers);
+    var dtRet =  testDB -> select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers, 1);
+    table dt = check dtRet;
 
     string firstName;
 
     while (dt.hasNext()) {
-    var rs =? <ResultCustomers>dt.getNext();
+        ResultCustomers rs = check <ResultCustomers>dt.getNext();
+        firstName = rs.FIRSTNAME;
+    }
+    _ = testDB -> close();
+    return firstName;
+}
+
+function testQueryParameters2 () returns (string) {
+    endpoint sql:Client testDB {
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: {maximumPoolSize:1}
+    };
+
+    var dtRet =  testDB -> select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers, (sql:TYPE_INTEGER, 1));
+    table dt = check dtRet;
+
+    string firstName;
+
+    while (dt.hasNext()) {
+        ResultCustomers rs = check <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
@@ -314,55 +290,66 @@ function testQueryParameters () returns (string) {
 
 function testInsertTableDataWithParameters () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:"Anne", direction:sql:Direction.IN};
-    sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:"James", direction:sql:Direction.IN};
-    sql:Parameter para3 = {sqlType:sql:Type.INTEGER, value:3, direction:sql:Direction.IN};
-    sql:Parameter para4 = {sqlType:sql:Type.DOUBLE, value:5000.75, direction:sql:Direction.IN};
-    sql:Parameter para5 = {sqlType:sql:Type.VARCHAR, value:"UK", direction:sql:Direction.IN};
-    sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
+    string s1 = "Anne";
+    sql:Parameter para1 = (sql:TYPE_VARCHAR, s1, sql:DIRECTION_IN);
+    sql:Parameter para2 = (sql:TYPE_VARCHAR, "James", sql:DIRECTION_IN);
+    sql:Parameter para3 = (sql:TYPE_INTEGER, 3, sql:DIRECTION_IN);
+    sql:Parameter para4 = (sql:TYPE_DOUBLE, 5000.75, sql:DIRECTION_IN);
+    sql:Parameter para5 = (sql:TYPE_VARCHAR, "UK", sql:DIRECTION_IN);
 
-    int insertCount =? testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", parameters);
+    var insertCountRet = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                     values (?,?,?,?,?)", para1, para2, para3, para4, para5);
+    int insertCount = check insertCountRet;
+
     _ = testDB -> close();
     return insertCount;
 }
 
+function testInsertTableDataWithParameters2 () returns (int) {
+    endpoint sql:Client testDB {
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username: "SA",
+        poolOptions: {maximumPoolSize:1}
+    };
+
+    string s1 = "Anne";
+    var insertCountRet = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                     values (?,?,?,?,?)", s1, "James", 3, 5000.75, "UK");
+    int insertCount = check insertCountRet;
+
+    _ = testDB -> close();
+    return insertCount;
+}
+
+
 function testArrayofQueryParameters () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int[] intDataArray = [1, 4343];
     string[] stringDataArray = ["A", "B"];
     float[] doubleArray = [233.4, 433.4];
-    sql:Parameter para0 = {sqlType:sql:Type.VARCHAR, value:"Johhhn"};
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:intDataArray};
-    sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:stringDataArray};
-    sql:Parameter para3 = {sqlType:sql:Type.DOUBLE, value:doubleArray};
-    sql:Parameter[] parameters = [para0, para1, para2, para3];
+    sql:Parameter para0 = (sql:TYPE_VARCHAR, "Johhhn");
+    sql:Parameter para1 = (sql:TYPE_INTEGER, intDataArray);
+    sql:Parameter para2 = (sql:TYPE_VARCHAR, stringDataArray);
+    sql:Parameter para3 = (sql:TYPE_DOUBLE, doubleArray);
 
-    table dt =? testDB -> select("SELECT  FirstName from Customers where FirstName = ? or lastName = 'A' or
-        lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?)", parameters,
-        typeof ResultCustomers);
+    var dtRet = testDB -> select("SELECT  FirstName from Customers where FirstName = ? or lastName = 'A' or
+        lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?)", ResultCustomers,
+                para0, para1, para2, para3);
+    table dt = check dtRet;
 
     string firstName;
     while (dt.hasNext()) {
-        var rs =? <ResultCustomers>dt.getNext();
+        ResultCustomers rs = check <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
     _ = testDB -> close();
@@ -371,13 +358,9 @@ function testArrayofQueryParameters () returns (string) {
 
 function testBoolArrayofQueryParameters () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     boolean accepted1 = false;
@@ -385,26 +368,27 @@ function testBoolArrayofQueryParameters () returns (int) {
     boolean accepted3 = true;
     boolean[] boolDataArray = [accepted1, accepted2, accepted3];
 
-    table dt1 =? testDB -> select("SELECT blob_type from DataTypeTable where row_id = 1", null, typeof ResultBlob);
+    var dt1Ret = testDB -> select("SELECT blob_type from DataTypeTable where row_id = 1", ResultBlob);
+    table dt1 = check dt1Ret;
 
     blob blobData;
     while (dt1.hasNext()) {
-        var rs =? <ResultBlob>dt1.getNext();
+        ResultBlob rs = check <ResultBlob>dt1.getNext();
         blobData = rs.BLOB_TYPE;
     }
     blob[] blobDataArray = [blobData];
 
-    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:1};
-    sql:Parameter para1 = {sqlType:sql:Type.BOOLEAN, value:boolDataArray};
-    sql:Parameter para2 = {sqlType:sql:Type.BLOB, value:blobDataArray};
-    sql:Parameter[] parameters = [para0, para1, para2];
+    sql:Parameter para0 = (sql:TYPE_INTEGER, 1);
+    sql:Parameter para1 = (sql:TYPE_BOOLEAN, boolDataArray);
+    sql:Parameter para2 = (sql:TYPE_BLOB, blobDataArray);
 
-    table dt =? testDB -> select("SELECT  int_type from DataTypeTable where row_id = ? and boolean_type in(?) and
-        blob_type in (?)", parameters, typeof ResultIntType);
+    var dtRet = testDB -> select("SELECT  int_type from DataTypeTable where row_id = ? and boolean_type in(?) and
+        blob_type in (?)", ResultIntType, para0, para1, para2);
+    table dt = check dtRet;
 
     int value;
     while (dt.hasNext()) {
-    var rs =? <ResultIntType>dt.getNext();
+        ResultIntType rs = check <ResultIntType>dt.getNext();
         value = rs.INT_TYPE;
     }
     _ = testDB -> close();
@@ -413,13 +397,9 @@ function testBoolArrayofQueryParameters () returns (int) {
 
 function testArrayInParameters () returns (int, map, map, map, map, map, map) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int[] intArray = [1];
@@ -428,14 +408,13 @@ function testArrayInParameters () returns (int, map, map, map, map, map, map) {
     float[] doubleArray = [1503383034226.23, 1503383034224.43, 1503383034225.123];
     boolean[] boolArray = [true, false, true];
     string[] stringArray = ["Hello", "Ballerina"];
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:2};
-    sql:Parameter para2 = {sqlType:sql:Type.ARRAY, value:intArray};
-    sql:Parameter para3 = {sqlType:sql:Type.ARRAY, value:longArray};
-    sql:Parameter para4 = {sqlType:sql:Type.ARRAY, value:floatArray};
-    sql:Parameter para5 = {sqlType:sql:Type.ARRAY, value:doubleArray};
-    sql:Parameter para6 = {sqlType:sql:Type.ARRAY, value:boolArray};
-    sql:Parameter para7 = {sqlType:sql:Type.ARRAY, value:stringArray};
-    sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7];
+    sql:Parameter para1 = (sql:TYPE_INTEGER, 2);
+    sql:Parameter para2 = (sql:TYPE_ARRAY, intArray);
+    sql:Parameter para3 = (sql:TYPE_ARRAY, longArray);
+    sql:Parameter para4 = (sql:TYPE_ARRAY, floatArray);
+    sql:Parameter para5 = (sql:TYPE_ARRAY, doubleArray);
+    sql:Parameter para6 = (sql:TYPE_ARRAY, boolArray);
+    sql:Parameter para7 = (sql:TYPE_ARRAY, stringArray);
 
     int insertCount;
     map int_arr;
@@ -445,14 +424,17 @@ function testArrayInParameters () returns (int, map, map, map, map, map, map) {
     map boolean_arr;
     map float_arr;
 
-    insertCount =? testDB -> update("INSERT INTO ArrayTypes (row_id, int_array, long_array,
-        float_array, double_array, boolean_array, string_array) values (?,?,?,?,?,?,?)", parameters);
+    var insertCountRet = testDB -> update("INSERT INTO ArrayTypes (row_id, int_array, long_array,
+        float_array, double_array, boolean_array, string_array) values (?,?,?,?,?,?,?)", para1, para2, para3, para4,
+        para5, para6, para7);
+    insertCount = check insertCountRet;
 
-    table dt =? testDB -> select("SELECT int_array, long_array, double_array, boolean_array,
-        string_array, float_array from ArrayTypes where row_id = 2", null, typeof ResultArrayType);
+    var dtRet = testDB -> select("SELECT int_array, long_array, double_array, boolean_array,
+        string_array, float_array from ArrayTypes where row_id = 2", ResultArrayType);
+    table dt = check dtRet;
 
     while (dt.hasNext()) {
-        var rs =? <ResultArrayType>dt.getNext();
+        ResultArrayType rs = check <ResultArrayType>dt.getNext();
         int_arr = rs.INT_ARRAY;
         long_arr = rs.LONG_ARRAY;
         double_arr = rs.DOUBLE_ARRAY;
@@ -466,35 +448,30 @@ function testArrayInParameters () returns (int, map, map, map, map, map, map) {
 
 function testOutParameters () returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:"1"};
-    sql:Parameter paraInt = {sqlType:sql:Type.INTEGER, direction:sql:Direction.OUT};
-    sql:Parameter paraLong = {sqlType:sql:Type.BIGINT, direction:sql:Direction.OUT};
-    sql:Parameter paraFloat = {sqlType:sql:Type.FLOAT, direction:sql:Direction.OUT};
-    sql:Parameter paraDouble = {sqlType:sql:Type.DOUBLE, direction:sql:Direction.OUT};
-    sql:Parameter paraBool = {sqlType:sql:Type.BOOLEAN, direction:sql:Direction.OUT};
-    sql:Parameter paraString = {sqlType:sql:Type.VARCHAR, direction:sql:Direction.OUT};
-    sql:Parameter paraNumeric = {sqlType:sql:Type.NUMERIC, direction:sql:Direction.OUT};
-    sql:Parameter paraDecimal = {sqlType:sql:Type.DECIMAL, direction:sql:Direction.OUT};
-    sql:Parameter paraReal = {sqlType:sql:Type.REAL, direction:sql:Direction.OUT};
-    sql:Parameter paraTinyInt = {sqlType:sql:Type.TINYINT, direction:sql:Direction.OUT};
-    sql:Parameter paraSmallInt = {sqlType:sql:Type.SMALLINT, direction:sql:Direction.OUT};
-    sql:Parameter paraClob = {sqlType:sql:Type.CLOB, direction:sql:Direction.OUT};
-    sql:Parameter paraBlob = {sqlType:sql:Type.BLOB, direction:sql:Direction.OUT};
-    sql:Parameter paraBinary = {sqlType:sql:Type.BINARY, direction:sql:Direction.OUT};
+    sql:Parameter paraID = (sql:TYPE_INTEGER, "1");
+    sql:CallParam paraInt = {sqlType:sql:TYPE_INTEGER, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraLong = {sqlType:sql:TYPE_BIGINT, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraFloat = {sqlType:sql:TYPE_FLOAT, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraDouble = {sqlType:sql:TYPE_DOUBLE, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraBool = {sqlType:sql:TYPE_BOOLEAN, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraString = {sqlType:sql:TYPE_VARCHAR, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraNumeric = {sqlType:sql:TYPE_NUMERIC, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraDecimal = {sqlType:sql:TYPE_DECIMAL, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraReal = {sqlType:sql:TYPE_REAL, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraTinyInt = {sqlType:sql:TYPE_TINYINT, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraSmallInt = {sqlType:sql:TYPE_SMALLINT, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraClob = {sqlType:sql:TYPE_CLOB, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraBlob = {sqlType:sql:TYPE_BLOB, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraBinary = {sqlType:sql:TYPE_BINARY, direction:sql:DIRECTION_OUT};
 
-    sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-    paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-
-    _ = testDB -> call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
+        paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
+        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
 
     _ = testDB -> close();
 
@@ -505,34 +482,30 @@ function testOutParameters () returns (any, any, any, any, any, any, any, any, a
 
 function testNullOutParameters () returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-                 host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:"2"};
-    sql:Parameter paraInt = {sqlType:sql:Type.INTEGER, direction:sql:Direction.OUT};
-    sql:Parameter paraLong = {sqlType:sql:Type.BIGINT, direction:sql:Direction.OUT};
-    sql:Parameter paraFloat = {sqlType:sql:Type.FLOAT, direction:sql:Direction.OUT};
-    sql:Parameter paraDouble = {sqlType:sql:Type.DOUBLE, direction:sql:Direction.OUT};
-    sql:Parameter paraBool = {sqlType:sql:Type.BOOLEAN, direction:sql:Direction.OUT};
-    sql:Parameter paraString = {sqlType:sql:Type.VARCHAR, direction:sql:Direction.OUT};
-    sql:Parameter paraNumeric = {sqlType:sql:Type.NUMERIC, direction:sql:Direction.OUT};
-    sql:Parameter paraDecimal = {sqlType:sql:Type.DECIMAL, direction:sql:Direction.OUT};
-    sql:Parameter paraReal = {sqlType:sql:Type.REAL, direction:sql:Direction.OUT};
-    sql:Parameter paraTinyInt = {sqlType:sql:Type.TINYINT, direction:sql:Direction.OUT};
-    sql:Parameter paraSmallInt = {sqlType:sql:Type.SMALLINT, direction:sql:Direction.OUT};
-    sql:Parameter paraClob = {sqlType:sql:Type.CLOB, direction:sql:Direction.OUT};
-    sql:Parameter paraBlob = {sqlType:sql:Type.BLOB, direction:sql:Direction.OUT};
-    sql:Parameter paraBinary = {sqlType:sql:Type.BINARY, direction:sql:Direction.OUT};
+    sql:Parameter paraID = (sql:TYPE_INTEGER, "2");
+    sql:CallParam paraInt = {sqlType:sql:TYPE_INTEGER, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraLong = {sqlType:sql:TYPE_BIGINT, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraFloat = {sqlType:sql:TYPE_FLOAT, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraDouble = {sqlType:sql:TYPE_DOUBLE, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraBool = {sqlType:sql:TYPE_BOOLEAN, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraString = {sqlType:sql:TYPE_VARCHAR, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraNumeric = {sqlType:sql:TYPE_NUMERIC, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraDecimal = {sqlType:sql:TYPE_DECIMAL, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraReal = {sqlType:sql:TYPE_REAL, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraTinyInt = {sqlType:sql:TYPE_TINYINT, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraSmallInt = {sqlType:sql:TYPE_SMALLINT, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraClob = {sqlType:sql:TYPE_CLOB, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraBlob = {sqlType:sql:TYPE_BLOB, direction:sql:DIRECTION_OUT};
+    sql:CallParam paraBinary = {sqlType:sql:TYPE_BINARY, direction:sql:DIRECTION_OUT};
 
-    sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-                                  paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    _ = testDB -> call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
+        paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
+        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
     _ = testDB -> close();
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
            paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
@@ -541,127 +514,96 @@ function testNullOutParameters () returns (any, any, any, any, any, any, any, an
 
 function testINParameters () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:3};
-    sql:Parameter paraInt = {sqlType:sql:Type.INTEGER, value:1};
-    sql:Parameter paraLong = {sqlType:sql:Type.BIGINT, value:"9223372036854774807"};
-    sql:Parameter paraFloat = {sqlType:sql:Type.FLOAT, value:123.34};
-    sql:Parameter paraDouble = {sqlType:sql:Type.DOUBLE, value:2139095039};
-    sql:Parameter paraBool = {sqlType:sql:Type.BOOLEAN, value:true};
-    sql:Parameter paraString = {sqlType:sql:Type.VARCHAR, value:"Hello"};
-    sql:Parameter paraNumeric = {sqlType:sql:Type.NUMERIC, value:1234.567};
-    sql:Parameter paraDecimal = {sqlType:sql:Type.DECIMAL, value:1234.567};
-    sql:Parameter paraReal = {sqlType:sql:Type.REAL, value:1234.567};
-    sql:Parameter paraTinyInt = {sqlType:sql:Type.TINYINT, value:1};
-    sql:Parameter paraSmallInt = {sqlType:sql:Type.SMALLINT, value:5555};
-    sql:Parameter paraClob = {sqlType:sql:Type.CLOB, value:"very long text"};
-    sql:Parameter paraBlob = {sqlType:sql:Type.BLOB, value:"YmxvYiBkYXRh"};
-    sql:Parameter paraBinary = {sqlType:sql:Type.BINARY, value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu"};
+    sql:Parameter paraID = (sql:TYPE_INTEGER, 3);
+    sql:Parameter paraInt = (sql:TYPE_INTEGER, 1);
+    sql:Parameter paraLong = (sql:TYPE_BIGINT, "9223372036854774807");
+    sql:Parameter paraFloat = (sql:TYPE_FLOAT, 123.34);
+    sql:Parameter paraDouble = (sql:TYPE_DOUBLE, 2139095039);
+    sql:Parameter paraBool = (sql:TYPE_BOOLEAN, true);
+    sql:Parameter paraString = (sql:TYPE_VARCHAR, "Hello");
+    sql:Parameter paraNumeric = (sql:TYPE_NUMERIC, 1234.567);
+    sql:Parameter paraDecimal = (sql:TYPE_DECIMAL, 1234.567);
+    sql:Parameter paraReal = (sql:TYPE_REAL, 1234.567);
+    sql:Parameter paraTinyInt = (sql:TYPE_TINYINT, 1);
+    sql:Parameter paraSmallInt = (sql:TYPE_SMALLINT, 5555);
+    sql:Parameter paraClob = (sql:TYPE_CLOB, "very long text");
+    sql:Parameter paraBlob = (sql:TYPE_BLOB, "YmxvYiBkYXRh");
+    sql:Parameter paraBinary = (sql:TYPE_BINARY, "d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu");
 
-    sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-                                  paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    int insertCount =? testDB -> update("INSERT INTO DataTypeTable (row_id,int_type, long_type,
+    var insertCountRet = testDB -> update("INSERT INTO DataTypeTable (row_id,int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
-            smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
+            smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
+        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
+    int insertCount = check insertCountRet;
     _ = testDB -> close();
     return insertCount;
 }
 
 function testNullINParameterValues () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:4};
-    sql:Parameter paraInt = {sqlType:sql:Type.INTEGER};
-    sql:Parameter paraLong = {sqlType:sql:Type.BIGINT};
-    sql:Parameter paraFloat = {sqlType:sql:Type.FLOAT};
-    sql:Parameter paraDouble = {sqlType:sql:Type.DOUBLE};
-    sql:Parameter paraBool = {sqlType:sql:Type.BOOLEAN};
-    sql:Parameter paraString = {sqlType:sql:Type.VARCHAR};
-    sql:Parameter paraNumeric = {sqlType:sql:Type.NUMERIC};
-    sql:Parameter paraDecimal = {sqlType:sql:Type.DECIMAL};
-    sql:Parameter paraReal = {sqlType:sql:Type.REAL};
-    sql:Parameter paraTinyInt = {sqlType:sql:Type.TINYINT};
-    sql:Parameter paraSmallInt = {sqlType:sql:Type.SMALLINT};
-    sql:Parameter paraClob = {sqlType:sql:Type.CLOB};
-    sql:Parameter paraBlob = {sqlType:sql:Type.BLOB};
-    sql:Parameter paraBinary = {sqlType:sql:Type.BINARY};
+    sql:Parameter paraID = (sql:TYPE_INTEGER, 4);
+    sql:Parameter paraInt = (sql:TYPE_INTEGER, ());
+    sql:Parameter paraLong = (sql:TYPE_BIGINT, ());
+    sql:Parameter paraFloat = (sql:TYPE_FLOAT, ());
+    sql:Parameter paraDouble = (sql:TYPE_DOUBLE,());
+    sql:Parameter paraBool = (sql:TYPE_BOOLEAN, ());
+    sql:Parameter paraString = (sql:TYPE_VARCHAR,());
+    sql:Parameter paraNumeric = (sql:TYPE_NUMERIC,());
+    sql:Parameter paraDecimal = (sql:TYPE_DECIMAL,());
+    sql:Parameter paraReal = (sql:TYPE_REAL, ());
+    sql:Parameter paraTinyInt = (sql:TYPE_TINYINT, ());
+    sql:Parameter paraSmallInt = (sql:TYPE_SMALLINT, ());
+    sql:Parameter paraClob = (sql:TYPE_CLOB ,());
+    sql:Parameter paraBlob = (sql:TYPE_BLOB, ());
+    sql:Parameter paraBinary = (sql:TYPE_BINARY, ());
 
-    sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-                                  paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    int insertCount =? testDB -> update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
+    var insertCountRet = testDB -> update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
-            smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
+            smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
+            paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
+    int insertCount = check insertCountRet;
     _ = testDB -> close();
     return insertCount;
 }
 
-////function testNullINParameters () returns (int) {
-////    endpoint sql:Client testDB {
-////        database: sql:DB.HSQLDB_FILE,
-////        host: "./target/tempdb/",
-////        port: 0,
-////        name: "TEST_SQL_CONNECTOR",
-////        username: "SA",
-////        password: "",
-////        options: {maximumPoolSize:1}
-////    };
-////    (sql:Parameter) paraID = {sqlType:sql:Type.INTEGER, value:10};
-////
-////    (sql:Parameter | null)[] parameters = [paraID, null, null, null, null, null, null, null,
-////                                  null, null, null, null, null, null, null];
-////    int insertCount = testDB -> update("INSERT INTO DataTypeTable (row_id,int_type, long_type,
-////                float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
-////                smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
-////    testDB -> close();
-////    return insertCount;
-////}
-//
 function testINOutParameters () returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:5};
-    sql:Parameter paraInt = {sqlType:sql:Type.INTEGER, value:10, direction:sql:Direction.INOUT};
-    sql:Parameter paraLong = {sqlType:sql:Type.BIGINT, value:"9223372036854774807", direction:sql:Direction.INOUT};
-    sql:Parameter paraFloat = {sqlType:sql:Type.FLOAT, value:123.34, direction:sql:Direction.INOUT};
-    sql:Parameter paraDouble = {sqlType:sql:Type.DOUBLE, value:2139095039, direction:sql:Direction.INOUT};
-    sql:Parameter paraBool = {sqlType:sql:Type.BOOLEAN, value:true, direction:sql:Direction.INOUT};
-    sql:Parameter paraString = {sqlType:sql:Type.VARCHAR, value:"Hello", direction:sql:Direction.INOUT};
-    sql:Parameter paraNumeric = {sqlType:sql:Type.NUMERIC, value:1234.567, direction:sql:Direction.INOUT};
-    sql:Parameter paraDecimal = {sqlType:sql:Type.DECIMAL, value:1234.567, direction:sql:Direction.INOUT};
-    sql:Parameter paraReal = {sqlType:sql:Type.REAL, value:1234.567, direction:sql:Direction.INOUT};
-    sql:Parameter paraTinyInt = {sqlType:sql:Type.TINYINT, value:1, direction:sql:Direction.INOUT};
-    sql:Parameter paraSmallInt = {sqlType:sql:Type.SMALLINT, value:5555, direction:sql:Direction.INOUT};
-    sql:Parameter paraClob = {sqlType:sql:Type.CLOB, value:"very long text", direction:sql:Direction.INOUT};
-    sql:Parameter paraBlob = {sqlType:sql:Type.BLOB, value:"YmxvYiBkYXRh", direction:sql:Direction.INOUT};
-    sql:Parameter paraBinary = {sqlType:sql:Type.BINARY, value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction:sql:Direction.INOUT};
+    sql:Parameter paraID = (sql:TYPE_INTEGER, 5);
+    sql:CallParam paraInt = {sqlType:sql:TYPE_INTEGER, value:10, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraLong = {sqlType:sql:TYPE_BIGINT, value:"9223372036854774807", direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraFloat = {sqlType:sql:TYPE_FLOAT, value:123.34, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraDouble = {sqlType:sql:TYPE_DOUBLE, value:2139095039, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraBool = {sqlType:sql:TYPE_BOOLEAN, value:true, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraString = {sqlType:sql:TYPE_VARCHAR, value:"Hello", direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraNumeric = {sqlType:sql:TYPE_NUMERIC, value:1234.567, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraDecimal = {sqlType:sql:TYPE_DECIMAL, value:1234.567, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraReal = {sqlType:sql:TYPE_REAL, value:1234.567, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraTinyInt = {sqlType:sql:TYPE_TINYINT, value:1, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraSmallInt = {sqlType:sql:TYPE_SMALLINT, value:5555, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraClob = {sqlType:sql:TYPE_CLOB, value:"very long text", direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraBlob = {sqlType:sql:TYPE_BLOB, value:"YmxvYiBkYXRh", direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraBinary = {sqlType:sql:TYPE_BINARY, value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction:sql:DIRECTION_INOUT};
 
-    sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-                                  paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    _ = testDB -> call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
+        paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
+        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
     _ = testDB -> close();
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
            paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
@@ -670,34 +612,30 @@ function testINOutParameters () returns (any, any, any, any, any, any, any, any,
 
 function testNullINOutParameters () returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:"6"};
-    sql:Parameter paraInt = {sqlType:sql:Type.INTEGER, direction:sql:Direction.INOUT};
-    sql:Parameter paraLong = {sqlType:sql:Type.BIGINT, direction:sql:Direction.INOUT};
-    sql:Parameter paraFloat = {sqlType:sql:Type.FLOAT, direction:sql:Direction.INOUT};
-    sql:Parameter paraDouble = {sqlType:sql:Type.DOUBLE, direction:sql:Direction.INOUT};
-    sql:Parameter paraBool = {sqlType:sql:Type.BOOLEAN, direction:sql:Direction.INOUT};
-    sql:Parameter paraString = {sqlType:sql:Type.VARCHAR, direction:sql:Direction.INOUT};
-    sql:Parameter paraNumeric = {sqlType:sql:Type.NUMERIC, direction:sql:Direction.INOUT};
-    sql:Parameter paraDecimal = {sqlType:sql:Type.DECIMAL, direction:sql:Direction.INOUT};
-    sql:Parameter paraReal = {sqlType:sql:Type.REAL, direction:sql:Direction.INOUT};
-    sql:Parameter paraTinyInt = {sqlType:sql:Type.TINYINT, direction:sql:Direction.INOUT};
-    sql:Parameter paraSmallInt = {sqlType:sql:Type.SMALLINT, direction:sql:Direction.INOUT};
-    sql:Parameter paraClob = {sqlType:sql:Type.CLOB, direction:sql:Direction.INOUT};
-    sql:Parameter paraBlob = {sqlType:sql:Type.BLOB, direction:sql:Direction.INOUT};
-    sql:Parameter paraBinary = {sqlType:sql:Type.BINARY, direction:sql:Direction.INOUT};
+    sql:Parameter paraID = (sql:TYPE_INTEGER, "6");
+    sql:CallParam paraInt = {sqlType:sql:TYPE_INTEGER, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraLong = {sqlType:sql:TYPE_BIGINT, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraFloat = {sqlType:sql:TYPE_FLOAT, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraDouble = {sqlType:sql:TYPE_DOUBLE, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraBool = {sqlType:sql:TYPE_BOOLEAN, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraString = {sqlType:sql:TYPE_VARCHAR, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraNumeric = {sqlType:sql:TYPE_NUMERIC, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraDecimal = {sqlType:sql:TYPE_DECIMAL, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraReal = {sqlType:sql:TYPE_REAL, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraTinyInt = {sqlType:sql:TYPE_TINYINT, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraSmallInt = {sqlType:sql:TYPE_SMALLINT, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraClob = {sqlType:sql:TYPE_CLOB, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraBlob = {sqlType:sql:TYPE_BLOB, direction:sql:DIRECTION_INOUT};
+    sql:CallParam paraBinary = {sqlType:sql:TYPE_BINARY, direction:sql:DIRECTION_INOUT};
 
-    sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-                                  paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    _ = testDB -> call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
+        paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
+        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
     _ = testDB -> close();
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
            paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
@@ -706,164 +644,146 @@ function testNullINOutParameters () returns (any, any, any, any, any, any, any, 
 
 function testEmptySQLType () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {value:"Anne"};
-    sql:Parameter[] parameters = [para1];
-    int insertCount =? testDB -> update("Insert into Customers (firstName) values (?)", parameters);
+    var insertCountRet = testDB -> update("Insert into Customers (firstName) values (?)", "Anne");
+    int insertCount = check insertCountRet;
+
     _ = testDB -> close();
     return insertCount;
 }
 
 function testArrayOutParameters () returns (any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     string firstName;
-    sql:Parameter para1 = {sqlType:sql:Type.ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter para2 = {sqlType:sql:Type.ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter para3 = {sqlType:sql:Type.ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter para4 = {sqlType:sql:Type.ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter para5 = {sqlType:sql:Type.ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter para6 = {sqlType:sql:Type.ARRAY, direction:sql:Direction.OUT};
-    sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6];
-    _ = testDB -> call("{call TestArrayOutParams(?,?,?,?,?,?)}", parameters, null);
+    sql:CallParam para1 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
+    sql:CallParam para2 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
+    sql:CallParam para3 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
+    sql:CallParam para4 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
+    sql:CallParam para5 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
+    sql:CallParam para6 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
+    _ = testDB -> call("{call TestArrayOutParams(?,?,?,?,?,?)}", (), para1, para2, para3, para4, para5, para6);
     _ = testDB -> close();
     return (para1.value, para2.value, para3.value, para4.value, para5.value, para6.value);
 }
 
 function testArrayInOutParameters () returns (any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:3};
-    sql:Parameter para2 = {sqlType:sql:Type.INTEGER, direction:sql:Direction.OUT};
-    sql:Parameter para3 = {sqlType:sql:Type.ARRAY, value:"10,20,30", direction:sql:Direction.INOUT};
-    sql:Parameter para4 = {sqlType:sql:Type.ARRAY, value:"10000000, 20000000, 30000000", direction:sql:Direction.INOUT};
-    sql:Parameter para5 = {sqlType:sql:Type.ARRAY, value:"2454.23, 55594.49, 87964.123", direction:sql:Direction.INOUT};
-    sql:Parameter para6 = {sqlType:sql:Type.ARRAY, value:"2454.23, 55594.49, 87964.123", direction:sql:Direction.INOUT};
-    sql:Parameter para7 = {sqlType:sql:Type.ARRAY, value:"FALSE, FALSE, TRUE", direction:sql:Direction.INOUT};
-    sql:Parameter para8 = {sqlType:sql:Type.ARRAY, value:"Hello,Ballerina,Lang", direction:sql:Direction.INOUT};
-    sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8];
+    sql:Parameter para1 = (sql:TYPE_INTEGER, 3);
+    sql:CallParam para2 = {sqlType:sql:TYPE_INTEGER, direction:sql:DIRECTION_OUT};
+    sql:CallParam para3 = {sqlType:sql:TYPE_ARRAY, value:"10,20,30", direction:sql:DIRECTION_INOUT};
+    sql:CallParam para4 = {sqlType:sql:TYPE_ARRAY, value:"10000000, 20000000, 30000000", direction:sql:DIRECTION_INOUT};
+    sql:CallParam para5 = {sqlType:sql:TYPE_ARRAY, value:"2454.23, 55594.49, 87964.123", direction:sql:DIRECTION_INOUT};
+    sql:CallParam para6 = {sqlType:sql:TYPE_ARRAY, value:"2454.23, 55594.49, 87964.123", direction:sql:DIRECTION_INOUT};
+    sql:CallParam para7 = {sqlType:sql:TYPE_ARRAY, value:"FALSE, FALSE, TRUE", direction:sql:DIRECTION_INOUT};
+    sql:CallParam para8 = {sqlType:sql:TYPE_ARRAY, value:"Hello,Ballerina,Lang", direction:sql:DIRECTION_INOUT};
 
-    _ = testDB -> call("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", (),
+        para1, para2, para3, para4, para5, para6, para7, para8);
     _ = testDB -> close();
     return (para2.value, para3.value, para4.value, para5.value, para6.value, para7.value, para8.value);
 }
 
 function testBatchUpdate () returns (int[]) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     //Batch 1
-    sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
-    sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
-    sql:Parameter para3 = {sqlType:sql:Type.INTEGER, value:20};
-    sql:Parameter para4 = {sqlType:sql:Type.DOUBLE, value:3400.5};
-    sql:Parameter para5 = {sqlType:sql:Type.VARCHAR, value:"Colombo"};
+    sql:Parameter para1 = (sql:TYPE_VARCHAR, "Alex");
+    sql:Parameter para2 = (sql:TYPE_VARCHAR, "Smith");
+    sql:Parameter para3 = (sql:TYPE_INTEGER, 20);
+    sql:Parameter para4 = (sql:TYPE_DOUBLE, 3400.5);
+    sql:Parameter para5 = (sql:TYPE_VARCHAR, "Colombo");
     sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
-    para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
-    para2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
-    para3 = {sqlType:sql:Type.INTEGER, value:20};
-    para4 = {sqlType:sql:Type.DOUBLE, value:3400.5};
-    para5 = {sqlType:sql:Type.VARCHAR, value:"Colombo"};
+    para1 = (sql:TYPE_VARCHAR, "Alex");
+    para2 = (sql:TYPE_VARCHAR, "Smith");
+    para3 = (sql:TYPE_INTEGER, 20);
+    para4 = (sql:TYPE_DOUBLE, 3400.5);
+    para5 = (sql:TYPE_VARCHAR, "Colombo");
     sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
-    sql:Parameter[][] parameters = [parameters1, parameters2];
 
     int[] updateCount;
-    updateCount =? testDB -> batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", parameters);
+    var updateCountRet = testDB -> batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                     values (?,?,?,?,?)", parameters1, parameters2);
+    updateCount = check updateCountRet;
+
     _ = testDB -> close();
     return updateCount;
 }
 
 function testBatchUpdateWithFailure () returns (int[], int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     //Batch 1
-    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:111};
-    sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
-    sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
-    sql:Parameter para3 = {sqlType:sql:Type.INTEGER, value:20};
-    sql:Parameter para4 = {sqlType:sql:Type.DOUBLE, value:3400.5};
-    sql:Parameter para5 = {sqlType:sql:Type.VARCHAR, value:"Colombo"};
+    sql:Parameter para0 = (sql:TYPE_INTEGER, 111);
+    sql:Parameter para1 = (sql:TYPE_VARCHAR, "Alex");
+    sql:Parameter para2 = (sql:TYPE_VARCHAR, "Smith");
+    sql:Parameter para3 = (sql:TYPE_INTEGER, 20);
+    sql:Parameter para4 = (sql:TYPE_DOUBLE, 3400.5);
+    sql:Parameter para5 = (sql:TYPE_VARCHAR, "Colombo");
     sql:Parameter[] parameters1 = [para0, para1, para2, para3, para4, para5];
 
     //Batch 2
-    para0 = {sqlType:sql:Type.INTEGER, value:222};
-    para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
-    para2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
-    para3 = {sqlType:sql:Type.INTEGER, value:20};
-    para4 = {sqlType:sql:Type.DOUBLE, value:3400.5};
-    para5 = {sqlType:sql:Type.VARCHAR, value:"Colombo"};
+    para0 = (sql:TYPE_INTEGER, 222);
+    para1 = (sql:TYPE_VARCHAR, "Alex");
+    para2 = (sql:TYPE_VARCHAR, "Smith");
+    para3 = (sql:TYPE_INTEGER, 20);
+    para4 = (sql:TYPE_DOUBLE, 3400.5);
+    para5 = (sql:TYPE_VARCHAR, "Colombo");
     sql:Parameter[] parameters2 = [para0, para1, para2, para3, para4, para5];
 
     //Batch 3
-    para0 = {sqlType:sql:Type.INTEGER, value:222};
-    para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
-    para2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
-    para3 = {sqlType:sql:Type.INTEGER, value:20};
-    para4 = {sqlType:sql:Type.DOUBLE, value:3400.5};
-    para5 = {sqlType:sql:Type.VARCHAR, value:"Colombo"};
+    para0 = (sql:TYPE_INTEGER, 222);
+    para1 = (sql:TYPE_VARCHAR, "Alex");
+    para2 = (sql:TYPE_VARCHAR, "Smith");
+    para3 = (sql:TYPE_INTEGER, 20);
+    para4 = (sql:TYPE_DOUBLE, 3400.5);
+    para5 = (sql:TYPE_VARCHAR, "Colombo");
     sql:Parameter[] parameters3 = [para0, para1, para2, para3, para4, para5];
 
     //Batch 4
-    para0 = {sqlType:sql:Type.INTEGER, value:333};
-    para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
-    para2 = {sqlType:sql:Type.VARCHAR, value:"Smith"};
-    para3 = {sqlType:sql:Type.INTEGER, value:20};
-    para4 = {sqlType:sql:Type.DOUBLE, value:3400.5};
-    para5 = {sqlType:sql:Type.VARCHAR, value:"Colombo"};
+    para0 = (sql:TYPE_INTEGER, 333);
+    para1 = (sql:TYPE_VARCHAR, "Alex");
+    para2 = (sql:TYPE_VARCHAR, "Smith");
+    para3 = (sql:TYPE_INTEGER, 20);
+    para4 = (sql:TYPE_DOUBLE, 3400.5);
+    para5 = (sql:TYPE_VARCHAR, "Colombo");
     sql:Parameter[] parameters4 = [para0, para1, para2, para3, para4, para5];
-
-    sql:Parameter[][] parameters = [parameters1, parameters2, parameters3, parameters4];
 
     int[] updateCount;
     int count;
 
-    updateCount =? testDB -> batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,creditLimit,
-        country) values (?,?,?,?,?,?)", parameters);
-    table dt =? testDB -> select("SELECT count(*) as countval from Customers where customerId in (111,222,333)", null, typeof ResultCount);
+    var updateCountRet = testDB -> batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,creditLimit,
+        country) values (?,?,?,?,?,?)", parameters1, parameters2, parameters3, parameters4);
+    updateCount = check updateCountRet;
+
+    var dtRet = testDB -> select("SELECT count(*) as countval from Customers where customerId in (111,222,333)", ResultCount);
+    table dt = check dtRet;
+
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
 
@@ -873,64 +793,61 @@ function testBatchUpdateWithFailure () returns (int[], int) {
 
 function testBatchUpdateWithNullParam () returns (int[]) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     int[] updateCount;
-    updateCount =? testDB -> batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values ('Alex','Smith',20,3400.5,'Colombo')", null);
+    var updateCountRet = testDB -> batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                     values ('Alex','Smith',20,3400.5,'Colombo')");
+    updateCount = check updateCountRet;
+
     _ = testDB -> close();
     return updateCount;
 }
 
 function testDateTimeInParameters () returns (int[]) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     string stmt = "Insert into DateTimeTypes(row_id,date_type,time_type,datetime_type,timestamp_type) values (?,?,?,?,?)";
     int[] returnValues = [];
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:100};
-    sql:Parameter para2 = {sqlType:sql:Type.DATE, value:"2017-01-30-08:01"};
-    sql:Parameter para3 = {sqlType:sql:Type.TIME, value:"13:27:01.999999+08:33"};
-    sql:Parameter para4 = {sqlType:sql:Type.TIMESTAMP, value:"2017-01-30T13:27:01.999-08:00"};
-    sql:Parameter para5 = {sqlType:sql:Type.DATETIME, value:"2017-01-30T13:27:01.999999Z"};
-    sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
+    sql:Parameter para1 = (sql:TYPE_INTEGER, 100);
+    sql:Parameter para2 = (sql:TYPE_DATE, "2017-01-30-08:01");
+    sql:Parameter para3 = (sql:TYPE_TIME, "13:27:01.999999+08:33");
+    sql:Parameter para4 = (sql:TYPE_TIMESTAMP, "2017-01-30T13:27:01.999-08:00");
+    sql:Parameter para5 = (sql:TYPE_DATETIME, "2017-01-30T13:27:01.999999Z");
 
-    int insertCount1 =? testDB -> update(stmt, parameters);
+    var insertCount1Ret = testDB -> update(stmt, para1, para2, para3, para4, para5);
+    int insertCount1 = check insertCount1Ret;
+
     returnValues[0] = insertCount1;
 
-    para1 = {sqlType:sql:Type.INTEGER, value:200};
-    para2 = {sqlType:sql:Type.DATE, value:"-2017-01-30Z"};
-    para3 = {sqlType:sql:Type.TIME, value:"13:27:01+08:33"};
-    para4 = {sqlType:sql:Type.TIMESTAMP, value:"2017-01-30T13:27:01.999"};
-    para5 = {sqlType:sql:Type.DATETIME, value:"-2017-01-30T13:27:01.999999-08:30"};
-    parameters = [para1, para2, para3, para4, para5];
+    para1 = (sql:TYPE_INTEGER, 200);
+    para2 = (sql:TYPE_DATE, "-2017-01-30Z");
+    para3 = (sql:TYPE_TIME, "13:27:01+08:33");
+    para4 = (sql:TYPE_TIMESTAMP, "2017-01-30T13:27:01.999");
+    para5 = (sql:TYPE_DATETIME, "-2017-01-30T13:27:01.999999-08:30");
 
-    int insertCount2 =? testDB -> update(stmt, parameters);
+    var insertCount2Ret = testDB -> update(stmt, para1, para2, para3, para4, para5);
+    int insertCount2 = check insertCount2Ret;
+
     returnValues[1] = insertCount2;
 
     time:Time timeNow = time:currentTime();
-    para1 = {sqlType:sql:Type.INTEGER, value:300};
-    para2 = {sqlType:sql:Type.DATE, value:timeNow};
-    para3 = {sqlType:sql:Type.TIME, value:timeNow};
-    para4 = {sqlType:sql:Type.TIMESTAMP, value:timeNow};
-    para5 = {sqlType:sql:Type.DATETIME, value:timeNow};
-    parameters = [para1, para2, para3, para4, para5];
+    para1 = (sql:TYPE_INTEGER, 300);
+    para2 = (sql:TYPE_DATE, timeNow);
+    para3 = (sql:TYPE_TIME, timeNow);
+    para4 = (sql:TYPE_TIMESTAMP, timeNow);
+    para5 = (sql:TYPE_DATETIME, timeNow);
 
-    int insertCount3 =? testDB -> update(stmt, parameters);
+    var insertCount3Ret = testDB -> update(stmt, para1, para2, para3, para4, para5);
+    int insertCount3 = check insertCount3Ret;
+
     returnValues[2] = insertCount3;
 
     _ = testDB -> close();
@@ -939,69 +856,62 @@ function testDateTimeInParameters () returns (int[]) {
 
 function testDateTimeNullInValues () returns (string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:33};
-    sql:Parameter para1 = {sqlType:sql:Type.DATE, value:null};
-    sql:Parameter para2 = {sqlType:sql:Type.TIME, value:null};
-    sql:Parameter para3 = {sqlType:sql:Type.TIMESTAMP, value:null};
-    sql:Parameter para4 = {sqlType:sql:Type.DATETIME, value:null};
+    sql:Parameter para0 = (sql:TYPE_INTEGER, 33);
+    sql:Parameter para1 = (sql:TYPE_DATE, ());
+    sql:Parameter para2 = (sql:TYPE_TIME, ());
+    sql:Parameter para3 = (sql:TYPE_TIMESTAMP, ());
+    sql:Parameter para4 = (sql:TYPE_DATETIME, ());
     sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
 
     _ = testDB -> update("Insert into DateTimeTypes
-        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", parameters);
+        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
+        para0, para1, para2, para3, para4);
 
-    table dt =? testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 33", null, typeof ResultDates);
+    var dtRet = testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
+                from DateTimeTypes where row_id = 33", ResultDates);
+    table dt = check dtRet;
+
     string data;
 
-    var j =?  <json>dt;
-    data = j.toString();
+    var j = check  <json>dt;
+    data = io:sprintf("%j", [j]);
 
     _ = testDB -> close();
     return data;
 }
 
-
 function testDateTimeNullOutValues () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:123};
-    sql:Parameter para2 = {sqlType:sql:Type.DATE, value:null};
-    sql:Parameter para3 = {sqlType:sql:Type.TIME, value:null};
-    sql:Parameter para4 = {sqlType:sql:Type.TIMESTAMP, value:null};
-    sql:Parameter para5 = {sqlType:sql:Type.DATETIME, value:null};
+    sql:Parameter para1 = (sql:TYPE_INTEGER, 123);
+    sql:Parameter para2 = (sql:TYPE_DATE, ());
+    sql:Parameter para3 = (sql:TYPE_TIME, ());
+    sql:Parameter para4 = (sql:TYPE_TIMESTAMP, ());
+    sql:Parameter para5 = (sql:TYPE_DATETIME, ());
 
-    sql:Parameter para6 = {sqlType:sql:Type.DATE, direction:sql:Direction.OUT};
-    sql:Parameter para7 = {sqlType:sql:Type.TIME, direction:sql:Direction.OUT};
-    sql:Parameter para8 = {sqlType:sql:Type.TIMESTAMP, direction:sql:Direction.OUT};
-    sql:Parameter para9 = {sqlType:sql:Type.DATETIME, direction:sql:Direction.OUT};
+    sql:CallParam para6 = {sqlType:sql:TYPE_DATE, direction:sql:DIRECTION_OUT};
+    sql:CallParam para7 = {sqlType:sql:TYPE_TIME, direction:sql:DIRECTION_OUT};
+    sql:CallParam para8 = {sqlType:sql:TYPE_TIMESTAMP, direction:sql:DIRECTION_OUT};
+    sql:CallParam para9 = {sqlType:sql:TYPE_DATETIME, direction:sql:DIRECTION_OUT};
 
-    sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
+    _ = testDB -> call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", (),
+        para1, para2, para3, para4, para5, para6, para7, para8, para9);
 
-    _ = testDB -> call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters, null);
+    var dtRet = testDB -> select("SELECT count(*) as countval from DateTimeTypes where row_id = 123", ResultCount);
+    table dt = check dtRet;
 
     int count;
-
-    table dt =? testDB -> select("SELECT count(*) as countval from DateTimeTypes where row_id = 123", null,
-                             typeof ResultCount);
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -1010,60 +920,51 @@ function testDateTimeNullOutValues () returns (int) {
 
 function testDateTimeNullInOutValues () returns (any, any, any, any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:124};
-    sql:Parameter para2 = {sqlType:sql:Type.DATE, value:null, direction:sql:Direction.INOUT};
-    sql:Parameter para3 = {sqlType:sql:Type.TIME, value:null, direction:sql:Direction.INOUT};
-    sql:Parameter para4 = {sqlType:sql:Type.TIMESTAMP, value:null, direction:sql:Direction.INOUT};
-    sql:Parameter para5 = {sqlType:sql:Type.DATETIME, value:null, direction:sql:Direction.INOUT};
+    sql:Parameter para1 = (sql:TYPE_INTEGER, 124);
+    sql:CallParam para2 = {sqlType:sql:TYPE_DATE, value:null, direction:sql:DIRECTION_INOUT};
+    sql:CallParam para3 = {sqlType:sql:TYPE_TIME, value:null, direction:sql:DIRECTION_INOUT};
+    sql:CallParam para4 = {sqlType:sql:TYPE_TIMESTAMP, value:null, direction:sql:DIRECTION_INOUT};
+    sql:CallParam para5 = {sqlType:sql:TYPE_DATETIME, value:null, direction:sql:DIRECTION_INOUT};
 
-    sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
-
-    _ = testDB -> call("{call TestDateINOUTParams(?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestDateINOUTParams(?,?,?,?,?)}", (), para1, para2, para3, para4, para5);
     _ = testDB -> close();
     return (para2.value, para3.value, para4.value, para5.value);
 }
 
 function testDateTimeOutParams (int time, int date, int timestamp) returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:10};
-    sql:Parameter para2 = {sqlType:sql:Type.DATE, value:date};
-    sql:Parameter para3 = {sqlType:sql:Type.TIME, value:time};
-    sql:Parameter para4 = {sqlType:sql:Type.TIMESTAMP, value:timestamp};
-    sql:Parameter para5 = {sqlType:sql:Type.DATETIME, value:timestamp};
+    sql:Parameter para1 = (sql:TYPE_INTEGER, 10);
+    sql:Parameter para2 = (sql:TYPE_DATE, date);
+    sql:Parameter para3 = (sql:TYPE_TIME, time);
+    sql:Parameter para4 = (sql:TYPE_TIMESTAMP, timestamp);
+    sql:Parameter para5 = (sql:TYPE_DATETIME, timestamp);
 
-    sql:Parameter para6 = {sqlType:sql:Type.DATE, direction:sql:Direction.OUT};
-    sql:Parameter para7 = {sqlType:sql:Type.TIME, direction:sql:Direction.OUT};
-    sql:Parameter para8 = {sqlType:sql:Type.TIMESTAMP, direction:sql:Direction.OUT};
-    sql:Parameter para9 = {sqlType:sql:Type.DATETIME, direction:sql:Direction.OUT};
+    sql:CallParam para6 = {sqlType:sql:TYPE_DATE, direction:sql:DIRECTION_OUT};
+    sql:CallParam para7 = {sqlType:sql:TYPE_TIME, direction:sql:DIRECTION_OUT};
+    sql:CallParam para8 = {sqlType:sql:TYPE_TIMESTAMP, direction:sql:DIRECTION_OUT};
+    sql:CallParam para9 = {sqlType:sql:TYPE_DATETIME, direction:sql:DIRECTION_OUT};
 
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
 
-    _ = testDB -> call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters, null);
+    _ = testDB -> call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", (),
+        para1, para2, para3, para4, para5, para6, para7, para8, para9);
 
-    table dt =? testDB -> select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", null,
-                             typeof ResultCount);
+    var dtRet = testDB -> select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", ResultCount);
+    table dt = check dtRet;
 
     int count;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -1072,31 +973,22 @@ function testDateTimeOutParams (int time, int date, int timestamp) returns (int)
 
 function testStructOutParameters () returns (any) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
-    sql:Parameter para1 = {sqlType:sql:Type.STRUCT, direction:sql:Direction.OUT};
-    sql:Parameter[] parameters = [para1];
-    _ = testDB -> call("{call TestStructOut(?)}", parameters, null);
+    sql:CallParam para1 = (sql:TYPE_STRUCT, sql:DIRECTION_OUT);
+    _ = testDB -> call("{call TestStructOut(?)}", (), para1 );
     _ = testDB -> close();
     return para1.value;
 }
 
 function testComplexTypeRetrieval () returns (string, string, string, string) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
     string s1;
@@ -1104,21 +996,25 @@ function testComplexTypeRetrieval () returns (string, string, string, string) {
     string s3;
     string s4;
 
-    table dt =? testDB -> select("SELECT * from DataTypeTable where row_id = 1", null, null);
-    var x1 =? <xml>dt;
+    var dtRet = testDB -> select("SELECT * from DataTypeTable where row_id = 1", ());
+    table dt = check dtRet;
+    var x1 = check <xml>dt;
     s1 = io:sprintf("%l", [x1]);
 
-    dt =? testDB -> select("SELECT * from DateTimeTypes where row_id = 1", null, null);
-    var x2 =? <xml>dt;
+    dtRet = testDB -> select("SELECT * from DateTimeTypes where row_id = 1", ());
+    dt = check dtRet;
+    var x2 = check <xml>dt;
     s2 = io:sprintf("%l", [x2]);
 
-    dt =? testDB -> select("SELECT * from DataTypeTable where row_id = 1", null, null);
-    var j =? <json>dt;
-    s3 = j.toString();
+    dtRet = testDB -> select("SELECT * from DataTypeTable where row_id = 1", ());
+    dt = check dtRet;
+    var j = check <json>dt;
+    s3 = io:sprintf("%j", [j]);
 
-    dt =? testDB -> select("SELECT * from DateTimeTypes where row_id = 1", null, null);
-    j =? <json>dt;
-    s4 = j.toString();
+    dtRet = testDB -> select("SELECT * from DateTimeTypes where row_id = 1", ());
+    dt = check dtRet;
+    j = check <json>dt;
+    s4 = io:sprintf("%j", [j]);
 
     _ = testDB -> close();
     return (s1, s2, s3, s4);
@@ -1126,21 +1022,17 @@ function testComplexTypeRetrieval () returns (string, string, string, string) {
 
 function testCloseConnectionPool () returns (int) {
     endpoint sql:Client testDB {
-        database: sql:DB.HSQLDB_FILE,
-        host: "./target/tempdb/",
-        port: 0,
-        name: "TEST_SQL_CONNECTOR",
+        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
-        password: "",
-        options: {maximumPoolSize:1}
+        poolOptions: {maximumPoolSize:1}
     };
 
+    var dtRet = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount);
+    table dt = check dtRet;
 
-    table dt =? testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
-    typeof ResultCount);
     int count;
     while (dt.hasNext()) {
-        var rs =? <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();

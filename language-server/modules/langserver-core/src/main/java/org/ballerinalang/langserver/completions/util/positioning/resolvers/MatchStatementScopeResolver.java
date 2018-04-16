@@ -21,9 +21,9 @@ import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -45,7 +45,7 @@ public class MatchStatementScopeResolver extends CursorPositionResolver {
      * @return {@link Boolean}      Whether the cursor is before the node start or not
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, Node node, TreeVisitor treeVisitor,
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
                                       LSServiceOperationContext completionContext) {
         if (!(treeVisitor.getBlockOwnerStack().peek() instanceof BLangMatch)) {
             // In the ideal case, this will not get triggered
@@ -53,7 +53,7 @@ public class MatchStatementScopeResolver extends CursorPositionResolver {
         }
         BLangMatch matchNode = (BLangMatch) treeVisitor.getBlockOwnerStack().peek();
         DiagnosticPos matchNodePos = CommonUtil.toZeroBasedPosition(matchNode.getPosition());
-        DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition((DiagnosticPos) node.getPosition());
+        DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
         List<BLangMatch.BLangMatchStmtPatternClause> patternClauseList = matchNode.getPatternClauses();
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
@@ -74,6 +74,7 @@ public class MatchStatementScopeResolver extends CursorPositionResolver {
             SymbolEnv matchEnv = createMatchEnv(matchNode, treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, matchEnv);
             treeVisitor.setTerminateVisitor(true);
+            treeVisitor.setNextNode(node);
         }
         
         return isBeforeNode;

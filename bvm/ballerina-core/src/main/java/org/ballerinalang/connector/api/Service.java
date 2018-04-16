@@ -67,4 +67,11 @@ public interface Service {
     Resource[] getResources();
 
     ServiceInfo getServiceInfo();
+
+    /**
+     * This method returns the version of the package.
+     *
+     * @return version of the package.
+     */
+    String getPackageVersion();
 }

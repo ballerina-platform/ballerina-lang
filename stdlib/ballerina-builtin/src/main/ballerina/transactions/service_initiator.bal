@@ -19,17 +19,16 @@ package ballerina.transactions;
 import ballerina/log;
 import ballerina/http;
 
-enum CoordinationType {
-    TWO_PHASE_COMMIT
-}
-
-const string TWO_PHASE_COMMIT = "2pc";
+@final string TWO_PHASE_COMMIT = "2pc";
+@final string PROTOCOL_COMPLETION = "completion";
+@final string PROTOCOL_VOLATILE = "volatile";
+@final string PROTOCOL_DURABLE = "durable";
 
 string[] coordinationTypes = [TWO_PHASE_COMMIT];
 
 map<string[]> coordinationTypeToProtocolsMap = getCoordinationTypeToProtocolsMap();
 function getCoordinationTypeToProtocolsMap () returns map<string[]> {
-    string[] twoPhaseCommitProtocols = ["completion", "volatile", "durable"];
+    string[] twoPhaseCommitProtocols = [PROTOCOL_COMPLETION, PROTOCOL_VOLATILE, PROTOCOL_DURABLE];
     map<string[]> m;
     m[TWO_PHASE_COMMIT] = twoPhaseCommitProtocols;
     return m;
@@ -38,10 +37,10 @@ function getCoordinationTypeToProtocolsMap () returns map<string[]> {
 @http:ServiceConfig {
     basePath:initiatorCoordinatorBasePath
 }
-documentation {
-    Service on the initiator which is independent from the coordination type and handles registration of remote participants.
-}
-service<http:Service> InitiatorService bind coordinatorServerEP {
+//documentation {
+//    Service on the initiator which is independent from the coordination type and handles registration of remote participants.
+//}
+service InitiatorService bind coordinatorListener {
 
     @http:ResourceConfig {
         methods:["POST"],
@@ -88,33 +87,32 @@ service<http:Service> InitiatorService bind coordinatorServerEP {
             if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
                 respondToBadRequest(conn, "Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
             } else if (!protocolCompatible(txn.coordinationType,
-                                           regReq.participantProtocols)) { // Invalid-Protocol
+                                           toProtocolArray(regReq.participantProtocols))) { // Invalid-Protocol
                 respondToBadRequest(conn, "Invalid-Protocol. TID:" + txnId + ",participant ID:" + participantId);
             } else {
-                Participant participant = {participantId:participantId,
-                                              participantProtocols:regReq.participantProtocols};
+                RemoteProtocol[] participantProtocols = regReq.participantProtocols;
+                RemoteParticipant participant = {participantId: participantId,
+                                                 participantProtocols: participantProtocols};
                 txn.participants[participantId] = participant;
-                Protocol[] participantProtocols = regReq.participantProtocols;
-                Protocol[] coordinatorProtocols = [];
+                RemoteProtocol[] coordinatorProtocols = [];
                 int i = 0;
                 foreach participantProtocol in participantProtocols {
-                    Protocol coordinatorProtocol = {name:participantProtocol.name,
+                    RemoteProtocol coordinatorProtocol = {name:participantProtocol.name,
                                                        url:getCoordinatorProtocolAt(participantProtocol.name,
                                                                                     transactionBlockId)};
                     coordinatorProtocols[i] = coordinatorProtocol;
                     i = i + 1;
                 }
 
-                RegistrationResponse regRes = {transactionId:txnId,
-                                                  coordinatorProtocols:coordinatorProtocols};
+                RegistrationResponse regRes = {transactionId:txnId, coordinatorProtocols:coordinatorProtocols};
                 json resPayload = regResponseToJson(regRes);
-                http:Response res = {statusCode:http:OK_200};
+                http:Response res = new; res.statusCode = http:OK_200;
                 res.setJsonPayload(resPayload);
-                var connErr = conn -> respond(res);
-                match connErr {
+                var resResult = conn -> respond(res);
+                match resResult {
                     error err => log:printErrorCause("Sending response for register request for transaction " + txnId +
                                                      " failed", err);
-                    null => log:printInfo("Registered remote participant: " + participantId + " for transaction: " +
+                    () => log:printInfo("Registered remote participant: " + participantId + " for transaction: " +
                                           txnId);
                 }
             }

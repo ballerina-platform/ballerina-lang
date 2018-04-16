@@ -3,8 +3,9 @@
   "version": "0.970.0",
   "description": "A web based tool for creating integrations in ballerina language.",
   "scripts": {
-    "clean": "rimraf dist",
+    "clean": "rm -rf dist",
     "build": "cross-env NODE_ENV=production webpack --config webpack.config.js",
+    "build-library": "cross-env NODE_ENV=production webpack --config webpack.config.composer-library.js",
     "build-electron": "cross-env NODE_ENV=electron webpack --config webpack.config.js",
     "dev": "npm run clean && webpack-dev-server --hot --inline --progress",
     "dev-electron": "cross-env NODE_ENV=electron-dev webpack-dev-server --hot --inline --progress",
@@ -110,6 +111,7 @@
     "less-loader": "^4.0.5",
     "lodash": "^4.13.1",
     "log4javascript": "^1.4.15",
+    "moment": "^2.22.0",
     "monaco-editor": "^0.10.1",
     "monaco-languageclient": "^0.2.0",
     "mousetrap": "^1.6.0",

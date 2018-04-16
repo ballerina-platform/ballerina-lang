@@ -17,24 +17,18 @@
 */
 package org.ballerinalang.test.context;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.mina.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -102,6 +96,14 @@ public class ServerInstance implements Server {
     public void startBallerinaServer(String balFile) throws BallerinaTestException {
         String[] args = {balFile};
         setArguments(args);
+
+        startServer();
+    }
+
+    public void startBallerinaServer(String balFile, String[] args) throws BallerinaTestException {
+        String[] newArgs = {balFile};
+        newArgs = ArrayUtils.addAll(args, newArgs);
+        setArguments(newArgs);
 
         startServer();
     }
@@ -354,59 +356,8 @@ public class ServerInstance implements Server {
             Utils.extractFile(serverZipFile, extractDir);
 
             this.serverHome = extractDir + File.separator + extractedCarbonDir;
-
-            if (httpServerPort != Constant.DEFAULT_HTTP_PORT) {
-                updateServerPort();
-            }
-
         } catch (IOException e) {
             throw new BallerinaTestException("Error extracting server zip file", e);
-        }
-    }
-
-    /**
-     * Update the server port configuration with the provided value.
-     *
-     * @throws BallerinaTestException if port update fails
-     */
-    private void updateServerPort() throws BallerinaTestException {
-        Path file = Paths.get(serverHome, "bre", "conf", "netty-transports.yml");
-
-        Yaml yaml = new Yaml();
-
-        Map<String, List> values = null;
-        try {
-            values = (Map<String, List>) yaml.load(Files.newInputStream(file));
-
-            List<Map<String, String>> listenerConfigurations = values.get("listenerConfigurations");
-
-            Map<String, String> httpDefaultConfig = null;
-
-            for (Map<String, String> config : listenerConfigurations) {
-                for (Map.Entry<String, String> entry : config.entrySet()) {
-                    if (entry.getKey().equals("id") && entry.getValue().equals("default")) {
-                        // This is the http default config
-                        httpDefaultConfig = config;
-                        break;
-                    }
-                }
-            }
-
-            if (httpDefaultConfig != null) {
-                for (Map.Entry<String, String> entry : httpDefaultConfig.entrySet()) {
-                    if (entry.getKey().equals("port")) {
-                        entry.setValue(String.valueOf(httpServerPort));
-                    }
-                }
-
-                Yaml updatedYaml = new Yaml();
-                FileWriter writer = new FileWriter(file.toString());
-
-                updatedYaml.dump(values, writer);
-            }
-
-        } catch (IOException e) {
-            throw new BallerinaTestException("Error updating yaml config file", e);
         }
     }
 

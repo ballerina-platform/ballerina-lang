@@ -16,7 +16,7 @@
 
 package ballerina.builtin;
 
-public struct error {
+public type error {
     string message;
-    error[] cause;
-}
+    error? cause;
+};

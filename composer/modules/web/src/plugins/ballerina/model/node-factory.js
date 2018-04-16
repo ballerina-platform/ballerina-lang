@@ -29,26 +29,24 @@ import DeprecatedNode from './tree/deprecated-node';
 import DocumentationNode from './tree/documentation-node';
 import EndpointNode from './tree/endpoint-node';
 import EnumNode from './tree/enum-node';
-import EnumeratorNode from './tree/enumerator-node';
 import FunctionNode from './tree/function-node';
 import IdentifierNode from './tree/identifier-node';
 import ImportNode from './tree/import-node';
 import PackageNode from './tree/package-node';
 import PackageDeclarationNode from './tree/package-declaration-node';
-import RecordLiteralKeyValueNode from './tree/record-literal-key-value-node';
 import ResourceNode from './tree/resource-node';
 import ServiceNode from './tree/service-node';
 import StructNode from './tree/struct-node';
+import ObjectNode from './tree/object-node';
 import VariableNode from './tree/variable-node';
 import WorkerNode from './tree/worker-node';
-import XmlnsNode from './tree/xmlns-node';
 import TransformerNode from './tree/transformer-node';
-import StreamletNode from './tree/streamlet-node';
 import DocumentationAttributeNode from './tree/documentation-attribute-node';
 import AnnotationAttachmentAttributeNode from './tree/annotation-attachment-attribute-node';
 import AnnotationAttachmentAttributeValueNode from './tree/annotation-attachment-attribute-value-node';
 import ArrayLiteralExprNode from './tree/array-literal-expr-node';
 import BinaryExprNode from './tree/binary-expr-node';
+import BracedTupleExprNode from './tree/braced-tuple-expr-node';
 import TypeInitExprNode from './tree/type-init-expr-node';
 import FieldBasedAccessExprNode from './tree/field-based-access-expr-node';
 import IndexBasedAccessExprNode from './tree/index-based-access-expr-node';
@@ -56,22 +54,21 @@ import IntRangeExprNode from './tree/int-range-expr-node';
 import InvocationNode from './tree/invocation-node';
 import LambdaNode from './tree/lambda-node';
 import LiteralNode from './tree/literal-node';
-import RecordLiteralExprNode from './tree/record-literal-expr-node';
-import SimpleVariableRefNode from './tree/simple-variable-ref-node';
 import StringTemplateLiteralNode from './tree/string-template-literal-node';
 import TernaryExprNode from './tree/ternary-expr-node';
+import AwaitExprNode from './tree/await-expr-node';
 import TypeofExpressionNode from './tree/typeof-expression-node';
 import TypeCastExprNode from './tree/type-cast-expr-node';
 import TypeConversionExprNode from './tree/type-conversion-expr-node';
 import UnaryExprNode from './tree/unary-expr-node';
-import XmlQnameNode from './tree/xml-qname-node';
-import XmlAttributeNode from './tree/xml-attribute-node';
-import XmlAttributeAccessExprNode from './tree/xml-attribute-access-expr-node';
-import XmlQuotedStringNode from './tree/xml-quoted-string-node';
-import XmlTextLiteralNode from './tree/xml-text-literal-node';
-import XmlPiLiteralNode from './tree/xml-pi-literal-node';
+import RestArgsExprNode from './tree/rest-args-expr-node';
+import NamedArgsExprNode from './tree/named-args-expr-node';
+import StatementExpressionNode from './tree/statement-expression-node';
+import MatchExpressionNode from './tree/match-expression-node';
+import MatchExpressionPatternClauseNode from './tree/match-expression-pattern-clause-node';
 import SelectExpressionNode from './tree/select-expression-node';
 import AbortNode from './tree/abort-node';
+import FailNode from './tree/fail-node';
 import AssignmentNode from './tree/assignment-node';
 import CompoundAssignmentNode from './tree/compound-assignment-node';
 import PostIncrementNode from './tree/post-increment-node';
@@ -90,6 +87,7 @@ import ReturnNode from './tree/return-node';
 import ThrowNode from './tree/throw-node';
 import TransactionNode from './tree/transaction-node';
 import TryNode from './tree/try-node';
+import TupleDestructureNode from './tree/tuple-destructure-node';
 import VariableDefNode from './tree/variable-def-node';
 import WhileNode from './tree/while-node';
 import LockNode from './tree/lock-node';
@@ -97,7 +95,7 @@ import WorkerReceiveNode from './tree/worker-receive-node';
 import WorkerSendNode from './tree/worker-send-node';
 import ArrayTypeNode from './tree/array-type-node';
 import UnionTypeNodeNode from './tree/union-type-node-node';
-import BuiltInRefTypeNode from './tree/built-in-ref-type-node';
+import TupleTypeNodeNode from './tree/tuple-type-node-node';
 import ConstrainedTypeNode from './tree/constrained-type-node';
 import FunctionTypeNode from './tree/function-type-node';
 import UserDefinedTypeNode from './tree/user-defined-type-node';
@@ -113,6 +111,11 @@ import WindowClauseNode from './tree/window-clause-node';
 import StreamActionNode from './tree/stream-action-node';
 import PatternStreamingEdgeInputNode from './tree/pattern-streaming-edge-input-node';
 import PatternStreamingInputNode from './tree/pattern-streaming-input-node';
+import StreamingQueryNode from './tree/streaming-query-node';
+import WithinNode from './tree/within-node';
+import PatternClauseNode from './tree/pattern-clause-node';
+import OutputRateLimitNode from './tree/output-rate-limit-node';
+import ForeverNode from './tree/forever-node';
 
 class NodeFactory {
 
@@ -120,7 +123,8 @@ class NodeFactory {
     createAction(json = {}) {
         json.kind = 'Action';
         let node = new ActionNode();
-        node.returnParameters = [];
+        node.returnTypeNode = new TypeNode();
+        node.returnTypeAnnotationAttachments = [];
         node.body = new BlockNode();
         node.workers = [];
         node.endpointNodes = [];
@@ -196,9 +200,9 @@ class NodeFactory {
     createConnector(json = {}) {
         json.kind = 'Connector';
         let node = new ConnectorNode();
-        node.initFunction = new FunctionNode();
         node.endpointNodes = [];
         node.variableDefs = [];
+        node.initFunction = new FunctionNode();
         node.initAction = new ActionNode();
         node.name = new IdentifierNode();
         node.actions = [];
@@ -253,24 +257,12 @@ class NodeFactory {
         return node;
     }
 
-    createEnumerator(json = {}) {
-        json.kind = 'Enumerator';
-        let node = new EnumeratorNode();
-        node.enumerators = [];
-        node.name = new IdentifierNode();
-        node.annotationAttachments = [];
-        node.documentationAttachments = [];
-        node.deprecatedAttachments = [];
-        node = Object.assign(node, json);
-        // Set any aditional default properties below.
-        return node;
-    }
-
     createFunction(json = {}) {
         json.kind = 'Function';
         let node = new FunctionNode();
         node.receiver = new VariableNode();
-        node.returnParameters = [];
+        node.returnTypeNode = new TypeNode();
+        node.returnTypeAnnotationAttachments = [];
         node.body = new BlockNode();
         node.workers = [];
         node.endpointNodes = [];
@@ -297,8 +289,8 @@ class NodeFactory {
     createImport(json = {}) {
         json.kind = 'Import';
         let node = new ImportNode();
-        node.packageVersion = new IdentifierNode();
         node.orgName = new IdentifierNode();
+        node.packageVersion = new IdentifierNode();
         node.alias = new IdentifierNode();
         node.packageName = [];
         node = Object.assign(node, json);
@@ -309,17 +301,17 @@ class NodeFactory {
     createPackage(json = {}) {
         json.kind = 'Package';
         let node = new PackageNode();
-        node.globalVariables = [];
         node.imports = [];
         node.compilationUnits = [];
         node.packageDeclaration = new PackageDeclarationNode();
         node.namespaceDeclarations = [];
         node.globalEndpoints = [];
+        node.globalVariables = [];
         node.services = [];
         node.connectors = [];
-        node.streamlets = [];
         node.functions = [];
         node.structs = [];
+        node.objects = [];
         node.enums = [];
         node.transformers = [];
         node.annotations = [];
@@ -338,20 +330,11 @@ class NodeFactory {
         return node;
     }
 
-    createRecordLiteralKeyValue(json = {}) {
-        json.kind = 'RecordLiteralKeyValue';
-        let node = new RecordLiteralKeyValueNode();
-        node.value = new ExpressionNode();
-        node.key = new ExpressionNode();
-        node = Object.assign(node, json);
-        // Set any aditional default properties below.
-        return node;
-    }
-
     createResource(json = {}) {
         json.kind = 'Resource';
         let node = new ResourceNode();
-        node.returnParameters = [];
+        node.returnTypeNode = new TypeNode();
+        node.returnTypeAnnotationAttachments = [];
         node.body = new BlockNode();
         node.workers = [];
         node.endpointNodes = [];
@@ -370,11 +353,12 @@ class NodeFactory {
     createService(json = {}) {
         json.kind = 'Service';
         let node = new ServiceNode();
-        node.initFunction = new FunctionNode();
         node.endpointNodes = [];
         node.variables = [];
+        node.initFunction = new FunctionNode();
         node.serviceTypeStruct = new EndpointTypeNode();
         node.boundEndpoints = [];
+        node.anonymousEndpointBind = new RecordLiteralNode();
         node.name = new IdentifierNode();
         node.resources = [];
         node.annotationAttachments = [];
@@ -388,6 +372,20 @@ class NodeFactory {
     createStruct(json = {}) {
         json.kind = 'Struct';
         let node = new StructNode();
+        node.name = new IdentifierNode();
+        node.fields = [];
+        node.annotationAttachments = [];
+        node.documentationAttachments = [];
+        node.deprecatedAttachments = [];
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createObject(json = {}) {
+        json.kind = 'Object';
+        let node = new ObjectNode();
+        node.functions = [];
         node.name = new IdentifierNode();
         node.fields = [];
         node.annotationAttachments = [];
@@ -415,7 +413,8 @@ class NodeFactory {
     createWorker(json = {}) {
         json.kind = 'Worker';
         let node = new WorkerNode();
-        node.returnParameters = [];
+        node.returnTypeNode = new TypeNode();
+        node.returnTypeAnnotationAttachments = [];
         node.body = new BlockNode();
         node.workers = [];
         node.endpointNodes = [];
@@ -426,16 +425,6 @@ class NodeFactory {
         node.annotationAttachments = [];
         node.documentationAttachments = [];
         node.deprecatedAttachments = [];
-        node = Object.assign(node, json);
-        // Set any aditional default properties below.
-        return node;
-    }
-
-    createXmlns(json = {}) {
-        json.kind = 'Xmlns';
-        let node = new XmlnsNode();
-        node.prefix = new IdentifierNode();
-        node.namespaceURI = new ExpressionNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -445,7 +434,8 @@ class NodeFactory {
         json.kind = 'Transformer';
         let node = new TransformerNode();
         node.source = new VariableNode();
-        node.returnParameters = [];
+        node.returnTypeNode = new TypeNode();
+        node.returnTypeAnnotationAttachments = [];
         node.body = new BlockNode();
         node.workers = [];
         node.endpointNodes = [];
@@ -456,20 +446,6 @@ class NodeFactory {
         node.annotationAttachments = [];
         node.documentationAttachments = [];
         node.deprecatedAttachments = [];
-        node = Object.assign(node, json);
-        // Set any aditional default properties below.
-        return node;
-    }
-
-    createStreamlet(json = {}) {
-        json.kind = 'Streamlet';
-        let node = new StreamletNode();
-        node.initFunction = new FunctionNode();
-        node.body = new BlockNode();
-        node.globalVariables = [];
-        node.name = new IdentifierNode();
-        node.parameters = [];
-        node.annotationAttachments = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -488,7 +464,7 @@ class NodeFactory {
         json.kind = 'AnnotationAttachmentAttribute';
         let node = new AnnotationAttachmentAttributeNode();
         node.name = new IdentifierNode();
-        node.value = this.createAnnotationAttachmentAttributeValue();
+        node.value = new AnnotationAttachmentAttributeValueNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -518,6 +494,15 @@ class NodeFactory {
         let node = new BinaryExprNode();
         node.leftExpression = new ExpressionNode();
         node.rightExpression = new ExpressionNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createBracedTupleExpr(json = {}) {
+        json.kind = 'BracedTupleExpr';
+        let node = new BracedTupleExprNode();
+        node.expressions = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -566,9 +551,9 @@ class NodeFactory {
     createInvocation(json = {}) {
         json.kind = 'Invocation';
         let node = new InvocationNode();
+        node.argumentExpressions = [];
         node.packageAlias = new IdentifierNode();
         node.expression = new VariableReferenceNode();
-        node.argumentExpressions = [];
         node.name = new IdentifierNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
@@ -592,25 +577,6 @@ class NodeFactory {
         return node;
     }
 
-    createRecordLiteralExpr(json = {}) {
-        json.kind = 'RecordLiteralExpr';
-        let node = new RecordLiteralExprNode();
-        node.keyValuePairs = [];
-        node = Object.assign(node, json);
-        // Set any aditional default properties below.
-        return node;
-    }
-
-    createSimpleVariableRef(json = {}) {
-        json.kind = 'SimpleVariableRef';
-        let node = new SimpleVariableRefNode();
-        node.packageAlias = new IdentifierNode();
-        node.variableName = new IdentifierNode();
-        node = Object.assign(node, json);
-        // Set any aditional default properties below.
-        return node;
-    }
-
     createStringTemplateLiteral(json = {}) {
         json.kind = 'StringTemplateLiteral';
         let node = new StringTemplateLiteralNode();
@@ -623,9 +589,18 @@ class NodeFactory {
     createTernaryExpr(json = {}) {
         json.kind = 'TernaryExpr';
         let node = new TernaryExprNode();
-        node.condition = new ExpressionNode();
         node.thenExpression = new ExpressionNode();
         node.elseExpression = new ExpressionNode();
+        node.condition = new ExpressionNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createAwaitExpr(json = {}) {
+        json.kind = 'AwaitExpr';
+        let node = new AwaitExprNode();
+        node.expression = new ExpressionNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -670,59 +645,49 @@ class NodeFactory {
         return node;
     }
 
-    createXmlQname(json = {}) {
-        json.kind = 'XmlQname';
-        let node = new XmlQnameNode();
-        node.prefix = new IdentifierNode();
-        node.localname = new IdentifierNode();
+    createRestArgsExpr(json = {}) {
+        json.kind = 'RestArgsExpr';
+        let node = new RestArgsExprNode();
+        node.expression = new ExpressionNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
     }
 
-    createXmlAttribute(json = {}) {
-        json.kind = 'XmlAttribute';
-        let node = new XmlAttributeNode();
-        node.name = new ExpressionNode();
-        node.value = new ExpressionNode();
+    createNamedArgsExpr(json = {}) {
+        json.kind = 'NamedArgsExpr';
+        let node = new NamedArgsExprNode();
+        node.expression = new ExpressionNode();
+        node.name = new BLangIdentifier();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
     }
 
-    createXmlAttributeAccessExpr(json = {}) {
-        json.kind = 'XmlAttributeAccessExpr';
-        let node = new XmlAttributeAccessExprNode();
-        node.index = new ExpressionNode();
-        node.expression = new VariableReferenceNode();
+    createStatementExpression(json = {}) {
+        json.kind = 'StatementExpression';
+        let node = new StatementExpressionNode();
+        node.statement = new StatementNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
     }
 
-    createXmlQuotedString(json = {}) {
-        json.kind = 'XmlQuotedString';
-        let node = new XmlQuotedStringNode();
-        node.textFragments = [];
+    createMatchExpression(json = {}) {
+        json.kind = 'MatchExpression';
+        let node = new MatchExpressionNode();
+        node.expression = new ExpressionNode();
+        node.patternClauses = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
     }
 
-    createXmlTextLiteral(json = {}) {
-        json.kind = 'XmlTextLiteral';
-        let node = new XmlTextLiteralNode();
-        node.textFragments = [];
-        node = Object.assign(node, json);
-        // Set any aditional default properties below.
-        return node;
-    }
-
-    createXmlPiLiteral(json = {}) {
-        json.kind = 'XmlPiLiteral';
-        let node = new XmlPiLiteralNode();
-        node.dataTextFragments = [];
-        node.target = new LiteralNode();
+    createMatchExpressionPatternClause(json = {}) {
+        json.kind = 'MatchExpressionPatternClause';
+        let node = new MatchExpressionPatternClauseNode();
+        node.variableNode = new VariableNode();
+        node.statement = new ExpressionNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -745,11 +710,19 @@ class NodeFactory {
         return node;
     }
 
+    createFail(json = {}) {
+        json.kind = 'Fail';
+        let node = new FailNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
     createAssignment(json = {}) {
         json.kind = 'Assignment';
         let node = new AssignmentNode();
         node.expression = new ExpressionNode();
-        node.variables = [];
+        node.variable = new ExpressionNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -887,7 +860,7 @@ class NodeFactory {
     createReturn(json = {}) {
         json.kind = 'Return';
         let node = new ReturnNode();
-        node.expressions = [];
+        node.expression = new ExpressionNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -905,9 +878,11 @@ class NodeFactory {
     createTransaction(json = {}) {
         json.kind = 'Transaction';
         let node = new TransactionNode();
-        node.condition = new ExpressionNode();
-        node.failedBody = new BlockNode();
         node.transactionBody = new BlockNode();
+        node.onRetryBody = new BlockNode();
+        node.retryCount = new ExpressionNode();
+        node.onCommitFunction = new ExpressionNode();
+        node.onAbortFunction = new ExpressionNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -919,6 +894,16 @@ class NodeFactory {
         node.body = new BlockNode();
         node.catchBlocks = [];
         node.finallyBody = new BlockNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createTupleDestructure(json = {}) {
+        json.kind = 'TupleDestructure';
+        let node = new TupleDestructureNode();
+        node.expression = new ExpressionNode();
+        node.variableRefs = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -990,9 +975,10 @@ class NodeFactory {
         return node;
     }
 
-    createBuiltInRefType(json = {}) {
-        json.kind = 'BuiltInRefType';
-        let node = new BuiltInRefTypeNode();
+    createTupleTypeNode(json = {}) {
+        json.kind = 'TupleTypeNode';
+        let node = new TupleTypeNodeNode();
+        node.memberTypeNodes = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -1011,8 +997,8 @@ class NodeFactory {
     createFunctionType(json = {}) {
         json.kind = 'FunctionType';
         let node = new FunctionTypeNode();
+        node.returnTypeNode = new TypeNode();
         node.paramTypeNode = [];
-        node.returnParamTypeNode = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -1114,8 +1100,7 @@ class NodeFactory {
     createStreamAction(json = {}) {
         json.kind = 'StreamAction';
         let node = new StreamActionNode();
-        node.expression = new ExpressionNode();
-        node.setClause = [];
+        node.invokableBody = new LambdaNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -1125,6 +1110,7 @@ class NodeFactory {
         json.kind = 'PatternStreamingEdgeInput';
         let node = new PatternStreamingEdgeInputNode();
         node.expression = new ExpressionNode();
+        node.streamReference = new ExpressionNode();
         node.whereClause = new WhereNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
@@ -1136,6 +1122,61 @@ class NodeFactory {
         let node = new PatternStreamingInputNode();
         node.patternStreamingInput = new PatternStreamingInputNode();
         node.patternStreamingEdgeInputs = [];
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createStreamingQuery(json = {}) {
+        json.kind = 'StreamingQuery';
+        let node = new StreamingQueryNode();
+        node.streamingInput = new StreamingInput();
+        node.joiningInput = new JoinStreamingInput();
+        node.patternClause = new PatternClauseNode();
+        node.selectClause = new SelectClauseNode();
+        node.orderbyClause = new OrderByNode();
+        node.streamingAction = new StreamActionNode();
+        node.outputRateLimitNode = new OutputRateLimitNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createWithin(json = {}) {
+        json.kind = 'Within';
+        let node = new WithinNode();
+        node.withinTimePeriod = new ExpressionNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createPatternClause(json = {}) {
+        json.kind = 'PatternClause';
+        let node = new PatternClauseNode();
+        node.patternStreamingNode = new PatternStreamingInputNode();
+        node.withinClause = new WithinNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createOutputRateLimit(json = {}) {
+        json.kind = 'OutputRateLimit';
+        let node = new OutputRateLimitNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createForever(json = {}) {
+        json.kind = 'Forever';
+        let node = new ForeverNode();
+        node.globalVariables = [];
+        node.treamingQueryStatements = [];
+        node.functionVariables = [];
+        node.parameters = [];
+        node.expression = new ExpressionNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;

@@ -17,19 +17,19 @@ public type person object {
     public function getSSN() returns (string);
 
     public function setSSN(string ssn);
-}
+};
 
 
 public function person::getName() returns (string) {
-    return name;
+    return self.name;
 }
 
 public function person::getAge() returns (int) {
-    return age;
+    return self.age;
 }
 
 public function person::getSSN() returns (string) {
-    return ssn;
+    return self.ssn;
 }
 
 public function person::setSSN(string ssn) {
@@ -58,18 +58,18 @@ public type employee object {
     public function setSSN(string ssn);
 
     public function getEmployeeId() returns (int);
-}
+};
 
 public function employee::getName() returns (string) {
-    return name;
+    return self.name;
 }
 
 public function employee::getAge() returns (int) {
-    return age;
+    return self.age;
 }
 
 public function employee::getSSN() returns (string) {
-    return ssn + ":employee";
+    return self.ssn + ":employee";
 }
 
 public function employee::setSSN(string ssn) {
@@ -77,5 +77,5 @@ public function employee::setSSN(string ssn) {
 }
 
 public function employee::getEmployeeId() returns (int) {
-    return employeeId;
+    return self.employeeId;
 }

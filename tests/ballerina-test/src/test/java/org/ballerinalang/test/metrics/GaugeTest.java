@@ -19,27 +19,24 @@
  */
 package org.ballerinalang.test.metrics;
 
-import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * Tests for Gauge metric.
  */
-public class GaugeTest {
+public class GaugeTest extends MetricTest {
     private CompileResult compileResult;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/metrics/gauge-test.bal");
-        Metrics.globalRegistry.add(new SimpleMeterRegistry());
     }
 
     @Test
@@ -64,5 +61,11 @@ public class GaugeTest {
     public void testDecrementGauge() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDecrementGauge");
         Assert.assertEquals(returns[0], new BFloat(8.0));
+    }
+
+    @Test
+    public void testGaugeWithoutTags() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGaugeWithoutTags");
+        Assert.assertEquals(returns[0], new BFloat(6));
     }
 }

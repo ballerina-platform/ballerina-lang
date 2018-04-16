@@ -16,12 +16,15 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.LSParserUtils;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
@@ -37,9 +40,6 @@ import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
-import org.ballerinalang.repository.PackageRepository;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CodeLensParams;
@@ -72,7 +72,6 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
-import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -95,18 +94,17 @@ import java.util.concurrent.CompletableFuture;
 class BallerinaTextDocumentService implements TextDocumentService {
     // indicates the frequency to send diagnostics to server upon document did change
     private static final int DIAG_PUSH_DEBOUNCE_DELAY = 500;
-
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
-    private LSPackageCache lSPackageCache;
+    private LSGlobalContext lsGlobalContext;
 
     private final Debouncer diagPushDebouncer;
 
-    BallerinaTextDocumentService(LSGlobalContext lsGlobalContext) {
-        this.ballerinaLanguageServer = lsGlobalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
-        this.documentManager = lsGlobalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
-        this.lSPackageCache = lsGlobalContext.get(LSGlobalContextKeys.PKG_CACHE_KEY);
+    BallerinaTextDocumentService(LSGlobalContext globalContext) {
+        this.lsGlobalContext = globalContext;
+        this.ballerinaLanguageServer = this.lsGlobalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
+        this.documentManager = this.lsGlobalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
         this.lastDiagnosticMap = new HashMap<>();
         this.diagPushDebouncer = new Debouncer(DIAG_PUSH_DEBOUNCE_DELAY);
     }
@@ -119,10 +117,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
             LSServiceOperationContext completionContext = new LSServiceOperationContext();
             completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
             completionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
-            completionContext.put(DocumentServiceKeys.LS_PACKAGE_CACHE_KEY, lSPackageCache);
             try {
                 BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext,
-                        documentManager, false, CompletionCustomErrorStrategy.class, false).get(0);
+                        documentManager, false, CompletionCustomErrorStrategy.class, false)
+                        .get(0);
                 completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                         bLangPackage.symbol.getName().getValue());
                 completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
@@ -162,8 +160,15 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                 LSCustomErrorStrategy.class, false).get(0);
                 hoverContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                         currentBLangPackage.symbol.getName().getValue());
-                lSPackageCache.addPackage(currentBLangPackage);
-                hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage, lSPackageCache);
+
+                LSContextManager lsContextManager = LSContextManager.getInstance();
+                Path path = Paths.get(position.getTextDocument().getUri());
+                String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path);
+                CompilerContext compilerContext = lsContextManager.getCompilerContext(currentBLangPackage.packageID,
+                                                                                      sourceRoot);
+                //LSPackageCache.getInstance().addPackage(currentBLangPackage.packageID,currentBLangPackage);
+                LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
+                hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage, lsPackageCache);
             } catch (Exception | AssertionError e) {
                 hover = new Hover();
                 List<Either<String, MarkedString>> contents = new ArrayList<>();
@@ -184,18 +189,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
             signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
             signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
             SignatureHelp signatureHelp;
-            try {
-                BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager,
-                        false, LSCustomErrorStrategy.class, false).get(0);
-                signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                        bLangPackage.symbol.getName().getValue());
-                SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
-                bLangPackage.accept(signatureTreeVisitor);
-                signatureContext.put(DocumentServiceKeys.LS_PACKAGE_CACHE_KEY, lSPackageCache);
-                signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
-            } catch (Exception e) {
-                signatureHelp = new SignatureHelp();
-            }
+            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager,
+                    false, LSCustomErrorStrategy.class, false).get(0);
+            signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
+                    bLangPackage.symbol.getName().getValue());
+            SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
+            bLangPackage.accept(signatureTreeVisitor);
+            signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
             return signatureHelp;
         });
     }
@@ -212,14 +212,19 @@ class BallerinaTextDocumentService implements TextDocumentService {
                             LSCustomErrorStrategy.class, false).get(0);
             definitionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                     currentBLangPackage.symbol.getName().getValue());
-            lSPackageCache.addPackage(currentBLangPackage);
+//            LSPackageCache.getInstance().addPackage(currentBLangPackage.packageID, currentBLangPackage);
             List<Location> contents;
             try {
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(definitionContext);
                 currentBLangPackage.accept(positionTreeVisitor);
-
-                contents = DefinitionUtil.getDefinitionPosition(definitionContext, lSPackageCache);
-            } catch (Exception e) {
+                LSContextManager lsContextManager = LSContextManager.getInstance();
+                Path path = Paths.get(position.getTextDocument().getUri());
+                String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path);
+                CompilerContext compilerContext = lsContextManager.getCompilerContext(currentBLangPackage.packageID,
+                                                                                      sourceRoot);
+                LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
+                contents = DefinitionUtil.getDefinitionPosition(definitionContext, lsPackageCache);
+            } catch (Throwable e) {
                 contents = new ArrayList<>();
             }
             return contents;
@@ -234,31 +239,27 @@ class BallerinaTextDocumentService implements TextDocumentService {
             referenceContext.put(DocumentServiceKeys.POSITION_KEY, params);
             List<Location> contents = new ArrayList<>();
 
-            try {
-                List<BLangPackage> bLangPackages = TextDocumentServiceUtil
-                        .getBLangPackage(referenceContext, documentManager, false,
-                                LSCustomErrorStrategy.class, true);
-                // Get the current package.
-                BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages,
-                        params.getTextDocument().getUri());
+            List<BLangPackage> bLangPackages = TextDocumentServiceUtil
+                    .getBLangPackage(referenceContext, documentManager, false,
+                            LSCustomErrorStrategy.class, true);
+            // Get the current package.
+            BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages,
+                    params.getTextDocument().getUri());
 
+            referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
+                    currentBLangPackage.symbol.getName().getValue());
+
+            // Calculate position for the current package.
+            PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(referenceContext);
+            currentBLangPackage.accept(positionTreeVisitor);
+
+            // Run reference visitor for all the packages in project folder.
+            for (BLangPackage bLangPackage : bLangPackages) {
                 referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                        currentBLangPackage.symbol.getName().getValue());
-
-                // Calculate position for the current package.
-                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(referenceContext);
-                currentBLangPackage.accept(positionTreeVisitor);
-
-                // Run reference visitor for all the packages in project folder.
-                for (BLangPackage bLangPackage : bLangPackages) {
-                    referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                            bLangPackage.symbol.getName().getValue());
-                    lSPackageCache.addPackage(bLangPackage);
-                    referenceContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
-                    contents = ReferenceUtil.getReferences(referenceContext, bLangPackage);
-                }
-            } catch (Exception e) {
-                // Ignore
+                        bLangPackage.symbol.getName().getValue());
+//                LSPackageCache.getInstance().addPackage(bLangPackage.packageID, bLangPackage);
+                referenceContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
+                contents = ReferenceUtil.getReferences(referenceContext, bLangPackage);
             }
 
             return contents;
@@ -307,9 +308,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         params.getTextDocument().getUri(), params.getRange().getStart().getLine()));
                 commands.add(CommandUtil.getAllDocGenerationCommand(params.getTextDocument().getUri()));
             } else if (!params.getContext().getDiagnostics().isEmpty()) {
+                LSContextManager lsContextManager = LSContextManager.getInstance();
+                String sourceRoot = TextDocumentServiceUtil.getSourceRoot(Paths.get(params.getTextDocument().getUri()));
+                CompilerContext compilerContext = lsContextManager.getCompilerContext(sourceRoot);
+                LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
                 params.getContext().getDiagnostics().forEach(diagnostic -> {
                     commands.addAll(CommandUtil
-                            .getCommandsByDiagnostic(diagnostic, params, lSPackageCache));
+                            .getCommandsByDiagnostic(diagnostic, params, lsPackageCache));
                 });
             }
             return commands;
@@ -342,16 +347,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
             int totalLines = contentComponents.length;
 
             Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
-            try {
-                // Source generation for given ast.
-                JsonObject ast = TextDocumentFormatUtil.getAST(params, documentManager, formatContext);
-                SourceGen sourceGen = new SourceGen(0);
-                sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
-                textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"), true, false);
-            } catch (Exception e) {
-                // Ignore
-            }
-            TextEdit textEdit = textEditContent != null ? new TextEdit(range, textEditContent) : null;
+            // Source generation for given ast.
+            JsonObject ast = TextDocumentFormatUtil.getAST(params, documentManager, formatContext);
+            SourceGen sourceGen = new SourceGen(0);
+            sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
+            textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"), true, false);
+            TextEdit textEdit = new TextEdit(range, textEditContent);
             return Collections.singletonList(textEdit);
         });
     }
@@ -376,37 +377,37 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     new TextDocumentPositionParams(params.getTextDocument(), params.getPosition()));
             List<Location> contents = new ArrayList<>();
 
-            try {
-                List<BLangPackage> bLangPackages =
-                        TextDocumentServiceUtil.getBLangPackage(renameContext, documentManager, false,
-                                LSCustomErrorStrategy.class, true);
-                // Get the current package.
-                BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages,
-                        params.getTextDocument().getUri());
+            List<BLangPackage> bLangPackages =
+                    TextDocumentServiceUtil.getBLangPackage(renameContext, documentManager, false,
+                            LSCustomErrorStrategy.class, true);
+            // Get the current package.
+            BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages,
+                    params.getTextDocument().getUri());
 
+            renameContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
+                    currentBLangPackage.symbol.getName().getValue());
+            renameContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
+
+            // Run the position calculator for the current package.
+            PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(renameContext);
+            currentBLangPackage.accept(positionTreeVisitor);
+            String replaceableSymbolName = renameContext.get(NodeContextKeys.NAME_OF_NODE_KEY);
+
+            // Run reference visitor and rename util for project folder.
+            for (BLangPackage bLangPackage : bLangPackages) {
                 renameContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                        currentBLangPackage.symbol.getName().getValue());
-                renameContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
+                        bLangPackage.symbol.getName().getValue());
 
-                // Run the position calculator for the current package.
-                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(renameContext);
-                currentBLangPackage.accept(positionTreeVisitor);
-                String replaceableSymbolName = renameContext.get(NodeContextKeys.NAME_OF_NODE_KEY);
+                LSContextManager lsContextManager = LSContextManager.getInstance();
+                String sourceRoot = TextDocumentServiceUtil.getSourceRoot(Paths.get(params.getTextDocument().getUri()));
+                CompilerContext context = lsContextManager.getCompilerContext(bLangPackage.packageID, sourceRoot);
+                LSPackageCache.getInstance(context).addPackage(bLangPackage.packageID, bLangPackage);
 
-                // Run reference visitor and rename util for project folder.
-                for (BLangPackage bLangPackage : bLangPackages) {
-                    renameContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                            bLangPackage.symbol.getName().getValue());
-                    lSPackageCache.addPackage(bLangPackage);
-
-                    contents = ReferenceUtil.getReferences(renameContext, bLangPackage);
-                }
-
-                workspaceEdit.setDocumentChanges(RenameUtil
-                        .getRenameTextEdits(contents, documentManager, params.getNewName(), replaceableSymbolName));
-            } catch (Exception e) {
-                // Ignore exception and will return the empty workspace edits list
+                contents = ReferenceUtil.getReferences(renameContext, bLangPackage);
             }
+
+            workspaceEdit.setDocumentChanges(RenameUtil
+                    .getRenameTextEdits(contents, documentManager, params.getNewName(), replaceableSymbolName));
             return workspaceEdit;
         });
     }
@@ -445,30 +446,17 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     private void compileAndSendDiagnostics(String content, LSDocument document, Path path) {
-        String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path);
-        String pkgName = TextDocumentServiceUtil.getPackageNameForGivenFile(sourceRoot, path.toString());
-        LSDocument sourceDocument = new LSDocument();
-        sourceDocument.setUri(document.getURIString());
-        sourceDocument.setSourceRoot(sourceRoot);
-
-        PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceDocument,
-                false, documentManager);
-
+        BallerinaFile balFile;
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
-        CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
-        context.put(DiagnosticListener.class, diagnosticListener);
-
-        Compiler compiler = Compiler.getInstance(context);
-        if ("".equals(pkgName)) {
-            Path filePath = path.getFileName();
-            if (filePath != null) {
-                compiler.compile(filePath.toString());
-            }
+        String tempFileId = LSParserUtils.getUnsavedFileIdOrNull(path.toString());
+        if (tempFileId == null) {
+            balFile = LSParserUtils.compile(content, path, CompilerPhase.TAINT_ANALYZE, false);
         } else {
-            compiler.compile(pkgName);
+            balFile = LSParserUtils.compile(content, tempFileId, CompilerPhase.TAINT_ANALYZE, false);
         }
-
+        if (balFile.getDiagnostics() != null) {
+            balDiagnostics = balFile.getDiagnostics();
+        }
         publishDiagnostics(balDiagnostics, path);
     }
 
@@ -499,8 +487,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
 
             String fileName = diagnostic.getPosition().getSource().getCompilationUnitName();
-            Path filePath = Paths.get(path.getParent().toString(), fileName);
-            String fileURI = filePath.toUri().toString();
+            Path filePath = Paths.get(path.getParent() + "", fileName);
+            String fileURI = filePath.toUri().toString() + "";
 
             if (!diagnosticsMap.containsKey(fileURI)) {
                 diagnosticsMap.put(fileURI, new ArrayList<Diagnostic>());
