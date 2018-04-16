@@ -214,6 +214,6 @@ public type SQLClient object {
     @Param {value:"tableName: The name of the table to be mirrored"}
     @Param {value:"recordType: The type which a record of the table maps with"}
     public native function mirror(@sensitive string tableName, typedesc recordType) returns
-                                                                                        @tainted (table|error);
+        @tainted (table|error);
 
 };
