@@ -393,8 +393,6 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
         serviceNode.resources = rewrite(serviceNode.resources, serviceEnv);
-        serviceNode.vars = rewrite(serviceNode.vars, serviceEnv);
-        serviceNode.endpoints = rewrite(serviceNode.endpoints, serviceEnv);
         serviceNode.vars.forEach(v -> {
             BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v.var);
             if (assignment.expr == null) {
@@ -404,6 +402,8 @@ public class Desugar extends BLangNodeVisitor {
                 serviceNode.initFunction.body.stmts.add(assignment);
             }
         });
+        serviceNode.vars = rewrite(serviceNode.vars, serviceEnv);
+        serviceNode.endpoints = rewrite(serviceNode.endpoints, serviceEnv);
         BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(serviceNode.pos, symTable.nilType);
         serviceNode.initFunction.body.stmts.add(returnStmt);
         serviceNode.initFunction = rewrite(serviceNode.initFunction, serviceEnv);

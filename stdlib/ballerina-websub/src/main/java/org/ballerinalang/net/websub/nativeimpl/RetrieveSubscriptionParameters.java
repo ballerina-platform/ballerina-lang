@@ -85,7 +85,7 @@ public class RetrieveSubscriptionParameters extends AbstractHttpNativeFunction {
 
         if (callback.isEmpty()) {
             //TODO: intro methods to return host+port and change instead of using connector ID, and fix http:// hack
-            callback = httpService.getBasePath() + httpService.getResources().get(0).getPath();
+            callback = httpService.getBasePath();
             BStruct serviceEndpointConfig = ((BStruct) ((BStruct) serviceEndpoint.getVMValue()).getRefField(3));
             if (!serviceEndpointConfig.getStringField(0).equals("") &&
                     serviceEndpointConfig.getIntField(0) != 0) {
@@ -95,7 +95,7 @@ public class RetrieveSubscriptionParameters extends AbstractHttpNativeFunction {
                 callback = getServerConnector(serviceEndpoint).getConnectorID() + callback;
             }
             if (!callback.contains("://")) {
-                if (serviceEndpointConfig.getRefField(3) != null) { //if secure socket is specified
+                if (serviceEndpointConfig.getRefField(2) != null) { //if secure socket is specified
                     callback = ("https://").concat(callback);
                 } else {
                     callback = ("http://").concat(callback);

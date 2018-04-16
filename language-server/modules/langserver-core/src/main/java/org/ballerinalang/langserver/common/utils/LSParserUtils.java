@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.workspace.repository.LangServerFSProjectDirectory;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
@@ -32,6 +33,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -47,6 +49,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.ballerinalang.langserver.LSContextManager.COMPILER_LOCK;
 
 /**
  * Parser Utils.
@@ -168,7 +172,7 @@ public class LSParserUtils {
 
     /**
      * Compile a Ballerina file.
-     * <p>
+     *
      * Note: THis is used by the ballerina Composer
      *
      * @param content file content
@@ -210,7 +214,6 @@ public class LSParserUtils {
 
         // In order to capture the syntactic errors, need to go through the default error strategy
         context.put(DefaultErrorStrategy.class, null);
-
         return compile(content, path, phase, context);
     }
 
@@ -235,26 +238,29 @@ public class LSParserUtils {
         sourceDocument.setUri(path.toUri().toString());
         sourceDocument.setSourceRoot(sourceRoot);
 
-        PackageID packageID = new PackageID(Names.ANON_ORG, new Name(pkgName), Names.DEFAULT_VERSION);
         if ("".equals(pkgName)) {
             Path filePath = path.getFileName();
             if (filePath != null) {
                 pkgName = filePath.toString();
-                packageID = new PackageID(pkgName);
             }
         }
         BLangPackage bLangPackage = null;
         if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             ((CollectDiagnosticListener) context.get(DiagnosticListener.class)).getDiagnostics().clear();
         }
+        SourceDirectory sourceDirectory = context.get(SourceDirectory.class);
+        boolean isProjectDir = (sourceDirectory instanceof LangServerFSProjectDirectory);
         try {
             BLangDiagnosticLog.getInstance(context).errorCount = 0;
             Compiler compiler = Compiler.getInstance(context);
-            bLangPackage = compiler.compile(pkgName);
+            synchronized (COMPILER_LOCK) {
+                bLangPackage = compiler.compile(pkgName);
+            }
         } catch (Exception e) {
             // Ignore.
         }
         BallerinaFile bfile = new BallerinaFile();
+        bfile.setBallerinaProject(isProjectDir);
         bfile.setBLangPackage(bLangPackage);
         if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))

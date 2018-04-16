@@ -32,9 +32,6 @@ public class WebSubSubscriberConstants {
     public static final String ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
     public static final String WEBSUB_PACKAGE_PATH = "ballerina.websub";
 
-    static final String RESOURCE_NAME_ON_INTENT_VERIFICATION = "onIntentVerification";
-    static final String RESOURCE_NAME_ON_NOTIFICATION = "onNotification";
-
     public static final String ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP = "subscribeOnStartUp";
     public static final String ANN_WEBSUB_ATTR_RESOURCE_URL = "resourceUrl";
     public static final String ANN_WEBSUB_ATTR_HUB = "hub";
@@ -55,5 +52,10 @@ public class WebSubSubscriberConstants {
 
     static final String STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST = "IntentVerificationRequest";
     static final String STRUCT_WEBSUB_NOTIFICATION_REQUEST = "NotificationRequest";
+
+    static final String RESOURCE_NAME_ON_INTENT_VERIFICATION = "onIntentVerification";
+    static final String RESOURCE_NAME_ON_NOTIFICATION = "onNotification";
+
+    static final String PATH_FIELD = "path";
 
 }

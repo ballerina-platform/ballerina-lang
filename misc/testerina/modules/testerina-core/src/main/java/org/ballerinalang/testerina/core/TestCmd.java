@@ -109,13 +109,13 @@ public class TestCmd implements BLauncherCmd {
 
         BTestRunner testRunner = new BTestRunner();
         if (listGroups) {
-            testRunner.listGroups(sourceRoot, paths);
+            testRunner.listGroups(sourceRootPath.toString(), paths);
             Runtime.getRuntime().exit(0);
         }
         if (disableGroupList != null) {
-            testRunner.runTest(sourceRoot, paths, disableGroupList, false);
+            testRunner.runTest(sourceRootPath.toString(), paths, disableGroupList, false);
         } else {
-            testRunner.runTest(sourceRoot, paths, groupList, true);
+            testRunner.runTest(sourceRootPath.toString(), paths, groupList, true);
         }
         if (testRunner.getTesterinaReport().isFailure()) {
             Runtime.getRuntime().exit(1);

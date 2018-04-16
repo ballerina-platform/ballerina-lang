@@ -46,7 +46,8 @@ class Header extends React.Component {
             <header className='header header-default'>
                 <div id='header-container'>
                     <div className='pull-left brand'>
-                        <i className='fw fw-composer composer-logo'/>
+                        <i className='fw fw-ballerina-logo composer-logo '/>
+                        <i className='fw fw-composer composer-logo brand-color'/>
                     </div>
                     <div className='pull-left'>
                         {this.props.views.map((viewDef) => {

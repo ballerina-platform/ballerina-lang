@@ -30,6 +30,9 @@ public type Timer object {
         int interval;
         // Unique task ID which will be used when this timer is stopped
         string taskId;
+        // Keeps track whether the task is started to ensure that a started task cannot be started again
+        // unless it is stopped
+        boolean isRunning;
     }
 
     // defaultable delay is -1, which means the delay will be the same as the interval
@@ -52,6 +55,9 @@ public type Appointment object {
         string scheduleCronExpression;
         // Unique task ID which will be used when this appointment is cancelled
         string taskId;
+        // Keeps track whether the appointment is scheduled to ensure that a scheduled appointment cannot be
+        // appointment again unless it is cancelled
+        boolean isRunning;
     }
 
     new(onTrigger, onError, scheduleCronExpression) {}
