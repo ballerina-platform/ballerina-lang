@@ -175,7 +175,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = "ConnectorTest", enabled = false)
     public void testInsertTableDataWithParameters2() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters2");
         BInteger retValue = (BInteger) returns[0];
