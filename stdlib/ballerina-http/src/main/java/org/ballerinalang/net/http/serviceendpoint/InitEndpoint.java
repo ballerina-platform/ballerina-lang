@@ -143,7 +143,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
 
-        if (host == null || host.isEmpty()) {
+        if (host == null || host.trim().isEmpty()) {
             listenerConfiguration.setHost(
                     configRegistry.getConfigOrDefault("b7a.http.host", HttpConstants.HTTP_DEFAULT_HOST));
         } else {
