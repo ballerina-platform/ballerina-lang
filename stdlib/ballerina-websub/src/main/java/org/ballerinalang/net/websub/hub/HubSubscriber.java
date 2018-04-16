@@ -20,8 +20,8 @@ package org.ballerinalang.net.websub.hub;
 
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
-import io.ballerina.messaging.broker.core.ContentChunk;
 import io.ballerina.messaging.broker.core.Message;
+import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -54,11 +54,7 @@ class HubSubscriber extends Consumer {
     @Override
     protected void send(Message message) throws BrokerException {
         ProgramFile programFile = Hub.getInstance().getHubProgramFile();
-        byte[] bytes = new byte[0];
-        for (ContentChunk chunk:message.getContentChunks()) {
-            bytes = new byte[chunk.getBytes().readableBytes()];
-            chunk.getBytes().getBytes(0, bytes);
-        }
+        byte[] bytes = BrokerUtils.retrieveBytes(message);
         BValue[] args = {new BString(callback),
                 subscriptionDetails,
                 new BJSON(new String(bytes, StandardCharsets.UTF_8))};

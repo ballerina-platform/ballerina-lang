@@ -28,8 +28,8 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
     endpoint http:Client backendClientEP {
         circuitBreaker: {
             rollingWindow: {
-                timeWindow:10000,
-                bucketSize:2000
+                timeWindowMillies:10000,
+                bucketSizeMillies:2000
             },
             failureThreshold:0.3,
             resetTimeMillies:1000,
@@ -76,8 +76,8 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
     endpoint http:Client backendClientEP {
         circuitBreaker: {
             rollingWindow: {
-                timeWindow:10000,
-                bucketSize:2000
+                timeWindowMillies:10000,
+                bucketSizeMillies:2000
             },
             failureThreshold:0.3,
             resetTimeMillies:1000,
@@ -124,8 +124,8 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
     endpoint http:Client backendClientEP {
         circuitBreaker: {
             rollingWindow: {
-                timeWindow:10000,
-                bucketSize:2000
+                timeWindowMillies:10000,
+                bucketSizeMillies:2000
             },
             failureThreshold:0.3,
             resetTimeMillies:1000,

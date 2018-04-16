@@ -161,8 +161,23 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
+    public void testQueryParameters2() {
+        BValue[] returns = BRunUtil.invoke(result, "testQueryParameters2");
+        BString retValue = (BString) returns[0];
+        final String expected = "Peter";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test(groups = "ConnectorTest")
     public void testInsertTableDataWithParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testInsertTableDataWithParameters2() {
+        BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters2");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
@@ -440,7 +455,7 @@ public class SQLActionsTest {
     }
 
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = "ConnectorTest", enabled = false)
     public void testStructOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testStructOutParameters");
         BString retValue = (BString) returns[0];

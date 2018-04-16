@@ -188,28 +188,38 @@ public type HttpSecureClient object {
     @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"The HTTP response message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function getResponse (HttpFuture httpFuture) returns (Response|HttpConnectorError);
+    public function getResponse (HttpFuture httpFuture) returns (Response|HttpConnectorError) {
+        return httpClient.getResponse(httpFuture);
+    }
 
     @Description {value:"Checks whether server push exists for a previously submitted request."}
     @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"Whether push promise exists"}
-    public function hasPromise (HttpFuture httpFuture) returns boolean;
+    public function hasPromise (HttpFuture httpFuture) returns boolean {
+        return httpClient.hasPromise(httpFuture);
+    }
 
     @Description {value:"Retrieves the next available push promise for a previously submitted request."}
     @Param {value:"httpFuture: The Future which relates to previous async invocation"}
     @Return {value:"The HTTP Push Promise message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function getNextPromise (HttpFuture httpFuture) returns (PushPromise|HttpConnectorError);
+    public function getNextPromise (HttpFuture httpFuture) returns (PushPromise|HttpConnectorError) {
+        return httpClient.getNextPromise(httpFuture);
+    }
 
     @Description {value:"Retrieves the promised server push response."}
     @Param {value:"promise: The related Push Promise message"}
     @Return {value:"HTTP The Push Response message"}
     @Return {value:"The Error occured during HTTP client invocation"}
-    public function getPromisedResponse (PushPromise promise) returns (Response|HttpConnectorError);
+    public function getPromisedResponse (PushPromise promise) returns (Response|HttpConnectorError) {
+        return httpClient.getPromisedResponse(promise);
+    }
 
     @Description {value:"Rejects a push promise."}
     @Param {value:"promise: The Push Promise need to be rejected"}
-    public function rejectPromise (PushPromise promise);
+    public function rejectPromise (PushPromise promise) {
+        return httpClient.rejectPromise(promise);
+    }
 };
 
 @Description {value:"Creates an HTTP client capable of securing HTTP requests with authentication."}
@@ -229,7 +239,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 @Description {value:"Prepare HTTP request with the required headers for authentication."}
 @Param {value:"req: An HTTP outbound request message"}
 @Param {value:"request:Client endpoint configurations"}
-public function prepareRequest(Request req, ClientEndpointConfig config) returns (()|HttpConnectorError) {
+function prepareRequest(Request req, ClientEndpointConfig config) returns (()|HttpConnectorError) {
     string scheme = config.auth.scheme but { () => EMPTY_STRING };
     if (scheme == BASIC_SCHEME){
         string username = config.auth.username but { () => EMPTY_STRING };
@@ -251,12 +261,12 @@ public function prepareRequest(Request req, ClientEndpointConfig config) returns
             string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
             string clientId = config.auth.clientId but { () => EMPTY_STRING };
             string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
-            string refreshTokenUrl = config.auth.refreshTokenUrl but { () => EMPTY_STRING };
+            string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
 
             if (refreshToken != EMPTY_STRING && clientId != EMPTY_STRING && clientSecret != EMPTY_STRING) {
                 var accessTokenValueResponse = getAccessTokenFromRefreshToken(config);
                 match accessTokenValueResponse {
-                    string accessTokenString => req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + accessTokenString);
+                    string accessTokenString => req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessTokenString);
                     HttpConnectorError err => return err;
                 }
             } else {
@@ -265,11 +275,11 @@ public function prepareRequest(Request req, ClientEndpointConfig config) returns
                 return httpConnectorError;
             }
         } else {
-            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + accessToken);
+            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
         }
     } else if (scheme == JWT_SCHEME){
         string authToken = runtime:getInvocationContext().authenticationContext.authToken;
-        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + authToken);
+        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
     }
     return ();
 }
@@ -282,8 +292,8 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     string refreshToken = config.auth.refreshToken but { () => EMPTY_STRING };
     string clientId = config.auth.clientId but { () => EMPTY_STRING };
     string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
-    string refreshTokenUrl = config.auth.refreshTokenUrl but { () => EMPTY_STRING };
-    HttpClient refreshTokenClient = createHttpSecureClient(refreshTokenUrl, {});
+    string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
+    HttpClient refreshTokenClient = createHttpSecureClient(refreshUrl, {});
     string refreshTokenRequestPath = "/oauth2/v3/token";
     string requestParams = "refresh_token=" + refreshToken + "&grant_type=refresh_token&client_secret=" + clientSecret + "&client_id=" + clientId;
     string base64ClientIdSecret;

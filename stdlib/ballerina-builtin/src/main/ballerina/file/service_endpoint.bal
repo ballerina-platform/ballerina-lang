@@ -30,7 +30,7 @@ public type Listener object {
     @Return {value:"Error occured during initialization"}
     public function init(ListenerEndpointConfiguration config);
 
-    @Description {value:"Gets called when the endpoint is being initialize during package init time"}
+    @Description {value:"Gets called when the endpoint is being initialized during the package initialization time"}
     @Return {value:"Error occured during initialization"}
     public native function initEndpoint () returns (error);
 

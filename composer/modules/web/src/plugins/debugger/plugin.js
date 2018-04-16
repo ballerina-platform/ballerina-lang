@@ -30,7 +30,7 @@ import DebuggerPanel from './views/DebuggerPanel';
 import DebuggerConsole from './views/DebugConsole';
 import LauncherConfigDialog from './views/LauncherConfigDialog';
 import RemoteDebugDialog from './views/RemoteDebugDialog';
-import TraceLog from './views/TraceLog/index';
+import TraceLog from './views/TraceLog/TraceLog';
 
 import LaunchManager from './LaunchManager';
 import DebugManager from './DebugManager';

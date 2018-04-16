@@ -28,4 +28,10 @@
             <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
         </OR>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.LSContextManager" />
+        <OR>
+            <Bug pattern="NP_NULL_PARAM_DEREF" />
+        </OR>
+    </Match>
 </FindBugsFilter>

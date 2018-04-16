@@ -83,7 +83,7 @@ public type PoolOptions {
 @Field {value:"password: Password for the database connection"}
 @Field {value:"poolOptions: Properties for the connection pool configuration"}
 public type ClientEndpointConfiguration {
-    string url= "",
+    string url = "",
     string username = "",
     string password = "",
     PoolOptions poolOptions,

@@ -25,8 +25,8 @@ import ballerina/config;
 @final string registrationPath = "/register";
 @final string registrationPathPattern = "/{transactionBlockId}" + registrationPath;
 
-@final string coordinatorHost = config:getAsString("http.coordinator.host", default = getHostAddress());
-@final int coordinatorPort = config:getAsInt("http.coordinator.port", default = getAvailablePort());
+@final string coordinatorHost = config:getAsString("b7a.transactions.coordinator.host", default = getHostAddress());
+@final int coordinatorPort = config:getAsInt("b7a.transactions.coordinator.port", default = getAvailablePort());
 
 endpoint http:Listener coordinatorListener {
     host:coordinatorHost,

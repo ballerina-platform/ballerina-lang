@@ -37,7 +37,11 @@ function testDeleteWhileIteration () returns (string) | error {
             _ = m.remove("c");
         }
         stringConcat(k, val);
-        mval = <string> m[k];
+        if (m.hasKey(k)){
+            mval = <string>m[k];
+        } else {
+            mval = "null";
+        }
         stringConcat(k, mval);
     }
     return output;
