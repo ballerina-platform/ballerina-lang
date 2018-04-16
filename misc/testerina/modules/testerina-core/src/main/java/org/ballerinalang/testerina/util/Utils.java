@@ -25,6 +25,7 @@ import org.ballerinalang.util.program.BLangFunctions;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
@@ -33,6 +34,9 @@ import java.util.Comparator;
  * Utility methods.
  */
 public class Utils {
+
+    private static PrintStream errStream = System.err;
+
 
     public static void startService(ProgramFile programFile) {
         if (!programFile.isServiceEPAvailable()) {
@@ -59,6 +63,8 @@ public class Utils {
             Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
         } catch (IOException e) {
             // Do nothing
+            errStream.println("Error occurred while deleting the dir : " + path.toString() + " with error : "
+                              + e.getMessage());
         }
     }
 
