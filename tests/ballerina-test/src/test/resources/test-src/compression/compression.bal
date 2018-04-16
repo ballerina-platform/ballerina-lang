@@ -1,7 +1,7 @@
 import ballerina/compression;
 import ballerina/file;
 
-function decompressFile(string src, string destDir) returns error|() {
+function decompressFile(string src, string destDir) returns error? {
     file:Path srcPath = new(src);
     file:Path dstPath = new(destDir);
     var result = compression:decompress(srcPath, dstPath);
@@ -11,7 +11,7 @@ function decompressFile(string src, string destDir) returns error|() {
     }
 }
 
-function compressFile(string src, string destDir) returns error|() {
+function compressFile(string src, string destDir) returns error? {
     file:Path srcPath = new(src);
     file:Path dstPath = new(destDir);
     var result =compression:compress(srcPath, dstPath);
@@ -21,7 +21,7 @@ function compressFile(string src, string destDir) returns error|() {
     }
 }
 
-function decompressBlob(blob content, string destDir) returns error|() {
+function decompressBlob(blob content, string destDir) returns error? {
     file:Path dstPath = new(destDir);
     var result = compression:decompressFromBlob(content, dstPath);
     match result {
