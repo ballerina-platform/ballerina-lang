@@ -1,15 +1,15 @@
-//The Main program bringing up a Ballerina WebSub Hub
+//The Main program that bringing up a Ballerina WebSub Hub.
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/websub;
 
 function main (string [] args) {
 
-    //Start up the internal Ballerina Hub
+    //Start up the internal Ballerina Hub.
     log:printInfo("Starting up the Ballerina Hub Service");
     websub:WebSubHub webSubHub = websub:startUpBallerinaHub();
 
-    //Allow for subscription and notification
+    //Wait for the subscriber to subscribe at this hub and for the publisher to publish the notifications.
     runtime:sleepCurrentWorker(60000);
 
 }
