@@ -281,6 +281,37 @@ public class ConfigTest {
         Assert.assertTrue(((BBoolean) returnVals[0]).booleanValue());
     }
 
+    @Test(description = "Test for non-string types as CLI params")
+    public void testNonStringCLIParams() throws IOException {
+        Map<String, String> runtimeParams = new HashMap<>();
+        runtimeParams.put("host", "localhost");
+        runtimeParams.put("port", "7777");
+        runtimeParams.put("trace.enabled", "true");
+        runtimeParams.put("evic.factor", "0.23333");
+
+        registry.initRegistry(runtimeParams, null, null);
+
+        BValue[] inputArg = {new BString("host")};
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
+        Assert.assertTrue(returnVals[0] instanceof BString);
+        Assert.assertEquals(returnVals[0].stringValue(), "localhost");
+
+        inputArg = new BValue[]{new BString("port")};
+        returnVals = BRunUtil.invoke(compileResult, "testGetAsInt", inputArg);
+        Assert.assertTrue(returnVals[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 7777);
+
+        inputArg = new BValue[]{new BString("trace.enabled")};
+        returnVals = BRunUtil.invoke(compileResult, "testGetAsBoolean", inputArg);
+        Assert.assertTrue(returnVals[0] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returnVals[0]).booleanValue(), true);
+
+        inputArg = new BValue[]{new BString("evic.factor")};
+        returnVals = BRunUtil.invoke(compileResult, "testGetAsFloat", inputArg);
+        Assert.assertTrue(returnVals[0] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returnVals[0]).floatValue(), 0.23333);
+    }
+
     private Map<String, String> getRuntimeProperties() {
         Map<String, String> runtimeConfigs = new HashMap<>();
         runtimeConfigs.put("ballerina.http.host", "10.100.1.201");

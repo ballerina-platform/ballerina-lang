@@ -197,9 +197,14 @@ public class ConfigRegistry {
      */
     public boolean getAsBoolean(String key) {
         if (contains(key)) {
+            Object value = null;
             try {
-                return (Boolean) configEntries.get(key);
+                value = configEntries.get(key);
+                return (Boolean) value;
             } catch (ClassCastException e) {
+                if (value instanceof String) {
+                    return Boolean.parseBoolean((String) value);
+                }
                 throw new IllegalArgumentException(key + " does not map to a valid boolean");
             }
         }
@@ -226,9 +231,14 @@ public class ConfigRegistry {
      */
     public long getAsInt(String key) {
         if (contains(key)) {
+            Object value = null;
             try {
-                return (Long) configEntries.get(key);
+                value = configEntries.get(key);
+                return (Long) value;
             } catch (ClassCastException e) {
+                if (value instanceof String) {
+                    return Long.parseLong((String) value);
+                }
                 throw new IllegalArgumentException(key + " does not map to a valid int");
             }
         }
@@ -255,9 +265,14 @@ public class ConfigRegistry {
      */
     public double getAsFloat(String key) {
         if (contains(key)) {
+            Object value = null;
             try {
-                return (Double) configEntries.get(key);
+                value = configEntries.get(key);
+                return (Double) value;
             } catch (ClassCastException e) {
+                if (value instanceof String) {
+                    return Double.parseDouble((String) value);
+                }
                 throw new IllegalArgumentException(key + " does not map to a valid float");
             }
         }
@@ -315,12 +330,8 @@ public class ConfigRegistry {
      */
     public String getAsString(String key) {
         if (contains(key)) {
-            try {
-                String value = String.valueOf(configEntries.get(key));
-                return resolveStringValue(value);
-            } catch (ClassCastException e) {
-                throw new IllegalArgumentException(key + " does not map to a valid string");
-            }
+            String value = String.valueOf(configEntries.get(key));
+            return resolveStringValue(value);
         }
 
         return null;
