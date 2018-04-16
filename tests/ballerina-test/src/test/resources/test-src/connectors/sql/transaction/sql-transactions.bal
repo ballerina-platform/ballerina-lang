@@ -6,11 +6,11 @@ type ResultCount {
     int COUNTVAL,
 };
 
-function testLocalTransacton () returns (int, int) {
+function testLocalTransacton() returns (int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -34,11 +34,11 @@ function testLocalTransacton () returns (int, int) {
     return (returnVal, count);
 }
 
-function testTransactonRollback () returns (int, int) {
+function testTransactonRollback() returns (int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -67,11 +67,11 @@ function testTransactonRollback () returns (int, int) {
     return (returnVal, count);
 }
 
-function testTransactonAbort () returns (int, int) {
+function testTransactonAbort() returns (int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = -1;
@@ -101,14 +101,14 @@ function testTransactonAbort () returns (int, int) {
     return (returnVal, count);
 }
 
-function testTransactonErrorThrow () returns (int, int, int) {
+function testTransactonErrorThrow() returns (int, int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
-	int returnVal = 0;
+    int returnVal = 0;
     int catchValue = 0;
     int count;
     try {
@@ -128,7 +128,7 @@ function testTransactonErrorThrow () returns (int, int, int) {
     }
     //check whether update action is performed
     var temp = testDB -> select("Select COUNT(*) as countval from Customers where registrationID = 260", ResultCount);
-    table dt =  check temp;
+    table dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
@@ -137,14 +137,14 @@ function testTransactonErrorThrow () returns (int, int, int) {
     return (returnVal, catchValue, count);
 }
 
-function testTransactionErrorThrowAndCatch () returns (int, int, int) {
+function testTransactionErrorThrowAndCatch() returns (int, int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
-	int returnVal = 0;
+    int returnVal = 0;
     int catchValue = 0;
     int count;
     transaction {
@@ -173,14 +173,14 @@ function testTransactionErrorThrowAndCatch () returns (int, int, int) {
     return (returnVal, catchValue, count);
 }
 
-function testTransactonCommitted () returns (int, int) {
+function testTransactonCommitted() returns (int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
-	int returnVal = 1;
+    int returnVal = 1;
     int count;
     transaction {
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
@@ -201,11 +201,11 @@ function testTransactonCommitted () returns (int, int) {
     return (returnVal, count);
 }
 
-function testTwoTransactons () returns (int, int, int) {
+function testTwoTransactons() returns (int, int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal1 = 1;
@@ -239,14 +239,14 @@ function testTwoTransactons () returns (int, int, int) {
     return (returnVal1, returnVal2, count);
 }
 
-function testTransactonWithoutHandlers () returns (int) {
+function testTransactonWithoutHandlers() returns (int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
-	transaction {
+    transaction {
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
                                            ('James', 'Clerk', 350, 5000.75, 'USA')");
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
@@ -266,11 +266,11 @@ function testTransactonWithoutHandlers () returns (int) {
     return count;
 }
 
-function testLocalTransactionFailed () returns (string, int) {
+function testLocalTransactionFailed() returns (string, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     string a = "beforetx";
@@ -301,18 +301,18 @@ function testLocalTransactionFailed () returns (string, int) {
     return (a, count);
 }
 
-function testLocalTransactonSuccessWithFailed () returns (string, int) {
+function testLocalTransactonSuccessWithFailed() returns (string, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     string a = "beforetx";
     int count = -1;
     int i = 0;
     try {
-        transaction with retries=4 {
+        transaction with retries = 4 {
             a = a + " inTrx";
             _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 222, 5000.75, 'USA')");
@@ -337,21 +337,21 @@ function testLocalTransactonSuccessWithFailed () returns (string, int) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _= testDB -> close();
+    _ = testDB -> close();
     return (a, count);
 }
 
-function testLocalTransactonFailedWithNextupdate () returns (int) {
-	endpoint sql:Client testDB1 {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+function testLocalTransactonFailedWithNextupdate() returns (int) {
+    endpoint sql:Client testDB1 {
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
-	endpoint sql:Client testDB2 {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+    endpoint sql:Client testDB2 {
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int i = 0;
@@ -378,11 +378,11 @@ function testLocalTransactonFailedWithNextupdate () returns (int) {
     return i;
 }
 
-function testNestedTwoLevelTransactonSuccess () returns (int, int) {
+function testNestedTwoLevelTransactonSuccess() returns (int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -408,11 +408,11 @@ function testNestedTwoLevelTransactonSuccess () returns (int, int) {
     return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactonSuccess () returns (int, int) {
-	endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+function testNestedThreeLevelTransactonSuccess() returns (int, int) {
+    endpoint sql:Client testDB {
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -442,11 +442,11 @@ function testNestedThreeLevelTransactonSuccess () returns (int, int) {
     return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactonFailed () returns (int, int) {
+function testNestedThreeLevelTransactonFailed() returns (int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -480,11 +480,11 @@ function testNestedThreeLevelTransactonFailed () returns (int, int) {
     return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, int, string) {
+function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, int, string) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -500,7 +500,7 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, i
                 a = a + " txL2";
                 _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 666, 5000.75, 'USA')");
-                transaction with retries=2{
+                transaction with retries = 2{
                     a = a + " txL3";
                     if (index == 1) {
                         a = a + " txL3_If";
@@ -508,7 +508,7 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, i
                                 values ('James', 'Clerk', 666, 5000.75, 'USA')");
                     } else {
                         a = a + " txL3_Else";
-                         _ = testDB -> update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
+                        _ = testDB -> update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 666, 5000.75, 'USA')");
                     }
                 } onretry {
@@ -534,11 +534,11 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, i
     return (returnVal, count, a);
 }
 
-function testTransactionWithWorkers () returns (int) {
+function testTransactionWithWorkers() returns (int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:2}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:2}
     };
 
     transaction {
@@ -558,7 +558,7 @@ function testTransactionWithWorkers () returns (int) {
 }
 
 function invokeWorkers(sql:Client testDBClient) {
-    endpoint sql:Client testDB =  testDBClient;
+    endpoint sql:Client testDB = testDBClient;
 
 
     worker w1 {
@@ -574,11 +574,11 @@ function invokeWorkers(sql:Client testDBClient) {
 
 }
 
-function testCloseConnectionPool () returns (int) {
+function testCloseConnectionPool() returns (int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int count;

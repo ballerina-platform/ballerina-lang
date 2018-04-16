@@ -4,19 +4,19 @@ type ResultCount {
     int COUNTVAL,
 };
 
-function testXAransactonSuccess () returns (int, int) {
-	endpoint sql:Client testDB1 {
-        url: "h2:file:./target/H2_1/TestDB1",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1, isXA:true}
+function testXAransactonSuccess() returns (int, int) {
+    endpoint sql:Client testDB1 {
+        url:"h2:file:./target/H2_1/TestDB1",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1, isXA:true}
     };
-	
-	endpoint sql:Client testDB2 {
-        url: "h2:file:./target/H2_2/TestDB2",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1, isXA:true}
+
+    endpoint sql:Client testDB2 {
+        url:"h2:file:./target/H2_2/TestDB2",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1, isXA:true}
     };
-	
+
     transaction {
         _ = testDB1 -> update("insert into Customers (customerId, name, creditLimit, country)
                                 values (1, 'Anne', 1000, 'UK')");
@@ -44,20 +44,20 @@ function testXAransactonSuccess () returns (int, int) {
     return (count1, count2);
 }
 
-function testXAransactonFailed1 () returns (int, int) {
+function testXAransactonFailed1() returns (int, int) {
 
-	endpoint sql:Client testDB1 {
-        url: "h2:file:./target/H2_1/TestDB1",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1, isXA:true}
+    endpoint sql:Client testDB1 {
+        url:"h2:file:./target/H2_1/TestDB1",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1, isXA:true}
     };
-	
-	endpoint sql:Client testDB2 {
-        url: "h2:file:./target/H2_2/TestDB2",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1, isXA:true}
+
+    endpoint sql:Client testDB2 {
+        url:"h2:file:./target/H2_2/TestDB2",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1, isXA:true}
     };
-	
+
     try {
         transaction {
             _ = testDB1 -> update("insert into Customers (customerId, name, creditLimit, country)
@@ -89,20 +89,20 @@ function testXAransactonFailed1 () returns (int, int) {
     return (count1, count2);
 }
 
-function testXAransactonFailed2 () returns (int, int) {
+function testXAransactonFailed2() returns (int, int) {
 
-	endpoint sql:Client testDB1 {
-        url: "h2:file:./target/H2_1/TestDB1",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1, isXA:true}
+    endpoint sql:Client testDB1 {
+        url:"h2:file:./target/H2_1/TestDB1",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1, isXA:true}
     };
-	
-	endpoint sql:Client testDB2 {
-        url: "h2:file:./target/H2_2/TestDB2",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1, isXA:true}
+
+    endpoint sql:Client testDB2 {
+        url:"h2:file:./target/H2_2/TestDB2",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1, isXA:true}
     };
-	
+
     try {
         transaction {
             _ = testDB1 -> update("insert into Customers (customerId, name, creditLimit, invalidColumn)
@@ -134,25 +134,25 @@ function testXAransactonFailed2 () returns (int, int) {
     return (count1, count2);
 }
 
-function testXAransactonRetry () returns (int, int) {
+function testXAransactonRetry() returns (int, int) {
 
-	endpoint sql:Client testDB1 {
-        url: "h2:file:./target/H2_1/TestDB1",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1, isXA:true}
+    endpoint sql:Client testDB1 {
+        url:"h2:file:./target/H2_1/TestDB1",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1, isXA:true}
     };
-	
-	endpoint sql:Client testDB2 {
-        url: "h2:file:./target/H2_2/TestDB2",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1, isXA:true}
+
+    endpoint sql:Client testDB2 {
+        url:"h2:file:./target/H2_2/TestDB2",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1, isXA:true}
     };
 
     int i = 0;
     try {
         transaction {
             if (i == 2) {
-                _  = testDB1 -> update("insert into Customers (customerId, name, creditLimit, country)
+                _ = testDB1 -> update("insert into Customers (customerId, name, creditLimit, country)
                         values (4, 'John', 1000, 'UK')");
             } else {
                 _ = testDB1 -> update("insert into Customers (customerId, name, creditLimit, invalidColumn)
