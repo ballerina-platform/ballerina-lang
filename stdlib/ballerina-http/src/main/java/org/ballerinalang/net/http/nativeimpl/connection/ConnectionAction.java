@@ -41,6 +41,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
 import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -105,18 +106,23 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         }
     }
 
-    protected BValue[] handleResponseStatus(Context context, HttpResponseFuture outboundResponseStatusFuture) {
-        try {
-            outboundResponseStatusFuture = outboundResponseStatusFuture.sync();
-        } catch (InterruptedException e) {
-            throw new BallerinaException("interrupted sync: " + e.getMessage());
-        }
-        Throwable cause = outboundResponseStatusFuture.getStatus().getCause();
-        if (cause != null) {
-            outboundResponseStatusFuture.resetStatus();
-            return new BValue[]{HttpUtil.getHttpConnectorError(context, cause)};
-        }
-        return new BValue[0];
+    protected void handleResponseStatus(DataContext dataContext, HttpResponseFuture outboundResponseStatusFuture) {
+        HttpConnectorListener outboundResStatusConnectorListener =
+                new HttpResponseConnectorListener(dataContext);
+        outboundResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
+
+
+//        try {
+//            outboundResponseStatusFuture = outboundResponseStatusFuture.sync();
+//        } catch (InterruptedException e) {
+//            throw new BallerinaException("interrupted sync: " + e.getMessage());
+//        }
+//        Throwable cause = outboundResponseStatusFuture.getStatus().getCause();
+//        if (cause != null) {
+//            outboundResponseStatusFuture.resetStatus();
+//            return new BValue[]{HttpUtil.getHttpConnectorError(context, cause)};
+//        }
+//        return new BValue[0];
     }
 
     protected void serializeMsgDataSource(DataContext dataContext, HTTPCarbonMessage responseMessage, MessageDataSource outboundMessageSource,
@@ -156,10 +162,14 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         return false;
     }
 
-    private static class HttpResponseConnectorListener implements HttpConnectorListener {
+    static class HttpResponseConnectorListener implements HttpConnectorListener {
 
         private final DataContext dataContext;
         private HttpMessageDataStreamer outboundMsgDataStreamer;
+
+        HttpResponseConnectorListener(DataContext dataContext) {
+            this.dataContext = dataContext;
+        }
 
         HttpResponseConnectorListener(DataContext dataContext, HttpMessageDataStreamer outboundMsgDataStreamer) {
             this.dataContext = dataContext;
@@ -175,10 +185,12 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         public void onError(Throwable throwable) {
             BStruct httpConnectorError = BLangConnectorSPIUtil.createBStruct(this.dataContext.context,
                                             HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.HTTP_CONNECTOR_ERROR);
-            if (throwable instanceof IOException) {
-                this.outboundMsgDataStreamer.setIoException((IOException) throwable);
-            } else {
-                this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
+            if (outboundMsgDataStreamer != null) {
+                if (throwable instanceof IOException) {
+                    this.outboundMsgDataStreamer.setIoException((IOException) throwable);
+                } else {
+                    this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
+                }
             }
             httpConnectorError.setStringField(0, throwable.getMessage());
             this.dataContext.notifyOutboundResponseStatus(httpConnectorError);

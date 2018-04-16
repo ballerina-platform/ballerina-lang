@@ -87,7 +87,8 @@ public class PushPromisedResponse extends ConnectionAction {
         if (entityStruct != null) {
             MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             serializeMsgDataSource(dataContext, responseMessage, outboundMessageSource, outboundRespStatusFuture, entityStruct);
+        } else {
+            handleResponseStatus(dataContext, outboundRespStatusFuture);
         }
-        handleResponseStatus(dataContext.context, outboundRespStatusFuture);
     }
 }
