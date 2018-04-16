@@ -61,7 +61,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
         }
 
         http2ClientChannel.getDataEventListeners().
-                forEach(dataEventListener -> dataEventListener.onDataRead(streamId, ctx, endOfStream));
+                forEach(dataEventListener -> dataEventListener.onDataRead(streamId, ctx, data, endOfStream));
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         boolean isServerPush = false;
         if (outboundMsgHolder == null) {
@@ -109,7 +109,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
                       http2ClientChannel.toString(), streamId, endStream);
         }
         http2ClientChannel.getDataEventListeners().
-                forEach(dataEventListener -> dataEventListener.onDataRead(streamId, ctx, endStream));
+                forEach(dataEventListener -> dataEventListener.onHeadersRead(streamId, ctx, headers, endStream));
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         boolean isServerPush = false;
         if (outboundMsgHolder == null) {
@@ -166,7 +166,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
                       http2ClientChannel.toString(), streamId, promisedStreamId);
         }
         http2ClientChannel.getDataEventListeners().
-                forEach(dataEventListener -> dataEventListener.onDataRead(streamId, ctx, false));
+                forEach(dataEventListener -> dataEventListener.onHeadersRead(streamId, ctx, headers, false));
 
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         if (outboundMsgHolder == null) {
