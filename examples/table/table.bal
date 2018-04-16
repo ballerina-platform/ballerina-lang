@@ -7,7 +7,7 @@ type Employee {
 };
 
 function main (string[] args) {
-    //Create in memory table constrained by the Employee struct type.
+    //Create an in-memory table constrained by the Employee struct.
     table < Employee> tb = table {};
 
     //Add some data rows to the table.
@@ -25,22 +25,22 @@ function main (string[] args) {
     io:print("Table Data:");
     io:println(tb);
 
-    //Access using foreach.
+    //Access using the 'foreach' loop.
     foreach x in tb {
         io:println("Name: " + x.name);
     }
 
-    //Find the average salary using iterable operations.
+    //Find the average salary using the iterable operations.
     float lowerAvgSal = tb.filter(isLowerSalary).map(getSalary).average();
     io:println("Average of Low salary:" + lowerAvgSal);
 
-    //Delete rows matching to a given criteria.
+    //Delete the rows that match a given criteria.
     int count = check tb.remove(isLowerSalary);
     io:println("Deleted row count:" + count);
     io:print("After Delete:");
     io:println(tb);
 
-    //Convert to a json.
+    //Convert to JSON.
     var j = <json> tb;
 
     match j {
@@ -51,7 +51,7 @@ function main (string[] args) {
         error err =>  io:println("error: " + err.message);
     }
 
-    //Convert to a xml.
+    //Convert to XML.
     var x = <xml> tb;
 
     match x {
