@@ -30,7 +30,7 @@ function testEnumAssignment() {
 type state "foo" | "bar";
 state foo = "foo";
 
-function main(string[] arg) {
+function main(string... arg) {
     state x = bar;
 }
 

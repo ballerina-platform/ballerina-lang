@@ -1,6 +1,6 @@
 import ballerina/lang.system;
 
-function main (string[] args) {
+function main (string... args) {
     // JSON string value.
     json j1 = "Apple";
     system:println(j1);
