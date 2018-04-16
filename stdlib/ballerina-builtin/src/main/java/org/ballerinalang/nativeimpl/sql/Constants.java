@@ -64,19 +64,25 @@ public final class Constants {
      * DB Types with first class support.
      */
     public static final class DBTypes {
-        public static final String MYSQL = "MYSQL";
         public static final String SQLSERVER = "SQLSERVER";
         public static final String ORACLE = "ORACLE";
         public static final String SYBASE = "SYBASE";
         public static final String POSTGRES = "POSTGRES";
         public static final String IBMDB2 = "IBMDB2";
-        public static final String HSQLDB_SERVER = "HSQLDB_SERVER";
-        public static final String HSQLDB_FILE = "HSQLDB_FILE";
-        public static final String H2_SERVER = "H2_SERVER";
-        public static final String H2_FILE = "H2_FILE";
-        public static final String H2_MEM = "H2_MEM";
+
         public static final String DERBY_SERVER = "DERBY_SERVER";
         public static final String DERBY_FILE = "DERBY_FILE";
+
+        public static final String HSQL = "HSQL";
+        public static final String HSQL_SERVER = "HSQL_SERVER";
+        public static final String HSQL_FILE = "HSQL_FILE";
+
+        public static final String MYSQL = "MYSQL";
+
+        public static final String H2 = "H2";
+        public static final String H2_SERVER = "H2_SERVER";
+        public static final String H2_FILE = "H2_FILE";
+        public static final String H2_MEMORY = "H2_MEMORY";
     }
 
     /**
@@ -118,6 +124,7 @@ public final class Constants {
         public static final int IN = 0;
         public static final int OUT = 1;
         public static final int INOUT = 2;
+        public static final String DIR_IN = "IN";
         public static final String DIR_OUT = "OUT";
         public static final String DIR_INOUT = "INOUT";
 
@@ -127,13 +134,15 @@ public final class Constants {
      * Constants for Endpoint Configs.
      */
     public static final class EndpointConfig {
-        public static final String DATABASE = "database";
         public static final String HOST = "host";
+        public static final String URL = "url";
+        public static final String PATH = "path";
         public static final String PORT = "port";
         public static final String NAME = "name";
         public static final String USERNAME = "username";
         public static final String PASSWORD = "password";
-        public static final String OPTIONS = "options";
+        public static final String POOL_OPTIONS = "poolOptions";
+        public static final String DB_OPTIONS = "dbOptions";
     }
 
     /**
@@ -143,18 +152,10 @@ public final class Constants {
         //String
         public static final String URL = "url";
         public static final String DATASOURCE_CLASSNAME = "dataSourceClassName";
-        public static final String CONNECTION_TEST_QUERY = "connectionTestQuery";
-        public static final String POOL_NAME = "poolName";
-        public static final String CATALOG = "catalog";
         public static final String CONNECTION_INIT_SQL = "connectionInitSql";
-        public static final String DRIVER_CLASSNAME = "driverClassName";
-        public static final String TRANSACTION_ISOLATION = "transactionIsolation";
 
         //Boolean
         public static final String AUTOCOMMIT = "autoCommit";
-        public static final String ISOLATE_INTERNAL_QUERIES = "isolateInternalQueries";
-        public static final String ALLOW_POOL_SUSPENSION = "allowPoolSuspension";
-        public static final String READ_ONLY = "readOnly";
         public static final String IS_XA = "isXA";
 
         //Int
@@ -164,10 +165,20 @@ public final class Constants {
         public static final String MINIMUM_IDLE = "minimumIdle";
         public static final String MAX_LIFE_TIME = "maxLifetime";
         public static final String VALIDATION_TIMEOUT = "validationTimeout";
-        public static final String LEAK_DETECTION_THRESHOLD = "leakDetectionThreshold";
 
         //Map
         public static final String DATASOURCE_PROPERTIES = "datasourceProperties";
+    }
+
+    /**
+     * Constants used when appending JDBC driver properties for the connection URL.
+     */
+    public static final class JDBCUrlSeparators {
+        public static final String H2_SEPARATOR = ";";
+        public static final String H2_PROPERTY_BEGIN_SYMBOL = ";";
+        public static final String MYSQL_SEPARATOR = "&";
+        public static final String MYSQL_PROPERTY_BEGIN_SYMBOL = "?";
+        public static final String EQUAL_SYMBOL = "=";
     }
 
     public static final String CONNECTOR_NAME = "ClientConnector";
@@ -180,8 +191,15 @@ public final class Constants {
     public static final String PASSWORD = "password";
 
     public static final String SQL_PACKAGE_PATH = "ballerina.sql";
+    public static final String SQL_PARAMETER_TYPE = "ParameterType";
+    public static final String BUILTIN_PACKAGE_PATH = "ballerina.builtin";
     public static final String SQL_CLIENT = "SQLClient";
 
-    public static final String SQL_CONNECTOR_ERROR = "SQLConnectorError";
+    public static final String SQL_JDBC_PREFIX = "jdbc:";
+    public static final String SQL_SERVER_DB_POSTFIX = "_SERVER";
+    public static final String SQL_FILE_DB_POSTFIX = "_FILE";
+    public static final String SQL_MEMORY_DB_POSTFIX = "_MEMORY";
+
+    public static final String SQL_CONNECTOR_ERROR = "error";
     public static final String SQL_EXCEPTION_OCCURED = "SQL Exception Occurred";
 }

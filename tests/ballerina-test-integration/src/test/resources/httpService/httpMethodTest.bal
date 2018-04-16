@@ -1,10 +1,10 @@
 import ballerina/http;
 
-endpoint http:ServiceEndpoint serviceEndpoint {
+endpoint http:Listener serviceEndpoint {
     port:9090
 };
 
-endpoint http:ClientEndpoint endPoint {
+endpoint http:Client endPoint {
     targets: [
         {
             url: "http://localhost:9090"
@@ -24,10 +24,10 @@ service<http:Service> headQuoteService bind serviceEndpoint {
         string method = req.method;
         http:Request clientRequest = new;
 
-        var response = endPoint -> execute(method, "/getQuote/stocks", clientRequest);
+        var response = endPoint -> execute(untaint method, "/getQuote/stocks", clientRequest);
         match response {
             http:Response httpResponse => {
-                _ = client -> forward(httpResponse);
+                _ = client -> respond(httpResponse);
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;
@@ -45,7 +45,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
         var response = endPoint -> forward("/getQuote/stocks", req);
         match response {
             http:Response httpResponse => {
-                _ = client -> forward(httpResponse);
+                _ = client -> respond(httpResponse);
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;
@@ -63,7 +63,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
         var response = endPoint -> forward("/getQuote/stocks", req);
         match response {
             http:Response httpResponse => {
-                _ = client -> forward(httpResponse);
+                _ = client -> respond(httpResponse);
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;
@@ -79,10 +79,10 @@ service<http:Service> headQuoteService bind serviceEndpoint {
     }
     commonResource (endpoint client, http:Request req, string method) {
         http:Request clientRequest = new;
-        var response = endPoint -> execute(method, "/getQuote/stocks", clientRequest);
+        var response = endPoint -> execute(untaint method, "/getQuote/stocks", clientRequest);
         match response {
             http:Response httpResponse => {
-                _ = client -> forward(httpResponse);
+                _ = client -> respond(httpResponse);
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;
@@ -108,7 +108,7 @@ service<http:Service> testClientConHEAD bind serviceEndpoint {
         var response = endPoint -> get("/getQuote/stocks", clientRequest);
         match response {
             http:Response httpResponse => {
-                _ = client -> forward(httpResponse);
+                _ = client -> respond(httpResponse);
             }
             http:HttpConnectorError err => {
                 http:Response errorResponse = new;

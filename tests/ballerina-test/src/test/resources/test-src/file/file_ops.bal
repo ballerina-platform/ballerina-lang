@@ -1,31 +1,32 @@
 import ballerina/io;
 import ballerina/file;
+import ballerina/time;
 
 function testAbsolutePath(string pathValue) returns (string){
-    file:Path filePath = file:getPath(pathValue);
+    file:Path filePath = new(pathValue);
     file:Path absolutePath = filePath.toAbsolutePath();
     return absolutePath.getPathValue();
 }
 
 function testPathExistance(string pathValue) returns (boolean){
-    file:Path filePath = file:getPath(pathValue);
+    file:Path filePath = new(pathValue);
     return file:exists(filePath);
 }
 
 function createDirectoryAndList(string pathValue) returns (string []){
     string parent = pathValue+"/parent";
-    file:Path dirPath = file:getPath(parent);
+    file:Path dirPath = new(parent);
     var result = file:createDirectory(dirPath);
 
     string dir = parent+"/child1";
-    dirPath = file:getPath(dir);
+    dirPath = new(dir);
     result = file:createDirectory(dirPath);
 
     dir = parent+"/child2";
-    dirPath = file:getPath(dir);
+    dirPath = new(dir);
     result = file:createDirectory(dirPath);
 
-    dirPath = file:getPath(parent);
+    dirPath = new(parent);
     io:println(dirPath.getPathValue());
     var pathArray =check file:list(dirPath);
     string [] pathValues = [];
@@ -40,8 +41,8 @@ function createDirectoryAndList(string pathValue) returns (string []){
 }
 
 function testCreateFile(string pathValue) returns (string){
-   file:Path dirPath = file:getPath(pathValue);
-   file:Path filePath = file:getPath(pathValue + "test.txt");
+   file:Path dirPath = new(pathValue);
+   file:Path filePath = new(pathValue + "test.txt");
    var result = file:createFile(filePath);
 
    string [] pathValues = [];
@@ -56,13 +57,25 @@ function testCreateFile(string pathValue) returns (string){
    return pathValues[0];
 }
 
+function testGetFileName(string pathValue) returns (string){
+    file:Path path = new (pathValue);
+    return path.getName();
+}
+
+function testGetModifiedTime(string pathValue) returns (string){
+    file:Path path = new(pathValue);
+    time:Time modifiedTime =check file:getModifiedTime(path);
+    return modifiedTime.toString();
+}
+
 function testWriteFile(string pathValue,string accessMode,blob content) returns (blob|io:IOError){
-   file:Path filePath = file:getPath(pathValue);
-   io:ByteChannel channel =check file:newByteChannel(filePath,accessMode);
+   file:Path filePath = new(pathValue);
+   string absolutePath = filePath.toAbsolutePath().getPathValue();
+   io:ByteChannel channel =io:openFile(absolutePath,accessMode);
    var result = channel.write(content,0);
    var closeResult = channel.close();
    //Open the file again for reading
-   channel =check file:newByteChannel(filePath,"r");
+   channel =io:openFile(absolutePath,"r");
    var readResult = channel.read(100);
    closeResult = channel.close();
    match readResult {
@@ -77,11 +90,11 @@ function testWriteFile(string pathValue,string accessMode,blob content) returns 
 }
 
 function testDirectoryExistance(string pathValue) returns (boolean){
-    file:Path filePath = file:getPath(pathValue);
+    file:Path filePath = new(pathValue);
     return file:isDirectory(filePath);
 }
 
 function deleteDirectory(string pathValue){
-    file:Path filePath = file:getPath(pathValue);
+    file:Path filePath = new(pathValue);
     var result = file:delete(filePath);
 }

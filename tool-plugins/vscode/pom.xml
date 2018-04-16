@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha3-SNAPSHOT</version>
+        <version>0.970.0-beta1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -70,6 +70,19 @@
                 <version>${maven.exec.plugin.version}</version>
                 <executions>
                     <execution>
+                        <id>backup-package-lock</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>validate</phase>
+                        <configuration>
+                            <executable>node</executable>
+                            <arguments>
+                                <argument>./scripts/npm-preinstall</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>npm-install</id>
                         <goals>
                             <goal>exec</goal>
@@ -79,6 +92,19 @@
                             <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>install</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>replace-package-lock</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <executable>node</executable>
+                            <arguments>
+                                <argument>./scripts/npm-postinstall</argument>
                             </arguments>
                         </configuration>
                     </execution>

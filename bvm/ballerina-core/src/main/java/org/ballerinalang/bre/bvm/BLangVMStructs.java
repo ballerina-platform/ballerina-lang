@@ -22,18 +22,14 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.StructureType;
-import org.ballerinalang.util.codegen.ConnectorInfo;
-import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.StructInfo;
-import org.ballerinalang.util.codegen.attributes.AttributeInfo;
-import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
+import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Util Class for handling structs in Ballerina VM.
@@ -66,26 +62,20 @@ public class BLangVMStructs {
     }
 
     /**
-     * Create BConnector with given values.
+     * Create ballerina object.
      *
-     * @param connectorInfo {@link ConnectorInfo} of the {@link BConnector}
-     * @param values        field values of the connector ( including args ).
+     * @param structInfo {@link StructInfo} of the BStruct
+     * @param values     field values of the BStruct.
      * @return BStruct instance.
      */
-    public static BConnector createBConnector(ConnectorInfo connectorInfo, Object... values) {
-        BConnector bConnector = new BConnector(connectorInfo.getType());
-        final LocalVariableAttributeInfo localVar = (LocalVariableAttributeInfo) connectorInfo.getAttributeInfo(
-                AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
-        int i = 0;
-        int[] indexes = new int[] {-1, -1, -1, -1, -1, -1};
-        for (LocalVariableInfo variableInfo : localVar.getLocalVariables()) {
-            if (values.length < i + 1) {
-                break;
-            }
-            final BType varType = variableInfo.getVariableType();
-            setValue(bConnector, indexes, varType.getTag(), values[i]);
-        }
-        return bConnector;
+    public static BStruct createObject(StructInfo structInfo, BValue... values) {
+        BStructType structType = structInfo.getType();
+        BStruct bStruct = new BStruct(structType);
+        BValue[] vals = new BValue[values.length + 1];
+        vals[0] = bStruct;
+        System.arraycopy(values, 0, vals, 1, values.length);
+        BLangFunctions.invokeCallable(structInfo.initializer.functionInfo, vals);
+        return bStruct;
     }
 
     @SuppressWarnings("rawtypes")

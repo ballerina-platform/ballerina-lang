@@ -31,7 +31,6 @@ import java.nio.file.Files;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-@Test(groups = {"broken"})
 public class TracingTestCase {
 
     private ServerInstance serverInstance;
@@ -55,8 +54,9 @@ public class TracingTestCase {
     }
 
     @Test
-    public void testSpanWithTwoResources() throws IOException {
+    public void testSpanWithTwoResources() throws Exception {
         HttpClientRequest.doGet("http://localhost:9090/echoService/resourceOne");
+        Thread.sleep(1000);
         Assert.assertEquals(HttpClientRequest.doGet(
                 "http://localhost:9090/echoService/getFinishedSpansCount").getData(), "8");
     }

@@ -25,6 +25,7 @@ import java.util.List;
  */
 public class Page {
 
+    public final String description;
     public final Caption heading;
     public final List<Documentable> constructs;
     public final List<Link> links;
@@ -36,6 +37,20 @@ public class Page {
      * @param links links to the other packages.
      */
     public Page(Caption heading, ArrayList<Documentable> constructs, List<Link> links) {
+        this.heading = heading;
+        this.constructs = constructs;
+        this.links = links;
+        this.description = null;
+    }
+
+    /**
+     *
+     * @param heading name of the bal package.
+     * @param constructs constructs in the package.
+     * @param links links to the other packages.
+     */
+    public Page(String description, Caption heading, ArrayList<Documentable> constructs, List<Link> links) {
+        this.description = description;
         this.heading = heading;
         this.constructs = constructs;
         this.links = links;

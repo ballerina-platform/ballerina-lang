@@ -22,11 +22,8 @@ import com.google.protobuf.Descriptors;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
-import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.builder.BallerinaFileBuilder;
 import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
@@ -330,30 +327,40 @@ public class ServiceProtoUtils {
             // if compiler plugin could not find
             responseType = new BNilType();
         }
-        return responseType != null ? generateMessageDefinition(responseType) : null;
+        return generateMessageDefinition(responseType);
     }
     
     private static Message getRequestMessage(ResourceNode resourceNode) throws GrpcServerException {
-        if (!(resourceNode.getParameters().size() == 1 || resourceNode.getParameters().size() == 2)) {
-            throw new GrpcServerException("Service resource definition should contain either one param or two params." +
-                    " but contains " + resourceNode.getParameters().size());
+        if (!(resourceNode.getParameters().size() > 0 || resourceNode.getParameters().size() < 4)) {
+            throw new GrpcServerException("Service resource definition should contain more than one and less than " +
+                    "four params. but contains " + resourceNode.getParameters().size());
         }
+        BType requestType = getMessageParamType(resourceNode.getParameters());
+        return generateMessageDefinition(requestType);
+    }
 
-        org.wso2.ballerinalang.compiler.semantics.model.types.BType requestType;
-        if (resourceNode.getParameters().size() == 2) {
-            VariableNode requestVariable = resourceNode.getParameters().get(MessageConstants
-                    .REQUEST_MESSAGE_PARAM_INDEX);
-            if (requestVariable instanceof BLangVariable) {
-                requestType = ((BLangVariable) requestVariable).type;
+    private static BType getMessageParamType(List<?> variableNodes) throws GrpcServerException {
+
+        BType requestType = null;
+
+        for (Object variable : variableNodes)  {
+            if (variable instanceof BLangNode) {
+                BType tempType = ((BLangNode) variable).type;
+                if ("ballerina.grpc:Service".equals(tempType.tsymbol.toString()) || "ballerina.grpc:Headers"
+                        .equals(tempType.tsymbol.toString())) {
+                    continue;
+                }
+                requestType = tempType;
             } else {
                 throw new GrpcServerException("Request Message type is not supported, should be lang variable.");
             }
-        } else {
+        }
+        if (requestType == null) {
             requestType = new BNilType();
         }
-        return generateMessageDefinition(requestType);
+        return requestType;
     }
-    
+
     /**
      * Returns protobuf message definition from ballerina struct type.
      *
@@ -518,22 +525,11 @@ public class ServiceProtoUtils {
     private static org.wso2.ballerinalang.compiler.semantics.model.types.BType getReturnType(BLangInvocation invocation)
             throws GrpcServerException {
         if (invocation.getArgumentExpressions() != null &&
-                invocation.getArgumentExpressions().size() > 1) {
+                invocation.getArgumentExpressions().size() > 2) {
             throw new GrpcServerException("Incorrect argument expressions defined in send function: " +
                     invocation.toString());
         }
-        if (invocation.getArgumentExpressions().size() == 1) {
-            ExpressionNode node = invocation.getArgumentExpressions().get(0);
-            if (node instanceof BLangNode) {
-                BLangNode langNode = (BLangNode) node;
-                return langNode.type;
-            } else {
-                throw new GrpcServerException("response message type is not supported: " + node.getKind()
-                        .name());
-            }
-        } else {
-            return new BNilType();
-        }
+        return getMessageParamType(invocation.getArgumentExpressions());
     }
 
     /**

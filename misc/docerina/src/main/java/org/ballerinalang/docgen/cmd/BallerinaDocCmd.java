@@ -21,12 +21,16 @@ package org.ballerinalang.docgen.cmd;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.launcher.BLauncherCmd;
+import org.ballerinalang.launcher.LauncherUtils;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 
 import java.io.PrintStream;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -35,6 +39,7 @@ import java.util.List;
 @Parameters(commandNames = "doc", commandDescription = "generate Ballerina API documentation")
 public class BallerinaDocCmd implements BLauncherCmd {
     private final PrintStream out = System.out;
+    private final PrintStream err = System.err;
 
     private JCommander parentCmdParser;
 
@@ -64,6 +69,9 @@ public class BallerinaDocCmd implements BLauncherCmd {
             description = "enable debug level logs", hidden = false)
     private boolean debugEnabled;
 
+    @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
+    private String sourceRoot;
+
     @Parameter(names = { "--help", "-h" }, hidden = true)
     private boolean helpFlag;
 
@@ -75,12 +83,10 @@ public class BallerinaDocCmd implements BLauncherCmd {
             return;
         }
 
-        if (argList == null || argList.size() == 0) {
-            StringBuilder sb = new StringBuilder("docerina: no valid Ballerina source given."
-                    + System.lineSeparator());
-            sb.append(BLauncherCmd.getCommandUsageInfo(parentCmdParser, "doc"));
-            out.println(sb);
-            return;
+        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        if (argList == null || argList.isEmpty()) {
+            SourceDirectory srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
+            argList = srcDirectory.getSourcePackageNames();
         }
 
         if (debugEnabled) {
@@ -91,8 +97,15 @@ public class BallerinaDocCmd implements BLauncherCmd {
             System.setProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, templatesDir);
         }
 
+
         String[] sources = argList.toArray(new String[argList.size()]);
-        BallerinaDocGenerator.generateApiDocs(outputDir, packageFilter, nativeSource, sources);
+        try {
+            BallerinaDocGenerator.generateApiDocs(sourceRootPath.toString(), outputDir, packageFilter, nativeSource,
+                    sources);
+        } catch (Throwable e) {
+            err.println(ExceptionUtils.getStackTrace(e));
+            System.exit(1);
+        }
     }
 
     @Override

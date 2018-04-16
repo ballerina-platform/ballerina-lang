@@ -5,8 +5,10 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 
+@final int MAX_INT_VALUE = 2147483647;
+
 function pullPackage (string url, string dirPath, string pkgPath, string fileSeparator) {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets: [
         {
             url: url,
@@ -26,13 +28,13 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
     string destDirPath = dirPath;
     http:Request req = new;
     req.addHeader("Accept-Encoding", "identity");
-    
+
     var result = httpEndpoint -> get("", req);
     http:Response httpResponse = check result;
 
     http:Response res = new;
-    // To be fixed with redirect
-    if (httpResponse.statusCode == 302){ 
+    string statusCode = <string> httpResponse.statusCode;
+    if (statusCode == "302"){
         string locationHeader;
         if (httpResponse.hasHeader("Location")) {
             locationHeader = httpResponse.getHeader("Location");
@@ -41,11 +43,12 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
             throw err;
         }
         res = callFileServer(locationHeader);
-    } else if (httpResponse.statusCode == 404) {
-       io:println("package not found in central");   
+    } else if (statusCode.hasPrefix("5")) {
+        error err = {message:"remote registry failed for url :" + url};
+        throw err;
     } else {
        error err = {message:"error occurred when pulling the package"};
-       throw err;   
+       throw err;
     }
     if (res.statusCode != 200) {
         json jsonResponse = check (res.getJsonPayload());
@@ -53,16 +56,16 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
         io:println(message);
     } else {
         string contentLengthHeader;
+        int pkgSize = MAX_INT_VALUE;
         if (res.hasHeader("content-length")) {
             contentLengthHeader = res.getHeader("content-length");
+            pkgSize = check <int> contentLengthHeader;
         } else {
-            error err = {message:"package size information is missing from the remote repository"};
-            throw err;
+            io:println("warning: package size information is missing from the remote repository");
         }
-        int pkgSize = check <int> contentLengthHeader;
-    
+
         io:ByteChannel sourceChannel = check (res.getByteChannel());
-    
+
         string rawPathVal;
         if (res.hasHeader("raw-path")) {
             rawPathVal = res.getHeader("raw-path");
@@ -192,7 +195,7 @@ function truncateString (string text) returns (string) {
 }
 
 function createDirectories(string directoryPath) returns (boolean) {
-    file:Path dirPath = file:getPath(directoryPath);
+    file:Path dirPath = new(directoryPath);
     if (!file:exists(dirPath)){
         boolean directoryCreationStatus = check (file:createDirectory(dirPath));
         return directoryCreationStatus;
@@ -202,7 +205,7 @@ function createDirectories(string directoryPath) returns (boolean) {
 }
 
 function callFileServer(string url) returns http:Response {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets: [
         {
             url: url,
@@ -215,7 +218,7 @@ function callFileServer(string url) returns http:Response {
                 shareSession: true
              }
         }
-        ]    
+        ]
     };
     http:Request req = new;
     var result = httpEndpoint -> get("", req);

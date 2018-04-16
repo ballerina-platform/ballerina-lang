@@ -38,7 +38,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/natives
+                ${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
@@ -134,7 +134,6 @@
                 <include>org.ballerinalang:testerina-core:jar</include>
                 <include>org.ballerinalang:swagger-to-ballerina-generator:jar</include>
                 <include>org.ballerinalang:protobuf-ballerina:jar</include>
-                <include>org.ballerinalang:ballerina-container-support:jar</include>
                 <include>org.ballerinalang:ballerina-codegen:jar</include>
                 <include>org.ballerinalang:docerina:jar</include>
                 <include>com.fasterxml.jackson.core:jackson-databind</include>

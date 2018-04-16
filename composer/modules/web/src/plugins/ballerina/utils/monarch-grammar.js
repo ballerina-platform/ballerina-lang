@@ -10,14 +10,14 @@ export default {
         'if', 'else', 'iterator', 'try', 'catch', 'finally', 'fork', 'join', 'all', 'some',
         'while', 'throw', 'return', 'returns', 'break', 'timeout', 'transaction', 'aborted',
         'abort', 'committed', 'failed', 'retries', 'next', 'bind', 'with', 'lengthof', 'typeof',
-        'foreach', 'in', 'match', 'but',
+        'foreach', 'in', 'match', 'but', 'check', 'onretry'
     ],
 
     otherKeywords: [
         'import', 'version', 'public', 'attach', 'as', 'native',
         'annotation', 'package', 'connector', 'function', 'resource', 'service', 'action',
         'worker', 'struct', 'transformer', 'endpoint',
-        'const', 'true', 'false', 'reply', 'create', 'parameter', 'new',
+        'const', 'true', 'false', 'reply', 'create', 'parameter', 'new' , 'async',
     ],
 
     typeKeywords: [

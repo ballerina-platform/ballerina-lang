@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The log reader which reads the ballerina log and passes them to the test suite.
@@ -113,6 +114,8 @@ public class ServerLogReader implements Runnable {
                     } else if (STREAM_TYPE_ERROR.equals(streamType)) {
                         log.error(s);
                     }
+                } else {
+                    TimeUnit.MILLISECONDS.sleep(1);
                 }
             }
         } catch (Exception ex) {

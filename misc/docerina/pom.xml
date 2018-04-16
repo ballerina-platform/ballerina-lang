@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-alpha3-SNAPSHOT</version>
+        <version>0.970.0-beta1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -55,6 +55,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>language-server-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-http</artifactId>
         </dependency>
         <dependency>
@@ -72,6 +76,11 @@
         <dependency>
             <groupId>com.github.jknack</groupId>
             <artifactId>handlebars</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.commonmark</groupId>
+            <artifactId>commonmark</artifactId>
+            <version>0.11.0</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -142,6 +151,7 @@
                     <artifactSet>
                         <includes>
                             <include>com.github.jknack:handlebars</include>
+                            <include>com.atlassian.commonmark:commonmark</include>
                         </includes>
                     </artifactSet>
                     <filters>
@@ -165,7 +175,7 @@
     </build>
 
     <properties>
-        <maven.test.skip>true</maven.test.skip>
+        <maven.test.skip>false</maven.test.skip>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>**/parser/*</maven.checkstyleplugin.excludes>
     </properties>

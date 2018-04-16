@@ -24,7 +24,7 @@ import ballerina/time;
 import ballerina/util;
 import ballerina/websub;
 
-endpoint http:ServiceEndpoint hubServiceEP {
+endpoint http:Listener hubServiceEP {
     host:hubHost,
     port:hubPort,
     secureSocket:serviceSecureSocket
@@ -54,23 +54,25 @@ service<http:Service> hubService bind hubServiceEP {
     }
     hub (endpoint client, http:Request request) {
         http:Response response = new;
+        string mode;
+        string topic;
 
-        var reqFormParams = request.getFormParams();
-        map params;
-        match (reqFormParams) {
-            map reqParams => { params = reqParams; }
-            mime:EntityError => {
-                response.statusCode = http:BAD_REQUEST_400;
-                _ = client -> respond(response);
-                done;
-            }
+        map params = request.getFormParams() but { http:PayloadError => {} };
+
+        if (params.hasKey(websub:HUB_MODE)) {
+            mode = <string> params[websub:HUB_MODE];
         }
 
-        string mode = <string> params[websub:HUB_MODE];
+        if (params.hasKey(websub:HUB_TOPIC)) {
+            string topicFromParams = <string> params[websub:HUB_TOPIC];
+            topic = http:decode(topicFromParams, "UTF-8") but { error => topicFromParams };
+        }
 
         if (mode == websub:MODE_SUBSCRIBE || mode == websub:MODE_UNSUBSCRIBE) {
             boolean validSubscriptionRequest = false;
-            match (validateSubscriptionChangeRequest(mode, params)) {
+            string callbackFromParams = <string> params[websub:HUB_CALLBACK];
+            string callback = http:decode(callbackFromParams, "UTF-8") but { error => callbackFromParams };
+            match (validateSubscriptionChangeRequest(mode, topic, callback)) {
                 string errorMessage => {
                     response.statusCode = http:BAD_REQUEST_400;
                     response.setStringPayload(errorMessage);
@@ -82,12 +84,7 @@ service<http:Service> hubService bind hubServiceEP {
             }
             _ = client -> respond(response);
             if (validSubscriptionRequest) {
-                string callback = <string> params[websub:HUB_CALLBACK];
-                match (http:decode(callback, "UTF-8")) {
-                    string decodedCallback => callback = decodedCallback;
-                    error => {}
-                }
-                verifyIntent(callback, params);
+                verifyIntent(callback, topic, params);
             }
             done;
         } else if (mode == websub:MODE_REGISTER) {
@@ -99,7 +96,6 @@ service<http:Service> hubService bind hubServiceEP {
                 done;
             }
 
-            string topic = <string> params[websub:HUB_TOPIC];
             string secret = "";
             if (params.hasKey(websub:PUBLISHER_SECRET)) {
                 secret = <string> params[websub:PUBLISHER_SECRET];
@@ -123,7 +119,6 @@ service<http:Service> hubService bind hubServiceEP {
                 done;
             }
 
-            string topic = <string> params[websub:HUB_TOPIC];
             string secret = "";
             if (params.hasKey(websub:PUBLISHER_SECRET)) {
                 secret = <string> params[websub:PUBLISHER_SECRET];
@@ -139,13 +134,28 @@ service<http:Service> hubService bind hubServiceEP {
             }
             _ = client -> respond(response);
         } else {
-            params = request.getQueryParams();
-            mode = <string> params[websub:HUB_MODE];
+            if (mode != websub:MODE_PUBLISH) {
+                params = request.getQueryParams();
+                mode = <string> params[websub:HUB_MODE];
+                string topicFromParams = <string> params[websub:HUB_TOPIC];
+                topic = http:decode(topicFromParams, "UTF-8") but { error => topicFromParams };
+            }
 
             if (mode == websub:MODE_PUBLISH && hubRemotePublishingEnabled) {
-                string topic = <string> params[websub:HUB_TOPIC];
                 if (!hubTopicRegistrationRequired || websub:isTopicRegistered(topic)) {
                     var reqJsonPayload = request.getJsonPayload(); //TODO: allow others
+                    if (hubRemotePublishingMode == websub:REMOTE_PUBLISHING_MODE_FETCH) {
+                        match (fetchTopicUpdate(topic)) {
+                            http:Response fetchResp => { reqJsonPayload = fetchResp.getJsonPayload(); }
+                            http:HttpConnectorError err => {
+                                log:printError("Error fetching updates for topic URL [" + topic + "]: " + err.message);
+                                response.statusCode = http:BAD_REQUEST_400;
+                                _ = client -> respond(response);
+                                done;
+                            }
+                        }
+                    }
+
                     match (reqJsonPayload) {
                         json payload => {
                             response.statusCode = http:ACCEPTED_202;
@@ -161,7 +171,7 @@ service<http:Service> hubService bind hubServiceEP {
                                         match (signatureValidation) {
                                             websub:WebSubError err => {
                                                 log:printWarn("Signature validation failed for publish request for "
-                                                              + "topic[" + topic + "]: " + err.errorMessage);
+                                                              + "topic[" + topic + "]: " + err.message);
                                                 done;
                                             }
                                             () => {
@@ -188,7 +198,6 @@ service<http:Service> hubService bind hubServiceEP {
                 }
                 response.statusCode = http:BAD_REQUEST_400;
                 _ = client -> respond(response);
-                done;
             } else {
                 response.statusCode = http:BAD_REQUEST_400;
                 _ = client -> respond(response);
@@ -199,17 +208,12 @@ service<http:Service> hubService bind hubServiceEP {
 
 @Description {value:"Function to validate a subscription/unsubscription request, by validating the mode, topic and
                     callback specified."}
-@Param {value:"mode: Mode of the subscription change request parameters"}
-@Param {value:"params: Form params specifying subscription request parameters"}
+@Param {value:"mode: Mode specified in the subscription change request parameters"}
+@Param {value:"topic: Topic specified in the subscription change request parameters"}
+@Param {value:"callback: Callback specified in the subscription change request parameters"}
 @Return {value:"Whether the subscription/unsubscription request is valid"}
 @Return {value:"If invalid, the error with the subscription/unsubscription request"}
-function validateSubscriptionChangeRequest(string mode, map params) returns (boolean|string) {
-    string topic = <string> params[websub:HUB_TOPIC];
-    string callback = <string> params[websub:HUB_CALLBACK];
-    match (http:decode(callback, "UTF-8")) {
-        string decodedCallback => callback = decodedCallback;
-        error => {}
-    }
+function validateSubscriptionChangeRequest(string mode, string topic, string callback) returns (boolean | string) {
     if (topic != "" && callback != "") {
         PendingSubscriptionChangeRequest pendingRequest = new (mode, topic, callback);
         pendingRequests[generateKey(topic, callback)] = pendingRequest;
@@ -227,13 +231,12 @@ function validateSubscriptionChangeRequest(string mode, map params) returns (boo
 @Description {value:"Function to initiate intent verification for a valid subscription/unsubscription request received."}
 @Param {value:"callback: The callback URL of the new subscription/unsubscription request"}
 @Param {value:"params: Parameters specified in the new subscription/unsubscription request"}
-function verifyIntent(string callback, map params) {
-    endpoint http:ClientEndpoint callbackEp {
+function verifyIntent(string callback, string topic, map params) {
+    endpoint http:Client callbackEp {
         targets:[{url:callback, secureSocket: secureSocket }]
     };
 
     string mode = <string> params[websub:HUB_MODE];
-    string topic = <string> params[websub:HUB_TOPIC];
     string secret = <string> params[websub:HUB_SECRET];
     int leaseSeconds;
 
@@ -257,7 +260,7 @@ function verifyIntent(string callback, map params) {
                          + "&" + websub:HUB_CHALLENGE + "=" + challenge
                          + "&" + websub:HUB_LEASE_SECONDS + "=" + leaseSeconds;
 
-    var subscriberResponse = callbackEp -> get("?" + queryParams, request);
+    var subscriberResponse = callbackEp -> get(untaint ("?" + queryParams), request);
 
     match (subscriberResponse) {
         http:Response response => {
@@ -310,30 +313,27 @@ function verifyIntent(string callback, map params) {
 @Param {value:"secret: The secret if specified when registering, empty string if not"}
 function changeTopicRegistrationInDatabase(string mode, string topic, string secret) {
     endpoint sql:Client subscriptionDbEp {
-        database: sql:DB_MYSQL,
-        host: hubDatabaseHost,
-        port: hubDatabasePort,
-        name: hubDatabaseName,
+        url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
 
-    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
-    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:secret};
+    sql:Parameter para1 = (sql:TYPE_VARCHAR, topic);
+    sql:Parameter para2 = (sql:TYPE_VARCHAR, secret);
     sql:Parameter[] sqlParams = [para1, para2];
     if (mode == websub:MODE_REGISTER) {
         var updateStatus = subscriptionDbEp -> update("INSERT INTO topics (topic,secret) VALUES (?,?)", sqlParams);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for registration");
-            sql:SQLConnectorError err => log:printError("Error occurred updating registration data: " + err.message);
+            error err => log:printError("Error occurred updating registration data: " + err.message);
         }
     } else {
         var updateStatus = subscriptionDbEp -> update("DELETE FROM topics WHERE topic=? AND secret=?",
                                                       sqlParams);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unregistration");
-            sql:SQLConnectorError err => log:printError("Error occurred updating unregistration data: " + err.message);
+            error err => log:printError("Error occurred updating unregistration data: " + err.message);
         }
     }
     _ = subscriptionDbEp -> close();
@@ -344,22 +344,19 @@ function changeTopicRegistrationInDatabase(string mode, string topic, string sec
 @Param {value:"subscriptionDetails: The details of the subscription changing"}
 function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails subscriptionDetails) {
     endpoint sql:Client subscriptionDbEp {
-        database: sql:DB_MYSQL,
-        host: hubDatabaseHost,
-        port: hubDatabasePort,
-        name: hubDatabaseName,
+        url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
 
-    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.topic};
-    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.callback};
+    sql:Parameter para1 = (sql:TYPE_VARCHAR, subscriptionDetails.topic);
+    sql:Parameter para2 = (sql:TYPE_VARCHAR, subscriptionDetails.callback);
     sql:Parameter[] sqlParams;
     if (mode == websub:MODE_SUBSCRIBE) {
-        sql:Parameter para3 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.secret};
-        sql:Parameter para4 = {sqlType:sql:TYPE_BIGINT, value:subscriptionDetails.leaseSeconds};
-        sql:Parameter para5 = {sqlType:sql:TYPE_BIGINT, value:subscriptionDetails.createdAt};
+        sql:Parameter para3 = (sql:TYPE_VARCHAR, subscriptionDetails.secret);
+        sql:Parameter para4 = (sql:TYPE_BIGINT, subscriptionDetails.leaseSeconds);
+        sql:Parameter para5 = (sql:TYPE_BIGINT, subscriptionDetails.createdAt);
         sqlParams = [para1, para2, para3, para4, para5, para3, para4, para5];
         var updateStatus = subscriptionDbEp -> update("INSERT INTO subscriptions"
                                              + " (topic,callback,secret,lease_seconds,created_at) VALUES (?,?,?,?,?) ON"
@@ -367,7 +364,7 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
                                              sqlParams);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for subscription");
-            sql:SQLConnectorError err => log:printError("Error occurred updating subscription data: " + err.message);
+            error err => log:printError("Error occurred updating subscription data: " + err.message);
         }
     } else {
         sqlParams = [para1, para2];
@@ -375,7 +372,7 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
                                                "DELETE FROM subscriptions WHERE topic=? AND callback=?", sqlParams);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unsubscription");
-            sql:SQLConnectorError err => log:printError("Error occurred updating unsubscription data: " + err.message);
+            error err => log:printError("Error occurred updating unsubscription data: " + err.message);
         }
     }
     _ = subscriptionDbEp -> close();
@@ -395,20 +392,17 @@ function setupOnStartup() {
 @Description {value:"Function to load topic registrations from the database"}
 function addTopicRegistrationsOnStartup() {
     endpoint sql:Client subscriptionDbEp {
-        database: sql:DB_MYSQL,
-        host: hubDatabaseHost,
-        port: hubDatabasePort,
-        name: hubDatabaseName,
+        url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
     sql:Parameter[] sqlParams = [];
     table dt;
-    var dbResult = subscriptionDbEp -> select("SELECT topic, secret FROM topics", sqlParams, typeof TopicRegistration);
+    var dbResult = subscriptionDbEp -> select("SELECT topic, secret FROM topics", TopicRegistration, sqlParams);
     match (dbResult) {
         table t => { dt = t; }
-        sql:SQLConnectorError sqlErr => {
+        error sqlErr => {
             log:printError("Error retreiving data from the database: " + sqlErr.message);
         }
     }
@@ -432,26 +426,23 @@ function addTopicRegistrationsOnStartup() {
 @Description {value:"Function to add subscriptions to the broker on startup, if persistence is enabled"}
 function addSubscriptionsOnStartup() {
     endpoint sql:Client subscriptionDbEp {
-        database: sql:DB_MYSQL,
-        host: hubDatabaseHost,
-        port: hubDatabasePort,
-        name: hubDatabaseName,
+        url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
 
     int time = time:currentTime().time;
-    sql:Parameter para1 = {sqlType:sql:TYPE_BIGINT, value:time};
+    sql:Parameter para1 = (sql:TYPE_BIGINT, time);
     sql:Parameter[] sqlParams = [para1];
     _ = subscriptionDbEp -> update("DELETE FROM subscriptions WHERE ? - lease_seconds > created_at", sqlParams);
     sqlParams = [];
     table dt;
     var dbResult = subscriptionDbEp -> select("SELECT topic, callback, secret, lease_seconds, created_at"
-                                                + " FROM subscriptions", sqlParams, typeof websub:SubscriptionDetails);
+                                                + " FROM subscriptions", websub:SubscriptionDetails, sqlParams);
     match (dbResult) {
         table t => { dt = t; }
-        sql:SQLConnectorError sqlErr => {
+        error sqlErr => {
             log:printError("Error retreiving data from the database: " + sqlErr.message);
         }
     }
@@ -468,12 +459,25 @@ function addSubscriptionsOnStartup() {
     _ = subscriptionDbEp -> close();
 }
 
+@Description {value:"Function to fetch updates for a particular topic."}
+@Param {value:"topic: The topic URL to be fetched to retrieve updates"}
+function fetchTopicUpdate(string topic) returns (http:Response | http:HttpConnectorError) {
+    endpoint http:Client topicEp {
+        targets:[{url:topic, secureSocket: secureSocket }]
+    };
+
+    http:Request request = new;
+
+    var fetchResponse = topicEp -> get("", request);
+    return fetchResponse;
+}
+
 @Description {value:"Function to distribute content to a subscriber on notification from publishers."}
 @Param {value:"callback: The callback URL registered for the subscriber"}
 @Param {value:"subscriptionDetails: The subscription details for the particular subscriber"}
 @Param {value:"payload: The update payload to be delivered to the subscribers"}
 public function distributeContent(string callback, websub:SubscriptionDetails subscriptionDetails, json payload) {
-    endpoint http:ClientEndpoint callbackEp {
+    endpoint http:Client callbackEp {
         targets:[{url:callback, secureSocket: secureSocket }]
     };
 

@@ -191,14 +191,33 @@ class TreeBuilder {
 
         // Check if sorrounded by parantheses
         if (node.kind === 'ValueType') {
-            if (node.ws && node.ws.length > 1) {
+            if (node.ws && node.ws.length > 2) {
                 node.withParantheses = true;
             }
+        }
+
+        if (node.kind === 'UnionTypeNode') {
+           if (node.ws && node.ws.length > 2) {
+               node.withParantheses = true;
+           }
         }
 
         if (node.kind === 'Function') {
             if (node.returnTypeNode && node.returnTypeNode.typeKind !== 'nil') {
                 node.hasReturns = true;
+                if (node.ws) {
+                    for (let i = 0; i < node.ws.length; i++) {
+                        if (node.ws[i].text === ')' && node.ws[i+1].text !== 'returns') {
+                            for (let j = 0; j < node.returnTypeNode.ws.length; j++) {
+                                if (node.returnTypeNode.ws[j].text === 'returns') {
+                                    node.ws.splice((i + 1), 0, node.returnTypeNode.ws[j]);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
             }
         }
 
@@ -228,10 +247,26 @@ class TreeBuilder {
         }
 
         if (node.kind === 'TypeInitExpr') {
+            if (node.expressions.length <= 0) {
+                node.noExpressionAvailable = true;
+            }
+
             if (!node.type) {
                 node.noTypeAttached = true;
             } else {
                 node.typeName = node.type.typeName;
+            }
+        }
+
+        if (node.kind === 'Return') {
+            if (node.expression && node.expression.kind === 'Literal') {
+                if (node.expression.value === '()') {
+                    node.noExpressionAvailable = true;
+                }
+
+                if (node.expression.value === 'null') {
+                    node.emptyBrackets = true;
+                }
             }
         }
     }

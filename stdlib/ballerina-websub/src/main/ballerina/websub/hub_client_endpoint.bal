@@ -24,21 +24,21 @@ import ballerina/http;
 @Description {value:"Object representing the WebSub Hub Client Endpoint"}
 @Field {value:"config: The configuration for the endpoint"}
 @Field {value:"httpClientEndpoint: The underlying HTTP client endpoint"}
-public type HubClientEndpoint object {
+public type Client object {
 
     public {
         HubClientEndpointConfiguration config;
     }
 
     private {
-        http:ClientEndpoint httpClientEndpoint;
+        http:Client httpClientEndpoint;
     }
 
     @Description {value:"Gets called when the endpoint is being initialized during package init"}
     @Param {value:"ep: The endpoint to be initialized"}
     @Param {value:"config: The configuration for the endpoint"}
     public function init (HubClientEndpointConfiguration config) {
-        endpoint http:ClientEndpoint httpClientEndpoint {targets:[{url:config.url, secureSocket:config.secureSocket}]};
+        endpoint http:Client httpClientEndpoint {targets:[{url:config.url, secureSocket:config.secureSocket}]};
         self.httpClientEndpoint = httpClientEndpoint;
         self.config = config;
     }
@@ -72,8 +72,8 @@ public type HubClientEndpoint object {
 
 @Description {value:"Object representing the WebSub Hub Client Endpoint configuration"}
 @Field {value:"url: The URL of the target Hub"}
+@Field {value:"secureSocket: SSL/TLS related options"}
 public type HubClientEndpointConfiguration {
     string url,
     http:SecureSocket? secureSocket,
-    //TODO: include header, topic-resource map
 };

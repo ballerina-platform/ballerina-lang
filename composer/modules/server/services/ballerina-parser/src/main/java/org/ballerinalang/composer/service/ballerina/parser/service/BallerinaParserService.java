@@ -426,7 +426,7 @@ public class BallerinaParserService implements ComposerService {
         } else {
             java.nio.file.Path filePath = Paths.get(bFileRequest.getFilePath(), bFileRequest.getFileName());
             bFile = LSParserUtils.compile(content, filePath, CompilerPhase.CODE_ANALYZE);
-            programDir = TextDocumentServiceUtil.getSourceRoot(filePath);
+            programDir = (bFile.isBallerinaProject()) ? TextDocumentServiceUtil.getSourceRoot(filePath) : "";
         }
 
         final BLangPackage model = bFile.getBLangPackage();
@@ -434,7 +434,7 @@ public class BallerinaParserService implements ComposerService {
 
         ErrorCategory errorCategory = ErrorCategory.NONE;
         if (!diagnostics.isEmpty()) {
-            if (model == null) {
+            if (model == null || model.symbol == null) {
                 errorCategory = ErrorCategory.SYNTAX;
             } else {
                 errorCategory = ErrorCategory.SEMANTIC;
@@ -470,7 +470,7 @@ public class BallerinaParserService implements ComposerService {
         JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
         result.add("diagnostics", diagnosticsJson);
 
-        if (model != null && bFileRequest.needTree()) {
+        if (model != null && model.symbol != null && bFileRequest.needTree()) {
             BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
                     filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
             JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>());

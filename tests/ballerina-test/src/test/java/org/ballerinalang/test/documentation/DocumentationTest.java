@@ -31,11 +31,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangObject;
+import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
 
@@ -54,7 +56,7 @@ public class DocumentationTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 0, getErrorString(compileResult.getDiagnostics()));
         PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
+        List<BLangDocumentation> docNodes = ((BLangObject) packageNode.getObjects().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, " Documentation for Test annotation\n");
@@ -69,6 +71,7 @@ public class DocumentationTest {
         docNodes = ((BLangAnnotation) packageNode.getAnnotations().get(0)).docAttachments;
         dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.documentationText, " Documentation for Test annotation\n");
     }
 
 
@@ -116,7 +119,7 @@ public class DocumentationTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 0, getErrorString(compileResult.getDiagnostics()));
         PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
+        List<BLangDocumentation> docNodes = ((BLangRecord) packageNode.getRecords().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, " Documentation for Test type\n");
@@ -128,6 +131,7 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.getAttributes().get(1).documentationText, " type `field b` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "c");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationText, " type `field c` documentation");
+
     }
 
     @Test(description = "Test doc function.")
@@ -140,9 +144,9 @@ public class DocumentationTest {
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, "\n" + "Gets a access parameter value (`true` or `false`) for a " +
-                "given key. " + "Please note that #foo will always be bigger than #bar.\n" + "Example:\n" +
+                "" + "given key. " + "Please note that #foo will always be bigger than #bar.\n" + "Example:\n" +
                 "``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``\n");
-        Assert.assertEquals(dNode.getAttributes().size(), 2);
+        Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).docTag, DocTag.RECEIVER);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "file");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationText, " file path " +
@@ -150,6 +154,9 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.getAttributes().get(1).docTag, DocTag.PARAM);
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "accessMode");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationText, " read or write mode\n");
+        Assert.assertEquals(dNode.getAttributes().get(2).docTag, DocTag.RETURN);
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationText, " success or not\n");
+        Assert.assertEquals(dNode.getAttributes().get(2).type.tag, TypeTags.BOOLEAN);
 
         docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
         dNode = docNodes.get(0);
@@ -158,6 +165,28 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.getAttributes().size(), 1);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "path");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationText, " type `field path` documentation\n");
+
+        // test union param
+        docNodes = ((BLangFunction) packageNode.getFunctions().get(1)).docAttachments;
+        dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.getAttributes().size(), 2);
+        Assert.assertEquals(dNode.getAttributes().get(0).docTag, DocTag.PARAM);
+        Assert.assertEquals(dNode.getAttributes().get(0).type.tag, TypeTags.UNION);
+        Assert.assertEquals(dNode.getAttributes().get(0).type.toString(), "string|int|float");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText, " value of param1\n");
+        Assert.assertEquals(dNode.getAttributes().get(1).docTag, DocTag.PARAM);
+
+        // test union return
+        docNodes = ((BLangFunction) packageNode.getFunctions().get(2)).docAttachments;
+        dNode = docNodes.get(0);
+        Assert.assertNotNull(dNode);
+        Assert.assertEquals(dNode.getAttributes().size(), 1);
+        Assert.assertEquals(dNode.getAttributes().get(0).docTag, DocTag.RETURN);
+        Assert.assertEquals(dNode.getAttributes().get(0).type.tag, TypeTags.UNION);
+        Assert.assertEquals(dNode.getAttributes().get(0).type.toString(), "string|error");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText, " `string` value of the X will be " +
+                "returned if found, else an `error` will be returned\n");
 
     }
 

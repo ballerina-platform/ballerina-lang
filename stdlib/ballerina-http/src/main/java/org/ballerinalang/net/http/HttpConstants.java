@@ -40,7 +40,7 @@ public class HttpConstants {
 
     public static final String PROTOCOL_HTTP = "http";
     public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.http";
-    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.http:ServiceEndpoint";
+    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.http:Listener";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
@@ -159,7 +159,7 @@ public class HttpConstants {
     public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
-    public static final String SERVICE_ENDPOINT = "ServiceEndpoint";
+    public static final String SERVICE_ENDPOINT = "Listener";
     public static final String CONNECTION = "Connection";
     public static final String REMOTE = "Remote";
     public static final String LOCAL = "Local";
@@ -206,7 +206,7 @@ public class HttpConstants {
     public static final int RESPONSE_STATUS_CODE_INDEX = 0;
     public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
     public static final int RESPONSE_SERVER_INDEX = 1;
-    public static final int IN_RESPONSE_CACHE_CONTROL_INDEX = 0;
+    public static final int RESPONSE_CACHE_CONTROL_INDEX = 0;
     public static final int IN_RESPONSE_RECEIVED_TIME_INDEX = 1;
 
     //PushPromise struct indexes
@@ -258,8 +258,8 @@ public class HttpConstants {
 
     //Response codes
     public static final String HTTP_BAD_REQUEST = "400";
-    public static final String HEADER_X_XID = "X-XID";
-    public static final String HEADER_X_REGISTER_AT_URL = "X-Register-At-URL";
+    public static final String HEADER_X_XID = "x-b7a-xid";
+    public static final String HEADER_X_REGISTER_AT_URL = "x-b7a-register-at";
 
 
     public static final String HTTP_SERVER_CONNECTOR = "HTTP_SERVER_CONNECTOR";
@@ -306,12 +306,14 @@ public class HttpConstants {
 
     //Client Endpoint
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
+    public static final int CLIENT_ENDPOINT_CONFIG_INDEX = 0;
+    public static final int CLIENT_ENDPOINT_URL_INDEX = 0;
 
     //Client Endpoint Config
     public static final String URI = "uri";
     public static final String CLIENT_EP_TRNASFER_ENCODING = "transferEncoding";
     public static final String CLIENT_EP_CHUNKING = "chunking";
-    public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "endpointTimeout";
+    public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "timeoutMillis";
     public static final String CLIENT_EP_IS_KEEP_ALIVE = "keepAlive";
     public static final String CLIENT_EP_HTTP_VERSION = "httpVersion";
     public static final String CLIENT_EP_FORWARDED = "forwarded";
@@ -329,7 +331,7 @@ public class HttpConstants {
     public static final String FOLLOW_REDIRECT_MAXCOUNT = "maxCount";
 
     //Proxy Indexed
-    public static final String PROXY_STRUCT_REFERENCE = "proxyConfig";
+    public static final String PROXY_STRUCT_REFERENCE = "proxy";
     public static final String PROXY_HOST = "host";
     public static final String PROXY_PORT = "port";
     public static final String PROXY_USERNAME = "userName";

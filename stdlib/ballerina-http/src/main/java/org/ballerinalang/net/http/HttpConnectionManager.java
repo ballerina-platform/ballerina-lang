@@ -95,6 +95,10 @@ public class HttpConnectionManager {
             listenerConfig.setHttpTraceLogEnabled(true);
         }
 
+        if (getHttpAccessLoggerConfig() != null) {
+            listenerConfig.setHttpAccessLogEnabled(true);
+        }
+
         serverBootstrapConfiguration = HTTPConnectorUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
         ServerConnector serverConnector =
@@ -181,7 +185,7 @@ public class HttpConnectionManager {
      * @return the access logto value from the ConfigRegistry
      */
     public String getHttpAccessLoggerConfig() {
-        return ConfigRegistry.getInstance().getConfiguration(HTTP_ACCESS_LOG, LOG_TO);
+        return ConfigRegistry.getInstance().getAsString(HTTP_ACCESS_LOG, LOG_TO);
     }
 
     private TransportsConfiguration buildDefaultTransportConfig() {

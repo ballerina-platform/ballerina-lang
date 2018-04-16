@@ -17,10 +17,6 @@
 package ballerina.transactions;
 import ballerina/io;
 
-@final string PROTOCOL_COMPLETION = "completion";
-@final string PROTOCOL_VOLATILE = "volatile";
-@final string PROTOCOL_DURABLE = "durable";
-
 type TransactionState "active" | "prepared" | "committed" | "aborted";
 @final TransactionState TXN_STATE_ACTIVE = "active";
 @final TransactionState TXN_STATE_PREPARED = "prepared";
@@ -52,7 +48,39 @@ public type TransactionContext {
 
 type Participant {
     string participantId;
-    Protocol[] participantProtocols;
+};
+
+type LocalParticipant {
+    string participantId;
+    LocalProtocol[] participantProtocols;
+};
+
+type RemoteParticipant {
+    string participantId;
+    RemoteProtocol[] participantProtocols;
+};
+
+documentation {
+    This represents the protocol associated with the coordination type.
+
+    F{{name}} - protocol name
+}
+public type Protocol {
+    @readonly string name;
+};
+
+documentation {
+    This represents the protocol associated with the coordination type.
+
+    F{{name}} - protocol name
+    F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
+}
+public type LocalProtocol {
+    @readonly string name;
+    @readonly int transactionBlockId;
+    @readonly (function (string transactionId,
+                            int transactionBlockId,
+                            string protocolAction) returns boolean) protocolFn;
 };
 
 documentation {
@@ -61,21 +89,16 @@ documentation {
     F{{name}} - protocol name
     F{{url}}  - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
                 the `protocolFn` will be called
-    F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
 }
-public type Protocol {
+public type RemoteProtocol {
     @readonly string name;
     @readonly string url;
-    @readonly int transactionBlockId;
-    @readonly (function (string transactionId,
-                           int transactionBlockId,
-                           string protocolAction) returns boolean)? protocolFn;
 };
 
 public type RegistrationRequest {
     string transactionId;
     string participantId;
-    Protocol[] participantProtocols;
+    RemoteProtocol[] participantProtocols;
 };
 
 public function regRequestToJson (RegistrationRequest req) returns json {
@@ -93,7 +116,7 @@ public function regRequestToJson (RegistrationRequest req) returns json {
 
 public type RegistrationResponse {
     string transactionId;
-    Protocol[] coordinatorProtocols;
+    RemoteProtocol[] coordinatorProtocols;
 };
 
 public function regResponseToJson (RegistrationResponse res) returns json {
@@ -111,15 +134,24 @@ public function regResponseToJson (RegistrationResponse res) returns json {
 public function jsonToRegResponse (json j) returns RegistrationResponse {
     string transactionId = <string>jsonToAny(j.transactionId);
     RegistrationResponse res = {transactionId:transactionId};
-    Protocol[] protocols;
+    RemoteProtocol[] protocols;
     foreach proto in j.coordinatorProtocols {
         string name = <string>jsonToAny(proto.name);
         string url = <string>jsonToAny(proto.url);
-        Protocol p = {name:name, url:url};
+        RemoteProtocol p = {name:name, url:url};
         protocols[lengthof protocols] = p;
     }
     res.coordinatorProtocols = protocols;
     return res;
+}
+
+function toProtocolArray(RemoteProtocol[] remoteProtocols) returns Protocol[] {
+    Protocol[] protocols;
+    foreach remoteProtocol in remoteProtocols {
+        Protocol proto = {name: remoteProtocol.name};
+        protocols[lengthof protocols] = proto;
+    }
+    return protocols;
 }
 
 // TODO: temp function. Remove when =? is fixed for json

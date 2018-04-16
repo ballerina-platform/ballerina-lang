@@ -5,7 +5,7 @@ import ballerina/http;
 import ballerina/time;
 
 function search (string url, string querySearched) {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets: [
         {
             url: url,
@@ -21,12 +21,15 @@ function search (string url, string querySearched) {
         ]
     };
     http:Request req = new;
-    var result = httpEndpoint -> get(querySearched, req);
+    var result = httpEndpoint -> get(untaint querySearched, req);
     http:Response httpResponse = check result;
 
     json jsonResponse = check (httpResponse.getJsonPayload());
-
-    if (httpResponse.statusCode != 200) {
+    string statusCode = <string> httpResponse.statusCode;
+    if (statusCode.hasPrefix("5")) {
+        error err = {message:"remote registry failed for url :" + url};
+        throw err;
+    } else if (statusCode != "200") {
         string message = (jsonResponse.msg.toString() but {()=> "error occurred when searching for packages"});
         io:println(message);
     } else {

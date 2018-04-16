@@ -59,16 +59,16 @@ public class SQLDatasource implements BValue {
 
     public SQLDatasource() {}
 
-    public boolean init(Struct options, String dbType, String hostOrPath, int port, String username, String password,
-            String dbName) {
-        buildDataSource(options, dbType, hostOrPath, dbName, port, username, password);
+    public boolean init(Struct options, String url, String dbType, String hostOrPath, int port, String username,
+            String password, String dbName, String dbOptions) {
+        buildDataSource(options, url, dbType, hostOrPath, dbName, port, username, password, dbOptions);
         connectorId = UUID.randomUUID().toString();
         xaConn = isXADataSource();
         try (Connection con = getSQLConnection()) {
             databaseName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
         } catch (SQLException e) {
-            throw new BallerinaException(
-                    "error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(), e);
+            throw new BallerinaException("error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(),
+                    e);
         }
         return true;
     }
@@ -104,57 +104,45 @@ public class SQLDatasource implements BValue {
         hikariDataSource.close();
     }
 
-    private void buildDataSource(Struct options, String dbType, String hostOrPath, String dbName, int port,
-            String username, String password) {
+    private void buildDataSource(Struct options, String url, String dbType, String hostOrPath, String dbName, int port,
+            String username, String password, String dbOptions) {
         try {
             HikariConfig config = new HikariConfig();
+            //Set username password
             config.setUsername(username);
             config.setPassword(password);
+            //Set URL
+            String jdbcurl;
+            if (url.isEmpty()) {
+                jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password, dbOptions);
+            } else {
+                jdbcurl = Constants.SQL_JDBC_PREFIX + url;
+            }
+
+            //Set optional properties
             if (options != null) {
                 boolean isXA = options.getBooleanField(Constants.Options.IS_XA);
                 BMap<String, BRefType> dataSourceConfigMap = populatePropertiesMap(options);
-                String jdbcurl = options.getStringField(Constants.Options.URL);
+
                 String dataSourceClassName = options.getStringField(Constants.Options.DATASOURCE_CLASSNAME);
                 if (!dataSourceClassName.isEmpty()) {
                     config.setDataSourceClassName(dataSourceClassName);
-                    dataSourceConfigMap = setDataSourceProperties(dataSourceConfigMap, jdbcurl, username, password,
-                            dbType, hostOrPath, port, dbName);
+                    dataSourceConfigMap = setDataSourcePropertiesMap(dataSourceConfigMap, jdbcurl, username, password);
                 } else {
-                    if (jdbcurl.isEmpty()) {
-                        jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
-                    }
                     config.setJdbcUrl(jdbcurl);
-                    if (isXA) {
-                        String datasourceClassName = getXADatasourceClassName(dbType, jdbcurl, username, password);
-                        config.setDataSourceClassName(datasourceClassName);
-                        dataSourceConfigMap = setDataSourceProperties(dataSourceConfigMap, jdbcurl, username, password,
-                                dbType, hostOrPath, port, dbName);
-                    }
                 }
-                String connectionTestQuery = options.getStringField(Constants.Options.CONNECTION_TEST_QUERY);
-                if (!connectionTestQuery.isEmpty()) {
-                    config.setConnectionTestQuery(connectionTestQuery);
+
+                if (isXA) {
+                    String datasourceClassName = getXADatasourceClassName(dbType, jdbcurl, username, password);
+                    config.setDataSourceClassName(datasourceClassName);
+                    dataSourceConfigMap = setDataSourcePropertiesMap(dataSourceConfigMap, jdbcurl, username, password);
                 }
-                String poolName = options.getStringField(Constants.Options.POOL_NAME);
-                if (!poolName.isEmpty()) {
-                    config.setPoolName(poolName);
-                }
-                String catalog = options.getStringField(Constants.Options.CATALOG);
-                if (!catalog.isEmpty()) {
-                    config.setCatalog(catalog);
-                }
+
                 String connectionInitSQL = options.getStringField(Constants.Options.CONNECTION_INIT_SQL);
                 if (!connectionInitSQL.isEmpty()) {
                     config.setConnectionInitSql(connectionInitSQL);
                 }
-                String driverClassName = options.getStringField(Constants.Options.DRIVER_CLASSNAME);
-                if (!driverClassName.isEmpty()) {
-                    config.setDriverClassName(driverClassName);
-                }
-                String transactionIsolation = options.getStringField(Constants.Options.TRANSACTION_ISOLATION);
-                if (!transactionIsolation.isEmpty()) {
-                    config.setTransactionIsolation(transactionIsolation);
-                }
+
                 int maximumPoolSize = (int) options.getIntField(Constants.Options.MAXIMUM_POOL_SIZE);
                 if (maximumPoolSize != -1) {
                     config.setMaximumPoolSize(maximumPoolSize);
@@ -179,29 +167,18 @@ public class SQLDatasource implements BValue {
                 if (validationTimeout != -1) {
                     config.setValidationTimeout(validationTimeout);
                 }
-                long leakDetectionThreshold = options.getIntField(Constants.Options.LEAK_DETECTION_THRESHOLD);
-                if (leakDetectionThreshold != -1) {
-                    config.setLeakDetectionThreshold(leakDetectionThreshold);
-                }
                 boolean autoCommit = options.getBooleanField(Constants.Options.AUTOCOMMIT);
                 config.setAutoCommit(autoCommit);
-                boolean isolateInternalQueries = options.getBooleanField(Constants.Options.ISOLATE_INTERNAL_QUERIES);
-                config.setIsolateInternalQueries(isolateInternalQueries);
-                boolean allowPoolSuspension = options.getBooleanField(Constants.Options.ALLOW_POOL_SUSPENSION);
-                config.setAllowPoolSuspension(allowPoolSuspension);
-                boolean readOnly = options.getBooleanField(Constants.Options.READ_ONLY);
-                config.setReadOnly(readOnly);
+
                 if (dataSourceConfigMap != null) {
                     setDataSourceProperties(dataSourceConfigMap, config);
                 }
             } else {
-                String jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
                 config.setJdbcUrl(jdbcurl);
             }
             hikariDataSource = new HikariDataSource(config);
         } catch (Throwable t) {
-            String errorMessage = "error in sql connector configuration";
-            throw new BallerinaException(errorMessage + ": " + t.getMessage());
+            throw new BallerinaException("error in sql connector configuration:" + t.getMessage());
         }
     }
 
@@ -234,20 +211,15 @@ public class SQLDatasource implements BValue {
         return mapProperties;
     }
 
-    private BMap<String, BRefType> setDataSourceProperties(BMap<String, BRefType>  dataSourceConfigMap, String jdbcurl,
-            String username, String password, String dbType, String hostOrPath, int port, String dbName) {
+    private BMap<String, BRefType> setDataSourcePropertiesMap(BMap<String, BRefType>  dataSourceConfigMap,
+     String jdbcurl,
+            String username, String password) {
         if (dataSourceConfigMap != null) {
             if (dataSourceConfigMap.get(Constants.URL) == null) {
-                if (jdbcurl.isEmpty()) {
-                    jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
-                }
                 dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
             }
         } else {
             dataSourceConfigMap = new BMap<>();
-            if (jdbcurl.isEmpty()) {
-                jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password);
-            }
             dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
         }
         dataSourceConfigMap.put(Constants.USER, new BString(username));
@@ -256,7 +228,7 @@ public class SQLDatasource implements BValue {
     }
 
     private String constructJDBCURL(String dbType, String hostOrPath, int port, String dbName, String username,
-            String password) {
+            String password, String dbOptions) {
         StringBuilder jdbcUrl = new StringBuilder();
         dbType = dbType.toUpperCase(Locale.ENGLISH);
         hostOrPath = hostOrPath.replaceAll("/$", "");
@@ -299,14 +271,14 @@ public class SQLDatasource implements BValue {
             }
             jdbcUrl.append("jdbc:db2:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
             break;
-        case Constants.DBTypes.HSQLDB_SERVER:
+        case Constants.DBTypes.HSQL_SERVER:
             if (port <= 0) {
                 port = Constants.DefaultPort.HSQLDB_SERVER;
             }
             jdbcUrl.append("jdbc:hsqldb:hsql://").append(hostOrPath).append(":").append(port).append("/")
                     .append(dbName);
             break;
-        case Constants.DBTypes.HSQLDB_FILE:
+        case Constants.DBTypes.HSQL_FILE:
             jdbcUrl.append("jdbc:hsqldb:file:").append(hostOrPath).append(File.separator).append(dbName);
             break;
         case Constants.DBTypes.H2_SERVER:
@@ -318,7 +290,7 @@ public class SQLDatasource implements BValue {
         case Constants.DBTypes.H2_FILE:
             jdbcUrl.append("jdbc:h2:file:").append(hostOrPath).append(File.separator).append(dbName);
             break;
-        case Constants.DBTypes.H2_MEM:
+        case Constants.DBTypes.H2_MEMORY:
             jdbcUrl.append("jdbc:h2:mem:").append(dbName);
             break;
         case Constants.DBTypes.DERBY_SERVER:
@@ -333,7 +305,7 @@ public class SQLDatasource implements BValue {
         default:
             throw new BallerinaException("cannot generate url for unknown database type : " + dbType);
         }
-        return jdbcUrl.toString();
+        return dbOptions.isEmpty() ? jdbcUrl.toString() : jdbcUrl.append(dbOptions).toString();
     }
 
     private String getXADatasourceClassName(String dbType, String url, String userName, String password) {
@@ -368,13 +340,15 @@ public class SQLDatasource implements BValue {
         case Constants.DBTypes.IBMDB2:
             xaDataSource = Constants.XADataSources.IBMDB2_XA_DATASOURCE;
             break;
-        case Constants.DBTypes.HSQLDB_SERVER:
-        case Constants.DBTypes.HSQLDB_FILE:
+        case Constants.DBTypes.HSQL:
+        case Constants.DBTypes.HSQL_SERVER:
+        case Constants.DBTypes.HSQL_FILE:
             xaDataSource = Constants.XADataSources.HSQLDB_XA_DATASOURCE;
             break;
+        case Constants.DBTypes.H2:
         case Constants.DBTypes.H2_SERVER:
         case Constants.DBTypes.H2_FILE:
-        case Constants.DBTypes.H2_MEM:
+        case Constants.DBTypes.H2_MEMORY:
             xaDataSource = Constants.XADataSources.H2_XA_DATASOURCE;
             break;
         case Constants.DBTypes.DERBY_SERVER:

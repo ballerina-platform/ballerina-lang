@@ -1,30 +1,159 @@
-
 .welcome-page {
-  background-color:#f9f9f9;
+  background-color: $primaryBackgroundColor;
   height: auto;
-  min-height: 100%;
-  padding: 50px 0;
-
-  .media-welcome-container{
-    background-color: #f9f9f9;
+  margin:0 !important;
+  .ballarina-top-strip {
+    margin: 0;
+    .brand-strip {
+      background: $brand-primary;
+      height: 10px;
+    }
+  }
+  .welcome-navbar {
+    color: $secondary-color;
+    margin-top: 50px;
+    .nav-tagline {
+      font-size: 16px;
+      padding-left: 35px !important;
+    }
+    .top-nav-links {
+      padding-right: 5px;
+      float: right;
+      .item {
+        color: #333;
+        &:before {
+          display: none;
+        }
+      }
+    }
+  }
+  .welcome-content-wrapper {
+    margin-top: 20px;
+    margin-bottom: 8%;
+    .leftContainer {
+      padding: 0 35px !important;
+      color: $secondary-color;
+      .button-wrapper {
+        margin: 30px 0 40px;
+        .button {
+          width: 100%;
+          height: auto;
+          border: 0;
+          margin: 5px 0;
+          padding: 10px 0;
+          font-size: 16px;
+          cursor: pointer;
+          font-weight: 300;
+          text-shadow: none;
+          &.btn-primary {
+            background-color: $brand-primary !important;
+            color: #fff;
+            &:hover {
+              background-color: #30a9a2 !important;
+              font-weight: 400;
+            }
+          }
+          &.btn-secondary {
+            background-color: $secondary-color !important;
+            color: #fff;
+            &:hover {
+              background-color: #616467 !important;
+              font-weight: 400;
+            }
+          }
+        }
+      }
+      .recentWrapper {
+        margin: 10px 0;
+      }
+      .opened-wrapper {
+        margin: 15px 0 !important;
+        .resentlyOpen {
+          color: $secondary-color;
+          padding-left: 10px;
+          cursor: pointer;
+          margin: 5px 0;
+          i.fw {
+            padding-right: 10px !important;
+          }
+          &:hover {
+            color: $brand-primary;
+            font-weight: 400;
+          }
+        }
+      }
+    }
+    .rightContainer {
+      padding: 0 50px;
+      .template-wrapper,
+      .sample-wrapper {
+        margin: 20px 0 !important;
+        .thumbnail-container {
+          background: #fff;
+          .inner-samples {
+            padding: 10px 10px 10px 0;
+            .thumbnail-wrapper {
+              margin: 7px;
+              .thumbnail {
+                background: #fff;
+                border: 1px solid #ccc;
+                margin: 10px 7px;
+                width: 100%;
+                .caption {
+                  padding: 0 10px;
+                  bottom: 0;
+                  font-weight: 400 !important;
+                  text-align: left;
+                  h4 {
+                    margin-top: 10 !important;
+                    font-weight: 400 !important;
+                    text-align: left;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      .wrapper-label {
+        min-width: 82px;
+        height: 39px;
+        -webkit-transform: rotate(-90deg) !important;
+        -moz-transform: rotate(-90deg) !important;
+        -ms-transform: rotate(-90deg) !important;
+        -o-transform: rotate(-90deg) !important;
+        filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3) !important;
+        margin-right: -34px !important;
+        padding: 6px 10px;
+        background: #fff;
+        overflow: hidden;
+        margin-top: 21px !important;
+      }
+      .rotate {
+        -webkit-transform: rotate(-90deg) !important;
+        -moz-transform: rotate(-90deg) !important;
+        -ms-transform: rotate(-90deg) !important;
+        -o-transform: rotate(-90deg) !important;
+        filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3) !important;
+      }
+    }
+  }
+  .media-welcome-container {
     height: auto;
-    padding:20px;
+    padding: 20px;
     display: flex;
     align-items: stretch;
-
-    .media-left{
+    .media-left {
       width: 300px;
       padding: 20px 40px 20px 20px;
       border-right: 1px solid #ccc;
       height: auto;
-
       .logo {
         width: 200px;
         padding: 10px;
         margin-bottom: 30px;
         height: 50px;
       }
-
       .button {
         width: 200px;
         height: 37px;
@@ -35,20 +164,16 @@
         cursor: pointer;
         font-weight: 300;
         text-shadow: none;
-
         &.btn-primary {
           background-color: $brand-primary !important;
-
-          &:hover{
+          &:hover {
             background-color: #30a9a2 !important;
             font-weight: 400;
           }
         }
-
         &.btn-secondary {
           background-color: #444 !important;
-
-          &:hover{
+          &:hover {
             background-color: #333 !important;
             font-weight: 400;
           }
@@ -60,66 +185,10 @@
           a {
             color: $brand-primary;
             text-decoration: none;
-            
-              &:hover {
-                background-color: #f9f9f9;
-                color: #333;
-                font-weight: 400;
-              }
-          }
-        }
-      }
-    }
-
-    .media-body{
-      width: 100%;
-      padding: 20px 20px 0 20px;
-
-      .welcome-details-wrapper{
-
-        .header-title{
-          font-size: 18px;
-          font-weight: 400;
-          margin-left: 20px;
-          margin-bottom: 20px;
-        }
-
-        .details-container{
-          margin: 0 0 25px 20px;
-          background-color: #f1f1f1;
-          padding: 10px 20px;
-
-          .thumbnail-wrapper {
-            padding: 0;
-            min-height: 205px;
-
-            .thumbnail {
-              background-color: #fff;
-              margin: 9px 5px 15px 15px;
-              cursor: pointer;
-              width: 90%;
-              height: auto;
-              padding-bottom: 30px;
-              position: relative;
-
-              &:hover{
-                border: 1px solid #a9a1a1;
-                -webkit-box-shadow: 0 1px 2px rgba(58, 58, 58, 0.3);
-                box-shadow: 0 1px 2px rgba(58, 58, 58, 0.3);
-              }
-
-              .caption {
-                padding: 10px 10px 5px 10px;
-                position: absolute;
-                bottom: 0;
-
-                h4 {
-                  font-size: 12pt;
-                  color: #4a4a4a;
-                  font-weight: 400;
-                  margin: 5px 0;
-                }
-              }
+            &:hover {
+              background-color: #f9f9f9;
+              color: #333;
+              font-weight: 400;
             }
           }
         }

@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -38,15 +39,18 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
  * @since 0.965.0
  */
 @SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.http", name = "ServiceEndpoint"),
-                @SupportEndpointTypes.EndpointType(packageName = "ballerina.http", name = "WebSocketEndpoint")}
+        value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "http", name = "Listener")}
 )
 public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
 
+    private DiagnosticLog dlog = null;
+
     @Override
     public void init(DiagnosticLog diagnosticLog) {
+        dlog = diagnosticLog;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         for (AnnotationAttachmentNode annotation : annotations) {
@@ -59,10 +63,13 @@ public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
                 handleServiceConfigAnnotation(serviceNode, (BLangAnnotationAttachment) annotation);
             }
         }
-        if (HttpConstants.HTTP_SERVICE_TYPE.equals(serviceNode.getServiceTypeStruct().getTypeName().getValue())) {
+        final UserDefinedTypeNode serviceType = serviceNode.getServiceTypeStruct();
+        if (serviceType != null && HttpConstants.HTTP_SERVICE_TYPE.equals(serviceType.getTypeName().getValue())) {
             List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
-            resources.forEach(resource -> ResourceSignatureValidator.validate(resource.getParameters()));
+            resources.forEach(res -> ResourceSignatureValidator.validate(res.getParameters(), dlog, res.pos));
         }
+        // get value from endpoint.
+        // ((BLangSimpleVarRef) serviceNode.getBoundEndpoints().get(0)).varSymbol.getType().tsymbol.name.value
     }
 
     @Override

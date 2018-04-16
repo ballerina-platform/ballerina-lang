@@ -32,7 +32,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockinAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -52,10 +53,12 @@ import javax.jms.Session;
                    isPublic = true)
 public class CreateTextMessage extends AbstractBlockinAction {
 
+    public static final Logger LOGGER = LoggerFactory.getLogger(CreateTextMessage.class);
+
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
 
-        Struct sessionBObject = BallerinaAdapter.getReceiverStruct(context);
+        Struct sessionBObject = BallerinaAdapter.getReceiverObject(context);
 
         Session session = BallerinaAdapter.getNativeObject(sessionBObject, Constants.JMS_SESSION, Session.class,
                                                            context);
@@ -64,17 +67,14 @@ public class CreateTextMessage extends AbstractBlockinAction {
 
         Message jmsMessage;
 
-        try {
-            jmsMessage = session.createTextMessage(content);
-        } catch (JMSException e) {
-            throw new BallerinaException("Failed to create message. " + e.getMessage(), e, context);
-        }
-
         BStruct bStruct = BLangConnectorSPIUtil.createBStruct(context, Constants.BALLERINA_PACKAGE_JMS,
                                                               Constants.JMS_MESSAGE_STRUCT_NAME);
-
-        bStruct.addNativeData(Constants.JMS_MESSAGE_OBJECT, jmsMessage);
-
+        try {
+            jmsMessage = session.createTextMessage(content);
+            bStruct.addNativeData(Constants.JMS_MESSAGE_OBJECT, jmsMessage);
+        } catch (JMSException e) {
+            BallerinaAdapter.returnError("Failed to create message.", context, e);
+        }
         context.setReturnValues(bStruct);
     }
 }

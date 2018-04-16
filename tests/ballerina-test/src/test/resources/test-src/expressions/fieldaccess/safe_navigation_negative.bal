@@ -40,3 +40,32 @@ function testFunctionInvocReturnType () {
     string s = j.toString();
     string[] keys = j.getKeys();
 }
+
+function testErrorLiftingOnRHS() {
+    Person|error p;
+    p!info1!address1!city = "Colombo";
+}
+
+function testErrorLiftingOnArray() returns Person|error {
+    Person[]|error p;
+    return p[0];
+}
+
+function testSafeNavigateOnErrorOrNull_1() returns string{
+    error|() e;
+    return e!message;
+}
+
+function testSafeNavigateOnErrorOrNull_3() returns string {
+    error e;
+    return e!message;
+}
+
+function testUpdatingNullableStructField () returns any {
+    Address adrs = {city:"Colombo"};
+    Info inf = {address2 : adrs};
+    Person prsn = {info2 : inf};
+    Person|() p = prsn;
+    p.info2.address2.city = "Kandy";
+    return p;
+}

@@ -16,9 +16,10 @@
 
 package org.ballerinalang.swagger.model;
 
-import io.swagger.oas.models.media.ArraySchema;
-import io.swagger.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.Schema;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
+import org.ballerinalang.swagger.utils.GeneratorConstants;
 
 import java.util.AbstractMap;
 import java.util.LinkedHashSet;
@@ -44,16 +45,17 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
 
         // identify array type schema definitions
         if (schema instanceof ArraySchema) {
-            properties = new LinkedHashSet<>();
+            this.properties = new LinkedHashSet<>();
             Schema propSchema = new Schema();
 
             String type = getReferenceType(((ArraySchema) schema).getItems().get$ref());
             String name = type.toLowerCase(Locale.ENGLISH) + LIST_SUFFIX;
+            toPropertyName(name);
             type = type.isEmpty() ? UNSUPPORTED_PROPERTY_MSG : type + "[]";
 
             propSchema.setType(type);
             AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry<>(name, propSchema);
-            properties.add(entry);
+            this.properties.add(entry);
 
             return this;
         }
@@ -63,23 +65,29 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
         }
 
         Set<Map.Entry<String, Schema>> entries = schema.getProperties().entrySet();
+        Set<Map.Entry<String, Schema>> newEntries = new LinkedHashSet<>();
 
         // change conflicting swagger data types to ballerina data types
-        for (Map.Entry entry : entries) {
-            Schema prop = (Schema) entry.getValue();
+        for (Map.Entry<String, Schema> entry : entries) {
+            Schema prop = entry.getValue();
+            String name;
 
             // Extract reference type objects
             if (prop.get$ref() != null) {
                 String type = getReferenceType(prop.get$ref());
                 type = type.isEmpty() ? UNSUPPORTED_PROPERTY_MSG : type;
+                name = toPropertyName(entry.getKey());
                 prop.setType(type);
+                newEntries.add(new AbstractMap.SimpleEntry<>(name, prop));
                 continue;
             }
 
+            name = toPropertyName(entry.getKey());
             prop.setType(getPropertyType(prop));
+            newEntries.add(new AbstractMap.SimpleEntry<>(name, prop));
         }
 
-        this.properties = entries;
+        this.properties = newEntries;
         return this;
     }
 
@@ -94,7 +102,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
     }
 
     private String getPropertyType(Schema prop) {
-        String type = "any";
+        String type;
 
         switch (prop.getType()) {
             case "integer":
@@ -127,6 +135,23 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
         }
 
         return type;
+    }
+
+    /**
+     * Verify if {@code origName} is reserved ballerina keyword and prefix the {@code origName} with an '_'.
+     * Ex: toPropertyName("type") will return "_type".
+     *
+     * @param origName original property name
+     * @return keyword escaped property name
+     */
+    private String toPropertyName(String origName) {
+        String escapedName = origName;
+        boolean isKeyword = GeneratorConstants.RESERVED_KEYWORDS.stream().anyMatch(key -> key.equals(origName));
+        if (isKeyword) {
+            escapedName = '_' + origName;
+        }
+
+        return escapedName;
     }
 
     public Schema getOasSchema() {

@@ -17,7 +17,6 @@ package org.ballerinalang.langserver;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +24,6 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.io.PrintStream;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,28 +31,29 @@ import java.util.Map;
  */
 public class LSPackageCache {
 
-    private ExtendedPackageCache packageCache;
+    private static final CompilerContext.Key<LSPackageCache> LS_PACKAGE_CACHE_KEY =
+            new CompilerContext.Key<>();
+
+    private static final Object LOCK = new Object();
+
+    private final ExtendedPackageCache packageCache;
     private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
 
-    private static final String[] staticPkgNames = {"http", "http.swagger", "net.uri", "mime", "auth", "auth.authz",
-            "auth.authz.permissionstore", "auth.basic", "auth.jwtAuth", "auth.userstore", "auth.utils", "caching",
-            "collections", "config", "sql", "file", "internal", "io", "jwt", "jwt.signature", "log", "math", "os",
-            "reflect", "runtime", "security.crypto", "task", "time", "transactions", "user", "util"};
-
-    private static final LSPackageCache INSTANCE = new LSPackageCache();
-
-    public static LSPackageCache getInstance() {
-        return INSTANCE;
+    public static LSPackageCache getInstance(CompilerContext context) {
+        LSPackageCache lsPackageCache = context.get(LS_PACKAGE_CACHE_KEY);
+        if (lsPackageCache == null) {
+            synchronized (LOCK) {
+                if (context.get(LS_PACKAGE_CACHE_KEY) == null) {
+                    lsPackageCache = new LSPackageCache(context);
+                }
+            }
+        }
+        return lsPackageCache;
     }
 
-    private LSPackageCache() {
-        CompilerContext tempCompilerContext = CommonUtil.prepareTempCompilerContext();
-        packageCache = new ExtendedPackageCache(tempCompilerContext);
-        this.loadPackagesMap(tempCompilerContext);
-        List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages();
-        builtInPackages.forEach(bLangPackage -> {
-            this.addPackage(bLangPackage.packageID, bLangPackage);
-        });
+    private LSPackageCache(CompilerContext context) {
+        context.put(LS_PACKAGE_CACHE_KEY, this);
+        packageCache = new ExtendedPackageCache(context);
     }
 
     /**
@@ -81,7 +79,11 @@ public class LSPackageCache {
      * @param packageID ballerina package id to be removed.
      */
     public void removePackage(PackageID packageID) {
-        this.packageCache.remove(packageID);
+        packageCache.remove(packageID);
+    }
+    
+    public void clearCache() {
+        packageCache.clearCache();
     }
 
     /**
@@ -92,22 +94,7 @@ public class LSPackageCache {
     void addPackage(PackageID packageID, BLangPackage bLangPackage) {
         if (bLangPackage != null) {
             bLangPackage.packageID = packageID;
-            this.packageCache.put(packageID, bLangPackage);
-        }
-    }
-    
-    private void loadPackagesMap(CompilerContext tempCompilerContext) {
-        for (String staticPkgName : LSPackageCache.staticPkgNames) {
-            PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
-                    new org.wso2.ballerinalang.compiler.util.Name(staticPkgName),
-                    new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
-            try {
-                // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
-                LSPackageLoader.getPackageById(tempCompilerContext, packageID);
-            } catch (Exception e) {
-                PrintStream errPrintStream = System.err;
-                errPrintStream.println("Error while loading package :" + staticPkgName);
-            }
+            packageCache.put(packageID, bLangPackage);
         }
     }
 
@@ -137,6 +124,10 @@ public class LSPackageCache {
             if (packageID != null) {
                 this.packageMap.remove(packageID.bvmAlias());
             }
+        }
+        
+        public void clearCache() {
+            this.packageMap.clear();
         }
     }
 }

@@ -7,7 +7,7 @@ import ballerina/http;
 
 function pushPackage (string accessToken, string mdFileContent, string summary, string homePageURL, string repositoryURL,
     string apiDocURL, string authors, string keywords, string license, string url, string dirPath, string msg) {
-    endpoint http:ClientEndpoint httpEndpoint {
+    endpoint http:Client httpEndpoint {
         targets: [
         {
             url: url,
@@ -37,18 +37,22 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
     mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     filePart.contentType = contentTypeOfFilePart;
     filePart.contentDisposition = getContentDispositionForFormData("artifact");
-    file:Path filePath = file:getPath(dirPath);
-    filePart.setFileAsEntityBody(filePath);
+    file:Path filePath = new(dirPath);
+    filePart.setFileAsEntityBody(untaint filePath);
 
     mime:Entity[] bodyParts = [filePart, mdFileContentBodyPart, summaryBodyPart, homePageURLBodyPart, repositoryURLBodyPart,
                                            apiDocURLBodyPart, authorsBodyPart, keywordsBodyPart, licenseBodyPart];
     http:Request req = new;
     req.addHeader("Authorization", "Bearer " + accessToken);
-    req.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
+    req.setBodyParts(bodyParts, mime:MULTIPART_FORM_DATA);
     
     var result = httpEndpoint -> post("", req);
     http:Response httpResponse = check result;
-    if (httpResponse.statusCode != 200) {
+    string statusCode = <string> httpResponse.statusCode;
+    if (statusCode.hasPrefix("5")) {
+        error err = {message:"remote registry failed for url :" + url};
+        throw err;
+    } else if (statusCode != "200") {
         json jsonResponse = check (httpResponse.getJsonPayload());
         string message = (jsonResponse.message.toString() but {()=> "error occurred when pushing the package"});
         io:println(message);

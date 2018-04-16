@@ -77,10 +77,14 @@ public class BStructType extends BType implements StructType {
         public BType type;
         public BVarSymbol symbol;
 
-        public BStructField(Name name, BVarSymbol symbol) {
+        //no need to persist below flag
+        public boolean expAvailable;
+
+        public BStructField(Name name, BVarSymbol symbol, boolean expAvailable) {
             this.name = name;
             this.symbol = symbol;
             this.type = symbol.type;
+            this.expAvailable = expAvailable;
         }
 
         @Override

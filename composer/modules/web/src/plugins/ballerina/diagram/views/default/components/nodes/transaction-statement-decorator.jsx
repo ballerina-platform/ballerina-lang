@@ -160,7 +160,7 @@ class TransactionStatementDecorator extends React.Component {
         const viewState = model.viewState;
         const titleH = designer.config.statement.height;
         const statementBBox = viewState.components['statement-box'];
-        const gapLeft = viewState.components['left-margin'].w;
+        const gapLeft = viewState.bBox.leftMargin;
         const gapTop = designer.config.compoundStatement.padding.top;
         const bottomPadding = 10;
 

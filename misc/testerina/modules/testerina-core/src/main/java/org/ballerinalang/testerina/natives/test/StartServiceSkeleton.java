@@ -96,10 +96,10 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
         }
 
         CodeGenerator generator = new CodeGenerator();
-        generator.setApiPackage(packageName);
+        generator.setSrcPackage(packageName);
 
         try {
-            generator.generate(GeneratorConstants.GenType.SKELETON, swaggerFilePath, rootDir.toString());
+            generator.generate(GeneratorConstants.GenType.MOCK, swaggerFilePath, rootDir.toString());
 
         } catch (IOException | BallerinaOpenApiException e) {
             throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to generate the "

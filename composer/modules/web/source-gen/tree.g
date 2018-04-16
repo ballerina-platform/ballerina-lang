@@ -39,14 +39,18 @@ Assignment
    : <declaredWithVar?var> <variable.source> = <expression.source> ;
    ;
 
+AwaitExpr
+   : await <expression.source>
+   ;
+
 BinaryExpr
    : <inTemplateLiteral?> {{ <leftExpression.source> <operatorKind> <rightExpression.source> }}
    |             <leftExpression.source> <operatorKind> <rightExpression.source>
    ;
 
 Bind
-    : bind <expression.source> with <variable.source> ;
-    ;
+   : bind <expression.source> with <variable.source> ;
+   ;
 
 Block
    : <statements>*
@@ -57,12 +61,19 @@ Break
    : break ;
    ;
 
+BracedTupleExpr
+   : ( <expressions-joined-by,>* )
+
 BuiltInRefType
    : <typeKind>
    ;
 
 Catch
    : catch ( <parameter.source> ) { <body.source> }
+   ;
+
+CheckExpr
+   : check <expression.source>
    ;
 
 Comment
@@ -103,14 +114,6 @@ ExpressionStatement
    : <expression.source> ;
    ;
 
-Enum
-   : enum\u0020 <name.source> { <enumerators-joined-by-,>* }
-   ;
-
-Enumerator
-   : <name.source>
-   ;
-
 FieldBasedAccessExpr
    : <expression.source> . <fieldName.value>
    ;
@@ -129,12 +132,12 @@ ForkJoin
    ;
 
 Function
-   : <lambda?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function              ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <endpointNodes>* <body.source> <workers>* }
-   | <lambda?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function              ( <parameters-joined-by,>* ) { <endpointNodes>* <body.source> <workers>* }
+   : <lambda?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function                                                    ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <endpointNodes>* <body.source> <workers>* }
+   | <lambda?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function                                                    ( <parameters-joined-by,>* )                                 { <endpointNodes>* <body.source> <workers>* }
    | <hasReturns?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) returns <returnTypeNode.source> { <endpointNodes>* <body.source> <workers>* }
-   | <hasReturns?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) returns <returnTypeNode.source> { <endpointNodes>* <body.source> <workers>* }
-   |               <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) { <endpointNodes>* <body.source> <workers>* }
-   |               <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) { <endpointNodes>* <body.source> <workers>* }
+   | <hasReturns?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* ) returns <returnTypeNode.source> { <endpointNodes>* <body.source> <workers>* }
+   |               <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* )                                 { <endpointNodes>* <body.source> <workers>* }
+   |               <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                       <name.value> ( <parameters-joined-by,>* )                                 { <endpointNodes>* <body.source> <workers>* }
    ;
 
 FunctionType
@@ -153,10 +156,10 @@ IndexBasedAccessExpr
    ;
 
 Invocation
-   : <actionInvocation?>      <expression.source>  ->   <name.value> ( <argumentExpressions-joined-by,>* )
-   | <expression.source>  .   <name.value> ( <argumentExpressions-joined-by,>* )
-   | <packageAlias.value> :   <name.value> ( <argumentExpressions-joined-by,>* )
-   |                          <name.value> ( <argumentExpressions-joined-by,>* )
+   : <actionInvocation?>      <async?async> <expression.source>  ->   <name.value> ( <argumentExpressions-joined-by,>* )
+   | <expression.source>  .   <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
+   | <packageAlias.value> :   <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
+   |                          <async?async> <name.value> ( <argumentExpressions-joined-by,>* )
    ;
 
 Lambda
@@ -182,8 +185,12 @@ MatchExpression
    : <expr> but { <patternClauses>* }
    ;
 
-MatchExprPatternClause
-   : <variable.source> => <expr.source>
+MatchExpressionPatternClause
+   : <variable.source> => <statement.source>
+   ;
+
+NamedArgsExpr
+   : <name.value> = <expression.source>
    ;
 
 Next
@@ -215,7 +222,9 @@ Resource
    ;
 
 Return
-   : return <expression.source> ;
+   : <noExpressionAvailable?> return                       ;
+   | <emptyBrackets?>         return                     ();
+   |                          return <expression.source>   ;
    ;
 
 Service
@@ -232,10 +241,6 @@ SimpleVariableRef
 
 StringTemplateLiteral
    : string\u0020` <expressions>* `
-
-Struct
-   : <anonStruct?>                          <public?public> struct              { <fields-suffixed-by-;>* }
-   |                <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> struct <name.value> { <fields-suffixed-by-;>* }
    ;
 
 TernaryExpr
@@ -280,8 +285,14 @@ Try
    | try { <body.source> } <catchBlocks>*
    ;
 
-TupleType
+TupleDestructure
+   : <declaredWithVar?> var ( <variableRefs-joined-by,>+ ) = <expression.source>;
+   |                        ( <variableRefs-joined-by,>+ ) = <expression.source>;
+   ;
+
+TupleTypeNode
    : ( <memberTypeNodes-joined-by,>+ )
+   ;
 
 TypeCastExpr
    : ( <typeNode.source> ) <expression.source>
@@ -297,12 +308,18 @@ TypeofExpression
    ;
 
 TypeInitExpr
-   : <noTypeAttached?> new                   ( <expressions-joined-by,>* );
-   |                   new <typeName.source> ( <expressions-joined-by,>* );
+   : <noExpressionAvailable?> new
+   | <noTypeAttached?>        new                   ( <expressions-joined-by,>* )
+   |                          new <typeName.source> ( <expressions-joined-by,>* )
    ;
 
 UnaryExpr
    : <operatorKind> <expression.source>
+   ;
+
+UnionTypeNode
+   : <withParantheses?> ( <memberTypeNodes-joined-by|>* )
+   |                      <memberTypeNodes-joined-by|>*
    ;
 
 UserDefinedType
@@ -314,7 +331,7 @@ UserDefinedType
 
 ValueType
    : <withParantheses?> ( <typeKind> )
-   : <typeKind>
+   :                      <typeKind>
    ;
 
 Variable
@@ -344,12 +361,12 @@ Worker
    ;
 
 WorkerReceive
-   : <expressions-joined-by,>* <- <workerName.value> ;
+   : <expression.source> <- <workerName.value> ;
    ;
 
 WorkerSend
-   : <forkJoinedSend?> <expressions-joined-by,>* -> fork ;
-   |                   <expressions-joined-by,>* -> <workerName.value> ;
+   : <forkJoinedSend?> <expression.source> -> fork ;
+   |                   <expression.source> -> <workerName.value> ;
    ;
 
 XmlAttribute

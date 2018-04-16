@@ -102,7 +102,7 @@ public class PullCommand implements BLauncherCmd {
             version = "*";
         }
 
-        URI baseURI = URI.create("https://api.staging-central.ballerina.io/packages/");
+        URI baseURI = URI.create("https://api.central.ballerina.io/packages/");
         Repo remoteRepo = new RemoteRepo(baseURI);
 
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
