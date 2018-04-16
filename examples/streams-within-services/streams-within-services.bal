@@ -17,26 +17,27 @@ function initRealtimeRequestCounter () {
 
     stream<RequestCount> requestCountStream;
 
-    //Whenever requestCountStream receives an event from the streaming rules defined in the forever block,
-    //'printRequestCount' function will be invoked.
+    //Whenever the `requestCountStream` stream receives an event from the streaming rules defined in the forever block,
+    //the `printRequestCount` function is invoked.
     requestCountStream.subscribe(printRequestCount);
 
-    //Gather all the events which are coming to requestStream for 5 sec, then group by host and the count the number
-    //of requests per host, then check if the count is more than 6. If so, publish the output (host and the count) to
-    //requestCountStream. This forever block will be executed once, when initializing the service. So each time the
-    //requestStream receives an event, the processing will happen asynchronously.
+    //Gather all the events that are coming to requestStream for five seconds, group them by the host, count the number
+    //of requests per host, and check if the count is more than six. If yes, publish the output (host and the count) to
+    //the `requestCountStream` stream as an alert. This forever block is executed once, when initializing the service.
+    // The processing happens asynchronously each time the `requestStream` receives an event.
     forever {
         from requestStream
         window timeBatch(5000)
         select host, count(host) as count group by host having count > 6
         => (RequestCount [] counts) {
-                //'counts' are the output of the streaming rules and those are published to requestCountStream.
-                //Select clause should match with the structure of the 'RequestCount' struct.
+                //The 'counts' is the output of the streaming rules and is published to `requestCountStream`.
+                //The selected clause should match the structure of the 'RequestCount' struct.
                 requestCountStream.publish(counts);
         }
     }
 }
 
+// Define the `printRequestCount` function.
 function printRequestCount (RequestCount reqCount) {
     io:println("ALERT!! : Received more than 6 requests within 5 second from the host: " + reqCount.host);
 }
@@ -48,6 +49,8 @@ endpoint http:Listener storeServiceEndpoint {
 @http:ServiceConfig {
     basePath:"/"
 }
+// The host header is extracted from the requests that come to the service using the `/requests` context. Using this
+// information the `clientRequest` object is created and published to the `requestStream`.
 service StoreService bind storeServiceEndpoint {
 
     future ftr = start initRealtimeRequestCounter();

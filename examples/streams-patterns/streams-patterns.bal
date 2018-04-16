@@ -3,7 +3,7 @@ import ballerina/runtime;
 
 int index;
 
-// type representing the regulator state
+// Create an object type that represents the regulator state.
 type RegulatorState {
     int deviceId;
     int roomNo;
@@ -11,7 +11,7 @@ type RegulatorState {
     string userAction;
 };
 
-// type representig the user actions on the hotel key
+// Create an object type that represents the user actions on the hotel key.
 type RoomKeyAction {
     int roomNo;
     string userAction;
@@ -24,8 +24,9 @@ stream<RegulatorState> regulatorStateChangeStream;
 stream<RoomKeyAction> roomKeyStream;
 stream<RoomKeyAction> regulatorActionStream;
 
-// function deploy the decision rules for regulator's next action based on current regulator state and user action on
-// hotel key
+// Deploy the decision rules for the regulator's next action based on the current regulator state and user action on
+// the hotel key. If the regulator was on before, and is still on after the user has removed the hotel key from the
+// room, the stop control action is called.
 function deployRegulatorActionDecisionRules() {
     forever {
         from every regulatorStateChangeStream where userAction == "on" as e1
@@ -41,26 +42,25 @@ function deployRegulatorActionDecisionRules() {
 public function main(string[] args) {
     index = 0;
 
-    // Deploying the streaming pattern rules which define how the regulator is controlled based on received events
+    // Deploys the streaming pattern rules that define how the regulator is controlled based on received events.
     deployRegulatorActionDecisionRules();
 
-    // Sample events which represents the different regulator states
+    // Sample events that represents the different regulator states.
     RegulatorState regulatorState1 = {deviceId:1, roomNo:2, tempSet:23.56, userAction:"on"};
     RegulatorState regulatorState2 = {deviceId:1, roomNo:2, tempSet:23.56, userAction:"off"};
 
-    // Sample event which represents the user action on the Door of the Room, 'removed' means the room is closed (in
-    // other words the owner has left the room).
+    // The sample event that represents the user action on the door of the room. 'removed' the owner has left the room.
     RoomKeyAction roomKeyAction = {roomNo:2, userAction:"removed"};
 
-    // RegulatorActionStream is subscribed to the 'alertRoomAction' function. Whenever the stream 'RegulatorActionStream'
-    // receives a valid event, the function will be called
+    // The `RegulatorActionStream` subscribes to the `alertRoomAction` function. Whenever the
+    // 'RegulatorActionStream' stream receives a valid event, this function is called.
     regulatorActionStream.subscribe(alertRoomAction);
 
-    // Publish/simulate the sample event which reprements the regulator 'switch on' event.
+    // Publish/simulate the sample event that represents the regulator 'switch on' event.
     regulatorStateChangeStream.publish(regulatorState1);
     runtime:sleepCurrentWorker(200);
 
-    // Simulate the sample event which represents the door/room closed event
+    // Simulate the sample event that represents the door/room closed event.
     roomKeyStream.publish(roomKeyAction);
     runtime:sleepCurrentWorker(500);
 

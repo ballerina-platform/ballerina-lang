@@ -1,36 +1,39 @@
 import ballerina/runtime;
 import ballerina/io;
 
-// type representing the device temperature reading
+// Create an object type that represents the device temperature reading.
 type DeviceTempInfo {
     int deviceID;
     int roomNo;
     float temp;
 };
 
-// type representing the inital temperature and the peak temperature
+// Create an object type that represents the initial temperature and the peak temperature.
 type TempDiffInfo {
     float initialTemp;
     float peakTemp;
 };
 
-// input temperature readings
+// The stream that gets the input temperature readings.
 stream<DeviceTempInfo> tempStream;
 
-// output stream with peak temperature values
+// The output stream with peak temperature values.
 stream<TempDiffInfo> tempDiffInfoStream;
 
 TempDiffInfo[] tempDiffInfoArray = [];
 int index;
 
-// function which contains the rules which detect the temperature peak values
+// This is the function that contains the rules, which detect the temperature peak values. The first events temperature
+// should be greater than the temperature values that are returned with the next event, that is e2. The last
+// temperature value in e2 should be greater than the temperature value that is given in the event e3. This makes
+// the last value of e2 the peak temperature.
 function deployPeakTempDetectionRules() {
     forever {
         from every tempStream as e1, tempStream where e1.temp <= temp [1..] as e2,
         tempStream where e2[e2.length-1].temp > temp as e3
         select e1.temp as initialTemp, e2[e2.length-1].temp as peakTemp
         => (TempDiffInfo[] tempDiffInfos) {
-            // if the sequence is matched the data is pushed/published to output stream
+            // if the sequence is matched the data is pushed/published to the output stream.
             tempDiffInfoStream.publish(tempDiffInfos);
         }
     }
@@ -39,12 +42,13 @@ function deployPeakTempDetectionRules() {
 public function main(string[] args) {
 
     index = 0;
-    // deploy the streaming sequence rules
+    // Deploy the streaming sequence rules.
     deployPeakTempDetectionRules();
 
-    //subscribe to the function 'printInitialAndPeakTemp', so we can print whenver a peak temp is detected
+    //Subscribe to the `printInitialAndPeakTemp` function. The prints the peak temperature values.
     tempDiffInfoStream.subscribe(printInitalAndPeakTemp);
 
+    //Stimulating the data that is being sent to the `tempStream` stream.
     DeviceTempInfo t1 = {deviceID:1, roomNo:23, temp:20.0};
     DeviceTempInfo t2 = {deviceID:1, roomNo:23, temp:22.5};
     DeviceTempInfo t3 = {deviceID:1, roomNo:23, temp:23.0};
@@ -52,7 +56,7 @@ public function main(string[] args) {
     DeviceTempInfo t5 = {deviceID:1, roomNo:23, temp:24.0};
     DeviceTempInfo t6 = {deviceID:1, roomNo:23, temp:23.9};
 
-    // start simulating the events with temperature readings
+    // Start simulating the events with the temperature readings.
     tempStream.publish(t1);
     runtime:sleepCurrentWorker(200);
 
@@ -70,9 +74,9 @@ public function main(string[] args) {
 
     tempStream.publish(t6);
 
-    // done sending 6 temperature events
+    // Finished sending all six temperature events.
 
-    // wait till we collect the results for some sensible time.
+    // Wait until the results are collected.
     int count = 0;
     while(true) {
         runtime:sleepCurrentWorker(500);
@@ -83,14 +87,14 @@ public function main(string[] args) {
     }
 }
 
-// function which prints the peak temperature readings
+// The function that prints the peak temperature readings.
 function printInitalAndPeakTemp(TempDiffInfo tempDiff) {
     io:println("printInitalAndPeakTemp function is invoked. InitialTemp:" + tempDiff.initialTemp + " and Peak temp :" +
             + tempDiff.peakTemp);
     addToGlobalTempDiffArray(tempDiff);
 }
 
-// this function is only used to keep track of all output temperature peak values.
+// This function is used to keep track of all the temperature peak values.
 function addToGlobalTempDiffArray(TempDiffInfo s) {
     tempDiffInfoArray[index] = s;
     index = index + 1;
