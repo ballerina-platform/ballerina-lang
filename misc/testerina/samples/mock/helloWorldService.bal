@@ -17,7 +17,7 @@ service<http:Service> HelloServiceMock bind helloEP {
         path:"/"
     }
     getEvents (endpoint client, http:Request req) {
-        http:Response res = {};
+        http:Response res = new;
         json j = {"Hello":"World"};
         res.setJsonPayload(j);
         _ = client -> respond(res);
