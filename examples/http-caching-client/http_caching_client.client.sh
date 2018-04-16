@@ -1,3 +1,4 @@
+#Run the following curl command to run the client. 
 $ curl -v http://localhost:9090/cache
 *   Trying 127.0.0.1...
 * Connected to localhost (127.0.0.1) port 9090 (#0)
