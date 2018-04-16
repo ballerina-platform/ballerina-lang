@@ -13,41 +13,41 @@ function main (string[] args) {
         (function() returns error?) onTriggerFunction =  appointment1Cleanup;
         (function(error )) onErrorFunction = cleanupError;
 
-        // job 1 will run every 20 seconds
+        //job 1 runs every 20 seconds.
         appointment1 = new task:Appointment(onTriggerFunction, onErrorFunction, "0/20 * * * * ?");
         _ = appointment1.schedule();
 
-        // job 2 will run every other minute (at 15 seconds past the minute)
+        //job 2 runs every other minute (at 15 seconds past the minute).
         onTriggerFunction = appointment2Cleanup;
         task:Appointment appointment2 = new task:Appointment(onTriggerFunction, onErrorFunction,"15 0/2 * * * ?");
         appointment2.schedule();
 
-        // job 3 will run every other minute but only between 8am and 5pm.
+        //job 3 runs every other minute but only between 8am and 5pm.
         onTriggerFunction = appointment3Cleanup;
         task:Appointment appointment3 = new task:Appointment(onTriggerFunction, onErrorFunction, "0 0/2 8-17 * * ?");
         appointment3.schedule();
 
-        // job 4 will run every three minutes but only between 5pm and 11pm.
+        //job 4 runs every three minutes but only between 5pm and 11pm.
         onTriggerFunction = appointment4Cleanup;
         task:Appointment appointment4 = new task:Appointment(onTriggerFunction, onErrorFunction, "0 0/3 17-23 * * ?");
         appointment4.schedule();
 
-        // job 5 will run at 10am on the 1st and 15th days of the month.
+        //job 5 runs at 10am on the 1st and the 15th days of the month.
         onTriggerFunction = appointment5Cleanup;
         task:Appointment appointment5 = new task:Appointment(onTriggerFunction, onErrorFunction, "0 0 10am 1,15 * ?");
         appointment5.schedule();
 
-        // job 6 will run every 30 seconds but only on Weekdays. (Monday through Friday)
+        //job 6 runs every 30 seconds but only on weekdays (i.e., Monday through Friday).
         onTriggerFunction = appointment6Cleanup;
         task:Appointment appointment6 = new task:Appointment(onTriggerFunction, onErrorFunction, "0,30 * * ? * MON-FRI");
         appointment6.schedule();
 
-        // job 7 will run every 30 seconds but only on Weekends. (Saturday and Sunday)
+        //job 7 runs every 30 seconds but only on weekends (i.e., Saturday and Sunday).
         onTriggerFunction = appointment7Cleanup;
         task:Appointment appointment7 = new task:Appointment(onTriggerFunction, onErrorFunction, "0,30 * * ? * SAT,SUN");
         appointment7.schedule();
 
-        runtime:sleepCurrentWorker(600000); // Temporary workaround to stop the process from exiting
+        runtime:sleepCurrentWorker(600000); // Temporary workaround to stop the process from exiting.
     }
 }
 
