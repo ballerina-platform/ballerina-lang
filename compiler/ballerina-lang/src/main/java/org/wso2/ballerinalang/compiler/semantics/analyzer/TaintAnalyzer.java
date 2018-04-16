@@ -757,7 +757,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (taintedStatus == null) {
             throw new WorkerAnalysisBlockedOnInteractionException();
         } else {
-            setTaintedStatus((BLangVariableReference) workerReceiveNode.expr, getObservedTaintedStatus());
+            visitAssignment(workerReceiveNode.expr, getObservedTaintedStatus(), workerReceiveNode.pos);
         }
     }
 

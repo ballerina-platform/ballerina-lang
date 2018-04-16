@@ -70,7 +70,7 @@ public class WebSubHttpService extends HttpService {
 
         Struct serviceConfig = serviceConfigAnnotation.getValue();
 
-        websubHttpService.setBasePath(serviceConfig.getStringField(BASE_PATH_FIELD));
+        websubHttpService.setBasePath(serviceConfig.getStringField(WebSubSubscriberConstants.PATH_FIELD));
 
         List<HttpResource> resources = new ArrayList<>();
         for (Resource resource : websubHttpService.getBallerinaService().getResources()) {

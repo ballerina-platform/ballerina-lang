@@ -20,7 +20,7 @@ package ballerina.websub;
 ///////////////////////////
 @Description {value:"Configuration for a WebSubSubscriber service"}
 @Field {value:"endpoints: Array of endpoints the service would be attached to"}
-@Field {value:"basePath: Path of the WebSubSubscriber service"}
+@Field {value:"path: Path of the WebSubSubscriber service"}
 @Field {value:"subscribeOnStartUp: Whether a subscription request is expected to be sent on start up"}
 @Field {value:"resourceUrl: The resource URL for which discovery will be initiated to identify hub and topic if not
 specified."}
@@ -31,7 +31,7 @@ specified."}
 @Field {value:"callback: The callback to use when registering, if unspecified host:port/path will be used."}
 public type SubscriberServiceConfiguration {
     Listener[] endpoints,
-    string basePath,
+    string path,
     boolean subscribeOnStartUp,
     string resourceUrl,
     string hub,
