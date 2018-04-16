@@ -17,10 +17,6 @@
 package ballerina.transactions;
 import ballerina/io;
 
-@final string PROTOCOL_COMPLETION = "completion";
-@final string PROTOCOL_VOLATILE = "volatile";
-@final string PROTOCOL_DURABLE = "durable";
-
 type TransactionState "active" | "prepared" | "committed" | "aborted";
 @final TransactionState TXN_STATE_ACTIVE = "active";
 @final TransactionState TXN_STATE_PREPARED = "prepared";
