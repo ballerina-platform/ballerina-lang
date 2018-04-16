@@ -31,12 +31,12 @@ public type Path object{
       string link;
     }
 
-    new (link){
-        init(link);
+    new (link, string...sLinks){
+        init(link, sLinks);
     }
 
     @Description { value: "Constructs the path"}
-    native function init(string link);
+    native function init(string link,string[] sLink);
 
     @Description { value: "Retrieves the absolute path from the provided location"}
     @Return {value:"Returns the absolute path reference or an error if the path cannot be derived"}
@@ -87,7 +87,6 @@ public native function getModifiedTime(@sensitive Path path) returns (time:Time 
 
 @Description {value:"This function reads a specified number of bytes from the given channel."}
 function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, int) {
-
     // Here is how the bytes are read from the channel.
     var result = channel.read(numberOfBytes);
     match result {
@@ -102,7 +101,6 @@ function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, in
 
 @Description {value:"This function writes a byte content with the given offset to a channel."}
 function writeBytes (io:ByteChannel channel, blob content, int startOffset = 0) returns (int) {
-
     // Here is how the bytes are written to the channel.
     var result = channel.write(content,startOffset);
     match result {
@@ -116,7 +114,7 @@ function writeBytes (io:ByteChannel channel, blob content, int startOffset = 0) 
 }
 
 @Description {value:"This function copies content from the source channel to a destination channel."}
-function copy (io:ByteChannel src, io:ByteChannel dst) {
+function copyBytes(io:ByteChannel src, io:ByteChannel dst) {
     // Specifies the number of bytes that should be read from a single read operation.
     int bytesChunk = 10000;
     int numberOfBytesWritten = 0;
@@ -140,7 +138,7 @@ function copy (io:ByteChannel src, io:ByteChannel dst) {
     }
 }
 
-public function move(@sensitive Path srcPath, @sensitive Path dstPath) returns (IOError | boolean){
+public function copy(@sensitive Path srcPath,@sensitive Path dstPath) returns @tainted(IOError | boolean){
     if(!exists(srcPath)){
         IOError err = {message:"the source path does not exist"};
         return err;
@@ -152,15 +150,21 @@ public function move(@sensitive Path srcPath, @sensitive Path dstPath) returns (
         }
         var paths =check list(srcPath);
         foreach path in paths{
-            string destinationPathValue = dstPath.getPathValue() + "/" + path.getName();
-            Path destinationPath = new(destinationPathValue);
-            var result = move(path,destinationPath);
+            Path destinationPath = new(dstPath.getPathValue(),path.getName());
+            var result = copy(path,destinationPath);
         }
     }else{
         //If the path is a file we copy the file
         io:ByteChannel srcChannel = io:openFile(srcPath.toAbsolutePath().getPathValue(),io:MODE_R);
         io:ByteChannel dstChannel = io:openFile(dstPath.toAbsolutePath().getPathValue(),io:MODE_W);
-        copy(srcChannel,dstChannel);
+        copyBytes(srcChannel,dstChannel);
     }
+    return true;
+}
+
+public function move(@sensitive Path srcPath,@sensitive Path dstPath) returns @tainted(IOError | boolean){
+    var copyResult = copy(srcPath,dstPath);
+    //Once the move is complete the source will be deleted
+    var deleteResult = delete(srcPath);
     return true;
 }
