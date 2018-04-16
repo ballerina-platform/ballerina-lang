@@ -127,8 +127,8 @@ public class CompressionTest {
                                 "decompressed file is not available"), true);
     }
 
-    @Test(description = "test zipping/compressing a file")
-    public void testCompressFile() throws IOException, URISyntaxException {
+    @Test(description = "test zipping/compressing a folder")
+    public void testCompressFolder() throws IOException, URISyntaxException {
         String resourceToRead = getAbsoluteFilePath("datafiles/compression/my.app");
         BString dirPath = new BString(resourceToRead);
         String destDirPath = getAbsoluteFilePath("datafiles/compression/");
@@ -141,6 +141,25 @@ public class CompressionTest {
 
         ArrayList<String> filesInsideZip = getFilesInsideZip(destDirPath + File.separator
                                                                      + "my.app.zip");
+
+        Assert.assertEquals(filesInsideZip.size() > 0, true);
+
+    }
+
+    @Test(description = "test zipping/compressing a single file")
+    public void testCompressFile() throws IOException, URISyntaxException {
+        String resourceToRead = getAbsoluteFilePath("datafiles/compression/my.app/test/main.bal");
+        BString dirPath = new BString(resourceToRead);
+        String destDirPath = getAbsoluteFilePath("datafiles/compression/");
+        BString destDir = new BString(destDirPath + File.separator + "main.zip");
+        BValue[] inputArg = {dirPath, destDir};
+        BValue[] returns = BRunUtil.invoke(compileResult, "compressFile", inputArg);
+        Assert.assertNotNull(returns);
+        File f1 = new File(destDirPath + File.separator + "main.zip");
+        Assert.assertEquals(f1.exists() && !f1.isDirectory(), true);
+
+        ArrayList<String> filesInsideZip = getFilesInsideZip(destDirPath + File.separator
+                                                                     + "main.zip");
 
         Assert.assertEquals(filesInsideZip.size() > 0, true);
 
