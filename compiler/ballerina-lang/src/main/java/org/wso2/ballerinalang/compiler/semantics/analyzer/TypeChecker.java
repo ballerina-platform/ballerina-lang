@@ -1237,7 +1237,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
-        if (iExpr.expr != null) {
+        // if this is a function invocation on json, then do not add nil to the return types.
+        if (iExpr.expr != null && iExpr.expr.type.tag != TypeTags.JSON) {
             actualType = getAccessExprFinalType(iExpr, actualType);
         }
 

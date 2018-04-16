@@ -176,9 +176,6 @@ public class MatchExpressionTest {
                 BRunUtil.invoke(compileResult, "testAssignabileTypesInPatterns", new BValue[] { new BString("John") });
         Assert.assertTrue(results[0] instanceof BJSON);
         Assert.assertEquals(results[0].stringValue(), "jsonStr1");
-
-        results = BRunUtil.invoke(compileResult, "testAssignabileTypesInPatterns", new BValue[] { null });
-        Assert.assertNull(results[0]);
     }
 
     @Test

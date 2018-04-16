@@ -165,7 +165,7 @@ public class TransactionHandlerTest {
         CompileResult res = BCompileUtil.compile("test-src/statements/transaction/transaction-handler-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 10);
         BAssertUtil.validateError(res, 0,
-                "transaction handler function required single string parameter which is transaction id", 4, 46);
+                "transaction handler function required single string parameter which is transaction id", 4, 50);
         BAssertUtil.validateError(res, 1,
                 "transaction handler function required single string parameter which is transaction id", 4, 70);
         BAssertUtil.validateError(res, 2,
