@@ -24,30 +24,22 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
 
-import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_PACKAGE;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
- * This class provides util methods for building Ballerina programs and packages.
+ * This class provides util methods for listing dependencies of Ballerina packages.
  *
- * @since 0.95.2
+ * @since 0.970
  */
-public class BuilderUtils {
+public class ListUtils {
 
-    public static void compileAndWrite(Path sourceRootPath, Path packagePath, Path targetPath,
-                                       boolean buildCompiledPkg, boolean offline) {
+    public static void compileAndList(Path sourceRootPath, Path packagePath) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootPath.toString());
-        options.put(OFFLINE, Boolean.toString(offline));
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(PRESERVE_WHITESPACE, "false");
-        options.put(BUILD_COMPILED_PACKAGE, Boolean.toString(buildCompiledPkg));
-
         Compiler compiler = Compiler.getInstance(context);
-        compiler.build();
+        compiler.list();
     }
 }
