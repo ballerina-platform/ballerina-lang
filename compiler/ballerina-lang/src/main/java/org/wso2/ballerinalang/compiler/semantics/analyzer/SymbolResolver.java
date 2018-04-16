@@ -122,10 +122,12 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public boolean checkForUniqueSymbolInCurrentScope(DiagnosticPos pos, SymbolEnv env, BSymbol symbol,
                                                       int expSymTag) {
+        //lookup in current scope
         BSymbol foundSym = lookupSymbolInGivenScope(env, symbol.name, expSymTag);
 
         if (foundSym == symTable.notFoundSymbol && (env.enclEnv != null && env.enclEnv.node instanceof BLangFunction)) {
-            foundSym = lookupSymbolInGivenScope(env.enclEnv, symbol.name, expSymTag);
+            //lookup in enclosing scope
+            foundSym = lookupSymbol(env.enclEnv, symbol.name, expSymTag);
         }
 
         if (foundSym == symTable.notFoundSymbol) {

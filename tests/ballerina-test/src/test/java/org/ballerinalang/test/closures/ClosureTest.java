@@ -20,6 +20,7 @@ package org.ballerinalang.test.closures;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -171,9 +172,29 @@ public class ClosureTest {
         Assert.assertEquals((returns[0]).stringValue(), "Ballerina22");
     }
 
-    @Test(description = "Test multi level closure with variable shadowing")
+    @Test(description = "Test two level closure with variable shadowing")
     public void testClosureWithVariableShadowing2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test24");
         Assert.assertEquals((returns[0]).stringValue(), "Out22In52Ballerina!!!");
+    }
+
+    @Test(description = "Test three level closure with variable shadowing")
+    public void testClosureWithVariableShadowing3() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test25");
+        Assert.assertEquals((returns[0]).stringValue(), "OutMost22Out37In73Ballerina!!!");
+    }
+
+    @Test(description = "Test three level closure with variable shadowing another test case")
+    public void testClosureWithVariableShadowing4() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test26");
+        Assert.assertEquals((returns[0]).stringValue(), "OutMost48Out49In38Ballerina!!!");
+    }
+
+    @Test(description = "Test iterable operations with lambda. This will verify whether local referred vars are " +
+            "modified within closure")
+    public void testIterableOperationsVarModification() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testLocalVarModifyWithinClosureScope");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
     }
 }
