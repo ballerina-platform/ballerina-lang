@@ -1,1 +1,2 @@
-// The HTTP Server Connector can be used to connect to and interact with a HTTP client. Https configurations can be given to server connector to expose a https connection.
+// The HTTP Server Connector can be used to connect to, and interact with, an HTTP client. 
+// Https configurations can be given to the server connector to expose an https connection.
