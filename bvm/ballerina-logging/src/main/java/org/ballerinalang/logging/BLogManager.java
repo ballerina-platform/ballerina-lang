@@ -46,6 +46,7 @@ import java.util.regex.Pattern;
 import static org.ballerinalang.logging.util.Constants.BALLERINA_USER_LOG_LEVEL;
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG;
 import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG;
+import static org.ballerinalang.logging.util.Constants.LOG_LEVEL;
 import static org.ballerinalang.logging.util.Constants.LOG_TO;
 import static org.ballerinalang.logging.util.Constants.LOG_TO_CONSOLE;
 
@@ -58,7 +59,6 @@ import static org.ballerinalang.logging.util.Constants.LOG_TO_CONSOLE;
 public class BLogManager extends LogManager {
 
     public static final String BALLERINA_ROOT_LOGGER_NAME = "ballerina";
-    public static final String LOG_LEVEL = ".log_level";
     public static final int LOGGER_PREFIX_LENGTH = BALLERINA_ROOT_LOGGER_NAME.length() + 1; // +1 to account for the .
 
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
