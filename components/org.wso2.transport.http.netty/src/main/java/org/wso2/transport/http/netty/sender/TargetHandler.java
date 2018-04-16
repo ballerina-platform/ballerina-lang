@@ -225,7 +225,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         http2ClientChannel.getInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID).setRequestWritten(true);
         http2ClientChannel.getDataEventListeners().
                 forEach(dataEventListener ->
-                                dataEventListener.onStreamInit(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID, ctx));
+                                dataEventListener.onStreamInit(ctx, Http2CodecUtil.HTTP_UPGRADE_STREAM_ID));
         handoverChannelToHttp2ConnectionManager();
     }
 

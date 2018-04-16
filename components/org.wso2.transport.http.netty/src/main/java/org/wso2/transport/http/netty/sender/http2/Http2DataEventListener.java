@@ -29,39 +29,50 @@ public interface Http2DataEventListener {
     /**
      * Gets notified for an event on a stream initialization.
      *
-     * @param streamId the related stream id
      * @param ctx      the channel handler context
+     * @param streamId the related stream id
      */
-    boolean onStreamInit(int streamId, ChannelHandlerContext ctx);
+    boolean onStreamInit(ChannelHandlerContext ctx, int streamId);
 
     /**
      * Gets notified for an event on a header read on a particular stream.
      *
-     * @param streamId    the related stream id
      * @param ctx         the channel handler context
+     * @param streamId    the related stream id
      * @param headers     http2 headers
      * @param endOfStream whether stream terminate with this data read operation
      */
-    boolean onHeadersRead(int streamId, ChannelHandlerContext ctx, Http2Headers headers, boolean endOfStream);
+    boolean onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream);
 
     /**
      * Gets notified for an event on a data read on a particular stream.
      *
-     * @param streamId    the related stream id
      * @param ctx         the channel handler context
+     * @param streamId    the related stream id
      * @param data        the bytebuf contains data
      * @param endOfStream whether stream terminate with this data read operation
      */
-    boolean onDataRead(int streamId, ChannelHandlerContext ctx, ByteBuf data, boolean endOfStream);
+    boolean onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, boolean endOfStream);
+
+    /**
+     * Gets notified for an event on a headers write on a particular stream.
+     *
+     * @param ctx         the channel handler context
+     * @param streamId    the related stream id
+     * @param headers        http2 headers
+     * @param endOfStream whether stream terminate with this data read operation
+     */
+    boolean onHeadersWrite(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream);
 
     /**
      * Gets notified for an event on a data write on a particular stream.
      *
-     * @param streamId    the related stream id
      * @param ctx         the channel handler context
+     * @param streamId    the related stream id
+     * @param data        the bytebuf contains data
      * @param endOfStream whether stream terminate with this data read operation
      */
-    boolean onDataWrite(int streamId, ChannelHandlerContext ctx, boolean endOfStream);
+    boolean onDataWrite(ChannelHandlerContext ctx, int streamId, ByteBuf data, boolean endOfStream);
 
     /**
      * Gets notified on  a stream reset.
