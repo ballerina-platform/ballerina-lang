@@ -113,13 +113,29 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol, int expSymTag) {
+        //lookup symbol
         BSymbol foundSym = lookupSymbol(env, symbol.name, expSymTag);
+
+        //if symbol is not found then it is unique for the current scope
         if (foundSym == symTable.notFoundSymbol) {
             return true;
         }
+        
+        //if a symbol is found, then check whether it is unique
         return isUniqueSymbol(pos, symbol, foundSym);
     }
 
+    /**
+     * This method will check whether the given symbol that is being defined is unique by only checking its current
+     * environment scope. Additionally, it checks from the enclosing environment scope only if it s function block
+     * to restrict shadowing of function arguments.
+     *
+     * @param pos symbol pos for diagnostic purpose.
+     * @param env symbol environment to lookup.
+     * @param symbol the symbol that is being defined.
+     * @param expSymTag expected tag of the symbol for.
+     * @return true if the symbol is unique, false otherwise.
+     */
     public boolean checkForUniqueSymbolInCurrentScope(DiagnosticPos pos, SymbolEnv env, BSymbol symbol,
                                                       int expSymTag) {
         //lookup in current scope
