@@ -1,4 +1,4 @@
-//The Main program that bringing up a Ballerina WebSub Hub.
+// The Main program that brings up the Ballerina WebSub Hub.
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/websub;

@@ -13,7 +13,7 @@ endpoint jms:SimpleDurableTopicSubscriber subscriber {
 // Bind the created subscriber to the listener service.
 service<jms:Consumer> jmsListener bind subscriber {
 
-    // The OnMessage resource is invoked when a message is received.
+    // The `OnMessage` resource is invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
         string messageText = check message.getTextMessageContent();
         log:printInfo("Message : " + messageText);

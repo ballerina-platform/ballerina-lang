@@ -22,11 +22,11 @@ endpoint jms:QueueReceiver consumer {
 // Bind the created consumer to the listener service.
 service<jms:Consumer> jmsListener bind consumer {
 
-    // OnMessage resource get invoked when a message is received.
+    // The `OnMessage` resource gets invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
         string messageText = check message.getTextMessageContent();
         log:printInfo("Message : " + messageText);
-        // Acknowledge the received message using the queue receiver endpoint acknowledge function.
+        // Acknowledge the received message using the queue receiver endpoint's acknowledge function.
         var _ = consumer -> acknowledge (message);
   }
 }

@@ -1,1 +1,1 @@
-// This example shows you how to consume a message from a queue in a blocking manner.
+// In this example, you consume a message from a Java Message Service (JMS) queue in a blocking manner.

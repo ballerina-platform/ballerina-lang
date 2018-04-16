@@ -1,1 +1,1 @@
-// This example shows you how to consume a message from a queue in a blocking manner with client acknowledgment.
+// In this example, you consume a message from a queue in a blocking manner with client acknowledgment.

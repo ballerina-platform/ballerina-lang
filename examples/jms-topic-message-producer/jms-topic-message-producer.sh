@@ -1,3 +1,3 @@
-# To run the program, put the code in `jms-topic-message-producer.bal`
-# and use `$BALLERINA_HOME/bin/ballerina`.
+# At the command line, navigate to the directory that contains the
+# `jms-topic-message-producer.bal` file and run the `ballerina run` command.
 $ ballerina run jms-topic-message-producer.bal

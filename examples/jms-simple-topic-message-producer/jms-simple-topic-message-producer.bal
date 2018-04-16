@@ -1,7 +1,7 @@
 import ballerina/jms;
 import ballerina/log;
 
-// Create a topic publisher
+// Create a topic publisher.
 endpoint jms:SimpleTopicPublisher topicPublisher {
     initialContextFactory: "wso2mbInitialContextFactory",
     providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
