@@ -31,6 +31,7 @@ public interface Http2DataEventListener {
      *
      * @param ctx      the channel handler context
      * @param streamId the related stream id
+     * @return whether to continue the execution of rest of the listeners
      */
     boolean onStreamInit(ChannelHandlerContext ctx, int streamId);
 
@@ -41,6 +42,7 @@ public interface Http2DataEventListener {
      * @param streamId    the related stream id
      * @param headers     http2 headers
      * @param endOfStream whether stream terminate with this data read operation
+     * @return whether to continue the execution of rest of the listeners
      */
     boolean onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream);
 
@@ -51,6 +53,7 @@ public interface Http2DataEventListener {
      * @param streamId    the related stream id
      * @param data        the bytebuf contains data
      * @param endOfStream whether stream terminate with this data read operation
+     * @return whether to continue the execution of rest of the listeners
      */
     boolean onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, boolean endOfStream);
 
@@ -61,6 +64,7 @@ public interface Http2DataEventListener {
      * @param streamId    the related stream id
      * @param headers     http2 headers
      * @param endOfStream whether stream terminate with this data read operation
+     * @return whether to continue the execution of rest of the listeners
      */
     boolean onPushPromiseRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream);
 
@@ -71,6 +75,7 @@ public interface Http2DataEventListener {
      * @param streamId    the related stream id
      * @param headers        http2 headers
      * @param endOfStream whether stream terminate with this data read operation
+     * @return whether to continue the execution of rest of the listeners
      */
     boolean onHeadersWrite(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream);
 
@@ -81,6 +86,7 @@ public interface Http2DataEventListener {
      * @param streamId    the related stream id
      * @param data        the bytebuf contains data
      * @param endOfStream whether stream terminate with this data read operation
+     * @return whether to continue the execution of rest of the listeners
      */
     boolean onDataWrite(ChannelHandlerContext ctx, int streamId, ByteBuf data, boolean endOfStream);
 
@@ -88,6 +94,7 @@ public interface Http2DataEventListener {
      * Gets notified on  a stream reset.
      *
      * @param streamId the stream id
+     * @return whether to continue the execution of rest of the listeners
      */
     boolean onStreamReset(int streamId);
 
@@ -95,6 +102,7 @@ public interface Http2DataEventListener {
      * Gets notified on a stream close.
      *
      * @param streamId the related stream id
+     * @return whether to continue the execution of rest of the listeners
      */
     boolean onStreamClose(int streamId);
 

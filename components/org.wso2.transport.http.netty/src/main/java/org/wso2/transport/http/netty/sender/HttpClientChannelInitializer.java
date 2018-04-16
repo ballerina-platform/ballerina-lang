@@ -250,6 +250,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     private void configureHttp2Pipeline(ChannelPipeline pipeline) {
         pipeline.addLast(Constants.CONNECTION_HANDLER, http2ConnectionHandler);
         pipeline.addLast(Constants.OUTBOUND_HANDLER, clientOutboundHandler);
+        pipeline.addLast(Constants.DECOMPRESSOR_HANDLER, new HttpContentDecompressor());
     }
 
     /**
