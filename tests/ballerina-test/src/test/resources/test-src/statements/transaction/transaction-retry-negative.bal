@@ -1,6 +1,6 @@
-function testTransaction (int i) returns (string) {
+function testTransaction(int i) returns (string) {
     string a = "start";
-    transaction with retries=-4 {
+    transaction with retries = -4 {
         a = a + " inTrx";
     } onretry {
         a = a + " inFailed";
@@ -10,10 +10,10 @@ function testTransaction (int i) returns (string) {
 }
 
 
-function testTransactionStmtVariableRetry () returns (string) {
+function testTransactionStmtVariableRetry() returns (string) {
     int retryCount = getRetryCount();
     string a = "start";
-    transaction with retries=retryCount {
+    transaction with retries = retryCount {
         a = a + " inTrx";
     } onretry {
         a = a + " inFailed";
@@ -22,13 +22,13 @@ function testTransactionStmtVariableRetry () returns (string) {
     return a;
 }
 
-function getRetryCount () returns (int) {
+function getRetryCount() returns (int) {
     return 2;
 }
 
-function testTransactionRetry2 (int i) returns (string) {
+function testTransactionRetry2(int i) returns (string) {
     string a = "start";
-    transaction with retries=4.5 {
+    transaction with retries = 4.5 {
         a = a + " inTrx";
     } onretry {
         a = a + " inFailed";

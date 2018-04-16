@@ -23,11 +23,11 @@ type CustomersTrx2 {
     string country,
 };
 
-function testLocalTransacton () returns (int, int) {
+function testLocalTransacton() returns (int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
@@ -36,10 +36,10 @@ function testLocalTransacton () returns (int, int) {
     int returnVal = 0;
     int count;
     transaction {
-        CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:200,creditLimit:5000.75,
-        country:"USA"};
-        CustomersTrx c2 = {firstName:"James",lastName:"Clerk",registrationID:200,creditLimit:5000.75,
-        country:"USA"};
+        CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:200, creditLimit:5000.75,
+            country:"USA"};
+        CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:200, creditLimit:5000.75,
+            country:"USA"};
         var result1 = dt0.add(c1);
         var result2 = dt0.add(c2);
     } onretry {
@@ -56,11 +56,11 @@ function testLocalTransacton () returns (int, int) {
     return (returnVal, count);
 }
 
-function testTransactonRollback () returns (int, int) {
+function testTransactonRollback() returns (int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -73,10 +73,10 @@ function testTransactonRollback () returns (int, int) {
     table dt1 = check temp1;
 
     transaction {
-        CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:295,creditLimit:5000.75,
-                              country:"USA"};
-        CustomersTrx2 c2 = {customerId:1, firstName:"James",lastName:"Clerk",registrationID:295,creditLimit:5000.75,
-                              country:"USA"};
+        CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:295, creditLimit:5000.75,
+            country:"USA"};
+        CustomersTrx2 c2 = {customerId:1, firstName:"James", lastName:"Clerk", registrationID:295, creditLimit:5000.75,
+            country:"USA"};
         var result1 = dt0.add(c1);
         var result2 = dt1.add(c2);
 
@@ -97,11 +97,11 @@ function testTransactonRollback () returns (int, int) {
     return (returnVal, count);
 }
 
-function testTransactonAbort () returns (int, int) {
+function testTransactonAbort() returns (int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = -1;
@@ -111,10 +111,10 @@ function testTransactonAbort () returns (int, int) {
     table dt0 = check temp0;
 
     transaction {
-        CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:220,creditLimit:5000.75,
-                              country:"USA"};
-        CustomersTrx c2 = {firstName:"James",lastName:"Clerk",registrationID:220,creditLimit:5000.75,
-                              country:"USA"};
+        CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:220, creditLimit:5000.75,
+            country:"USA"};
+        CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:220, creditLimit:5000.75,
+            country:"USA"};
         var result1 = dt0.add(c1);
         var result2 = dt0.add(c2);
         int i = 0;
@@ -137,11 +137,11 @@ function testTransactonAbort () returns (int, int) {
     return (returnVal, count);
 }
 
-function testTransactonErrorThrow () returns (int, int, int) {
+function testTransactonErrorThrow() returns (int, int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -152,8 +152,8 @@ function testTransactonErrorThrow () returns (int, int, int) {
 
     try {
         transaction {
-            CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:260,creditLimit:5000.75,
-                                  country:"USA"};
+            CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:260, creditLimit:5000.75,
+                country:"USA"};
             var result = dt0.add(c1);
             int i = 0;
             if (i == 0) {
@@ -177,11 +177,11 @@ function testTransactonErrorThrow () returns (int, int, int) {
     return (returnVal, catchValue, count);
 }
 
-function testTransactionErrorThrowAndCatch () returns (int, int, int) {
+function testTransactionErrorThrowAndCatch() returns (int, int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -191,8 +191,8 @@ function testTransactionErrorThrowAndCatch () returns (int, int, int) {
     table dt0 = check temp0;
 
     transaction {
-        CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:250,creditLimit:5000.75,
-                              country:"USA"};
+        CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:250, creditLimit:5000.75,
+            country:"USA"};
         var result = dt0.add(c1);
         int i = 0;
         try {
@@ -218,11 +218,11 @@ function testTransactionErrorThrowAndCatch () returns (int, int, int) {
     return (returnVal, catchValue, count);
 }
 
-function testTransactonCommitted () returns (int, int) {
+function testTransactonCommitted() returns (int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = 1;
@@ -231,10 +231,10 @@ function testTransactonCommitted () returns (int, int) {
 
     table dt0 = check temp0;
     transaction {
-        CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:300,creditLimit:5000.75,
-                              country:"USA"};
-        CustomersTrx c2 = {firstName:"James",lastName:"Clerk",registrationID:300,creditLimit:5000.75,
-                              country:"USA"};
+        CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:300, creditLimit:5000.75,
+            country:"USA"};
+        CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:300, creditLimit:5000.75,
+            country:"USA"};
         var result1 = dt0.add(c1);
         var result2 = dt0.add(c2);
     } onretry {
@@ -251,11 +251,11 @@ function testTransactonCommitted () returns (int, int) {
     return (returnVal, count);
 }
 
-function testTwoTransactons () returns (int, int, int) {
+function testTwoTransactons() returns (int, int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal1 = 1;
@@ -264,10 +264,10 @@ function testTwoTransactons () returns (int, int, int) {
     var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
     transaction {
-        CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:400,creditLimit:5000.75,
-                              country:"USA"};
-        CustomersTrx c2 = {firstName:"James",lastName:"Clerk",registrationID:400,creditLimit:5000.75,
-                              country:"USA"};
+        CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:400, creditLimit:5000.75,
+            country:"USA"};
+        CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:400, creditLimit:5000.75,
+            country:"USA"};
         var result1 = dt0.add(c1);
         var result2 = dt0.add(c2);
     } onretry {
@@ -275,10 +275,10 @@ function testTwoTransactons () returns (int, int, int) {
     }
 
     transaction {
-        CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:400,creditLimit:5000.75,
-                              country:"USA"};
-        CustomersTrx c2 = {firstName:"James",lastName:"Clerk",registrationID:400,creditLimit:5000.75,
-                              country:"USA"};
+        CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:400, creditLimit:5000.75,
+            country:"USA"};
+        CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:400, creditLimit:5000.75,
+            country:"USA"};
         var result1 = dt0.add(c1);
         var result2 = dt0.add(c2);
     } onretry {
@@ -295,21 +295,21 @@ function testTwoTransactons () returns (int, int, int) {
     return (returnVal1, returnVal2, count);
 }
 
-function testTransactonWithoutHandlers () returns (int) {
+function testTransactonWithoutHandlers() returns (int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
 
     transaction {
-        CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:350,creditLimit:5000.75,
-                              country:"USA"};
-        CustomersTrx c2 = {firstName:"James",lastName:"Clerk",registrationID:350,creditLimit:5000.75,
-                              country:"USA"};
+        CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:350, creditLimit:5000.75,
+            country:"USA"};
+        CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:350, creditLimit:5000.75,
+            country:"USA"};
         var result1 = dt0.add(c1);
         var result2 = dt0.add(c2);
     }
@@ -327,11 +327,11 @@ function testTransactonWithoutHandlers () returns (int) {
     return count;
 }
 
-function testLocalTransactionFailed () returns (string, int) {
+function testLocalTransactionFailed() returns (string, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     string a = "beforetx";
@@ -344,10 +344,10 @@ function testLocalTransactionFailed () returns (string, int) {
     try {
         transaction with retries = 4 {
             a = a + " inTrx";
-            CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:111,creditLimit:5000.75,
-                                  country:"USA"};
-            CustomersTrx2 c2 = {customerId:1, firstName:"James",lastName:"Clerk",registrationID:111,creditLimit:5000.75,
-                                   country:"USA"};
+            CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:111, creditLimit:5000.75,
+                country:"USA"};
+            CustomersTrx2 c2 = {customerId:1, firstName:"James", lastName:"Clerk", registrationID:111, creditLimit:5000.75,
+                country:"USA"};
             var result1 = dt0.add(c1);
             var result2 = dt1.add(c2);
         } onretry {
@@ -370,11 +370,11 @@ function testLocalTransactionFailed () returns (string, int) {
     return (a, count);
 }
 
-function testLocalTransactonSuccessWithFailed () returns (string, int) {
+function testLocalTransactonSuccessWithFailed() returns (string, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     string a = "beforetx";
@@ -386,19 +386,19 @@ function testLocalTransactonSuccessWithFailed () returns (string, int) {
     table dt0 = check temp0;
     table dt1 = check temp1;
     try {
-        transaction with retries=4 {
+        transaction with retries = 4 {
             a = a + " inTrx";
-            CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:222,creditLimit:5000.75,
-                                  country:"USA"};
+            CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:222, creditLimit:5000.75,
+                country:"USA"};
             var result1 = dt0.add(c1);
             if (i == 2) {
-                CustomersTrx c2 = {firstName:"James",lastName:"Clerk",registrationID:222,creditLimit:5000.75,
-                                      country:"USA"};
+                CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:222, creditLimit:5000.75,
+                    country:"USA"};
                 var result2 = dt0.add(c2);
 
             } else {
-                CustomersTrx2 c3 = {customerId:1, firstName:"James",lastName:"Clerk",registrationID:222,creditLimit:5000.75,
-                                       country:"USA"};
+                CustomersTrx2 c3 = {customerId:1, firstName:"James", lastName:"Clerk", registrationID:222, creditLimit:5000.75,
+                    country:"USA"};
                 var result3 = dt1.add(c3);
             }
         } onretry {
@@ -416,21 +416,21 @@ function testLocalTransactonSuccessWithFailed () returns (string, int) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _= testDB -> close();
+    _ = testDB -> close();
     return (a, count);
 }
 
-function testLocalTransactonFailedWithNextupdate () returns (int) {
+function testLocalTransactonFailedWithNextupdate() returns (int) {
     endpoint sql:Client testDB1 {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     endpoint sql:Client testDB2 {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int i = 0;
@@ -439,16 +439,16 @@ function testLocalTransactonFailedWithNextupdate () returns (int) {
     table dt1 = check temp1;
     try {
         transaction {
-            CustomersTrx2 c1 = {customerId:1, firstName:"James",lastName:"Clerk",registrationID:1234,creditLimit:5000.75,
-                                   country:"USA"};
+            CustomersTrx2 c1 = {customerId:1, firstName:"James", lastName:"Clerk", registrationID:1234, creditLimit:5000.75,
+                country:"USA"};
             var result1 = dt1.add(c1);
         }
     } catch (error e){
         i = -1;
     }
 
-    CustomersTrx2 c2 = {customerId:2, firstName:"James",lastName:"Clerk",registrationID:12343,creditLimit:5000.75,
-                          country:"USA"};
+    CustomersTrx2 c2 = {customerId:2, firstName:"James", lastName:"Clerk", registrationID:12343, creditLimit:5000.75,
+        country:"USA"};
     var result2 = dt1.add(c2);
 
     _ = testDB1 -> close();
@@ -464,11 +464,11 @@ function testLocalTransactonFailedWithNextupdate () returns (int) {
     return i;
 }
 
-function testNestedTwoLevelTransactonSuccess () returns (int, int) {
+function testNestedTwoLevelTransactonSuccess() returns (int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -476,12 +476,12 @@ function testNestedTwoLevelTransactonSuccess () returns (int, int) {
     var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
     transaction {
-        CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:333,creditLimit:5000.75,
-                              country:"USA"};
+        CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:333, creditLimit:5000.75,
+            country:"USA"};
         var result1 = dt0.add(c1);
         transaction {
-            CustomersTrx c2 = {firstName:"James",lastName:"Clerk",registrationID:333,creditLimit:5000.75,
-                                  country:"USA"};
+            CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:333, creditLimit:5000.75,
+                country:"USA"};
             var result2 = dt0.add(c2);
         }
     } onretry {
@@ -499,11 +499,11 @@ function testNestedTwoLevelTransactonSuccess () returns (int, int) {
     return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactonSuccess () returns (int, int) {
+function testNestedThreeLevelTransactonSuccess() returns (int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -511,16 +511,16 @@ function testNestedThreeLevelTransactonSuccess () returns (int, int) {
     var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
     transaction {
-        CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:444,creditLimit:5000.75,
-                              country:"USA"};
+        CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:444, creditLimit:5000.75,
+            country:"USA"};
         var result1 = dt0.add(c1);
         transaction {
-            CustomersTrx c2 = {firstName:"James",lastName:"Clerk",registrationID:444,creditLimit:5000.75,
-                                  country:"USA"};
+            CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:444, creditLimit:5000.75,
+                country:"USA"};
             var result2 = dt0.add(c2);
             transaction {
-                CustomersTrx c3 = {firstName:"James",lastName:"Clerk",registrationID:444,creditLimit:5000.75,
-                                      country:"USA"};
+                CustomersTrx c3 = {firstName:"James", lastName:"Clerk", registrationID:444, creditLimit:5000.75,
+                    country:"USA"};
                 var result3 = dt0.add(c3);
             }
         }
@@ -538,11 +538,11 @@ function testNestedThreeLevelTransactonSuccess () returns (int, int) {
     return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactonFailed () returns (int, int) {
+function testNestedThreeLevelTransactonFailed() returns (int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -554,17 +554,17 @@ function testNestedThreeLevelTransactonFailed () returns (int, int) {
     table dt1 = check temp1;
     try {
         transaction {
-            CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:555,creditLimit:5000.75,
-                                  country:"USA"};
+            CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:555, creditLimit:5000.75,
+                country:"USA"};
             var result1 = dt0.add(c1);
             transaction {
-                CustomersTrx c2 = {firstName:"James",lastName:"Clerk",registrationID:444,creditLimit:5000.75,
-                                      country:"USA"};
+                CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:444, creditLimit:5000.75,
+                    country:"USA"};
                 var result2 = dt0.add(c2);
                 transaction {
-                    CustomersTrx2 c3 = {customerId:1, firstName:"James",lastName:"Clerk",registrationID:1234,
-                                           creditLimit:5000.75,
-                                           country:"USA"};
+                    CustomersTrx2 c3 = {customerId:1, firstName:"James", lastName:"Clerk", registrationID:1234,
+                        creditLimit:5000.75,
+                        country:"USA"};
                     var result3 = dt1.add(c3);
                 }
             }
@@ -585,11 +585,11 @@ function testNestedThreeLevelTransactonFailed () returns (int, int) {
     return (returnVal, count);
 }
 
-function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, int, string) {
+function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, int, string) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnVal = 0;
@@ -604,25 +604,25 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, i
     try {
         transaction {
             a = a + " txL1";
-            CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:666,creditLimit:5000.75,
-                                  country:"USA"};
+            CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:666, creditLimit:5000.75,
+                country:"USA"};
             var result1 = dt0.add(c1);
             transaction {
                 a = a + " txL2";
-                CustomersTrx c2 = {firstName:"James",lastName:"Clerk",registrationID:666,creditLimit:5000.75,
-                                      country:"USA"};
+                CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:666, creditLimit:5000.75,
+                    country:"USA"};
                 var result2 = dt0.add(c2);
-                transaction with retries=2{
+                transaction with retries = 2{
                     a = a + " txL3";
                     if (index == 1) {
                         a = a + " txL3_If";
-                        CustomersTrx c3 = {firstName:"James",lastName:"Clerk",registrationID:666,creditLimit:5000.75,
-                                              country:"USA"};
+                        CustomersTrx c3 = {firstName:"James", lastName:"Clerk", registrationID:666, creditLimit:5000.75,
+                            country:"USA"};
                         var result3 = dt0.add(c3);
                     } else {
                         a = a + " txL3_Else";
-                        CustomersTrx2 c4 = {customerId:1, firstName:"James",lastName:"Clerk",registrationID:666,
-                                               creditLimit:5000.75, country:"USA"};
+                        CustomersTrx2 c4 = {customerId:1, firstName:"James", lastName:"Clerk", registrationID:666,
+                            creditLimit:5000.75, country:"USA"};
                         var result4 = dt1.add(c4);
                     }
                 } onretry {
@@ -648,11 +648,11 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () returns (int, i
     return (returnVal, count, a);
 }
 
-function testTransactionWithWorkers () returns (int) {
+function testTransactionWithWorkers() returns (int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:2}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:2}
     };
 
     transaction {
@@ -672,13 +672,13 @@ function testTransactionWithWorkers () returns (int) {
 }
 
 function invokeWorkers(sql:Client testDBClient) {
-    endpoint sql:Client testDB =  testDBClient;
+    endpoint sql:Client testDB = testDBClient;
 
 
     worker w1 {
         var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
         table dt0 = check temp0;
-        CustomersTrx c1 = {firstName:"James",lastName:"Clerk",registrationID:834,creditLimit:5000.75, country:"USA"};
+        CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:834, creditLimit:5000.75, country:"USA"};
         var result1 = dt0.add(c1);
     }
 
@@ -686,7 +686,7 @@ function invokeWorkers(sql:Client testDBClient) {
         var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
         table dt0 = check temp0;
         runtime:sleepCurrentWorker(5000);
-        CustomersTrx c2 = {firstName:"James",lastName:"Clerk",registrationID:834,creditLimit:5000.75, country:"USA"};
+        CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:834, creditLimit:5000.75, country:"USA"};
         var result2 = dt0.add(c2);
     }
 

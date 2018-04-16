@@ -26,7 +26,7 @@ type Student {
     int age = -1,
 };
 
-function testSimpleSelectAll () returns (int) {
+function testSimpleSelectAll() returns (int) {
 
     table<Person> personTable = table{};
     int recordCount = 0;
@@ -41,16 +41,16 @@ function testSimpleSelectAll () returns (int) {
     _ = personTable.add(p4);
 
     table<Person> personTableCopy = from personTable
-                                         select *;
+    select *;
     while (personTableCopy.hasNext()) {
         var rs = personTableCopy.getNext();
-        recordCount = recordCount +1;
+        recordCount = recordCount + 1;
     }
 
     return recordCount;
 }
 
-function testSimpleSelectFewFields () returns (int) {
+function testSimpleSelectFewFields() returns (int) {
 
     table<Person> personTable = table{};
     int recordCount = 0;
@@ -65,16 +65,16 @@ function testSimpleSelectFewFields () returns (int) {
     _ = personTable.add(p4);
 
     table<Student> studentTable = from personTable
-                                       select name, id as index, age;
+    select name, id as index, age;
     while (studentTable.hasNext()) {
         var rs = studentTable.getNext();
-        recordCount = recordCount +1;
+        recordCount = recordCount + 1;
     }
 
     return recordCount;
 }
 
-function testSimpleSelectWithJoin () returns (int) {
+function testSimpleSelectWithJoin() returns (int) {
 
     table<Person> personTable = table{};
     table<Order> orderTable = table{};
@@ -101,18 +101,18 @@ function testSimpleSelectWithJoin () returns (int) {
     _ = orderTable.add(o4);
 
     table<OrderDetails> orderDetailsTable = from personTable as tempPersonTable join orderTable as tempOrderTable on
-        tempPersonTable.id == tempOrderTable.personId select tempOrderTable.orderId as orderId, tempPersonTable.name as
-        personName, tempOrderTable.items as items, tempOrderTable.amount as amount;
+    tempPersonTable.id == tempOrderTable.personId select tempOrderTable.orderId as orderId, tempPersonTable.name as
+    personName, tempOrderTable.items as items, tempOrderTable.amount as amount;
 
     while (orderDetailsTable.hasNext()) {
         var rs = orderDetailsTable.getNext();
-        recordCount = recordCount +1;
+        recordCount = recordCount + 1;
     }
 
     return recordCount;
 }
 
-function testSelectWithJoinAndWhere () returns (int) {
+function testSelectWithJoinAndWhere() returns (int) {
 
     table<Person> personTable = table{};
     table<Order> orderTable = table{};
@@ -139,9 +139,9 @@ function testSelectWithJoinAndWhere () returns (int) {
     _ = orderTable.add(o4);
 
     table<OrderDetails> orderDetailsTable = from personTable where name != "jane" as tempPersonTable join orderTable
-            where personId != 3 as tempOrderTable on tempPersonTable.id == tempOrderTable.personId select
-            tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as items,
-            tempOrderTable.amount as amount;
+    where personId != 3 as tempOrderTable on tempPersonTable.id == tempOrderTable.personId select
+    tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as items,
+    tempOrderTable.amount as amount;
 
     while (orderDetailsTable.hasNext()) {
         var rs = orderDetailsTable.getNext();
@@ -151,7 +151,7 @@ function testSelectWithJoinAndWhere () returns (int) {
     return recordCount;
 }
 
-function testSelectWithJoinAndWhereWithGroupBy () returns (int) {
+function testSelectWithJoinAndWhereWithGroupBy() returns (int) {
 
     table<Person> personTable = table{};
     table<Order> orderTable = table{};
@@ -178,14 +178,14 @@ function testSelectWithJoinAndWhereWithGroupBy () returns (int) {
     _ = orderTable.add(o4);
 
     table<OrderDetails> orderDetailsTable = from personTable as tempPersonTable join orderTable as tempOrderTable on
-            tempPersonTable.id == tempOrderTable.personId
-            select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as
-            items, tempOrderTable.amount as amount group by tempOrderTable.orderId, tempPersonTable.name,
-            tempOrderTable.items, tempOrderTable.amount;
+    tempPersonTable.id == tempOrderTable.personId
+    select tempOrderTable.orderId as orderId, tempPersonTable.name as personName, tempOrderTable.items as
+    items, tempOrderTable.amount as amount group by tempOrderTable.orderId, tempPersonTable.name,
+    tempOrderTable.items, tempOrderTable.amount;
 
     while (orderDetailsTable.hasNext()) {
         var rs = orderDetailsTable.getNext();
-        recordCount = recordCount +1;
+        recordCount = recordCount + 1;
     }
     return recordCount;
 }
