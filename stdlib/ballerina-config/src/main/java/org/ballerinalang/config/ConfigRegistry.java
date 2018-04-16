@@ -197,14 +197,14 @@ public class ConfigRegistry {
      */
     public boolean getAsBoolean(String key) {
         if (contains(key)) {
-            Object value = null;
+            Object value;
             try {
                 value = configEntries.get(key);
-                return (Boolean) value;
-            } catch (ClassCastException e) {
                 if (value instanceof String) {
                     return Boolean.parseBoolean((String) value);
                 }
+                return (Boolean) value;
+            } catch (ClassCastException e) {
                 throw new IllegalArgumentException(key + " does not map to a valid boolean");
             }
         }
@@ -231,14 +231,14 @@ public class ConfigRegistry {
      */
     public long getAsInt(String key) {
         if (contains(key)) {
-            Object value = null;
+            Object value;
             try {
                 value = configEntries.get(key);
-                return (Long) value;
-            } catch (ClassCastException e) {
                 if (value instanceof String) {
                     return Long.parseLong((String) value);
                 }
+                return (Long) value;
+            } catch (ClassCastException e) {
                 throw new IllegalArgumentException(key + " does not map to a valid int");
             }
         }
@@ -265,14 +265,16 @@ public class ConfigRegistry {
      */
     public double getAsFloat(String key) {
         if (contains(key)) {
-            Object value = null;
+            Object value;
             try {
                 value = configEntries.get(key);
-                return (Double) value;
-            } catch (ClassCastException e) {
                 if (value instanceof String) {
                     return Double.parseDouble((String) value);
+                } else if (value instanceof Long) {
+                    return (Long) value;
                 }
+                return (Double) value;
+            } catch (ClassCastException e) {
                 throw new IllegalArgumentException(key + " does not map to a valid float");
             }
         }
