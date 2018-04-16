@@ -41,6 +41,10 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 public class LSContextManager {
     private static final LSContextManager INSTANCE = new LSContextManager();
     private static final String BUILT_IN_PACKAGES_PROJ_DIR = "$builtInPackagesProjectDir";
+    /**
+     * Use this lock to synchronize the compilation process since CompilerContext is being reused and shared.
+     */
+    public static final Object COMPILER_LOCK = new Object();
 
     private final Map<String, CompilerContext> contextMap;
 

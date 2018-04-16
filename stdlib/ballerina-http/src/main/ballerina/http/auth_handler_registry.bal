@@ -42,7 +42,10 @@ public function AuthHandlerRegistry::add (string id, HttpAuthnHandler authnHandl
 @Param {value:"id: auth provider id"}
 @Return {value:"HttpAuthnHandler: HttpAuthnHandler instance or nil if not found"}
 public function AuthHandlerRegistry::get (string id) returns HttpAuthnHandler? {
-    return self.httpAuthHandlers[id];
+    if (self.httpAuthHandlers.hasKey(id)) {
+        return self.httpAuthHandlers[id];
+    }
+    return ();
 }
 
 @Description {value:"Retrieve the HttpAuthnHandler map"}

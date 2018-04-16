@@ -712,6 +712,7 @@ public class BLangPackageBuilder {
         if (retParamsAvail) {
             BLangVariable varNode = (BLangVariable) this.varStack.pop();
             returnTypeNode = varNode.getTypeNode();
+            returnTypeNode.addWS(varNode.getWS());
             varNode.getAnnotationAttachments().forEach(invNode::addReturnTypeAnnotationAttachment);
         } else {
             BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
@@ -760,7 +761,7 @@ public class BLangPackageBuilder {
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
-        endFunctionDef(pos, null, false, false, true, false);
+        endFunctionDef(pos, null, false, false, true, false, true);
         //this is added for analysing closures
         if (!(blockNodeStack.empty())) {
             lambdaFunction.enclBlockStmt = (BLangBlockStmt) blockNodeStack.peek();
@@ -1213,12 +1214,15 @@ public class BLangPackageBuilder {
                                boolean publicFunc,
                                boolean nativeFunc,
                                boolean bodyExists,
-                               boolean isReceiverAttached) {
+                               boolean isReceiverAttached,
+                               boolean isLambda) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         endEndpointDeclarationScope();
         function.pos = pos;
         function.addWS(ws);
-
+        if (!isLambda) {
+            function.addWS(invocationWsStack.pop());
+        }
         if (publicFunc) {
             function.flagSet.add(Flag.PUBLIC);
         }

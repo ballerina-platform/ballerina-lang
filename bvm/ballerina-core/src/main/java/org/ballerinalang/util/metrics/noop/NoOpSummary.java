@@ -21,6 +21,9 @@ import org.ballerinalang.util.metrics.AbstractMetric;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.Summary;
 
+import java.util.Collections;
+import java.util.SortedMap;
+
 /**
  * Implementation of No-Op {@link Summary}.
  */
@@ -51,7 +54,8 @@ public class NoOpSummary extends AbstractMetric implements Summary {
     }
 
     @Override
-    public double percentile(double percentile) {
-        return 0;
+    public SortedMap<Double, Double> percentileValues() {
+        return Collections.emptySortedMap();
     }
+
 }

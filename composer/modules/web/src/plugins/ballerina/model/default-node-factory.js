@@ -135,14 +135,14 @@ class DefaultNodeFactory {
         const service = getStaticDefaultNode('createHTTPServiceDef');
         const endpoint = getStaticDefaultNode('createHTTPEndpointDef');
         const importSt = getStaticDefaultNode('createImportWithOrg');
-        return [endpoint, service, importSt];
+        return [importSt, endpoint, service];
     }
 
     createWSServiceDef() {
         const service = getStaticDefaultNode('createWSServiceDef');
         const endpoint = getStaticDefaultNode('createWSEndpointDef');
         const importSt = getStaticDefaultNode('createImportWithOrg');
-        return [endpoint, service, importSt];
+        return [importSt, endpoint, service];
     }
 
     createJMSServiceDef() {

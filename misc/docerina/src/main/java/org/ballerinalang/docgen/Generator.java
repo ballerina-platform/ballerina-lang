@@ -37,8 +37,11 @@ import org.ballerinalang.docgen.model.Variable;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.DocumentableNode;
+import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.expressions.DocumentationAttributeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -69,8 +72,9 @@ public class Generator {
 
     /**
      * Generate the page when the bal package is passed.
+     *
      * @param balPackage The current package that is being viewed.
-     * @param packages List of available packages.
+     * @param packages   List of available packages.
      * @return A page model for the current package.
      */
     public static Page generatePage(BLangPackage balPackage, List<Link> packages, String description) {
@@ -93,9 +97,9 @@ public class Generator {
                         if (documentables.size() > 0) {
                             for (Documentable parentDocumentable : documentables) {
                                 TypeNode langType = function.getReceiver().getTypeNode();
-                                String typeName = (langType instanceof BLangUserDefinedType ?
-                                               ((BLangUserDefinedType) langType).typeName.value : langType.toString());
-                                
+                                String typeName = (langType instanceof BLangUserDefinedType ? ((BLangUserDefinedType)
+                                        langType).typeName.value : langType.toString());
+
                                 if (typeName.equals(parentDocumentable.name)) {
                                     parentDocumentable.children.add(createDocForNode(function));
                                 }
@@ -132,7 +136,7 @@ public class Generator {
                 documentables.add(createDocForNode(var));
             }
         }
-        
+
         // Create the links to select which page or package is active
         List<Link> links = new ArrayList<>();
         PackageName packageNameHeading = null;
@@ -144,19 +148,20 @@ public class Generator {
                 links.add(new Link(pkgLink.caption, pkgLink.href, false));
             }
         }
-    
+
         return new Page(description, packageNameHeading, documentables, links);
     }
-    
+
     /**
      * Generate the page for primitive types.
+     *
      * @param balPackage The ballerina.builtin package.
-     * @param packages List of available packages.
+     * @param packages   List of available packages.
      * @return A page model for the primitive types.
      */
     public static Page generatePageForPrimitives(BLangPackage balPackage, List<Link> packages) {
         ArrayList<Documentable> primitiveTypes = new ArrayList<>();
-        
+
         // Check for functions in the package
         if (balPackage.getFunctions().size() > 0) {
             for (BLangFunction function : balPackage.getFunctions()) {
@@ -164,13 +169,10 @@ public class Generator {
                     TypeNode langType = function.getReceiver().getTypeNode();
                     if (!(langType instanceof BLangUserDefinedType)) {
                         // Check for primitives in ballerina.builtin
-                        Optional<PrimitiveTypeDoc> existingPrimitiveType = primitiveTypes
-                                .stream()
-                                .filter((doc) -> doc instanceof PrimitiveTypeDoc &&
-                                                 (((PrimitiveTypeDoc) doc)).name.equals(langType.toString()))
-                                .map(doc -> (PrimitiveTypeDoc) doc)
-                                .findFirst();
-                        
+                        Optional<PrimitiveTypeDoc> existingPrimitiveType = primitiveTypes.stream().filter((doc) ->
+                                doc instanceof PrimitiveTypeDoc && (((PrimitiveTypeDoc) doc)).name.equals(langType
+                                        .toString())).map(doc -> (PrimitiveTypeDoc) doc).findFirst();
+
                         PrimitiveTypeDoc primitiveTypeDoc;
                         if (existingPrimitiveType.isPresent()) {
                             primitiveTypeDoc = existingPrimitiveType.get();
@@ -178,13 +180,13 @@ public class Generator {
                             primitiveTypeDoc = new PrimitiveTypeDoc(langType.toString(), new ArrayList<>());
                             primitiveTypes.add(primitiveTypeDoc);
                         }
-                        
+
                         primitiveTypeDoc.children.add(createDocForNode(function));
                     }
                 }
             }
         }
-    
+
         // Create the links to select which page or package is active
         List<Link> links = new ArrayList<>();
         for (Link pkgLink : packages) {
@@ -194,13 +196,14 @@ public class Generator {
                 links.add(new Link(pkgLink.caption, pkgLink.href, false));
             }
         }
-    
+
         StaticCaption primitivesPageHeading = new StaticCaption(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME);
         return new Page(primitivesPageHeading, primitiveTypes, links);
     }
-    
+
     /**
      * Create documentation for enums.
+     *
      * @param enumNode ballerina enum node.
      * @return documentation for enum.
      * TODO
@@ -222,6 +225,7 @@ public class Generator {
 
     /**
      * Create documentation for annotations.
+     *
      * @param annotationNode ballerina annotation node.
      * @return documentation for annotation.
      */
@@ -229,20 +233,29 @@ public class Generator {
         String annotationName = annotationNode.getName().getValue();
         List<Variable> attributes = new ArrayList<>();
 
-        // Iterate through the attributes of the annotation
-        if (annotationNode.getAttributes().size() > 0) {
-            for (BLangAnnotAttribute annotAttribute : annotationNode.getAttributes()) {
-                String dataType = getTypeName(annotAttribute.getTypeNode());
-                String desc = annotFieldAnnotation(annotationNode, annotAttribute);
-                Variable variable = new Variable(annotAttribute.getName().value, dataType, desc);
-                attributes.add(variable);
+        if (!annotationNode.getDocumentationAttachments().isEmpty()) {
+            // new syntax
+
+
+        } else {
+            // older syntax
+            // Iterate through the attributes of the annotation
+            if (annotationNode.getAttributes().size() > 0) {
+                for (BLangAnnotAttribute annotAttribute : annotationNode.getAttributes()) {
+                    String dataType = getTypeName(annotAttribute.getTypeNode());
+                    String desc = annotFieldAnnotation(annotationNode, annotAttribute);
+                    Variable variable = new Variable(annotAttribute.getName().value, dataType, desc);
+                    attributes.add(variable);
+                }
             }
         }
+
         return new AnnotationDoc(annotationName, description(annotationNode), new ArrayList<>(), attributes);
     }
 
     /**
      * Create documentation for global variables.
+     *
      * @param bLangVariable ballerina variable node.
      * @return documentation for global variables.
      */
@@ -255,6 +268,7 @@ public class Generator {
 
     /**
      * Create documentation for functions.
+     *
      * @param functionNode ballerina function node.
      * @return documentation for functions.
      */
@@ -299,6 +313,7 @@ public class Generator {
 
     /**
      * Create documentation for actions.
+     *
      * @param actionNode ballerina action node.
      * @return documentation for actions.
      */
@@ -326,12 +341,12 @@ public class Generator {
 //                returnParams.add(variable);
 //            }
 //        }
-        return new ActionDoc(actionName, description(actionNode), new ArrayList<>(),
-                parameters, returnParams);
+        return new ActionDoc(actionName, description(actionNode), new ArrayList<>(), parameters, returnParams);
     }
 
     /**
      * Create documentation for structs.
+     *
      * @param structNode ballerina struct node.
      * @return documentation for structs.
      */
@@ -363,6 +378,7 @@ public class Generator {
 
     /**
      * Create documentation for connectors.
+     *
      * @param connectorNode ballerina connector node.
      * @return documentation for connectors.
      */
@@ -387,11 +403,22 @@ public class Generator {
                 actions.add(createDocForNode(action));
             }
         }
-        return new ConnectorDoc(connectorName, description(connectorNode), actions, parameters);
+        return new ConnectorDoc(connectorName, description(connectorNode), actions, parameters,
+                hasConnectorAnnotation(connectorNode));
+    }
+
+    private static boolean hasConnectorAnnotation(BLangObject node) {
+        for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
+            if (annotation.getAnnotationName().getValue().equals("Connector")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
      * Get the type of the variable.
+     *
      * @param bLangVariable
      * @return data type of the variable.
      */
@@ -406,16 +433,18 @@ public class Generator {
 
     /**
      * Get the type name of the type node.
+     *
      * @param bLangType
      * @return type name.
      */
     private static String getTypeName(BLangType bLangType) {
-        return (bLangType instanceof BLangUserDefinedType ?
-                ((BLangUserDefinedType) bLangType).typeName.value : bLangType.toString());
+        return (bLangType instanceof BLangUserDefinedType ? ((BLangUserDefinedType) bLangType).typeName.value :
+                bLangType.toString());
     }
 
     /**
      * Get the annotation attachments for the node.
+     *
      * @param node
      * @return list of annotation attachments.
      */
@@ -425,23 +454,37 @@ public class Generator {
 
     /**
      * Get description annotation of the parameter.
-     * @param node parent node.
+     *
+     * @param node  parent node.
      * @param param parameter.
      * @return description of the parameter.
      */
     private static String paramAnnotation(BLangNode node, BLangVariable param) {
-        String subName =
-                param.getName() == null ? param.type.tsymbol.name.value : param.getName().getValue();
-        for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
-            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
-            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
-                continue;
+        String subName = param.getName() == null ? param.type.tsymbol.name.value : param.getName().getValue();
+
+        if (node instanceof DocumentableNode && !((DocumentableNode) node).getDocumentationAttachments().isEmpty()) {
+            // new syntax
+            if (!((DocumentableNode) node).getDocumentationAttachments().isEmpty()) {
+                DocumentationNode bLangDocumentation = ((DocumentableNode) node).getDocumentationAttachments().get(0);
+                for (DocumentationAttributeNode attribute : bLangDocumentation.getAttributes()) {
+                    if (attribute.getDocumentationField().toString().equals(subName)) {
+                        return attribute.getDocumentationText();
+                    }
+                }
             }
-            BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
-            String attribVal = bLangLiteral.toString();
-            if ((annotation.getAnnotationName().getValue().equals("Param")) &&
-                    attribVal.startsWith(subName + ":")) {
-                return attribVal.split(subName + ":")[1].trim();
+        } else {
+            for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
+                BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
+                if (bLangRecordLiteral == null || bLangRecordLiteral.getKeyValuePairs().size() != 1) {
+                    continue;
+                }
+                BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
+                String attribVal = bLangLiteral.toString();
+                if ((annotation.getAnnotationName().getValue().equals("Param")) && attribVal.startsWith(subName +
+                        ":")) {
+
+                    return attribVal.split(subName + ":")[1].trim();
+                }
             }
         }
         return "";
@@ -465,22 +508,13 @@ public class Generator {
             }
         }
 
-        for (AnnotationAttachmentNode annotation : ((BLangFunction) node).getReturnTypeAnnotationAttachments()) {
-            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
-            if (bLangRecordLiteral == null || bLangRecordLiteral.getKeyValuePairs().size() != 1) {
-                continue;
-            }
-            if (annotation.getAnnotationName().getValue().equals("Return")) {
-                BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
-                return bLangLiteral.toString();
-            }
-        }
         return "";
     }
 
     /**
      * Get description annotation of the field.
-     * @param node parent node.
+     *
+     * @param node  parent node.
      * @param param field.
      * @return description of the field.
      */
@@ -488,8 +522,8 @@ public class Generator {
         String subName = "";
         if (param instanceof BLangVariable) {
             BLangVariable paramVariable = (BLangVariable) param;
-            subName = (paramVariable.getName() == null) ? paramVariable.type.tsymbol.name.value :
-                    paramVariable.getName().getValue();
+            subName = (paramVariable.getName() == null) ? paramVariable.type.tsymbol.name.value : paramVariable
+                    .getName().getValue();
         } else if (param instanceof BLangEnum.Enumerator) {
             BLangEnum.Enumerator paramEnumVal = (BLangEnum.Enumerator) param;
             subName = paramEnumVal.getName().getValue();
@@ -523,6 +557,7 @@ public class Generator {
 
     /**
      * Get description annotation of the annotation attribute.
+     *
      * @param annotationNode parent node.
      * @param annotAttribute annotation attribute.
      * @return description of the annotation attribute.
@@ -546,6 +581,7 @@ public class Generator {
 
     /**
      * Get the description annotation of the node.
+     *
      * @param node top level node.
      * @return description of the node.
      */
@@ -569,6 +605,7 @@ public class Generator {
 
     /**
      * Get the anonymous struct string.
+     *
      * @param type struct type.
      * @return anonymous struct string.
      */
