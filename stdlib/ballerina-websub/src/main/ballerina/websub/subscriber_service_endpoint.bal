@@ -165,7 +165,6 @@ public type SubscriberServiceEndpointConfiguration {
     string? topicHeader;
     string[]? topicPayloadKeys;
     map<map<string>>? topicResourceMap;
-    http:AuthConfig? auth;
 };
 
 @Description {value:"The function called to discover hub and topic URLs defined by a resource URL"}

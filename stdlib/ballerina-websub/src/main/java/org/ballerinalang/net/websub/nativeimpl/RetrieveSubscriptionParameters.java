@@ -81,9 +81,13 @@ public class RetrieveSubscriptionParameters extends AbstractHttpNativeFunction {
         subscriptionDetails.put(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SECRET,
                                     new BString(annotationStruct.getStringField(
                                                     WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SECRET)));
-        BStruct authConfig = (BStruct) ((BStruct) ((BStruct) subscriberServiceEndpoint.getVMValue())
-                                                                            .getRefField(0)).getRefField(5);
-        subscriptionDetails.put(WebSubSubscriberConstants.ENDPOINT_AUTH_CONFIG, authConfig);
+        if (annotationStruct.getRefField(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_AUTH_CONFIG) != null) {
+            BStruct authConfig = (BStruct) annotationStruct.getRefField(
+                                                    WebSubSubscriberConstants.ANN_WEBSUB_ATTR_AUTH_CONFIG).getVMValue();
+            subscriptionDetails.put(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_AUTH_CONFIG, authConfig);
+        } else {
+            subscriptionDetails.put(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_AUTH_CONFIG, null);
+        }
 
         String callback = annotationStruct.getStringField(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_CALLBACK);
 
