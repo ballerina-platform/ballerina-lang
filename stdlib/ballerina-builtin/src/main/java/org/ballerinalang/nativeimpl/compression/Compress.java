@@ -100,7 +100,7 @@ public class Compress extends BlockingNativeCallableUnit {
     static OutputStream compressFiles(Path dir, OutputStream outputStream) throws IOException {
         ZipOutputStream zos = new ZipOutputStream(outputStream);
         if (Files.isRegularFile(dir)) {
-            Path fileName = dir.getFileName() != null ? dir.getFileName() : null;
+            Path fileName = dir.getFileName();
             if (fileName != null) {
                 addEntry(zos, dir, fileName.toString());
             } else {
