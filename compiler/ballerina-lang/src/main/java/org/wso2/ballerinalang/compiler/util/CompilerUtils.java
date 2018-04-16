@@ -20,10 +20,6 @@ package org.wso2.ballerinalang.compiler.util;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A util class for handling common functions across compiler.
