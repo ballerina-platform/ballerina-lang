@@ -47,7 +47,7 @@ public class ReadlnAny extends BlockingNativeCallableUnit {
             System.out.print(result.stringValue());
         }
         Scanner sc = new Scanner(System.in, Charset.defaultCharset().displayName());
-        String input = sc.next();
+        String input = sc.nextLine();
         ctx.setReturnValues(new BString(input));
     }
 }
