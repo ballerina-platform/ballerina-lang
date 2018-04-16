@@ -1,3 +1,5 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and do one of the following depending on whether you want the logs to be logged on the console, or in a file. 
 #Run the service by setting `-B[accesslog.http].logto=console` to log to console. 
 $ ballerina run http-access-logs.bal -B[accesslog.http].logto=console
 ballerina: initiating service(s) in 'http-access-logs.bal'
