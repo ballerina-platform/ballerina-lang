@@ -19,7 +19,7 @@ function main (string[] args) {
     // Get the text content of an XML element.
     io:println(bookName.getTextValue());
 
-    // Check if the XML element is emtpy.
+    // Check if the XML element is empty.
     io:println(content.isEmpty());
 
     // Check if the XML element has only one value.
@@ -29,23 +29,23 @@ function main (string[] args) {
     xml x = content.slice(2, 3);
     io:println(x);
 
-    // All the element-type items are taken from an XML sequence.
+    // Get all the element-type items in an XML sequence.
     x = content.elements();
     io:println(x);
 
-    // An XML element with a particular name can be retrieved.
+    // Retrieve an XML element by name.
     x = content.select("name");
     io:println(x);
 
-    // Set the children of an XML element.
+    // Set the child elements of an XML element.
     book.setChildren(content);
     io:println(book);
 
-    // Get all the children of an XML element.
+    // Get all the child elements of an XML element.
     x = book.*;
     io:println(x);
 
-    // Get a particular child of an XML element.
+    // Retrieve a particular child of an XML element by name.
     x = book.selectDescendants("name");
     io:println(x);
 
