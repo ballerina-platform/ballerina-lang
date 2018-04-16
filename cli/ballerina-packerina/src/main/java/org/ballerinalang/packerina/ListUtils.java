@@ -34,11 +34,17 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
  */
 public class ListUtils {
 
-    public static void compileAndList(Path sourceRootPath, Path packagePath) {
+    /**
+     * Lists dependencies of the package.
+     *
+     * @param sourceRootPath source root path
+     * @param packagePath    path of the package
+     */
+    public static void list(Path sourceRootPath, Path packagePath) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootPath.toString());
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.DEFINE.toString());
         Compiler compiler = Compiler.getInstance(context);
         compiler.list();
     }

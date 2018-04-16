@@ -73,7 +73,7 @@ public class ListCommand implements BLauncherCmd {
 
         if (Files.exists(sourceRootPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME))) {
             Path packagePath = Paths.get(argList.get(0));
-            ListUtils.compileAndList(sourceRootPath, packagePath);
+            ListUtils.list(sourceRootPath, packagePath);
         } else {
             throw new BLangCompilerException("Current directory is not a project");
         }
