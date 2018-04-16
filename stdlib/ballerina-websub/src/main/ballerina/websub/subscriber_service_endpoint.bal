@@ -144,7 +144,8 @@ function Listener::sendSubscriptionRequest() {
                 }
             }
         }
-        invokeClientConnectorForSubscription(hub, subscriptionDetails);
+        http:AuthConfig? auth = <http:AuthConfig> subscriptionDetails["auth"] but { error => () };
+        invokeClientConnectorForSubscription(hub, auth, subscriptionDetails);
     }
 }
 
@@ -152,6 +153,10 @@ function Listener::sendSubscriptionRequest() {
 @Field {value:"host: The configuration for the endpoint"}
 @Field {value:"port: The underlying HTTP service endpoint"}
 @Field {value:"secureSocket: The SSL configurations for the service endpoint"}
+@Field {value:"topicIdentifier: The identifier based on which dispatching should happen for custom subscriber services"}
+@Field {value:"topicHeader: The header to consider if required with dispatching for custom services"}
+@Field {value:"topicPayloadKeys: The payload keys to consider if required with dispatching for custom services"}
+@Field {value:"topicResourceMap: The mapping between topics and resources if required for custom services"}
 public type SubscriberServiceEndpointConfiguration {
     string host;
     int port;
@@ -160,6 +165,7 @@ public type SubscriberServiceEndpointConfiguration {
     string? topicHeader;
     string[]? topicPayloadKeys;
     map<map<string>>? topicResourceMap;
+    http:AuthConfig? auth;
 };
 
 @Description {value:"The function called to discover hub and topic URLs defined by a resource URL"}
@@ -285,8 +291,8 @@ returns (http:FilterResult) {
 @Description {value:"Function to invoke the WebSubSubscriberConnector's actions for subscription"}
 @Param {value:"hub: The hub to which the subscription request is to be sent"}
 @Param {value:"subscriptionDetails: Map containing subscription details"}
-function invokeClientConnectorForSubscription (string hub, map subscriptionDetails) {
-    endpoint Client websubHubClientEP { url:hub };
+function invokeClientConnectorForSubscription (string hub, http:AuthConfig | () auth, map subscriptionDetails) {
+    endpoint Client websubHubClientEP { url:hub, auth:auth };
 
     string topic = <string> subscriptionDetails["topic"];
     string callback = <string> subscriptionDetails["callback"];

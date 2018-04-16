@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -57,7 +58,7 @@ public class RetrieveSubscriptionParameters extends AbstractHttpNativeFunction {
                 WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY)).getServicesInfoByInterface()
                 .values().toArray()[0]);
 
-        BMap<String, BString> subscriptionDetails = new BMap<>();
+        BMap<String, BValue> subscriptionDetails = new BMap<>();
 
         Struct annotationStruct =
                 httpService.getBalService().getAnnotationList(WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
@@ -80,6 +81,9 @@ public class RetrieveSubscriptionParameters extends AbstractHttpNativeFunction {
         subscriptionDetails.put(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SECRET,
                                     new BString(annotationStruct.getStringField(
                                                     WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SECRET)));
+        BStruct authConfig = (BStruct) ((BStruct) ((BStruct) subscriberServiceEndpoint.getVMValue())
+                                                                            .getRefField(0)).getRefField(5);
+        subscriptionDetails.put(WebSubSubscriberConstants.ENDPOINT_AUTH_CONFIG, authConfig);
 
         String callback = annotationStruct.getStringField(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_CALLBACK);
 

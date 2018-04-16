@@ -31,6 +31,7 @@ public class WebSubSubscriberConstants {
     public static final String SERVICE_ENDPOINT = "Listener";
     public static final String ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
     public static final String WEBSUB_PACKAGE_PATH = "ballerina.websub";
+    public static final String ENDPOINT_AUTH_CONFIG = "auth";
 
     public static final String ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP = "subscribeOnStartUp";
     public static final String ANN_WEBSUB_ATTR_RESOURCE_URL = "resourceUrl";
