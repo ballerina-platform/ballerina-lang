@@ -40,6 +40,7 @@ import org.wso2.transport.http.netty.sender.HttpClientChannelInitializer;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
+import org.wso2.transport.http.netty.sender.http2.RedirectHandler;
 import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
 import java.io.IOException;
@@ -86,6 +87,10 @@ public class TargetChannel {
                     new Http2ClientChannel(httpClientChannelInitializer.getHttp2ConnectionManager(),
                                            httpClientChannelInitializer.getConnection(),
                                            httpRoute, channelFuture.channel());
+            if (httpClientChannelInitializer.isFollowRedirect()) {
+                http2ClientChannel.addDataEventListener(
+                        new RedirectHandler(http2ClientChannel, httpClientChannelInitializer.getMaxRedirectCount()));
+            }
         }
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
     }

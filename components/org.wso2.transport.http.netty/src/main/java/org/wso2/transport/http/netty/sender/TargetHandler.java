@@ -219,9 +219,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         http2ClientChannel.setUpgradedToHttp2(true);
 
         // Remove Http specific handlers
-        Util.safelyRemoveHandlers(targetChannel.getChannel().pipeline(),
-                                  Constants.IDLE_STATE_HANDLER, Constants.HTTP_TRACE_LOG_HANDLER);
-
+        Util.safelyRemoveHandlers(targetChannel.getChannel().pipeline(), Constants.IDLE_STATE_HANDLER,
+                                  Constants.HTTP_TRACE_LOG_HANDLER, Constants.REDIRECT_HANDLER);
         http2ClientChannel.getInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID).setRequestWritten(true);
         http2ClientChannel.getDataEventListeners().
                 forEach(dataEventListener ->
