@@ -23,7 +23,7 @@ import com.beust.jcommander.Parameters;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.packerina.BuilderUtils;
+import org.ballerinalang.packerina.ListUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.PrintStream;
@@ -73,7 +73,7 @@ public class ListCommand implements BLauncherCmd {
 
         if (Files.exists(sourceRootPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME))) {
             Path packagePath = Paths.get(argList.get(0));
-            BuilderUtils.compileAndWrite(sourceRootPath, packagePath, null, false, false, true, true);
+            ListUtils.list(sourceRootPath, packagePath);
         } else {
             throw new BLangCompilerException("Current directory is not a project");
         }

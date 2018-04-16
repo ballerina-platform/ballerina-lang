@@ -17,12 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler;
 
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
@@ -44,8 +42,6 @@ public class Compiler {
     private final DependencyTree dependencyTree;
     private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
-    private final boolean listPkg;
-    private final boolean dryRun;
 
     public static Compiler getInstance(CompilerContext context) {
         Compiler compiler = context.get(COMPILER_KEY);
@@ -65,9 +61,6 @@ public class Compiler {
         this.dependencyTree = DependencyTree.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
-
-        this.listPkg = Boolean.parseBoolean(CompilerOptions.getInstance(context).get(CompilerOptionName.LIST_PKG));
-        this.dryRun = Boolean.parseBoolean(CompilerOptions.getInstance(context).get(CompilerOptionName.DRY_RUN));
     }
 
     public BLangPackage compile(String sourcePackage) {
@@ -105,7 +98,7 @@ public class Compiler {
         return packageNode;
     }
 
-    public void build() {
+    public Stream<BLangPackage> loadAllPackages() {
         // TODO This is hack to load the builtin package. We will fix this with BALO support
         this.compilerDriver.loadBuiltinPackage();
 
@@ -113,23 +106,23 @@ public class Compiler {
         // 2) Define all package level symbols for all the packages including imported packages in the AST
         // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
         Stream<BLangPackage> packages = this.sourceDirectoryManager.listSourceFilesAndPackages()
-                .map(this.pkgLoader::loadPackage)
-                .map(this::define)
-                .map(this.compilerDriver::compilePackage)
-                .filter(bLangPackage -> this.dlog.errorCount == 0);
+                                                                   .map(this.pkgLoader::loadPackage)
+                                                                   .map(this::define)
+                                                                   .map(this.compilerDriver::compilePackage)
+                                                                   .filter(bLangPackage -> this.dlog.errorCount == 0);
 
         if (dlog.errorCount > 0) {
             // Check for compilation errors if there are any compilation errors don't write BALOs or BALXs
-            return;
+            return Stream.empty();
         }
+        return packages;
+    }
+    public void build() {
+        loadAllPackages().forEach(this.binaryFileWriter::writeExecutableBinary);
+    }
 
-        if (!dryRun) {
-            packages.forEach(this.binaryFileWriter::writeExecutableBinary);
-        }
-
-        if (listPkg) {
-            packages.forEach(this.dependencyTree::listDependencyPackages);
-        }
+    public void list() {
+        loadAllPackages().forEach(this.dependencyTree::listDependencyPackages);
     }
 
     public void build(String sourcePackage, String targetFileName) {
