@@ -24,8 +24,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.util.tracer.OpenTracer;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
-import java.util.Map;
-
 /**
  * Tracer extension that returns an instance of Mock tracer.
  */
@@ -35,12 +33,12 @@ public class BNoopTracer implements OpenTracer {
     private static final String NAME = "noop";
 
     @Override
-    public Tracer getTracer(String tracerName, String serviceName) throws InvalidConfigurationException {
+    public Tracer getTracer(String tracerName, String serviceName) {
         return NoopTracer.INSTANCE;
     }
 
     @Override
-    public void init(Map<String, String> configProperties) {
+    public void init() throws InvalidConfigurationException {
         // Do Nothing
     }
 
