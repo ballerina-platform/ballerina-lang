@@ -1,7 +1,7 @@
-function testTransactionHandlers () {
+function testTransactionHandlers() {
     int i = 0;
     try {
-        transaction with retries=4, oncommit=commitFunction, onabort=abortFunction {
+        transaction with retries = 4, oncommit = commitFunction, onabort = abortFunction {
             i = 2;
         } onretry {
             i = i + 1;
@@ -23,10 +23,10 @@ function abortFunction(int transactionid) {
 }
 
 
-function testTransactionHandlers2 () {
+function testTransactionHandlers2() {
     int i = 0;
     try {
-        transaction with retries=4, oncommit=commitFunction2, onabort=abortFunction2 {
+        transaction with retries = 4, oncommit = commitFunction2, onabort = abortFunction2 {
             i = 2;
         } onretry {
             i = i + 1;
@@ -48,10 +48,10 @@ function abortFunction2(string transactionid, string x) {
 }
 
 
-function testTransactionHandlers3 () {
+function testTransactionHandlers3() {
     int i = 0;
     try {
-        transaction with retries=4, oncommit=commitFunction3, onabort=abortFunction3 {
+        transaction with retries = 4, oncommit = commitFunction3, onabort = abortFunction3 {
             i = 2;
         } onretry {
             i = i + 1;
@@ -65,10 +65,10 @@ function testTransactionHandlers3 () {
 
 int a = 10;
 string x = "hello";
-function testTransactionHandlers4 () {
+function testTransactionHandlers4() {
     int i = 0;
     try {
-        transaction with retries=4, oncommit=a, onabort=x {
+        transaction with retries = 4, oncommit = a, onabort = x {
             i = 2;
         } onretry {
             i = i + 1;
