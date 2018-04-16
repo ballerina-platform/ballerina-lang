@@ -127,6 +127,11 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
     @Override
     public HttpResponseFuture send(HTTPCarbonMessage httpOutboundRequest) {
+        OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest);
+        return send(outboundMsgHolder, httpOutboundRequest);
+    }
+
+    public HttpResponseFuture send(OutboundMsgHolder outboundMsgHolder, HTTPCarbonMessage httpOutboundRequest) {
         final HttpResponseFuture httpResponseFuture;
 
         SourceHandler srcHandler = (SourceHandler) httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
@@ -150,9 +155,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                 Http2ClientChannel activeHttp2ClientChannel = http2ConnectionManager.borrowChannel(route);
 
                 if (activeHttp2ClientChannel != null) {
-                    OutboundMsgHolder outboundMsgHolder =
-                            new OutboundMsgHolder(httpOutboundRequest, activeHttp2ClientChannel);
-
+                    outboundMsgHolder.setHttp2ClientChannel(activeHttp2ClientChannel);
                     activeHttp2ClientChannel.getChannel().eventLoop().execute(
                             () -> activeHttp2ClientChannel.getChannel().write(outboundMsgHolder));
                     httpResponseFuture = outboundMsgHolder.getResponseFuture();
@@ -164,8 +167,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
             // Look for the connection from http connection manager
             TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, senderConfiguration);
             Http2ClientChannel freshHttp2ClientChannel = targetChannel.getHttp2ClientChannel();
-
-            OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest, freshHttp2ClientChannel);
+            outboundMsgHolder.setHttp2ClientChannel(freshHttp2ClientChannel);
             httpResponseFuture = outboundMsgHolder.getResponseFuture();
 
             targetChannel.getConnectionAvailabilityFuture().setListener(new ConnectionAvailabilityListener() {
@@ -281,6 +283,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         channel.attr(Constants.TARGET_CHANNEL_REFERENCE).set(targetChannel);
         channel.attr(Constants.ORIGINAL_CHANNEL_START_TIME).set(System.currentTimeMillis());
         channel.attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).set(socketIdleTimeout);
+        channel.attr(Constants.CLIENT_CONNECTOR).set(this);
     }
 
     private void initTargetChannelProperties(SenderConfiguration senderConfiguration) {

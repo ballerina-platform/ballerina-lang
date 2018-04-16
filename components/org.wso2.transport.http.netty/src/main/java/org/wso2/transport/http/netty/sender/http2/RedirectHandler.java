@@ -31,6 +31,7 @@ import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpClientConnector;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
@@ -49,14 +50,14 @@ public class RedirectHandler implements Http2DataEventListener {
     private Http2ClientChannel http2ClientChannel;
     private int maxRedirectCount;
 
-    public RedirectHandler(Http2ClientChannel http2ClientChannel,int maxRedirectCount) {
+    public RedirectHandler(Http2ClientChannel http2ClientChannel, int maxRedirectCount) {
         this.http2ClientChannel = http2ClientChannel;
         this.maxRedirectCount = maxRedirectCount;
     }
 
     @Override
     public boolean onStreamInit(ChannelHandlerContext ctx, int streamId) {
-        return false;
+        return true;
     }
 
     @Override
@@ -126,7 +127,6 @@ public class RedirectHandler implements Http2DataEventListener {
 
     @Override
     public void destroy() {
-
     }
 
     private void doRedirection(ChannelHandlerContext ctx, int streamId, int statusCode,
@@ -141,8 +141,11 @@ public class RedirectHandler implements Http2DataEventListener {
             outboundMsgHolder.clearRedirectionState();
             http2ClientChannel.removeInFlightMessage(streamId);
 
-            if (!crossDomain) {
-                outboundMsgHolder.updateRequest(request);
+            outboundMsgHolder.updateRequest(request);
+            if (crossDomain) {
+                DefaultHttpClientConnector connector = ctx.channel().attr(Constants.CLIENT_CONNECTOR).get();
+                connector.send(outboundMsgHolder, request);
+            } else {
                 ctx.write(outboundMsgHolder);
             }
 
@@ -360,7 +363,6 @@ public class RedirectHandler implements Http2DataEventListener {
             throws MalformedURLException {
 
         URL locationUrl = new URL(redirectionUrl);
-
         HttpMethod httpMethod = new HttpMethod(redirectionMethod);
         HTTPCarbonMessage httpCarbonRequest = new HTTPCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, httpMethod, ""));

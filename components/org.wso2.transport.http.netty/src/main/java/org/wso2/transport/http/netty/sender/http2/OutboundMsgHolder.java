@@ -53,12 +53,15 @@ public class OutboundMsgHolder {
     private AtomicInteger redirectCount = new AtomicInteger(0);
     private Http2Headers redirectResponseHeaders;
 
-    public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage, Http2ClientChannel http2ClientChannel) {
+    public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage) {
         this.requestCarbonMessage = httpCarbonMessage;
-        this.http2ClientChannel = http2ClientChannel;
         promises = new LinkedBlockingQueue<>();
         pushResponsesMap = new ConcurrentHashMap<>();
         responseFuture = new DefaultHttpResponseFuture(this);
+    }
+
+    public void setHttp2ClientChannel(Http2ClientChannel http2ClientChannel) {
+        this.http2ClientChannel = http2ClientChannel;
     }
 
     /**
