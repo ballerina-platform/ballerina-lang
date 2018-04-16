@@ -113,7 +113,7 @@ public class Compiler {
 
         if (dlog.errorCount > 0) {
             // Check for compilation errors if there are any compilation errors don't write BALOs or BALXs
-            return packages;
+            return Stream.empty();
         }
         return packages;
     }
