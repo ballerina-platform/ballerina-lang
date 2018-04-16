@@ -5,7 +5,7 @@ function main (string[] args) {
 
     string ifElseOutput;
 
-    // Writing a conditional statement using If-Else statement.
+    // This is a conditional statement using if-else.
     if (x >= 50) {
         ifElseOutput = "more than 50";
     } else {
@@ -13,11 +13,11 @@ function main (string[] args) {
     }
     io:println("The output from If-Else: " + ifElseOutput);
 
-    // writing above condition using ternary expression.
+    // This is the above conditional statement using ternary expression.
     string ternaryOutput = x >= 50 ? "more than 50" : "less than 50";
     io:println("The output from Ternary expression: " + ternaryOutput);
 
-    // Writing nested conditions using ternary expression.
+    // This is a nested condition using ternary expression.
     string nestedOutput = x >= 50 ? "more than 50" :
                                x >= 10 ? "more than 10" : "less than 10";
     io:println("The output from nested ternary expression: " + nestedOutput);
