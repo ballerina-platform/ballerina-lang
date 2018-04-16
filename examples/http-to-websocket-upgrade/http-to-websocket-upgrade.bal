@@ -38,7 +38,7 @@ service<http:Service> httpService bind servicEp {
     }
 }
 
-@Description {value:"Note: When a WebSocket upgrade path is defined in HTTP configuration in WebSocket configuration there can be \n - Full service configuration: There will be two base paths for the same service from either HTTP or WebSocket \n - Without service configuration: WebSocket service will be a slave service of HTTP service. Then only the upgrade path can be there. \n - Configuration without basePath: It will act as a slave service but can configure sub protocols, idle timeout etc..."}
+@Description {value:"When a WebSocket upgrade path is defined under HTTP in the WebSocket configuration, there can be \n - Full service configuration: Two base paths for the same service from either HTTP or WebSocket. \n - Without service configuration: WebSocket service is a slave service of the HTTP service. Only the upgrade path can be there. \n - Configuration without basePath: Acts as a slave service but can configure sub protocols, idle timeout, etc."}
 @http:WebSocketServiceConfig {
     subProtocols:["xml, json"],
     idleTimeoutInSeconds:5
