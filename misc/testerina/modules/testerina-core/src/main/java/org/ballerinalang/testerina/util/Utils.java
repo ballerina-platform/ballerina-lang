@@ -23,6 +23,12 @@ import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
+
 /**
  * Utility methods.
  */
@@ -42,6 +48,19 @@ public class Utils {
         BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
 
         BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
+    }
+
+    /**
+     * Cleans up any remaining testerina metadata.
+     * @param path
+     */
+    public static void cleanUpDir(Path path) {
+
+        try {
+            Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+        } catch (IOException e) {
+            // Do nothing
+        }
     }
 
     private static void initDebugger(ProgramFile programFile, Debugger debugger) {
