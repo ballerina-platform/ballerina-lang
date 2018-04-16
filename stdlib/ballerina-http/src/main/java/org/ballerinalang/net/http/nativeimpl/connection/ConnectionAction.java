@@ -44,6 +44,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
 import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
@@ -194,6 +195,16 @@ public abstract class ConnectionAction implements NativeCallableUnit {
             }
             httpConnectorError.setStringField(0, throwable.getMessage());
             this.dataContext.notifyOutboundResponseStatus(httpConnectorError);
+        }
+
+        @Override
+        public void onPushPromise(Http2PushPromise pushPromise) {
+            this.dataContext.notifyOutboundResponseStatus(null);
+        }
+
+        @Override
+        public void onPushResponse(int promiseId, HTTPCarbonMessage httpMessage) {
+            this.dataContext.notifyOutboundResponseStatus(null);
         }
     }
 }
