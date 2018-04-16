@@ -41,6 +41,8 @@ public class MainFunctionsTest {
     @Test
     public void basicMainInvocationTest() {
         BStringArray args = new BStringArray();
+        args.add(0, "V1");
+        args.add(1, "V2");
         BRunUtil.invoke(result, "main", new BValue[] { args });
     }
     
