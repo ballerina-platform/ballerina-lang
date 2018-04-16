@@ -62,13 +62,14 @@ public class Http2WithPriorKnowledgeHandler extends ChannelInboundHandlerAdapter
             if (ByteBufUtil.equals(inputData, inputData.readerIndex(), clientPrefaceString,
                                    clientPrefaceString.readerIndex(), bytesRead)) {
                 // HTTP/2 request received without an upgrade
+                Util.safelyRemoveHandlers(pipeline, Constants.HTTP_SERVER_CODEC);
                 pipeline.addBefore(
                         Constants.HTTP2_UPGRADE_HANDLER,
                         Constants.HTTP2_SOURCE_HANDLER,
                         new Http2SourceHandlerBuilder(
                                 interfaceId, serverConnectorFuture, serverName, serverChannelInitializer).build());
 
-                Util.safelyRemoveHandlers(pipeline, Constants.HTTP_SERVER_CODEC, Constants.HTTP2_UPGRADE_HANDLER,
+                Util.safelyRemoveHandlers(pipeline, Constants.HTTP2_UPGRADE_HANDLER,
                                           Constants.HTTP_COMPRESSOR, Constants.HTTP_TRACE_LOG_HANDLER);
             }
             pipeline.remove(this);
