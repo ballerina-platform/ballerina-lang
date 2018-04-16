@@ -1,4 +1,5 @@
-#Run the main function containing ballerina client.
+#At the command line, navigate to the directory that contains the 
+#`.bal` file, and run the `ballerina run` command to run the main function containing the ballerina client. 
 $ ballerina run http-2.0-server-push.bal
 Received a promise for /resource1
 Received a promise for /resource2
