@@ -111,8 +111,20 @@ class WebSubSubscriberServiceValidator {
 
     private static void validateCustomResources(List<HttpResource> resources,
                                                 BMap<String, BMap<String, BString>> topicResourceMap) {
+        List<String> resourceNames = retrieveResourceNames(topicResourceMap);
+        List<String> invalidResourceNames = retrieveInvalidResourceNames(resources, resourceNames);
+
+        if (!resourceNames.isEmpty()) {
+            logger.warn("Resource(s) specified in topic-resource mapping not found: " + resourceNames);
+        }
+        if (!invalidResourceNames.isEmpty()) {
+            throw new BallerinaException("Resource name(s) not included in the topic-resource mapping found: "
+                                                 + invalidResourceNames);
+        }
+    }
+
+    private static List<String> retrieveResourceNames(BMap<String, BMap<String, BString>> topicResourceMap) {
         List<String> resourceNames = new ArrayList<>();
-        List<String> invalidResourceNames = new ArrayList<>();
 
         for (String key : topicResourceMap.keySet()) {
             BMap<String, BString> topicResourceSubMap = topicResourceMap.get(key);
@@ -120,6 +132,12 @@ class WebSubSubscriberServiceValidator {
                 resourceNames.add(topicResourceSubMap.get(topic).stringValue());
             }
         }
+
+        return resourceNames;
+    }
+
+    private static List<String> retrieveInvalidResourceNames(List<HttpResource> resources, List<String> resourceNames) {
+        List<String> invalidResourceNames = new ArrayList<>();
 
         for (HttpResource resource : resources) {
             String resourceName = resource.getName();
@@ -131,13 +149,7 @@ class WebSubSubscriberServiceValidator {
             }
         }
 
-        if (!resourceNames.isEmpty()) {
-            logger.warn("Resource(s) specified in topic-resource mapping not found: " + resourceNames);
-        }
-        if (!invalidResourceNames.isEmpty()) {
-            throw new BallerinaException("Resource name(s) not included in the topic-resource mapping found: "
-                                                 + invalidResourceNames);
-        }
+        return invalidResourceNames;
     }
 
 }

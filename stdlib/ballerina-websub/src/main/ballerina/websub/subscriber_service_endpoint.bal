@@ -290,7 +290,7 @@ returns (http:FilterResult) {
 @Description {value:"Function to invoke the WebSubSubscriberConnector's actions for subscription"}
 @Param {value:"hub: The hub to which the subscription request is to be sent"}
 @Param {value:"subscriptionDetails: Map containing subscription details"}
-function invokeClientConnectorForSubscription (string hub, http:AuthConfig | () auth, map subscriptionDetails) {
+function invokeClientConnectorForSubscription (string hub, http:AuthConfig? auth, map subscriptionDetails) {
     endpoint Client websubHubClientEP { url:hub, auth:auth };
 
     string topic = <string> subscriptionDetails["topic"];

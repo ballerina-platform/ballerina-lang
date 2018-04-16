@@ -67,14 +67,13 @@ class WebSubResourceDispatcher {
             }
             ProgramFile programFile = service.getBalService().getServiceInfo().getPackageInfo().getProgramFile();
             if (servicesRegistry.getTopicIdentifier().equals(WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY)) {
-                resourceName = retrieveResourceNameForPayloadBasedDispatching(programFile, inboundRequest,
-                                                                              servicesRegistry.getTopicPayloadKeys(),
-                                                                              servicesRegistry.getTopicResourceMap());
+                resourceName = retrieveResourceName(programFile, inboundRequest, servicesRegistry.getTopicPayloadKeys(),
+                                                    servicesRegistry.getTopicResourceMap());
             } else {
                 String topic = inboundRequest.getHeader(servicesRegistry.getTopicHeader());
-                resourceName = retrieveResourceNameForHeaderAndPayloadBasedDispatching(programFile, inboundRequest,
-                                                                       topic, servicesRegistry.getTopicPayloadKeys(),
-                                                                       servicesRegistry.getTopicResourceMap());
+                resourceName = retrieveResourceName(programFile, inboundRequest, topic,
+                                                    servicesRegistry.getTopicPayloadKeys(),
+                                                    servicesRegistry.getTopicResourceMap());
             }
         } else {
             resourceName = retrieveResourceName(method);
@@ -90,7 +89,7 @@ class WebSubResourceDispatcher {
         if (httpResource == null) {
             if (WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION.equals(resourceName)) {
                 //if the request is a GET request indicating an intent verification request, and the user has not
-                //specified an onIntentVerification resource, assume auto intent verification and respond
+                //specified an onIntentVerification resource, assume auto intent verification
                 String annotatedTopic = (service.getBalService())
                         .getAnnotationList(WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
                                            WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG)
@@ -140,10 +139,8 @@ class WebSubResourceDispatcher {
      * @return                  the name of the resource as identified based on the topic
      * @throws BallerinaConnectorException if a resource could not be mapped to the topic identified
      */
-    private static String retrieveResourceNameForHeaderAndPayloadBasedDispatching(ProgramFile programFile,
-                                                                 HTTPCarbonMessage inboundRequest,
-                                                                 String topicHeader, BStringArray payloadKeys,
-                                                                 BMap<String, BMap<String, BString>> topicResourceMap) {
+    private static String retrieveResourceName(ProgramFile programFile, HTTPCarbonMessage inboundRequest,
+                   String topicHeader, BStringArray payloadKeys, BMap<String, BMap<String, BString>> topicResourceMap) {
         String topicHeaderPrefix = topicHeader + "::";
         BValue httpRequest = getHttpRequest(programFile, inboundRequest);
         BJSON jsonBody = retrieveJsonBody(httpRequest);
@@ -180,10 +177,8 @@ class WebSubResourceDispatcher {
      * @return                  the name of the resource as identified based on the topic
      * @throws BallerinaConnectorException if a resource could not be mapped to the topic identified
      */
-    private static String retrieveResourceNameForPayloadBasedDispatching(ProgramFile programFile,
-                                                                 HTTPCarbonMessage inboundRequest,
-                                                                 BStringArray payloadKeys,
-                                                                 BMap<String, BMap<String, BString>> topicResourceMap) {
+    private static String retrieveResourceName(ProgramFile programFile, HTTPCarbonMessage inboundRequest,
+                                       BStringArray payloadKeys, BMap<String, BMap<String, BString>> topicResourceMap) {
         BValue httpRequest = getHttpRequest(programFile, inboundRequest);
         BJSON jsonBody = retrieveJsonBody(httpRequest);
         inboundRequest.setProperty(WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST, httpRequest);

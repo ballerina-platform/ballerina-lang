@@ -86,12 +86,11 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                 return;
             }
             httpResource = WebSubDispatcher.findResource(webSubServicesRegistry, httpCarbonMessage);
-            //TODO: fix to avoid differing on GET
-            if (httpCarbonMessage.getProperty(HTTP_RESOURCE) == null
-                    || httpCarbonMessage.getProperty(HTTP_RESOURCE) instanceof String) {
-                if (httpCarbonMessage.getProperty(HTTP_RESOURCE) == null) {
-                    httpCarbonMessage.setProperty(HTTP_RESOURCE, httpResource);
-                }
+            //TODO: fix to avoid defering on GET, when onIntentVerification is included
+            if (httpCarbonMessage.getProperty(HTTP_RESOURCE) == null) {
+                httpCarbonMessage.setProperty(HTTP_RESOURCE, httpResource);
+                return;
+            } else if (httpCarbonMessage.getProperty(HTTP_RESOURCE) instanceof String) {
                 return;
             }
             extractPropertiesAndStartResourceExecution(httpCarbonMessage, httpResource);
