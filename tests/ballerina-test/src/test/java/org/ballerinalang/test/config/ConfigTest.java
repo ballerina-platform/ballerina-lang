@@ -266,6 +266,21 @@ public class ConfigTest {
         Assert.assertEquals(((BFloat) returnVals[0]).floatValue(), (double) 0.3455);
     }
 
+    @Test(description = "Test for getting an int as a float")
+    public void testGetIntAsFloat() throws IOException {
+        BString key = new BString("http1.request_limit");
+        BValue[] inputArg = {key};
+
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsFloat", inputArg);
+
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returnVals[0]).floatValue(), 50.0D);
+    }
+
     @Test(description = "Test for getAsBoolean")
     public void testGetAsBoolean() throws IOException {
         BString key = new BString("http1.caching_enabled");
@@ -287,7 +302,7 @@ public class ConfigTest {
         runtimeParams.put("host", "localhost");
         runtimeParams.put("port", "7777");
         runtimeParams.put("trace.enabled", "true");
-        runtimeParams.put("evic.factor", "0.23333");
+        runtimeParams.put("evic_factor", "0.23333");
 
         registry.initRegistry(runtimeParams, null, null);
 
@@ -306,7 +321,7 @@ public class ConfigTest {
         Assert.assertTrue(returnVals[0] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) returnVals[0]).booleanValue(), true);
 
-        inputArg = new BValue[]{new BString("evic.factor")};
+        inputArg = new BValue[]{new BString("evic_factor")};
         returnVals = BRunUtil.invoke(compileResult, "testGetAsFloat", inputArg);
         Assert.assertTrue(returnVals[0] instanceof BFloat);
         Assert.assertEquals(((BFloat) returnVals[0]).floatValue(), 0.23333);
