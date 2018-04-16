@@ -52,10 +52,9 @@ public class Utils {
 
     /**
      * Cleans up any remaining testerina metadata.
-     * @param path
+     * @param path The path of the Directory/File to be deleted
      */
     public static void cleanUpDir(Path path) {
-
         try {
             Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
         } catch (IOException e) {

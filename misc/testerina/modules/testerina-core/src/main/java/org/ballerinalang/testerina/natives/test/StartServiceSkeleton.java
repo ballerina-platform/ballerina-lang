@@ -105,7 +105,6 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
     }
 
     private void initTempDir(String sourceRoot) {
-
         // create the .testerina directory and .ballerina directory
         Path projectRoot = Paths.get(sourceRoot, TesterinaConstants.TESTERINA_TEMP_DIR, ".ballerina");
         if (!Files.exists(projectRoot)) {
@@ -113,8 +112,7 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
                 Files.createDirectories(projectRoot);
             } catch (IOException e) {
                 throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to create " +
-                                                             "[.ballerina] %s [cause] %s", projectRoot.toString(), e
-                    .getMessage()), e);
+                               "[.ballerina] %s [cause] %s", projectRoot.toString(), e.getMessage()), e);
             }
         }
     }
