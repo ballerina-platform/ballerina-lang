@@ -1,5 +1,5 @@
 import ballerina/http;
-
+@Description {value:"The Ballerina server connector can be used to connect to an https client. To verify the server authenticity when establishing the connection, provide a `keyStore filePath` and `keyStore password".}
 endpoint http:Listener helloWorldEP {
     port:9095,
     secureSocket: {
@@ -10,7 +10,6 @@ endpoint http:Listener helloWorldEP {
     }
 };
 
-@Description {value:"Ballerina server connector can be used to connect to a https client. If client needs to verify server authenticity when establishing the connection, server needs to provide keyStoreFile, keyStorePassword and certificate password as given here."}
 @http:ServiceConfig {
       endpoints:[helloWorldEP],
       basePath:"/hello"
