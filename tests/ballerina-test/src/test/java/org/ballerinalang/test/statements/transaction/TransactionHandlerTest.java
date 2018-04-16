@@ -167,24 +167,24 @@ public class TransactionHandlerTest {
         BAssertUtil.validateError(res, 0,
                 "transaction handler function required single string parameter which is transaction id", 4, 50);
         BAssertUtil.validateError(res, 1,
-                "transaction handler function required single string parameter which is transaction id", 4, 70);
+                "transaction handler function required single string parameter which is transaction id", 4, 76);
         BAssertUtil.validateError(res, 2,
-                "transaction handler function required single string parameter which is transaction id", 29, 46);
+                "transaction handler function required single string parameter which is transaction id", 29, 50);
         BAssertUtil.validateError(res, 3,
-                "transaction handler function required single string parameter which is transaction id", 29, 71);
-        BAssertUtil.validateError(res, 4, "undefined symbol 'commitFunction3'", 54, 46);
+                "transaction handler function required single string parameter which is transaction id", 29, 77);
+        BAssertUtil.validateError(res, 4, "undefined symbol 'commitFunction3'", 54, 50);
         BAssertUtil
                 .validateError(res, 5, "lambda function with string input parameter is required as transaction handler",
-                        54, 46);
-        BAssertUtil.validateError(res, 6, "undefined symbol 'abortFunction3'", 54, 71);
+                        54, 50);
+        BAssertUtil.validateError(res, 6, "undefined symbol 'abortFunction3'", 54, 77);
         BAssertUtil
                 .validateError(res, 7, "lambda function with string input parameter is required as transaction handler",
-                        54, 71);
+                        54, 77);
         BAssertUtil
                 .validateError(res, 8, "lambda function with string input parameter is required as transaction handler",
-                        71, 46);
+                        71, 50);
         BAssertUtil
                 .validateError(res, 9, "lambda function with string input parameter is required as transaction handler",
-                        71, 57);
+                        71, 63);
     }
 }

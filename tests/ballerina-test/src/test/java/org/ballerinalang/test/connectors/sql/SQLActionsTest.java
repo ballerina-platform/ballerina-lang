@@ -53,8 +53,8 @@ public class SQLActionsTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/connectors/sql/sql-actions-test.bal");
-//        resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql-actions-negative.bal");
-//        resultMirror = BCompileUtil.compile("test-src/connectors/sql/sql-mirror-table-test.bal");
+        resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql-actions-negative.bal");
+        resultMirror = BCompileUtil.compile("test-src/connectors/sql/sql-mirror-table-test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLConnectorDataFile.sql");
     }
@@ -175,7 +175,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = "ConnectorTest", enabled = false)
     public void testInsertTableDataWithParameters2() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters2");
         BInteger retValue = (BInteger) returns[0];

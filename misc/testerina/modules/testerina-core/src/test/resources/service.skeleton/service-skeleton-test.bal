@@ -6,8 +6,8 @@ string uri = "http://0.0.0.0:9095/v1";
 boolean isServiceSkeletonStarted;
 
 function init() {
-    isServiceSkeletonStarted = test:startServiceSkeleton("src/test/resources/service.skeleton/tmp", "mypackage",
-                                                         "src/test/resources/service.skeleton/petstore.yaml");
+    isServiceSkeletonStarted = test:startServiceSkeleton("mypackage",
+        "src/test/resources/service.skeleton/petstore.yaml");
 }
 
 function clean() {
