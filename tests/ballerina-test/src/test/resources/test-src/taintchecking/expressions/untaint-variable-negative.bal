@@ -1,4 +1,4 @@
-public function main (string[] args) {
+function main (string... args) {
     string data = args[0];
     string untaintedData = untaint data;
     secureFunction(untaintedData);

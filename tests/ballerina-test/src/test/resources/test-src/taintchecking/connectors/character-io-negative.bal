@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string[] args) {
+function main (string... args) {
     string filePath = args[0];
     string permission = args[0];
     string chars = args[0];

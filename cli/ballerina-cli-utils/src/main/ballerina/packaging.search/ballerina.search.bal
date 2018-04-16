@@ -94,6 +94,6 @@ function getDateCreated(json jsonObj) returns string {
     return customTimeString;
 }
 
-function main (string[] args) {
+function main (string... args) {
      search(args[0], args[1]);
 }

@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -159,6 +158,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -304,7 +304,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // Clear taint table of the interface deceleration when, declaration is found.
             funcNode.symbol.taintTable = null;
         }
-        if (isMainFunction(funcNode)) {
+        if (CompilerUtils.isMainFunction(funcNode)) {
             visitEntryPoint(funcNode, funcEnv);
             // Following statements are used only when main method is called from a different function (test execution).
             if (funcNode.symbol.taintTable != null) {
@@ -1444,20 +1444,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     // Private methods related to invokable node analysis and taint-table generation.
-
-    private boolean isMainFunction(BLangFunction funcNode) {
-        // Service resources are handled through BLangResource visitor.
-        boolean isMainFunction = false;
-        if (funcNode.name.value.equals(MAIN_FUNCTION_NAME) && funcNode.symbol.params.size() == 1
-                && funcNode.symbol.retType == symTable.nilType) {
-            BType paramType = funcNode.symbol.params.get(0).type;
-            BArrayType arrayType = (BArrayType) paramType;
-            if (paramType.tag == TypeTags.ARRAY && arrayType.eType.tag == TypeTags.STRING) {
-                isMainFunction = true;
-            }
-        }
-        return isMainFunction;
-    }
 
     private void visitEntryPoint(BLangInvokableNode invNode, SymbolEnv funcEnv) {
         // Entry point input parameters are all tainted, since they contain user controlled data.
