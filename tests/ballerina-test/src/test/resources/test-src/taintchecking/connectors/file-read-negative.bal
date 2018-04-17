@@ -3,7 +3,7 @@ import ballerina/file;
 
 function main (string... args) {
     file:Path target = new("/tmp/result.txt");
-    string absolutePath = target.toAbsolutePath().getPathValue();
+    string absolutePath = target.getPathValue();
     io:ByteChannel bchannel = io:openFile(absolutePath, args[0]);
     int intArg = check <int> args[0];
     
