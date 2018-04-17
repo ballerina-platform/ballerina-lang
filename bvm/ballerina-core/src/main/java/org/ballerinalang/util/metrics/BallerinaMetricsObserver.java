@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_ERROR;
+
 /**
  * Observe the runtime and collect measurements.
  */
@@ -43,16 +45,15 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
 
     @Override
     public void startServerObservation(ObserverContext observerContext, ObservableContext observableContext) {
-        startObservation(observerContext);
+        String[] mainTags = {TAG_KEY_SERVICE, observerContext.getServiceName(), TAG_KEY_RESOURCE,
+                observerContext.getResourceName()};
+        startObservation(observerContext, mainTags);
     }
 
     @Override
     public void startClientObservation(ObserverContext observerContext, ObservableContext observableContext) {
-        startObservation(observerContext);
-    }
-
-    private void startObservation(ObserverContext observerContext) {
-        observerContext.addProperty(PROPERTY_START_TIME, System.nanoTime());
+        String[] mainTags = {TAG_KEY_ACTION, observerContext.getActionName()};
+        startObservation(observerContext, mainTags);
     }
 
     @Override
@@ -61,9 +62,9 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             // Do not collect metrics if the observation hasn't started
             return;
         }
-        String[] additionalTags = {TAG_KEY_SERVICE, observerContext.getServiceName(), TAG_KEY_RESOURCE,
+        String[] mainTags = {TAG_KEY_SERVICE, observerContext.getServiceName(), TAG_KEY_RESOURCE,
                 observerContext.getResourceName()};
-        stopObservation(observerContext, additionalTags);
+        stopObservation(observerContext, mainTags);
     }
 
     @Override
@@ -72,30 +73,53 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             // Do not collect metrics if the observation hasn't started
             return;
         }
-        String[] additionalTags = {TAG_KEY_ACTION, observerContext.getActionName()};
-        stopObservation(observerContext, additionalTags);
+        String[] mainTags = {TAG_KEY_ACTION, observerContext.getActionName()};
+        stopObservation(observerContext, mainTags);
     }
 
-    private void stopObservation(ObserverContext observerContext, String[] additionalTags) {
+    private void startObservation(ObserverContext observerContext, String[] mainTags) {
+        observerContext.addProperty(PROPERTY_START_TIME, System.nanoTime());
+        try {
+            String connectorName = observerContext.getConnectorName();
+            getInprogressGauge(connectorName, mainTags).increment();
+        } catch (RuntimeException e) {
+            handleError(e);
+        }
+    }
+
+    private void stopObservation(ObserverContext observerContext, String[] mainTags) {
         try {
             Long startTime = (Long) observerContext.getProperty(PROPERTY_START_TIME);
             long duration = System.nanoTime() - startTime;
             Map<String, String> tags = observerContext.getTags();
-            Set<Tag> allTags = new HashSet<>(tags.size() + additionalTags.length);
+            Set<Tag> allTags = new HashSet<>(tags.size() + mainTags.length);
             Tags.tags(allTags, observerContext.getTags());
-            Tags.tags(allTags, additionalTags);
+            Tags.tags(allTags, mainTags);
             // Connector name must be a part of the metric name to make sure that every metric is unique with
             // the combination of name and tags.
-            String namePrefix = observerContext.getConnectorName();
-            Timer responseTimer = metricRegistry.timer(new MetricId(namePrefix + "_response_time",
-                    "Response Time", allTags));
-            responseTimer.record(duration, TimeUnit.NANOSECONDS);
-            Counter requestsCounter = metricRegistry.counter(new MetricId(namePrefix + "_requests_total",
-                    "Total number of requests", allTags));
-            requestsCounter.increment();
+            String connectorName = observerContext.getConnectorName();
+            getInprogressGauge(connectorName, mainTags).decrement();
+            metricRegistry.timer(new MetricId(connectorName + "_response_time", "Response Time",
+                    allTags)).record(duration, TimeUnit.NANOSECONDS);
+            metricRegistry.counter(new MetricId(connectorName + "_requests_total",
+                    "Total number of requests", allTags)).increment();
+            Boolean error = (Boolean) observerContext.getProperty(PROPERTY_ERROR);
+            if (error != null && error) {
+                metricRegistry.counter(new MetricId(connectorName + "_failed_requests_total",
+                        "Total number of failed requests", allTags)).increment();
+            }
         } catch (RuntimeException e) {
-            // Metric Provider may throw exceptions if there is a mismatch in tags.
-            consoleError.println("ballerina: error collecting metrics: " + e.getMessage());
+            handleError(e);
         }
+    }
+
+    private Gauge getInprogressGauge(String connectorName, String[] tags) {
+        return Gauge.builder(connectorName + "_inprogress_requests").description("Inprogress Requests")
+                .tags(tags).register();
+    }
+
+    private void handleError(RuntimeException e) {
+        // Metric Provider may throw exceptions if there is a mismatch in tags.
+        consoleError.println("ballerina: error collecting metrics: " + e.getMessage());
     }
 }

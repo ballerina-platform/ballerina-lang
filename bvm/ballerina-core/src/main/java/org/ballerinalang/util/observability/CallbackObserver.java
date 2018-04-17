@@ -44,6 +44,7 @@ public class CallbackObserver implements CallableUnitCallback {
     @Override
     public void notifyFailure(BStruct error) {
         ObserverContext observerContext = ObservabilityUtils.getCurrentContext(observableContext);
+        observerContext.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
         observerContext.addProperty(ObservabilityConstants.PROPERTY_BSTRUCT_ERROR, error);
         ObservabilityUtils.stopObservation(observableContext);
     }

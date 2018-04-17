@@ -50,6 +50,7 @@ public class ObservabilityConstants {
     public static final String TAG_DB_TYPE_SQL = "sql";
 
     public static final String PROPERTY_TRACE_PROPERTIES = "trace_properties";
+    public static final String PROPERTY_ERROR = "error";
     public static final String PROPERTY_BSTRUCT_ERROR = "bstruct_error";
 
     // TOML Configs
