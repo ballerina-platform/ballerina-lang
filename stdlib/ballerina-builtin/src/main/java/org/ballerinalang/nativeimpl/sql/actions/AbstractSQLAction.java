@@ -179,7 +179,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     protected void executeProcedure(Context context, SQLDatasource datasource,
-                                    String query, BRefValueArray parameters, BStructType structType) {
+                                    String query, BRefValueArray parameters, BRefValueArray structTypes) {
         Connection conn = null;
         CallableStatement stmt = null;
         ResultSet rs = null;
@@ -201,7 +201,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             if (resultSetsReturned) {
                 rm.addAllResultSets(resultSets);
                 // If a result set has been returned from the stored procedure it needs to be pushed in to return values
-                context.setReturnValues(createBRefValueArray(resultSets, rm, context, structType));
+                context.setReturnValues(constructTablesForResultSets(resultSets, rm, context, structTypes));
             } else if (!refCursorOutParamsPresent) {
                 // Even if there aren't any result sets returned from the procedure there could be ref cursors
                 // returned as OUT params. If there are present we cannot clean up the connection. If there is no
@@ -215,13 +215,18 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         }
     }
 
-    private BRefValueArray createBRefValueArray(List<ResultSet> resultSets, TableResourceManager rm, Context context,
-            BStructType structType) throws SQLException {
-        BRefValueArray bTableRefArray = new BRefValueArray(new BArrayType(BTypes.typeTable));
-        for (int i = 0; i < resultSets.size(); i++) {
-            bTableRefArray.add(i, constructTable(rm, context, resultSets.get(i), structType));
+    private BRefValueArray constructTablesForResultSets(List<ResultSet> resultSets, TableResourceManager rm,
+            Context context, BRefValueArray structTypes) throws SQLException {
+        BRefValueArray bTables = new BRefValueArray(new BArrayType(BTypes.typeTable));
+        if (structTypes == null || resultSets.size() != structTypes.size()) {
+            throw new BallerinaException(
+                    "Mismatching record type count: " + (structTypes == null ? 0 : structTypes.size()) + " and "
+                            + "returned result set count: " + resultSets.size() + " from the stored procedure");
         }
-        return bTableRefArray;
+        for (int i = 0; i < resultSets.size(); i++) {
+            bTables.add(i, constructTable(rm, context, resultSets.get(i), (BStructType) structTypes.get(i).value()));
+        }
+        return bTables;
     }
 
     protected void executeBatchUpdate(Context context, SQLDatasource datasource,

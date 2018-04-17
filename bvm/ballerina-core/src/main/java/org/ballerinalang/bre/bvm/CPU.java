@@ -3368,7 +3368,8 @@ public class CPU {
         }
 
         if (jsonNode.isLong()) {
-            sf.longRegs[j] = jsonNode.longValue();
+            // This is a unsafe conversion, need to put value into Ref registry.
+            sf.refRegs[j] = new BInteger(jsonNode.longValue());
             return;
         }
 
