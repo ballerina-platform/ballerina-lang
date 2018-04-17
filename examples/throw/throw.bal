@@ -19,7 +19,7 @@ function readRecord (Record|() value) {
     }
 }
 // Catch a thrown error. 
-function main (string[] args) {
+function main (string... args) {
     Record r1 = {id:1, name:"record1"};
     readRecord(r1);
     Record|() r2;
