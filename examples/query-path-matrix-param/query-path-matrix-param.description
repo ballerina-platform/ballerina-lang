@@ -1,1 +1,1 @@
-// Ballerina support extracting values PathParam, QueryParam and MatrixParam.
+// Ballerina supports extracting values using the `PathParam`, `QueryParam` and `MatrixParam` parameters.
