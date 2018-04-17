@@ -281,7 +281,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfig configurat
             }
 
             time:Time circuitStartTime = time:currentTime();
-            int numberOfBuckets = (cb.rollingWindow.timeWindowMillies / cb.rollingWindow.bucketSizeMillies);
+            int numberOfBuckets = (cb.rollingWindow.timeWindowMillis/ cb.rollingWindow.bucketSizeMillis);
             Bucket[] bucketArray = [];
             int bucketIndex = 0;
             while (bucketIndex < numberOfBuckets) {
@@ -291,7 +291,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfig configurat
 
             CircuitBreakerInferredConfig circuitBreakerInferredConfig = {
                                                                 failureThreshold:cb.failureThreshold,
-                                                                resetTimeMillies:cb.resetTimeMillies,
+                                                                resetTimeMillis:cb.resetTimeMillis,
                                                                 statusCodes:statusCodes,
                                                                 noOfBuckets:numberOfBuckets,
                                                                 rollingWindow:cb.rollingWindow
