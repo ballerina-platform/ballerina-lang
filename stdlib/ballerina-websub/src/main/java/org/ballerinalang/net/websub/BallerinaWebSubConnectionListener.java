@@ -285,6 +285,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                     console.println("ballerina: Intent Verification denied - Mode [" + mode + "], Topic ["
                                             + annotatedTopic + "]");
                     response.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
+                    response.addHttpContent(new DefaultLastHttpContent());
                 }
                 HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
             } catch (UnsupportedEncodingException e) {
