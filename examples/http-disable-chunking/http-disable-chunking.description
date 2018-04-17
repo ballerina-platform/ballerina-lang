@@ -1,4 +1,4 @@
-//Example depicts the method of changing ballerina http client connector chunking option. By default http client sends content-length messages and if the message size is larger than the
-//buffer size (8K) messages are chunked. But user can disable chunking using connector Options.
+//This sample demonstrates how to change the Ballerina HTTP client connector's chunking option. By default, the HTTP client sends content-length messages. 
+//If the message size is larger than the buffer size (8K), messages are chunked. Chunking can be disabled using connector options.
 
 
