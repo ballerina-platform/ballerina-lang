@@ -58,13 +58,22 @@ public class TestCmd implements BLauncherCmd {
     @Parameter(names = { "--help", "-h" }, hidden = true)
     private boolean helpFlag;
 
+    @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
+    private String sourceRoot;
+
+    @DynamicParameter(names = "-e", description = "Ballerina environment parameters")
+    private Map<String, String> runtimeParams = new HashMap<>();
+
+    @DynamicParameter(names = "-B", description = "Ballerina VM options")
+    private Map<String, String> vmOptions = new HashMap<>();
     @Parameter(names = "--debug", hidden = true)
     private String debugPort;
 
-    @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
-    private String ballerinaDebugPort;
+    @Parameter(names = {"--config", "-c"}, description = "path to the Ballerina configuration file")
+    private String configFilePath;
 
-    @Parameter(names = { "--list-groups", "-lg" }, description = "list the groups available in the tests")
+    // Testerina Flags
+    @Parameter(names = {"--list-groups", "-lg"}, description = "list the groups available in the tests")
     private boolean listGroups;
 
     @Parameter(names = "--groups", description = "test groups to be executed")
@@ -72,12 +81,6 @@ public class TestCmd implements BLauncherCmd {
 
     @Parameter(names = "--disable-groups", description = "test groups to be disabled")
     private List<String> disableGroupList;
-
-    @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
-    private String sourceRoot;
-
-    @DynamicParameter(names = "-B", description = "collects dynamic parameters")
-    private Map<String, String> configRuntimeParams = new HashMap<>();
 
     public void execute() {
         if (helpFlag) {
