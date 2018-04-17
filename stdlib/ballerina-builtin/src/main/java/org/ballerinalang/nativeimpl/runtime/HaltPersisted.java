@@ -19,6 +19,8 @@ package org.ballerinalang.nativeimpl.runtime;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.persistency.SerializableState;
 import org.ballerinalang.model.RecoverableNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -34,6 +36,10 @@ public class HaltPersisted implements RecoverableNativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         long delayMillis = context.getIntArgument(0);
+        WorkerExecutionContext parentCtx = context.getParentWorkerExecutionContext();
+        SerializableState state = new SerializableState(parentCtx);
+        WorkerExecutionContext deserializedContext = state.getExecutionContext(context.getProgramFile());
+        int a = 10;
         try {
             Thread.sleep(delayMillis);
         } catch (InterruptedException e) {
