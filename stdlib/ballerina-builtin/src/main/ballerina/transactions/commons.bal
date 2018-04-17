@@ -208,7 +208,7 @@ function registerParticipantWithLocalInitiator (string transactionId,
                                                 string registerAtURL) returns TransactionContext|error {
     string participantId = getParticipantId(transactionBlockId);
     //TODO: Protocol name should be passed down from the transaction statement
-    LocalProtocol participantProtocol = {name:PROTOCOL_DURABLE, transactionBlockId:transactionBlockId};
+    LocalProtocol participantProtocol = {name:PROTOCOL_DURABLE};
     if (!initiatedTransactions.hasKey(transactionId)) {
         error err = {message:"Transaction-Unknown. Invalid TID:" + transactionId};
         return err;
