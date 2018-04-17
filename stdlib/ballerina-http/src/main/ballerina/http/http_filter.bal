@@ -18,29 +18,13 @@ package ballerina.http;
 
 @Description {value:"Representation of a HTTP Request Filter. This filter will be applied before the request is
 dispatched to the relevant resource. Any Filter implementation should be struct-wise similar to the Filter struct."}
-@Field {value:"filterRequest: Request filter function pointer"}
-@Field {value:"filterResponse: Response filter function pointer"}
+@Field {value:"filterRequest: Request filter function"}
+@Field {value:"filterResponse: Response filter function"}
 public type Filter object {
     @Description {value:"filterRequest: Request filter function"}
-    public function requestFilter (Request request, FilterContext context) returns FilterResult {
-        error e = {message:"Not implemented"};
-        throw e;
-    }
-    @Description {value:"filterResponse: Response filter function"}
-    public function responseFilter(Response response, FilterContext context) returns FilterResult {
-        error e = {message:"Not implemented"};
-        throw e;
-    }
+    public function filterRequest (Request request, FilterContext context) returns FilterResult;
     @Description {value:"Initializes the filter"}
-    public function init () {
-        error e = {message:"Not implemented"};
-        throw e;
-    }
-    @Description {value:"Stops the filter"}
-    public function terminate () {
-        error e = {message:"Not implemented"};
-        throw e;
-    }
+    public function init ();
 };
 
 @Description {value:"Representation of filter Context."}
@@ -48,13 +32,12 @@ public type Filter object {
 @Field {value:"serviceName: Name of the service"}
 @Field {value:"filterResponse: Name of the resource"}
 public type FilterContext object {
-// TODO should have a map of properties
     public {
         typedesc serviceType;
         string serviceName;
         string resourceName;
     }
-    new (serviceType){}
+    new (serviceType, serviceName, resourceName){}
 };
 
 @Description {value:"Represents a filter result. This should be populated and returned by each request and response

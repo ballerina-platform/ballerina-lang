@@ -28,11 +28,12 @@ HttpAuthzHandler authzHandler = new(authzCache);
 @Field {value:"filterRequest: request filter method which attempts to authorize the request"}
 @Field {value:"filterRequest: response filter method (not used this scenario)"}
 public type AuthzFilter object {
+    
     @Description {value:"Filter function implementation which tries to authorize the request"}
 	@Param {value:"request: Request instance"}
 	@Param {value:"context: FilterContext instance"}
 	@Return {value:"FilterResult: Authorization result to indicate if the request can proceed or not"}
-    public function requestFilter (Request request, FilterContext context) returns FilterResult {
+    public function filterRequest (Request request, FilterContext context) returns FilterResult {
 		// first check if the resource is marked to be authenticated. If not, no need to authorize.
 		// TODO: check if we can remove this once the security context is there.
 		string[]? scopes = getScopesForResource(context);
@@ -53,17 +54,11 @@ public type AuthzFilter object {
 		}
 		return createAuthzResult(authorized);
     }
-    @Description {value:"filterResponse: Response filter function"}
-    public function responseFilter(Response response, FilterContext context) returns FilterResult {
-    }
+    
     @Description {value:"Initializes the AuthzFilter"}
-    public function init (){
-        authzHandlerChain = createAuthzHandlerChain();
-    }
-
-    @Description {value:"Stops the AuthzFilter"}
-    public function terminate (){}
+    public function init (){}
 };
+
 @Description {value:"Creates an instance of FilterResult"}
 @Param {value:"authorized: authorization status for the request"}
 @Return {value:"FilterResult: Authorization result to indicate if the request can proceed or not"}

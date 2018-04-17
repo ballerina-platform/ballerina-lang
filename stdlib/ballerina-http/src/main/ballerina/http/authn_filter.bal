@@ -19,51 +19,36 @@ package ballerina.http;
 import ballerina/internal;
 import ballerina/auth;
 
-AuthHandlerRegistry registry = new;
-AuthnHandlerChain authnHandlerChain = new(registry);
-
 @Description {value:"Representation of the Authentication filter"}
 @Field {value:"filterRequest: request filter method which attempts to authenticated the request"}
 @Field {value:"filterRequest: response filter method (not used this scenario)"}
 public type AuthnFilter object {
+
+    public {
+        AuthnHandlerChain authnHandlerChain;
+    }
+
+    new (authnHandlerChain) {}
+    
     @Description {value:"filterRequest: Request filter function"}
-    public function requestFilter (Request request, FilterContext context) returns FilterResult {
-	// get auth config for this resource
+    public function filterRequest (Request request, FilterContext context) returns FilterResult {
+	    // get auth config for this resource
     	boolean authenticated;
     	var (isSecured, authProviders) = getResourceAuthConfig(context);
     	if (isSecured) {
         	// if auth providers are there, use those to authenticate
-	        match authProviders {
-        	    string[] providers => {
-                	if (lengthof providers > 0) {
-	                    authenticated = authnHandlerChain.handleWithSpecificAuthnHandlers(providers, request);
-        	        } else {
-                	    // if not, try to authenticate using any of available authn handlers
-	                    authenticated = authnHandlerChain.handle(request);
-        	        }
-	            }
-        	    () => {
-                	authenticated = authnHandlerChain.handle(request);
-	            }
-       		 }
-    	} else {
-        	// not secured
-	        return createAuthnResult(true);
-	    }        
+            if (lengthof authProviders > 0) {
+                authenticated = self.authnHandlerChain.handleWithSpecificAuthnHandlers(authProviders, request);
+            } else {
+                // if not, try to authenticate using any of available authn handlers
+                authenticated = self.authnHandlerChain.handle(request);
+            }
+    	} 
+        return createAuthnResult(authenticated);
     }
-    @Description {value:"Filter function implementation for the response flow"}
-    @Param {value:"request: Request instance"}
-    @Param {value:"context: FilterContext instance"}
-    @Return {value:"FilterResult: returns a FilterResult instance with a hard coded successful message"}
-    public function responseFilter(Response response, FilterContext context) returns FilterResult {
-        FilterResult responseFilterResult = {canProceed:true, statusCode:200, message:"Successful"};
-        return responseFilterResult;
-    }
+    
     @Description {value:"Initializes the AuthnFilter"}
-    public function init (){
-    }
-    @Description {value:"Stops the AuthnFilter"}
-    public function terminate (){}
+    public function init (){}
 };
 
 @Description {value:"Creates an instance of FilterResult"}
@@ -81,10 +66,10 @@ function createAuthnResult (boolean authenticated) returns (FilterResult) {
 
 @Description {value:"Checks if the resource is secured"}
 @Param {value:"context: FilterContext object"}
-@Return {value:"boolean, string[]?: tuple of whether the resource is secured and the "}
-function getResourceAuthConfig (FilterContext context) returns (boolean, string[]?) {
+@Return {value:"boolean, string[]: tuple of whether the resource is secured and the list of auth provider ids "}
+function getResourceAuthConfig (FilterContext context) returns (boolean, string[]) {
     boolean isResourceSecured;
-    string[]? authProviderIds;
+    string[] authProviderIds = [];
     // get authn details from the resource level
     ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
                                     internal:getResourceAnnotations(context.serviceType, context.resourceName));
