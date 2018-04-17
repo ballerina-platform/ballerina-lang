@@ -199,7 +199,7 @@ function testJSONNilLiftingOnLHS_2() returns json {
     return j;
 }
 
-function testNonExistingMapKeyWithIndexAccess() returns string? {
+function testNonExistingMapKeyWithIndexAccess() returns string {
     map<string> m;
     return m["a"];
 }

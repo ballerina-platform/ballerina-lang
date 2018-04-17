@@ -230,7 +230,8 @@ public class SafeNavigationTest {
         BRunUtil.invoke(result, "testJSONNilLiftingOnLHS_2");
     }
 
-    @Test
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: error, message: cannot find key 'a'.*")
     public void testNonExistingMapKeyWithIndexAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testNonExistingMapKeyWithIndexAccess");
         Assert.assertNull(returns[0]);

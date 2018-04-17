@@ -1771,8 +1771,10 @@ public class TypeChecker extends BLangNodeVisitor {
         if (parentType.tag != TypeTags.MAP) {
             return false;
         }
-        
-        return accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR;
+
+        // TODO: make map access with index, returns nullable type
+        // return accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR;
+        return false;
     }
 
     private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
