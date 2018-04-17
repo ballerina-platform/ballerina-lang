@@ -70,7 +70,8 @@ CREATE PROCEDURE SelectPersonDataMultiple()
   READS SQL DATA DYNAMIC RESULT SETS 2
   BEGIN ATOMIC
   DECLARE result1 CURSOR WITH RETURN FOR SELECT firstName FROM Customers where registrationID = 1 FOR READ ONLY;
-  DECLARE result2 CURSOR WITH RETURN FOR SELECT firstName FROM Customers where registrationID = 2 FOR READ ONLY;
+  DECLARE result2 CURSOR WITH RETURN FOR SELECT firstName, lastName FROM Customers where registrationID = 2 FOR READ
+  ONLY;
   open result1;
   open result2;
   END
