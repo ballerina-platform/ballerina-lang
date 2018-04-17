@@ -236,9 +236,7 @@ public class WebSocketClientTestCase {
     }
 
     @Test(priority = 6, description = "Test the sub protocol negotiation with the remote server")
-    public void testSubProtocolNegotiation() throws InterruptedException {
-
-        // Try with a matching sub protocol.
+    public void testSubProtocolNegotiationSuccessful() throws InterruptedException {
         String[] subProtocolsSuccess = {"xmlx", "json"};
         configuration.setSubProtocols(subProtocolsSuccess);
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
@@ -261,8 +259,10 @@ public class WebSocketClientTestCase {
             }
         });
         latchSuccess.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+    }
 
-        // Try with unmatching sub protocol
+    @Test(priority = 7, description = "Test the sub protocol negotiation with the remote server")
+    public void testSubProtocolNegotiationFail() throws InterruptedException {
         String[] subProtocolsFail = {"xmlx", "jsonx"};
         configuration.setSubProtocols(subProtocolsFail);
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
