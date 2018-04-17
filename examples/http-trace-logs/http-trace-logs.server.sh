@@ -1,9 +1,8 @@
-# As the name suggests, trace logs are logged at TRACE level. So the log level of trace logs has to be set to TRACE for the trace logs to be enabled.
-# This is done by setting the runtime argument: <br> '-etracelog.http.level=TRACE'. <br>
+# Trace logs are logged at TRACE level. To enable trace logs, the log level has to be set to TRACE using the runtime argument: <br> '-etracelog.http.level=TRACE'. <br>
 $ ballerina run http-trace-logs.bal -etracelog.http.level=TRACE
 ballerina: initiating service(s) in 'http-trace-logs.bal'
 ballerina: started HTTP/WS server connector 0.0.0.0:9090
-# In the logs, http.downstream refers to HTTP traffic flowing between the client and Ballerina, while http.upstream refers to HTTP traffic flowing between Ballerina and the backend.
+# In the logs, 'http.downstream' refers to the HTTP traffic that flows between the client and Ballerina, while 'http.upstream' refers to the HTTP traffic that flows between Ballerina and the backend.
 [2017-12-19 10:41:38,638] TRACE {tracelog.http.downstream} - [id: 0x1aac3b78] REGISTERED
 [2017-12-19 10:41:38,642] TRACE {tracelog.http.downstream} - [id: 0x1aac3b78, correlatedSource: n/a, host:/127.0.0.1:9090 - remote:/127.0.0.1:34232] ACTIVE
 [2017-12-19 10:41:38,667] TRACE {tracelog.http.downstream} - [id: 0x1aac3b78, correlatedSource: n/a, host:/127.0.0.1:9090 - remote:/127.0.0.1:34232] INBOUND: DefaultHttpRequest(decodeResult: success, version: HTTP/1.1)
@@ -16,9 +15,9 @@ Accept: */*
 [2017-12-19 10:41:38,997] TRACE {tracelog.http.upstream} - [id: 0x8ddce239] REGISTERED
 [2017-12-19 10:41:39,000] TRACE {tracelog.http.upstream} - [id: 0x8ddce239] CONNECT: httpstat.us/23.99.0.12:80, null
 # In the log record, 'id' refers to the ID of the channel between Ballerina and the remote host (either a backend service or a client).
-# In cases where Ballerina is in the middle (like in this example), upstream traffic logs include a 'correlatedSource' in addition to the channel ID.
+# In cases where Ballerina is in the middle (like in this example), the upstream traffic logs include a 'correlatedSource' in addition to the channel ID.
 # This refers to the downstream channel ID of a connection to a client whose request resulted in the upstream connection to the backend.
-# The correlated source ID is included in upstream HTTP traffic logs to be able to filter out both the downstream traffic and upstream traffic related to a particular connection with a client.
+# The correlated source ID is included in the upstream HTTP traffic logs. It can be used to filter out both the downstream and upstream traffic of a connection with a client.
 [2017-12-19 10:41:39,492] TRACE {tracelog.http.upstream} - [id: 0x8ddce239, correlatedSource: 0x1aac3b78, host:/10.100.5.32:48730 - remote:httpstat.us/23.99.0.12:80] ACTIVE
 [2017-12-19 10:41:39,500] TRACE {tracelog.http.upstream} - [id: 0x8ddce239, correlatedSource: 0x1aac3b78, host:/10.100.5.32:48730 - remote:httpstat.us/23.99.0.12:80] OUTBOUND: DefaultHttpRequest(decodeResult: success, version: HTTP/1.1)
 GET /200 HTTP/1.1
