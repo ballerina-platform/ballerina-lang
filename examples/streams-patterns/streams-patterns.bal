@@ -38,7 +38,7 @@ function deployRegulatorActionDecisionRules() {
     }
 }
 
-public function main(string[] args) {
+function main(string... args) {
     index = 0;
 
     // Deploying the streaming pattern rules which define how the regulator is controlled based on received events

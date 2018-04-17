@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string[] args) {
+function main (string... args) {
     int x = 20;
 
     string ifElseOutput;

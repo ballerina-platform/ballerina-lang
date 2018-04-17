@@ -6,7 +6,7 @@ import ballerina/runtime;
 int count;
 task:Timer? timer;
 
-function main(string[] args) {
+function main(string... args) {
     io:println("Timer task demo");
 
     // The cleanup function is called every time the timer goes off.

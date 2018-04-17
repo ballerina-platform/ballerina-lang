@@ -12,7 +12,7 @@ function getAccountBalance (int accountID) returns (int) | error {
     }
 }
 
-function main (string[] args) {
+function main (string... args) {
     // As a best practice, check whether an error occurrs.
     var r = getAccountBalance(24);
 

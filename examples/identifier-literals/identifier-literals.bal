@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string[] args) {
+function main (string... args) {
     //The `^` character is used to demarcate the identifier name.
     //This is similar to string literals (using double quote characters to demarcate).
     string ^"first name" = "John";

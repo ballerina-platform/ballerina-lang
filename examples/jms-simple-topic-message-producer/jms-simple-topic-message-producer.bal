@@ -9,7 +9,7 @@ endpoint jms:SimpleTopicPublisher topicPublisher {
     topicPattern: "BallerinaTopic"
 };
 
-public function main (string[] args) {
+function main (string... args) {
     // Create a Text message.
     jms:Message m = check topicPublisher.createTextMessage("Test Text");
     // Send the Ballerina message to the JMS provider.

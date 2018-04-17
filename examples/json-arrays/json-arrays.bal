@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string[] args) {
+function main (string... args) {
     //JSON Arrays. They are arrays of any JSON value.
     json j1 = [1, false, null, "foo",
                {first:"John", last:"Pala"}];

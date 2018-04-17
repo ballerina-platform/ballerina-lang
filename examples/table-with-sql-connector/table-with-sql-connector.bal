@@ -13,7 +13,7 @@ type Employee {
     string updated;
 };
 
-function main (string[] args) {
+function main (string... args) {
 
     endpoint mysql:Client testDB {
         host: "localhost",

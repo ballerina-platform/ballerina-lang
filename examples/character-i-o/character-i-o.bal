@@ -72,7 +72,7 @@ function process (io:CharacterChannel sourceChannel,
     }
 }
 
-function main (string[] args) {
+function main (string... args) {
     var sourceChannel = getFileCharacterChannel("./files/sample.txt", "r", "UTF-8");
     var destinationChannel = getFileCharacterChannel("./files/sampleResponse.txt", "w", "UTF-8");
     try {

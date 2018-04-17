@@ -4,7 +4,7 @@ import ballerina/lang.files;
 import ballerina/lang.blobs;
 
 
-function main (string[] args) {
+function main (string... args) {
 
     // Creating a client endpoint that is used to connect to the FTP server.
     endpoint ftp:Client clientEndpoint {

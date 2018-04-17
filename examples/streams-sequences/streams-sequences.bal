@@ -36,7 +36,7 @@ function deployPeakTempDetectionRules() {
     }
 }
 
-public function main(string[] args) {
+function main(string... args) {
 
     index = 0;
     // deploy the streaming sequence rules

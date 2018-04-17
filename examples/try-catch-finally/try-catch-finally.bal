@@ -2,7 +2,7 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina/io;
 
-function main (string[] args) {
+function main (string... args) {
     int result;
     //Define the try block to surround the code segment that is likely to throw errors.
     try {

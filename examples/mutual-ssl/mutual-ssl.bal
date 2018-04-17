@@ -68,7 +68,7 @@ endpoint http:Client clientEP {
 @Description {value:"The Ballerina client connector can be used to connect to the created HTTPS server. You have to run
 the service before running this main function. As this is a mutual ssl connection, the client needs to provide the
 keyStoreFile, keyStorePassword, trustStoreFile, and trustStorePassword."}
-function main (string[] args) {
+function main (string... args) {
     //Create a request.
     http:Request req = new;
     var resp = clientEP -> get("/hello/", req);

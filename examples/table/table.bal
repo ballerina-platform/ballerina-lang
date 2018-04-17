@@ -6,7 +6,7 @@ type Employee {
     float salary;
 };
 
-function main (string[] args) {
+function main (string... args) {
     //Create an in-memory table constrained by the Employee struct.
     table < Employee> tb = table {};
 
