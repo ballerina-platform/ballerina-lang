@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.sql;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
@@ -74,6 +75,7 @@ import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TimeZone;
@@ -1080,7 +1082,7 @@ public class SQLDatasourceUtils {
     }
 
     public static BStruct createServerBasedDBClient(Context context, String database,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig) {
+            org.ballerinalang.connector.api.Struct clientEndpointConfig, String dbOptions) {
         String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
         int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
         String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
@@ -1090,7 +1092,7 @@ public class SQLDatasourceUtils {
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
 
         SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, "", database, host, port, username, password, name);
+        datasource.init(options, "", database, host, port, username, password, name, dbOptions);
 
         BStruct sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
@@ -1108,7 +1110,7 @@ public class SQLDatasourceUtils {
 
         String dbType = url.split(":")[0].toUpperCase(Locale.getDefault());
         SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, url, dbType, "", 0, username, password, "");
+        datasource.init(options, url, dbType, "", 0, username, password, "", "");
 
         BStruct sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
@@ -1117,7 +1119,7 @@ public class SQLDatasourceUtils {
     }
 
     public static BStruct createMultiModeDBClient(Context context, String database,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig) {
+            org.ballerinalang.connector.api.Struct clientEndpointConfig, String dbOptions) {
         String dbType = Constants.SQL_MEMORY_DB_POSTFIX;
         String hostOrPath = "";
         String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
@@ -1141,7 +1143,7 @@ public class SQLDatasourceUtils {
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
 
         SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, "", database, hostOrPath, port, username, password, name);
+        datasource.init(options, "", database, hostOrPath, port, username, password, name, dbOptions);
 
         BStruct sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
@@ -1511,5 +1513,31 @@ public class SQLDatasourceUtils {
             conn = ((SQLTransactionContext) txContext).getConnection();
         }
         return conn;
+    }
+
+    public static String createJDBCDbOptions(String propertiesBeginSymbol, String separator,
+            Map<String, Value> dbOptions) {
+        StringJoiner dbOptionsStringJoiner = new StringJoiner(separator, propertiesBeginSymbol, "");
+        for (Map.Entry<String, Value> entry : dbOptions.entrySet()) {
+            String dataValue = null;
+            Value value = entry.getValue();
+            if (value != null) {
+                switch (value.getType()) {
+                case INT:
+                    dataValue = Long.toString(value.getIntValue());
+                    break;
+                case FLOAT:
+                    dataValue = Double.toString(value.getFloatValue());
+                    break;
+                case BOOLEAN:
+                    dataValue = Boolean.toString(value.getBooleanValue());
+                    break;
+                default:
+                    dataValue = value.getStringValue();
+                }
+            }
+            dbOptionsStringJoiner.add(entry.getKey() + Constants.JDBCUrlSeparators.EQUAL_SYMBOL + dataValue);
+        }
+        return dbOptionsStringJoiner.toString();
     }
 }

@@ -21,10 +21,15 @@ package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,11 +39,18 @@ import java.util.List;
  */
 class WebSubSubscriberServiceValidator {
 
-    static void validateResources(HttpService service) {
-        validateResources(service.getResources());
+    private static final Logger logger = LoggerFactory.getLogger(WebSubSubscriberServiceValidator.class);
+
+    static void validateResources(HttpService service, String topicHeader,
+                                  BMap<String, BMap<String, BString>> topicResourceMap) {
+        if (topicHeader != null && topicResourceMap != null) {
+            validateCustomResources(service.getResources(), topicResourceMap);
+        } else {
+            validateDefaultResources(service.getResources());
+        }
     }
 
-    private static void validateResources(List<HttpResource> resources) {
+    private static void validateDefaultResources(List<HttpResource> resources) {
         for (HttpResource resource : resources) {
             String resourceName = resource.getName();
             switch (resourceName) {
@@ -95,6 +107,49 @@ class WebSubSubscriberServiceValidator {
                                   paramDetail.getVarType().getPackagePath(), paramDetail.getVarType().getName(),
                                   paramDetail.getVarName(), resourceName, packageName, structName));
         }
+    }
+
+    private static void validateCustomResources(List<HttpResource> resources,
+                                                BMap<String, BMap<String, BString>> topicResourceMap) {
+        List<String> resourceNames = retrieveResourceNames(topicResourceMap);
+        List<String> invalidResourceNames = retrieveInvalidResourceNames(resources, resourceNames);
+
+        if (!resourceNames.isEmpty()) {
+            logger.warn("Resource(s) specified in topic-resource mapping not found: " + resourceNames);
+        }
+        if (!invalidResourceNames.isEmpty()) {
+            throw new BallerinaException("Resource name(s) not included in the topic-resource mapping found: "
+                                                 + invalidResourceNames);
+        }
+    }
+
+    private static List<String> retrieveResourceNames(BMap<String, BMap<String, BString>> topicResourceMap) {
+        List<String> resourceNames = new ArrayList<>();
+
+        for (String key : topicResourceMap.keySet()) {
+            BMap<String, BString> topicResourceSubMap = topicResourceMap.get(key);
+            for (String topic: topicResourceSubMap.keySet()) {
+                resourceNames.add(topicResourceSubMap.get(topic).stringValue());
+            }
+        }
+
+        return resourceNames;
+    }
+
+    private static List<String> retrieveInvalidResourceNames(List<HttpResource> resources, List<String> resourceNames) {
+        List<String> invalidResourceNames = new ArrayList<>();
+
+        for (HttpResource resource : resources) {
+            String resourceName = resource.getName();
+            if (!resourceNames.contains(resourceName)) {
+                invalidResourceNames.add(resourceName);
+            } else {
+                validateOnNotificationResource(resource.getBalResource());
+                resourceNames.remove(resourceName);
+            }
+        }
+
+        return invalidResourceNames;
     }
 
 }

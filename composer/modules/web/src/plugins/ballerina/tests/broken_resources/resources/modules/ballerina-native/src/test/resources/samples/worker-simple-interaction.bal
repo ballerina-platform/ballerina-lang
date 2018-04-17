@@ -3,7 +3,7 @@ import ballerina/lang.messages;
 
 const int index = 12;
 
-function main(string[] args)(message) {
+function main(string... args)(message) {
     message result;
     message msg = {};
     int x = 100;

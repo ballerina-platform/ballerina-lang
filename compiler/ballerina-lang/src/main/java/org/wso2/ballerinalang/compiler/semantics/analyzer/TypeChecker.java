@@ -423,8 +423,10 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
         }
 
-        varRefType = getSafeType(varRefType, fieldAccessExpr.safeNavigate, fieldAccessExpr.pos);
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
+        if (!fieldAccessExpr.lhsVar) {
+            varRefType = getSafeType(varRefType, fieldAccessExpr.safeNavigate, fieldAccessExpr.pos);
+        }
 
         // Get the effective types of the expression. If there are errors/nill propagating from parent
         // expressions, then the effective type will include those as well.
@@ -442,13 +444,14 @@ public class TypeChecker extends BLangNodeVisitor {
         BType varRefType = indexBasedAccessExpr.expr.type;
         varRefType = getSafeType(varRefType, indexBasedAccessExpr.safeNavigate, indexBasedAccessExpr.pos);
 
+        BType actualType = checkIndexAccessExpr(indexBasedAccessExpr, varRefType);
+        indexBasedAccessExpr.childType = actualType;
+
         // Get the effective types of the expression. If there are errors/nill propagating from parent
         // expressions, then the effective type will include those as well.
-        BType actualType = checkIndexAccessExpr(indexBasedAccessExpr, varRefType);
         actualType = getAccessExprFinalType(indexBasedAccessExpr, actualType);
 
         this.resultType = this.types.checkType(indexBasedAccessExpr, actualType, this.expType);
-        indexBasedAccessExpr.childType = this.resultType;
     }
 
     public void visit(BLangInvocation iExpr) {
@@ -1042,19 +1045,21 @@ public class TypeChecker extends BLangNodeVisitor {
             if (!pattern.variable.name.value.endsWith(Names.IGNORE.value)) {
                 symbolEnter.defineNode(pattern.variable, matchExprEnv);
             }
-            checkExpr(pattern.expr, matchExprEnv);
+            checkExpr(pattern.expr, matchExprEnv, expType);
             pattern.variable.type = symResolver.resolveTypeNode(pattern.variable.typeNode, matchExprEnv);
-            matchExprTypes.add(pattern.expr.type);
+            matchExprTypes.add(getActualType(pattern.expr));
         });
 
-        if (matchExprTypes.size() == 1) {
-            bLangMatchExpression.type = matchExprTypes.toArray(new BType[matchExprTypes.size()])[0];
+        BType actualType;
+        if (matchExprTypes.contains(symTable.errType)) {
+            actualType = symTable.errType;
+        } else if (matchExprTypes.size() == 1) {
+            actualType = matchExprTypes.toArray(new BType[matchExprTypes.size()])[0];
         } else {
-            bLangMatchExpression.type =
-                    new BUnionType(null, matchExprTypes, matchExprTypes.contains(symTable.nilType));
+            actualType = new BUnionType(null, matchExprTypes, matchExprTypes.contains(symTable.nilType));
         }
 
-        types.checkTypes(bLangMatchExpression, Lists.of(bLangMatchExpression.type), Lists.of(expType));
+        resultType = types.checkType(bLangMatchExpression, actualType, expType);
     }
 
     @Override
@@ -1232,7 +1237,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
-        if (iExpr.expr != null) {
+        // if this is a function invocation on json, then do not add nil to the return types.
+        if (iExpr.expr != null && iExpr.expr.type.tag != TypeTags.JSON) {
             actualType = getAccessExprFinalType(iExpr, actualType);
         }
 
@@ -1925,4 +1931,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
         return new BUnionType(null, new LinkedHashSet<>(lhsTypes), false);
     }
+
+    private BType getActualType(BLangExpression expr) {
+        return expr.impConversionExpr == null ? expr.type : getActualType(expr.impConversionExpr);
+    }
+
 }

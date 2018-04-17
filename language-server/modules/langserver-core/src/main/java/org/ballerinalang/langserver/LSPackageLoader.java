@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver;
 
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
@@ -32,14 +31,16 @@ import java.util.List;
  */
 public class LSPackageLoader {
 
+    private static final String[] STATIC_PKG_NAMES = {"http", "swagger", "mime", "auth", "caching", "config", "sql",
+            "file", "internal", "io", "jwt", "log", "math", "os", "reflect", "runtime", "security.crypto", "task",
+            "time", "transactions", "user", "util", "builtin"};
+
     /**
      * Get the Builtin Package.
      * @return {@link BLangPackage} Builtin BLang package
      */
-    public static List<BLangPackage> getBuiltinPackages() {
+    public static List<BLangPackage> getBuiltinPackages(CompilerContext context) {
         List<BLangPackage> builtins = new ArrayList<>();
-        CompilerContext context = CommonUtil.prepareTempCompilerContext();
-
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
@@ -60,5 +61,14 @@ public class LSPackageLoader {
     public static BLangPackage getPackageById(CompilerContext context, PackageID packageID) {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         return pkgLoader.loadAndDefinePackage(packageID);
+    }
+
+    /**
+     * Returns a static packages list.
+     *
+     * @return static packages list
+     */
+    public static String[] getStaticPkgNames() {
+        return STATIC_PKG_NAMES.clone();
     }
 }

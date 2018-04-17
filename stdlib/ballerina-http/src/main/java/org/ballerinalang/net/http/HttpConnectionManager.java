@@ -95,6 +95,10 @@ public class HttpConnectionManager {
             listenerConfig.setHttpTraceLogEnabled(true);
         }
 
+        if (getHttpAccessLoggerConfig() != null) {
+            listenerConfig.setHttpAccessLogEnabled(true);
+        }
+
         serverBootstrapConfiguration = HTTPConnectorUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
         ServerConnector serverConnector =

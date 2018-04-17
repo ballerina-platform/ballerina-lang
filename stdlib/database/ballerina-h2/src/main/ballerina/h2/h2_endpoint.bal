@@ -57,6 +57,7 @@ public type ClientEndpointConfiguration {
     string username = "",
     string password = "",
     sql:PoolOptions poolOptions,
+    map | () dbOptions,
 };
 
 public native function createClient(ClientEndpointConfiguration config) returns sql:SQLClient;

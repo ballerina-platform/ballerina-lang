@@ -29,17 +29,23 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 
 public class ConfigAuthProviderTest {
     private static final Log log = LogFactory.getLog(ConfigAuthProviderTest.class);
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
     private String resourceRoot;
+    private String secretFile = "secret.txt";
+    private Path secretCopyPath;
 
     @BeforeClass
     public void setup() throws Exception {
@@ -50,9 +56,20 @@ public class ConfigAuthProviderTest {
 
         compileResult = BCompileUtil.compile(sourceRoot.resolve("config_auth_provider_test.bal").toString());
 
+        Path secretFilePath = Paths.get(resourceRoot, "datafiles", "config", secretFile);
+        secretCopyPath = Paths.get(resourceRoot, "datafiles", "config", "auth", "configauthprovider",
+                secretFile);
+        Files.deleteIfExists(secretCopyPath);
+        copySecretFile(secretFilePath.toString(), secretCopyPath.toString());
+
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(null, ballerinaConfPath.toString(), null);
+        registry.initRegistry(Collections.singletonMap("ballerina.config.secret", secretCopyPath.toString()),
+                ballerinaConfPath.toString(), null);
+    }
+
+    private void copySecretFile (String from, String to) throws IOException {
+        Files.copy(Paths.get(from), Paths.get(to));
     }
 
     @Test(description = "Test case for creating file based userstore")
@@ -98,5 +115,10 @@ public class ConfigAuthProviderTest {
         Assert.assertEquals(groups.size(), 1);
 
         Assert.assertEquals(groups.get(0), "scope1");
+    }
+
+    @AfterClass
+    public void tearDown() throws IOException {
+        Files.deleteIfExists(secretCopyPath);
     }
 }

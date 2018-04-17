@@ -22,11 +22,9 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
-import org.ballerinalang.bre.bvm.ObservableContext;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -38,21 +36,17 @@ import java.util.stream.Collectors;
 public class TraceManager {
     private static final TraceManager instance = new TraceManager();
     private TracersStore tracerStore;
-    private Stack<BSpan> bSpanStack;
 
     private TraceManager() {
         tracerStore = TracersStore.getInstance();
-        bSpanStack = new Stack<>();
     }
 
     public static TraceManager getInstance() {
         return instance;
     }
 
-    public void startSpan(ObservableContext ctx) {
-        BSpan activeBSpan = TraceUtil.getBSpan(ctx);
+    public void startSpan(BSpan parentBSpan, BSpan activeBSpan) {
         if (activeBSpan != null) {
-            BSpan parentBSpan = !bSpanStack.empty() ? bSpanStack.peek() : null;
             String service = activeBSpan.getConnectorName();
             String resource = activeBSpan.getActionName();
 
@@ -70,15 +64,11 @@ public class TraceManager {
             }
 
             activeBSpan.setSpans(spanList);
-            bSpanStack.push(activeBSpan);
         }
     }
 
     public void finishSpan(BSpan bSpan) {
         bSpan.getSpans().values().forEach(Span::finish);
-        if (!bSpanStack.empty()) {
-            bSpanStack.pop();
-        }
     }
 
     public void log(BSpan bSpan, Map<String, Object> fields) {
@@ -89,10 +79,6 @@ public class TraceManager {
         bSpan.getSpans().values().forEach(span -> {
             tags.forEach((key, value) -> span.setTag(key, String.valueOf(value)));
         });
-    }
-
-    public BSpan getParentBSpan() {
-        return !bSpanStack.empty() ? bSpanStack.peek() : null;
     }
 
     public Map<String, String> extractTraceContext(Map<String, Span> activeSpanMap, String serviceName) {

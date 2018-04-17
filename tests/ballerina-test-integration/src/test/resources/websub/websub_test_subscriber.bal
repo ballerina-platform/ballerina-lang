@@ -8,10 +8,10 @@ endpoint websub:Listener websubEP {
 };
 
 @websub:SubscriberServiceConfig {
-    basePath:"/websub",
+    path:"/websub",
     subscribeOnStartUp:true,
     topic: "http://www.websubpubtopic.com",
-    hub: "https://localhost:9999/websub/hub",
+    hub: "https://localhost:9292/websub/hub",
     leaseSeconds: 3600000,
     secret: "Kslk30SNF2AChs2"
 }

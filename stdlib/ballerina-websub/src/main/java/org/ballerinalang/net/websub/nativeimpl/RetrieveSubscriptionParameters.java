@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -57,7 +58,7 @@ public class RetrieveSubscriptionParameters extends AbstractHttpNativeFunction {
                 WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY)).getServicesInfoByInterface()
                 .values().toArray()[0]);
 
-        BMap<String, BString> subscriptionDetails = new BMap<>();
+        BMap<String, BValue> subscriptionDetails = new BMap<>();
 
         Struct annotationStruct =
                 httpService.getBalService().getAnnotationList(WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
@@ -80,12 +81,19 @@ public class RetrieveSubscriptionParameters extends AbstractHttpNativeFunction {
         subscriptionDetails.put(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SECRET,
                                     new BString(annotationStruct.getStringField(
                                                     WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SECRET)));
+        if (annotationStruct.getRefField(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_AUTH_CONFIG) != null) {
+            BStruct authConfig = (BStruct) annotationStruct.getRefField(
+                                                    WebSubSubscriberConstants.ANN_WEBSUB_ATTR_AUTH_CONFIG).getVMValue();
+            subscriptionDetails.put(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_AUTH_CONFIG, authConfig);
+        } else {
+            subscriptionDetails.put(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_AUTH_CONFIG, null);
+        }
 
         String callback = annotationStruct.getStringField(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_CALLBACK);
 
         if (callback.isEmpty()) {
             //TODO: intro methods to return host+port and change instead of using connector ID, and fix http:// hack
-            callback = httpService.getBasePath() + httpService.getResources().get(0).getPath();
+            callback = httpService.getBasePath();
             BStruct serviceEndpointConfig = ((BStruct) ((BStruct) serviceEndpoint.getVMValue()).getRefField(3));
             if (!serviceEndpointConfig.getStringField(0).equals("") &&
                     serviceEndpointConfig.getIntField(0) != 0) {
@@ -95,7 +103,7 @@ public class RetrieveSubscriptionParameters extends AbstractHttpNativeFunction {
                 callback = getServerConnector(serviceEndpoint).getConnectorID() + callback;
             }
             if (!callback.contains("://")) {
-                if (serviceEndpointConfig.getRefField(3) != null) { //if secure socket is specified
+                if (serviceEndpointConfig.getRefField(2) != null) { //if secure socket is specified
                     callback = ("https://").concat(callback);
                 } else {
                     callback = ("http://").concat(callback);

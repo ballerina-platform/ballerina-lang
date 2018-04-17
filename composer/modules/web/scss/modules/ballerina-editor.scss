@@ -525,26 +525,28 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   height: 30px;
   margin-top: 5px;
   width: auto;
-  .row{
-    background-color:$white !important;
+  margin-right: 10px !important;
+  .row {
     padding: 0 !important;
     width: 160px;
-    margin-top: 20px; 
+    margin-top: 20px;
     height: 30px !important;
     .column {
       min-width: 150px;
-      width   : 50%;
-      padding : 0 !important;
+      width: 50%;
+      padding: 0 !important;
       background: $white;
-      .row{
-       margin-top: 0px !important; 
-        .label{
-          background: $white !important;
+      box-shadow: none !important;
+      .top-bar-row {
+        background: $white !important;
+        margin-top: 0px !important;
+        border-bottom: 1px solid #ececec;
+        .ui.label {
+          background-color: $white !important;
         }
       }
     }
   }
-  
 }
 
 .ui.bottom.right.popup{
@@ -569,16 +571,19 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   fill: #333;
 }
 
-.menu-pop-content{
+.menu-pop-content {
   background: #f8f8f8 !important;
-  margin-right: 2px !important;
-  .ui.header{
-    .content{
-      font-weight: 400;
-      color: #3c3c3c;
-    }
-    .icon{ 
-      font-size: 15px !important;
+  width: 500px;
+  .column {
+    width: 250px !important;
+    .ui.header {
+      .content {
+        font-weight: 400;
+        color: #3c3c3c;
+      }
+      .icon {
+        font-size: 15px !important;
+      }
     }
   }
 }
@@ -622,6 +627,9 @@ a.item.menu-button.ui.button.primary {
 }
 .composer-logo{
   font-size: 15px;
+}
+.brand-color{
+  color: $brand-primary;
 }
 .aboutWrapper{
   margin: 0em 0em 1em;

@@ -14,7 +14,7 @@ struct Employee {
     string updated;
 }
 
-function main (string[] args) {
+function main (string... args) {
     //Create a SQL connector by providing the required database connection
     //pool properties.
     map props = {"jdbcUrl":"jdbc:mysql://localhost:3306/db",

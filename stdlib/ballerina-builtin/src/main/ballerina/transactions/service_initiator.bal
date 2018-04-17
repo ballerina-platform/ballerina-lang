@@ -20,6 +20,9 @@ import ballerina/log;
 import ballerina/http;
 
 @final string TWO_PHASE_COMMIT = "2pc";
+@final string PROTOCOL_COMPLETION = "completion";
+@final string PROTOCOL_VOLATILE = "volatile";
+@final string PROTOCOL_DURABLE = "durable";
 
 string[] coordinationTypes = [TWO_PHASE_COMMIT];
 
@@ -85,12 +88,12 @@ service InitiatorService bind coordinatorListener {
                 respondToBadRequest(conn, "Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
             } else if (!protocolCompatible(txn.coordinationType,
                                            toProtocolArray(regReq.participantProtocols))) { // Invalid-Protocol
-                respondToBadRequest(conn, "Invalid-Protocol. TID:" + txnId + ",participant ID:" + participantId);
+                respondToBadRequest(conn, "Invalid-Protocol in remote participant. TID:" + txnId + ",participant ID:" +
+                                            participantId);
             } else {
                 RemoteProtocol[] participantProtocols = regReq.participantProtocols;
-                RemoteParticipant participant = {participantId: participantId,
-                                                 participantProtocols: participantProtocols};
-                txn.participants[participantId] = participant;
+                RemoteParticipant participant = new(participantId, txn.transactionId, participantProtocols);
+                txn.participants[participantId] = <Participant>participant;
                 RemoteProtocol[] coordinatorProtocols = [];
                 int i = 0;
                 foreach participantProtocol in participantProtocols {

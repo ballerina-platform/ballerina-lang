@@ -206,7 +206,7 @@ public class HttpConstants {
     public static final int RESPONSE_STATUS_CODE_INDEX = 0;
     public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
     public static final int RESPONSE_SERVER_INDEX = 1;
-    public static final int IN_RESPONSE_CACHE_CONTROL_INDEX = 0;
+    public static final int RESPONSE_CACHE_CONTROL_INDEX = 0;
     public static final int IN_RESPONSE_RECEIVED_TIME_INDEX = 1;
 
     //PushPromise struct indexes
@@ -258,8 +258,8 @@ public class HttpConstants {
 
     //Response codes
     public static final String HTTP_BAD_REQUEST = "400";
-    public static final String HEADER_X_XID = "X-XID";
-    public static final String HEADER_X_REGISTER_AT_URL = "X-Register-At-URL";
+    public static final String HEADER_X_XID = "x-b7a-xid";
+    public static final String HEADER_X_REGISTER_AT_URL = "x-b7a-register-at";
 
 
     public static final String HTTP_SERVER_CONNECTOR = "HTTP_SERVER_CONNECTOR";

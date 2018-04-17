@@ -34,12 +34,12 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
 /**
- * <p>This class generates Service definitions, clients or connectors for a provided ballerina service.</p>
+ * <p>This class generates Service definitions, clients for a provided ballerina service.</p>
  */
 public class CodeGenerator {
 
     /**
-     * Generates code(client, server, connector etc) for ballerina source provided  in <code>definitionPath</code>.
+     * Generates code(client, server etc) for ballerina source provided  in <code>definitionPath</code>.
      * <p>Method can be used for generating OAS 3.0.0, Swagger or Ballerina Client</p>
      *
      * @param type        Output type. Following types are supported

@@ -6,9 +6,8 @@ task:Appointment? app;
 function scheduleAppointment(string cronExpression) {
     (function() returns error?) onTriggerFunction = onTrigger;
     (function (error)) onErrorFunction = cleanupError;
-    task:Appointment a = new(onTriggerFunction, onErrorFunction, cronExpression);
-    a.schedule();
-    app = a;
+    app = new task:Appointment(onTriggerFunction, onErrorFunction, cronExpression);
+    _ = app.schedule();
 }
 
 function getCount() returns (int) {

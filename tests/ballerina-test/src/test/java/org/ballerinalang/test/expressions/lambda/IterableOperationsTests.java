@@ -37,7 +37,6 @@ import java.util.Locale;
  *
  * @since 0.961.0
  */
-@Test(groups = {"broken"})
 public class IterableOperationsTests {
 
     private CompileResult basic, negative;
@@ -199,7 +198,7 @@ public class IterableOperationsTests {
         Assert.assertEquals(returns[0].stringValue(), "[\"aA\", \"eE\"]");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testJSON() {
         BValue[] returns = BRunUtil.invoke(basic, "jsonTest");
         Assert.assertNotNull(returns);
