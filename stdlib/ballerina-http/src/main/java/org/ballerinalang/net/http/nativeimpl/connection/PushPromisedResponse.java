@@ -24,7 +24,6 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -75,7 +74,8 @@ public class PushPromisedResponse extends ConnectionAction {
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 
         HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
-        pushResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg, http2PushPromise);
+        pushResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg,
+                           http2PushPromise);
     }
 
     private void pushResponseRobust(DataContext dataContext, HTTPCarbonMessage requestMessage,
@@ -86,9 +86,10 @@ public class PushPromisedResponse extends ConnectionAction {
                 HttpUtil.pushResponse(requestMessage, responseMessage, http2PushPromise);
         if (entityStruct != null) {
             MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-            serializeMsgDataSource(dataContext, responseMessage, outboundMessageSource, outboundRespStatusFuture, entityStruct);
+            serializeMsgDataSource(dataContext, responseMessage, outboundMessageSource, outboundRespStatusFuture,
+                                   entityStruct);
         } else {
-            handleResponseStatus(dataContext, outboundRespStatusFuture);
+            setResponseConnectorListener(dataContext, outboundRespStatusFuture);
         }
     }
 }
