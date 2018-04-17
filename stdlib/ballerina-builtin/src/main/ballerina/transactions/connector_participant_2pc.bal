@@ -97,7 +97,7 @@ public type Participant2pcClient object {
                     (statusCode == http:INTERNAL_SERVER_ERROR_500 && msg == "Failed-EOT")) {
             error participantErr = {message:msg};
             return participantErr;
-        } else {
+        } else { // Some other error state
             error participantErr = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " +
                                     self.clientEP.conf.participantURL};
             return participantErr;
