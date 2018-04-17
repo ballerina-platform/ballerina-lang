@@ -13,11 +13,11 @@ endpoint http:Listener backendEP {
 endpoint http:Client backendClientEP {
     circuitBreaker: {
         rollingWindow: {
-            timeWindowMillies:10000,
-            bucketSizeMillies:2000
+            timeWindowMillis:10000,
+            bucketSizeMillis:2000
         },
         failureThreshold:0.2,
-        resetTimeMillies:10000,
+        resetTimeMillis:10000,
         statusCodes:[400, 404, 500]
     },
     targets: [
