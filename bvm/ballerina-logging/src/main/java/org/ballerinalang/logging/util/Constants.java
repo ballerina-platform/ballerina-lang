@@ -27,8 +27,10 @@ public class Constants {
 
     public static final String LOG_LEVEL = ".loglevel";
 
-    public static final String HTTP_TRACE_LOG = "tracelog.http";
-    public static final String HTTP_ACCESS_LOG = "accesslog.http";
+    public static final String HTTP_TRACE_LOG = "http.tracelog";
+    public static final String HTTP_TRACE_LOG_FILE = "http.tracelog.path";
+    public static final String HTTP_TRACE_LOG_HOST = "http.tracelog.host";
+    public static final String HTTP_TRACE_LOG_PORT = "http.tracelog.port";
     public static final String BALLERINA_USER_LOG_LEVEL = "b7a.log.level";
 
     public static final String LOG_TO = "logto";

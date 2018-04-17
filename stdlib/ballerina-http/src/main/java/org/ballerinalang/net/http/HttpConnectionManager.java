@@ -42,6 +42,8 @@ import java.util.Set;
 import java.util.logging.LogManager;
 
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG;
+import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG;
+import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG_FILE;
 import static org.ballerinalang.logging.util.Constants.LOG_TO;
 
 /**
@@ -176,8 +178,9 @@ public class HttpConnectionManager {
 
     public boolean isHTTPTraceLoggerEnabled() {
         // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
-        return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
-                org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
+//        return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
+//                org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
+        return Boolean.parseBoolean(ConfigRegistry.getInstance().getAsString(HTTP_TRACE_LOG));
     }
 
     /**
