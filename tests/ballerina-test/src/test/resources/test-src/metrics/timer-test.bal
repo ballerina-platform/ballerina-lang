@@ -38,13 +38,13 @@ function testMeanTimer() returns (float) {
     return timer3.mean(observe:TIME_UNIT_NANOSECONDS);
 }
 
-function testPercentileTimer() returns (float) {
+function testPercentileTimer() returns (map) {
     timer4.record(1000, observe:TIME_UNIT_NANOSECONDS);
     timer4.record(2000, observe:TIME_UNIT_NANOSECONDS);
     timer4.record(3000, observe:TIME_UNIT_NANOSECONDS);
     timer4.record(4000, observe:TIME_UNIT_NANOSECONDS);
     timer4.record(5000, observe:TIME_UNIT_NANOSECONDS);
-    return timer4.percentile(0.5, observe:TIME_UNIT_NANOSECONDS);
+    return timer4.percentileValues(observe:TIME_UNIT_NANOSECONDS);
 }
 
 function testTimerWithoutTags() returns (float) {

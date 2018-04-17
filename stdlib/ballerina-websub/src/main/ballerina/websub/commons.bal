@@ -46,6 +46,11 @@ import ballerina/security.crypto;
 @final public string SHA256 = "SHA256";
 @final public string MD5 = "MD5";
 
+public type TopicIdentifier "TOPIC_ID_HEADER" | "TOPIC_ID_PAYLOAD_KEY" | "TOPIC_ID_HEADER_AND_PAYLOAD";
+@final public TopicIdentifier TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
+@final public TopicIdentifier TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
+@final public TopicIdentifier TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
+
 @Description {value:"Struct to represent WebSub related errors"}
 @Field {value:"errorMessage: Error message indicating an issue"}
 @Field {value:"connectorError: HttpConnectorError if occurred"}
@@ -267,7 +272,7 @@ public type WebSubHub object {
 
     @Description {value:"Stops the started up Ballerina Hub"}
     @Return {value:"Boolean indicating whether the internal Ballerina Hub was stopped"}
-    public function shutdownBallerinaHub () returns (boolean);
+    public function stop () returns (boolean);
 
     @Description {value:"Publishes an update against the topic in the initialized Ballerina Hub"}
     @Param {value:"topic: The topic for which the update should happen"}
@@ -287,7 +292,7 @@ public type WebSubHub object {
 
 };
 
-public function WebSubHub::shutdownBallerinaHub () returns (boolean) {
+public function WebSubHub::stop () returns (boolean) {
     //TODO: fix to stop
     return stopHubService(self.hubUrl);
 }

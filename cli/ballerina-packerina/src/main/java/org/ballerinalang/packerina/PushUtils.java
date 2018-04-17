@@ -141,7 +141,7 @@ public class PushUtils {
      * @return full URI path of the package relative to the remote repo
      */
     private static String resolvePkgPathInRemoteRepo(PackageID packageID) {
-        Repo<URI> remoteRepo = new RemoteRepo(URI.create("https://api.staging-central.ballerina.io/packages/"));
+        Repo<URI> remoteRepo = new RemoteRepo(URI.create("https://api.central.ballerina.io/packages/"));
         Patten patten = remoteRepo.calculate(packageID);
         if (patten == Patten.NULL) {
             throw new BLangCompilerException("Couldn't find package " + packageID.toString());

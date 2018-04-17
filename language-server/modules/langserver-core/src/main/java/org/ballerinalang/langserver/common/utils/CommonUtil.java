@@ -547,8 +547,11 @@ public class CommonUtil {
 
     /**
      * Prepare a new compiler context.
+     * @deprecated use LSContextManager.createTempCompilerContext() instead. If you need global singleton compiler
+     * context please use LSContextManager.getBuiltInPackagesCompilerContext()
      * @return {@link CompilerContext} Prepared compiler context
      */
+    @Deprecated
     public static CompilerContext prepareTempCompilerContext() {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);

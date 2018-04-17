@@ -38,7 +38,8 @@ public type Client object {
     @Param {value:"ep: The endpoint to be initialized"}
     @Param {value:"config: The configuration for the endpoint"}
     public function init (HubClientEndpointConfiguration config) {
-        endpoint http:Client httpClientEndpoint {targets:[{url:config.url, secureSocket:config.secureSocket}]};
+        endpoint http:Client httpClientEndpoint {targets:[{url:config.url, secureSocket:config.secureSocket}],
+                                                    auth:config.auth};
         self.httpClientEndpoint = httpClientEndpoint;
         self.config = config;
     }
@@ -72,8 +73,9 @@ public type Client object {
 
 @Description {value:"Object representing the WebSub Hub Client Endpoint configuration"}
 @Field {value:"url: The URL of the target Hub"}
+@Field {value:"secureSocket: SSL/TLS related options"}
 public type HubClientEndpointConfiguration {
     string url,
     http:SecureSocket? secureSocket,
-    //TODO: include header, topic-resource map
+    http:AuthConfig? auth,
 };

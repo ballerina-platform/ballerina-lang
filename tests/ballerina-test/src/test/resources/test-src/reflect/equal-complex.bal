@@ -242,8 +242,10 @@ public function testJSONArray() returns (boolean) {
     json jArrUnordered = {primeNumebers: [2, 3, 5, 11, 7, 13]};
     json jArrMissing = {primeNumebers: [2, 3, 5, 11, 13]};
     json jArrUnmatch = {primeNumebers: ["test"]};
+    json jArrNull = [null, {primeNumebers: ["test"]}];
 
     return reflect:equals(jArr1,jArr2) &&
+            reflect:equals(jArrNull, jArrNull) &&
            !reflect:equals(jArr1,jArrUnordered) &&
            !reflect:equals(jArr1,jArrMissing) &&
            !reflect:equals(jArr1,jArrUnmatch);

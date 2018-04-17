@@ -26,6 +26,8 @@ public class LogDTO {
     private String headers;
     private String httpMethod;
     private String path;
+    private String contentType;
+    private String payload;
 
     public void setId(String id) {
         this.id = id;
@@ -65,5 +67,21 @@ public class LogDTO {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setPayload(String payload) {
+        this.payload = payload;
+    }
+
+    public String getPayload() {
+        return payload;
     }
 }

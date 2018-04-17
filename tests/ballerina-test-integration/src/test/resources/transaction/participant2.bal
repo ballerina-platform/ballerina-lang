@@ -66,7 +66,7 @@ service<http:Service> participant2 bind participant2EP {
         http:Response res = new;
         string result = "incorrect id";
         transaction {
-            if (req.getHeader("X-XID") == req.getHeader("participant-id")) {
+            if (req.getHeader("x-b7a-xid") == req.getHeader("participant-id")) {
                 result = "equal id";
             }
         }

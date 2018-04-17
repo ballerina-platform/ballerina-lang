@@ -153,6 +153,8 @@ import java.util.Stack;
  */
 public class CodeAnalyzer extends BLangNodeVisitor {
 
+    private static final String MAIN_FUNC_NAME = "main";
+
     private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
 
@@ -243,10 +245,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         //TODO
     }
 
+    private void validateMainFunction(BLangFunction funcNode) {
+        if (MAIN_FUNC_NAME.equals(funcNode.name.value) && Symbols.isPublic(funcNode.symbol)) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_CANNOT_BE_PUBLIC);
+        }
+    }
+    
     @Override
     public void visit(BLangFunction funcNode) {
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
+        this.validateMainFunction(funcNode);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         this.visitInvocable(funcNode, funcEnv);
         this.returnWithintransactionCheckStack.pop();
@@ -255,31 +264,34 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void visitInvocable(BLangInvokableNode invNode, SymbolEnv invokableEnv) {
         this.resetFunction();
-        this.initNewWorkerActionSystem();
-        if (Symbols.isNative(invNode.symbol)) {
-            return;
+        try {
+            this.initNewWorkerActionSystem();
+            if (Symbols.isNative(invNode.symbol)) {
+                return;
+            }
+            boolean invokableReturns = invNode.returnTypeNode.type != symTable.nilType;
+            if (invNode.workers.isEmpty()) {
+                analyzeNode(invNode.body, invokableEnv);
+                /* the function returns, but none of the statements surely returns */
+                if (invokableReturns && !this.statementReturns) {
+                    this.dlog.error(invNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
+                            invNode.getKind().toString().toLowerCase());
+                }
+            } else {
+                boolean workerReturns = false;
+                for (BLangWorker worker : invNode.workers) {
+                    analyzeNode(worker, invokableEnv);
+                    workerReturns = workerReturns || this.statementReturns;
+                    this.resetStatementReturns();
+                }
+                if (invokableReturns && !workerReturns) {
+                    this.dlog.error(invNode.pos, DiagnosticCode.ATLEAST_ONE_WORKER_MUST_RETURN,
+                            invNode.getKind().toString().toLowerCase());
+                }
+            }
+        } finally {
+            this.finalizeCurrentWorkerActionSystem();
         }
-        boolean invokableReturns = invNode.returnTypeNode.type != symTable.nilType;
-        if (invNode.workers.isEmpty()) {
-            analyzeNode(invNode.body, invokableEnv);
-            /* the function returns, but none of the statements surely returns */
-            if (invokableReturns && !this.statementReturns) {
-                this.dlog.error(invNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
-                        invNode.getKind().toString().toLowerCase());
-            }
-        } else {
-            boolean workerReturns = false;
-            for (BLangWorker worker : invNode.workers) {
-                analyzeNode(worker, invokableEnv);
-                workerReturns = workerReturns || this.statementReturns;
-                this.resetStatementReturns();
-            }
-            if (invokableReturns && !workerReturns) {
-                this.dlog.error(invNode.pos, DiagnosticCode.ATLEAST_ONE_WORKER_MUST_RETURN,
-                        invNode.getKind().toString().toLowerCase());
-            }
-        }
-        this.finalizeCurrentWorkerActionSystem();
     }
 
     @Override
@@ -599,6 +611,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAction actionNode) {
+        /* not used, covered with functions */
     }
 
     public void visit(BLangStruct structNode) {
@@ -796,6 +809,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangWorkerSend workerSendNode) {
+        this.checkStatementExecutionValidity(workerSendNode);
         if (!this.inWorker()) {
             return;
         }
@@ -805,6 +819,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
+        this.checkStatementExecutionValidity(workerReceiveNode);
         if (!this.inWorker()) {
             return;
         }
@@ -836,10 +851,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        if (fieldAccessExpr.safeNavigate && fieldAccessExpr.lhsVar) {
-            dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_SAFE_NAVIGATION_ON_LHS);
-        }
-        analyzeExpr(fieldAccessExpr.expr);
+        /* ignore */
     }
 
     public void visit(BLangIndexBasedAccess indexAccessExpr) {

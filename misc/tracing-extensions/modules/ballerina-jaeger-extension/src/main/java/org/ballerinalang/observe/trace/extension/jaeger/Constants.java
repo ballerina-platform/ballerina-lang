@@ -19,6 +19,8 @@
 
 package org.ballerinalang.observe.trace.extension.jaeger;
 
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
+
 /**
  * This is the constants class that defines all the constants
  * that are used by the {@link OpenTracingExtension}.
@@ -30,17 +32,16 @@ public class Constants {
 
     static final String TRACER_NAME = "jaeger";
 
-    static final String SAMPLER_TYPE_CONFIG = "sampler.type";
-    static final String SAMPLER_PARAM_CONFIG = "sampler.param";
-    static final String REPORTER_LOG_SPANS_CONFIG = "reporter.log.spans";
-    static final String REPORTER_HOST_NAME_CONFIG = "reporter.hostname";
-    static final String REPORTER_PORT_CONFIG = "reporter.port";
-    static final String REPORTER_FLUSH_INTERVAL_MS_CONFIG = "reporter.flush.interval.ms";
-    static final String REPORTER_MAX_BUFFER_SPANS_CONFIG = "reporter.max.buffer.spans";
+    private static final String JAEGER_CONFIG_TABLE = CONFIG_TABLE_TRACING + ".jaeger";
+    static final String SAMPLER_TYPE_CONFIG = JAEGER_CONFIG_TABLE + ".sampler.type";
+    static final String SAMPLER_PARAM_CONFIG = JAEGER_CONFIG_TABLE + ".sampler.param";
+    static final String REPORTER_HOST_NAME_CONFIG = JAEGER_CONFIG_TABLE + ".reporter.hostname";
+    static final String REPORTER_PORT_CONFIG = JAEGER_CONFIG_TABLE + ".reporter.port";
+    static final String REPORTER_FLUSH_INTERVAL_MS_CONFIG = JAEGER_CONFIG_TABLE + ".reporter.flush.interval.ms";
+    static final String REPORTER_MAX_BUFFER_SPANS_CONFIG = JAEGER_CONFIG_TABLE + ".reporter.max.buffer.spans";
 
     static final String DEFAULT_SAMPLER_TYPE = "const";
     static final int DEFAULT_SAMPLER_PARAM = 1;
-    static final boolean DEFAULT_REPORTER_LOG_SPANS = true;
     static final String DEFAULT_REPORTER_HOSTNAME = "localhost";
     static final int DEFAULT_REPORTER_PORT = 5775;
     static final int DEFAULT_REPORTER_FLUSH_INTERVAL = 1000;

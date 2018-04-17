@@ -3,10 +3,10 @@ import ballerina/runtime;
 import ballerina/websub;
 
 endpoint websub:Client websubHubClientEP {
-    url: "https://localhost:9999/websub/hub"
+    url: "https://localhost:9292/websub/hub"
 };
 
-function main (string [] args) {
+function main (string... args) {
     io:println("Starting up the Ballerina Hub Service");
     websub:WebSubHub webSubHub = websub:startUpBallerinaHub();
     //Register a topic at the hub

@@ -1,5 +1,5 @@
 import ballerina/runtime;
 
-function main (string[] args) {
+function main (string... args) {
     runtime:setProperty(<caret>)
 }

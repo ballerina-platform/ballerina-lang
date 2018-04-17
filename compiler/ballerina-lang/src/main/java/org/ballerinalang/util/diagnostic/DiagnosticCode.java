@@ -46,6 +46,8 @@ public enum DiagnosticCode {
     UNDEFINED_PARAMETER("undefined.parameter"),
     CANNOT_FIND_MATCHING_FUNCTION("cannot.find.function.sig.for.function.in.object"),
     IMPLEMENTATION_ALREADY_EXIST("implementation.already.exist"),
+    CANNOT_INITIALIZE_OBJECT("cannot.initialize.object"),
+    CANNOT_FIND_MATCHING_INTERFACE("cannot.find.matching.interface.function"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
@@ -64,6 +66,7 @@ public enum DiagnosticCode {
     INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
+    MAIN_CANNOT_BE_PUBLIC("main.cannot.be.public"),
     ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
     FORK_JOIN_WORKER_CANNOT_RETURN("fork.join.worker.cannot.return"),
     FORK_JOIN_INVALID_WORKER_COUNT("fork.join.invalid.worker.count"),

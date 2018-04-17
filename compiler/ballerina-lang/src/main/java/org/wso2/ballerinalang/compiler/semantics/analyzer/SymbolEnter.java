@@ -96,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -131,6 +132,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private final BLangDiagnosticLog dlog;
     private final EndpointSPIAnalyzer endpointSPIAnalyzer;
+    private final Types types;
 
     private SymbolEnv env;
 
@@ -152,6 +154,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.endpointSPIAnalyzer = EndpointSPIAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.types = Types.getInstance(context);
 
         BLangPackage rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         rootPkgNode.symbol = symTable.rootPkgSymbol;
@@ -500,6 +503,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (funcNode.symbol.bodyExist) {
                     dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
                 }
+                validateAttachedFunction(funcNode, funcNode.receiver.type.tsymbol.name);
             }
             //TODO check function parameters and return types
             SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
@@ -525,6 +529,98 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (funcNode.receiver != null) {
             defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
         }
+    }
+
+    private void validateAttachedFunction(BLangFunction funcNode, Name objName) {
+        SymbolEnv invokableEnv = SymbolEnv.createDummyEnv(funcNode, env.scope, env);
+        List<BType> paramTypes = funcNode.requiredParams.stream()
+                        .peek(varNode -> varNode.type = symResolver.resolveTypeNode(varNode.typeNode, invokableEnv))
+                        .map(varNode -> varNode.type)
+                        .collect(Collectors.toList());
+
+        funcNode.defaultableParams.forEach(p -> paramTypes.add(symResolver
+                .resolveTypeNode(p.var.typeNode, invokableEnv)));
+
+        if (!funcNode.desugaredReturnType) {
+            symResolver.resolveTypeNode(funcNode.returnTypeNode, invokableEnv);
+        }
+
+        if (funcNode.restParam != null) {
+            if (!funcNode.symbol.restParam.name.equals(names.fromIdNode(funcNode.restParam.name))) {
+                dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
+                return;
+            }
+            defineNode(funcNode.restParam, invokableEnv);
+            paramTypes.add(funcNode.restParam.symbol.type);
+        }
+
+        BInvokableType sourceType = (BInvokableType) funcNode.symbol.type;
+        int flags = Flags.asMask(funcNode.flagSet);
+        if (((flags & Flags.NATIVE) != (funcNode.symbol.flags & Flags.NATIVE))
+                || ((flags & Flags.PUBLIC) != (funcNode.symbol.flags & Flags.PUBLIC))) {
+            dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
+            return;
+        }
+
+        if (typesMissMatch(paramTypes, sourceType.paramTypes)
+                || namesMissMatch(funcNode.requiredParams, funcNode.symbol.params)
+                || namesMissMatchDef(funcNode.defaultableParams, funcNode.symbol.defaultableParams)) {
+            dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
+            return;
+        }
+
+        if (funcNode.returnTypeNode.type == null && sourceType.retType == null) {
+            return;
+        } else if (funcNode.returnTypeNode.type == null || sourceType.retType == null) {
+            dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
+            return;
+        }
+
+        if (funcNode.returnTypeNode.type.tag != sourceType.retType.tag) {
+            dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
+            return;
+        }
+        //Reset symbol flags to remove interface flag
+        funcNode.symbol.flags = funcNode.symbol.flags ^ Flags.INTERFACE;
+    }
+
+    private boolean typesMissMatch(List<BType> lhs, List<BType> rhs) {
+        if (lhs.size() != rhs.size()) {
+            return true;
+        }
+
+        for (int i = 0; i < lhs.size(); i++) {
+            if (!types.isSameType(lhs.get(i), rhs.get(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean namesMissMatch(List<BLangVariable> lhs, List<BVarSymbol> rhs) {
+        if (lhs.size() != rhs.size()) {
+            return true;
+        }
+
+        for (int i = 0; i < lhs.size(); i++) {
+            if (!rhs.get(i).name.equals(names.fromIdNode(lhs.get(i).name))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean namesMissMatchDef(List<BLangVariableDef> lhs, List<BVarSymbol> rhs) {
+        if (lhs.size() != rhs.size()) {
+            return true;
+        }
+
+        for (int i = 0; i < lhs.size(); i++) {
+            if (!rhs.get(i).name.equals(names.fromIdNode(lhs.get(i).var.name))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void defineObjectAttachedInvokableSymbolParams(BLangInvokableNode invokableNode, SymbolEnv invokableEnv) {
@@ -999,8 +1095,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // Add it to the enclosing scope
-        // Find duplicates
-        if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
+        // Find duplicates in current scope only
+        if (!symResolver.checkForUniqueSymbolInCurrentScope(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
             varSymbol.type = symTable.errType;
         }
         enclScope.define(varSymbol.name, varSymbol);

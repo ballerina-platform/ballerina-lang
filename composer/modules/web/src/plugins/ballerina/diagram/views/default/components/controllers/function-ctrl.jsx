@@ -34,6 +34,9 @@ class FunctionCtrl extends React.Component {
      * @return {React.Component} next node react component.
      * */
     render() {
+        if (!this.props.model.body) {
+            return null;
+        }
         const node = this.props.model;
         const y = node.viewState.components.defaultWorker.y - 20;
         let x = node.viewState.components.defaultWorker.x + node.viewState.components.defaultWorker.w +

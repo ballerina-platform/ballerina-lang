@@ -1,3 +1,5 @@
+import ballerina/io;
+
 type Person {
     int a;
     string fname = "John";
@@ -99,7 +101,7 @@ function testSafeNavigatingJSONWithNilInMiddle_2 () returns any {
 
 function testSafeNavigatingNilMap () returns any {
     map m;
-    return m.foo;
+    return m["foo"];
 }
 
 function testSafeNavigatingWithFuncInovc_1 () returns any {
@@ -168,4 +170,31 @@ function testNullLiftingOnError() returns string {
 function testSafeNavigateOnErrorOrNull() returns string? {
     error|() e;
     return e.message;
+}
+
+function testSafeNavigateOnJSONArrayOfArray() returns json {
+    json j = {"values" : [ ["Alex", "Bob"] ] };
+    return j.values[0][1];
+}
+
+function testNilLiftingOnLHS_1() returns json {
+    json j = {};
+    j.info["address"].city = "Colombo";
+    return j;
+}
+
+function testNilLiftingOnLHS_2() returns json {
+    json j = [null];
+    j[0].address.city = "Colombo";
+    return j;
+}
+
+function testNonExistingMapKeyWithIndexAccess() returns string? {
+    map<string> m;
+    return m["a"];
+}
+
+function testNonExistingMapKeyWithFieldAccess() returns string {
+    map<string> m;
+    return m.a;
 }
