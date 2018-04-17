@@ -27,6 +27,7 @@ import io.netty.handler.codec.http2.Http2CodecUtil;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
+import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
 import static java.lang.Math.min;
 
 /**
@@ -41,12 +42,15 @@ public class Http2WithPriorKnowledgeHandler extends ChannelInboundHandlerAdapter
     private String interfaceId;
     private String serverName;
     private ServerConnectorFuture serverConnectorFuture;
+    private HttpServerChannelInitializer serverChannelInitializer;
 
     public Http2WithPriorKnowledgeHandler(String interfaceId, String serverName,
-                                          ServerConnectorFuture serverConnectorFuture) {
+                                          ServerConnectorFuture serverConnectorFuture,
+                                          HttpServerChannelInitializer serverChannelInitializer) {
         this.interfaceId = interfaceId;
         this.serverName = serverName;
         this.serverConnectorFuture = serverConnectorFuture;
+        this.serverChannelInitializer = serverChannelInitializer;
     }
 
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -55,14 +59,18 @@ public class Http2WithPriorKnowledgeHandler extends ChannelInboundHandlerAdapter
             ByteBuf clientPrefaceString = Http2CodecUtil.connectionPrefaceBuf();
             int bytesRead = min(inputData.readableBytes(), clientPrefaceString.readableBytes());
             ChannelPipeline pipeline = ctx.pipeline();
-            if (ByteBufUtil.equals(inputData, inputData.readerIndex(),
-                                   clientPrefaceString, clientPrefaceString.readerIndex(), bytesRead)) {
+            if (ByteBufUtil.equals(inputData, inputData.readerIndex(), clientPrefaceString,
+                                   clientPrefaceString.readerIndex(), bytesRead)) {
                 // HTTP/2 request received without an upgrade
-                pipeline.remove(Constants.HTTP_SERVER_CODEC);
+                safelyRemoveHandlers(pipeline, Constants.HTTP_SERVER_CODEC);
                 pipeline.addBefore(
-                        Constants.HTTP2_UPGRADE_HANDLER, Constants.HTTP2_SOURCE_HANDLER,
-                        new Http2SourceHandlerBuilder(interfaceId, serverConnectorFuture, serverName).build());
-                pipeline.remove(Constants.HTTP2_UPGRADE_HANDLER);
+                        Constants.HTTP2_UPGRADE_HANDLER,
+                        Constants.HTTP2_SOURCE_HANDLER,
+                        new Http2SourceHandlerBuilder(
+                                interfaceId, serverConnectorFuture, serverName, serverChannelInitializer).build());
+
+                safelyRemoveHandlers(pipeline, Constants.HTTP2_UPGRADE_HANDLER,
+                                          Constants.HTTP_COMPRESSOR, Constants.HTTP_TRACE_LOG_HANDLER);
             }
             pipeline.remove(this);
             ctx.fireChannelRead(msg);

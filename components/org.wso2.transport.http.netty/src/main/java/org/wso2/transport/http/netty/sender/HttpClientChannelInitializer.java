@@ -31,7 +31,6 @@ import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionHandler;
 import io.netty.handler.codec.http2.Http2ConnectionHandlerBuilder;
 import io.netty.handler.codec.http2.Http2FrameListener;
-import io.netty.handler.codec.http2.Http2FrameLogger;
 import io.netty.handler.proxy.HttpProxyHandler;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
@@ -42,6 +41,7 @@ import io.netty.handler.ssl.SslHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.common.FrameLogger;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
@@ -58,7 +58,7 @@ import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
-import static io.netty.handler.logging.LogLevel.DEBUG;
+import static io.netty.handler.logging.LogLevel.TRACE;
 
 /**
  * A class that responsible for initialize target server pipeline.
@@ -88,10 +88,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     private SenderConfiguration senderConfiguration;
     private ConnectionAvailabilityFuture connectionAvailabilityFuture;
 
-    private static final Http2FrameLogger logger =
-            new Http2FrameLogger(DEBUG,     // Change mode to INFO for logging frames
-                                 HttpClientChannelInitializer.class);
-
     public HttpClientChannelInitializer(SenderConfiguration senderConfiguration, HttpRoute httpRoute,
             ConnectionManager connectionManager, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
         this.httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
@@ -116,9 +112,12 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         connection = new DefaultHttp2Connection(false);
         clientInboundHandler = new ClientInboundHandler();
         Http2FrameListener frameListener = new DelegatingDecompressorFrameListener(connection, clientInboundHandler);
-        http2ConnectionHandler  =
-                new Http2ConnectionHandlerBuilder().
-                        connection(connection).frameLogger(logger).frameListener(frameListener).build();
+
+        Http2ConnectionHandlerBuilder connectionHandlerBuilder = new Http2ConnectionHandlerBuilder();
+        if (httpTraceLogEnabled) {
+            connectionHandlerBuilder.frameLogger(new FrameLogger(TRACE, Constants.TRACE_LOG_UPSTREAM));
+        }
+        http2ConnectionHandler = connectionHandlerBuilder.connection(connection).frameListener(frameListener).build();
         clientOutboundHandler = new ClientOutboundHandler(connection, http2ConnectionHandler.encoder());
     }
 
@@ -276,7 +275,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         pipeline.addLast(Constants.DECOMPRESSOR_HANDLER, new HttpContentDecompressor());
         if (httpTraceLogEnabled) {
             pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
-                    new HTTPTraceLoggingHandler("http.tracelog.upstream"));
+                    new HTTPTraceLoggingHandler(Constants.TRACE_LOG_UPSTREAM));
         }
         if (followRedirect) {
             if (log.isDebugEnabled()) {

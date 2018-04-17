@@ -19,6 +19,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -619,5 +620,21 @@ public class Util {
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             }
         });
+    }
+
+    /**
+     * Removes handlers from the pipeline if they are present.
+     *
+     * @param pipeline     the channel pipeline
+     * @param handlerNames names of the handlers to be removed
+     */
+    public static void safelyRemoveHandlers(ChannelPipeline pipeline, String... handlerNames) {
+        for (String name : handlerNames) {
+            if (pipeline.get(name) != null) {
+                pipeline.remove(name);
+            } else {
+                log.debug("Trying to remove not engaged {} handler from the pipeline", name);
+            }
+        }
     }
 }
