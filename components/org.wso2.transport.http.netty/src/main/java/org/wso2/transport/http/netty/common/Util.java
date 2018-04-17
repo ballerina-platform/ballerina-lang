@@ -24,6 +24,7 @@ import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -39,7 +40,9 @@ import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Listener;
 
 import java.io.File;
 import java.io.IOException;
@@ -619,5 +622,16 @@ public class Util {
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             }
         });
+    }
+
+    /**
+     * **************************.
+     *
+     * @param httpMessage the future of outbound response write operation
+     * @param ctx            the channel future related to response write operation
+     */
+    public static HTTPCarbonMessage createHTTPCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx) {
+        Listener contentListener = new DefaultListener(ctx);
+        return new HTTPCarbonMessage(httpMessage, contentListener);
     }
 }

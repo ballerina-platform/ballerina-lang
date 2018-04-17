@@ -18,9 +18,9 @@
 
 package org.wso2.transport.http.netty.message;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
-
-import java.util.concurrent.Semaphore;
+import org.wso2.transport.http.netty.common.Util;
 
 /**
  * Default implementation of the message Listener.
@@ -28,31 +28,33 @@ import java.util.concurrent.Semaphore;
 public class DefaultListener implements Listener {
 
     private static final int MAXIMUM_BYTE_SIZE = 2;
-    private int cumulativeQuantity = 0;
-//    private Semaphore executionWaitSem;
+    private int cumulativeByteQuantity = 0;
+    private ChannelHandlerContext ctx = null;
+    private boolean readComplete = false;
+
+    public DefaultListener(ChannelHandlerContext ctx) {
+        this.ctx = ctx;
+    }
 
     @Override
     public void onAdd(HttpContent httpContent) {
-        this.cumulativeQuantity += httpContent.content().readableBytes();
-        if (this.cumulativeQuantity > MAXIMUM_BYTE_SIZE) {
-            //stop reading
-//            executionWaitSem = new Semaphore(0);
-//            try {
-//                executionWaitSem.acquire();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+        this.cumulativeByteQuantity += httpContent.content().readableBytes();
+        if (this.cumulativeByteQuantity < MAXIMUM_BYTE_SIZE) {
+            if (Util.isLastHttpContent(httpContent)) {
+                readComplete = true;
+            } else {
+                this.ctx.channel().read();
+            }
         }
     }
 
     @Override
     public void onRemove(HttpContent httpContent) {
-        this.cumulativeQuantity -= httpContent.content().readableBytes();
-        if (this.cumulativeQuantity < MAXIMUM_BYTE_SIZE) {
-            // start reading
-//            if (executionWaitSem != null) {
-//                executionWaitSem.release();
-//            }
+        this.cumulativeByteQuantity -= httpContent.content().readableBytes();
+        if (this.cumulativeByteQuantity < MAXIMUM_BYTE_SIZE) {
+            if (!readComplete) {
+                this.ctx.channel().read();
+            }
         }
     }
 }

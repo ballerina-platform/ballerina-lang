@@ -129,7 +129,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     }
 
     private HTTPCarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
-        targetRespMsg = new HttpCarbonResponse((HttpResponse) msg);
+        targetRespMsg = new HttpCarbonResponse((HttpResponse) msg, ctx);
         targetRespMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
 
         targetRespMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);

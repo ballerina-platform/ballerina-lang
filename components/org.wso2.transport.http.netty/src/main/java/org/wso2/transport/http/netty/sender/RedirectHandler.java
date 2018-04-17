@@ -279,7 +279,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                     LOG.debug("Getting ready for actual redirection for channel " + ctx.channel().id());
                 }
                 URL locationUrl = new URL(redirectState.get(HttpHeaderNames.LOCATION.toString()));
-                HTTPCarbonMessage httpCarbonRequest = createHttpCarbonRequest();
+                HTTPCarbonMessage httpCarbonRequest = createHttpCarbonRequest(ctx);
                 HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
 
                 if (isCrossDoamin) {
@@ -376,7 +376,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             LOG.debug("Pass along received response headers to client. Channel id : " + ctx.channel().id());
         }
         HttpResponseFuture responseFuture = ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
-        responseFuture.notifyHttpListener(setUpCarbonResponseMessage(msg));
+        responseFuture.notifyHttpListener(setUpCarbonResponseMessage(msg, ctx));
     }
 
     /**
@@ -601,16 +601,17 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      *
      * @return HTTPCarbonMessage with request properties
      * @throws MalformedURLException
+     * @param ctx
      */
-    private HTTPCarbonMessage createHttpCarbonRequest() throws MalformedURLException {
+    private HTTPCarbonMessage createHttpCarbonRequest(ChannelHandlerContext ctx) throws MalformedURLException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Create redirect request with http method  : " + redirectState.get(Constants.HTTP_METHOD));
         }
         URL locationUrl = new URL(redirectState.get(HttpHeaderNames.LOCATION.toString()));
 
         HttpMethod httpMethod = new HttpMethod(redirectState.get(Constants.HTTP_METHOD));
-        HTTPCarbonMessage httpCarbonRequest = new HTTPCarbonMessage(
-                new DefaultHttpRequest(HttpVersion.HTTP_1_1, httpMethod, ""));
+        HTTPCarbonMessage httpCarbonRequest = Util.createHTTPCarbonMessage(
+                new DefaultHttpRequest(HttpVersion.HTTP_1_1, httpMethod, ""), ctx);
         httpCarbonRequest.setProperty(Constants.HTTP_PORT,
                 locationUrl.getPort() != -1 ? locationUrl.getPort() : getDefaultPort(locationUrl.getProtocol()));
         httpCarbonRequest.setProperty(Constants.PROTOCOL, locationUrl.getProtocol());
@@ -637,10 +638,11 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * Create response message that needs to be sent to the client.
      *
      * @param msg Http message
+     * @param ctx
      * @return HTTPCarbonMessage
      */
-    private HTTPCarbonMessage setUpCarbonResponseMessage(Object msg) {
-        targetRespMsg = new HTTPCarbonMessage((HttpMessage) msg);
+    private HTTPCarbonMessage setUpCarbonResponseMessage(Object msg, ChannelHandlerContext ctx) {
+        targetRespMsg = Util.createHTTPCarbonMessage((HttpMessage) msg, ctx);
         targetRespMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
         HttpResponse httpResponse = (HttpResponse) msg;
         targetRespMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());

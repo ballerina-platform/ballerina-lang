@@ -216,7 +216,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
                     notifyHttpListener(new Exception("Error while setting http headers", e));
         }
         // Create HTTP Carbon Response
-        HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse);
+        HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse, ctx);
 
         // Setting properties of the HTTP Carbon Response
         responseCarbonMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));

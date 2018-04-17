@@ -147,7 +147,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             handlerExecutor.executeAtSourceRequestReceiving(sourceReqCmsg);
         }
 
-        sourceReqCmsg = new HttpCarbonRequest((HttpRequest) httpMessage);
+        sourceReqCmsg = new HttpCarbonRequest((HttpRequest) httpMessage, ctx);
         sourceReqCmsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
 
         HttpRequest httpRequest = (HttpRequest) httpMessage;

@@ -52,18 +52,22 @@ public class HTTPCarbonMessage {
     private final ServerConnectorFuture httpOutboundRespFuture = new HttpWsServerConnectorFuture();
     private final DefaultHttpResponseFuture httpOutboundRespStatusFuture = new DefaultHttpResponseFuture();
     private final Observable contentObservable = new DefaultObservable();
-    private final Listener contentListener = new DefaultListener();
 
-    public HTTPCarbonMessage(HttpMessage httpMessage) {
+    public HTTPCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
         this.httpMessage = httpMessage;
         setBlockingEntityCollector(new BlockingEntityCollector(Constants.ENDPOINT_TIMEOUT));
         this.contentObservable.setListener(contentListener);
     }
 
-    public HTTPCarbonMessage(HttpMessage httpMessage, int maxWaitTime) {
+    public HTTPCarbonMessage(HttpMessage httpMessage, int maxWaitTime, Listener contentListener) {
         this.httpMessage = httpMessage;
         setBlockingEntityCollector(new BlockingEntityCollector(maxWaitTime));
         this.contentObservable.setListener(contentListener);
+    }
+
+    public HTTPCarbonMessage(HttpMessage httpMessage) {
+        this.httpMessage = httpMessage;
+        setBlockingEntityCollector(new BlockingEntityCollector(Constants.ENDPOINT_TIMEOUT));
     }
 
     /**

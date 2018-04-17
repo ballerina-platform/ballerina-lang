@@ -220,7 +220,7 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
      * @return the CarbonRequest Message created from given HttpRequest
      */
     private HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest) {
-        HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest);
+        HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest, ctx);
         sourceReqCMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
         sourceReqCMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
         HttpVersion protocolVersion = httpRequest.protocolVersion();

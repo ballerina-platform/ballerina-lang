@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.message;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
@@ -30,6 +31,11 @@ public class HttpCarbonResponse extends HTTPCarbonMessage {
 
     public HttpCarbonResponse(HttpResponse httpResponse) {
         super(httpResponse);
+        this.httpResponse = (HttpResponse) this.httpMessage;
+    }
+
+    public HttpCarbonResponse(HttpResponse httpResponse, ChannelHandlerContext ctx) {
+        super(httpResponse, new DefaultListener(ctx));
         this.httpResponse = (HttpResponse) this.httpMessage;
     }
 
