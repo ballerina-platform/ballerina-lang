@@ -8,7 +8,7 @@ endpoint jms:SimpleQueueSender queueSender {
     queueName: "testMbSimpleQueueReceiverProducer"
 };
 
-public function main (string[] args) {
+function main (string... args) {
     // Create a Text message.
     jms:Message m = check queueSender.createTextMessage("Test Text");
     // Send the Ballerina message to the JMS provider.

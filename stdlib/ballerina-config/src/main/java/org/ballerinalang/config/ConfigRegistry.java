@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -403,6 +404,15 @@ public class ConfigRegistry {
         });
 
         return table;
+    }
+
+    /**
+     * Returns an iterator for the key set of the config registry.
+     *
+     * @return An iterator for the key set
+     */
+    public Iterator<String> keySetIterator() {
+        return configEntries.keySet().iterator();
     }
 
     /**

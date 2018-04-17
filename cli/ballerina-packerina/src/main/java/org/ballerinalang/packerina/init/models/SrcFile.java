@@ -58,7 +58,7 @@ public class SrcFile {
                                                   "}";
 
     private static final String MAIN_FUNCTION_CONTENT = "import ballerina/io;\n" +
-                                                        "function main(string[] args) {\n" +
+                                                        "function main(string... args) {\n" +
                                                         "    io:println(\"Hello World!\");\n" +
                                                         "}\n";
 

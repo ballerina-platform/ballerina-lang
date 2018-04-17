@@ -1,4 +1,4 @@
-public function main (string[] args) {
+function main (string... args) {
     string[] words = [ "ant", "bear", "cat", "dear", "elephant" ];
     secureFunction(words.count(), words.count());
 
