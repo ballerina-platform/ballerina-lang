@@ -30,7 +30,7 @@ function concatBoolean(int index, boolean value){
 }
 
 function concatJSON(int index, json value){
-    var stringValue = value.toString() but { error => ""};
+    var stringValue = value.toString();
     output = output + index + ":" + stringValue + " ";
 }
 
@@ -250,7 +250,12 @@ function testThrow1 () returns (string) {
     try {
         testThrow1Callee();
     } catch (error e) {
-        error c = e.cause but { error s => s };
+        error c;
+        match e.cause { 
+            error s => c = s;
+            () => c = {};
+            
+        }
         output = output + c.message;
     }
     return output;

@@ -507,11 +507,11 @@ function testTableAddAndAccess() returns (string, string) {
     _ = dt.add(p2);
 
     var j1 = check <json>dt;
-    string s1 = j1.toString() but { () => "" };
+    string s1 = j1.toString();
 
     _ = dt.add(p3);
     var j2 = check <json>dt;
-    string s2 = j2.toString() but { () => "" };
+    string s2 = j2.toString();
 
     return (s1, s2);
 }
