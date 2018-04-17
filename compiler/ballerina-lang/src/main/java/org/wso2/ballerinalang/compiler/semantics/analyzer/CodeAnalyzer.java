@@ -622,7 +622,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangObject objectNode) {
-        /* ignore */
+        objectNode.functions.forEach(e -> this.analyzeNode(e, this.env));
     }
 
     public void visit(BLangRecord record) {
