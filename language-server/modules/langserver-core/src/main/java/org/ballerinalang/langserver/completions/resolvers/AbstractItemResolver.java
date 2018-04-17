@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -194,6 +195,8 @@ public abstract class AbstractItemResolver {
             if (paramType instanceof BInvokableType) {
                 // Check for the case when we can give a function as a parameter
                 typeName = parameterDefs.get(itr).type.toString();
+            } else if (paramType instanceof BUnionType) {
+                typeName = paramType.toString();
             } else {
                 BTypeSymbol tSymbol;
                 tSymbol = (paramType instanceof BArrayType) ?

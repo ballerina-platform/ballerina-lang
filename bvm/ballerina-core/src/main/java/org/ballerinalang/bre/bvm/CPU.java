@@ -19,6 +19,7 @@ package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
@@ -109,6 +110,7 @@ import org.ballerinalang.util.transactions.TransactionUtils;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -3044,7 +3046,35 @@ public class CPU {
         if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
             return checkTupleCast(rhsValue, lhsType);
         }
-        
+
+        if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return checkFiniteTypeAssignable(rhsValue, lhsType);
+        }
+
+        return false;
+    }
+
+    private static boolean checkFiniteTypeAssignable(BValue bRefTypeValue, BType lhsType) {
+        BFiniteType fType = (BFiniteType) lhsType;
+        if (bRefTypeValue == null) {
+            if (fType.memberTypes.contains(BTypes.typeNull)) {
+                return true;
+            }
+        } else {
+            BType valueType = bRefTypeValue.getType();
+            if (fType.memberTypes.contains(valueType)) {
+                return true;
+            }
+            Iterator<BValue> valueSpaceItr = fType.valueSpace.iterator();
+            while (valueSpaceItr.hasNext()) {
+                BValue valueSpaceItem = valueSpaceItr.next();
+                if (valueSpaceItem.getType().getTag() == bRefTypeValue.getType().getTag()) {
+                    if (valueSpaceItem.equals(bRefTypeValue)) {
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
     
