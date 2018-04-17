@@ -1274,25 +1274,8 @@ public class Types {
         Set<BType> lhsTypes = new HashSet<>();
         Set<BType> rhsTypes = new HashSet<>();
 
-        if (lhsType.tag == TypeTags.UNION) {
-            BUnionType lhsUnionType = (BUnionType) lhsType;
-            lhsTypes.addAll(getUnionMemberTypesRecursive(lhsUnionType));
-        } else if (lhsType.tag == TypeTags.SINGLETON) {
-            lhsTypes.add(resolveToSuperType(lhsType));
-            lhsTypes.add(lhsType);
-        } else {
-            lhsTypes.add(lhsType);
-        }
-
-        if (rhsType.tag == TypeTags.UNION) {
-            BUnionType rhsUnionType = (BUnionType) rhsType;
-            rhsTypes.addAll(getUnionMemberTypesRecursive(rhsUnionType));
-        } else if (rhsType.tag == TypeTags.SINGLETON) {
-            rhsTypes.add(resolveToSuperType(rhsType));
-            rhsTypes.add(rhsType);
-        } else {
-            rhsTypes.add(rhsType);
-        }
+        lhsTypes.addAll(getMemberTypesRecursive(lhsType));
+        rhsTypes.addAll(getMemberTypesRecursive(rhsType));
 
         if (lhsTypes.contains(symTable.anyType) ||
                 rhsTypes.contains(symTable.anyType)) {
@@ -1315,20 +1298,19 @@ public class Types {
         return bType;
     }
 
-    private Set<BType> getUnionMemberTypesRecursive(BUnionType unionType) {
+    private Set<BType> getMemberTypesRecursive(BType bType) {
         Set<BType> memberTypes = new HashSet<>();
-
-        unionType.getMemberTypes().forEach(member -> {
-            if (member.tag == TypeTags.SINGLETON) {
-                memberTypes.add(resolveToSuperType(member));
-                memberTypes.add(member);
-            } else if (member.tag == TypeTags.UNION) {
-                memberTypes.addAll(getUnionMemberTypesRecursive((BUnionType) member));
-            } else {
-                memberTypes.add(member);
-            }
-        });
-
+        if (bType.tag == TypeTags.SINGLETON) {
+            memberTypes.add(resolveToSuperType(bType));
+            memberTypes.add(bType);
+        } else if (bType.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) bType;
+            unionType.getMemberTypes().forEach(member -> {
+                memberTypes.addAll(getMemberTypesRecursive(member));
+            });
+        } else {
+            memberTypes.add(bType);
+        }
         return memberTypes;
     }
 
