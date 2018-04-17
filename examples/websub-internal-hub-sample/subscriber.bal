@@ -1,15 +1,15 @@
-//Ballerina WebSub Subscriber service which subscribes to notifications at a Hub.
+//Ballerina WebSub Subscriber service, which subscribes to notifications at a Hub.
 import ballerina/log;
 import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
-//The endpoint to which the subscriber service is bound
+//The endpoint to which the subscriber service is bound.
 endpoint websub:Listener websubEP {
     port:8181
 };
 
-//Annotations specifying the subscription parameters
+//Annotations specifying the subscription parameters.
 @websub:SubscriberServiceConfig {
     path:"/websub",
     subscribeOnStartUp:true,
@@ -20,9 +20,9 @@ endpoint websub:Listener websubEP {
 }
 service websubSubscriber bind websubEP {
 
-    //Resource accepting intent verification requests
+    //Resource accepting intent verification requests.
     onIntentVerification (endpoint client, websub:IntentVerificationRequest request) {
-        //Build the response for the subscription intent verification request received
+        //Build the response for the subscription intent verification request that was received.
         http:Response response = new;
         match (request.buildSubscriptionVerificationResponse()) {
             http:Response httpResponse => {
@@ -37,7 +37,7 @@ service websubSubscriber bind websubEP {
         _ = client -> respond(response);
     }
 
-    //Resource accepting content delivery requests
+    //Resource accepting content delivery requests.
     onNotification (websub:NotificationRequest notification) {
         json notificationPayload = notification.payload;
         string notificationString = notificationPayload.toString() but {() => ""};

@@ -1,7 +1,7 @@
 import ballerina/jms;
 import ballerina/log;
 
-// Create a queue sender
+// Create a queue sender.
 endpoint jms:SimpleQueueSender queueSender {
     initialContextFactory: "wso2mbInitialContextFactory",
     providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",

@@ -2,7 +2,6 @@ import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
-
 type ProductMaterial {
     string name;
     float amount;
@@ -14,26 +13,25 @@ type MaterialUsage {
     float totalConsumption;
 };
 
-//Streams that use 'ProductMaterial' as the constraint type.
-//These streams are the input the streaming execution that performed within forever.
+//These are the input streams that use `ProductMaterial` as the constraint type.
 stream<ProductMaterial> rawMaterialStream;
 stream<ProductMaterial> productionInputStream;
 
-//This is the output stream that contains the events/alerts that generated based on streaming logic.
+//This is the output stream that contains the events/alerts that are generated based on streaming logic.
 stream<MaterialUsage> materialUsageStream;
 
 function initRealtimeProductionAlert() {
 
-    //Whenever materialUsageStream receives an event from the streaming rules defined in the forever block,
-    //'printMaterialUsageAlert' function will be invoked.
+    // Whenever the `materialUsageStream` stream receives an event from the streaming rules defined in the forever
+    // block, the `printMaterialUsageAlert` function is invoked.
     materialUsageStream.subscribe(printMaterialUsageAlert);
 
 
-    //Gather events related to raw materials through 'rawMaterialStream' stream and production related events
-    //through 'productionInputStream'. Here we calculate the usage of raw materials and production outcome of last
-    //10 seconds and trigger an alert if raw material usage is 5% higher than the production outcome.
-    //This forever block will be executed once, when initializing the service. So each time requestStream or
-    //productionInputStream receives an event, the processing will happen asynchronously.
+    //Gather events related to raw materials through the `rawMaterialStream` stream and production related events
+    //through the `productionInputStream. The raw materials usage and production outcome for the last
+    //10 seconds are calculated and an alert is triggered if the raw material usage is 5% higher than the
+    //production outcome. This forever block is executed once, when initializing the service. The processing happens
+    //asynchronously each time the requestStream or productionInputStream receives an event.
     forever {
         from productionInputStream window time(10000) as p
         join rawMaterialStream window time(10000) as r
@@ -42,8 +40,8 @@ function initRealtimeProductionAlert() {
         group by r.name
         having ((totalRawMaterial - totalConsumption) * 100.0 / totalRawMaterial) > 5
         => (MaterialUsage[] materialUsages) {
-            //'materialUsages' are the output of the streaming rules and those are published to materialUsageStream.
-            //Select clause should match with the structure of the 'MaterialUsage' type.
+            //The 'materialUsages' is the output that matches the defined streaming rules. It is published to `materialUsageStream` stream.
+            //The selected clause should match the structure of the `MaterialUsage` type.
             materialUsageStream.publish(materialUsages);
         }
     }
@@ -62,7 +60,7 @@ endpoint http:Listener productMaterialListener {
     port:9090
 };
 
-//Service which receives events related to production outcome and raw material input.
+//The service, which receives events related to the production outcome and the raw material input.
 @http:ServiceConfig {
     basePath:"/"
 }
