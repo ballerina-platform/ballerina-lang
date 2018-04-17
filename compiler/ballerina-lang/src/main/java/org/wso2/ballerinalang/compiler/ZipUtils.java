@@ -59,7 +59,7 @@ class ZipUtils {
                 Files.createDirectories(destPath);
             } catch (IOException e) {
                 throw new BLangCompilerException("error creating directories in ./ballerina/repo/ to save the " +
-                                                         "generated balo");
+                                                         "artifact");
             }
         }
         String fileName = packageID.getName() + ".zip";
