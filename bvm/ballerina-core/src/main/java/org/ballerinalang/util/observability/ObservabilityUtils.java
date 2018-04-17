@@ -18,7 +18,6 @@
 package org.ballerinalang.util.observability;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.ObservableContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 
 import java.util.ArrayList;
@@ -61,25 +60,21 @@ public class ObservabilityUtils {
      * @param connectorName    The server connector name.
      * @param serviceName      The service name.
      * @param resourceName     The resource name.
-     * @param observableContext The {@link ObservableContext} instance. If this is null when starting the
+     * @param parentContext    The {@link WorkerExecutionContext} instance. If this is null when starting the
      *                         observation, the
-     *                         {@link #continueServerObservation(ObserverContext, ObservableContext,
-     *                         WorkerExecutionContext)}
+     *                         {@link #continueServerObservation(ObserverContext, WorkerExecutionContext)}
      *                          method must be called later with relevant {@link ObserverContext}
      * @return An {@link ObserverContext} instance.
      */
     public static ObserverContext startServerObservation(String connectorName, String serviceName,
-                                                         String resourceName, ObservableContext observableContext,
-                                                         WorkerExecutionContext parentContext) {
+                                                         String resourceName, WorkerExecutionContext parentContext) {
         Objects.requireNonNull(connectorName);
-        ObserverContext ctx = (observableContext != null)
-                ? getCurrentContext(observableContext)
-                : new ObserverContext();
+        ObserverContext ctx = new ObserverContext();
         ctx.setConnectorName(connectorName);
         ctx.setServiceName(serviceName);
         ctx.setResourceName(resourceName);
-        if (observableContext != null && parentContext != null) {
-            continueServerObservation(ctx, observableContext, parentContext);
+        if (parentContext != null) {
+            continueServerObservation(ctx, parentContext);
         }
         return ctx;
     }
@@ -89,49 +84,34 @@ public class ObservabilityUtils {
      *
      * @param connectorName    The connector name.
      * @param actionName       The action name.
-     * @param observableContext The {@link ObservableContext} instance. If this is null when starting the
+     * @param parentCtx        The {@link WorkerExecutionContext} instance. If this is null when starting the
      *                         observation, the
-     *                         {@link #continueClientObservation(ObserverContext, ObservableContext,
-     *                         WorkerExecutionContext)}
-     *                          method must be called later with relevant {@link ObserverContext}
+     *                         {@link #continueClientObservation(ObserverContext, WorkerExecutionContext)}
+     *                         method must be called later with relevant {@link ObserverContext}
      * @return An {@link ObserverContext} instance.
      */
     public static ObserverContext startClientObservation(String connectorName, String actionName,
-                                                         ObservableContext observableContext,
                                                          WorkerExecutionContext parentCtx) {
         Objects.requireNonNull(connectorName);
-        ObserverContext ctx = (observableContext != null)
-                ? getCurrentContext(observableContext)
-                : new ObserverContext();
+        ObserverContext ctx = new ObserverContext();
         ctx.setConnectorName(connectorName);
         ctx.setActionName(actionName);
-        if (observableContext != null) {
-            continueClientObservation(ctx, observableContext, parentCtx);
+        if (parentCtx != null) {
+            continueClientObservation(ctx, parentCtx);
         }
         return ctx;
     }
 
     /**
      * Continue server observation if the
-     * {@link #startServerObservation(String, String, String, ObservableContext, WorkerExecutionContext)} was called
-     * without {@link ObservableContext} or {@link WorkerExecutionContext}.
+     * {@link #startServerObservation(String, String, String, WorkerExecutionContext)} was called
+     * without {@link WorkerExecutionContext}.
      *
      * @param observerContext  The {@link ObserverContext} instance.
-     * @param observableContext The {@link ObservableContext} instance.
      * @param parentCtx The parent {@link WorkerExecutionContext} instance.
      */
-    public static void continueServerObservation(ObserverContext observerContext, ObservableContext observableContext,
-                                                 WorkerExecutionContext parentCtx) {
-        Objects.requireNonNull(observableContext);
+    public static void continueServerObservation(ObserverContext observerContext, WorkerExecutionContext parentCtx) {
         Objects.requireNonNull(parentCtx);
-        if (observerContext == null) {
-            // This context may be null in some cases. Get new context
-            observerContext = getCurrentContext(observableContext);
-        } else {
-            // Update the current context. ObservableContext may not be available when starting the observation.
-            // Therefore, it is very important to set this ObserverContext in the ObservableContext.
-            setCurrentContext(observerContext, observableContext);
-        }
         ObserverContext parentObserverContext = populateAndGetParentObserverContext(parentCtx);
         observerContext.setParent(parentObserverContext);
         observerContext.setServer();
@@ -141,23 +121,14 @@ public class ObservabilityUtils {
     }
 
     /**
-     * Continue client observation if the {@link #startClientObservation(String, String, ObservableContext,
-     * WorkerExecutionContext)} was
-     * called without {@link ObservableContext}.
+     * Continue client observation if the {@link #startClientObservation(String, String, WorkerExecutionContext)} was
+     * called without {@link WorkerExecutionContext}.
      *
      * @param observerContext  The {@link ObserverContext} instance.
-     * @param observableContext The {@link ObservableContext} instance.
+     * @param parentCtx The {@link WorkerExecutionContext} instance.
      */
-    public static void continueClientObservation(ObserverContext observerContext, ObservableContext observableContext,
-                                                 WorkerExecutionContext parentCtx) {
-        Objects.requireNonNull(observableContext);
-        if (observerContext == null) {
-            // This context may be null in some cases. Get new context
-            observerContext = getCurrentContext(observableContext);
-        } else {
-            // Update the current context
-            setCurrentContext(observerContext, observableContext);
-        }
+    public static void continueClientObservation(ObserverContext observerContext, WorkerExecutionContext parentCtx) {
+        Objects.requireNonNull(parentCtx);
         ObserverContext parentObserverContext = populateAndGetParentObserverContext(parentCtx);
         observerContext.setParent(parentObserverContext);
         observerContext.setStarted();
@@ -179,42 +150,11 @@ public class ObservabilityUtils {
         }
     }
 
-    /**
-     * Get an {@link ObserverContext} for current {@link ObservableContext}
-     *
-     * @param observableContext The {@link ObservableContext} instance.
-     * @return An existing {@link ObserverContext} instance or a new one created for current
-     * {@link ObservableContext}.
-     */
-    public static ObserverContext getCurrentContext(ObservableContext observableContext) {
-        Objects.requireNonNull(observableContext);
-        ObserverContext context = (ObserverContext) observableContext.getLocalProperty(KEY_OBSERVER_CONTEXT);
-        if (context == null) {
-            context = new ObserverContext();
-            observableContext.setLocalProperty(KEY_OBSERVER_CONTEXT, context);
-        }
-        return context;
-    }
-
-    /**
-     * Set the {@link ObserverContext} in current {@link ObservableContext}.
-     *
-     * @param observerContext  The {@link ObserverContext} instance.
-     * @param observableContext The {@link ObservableContext} instance.
-     */
-    private static void setCurrentContext(ObserverContext observerContext, ObservableContext observableContext) {
-        Objects.requireNonNull(observerContext);
-        Objects.requireNonNull(observableContext);
-        observableContext.setLocalProperty(KEY_OBSERVER_CONTEXT, observerContext);
-    }
-
-
     public static ObserverContext getTransitionContext(Context context) {
         ObserverContext observerContext = populateAndGetParentObserverContext(
                 context.getParentWorkerExecutionContext());
         if (observerContext == null) {
             observerContext = new ObserverContext();
-            context.setLocalProperty(KEY_OBSERVER_CONTEXT, observerContext);
         }
         return observerContext;
     }

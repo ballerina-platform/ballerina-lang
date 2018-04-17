@@ -42,8 +42,6 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
     
     protected int workerCount;
 
-    public Map<String, Object> localProps;
-
     public BaseWorkerResponseContext(int workerCount) {
         this.workerCount = workerCount;
     }
@@ -151,22 +149,6 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
                 callback.notifyFailure(error);
             }
         }
-    }
-
-    @Override
-    public void setLocalProperty(String key, Object val) {
-        if (this.localProps == null) {
-            this.localProps = new HashMap<>();
-        }
-        this.localProps.put(key, val);
-    }
-
-    @Override
-    public Object getLocalProperty(String key) {
-        if (this.localProps != null) {
-            return this.localProps.get(key);
-        }
-        return null;
     }
 
 }

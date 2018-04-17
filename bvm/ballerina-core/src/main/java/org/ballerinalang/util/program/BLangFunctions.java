@@ -29,7 +29,6 @@ import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.ForkJoinTimeoutCallback;
 import org.ballerinalang.bre.bvm.ForkJoinWorkerResponseContext;
 import org.ballerinalang.bre.bvm.InitWorkerResponseContext;
-import org.ballerinalang.bre.bvm.ObservableContext;
 import org.ballerinalang.bre.bvm.SyncCallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
@@ -483,15 +482,16 @@ public class BLangFunctions {
     private static void checkAndObserveServiceCallable(WorkerExecutionContext parentCtx,
                                                        ObserverContext observerContext,
                                                        CallableWorkerResponseContext respCtx) {
+        observerContext = (observerContext != null) ? observerContext : new ObserverContext();
         respCtx.registerResponseCallback(new CallbackObserver(observerContext));
-        ObservabilityUtils.continueServerObservation(observerContext, respCtx, parentCtx);
+        ObservabilityUtils.continueServerObservation(observerContext, parentCtx);
     }
 
     private static ObserverContext checkAndObserveNonNativeCallable(WorkerExecutionContext parentCtx,
                                                                     CallableWorkerResponseContext respCtx,
                                                                     CallableUnitInfo callableUnitInfo, int flags) {
         if (FunctionFlags.isObserved(flags)) {
-            ObserverContext observerContext = startCallableObservation(parentCtx, respCtx, callableUnitInfo);
+            ObserverContext observerContext = startCallableObservation(parentCtx, callableUnitInfo);
             respCtx.registerResponseCallback(new CallbackObserver(observerContext));
             return observerContext;
         }
@@ -508,7 +508,7 @@ public class BLangFunctions {
                                                                           CallableUnitInfo callableUnitInfo,
                                                                           int flags) {
         if (FunctionFlags.isObserved(flags)) {
-            ObserverContext observerContext = startCallableObservation(ctx.getParentWorkerExecutionContext(), ctx,
+            ObserverContext observerContext = startCallableObservation(ctx.getParentWorkerExecutionContext(),
                     callableUnitInfo);
             WorkerExecutionContext workerExecutionContext = ctx.getParentWorkerExecutionContext();
             if (workerExecutionContext.localProps == null) {
@@ -531,10 +531,10 @@ public class BLangFunctions {
         }
     }
 
-    private static ObserverContext startCallableObservation(WorkerExecutionContext parentCtx, ObservableContext ctx,
+    private static ObserverContext startCallableObservation(WorkerExecutionContext parentCtx,
                                                             CallableUnitInfo callableUnitInfo) {
         return ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
-                callableUnitInfo.getName(), ctx, parentCtx);
+                callableUnitInfo.getName(), parentCtx);
     }
 
     private static void setObserverContextToWorkerExecutionContext(WorkerExecutionContext workerExecutionContext,

@@ -231,8 +231,7 @@ public class BLangScheduler {
                                               CallableUnitInfo callableUnitInfo, int flags) {
         if (FunctionFlags.isObserved(flags)) {
             ObserverContext observerContext = ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType
-                            .toString(), callableUnitInfo.getName(), respCtx,
-                    nativeCtx.getParentWorkerExecutionContext());
+                            .toString(), callableUnitInfo.getName(), nativeCtx.getParentWorkerExecutionContext());
             respCtx.registerResponseCallback(new CallbackObserver(observerContext));
             WorkerExecutionContext workerExecutionContext = nativeCtx.getParentWorkerExecutionContext();
             if (workerExecutionContext.localProps == null) {
