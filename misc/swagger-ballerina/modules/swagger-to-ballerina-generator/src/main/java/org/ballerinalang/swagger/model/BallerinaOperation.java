@@ -27,6 +27,7 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,7 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
     private String description;
     private ExternalDocumentation externalDocs;
     private String operationId;
-    private List<Parameter> parameters;
+    private List<BallerinaParameter> parameters;
     private RequestBody requestBody;
     private Set<Map.Entry<String, ApiResponse>> responses;
     private Set<Map.Entry<String, Callback>> callbacks;
@@ -55,7 +56,7 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
     }
 
     @Override
-    public BallerinaOperation buildContext(Operation operation) throws BallerinaOpenApiException {
+    public BallerinaOperation buildContext(Operation operation, OpenAPI openAPI) throws BallerinaOpenApiException {
         if (operation == null) {
             return getDefaultValue();
         }
@@ -63,10 +64,10 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
         this.summary = operation.getSummary();
         this.description = operation.getDescription();
         this.externalDocs = operation.getExternalDocs();
-        this.parameters = operation.getParameters();
         this.requestBody = operation.getRequestBody();
         this.security = operation.getSecurity();
         this.operationId = operation.getOperationId();
+        this.parameters = new ArrayList<>();
 
         if (operation.getResponses() != null) {
             operation.getResponses()
@@ -76,13 +77,18 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
             operation.getCallbacks()
                     .forEach((name, callback) -> callbacks.add(new AbstractMap.SimpleEntry<>(name, callback)));
         }
+        if (operation.getParameters() != null) {
+            for (Parameter parameter : operation.getParameters()) {
+                this.parameters.add(new BallerinaParameter().buildContext(parameter, openAPI));
+            }
+        }
 
         return this;
     }
 
     @Override
-    public BallerinaOperation buildContext(Operation operation, OpenAPI openAPI) throws BallerinaOpenApiException {
-        return buildContext(operation);
+    public BallerinaOperation buildContext(Operation operation) throws BallerinaOpenApiException {
+        return buildContext(operation, null);
     }
 
     @Override
@@ -110,7 +116,7 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
         return operationId;
     }
 
-    public List<Parameter> getParameters() {
+    public List<BallerinaParameter> getParameters() {
         return parameters;
     }
 

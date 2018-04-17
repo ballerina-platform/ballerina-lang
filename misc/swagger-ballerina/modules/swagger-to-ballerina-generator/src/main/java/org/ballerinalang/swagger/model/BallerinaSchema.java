@@ -18,8 +18,20 @@ package org.ballerinalang.swagger.model;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.BinarySchema;
+import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.ByteArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
+import io.swagger.v3.oas.models.media.DateSchema;
+import io.swagger.v3.oas.models.media.DateTimeSchema;
+import io.swagger.v3.oas.models.media.EmailSchema;
+import io.swagger.v3.oas.models.media.FileSchema;
+import io.swagger.v3.oas.models.media.IntegerSchema;
+import io.swagger.v3.oas.models.media.MapSchema;
+import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.media.PasswordSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 import org.ballerinalang.swagger.utils.GeneratorConstants;
 
@@ -41,6 +53,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
     private static final String UNSUPPORTED_PROPERTY_MSG = "// Unsupported Property Found.";
 
     private Schema oasSchema;
+    private String type;
     private Set<Map.Entry<String, Schema>> properties;
 
     @Override
@@ -54,13 +67,20 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
         } else if (schema instanceof ComposedSchema) {
             extractComposedSchema((ComposedSchema) schema, openAPI);
             return this;
+        } else if (isValueTypeSchema(schema)) {
+            this.type = getPropertyType(schema);
+            return this;
         } else if (schema.get$ref() != null) {
             String refType = getReferenceType(schema.get$ref());
+            this.type = refType;
             schema = openAPI.getComponents().getSchemas().get(refType);
-        }
+        } else if (schema.getProperties() == null) {
+            if (schema.getType() == null) {
+                throw new BallerinaOpenApiException("Unsupported schema type in schema: " + schema.getName());
+            }
 
-        if (schema.getProperties() == null) {
-            throw new BallerinaOpenApiException("Unsupported schema type in schema: " + schema.getName());
+            this.type = getPropertyType(schema);
+            return this;
         }
 
         Set<Map.Entry<String, Schema>> entries = schema.getProperties().entrySet();
@@ -156,6 +176,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
         type = type.isEmpty() ? UNSUPPORTED_PROPERTY_MSG : type + "[]";
 
         propSchema.setType(type);
+        this.type = type; // this schema type is an array of some type
         AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry<>(name, propSchema);
         this.properties.add(entry);
     }
@@ -189,6 +210,16 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
         return escapedName;
     }
 
+    private boolean isValueTypeSchema(Schema schema) {
+        // its easier to check what it is not but its not possible here as there are
+        // Schema type definitions as well
+        return (schema instanceof BinarySchema || schema instanceof BooleanSchema || schema instanceof ByteArraySchema
+                || schema instanceof DateSchema || schema instanceof DateTimeSchema || schema instanceof EmailSchema
+                || schema instanceof FileSchema || schema instanceof IntegerSchema || schema instanceof BooleanSchema
+                || schema instanceof MapSchema || schema instanceof NumberSchema || schema instanceof PasswordSchema
+                || schema instanceof StringSchema);
+    }
+
     public Schema getOasSchema() {
         return oasSchema;
     }
@@ -197,4 +228,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
         return properties;
     }
 
+    public String getType() {
+        return type;
+    }
 }

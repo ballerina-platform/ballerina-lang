@@ -38,7 +38,7 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
     private Set<Map.Entry<String, BallerinaOperation>> operations;
 
     @Override
-    public BallerinaPath buildContext(PathItem item) throws BallerinaOpenApiException {
+    public BallerinaPath buildContext(PathItem item, OpenAPI openAPI) throws BallerinaOpenApiException {
         this.ref = item.get$ref();
         this.summary = item.getSummary();
         this.description = item.getDescription();
@@ -47,44 +47,44 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
         BallerinaOperation operation;
 
         // Swagger PathItem object doesn't provide a iterable structure for operations
-        // Therefore we have to manually check if each each http verb exists
+        // Therefore we have to manually check if each http verb exists
         if (item.getGet() != null) {
-            operation = new BallerinaOperation().buildContext(item.getGet());
+            operation = new BallerinaOperation().buildContext(item.getGet(), openAPI);
             entry = new AbstractMap.SimpleEntry<>("get", operation);
             operations.add(entry);
         }
         if (item.getPut() != null) {
-            operation = new BallerinaOperation().buildContext(item.getPut());
+            operation = new BallerinaOperation().buildContext(item.getPut(), openAPI);
             entry = new AbstractMap.SimpleEntry<>("put", operation);
             operations.add(entry);
         }
         if (item.getPost() != null) {
-            operation = new BallerinaOperation().buildContext(item.getPost());
+            operation = new BallerinaOperation().buildContext(item.getPost(), openAPI);
             entry = new AbstractMap.SimpleEntry<>("post", operation);
             operations.add(entry);
         }
         if (item.getDelete() != null) {
-            operation = new BallerinaOperation().buildContext(item.getDelete());
+            operation = new BallerinaOperation().buildContext(item.getDelete(), openAPI);
             entry = new AbstractMap.SimpleEntry<>("delete", operation);
             operations.add(entry);
         }
         if (item.getOptions() != null) {
-            operation = new BallerinaOperation().buildContext(item.getOptions());
+            operation = new BallerinaOperation().buildContext(item.getOptions(), openAPI);
             entry = new AbstractMap.SimpleEntry<>("options", operation);
             operations.add(entry);
         }
         if (item.getHead() != null) {
-            operation = new BallerinaOperation().buildContext(item.getHead());
+            operation = new BallerinaOperation().buildContext(item.getHead(), openAPI);
             entry = new AbstractMap.SimpleEntry<>("head", operation);
             operations.add(entry);
         }
         if (item.getPatch() != null) {
-            operation = new BallerinaOperation().buildContext(item.getPatch());
+            operation = new BallerinaOperation().buildContext(item.getPatch(), openAPI);
             entry = new AbstractMap.SimpleEntry<>("patch", operation);
             operations.add(entry);
         }
         if (item.getTrace() != null) {
-            operation = new BallerinaOperation().buildContext(item.getTrace());
+            operation = new BallerinaOperation().buildContext(item.getTrace(), openAPI);
             entry = new AbstractMap.SimpleEntry<>("trace", operation);
             operations.add(entry);
         }
@@ -93,8 +93,8 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
     }
 
     @Override
-    public BallerinaPath buildContext(PathItem item, OpenAPI openAPI) throws BallerinaOpenApiException {
-        return buildContext(item);
+    public BallerinaPath buildContext(PathItem item) throws BallerinaOpenApiException {
+        return buildContext(item, null);
     }
 
     @Override

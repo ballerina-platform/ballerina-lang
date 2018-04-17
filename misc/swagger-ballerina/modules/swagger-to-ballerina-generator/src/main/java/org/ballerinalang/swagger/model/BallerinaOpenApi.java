@@ -105,7 +105,7 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
         this.paths = new LinkedHashSet<>();
         Paths pathList = openAPI.getPaths();
         for (Map.Entry<String, PathItem> path : pathList.entrySet()) {
-            BallerinaPath balPath = new BallerinaPath().buildContext(path.getValue());
+            BallerinaPath balPath = new BallerinaPath().buildContext(path.getValue(), openAPI);
             balPath.getOperations().forEach(operation -> {
                 if (operation.getValue().getOperationId() == null) {
                     String pathName = path.getKey().substring(1); // need to drop '/' prefix from the key, ex:'/path'
