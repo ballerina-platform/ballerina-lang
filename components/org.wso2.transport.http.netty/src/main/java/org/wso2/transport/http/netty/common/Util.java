@@ -623,10 +623,10 @@ public class Util {
     }
 
     /**
-     * Removes a handler from the pipeline if it is present.
+     * Removes handlers from the pipeline if they are present.
      *
      * @param pipeline     the channel pipeline
-     * @param handlerNames handler names
+     * @param handlerNames names of the handlers to be removed
      */
     public static void safelyRemoveHandlers(ChannelPipeline pipeline, String... handlerNames) {
         for (String name : handlerNames) {
