@@ -176,10 +176,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
         if (httpTraceLogEnabled) {
             serverPipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
-                             new HTTPTraceLoggingHandler("tracelog.http.downstream"));
+                             new HTTPTraceLoggingHandler("http.tracelog.downstream"));
         }
         if (httpAccessLogEnabled) {
-            serverPipeline.addLast(Constants.HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler("accesslog.http"));
+            serverPipeline.addLast(Constants.HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler("http.accesslog"));
         }
         serverPipeline.addLast("uriLengthValidator", new UriAndHeaderLengthValidator(this.serverName));
         if (reqSizeValidationConfig.getMaxEntityBodySize() > -1) {
