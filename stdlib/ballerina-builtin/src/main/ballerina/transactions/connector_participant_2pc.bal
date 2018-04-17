@@ -66,7 +66,7 @@ public type Participant2pcClient object {
         http:Response res = check result;
         int statusCode = res.statusCode;
         if (statusCode == http:NOT_FOUND_404) {
-            error err = {message:"Transaction-Unknown"};
+            error err = {message:TRANSACTION_UNKNOWN};
             return err;
         } else if (statusCode == http:OK_200) {
             json payload = check res.getJsonPayload();
@@ -92,12 +92,12 @@ public type Participant2pcClient object {
         int statusCode = res.statusCode;
         if (statusCode == http:OK_200) {
             return msg;
-        } else if ((statusCode == http:BAD_REQUEST_400 && msg == "Not-Prepared") ||
-                    (statusCode == http:NOT_FOUND_404 && msg == "Transaction-Unknown") ||
-                    (statusCode == http:INTERNAL_SERVER_ERROR_500 && msg == "Failed-EOT")) {
+        } else if ((statusCode == http:BAD_REQUEST_400 && msg == NOTIFY_RESULT_NOT_PREPARED_STR) ||
+                    (statusCode == http:NOT_FOUND_404 && msg == TRANSACTION_UNKNOWN) ||
+                    (statusCode == http:INTERNAL_SERVER_ERROR_500 && msg == NOTIFY_RESULT_FAILED_EOT_STR)) {
             error participantErr = {message:msg};
             return participantErr;
-        } else {
+        } else { // Some other error state
             error participantErr = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " +
                                     self.clientEP.conf.participantURL};
             return participantErr;

@@ -3063,7 +3063,7 @@ public class CPU {
         if (lhsType.getTag() == TypeTags.SINGLETON_TAG || lhsType.getTag() == TypeTags.NULL_TAG) {
             return checkSingletonAssignable(rhsValue, lhsType);
         }
-
+        
         return false;
     }
 
@@ -3082,7 +3082,7 @@ public class CPU {
         }
         return false;
     }
-    
+
     private static boolean checkUnionCast(BValue rhsValue, BType lhsType) {
         BUnionType unionType = (BUnionType) lhsType;
         for (BType memberType : unionType.getMemberTypes()) {
