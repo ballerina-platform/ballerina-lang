@@ -179,7 +179,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                              new HTTPTraceLoggingHandler("http.tracelog.downstream"));
         }
         if (httpAccessLogEnabled) {
-            serverPipeline.addLast(Constants.HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler("accesslog.http"));
+            serverPipeline.addLast(Constants.HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler("http.accesslog"));
         }
         serverPipeline.addLast("uriLengthValidator", new UriAndHeaderLengthValidator(this.serverName));
         if (reqSizeValidationConfig.getMaxEntityBodySize() > -1) {
