@@ -1,7 +1,7 @@
 import ballerina/mysql;
 import ballerina/io;
 
-function main (string[] args) {
+function main (string... args) {
 
     endpoint mysql:Client testDBEP {
         host: "localhost",

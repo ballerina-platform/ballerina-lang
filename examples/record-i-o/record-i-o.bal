@@ -65,7 +65,7 @@ function process (io:DelimitedRecordChannel srcRecordChannel,
     }
 }
 //Specify the location of the `.CSV` file and the text file. 
-function main (string[] args) {
+function main (string... args) {
     string srcFileName = "./files/sample.csv";
     string dstFileName = "./files/sampleResponse.txt";
     // The record separator of the `.CSV` file is a

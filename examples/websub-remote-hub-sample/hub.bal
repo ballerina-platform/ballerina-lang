@@ -3,7 +3,7 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina/websub;
 
-function main (string [] args) {
+function main (string... args) {
 
     //Start up the internal Ballerina Hub
     log:printInfo("Starting up the Ballerina Hub Service");

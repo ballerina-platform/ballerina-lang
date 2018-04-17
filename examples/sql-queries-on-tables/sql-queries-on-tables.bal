@@ -38,7 +38,7 @@ type PersonPublicProfile {
 };
 
 // main function
-public function main (string[] args) {
+function main (string... args) {
 
     // The in memory table which is constrained by struct "Person"
     table<Person> personTable = table{};

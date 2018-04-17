@@ -18,7 +18,7 @@ endpoint jms:TopicPublisher topicPublisher {
     topicPattern: "BallerinaTopic"
 };
 
-public function main (string[] args) {
+function main (string... args) {
     // Create a Text message.
     jms:Message m = check jmsSession.createTextMessage("Test Text");
     // Send the Ballerina message to the JMS provider.

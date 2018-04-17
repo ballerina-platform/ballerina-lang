@@ -2,7 +2,7 @@ import ballerina/file;
 import ballerina/io;
 import ballerina/time;
 
-function main (string[] args) {
+function main (string... args) {
     string srcDirPath = "./tmp/src";
     string dstDirPath = "./tmp/dst";
     string rootDirPath = "./tmp";

@@ -11,7 +11,7 @@ endpoint mysql:Client testDB {
     poolOptions: {maximumPoolSize:5}
 };
 
-function main (string[] args) {
+function main (string... args) {
 
     //Create a DB table using update action.If the DDL
     //statement execution is success update action returns 0.

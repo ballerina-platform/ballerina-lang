@@ -17,7 +17,7 @@ endpoint jms:QueueSender queueSender {
     queueName: "MyQueue"
 };
 
-public function main (string[] args) {
+function main (string... args) {
     transaction {
         // Create a Text message.
         jms:Message m = check jmsSession.createTextMessage("Test Text");

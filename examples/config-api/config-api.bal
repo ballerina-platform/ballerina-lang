@@ -1,7 +1,7 @@
 import ballerina/config;
 import ballerina/io;
 
-function main(string[] args) {
+function main(string... args) {
     // Using the Ballerina config API, you can look up values from config files, CLI parameters,
     // environment variables, etc. The precedence order for config lookup is as follows: <br>
     // * CLI parameters <br>

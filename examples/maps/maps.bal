@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string[] args) {
+function main (string... args) {
     //Here's how you create an empty map.
     map m;
 

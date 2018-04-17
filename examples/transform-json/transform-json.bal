@@ -15,7 +15,7 @@ transformer <Person p, json<Person> j> updateCity(string city) {
 }
 
 
-function main (string[] args) {
+function main (string... args) {
     json j = {"name":"Ann", "age":30, "city":"New York"};
 
     // Declare a `Person` variable.

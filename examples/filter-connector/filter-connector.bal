@@ -31,7 +31,7 @@ connector CacheConnector<StockQuoteConnector stockC> (string j) {
     }
 }
 
-function main (string[] args) {
+function main (string... args) {
     // Create the 'StockQuoteConnector' that acts as the base connector and decorate it using the 'CacheConnector'
     // that acts as the filter connector.
     StockQuoteConnector stockQC = create StockQuoteConnector(5)

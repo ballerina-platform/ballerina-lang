@@ -62,7 +62,7 @@ function copy (io:ByteChannel src, io:ByteChannel dst) {
     }
 }
 
-function main (string[] args) {
+function main (string... args) {
     // Read the specified number of bytes from the given channel and write.
     string srcFilePath = "./files/ballerina.jpg";
     string dstFilePath = "./files/ballerinaCopy.jpg";

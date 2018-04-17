@@ -18,7 +18,7 @@ endpoint jms:QueueReceiver queueReceiver {
     queueName:"MyQueue"
 };
 
-public function main(string[] args) {
+function main(string... args) {
     // Receive a message from the JMS provider.
     var result = queueReceiver -> receive(timeoutInMilliSeconds = 5000);
 
