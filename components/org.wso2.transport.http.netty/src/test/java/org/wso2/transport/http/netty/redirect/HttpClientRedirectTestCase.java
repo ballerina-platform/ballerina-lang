@@ -409,8 +409,7 @@ public class HttpClientRedirectTestCase {
             method.setAccessible(true);
             String redirectUrl = (String) method
                     .invoke(redirectHandler, "https://localhost:8888/test?key=value&tt=kk",
-                            createHttpRequest(
-                                    "GET", "https://localhost:8080/test1/"));
+                            createHttpRequest("GET", "https://localhost:8080/test1/"));
             assertEquals(redirectUrl, "https://localhost:8888/test?key=value&tt=kk");
 
         } catch (NoSuchMethodException e) {

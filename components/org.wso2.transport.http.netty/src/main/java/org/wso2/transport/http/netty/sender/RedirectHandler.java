@@ -477,8 +477,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
 
     private String getResolvedURI(String locationString, HTTPCarbonMessage originalRequest)
             throws URISyntaxException, UnsupportedEncodingException {
-        URI location;
-        location = new URI(locationString);
+        URI location = new URI(locationString);
         if (!location.isAbsolute()) {
             // location is not absolute, we need to resolve it.
             String baseURIAsString = (String) originalRequest.getProperty(Constants.REQUEST_URL);
