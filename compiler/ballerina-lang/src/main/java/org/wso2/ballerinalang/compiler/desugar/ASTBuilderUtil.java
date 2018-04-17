@@ -489,8 +489,9 @@ public class ASTBuilderUtil {
         fieldAccessExpr.field = field;
         return fieldAccessExpr;
     }
-    
-    public static BLangIndexBasedAccess createIndexAccessExpr(BLangVariableReference varRef, BLangExpression indexExpr) {
+
+    public static BLangIndexBasedAccess createIndexAccessExpr(BLangVariableReference varRef,
+                                                              BLangExpression indexExpr) {
         BLangIndexBasedAccess fieldAccessExpr = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         fieldAccessExpr.expr = varRef;
         fieldAccessExpr.indexExpr = indexExpr;

@@ -233,8 +233,7 @@ public class SafeNavigationTest {
         BRunUtil.invoke(result, "testJSONNilLiftingOnLHS_2");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: cannot find key 'a'.*")
+    @Test
     public void testNonExistingMapKeyWithIndexAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testNonExistingMapKeyWithIndexAccess");
         Assert.assertNull(returns[0]);
@@ -252,12 +251,5 @@ public class SafeNavigationTest {
         BValue[] returns = BRunUtil.invoke(result, "testMapNilLiftingOnLHS_1");
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John\"}");
-    }
-
-    @Test
-    public void testMapNilLiftingOnLHS_2() {
-        BValue[] returns = BRunUtil.invoke(result, "testMapNilLiftingOnLHS_2");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":{\"fname\":\"John\"}}");
     }
 }

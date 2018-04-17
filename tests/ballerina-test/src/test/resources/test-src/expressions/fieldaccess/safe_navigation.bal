@@ -215,8 +215,8 @@ function testMapNilLiftingOnLHS_1() returns map {
     return m;
 }
 
-function testMapNilLiftingOnLHS_2() returns map {
-    map<json> m;
-    m["name"].fname = "John";
-    return m;
-}
+// function testMapNilLiftingOnLHS_2() returns map {
+//     map<json> m;
+//     m["name"].fname = "John";
+//     return m;
+// }

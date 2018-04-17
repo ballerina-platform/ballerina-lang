@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -1115,23 +1116,50 @@ public class Desugar extends BLangNodeVisitor {
         if (varRefType.tag == TypeTags.STRUCT) {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos,
                     indexAccessExpr.expr, (BVarSymbol) indexAccessExpr.symbol);
+            targetVarRef.type = indexAccessExpr.type;
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos,
                     indexAccessExpr.expr, indexAccessExpr.indexExpr, false);
+            // If a map is access using index, and if the key doesn't exists, then the resulting value can be null.
+            // This is effectively similar to the map's constraint type is a union type with nil.
+            targetVarRef.type = getNilableConstraintType((BMapType) varRefType);
         } else if (varRefType.tag == TypeTags.JSON || getElementType(varRefType).tag == TypeTags.JSON) {
             targetVarRef = new BLangJSONAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
+            targetVarRef.type = indexAccessExpr.type;
         } else if (varRefType.tag == TypeTags.ARRAY) {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos,
                     indexAccessExpr.expr, indexAccessExpr.indexExpr);
+            targetVarRef.type = indexAccessExpr.type;
         } else if (varRefType.tag == TypeTags.XML) {
             targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos,
                     indexAccessExpr.expr, indexAccessExpr.indexExpr);
+            targetVarRef.type = indexAccessExpr.type;
         }
 
         targetVarRef.lhsVar = indexAccessExpr.lhsVar;
-        targetVarRef.type = indexAccessExpr.type;
         result = targetVarRef;
+    }
+
+    private BType getNilableConstraintType(BMapType mapType) {
+        if (mapType.constraint != null && mapType.constraint.tag != TypeTags.NONE) {
+            mapType.constraint = getUnionType(mapType.constraint, symTable.nilType);
+        }
+        return mapType;
+    }
+
+    private BType getUnionType(BType... types) {
+        Set<BType> memberTypes = new LinkedHashSet<>();
+        for (BType type : types) {
+            if (type.tag == TypeTags.UNION) {
+                ((BUnionType) type).memberTypes.forEach(memberType -> memberTypes.add(memberType));
+            } else {
+                memberTypes.add(type);
+            }
+        }
+        
+        boolean nullable = memberTypes.stream().anyMatch(type -> type.isNullable());
+        return new BUnionType(null, memberTypes, nullable);
     }
 
     @Override

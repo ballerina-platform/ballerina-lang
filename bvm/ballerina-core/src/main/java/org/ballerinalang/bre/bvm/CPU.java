@@ -1615,15 +1615,7 @@ public class CPU {
                 }
 
                 BMapType mapType = (BMapType) bMap.getType();
-                if (sf.refRegs[k] == null) {
-                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
-                } else if (mapType.getConstrainedType() == BTypes.typeAny ||
-                        mapType.getConstrainedType().equals(sf.refRegs[k].getType())) {
-                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
-                } else if (sf.refRegs[k].getType().getTag() == TypeTags.STRUCT_TAG
-                        && mapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG
-                        && checkStructEquivalency((BStructType) sf.refRegs[k].getType(),
-                        (BStructType) mapType.getConstrainedType())) {
+                if (isValidMapInsertion(mapType, sf.refRegs[k])) {
                     bMap.put(sf.stringRegs[j], sf.refRegs[k]);
                 } else {
                     ctx.setError(BLangVMErrors.createError(ctx,
@@ -3921,4 +3913,30 @@ public class CPU {
 
     }
 
+    private static boolean isValidMapInsertion(BMapType mapType, BValue value) {
+        if (value == null) {
+            return true;
+        }
+
+        BType constraintType = mapType.getConstrainedType();
+        if (constraintType == BTypes.typeAny || constraintType.equals(value.getType())) {
+            return true;
+        }
+       
+        if (value.getType().getTag() == TypeTags.STRUCT_TAG && constraintType.getTag() == TypeTags.STRUCT_TAG &&
+                checkStructEquivalency((BStructType) value.getType(), (BStructType) constraintType)) {
+            return true;
+        }
+
+        // TODO: check for subsets
+        if (constraintType.getTag() == TypeTags.UNION_TAG) {
+            BUnionType unionType = (BUnionType) constraintType;
+            if (unionType.getMemberTypes().contains(BTypes.typeAny)) {
+                return true;
+            }
+            return unionType.getMemberTypes().contains(value.getType());
+        }
+
+        return false;
+    }
 }

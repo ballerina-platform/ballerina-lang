@@ -900,7 +900,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             Operand except = getOperand(currentPkgInfo.addCPEntry(exceptCPEntry));
             int opcode = getRefToValueTypeCastOpcode(mapType.constraint.tag);
             if (opcode == InstructionCodes.NOP) {
-                emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(mapKeyAccessExpr), except);
+                emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(mapKeyAccessExpr),
+                        except);
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
                 emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, refRegMapValue, except);

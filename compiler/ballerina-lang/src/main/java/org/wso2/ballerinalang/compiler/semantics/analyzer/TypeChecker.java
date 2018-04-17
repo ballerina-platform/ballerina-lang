@@ -1740,12 +1740,12 @@ public class TypeChecker extends BLangNodeVisitor {
             unionType.memberTypes.add(actualType);
         }
 
-        BType parentType = accessExpr.expr.type;
-        if (parentType.isNullable() && actualType.tag != TypeTags.JSON) {
+        if (isNilable(accessExpr, actualType)) {
             unionType.memberTypes.add(symTable.nilType);
             unionType.setNullable(true);
         }
 
+        BType parentType = accessExpr.expr.type;
         if (accessExpr.safeNavigate && (parentType.tag == TypeTags.ERROR || (parentType.tag == TypeTags.UNION &&
                 ((BUnionType) parentType).memberTypes.contains(symTable.errStructType)))) {
             unionType.memberTypes.add(symTable.errStructType);
@@ -1756,6 +1756,20 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return unionType;
+    }
+
+    private boolean isNilable(BLangAccessExpression accessExpr, BType actualType) {
+        BType parentType = accessExpr.expr.type;
+        if (parentType.isNullable() && actualType.tag != TypeTags.JSON) {
+            return true;
+        }
+
+        // Check whether this is a map access by index. If so, null is a possible return type.
+        if (parentType.tag != TypeTags.MAP) {
+            return false;
+        }
+        
+        return accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR;
     }
 
     private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
