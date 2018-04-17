@@ -20,7 +20,7 @@ package org.ballerinalang.bre.bvm;
 /**
  * This represents a result context of a group of workers.
  */
-public interface WorkerResponseContext extends ObservableContext {
+public interface WorkerResponseContext {
     
     /**
      * This is called by the workers to signal the response context of any

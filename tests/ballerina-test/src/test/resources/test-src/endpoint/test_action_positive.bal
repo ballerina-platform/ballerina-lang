@@ -47,7 +47,7 @@ string s6;
 string s7;
 function testBut() returns (string, string, string, string, string, string, string){
     string s1 = ep -> invoke2(1) but { int => "int", boolean => "boolean" };
-    string s2 = ep -> invoke2(2) but { int => "int"} but { boolean => "boolean" };
+    string s2 = ep -> invoke2(2) but { int => "int", boolean => "boolean" };
     string s3 = ep -> invoke2(10) but { int => "int", boolean => "boolean" };
     string s4 = ep -> invoke3(1) ?: "elvis";
     string s5 = ep -> invoke3(2) ?: "elvis";

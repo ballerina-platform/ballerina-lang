@@ -304,7 +304,7 @@ export function getTryItUrl() {
     return new Promise((resolve, reject) => {
         axios.get(endpoint, {})
             .then((response) => {
-                resolve(response.data.url);
+                resolve(response.data.urls);
             }).catch(error => reject(error));
     });
 }
