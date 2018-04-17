@@ -70,11 +70,7 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         if (httpTraceLogEnabled) {
             ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,
-<<<<<<< HEAD
                                   new HTTPTraceLoggingHandler(Constants.TRACE_LOG_UPSTREAM));
-=======
-                                  new HTTPTraceLoggingHandler("http.tracelog.upstream"));
->>>>>>> wso2/master
         }
         RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount
                 , originalChannelContext, isIdleHandlerOfTargetChannelRemoved, connectionManager);
