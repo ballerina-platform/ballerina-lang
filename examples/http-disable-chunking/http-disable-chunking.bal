@@ -8,7 +8,7 @@ endpoint http:Listener echoEP {
     port:9090
 };
 
-//The client endpoint's chunking behaviour can be configured as auto, always, or never. In this example, it is set to as never, which means that chunking
+//The HTTP client's chunking behaviour can be configured as auto, always, or never. In this example, it is set to as never, which means that chunking
 //never happens irrespective of how it is specified in the reqest. When chunking is set to auto, it is done as specified in the request.
 endpoint http:Client clientEndpoint {
     targets: [
