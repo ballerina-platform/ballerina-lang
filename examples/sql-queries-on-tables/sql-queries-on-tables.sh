@@ -1,3 +1,5 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command. 
 $ ballerina run sql-queries-on-tables.bal
 The personTable: {data: [{id:1, age:25, salary:1000.5, name:"jane", married:true}, {id:2, age:26, salary:1050.5,
 name:"kane", married:false}, {id:3, age:27, salary:1200.5, name:"jack", married:true}, {id:4, age:28, salary:1100.5,
