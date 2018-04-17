@@ -93,6 +93,7 @@ public class Http2RedirectionTestCase {
     @AfterClass
     public void cleanUp() {
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_1_1));
+        senderConfiguration.setFollowRedirect(false);
         httpClientConnector.close();
         serverConnector.stop();
         try {

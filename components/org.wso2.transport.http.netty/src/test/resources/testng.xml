@@ -70,7 +70,6 @@
             <class name="org.wso2.transport.http.netty.http2.Http2ServerPushTestCase" />
             <class name="org.wso2.transport.http.netty.http2.Http2ClientTimeoutTestCase" />
             <class name="org.wso2.transport.http.netty.http2.Http2WithPriorKnowledgeTestCase" />
-            <class name="org.wso2.transport.http.netty.http2.Http2RedirectionTestCase" />
             <class name="org.wso2.transport.http.netty.encoding.ContentEncodingTestCase"/>
             <class name="org.wso2.transport.http.netty.urilengthvalidation.Status414And413ResponseTest"/>
             <class name="org.wso2.transport.http.netty.http1point0test.HttpOnePointZeroServerConnectorTestCase"/>
