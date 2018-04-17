@@ -47,6 +47,7 @@ import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.ClientOutboundHandler;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
 import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
 
@@ -224,6 +225,9 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         // Remove Http specific handlers
         safelyRemoveHandlers(targetChannel.getChannel().pipeline(),
                                   Constants.IDLE_STATE_HANDLER, Constants.HTTP_TRACE_LOG_HANDLER);
+        http2ClientChannel.addDataEventListener(
+                Constants.IDLE_STATE_HANDLER,
+                new TimeoutHandler(http2ClientChannel.getSocketIdleTimeout(), http2ClientChannel));
 
         http2ClientChannel.getInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID).setRequestWritten(true);
         http2ClientChannel.getDataEventListeners().

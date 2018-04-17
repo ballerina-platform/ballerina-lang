@@ -25,10 +25,13 @@ import io.netty.handler.codec.http2.Http2EventAdapter;
 import io.netty.handler.codec.http2.Http2Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.HttpRoute;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,7 +54,8 @@ public class Http2ClientChannel {
     // Number of active streams. Need to start from 1 to prevent someone stealing the connection from the creator
     private AtomicInteger activeStreams = new AtomicInteger(1);
     private boolean upgradedToHttp2 = false;
-    private List<Http2DataEventListener> dataEventListeners;
+    private int socketIdleTimeout = Constants.ENDPOINT_TIMEOUT;
+    private Map<String, Http2DataEventListener> dataEventListeners;
 
     private static final Logger log = LoggerFactory.getLogger(Http2ClientChannel.class);
 
@@ -62,7 +66,7 @@ public class Http2ClientChannel {
         this.connection = connection;
         this.httpRoute = httpRoute;
         this.connection.addListener(new StreamCloseListener(this));
-        dataEventListeners = new ArrayList<>();
+        dataEventListeners = new HashMap<>();
         inFlightMessages = new ConcurrentHashMap<>();
         promisedMessages = new ConcurrentHashMap<>();
     }
@@ -213,13 +217,41 @@ public class Http2ClientChannel {
         isExhausted.set(true);
     }
 
-
-    public void addDataEventListener(Http2DataEventListener dataEventListener) {
-        dataEventListeners.add(dataEventListener);
+    /**
+     * Adds a listener which listen for HTTP/2 data events.
+     *
+     * @param name              name of the listener
+     * @param dataEventListener the data event listener
+     */
+    public void addDataEventListener(String name, Http2DataEventListener dataEventListener) {
+        dataEventListeners.put(name, dataEventListener);
     }
 
+    /**
+     * Gets the list of listeners which listen for HTTP/2 data events.
+     *
+     * @return list of data event listeners
+     */
     public List<Http2DataEventListener> getDataEventListeners() {
-        return dataEventListeners;
+        return new ArrayList<>(dataEventListeners.values());
+    }
+
+    /**
+     * Gets the socket idle timeout of the channel.
+     *
+     * @return the socket idle timeout of the channel
+     */
+    public int getSocketIdleTimeout() {
+        return socketIdleTimeout;
+    }
+
+    /**
+     * Sets the socket idle timeout of the channel.
+     *
+     * @param socketIdleTimeout the socket idle timeout
+     */
+    public void setSocketIdleTimeout(int socketIdleTimeout) {
+        this.socketIdleTimeout = socketIdleTimeout;
     }
 
     /**
