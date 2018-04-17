@@ -40,21 +40,25 @@ import static java.nio.file.StandardOpenOption.CREATE;
 public class InitHandler {
     /**
      * Creates the project files.
+     *
      * @param projectPath The output path.
-     * @param manifest The manifest for Ballerina.toml.
-     * @param srcFiles The source files.
+     * @param manifest    The manifest for Ballerina.toml.
+     * @param srcFiles    The source files.
      */
     public static void initialize(Path projectPath, Manifest manifest, List<SrcFile> srcFiles) throws IOException {
         createBallerinaToml(projectPath, manifest);
         createBallerinaCacheFile(projectPath);
         createSrcFolder(projectPath, srcFiles);
-        createIgnoreFiles(projectPath);
+
+        String ignoreFileContent = "target/\n";
+        createIgnoreFiles(projectPath, ignoreFileContent);
     }
-    
+
     /**
      * Create the Ballerina.toml manifest file.
+     *
      * @param projectPath The output path.
-     * @param manifest The manifest for the file.
+     * @param manifest    The manifest for the file.
      * @throws IOException If file write exception occurs.
      */
     private static void createBallerinaToml(Path projectPath, Manifest manifest) throws IOException {
@@ -68,9 +72,10 @@ public class InitHandler {
             }
         }
     }
-    
+
     /**
      * Create the .ballerina/ cache folder.
+     *
      * @param projectPath The output path.
      * @throws IOException If file write exception occurs.
      */
@@ -80,12 +85,15 @@ public class InitHandler {
             // Creating main function file.
             Files.createDirectory(cacheFolder);
         }
+        String ignoreFileContent = "*\n!.gitignore\n!.svnignore";
+        createIgnoreFiles(cacheFolder, ignoreFileContent);
     }
-    
+
     /**
      * Create src/ folder.
+     *
      * @param projectPath The output path.
-     * @param srcFiles The source files to be created.
+     * @param srcFiles    The source files to be created.
      * @throws IOException If file write exception occurs.
      */
     private static void createSrcFolder(Path projectPath, List<SrcFile> srcFiles) throws IOException {
@@ -117,32 +125,35 @@ public class InitHandler {
     
     /**
      * Creates the .gitignore file.
-     * @param projectPath The output path.
+     *
+     * @param projectPath       The output path.
+     * @param ignoreFileContent content to be ignored
      * @throws IOException If file write exception occurs.
      */
-    private static void createIgnoreFiles(Path projectPath) throws IOException {
+    private static void createIgnoreFiles(Path projectPath, String ignoreFileContent) throws IOException {
         Path gitIgnorePath = projectPath.resolve(".gitignore");
         Path svnIgnorePath = projectPath.resolve(".svnignore");
         if (Files.exists(gitIgnorePath)) {
-            writeIgnoreFileContent(gitIgnorePath);
+            writeIgnoreFileContent(gitIgnorePath, ignoreFileContent);
         } else if (Files.exists(svnIgnorePath)) {
-            writeIgnoreFileContent(svnIgnorePath);
+            writeIgnoreFileContent(svnIgnorePath, ignoreFileContent);
         } else {
             // Creating ignore files.
             Files.createFile(gitIgnorePath);
             Files.createFile(svnIgnorePath);
-            writeIgnoreFileContent(gitIgnorePath);
-            writeIgnoreFileContent(svnIgnorePath);
+            writeIgnoreFileContent(gitIgnorePath, ignoreFileContent);
+            writeIgnoreFileContent(svnIgnorePath, ignoreFileContent);
         }
     }
     
     /**
      * Add ignore content to file.
-     * @param ignoreFile The ignore file path.
+     *
+     * @param ignoreFile        The ignore file path.
+     * @param ignoreFileContent content to be ignored
      * @throws IOException If file write exception occurs.
      */
-    private static void writeIgnoreFileContent(Path ignoreFile) throws IOException {
-        String ignoreFileContent = ".ballerina/\ntarget/\n";
+    private static void writeIgnoreFileContent(Path ignoreFile, String ignoreFileContent) throws IOException {
         String content = new String(Files.readAllBytes(ignoreFile), Charset.defaultCharset());
         if (!content.contains(ignoreFileContent)) {
             // Writing content.
@@ -152,7 +163,8 @@ public class InitHandler {
     
     /**
      * Write content to a file.
-     * @param file The file.
+     *
+     * @param file    The file.
      * @param content The content.
      * @throws IOException If file write exception occurs.
      */
@@ -165,6 +177,7 @@ public class InitHandler {
     
     /**
      * Generate the manifest file content for Ballerina.toml.
+     *
      * @param manifest The manifest model.
      * @return Manifest content.
      */
