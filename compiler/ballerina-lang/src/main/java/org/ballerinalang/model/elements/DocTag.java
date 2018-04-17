@@ -26,7 +26,8 @@ public enum DocTag {
     PARAM("P"),
     RECEIVER("T"),
     FIELD("F"),
-    VARIABLE("V");
+    VARIABLE("V"),
+    ENDPOINT("E");
 
     private String value;
 
