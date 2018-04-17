@@ -34,11 +34,7 @@ public type Path object{
 
     @Description { value: "Retreives the absolute path from the provided location"}
     @Return {value:"Returns the absolute path string value"}
-    public native function getPathValue() returns (string);
-
-    @Description {value: "Retreives the name of the file from the provided location"}
-    @Return {value:"Returns the name of the file"}
-    public native function getName() returns (string);
+    public native function getPathValue() returns string;
 };
 
 @Description { value: "Check for existance of the file"}
