@@ -12,15 +12,15 @@ function startService(){
     after:"stopService"
 }
 function testFunc() {
-    // Invoking the main function
+    // Invoking the main function.
     endpoint http:Client httpEndpoint { targets:[{ url:"http://localhost:9092" }] };
-    // Chck whether the server is started
+    // Checking whether the server is started.
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
     json response1 = {"Outbound request content":"Lenght-18"};
 
     http:Request req = new;
-    // Send a GET request to the specified endpoint
+    // Sending a GET request to the specified endpoint.
     var response = httpEndpoint -> get("/chunkingSample", req);
     match response {
         http:Response resp => {
