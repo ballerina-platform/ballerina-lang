@@ -310,8 +310,34 @@ public class WebSocketClientTestCase {
         latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
         Assert.assertTrue(connectorListener.isClose());
         WebSocketCloseMessage closeMessage = connectorListener.getCloseMessage();
-        Assert.assertEquals(closeMessage.getCloseCode(), 1001);
+        Assert.assertEquals(closeMessage.getCloseCode(), 1000);
         Assert.assertEquals(closeMessage.getCloseReason(), "Close on request");
+    }
+
+    @Test
+    public void testConnectionClosureFromServerSideWithoutCloseFrame() throws Throwable {
+        CountDownLatch latch = new CountDownLatch(1);
+        String closeText = "close-without-frame";
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener(latch);
+        HandshakeFuture handshakeFuture = handshake(connectorListener);
+        handshakeFuture.setHandshakeListener(new HandshakeListener() {
+            @Override
+            public void onSuccess(Session session) {
+                session.getAsyncRemote().sendText(closeText);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                log.error(t.getMessage());
+                Assert.assertTrue(false, t.getMessage());
+            }
+        });
+
+        latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        Assert.assertTrue(connectorListener.isClose());
+        WebSocketCloseMessage closeMessage = connectorListener.getCloseMessage();
+        Assert.assertEquals(closeMessage.getCloseCode(), 1001);
+        Assert.assertEquals(closeMessage.getCloseReason(), "Server is going away");
     }
 
     @AfterClass

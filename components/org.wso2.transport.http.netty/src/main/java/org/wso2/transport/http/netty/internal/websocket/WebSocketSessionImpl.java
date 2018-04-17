@@ -54,6 +54,7 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
                                 String sessionId) throws URISyntaxException {
         this.ctx = ctx;
         this.isSecure = isSecure;
+        this.isOpen = true;
         this.requestedUri = new URI(requestedUri);
         this.sessionId = sessionId;
         this.basicRemoteEndpoint = new WebSocketBasicRemoteEndpoint(ctx);

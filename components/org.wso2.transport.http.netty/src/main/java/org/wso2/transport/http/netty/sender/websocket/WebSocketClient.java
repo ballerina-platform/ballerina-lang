@@ -116,25 +116,24 @@ public class WebSocketClient {
             webSocketTargetHandler = new WebSocketTargetHandler(websocketHandshaker, ssl, url, connectorListener);
 
             Bootstrap clientBootstrap = new Bootstrap();
-            clientBootstrap.group(wsClientEventLoopGroup)
-                    .channel(NioSocketChannel.class)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) {
-                            ChannelPipeline pipeline = ch.pipeline();
-                            if (sslCtx != null) {
-                                pipeline.addLast(sslCtx.newHandler(ch.alloc(), host, port));
-                            }
-                            pipeline.addLast(new HttpClientCodec());
-                            pipeline.addLast(new HttpObjectAggregator(8192));
-                            pipeline.addLast(WebSocketClientCompressionHandler.INSTANCE);
-                            if (idleTimeout > 0) {
-                                pipeline.addLast(new IdleStateHandler(idleTimeout, idleTimeout,
-                                                               idleTimeout, TimeUnit.MILLISECONDS));
-                            }
-                            pipeline.addLast(webSocketTargetHandler);
+            clientBootstrap.group(wsClientEventLoopGroup).channel(NioSocketChannel.class).handler(
+                new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) {
+                        ChannelPipeline pipeline = ch.pipeline();
+                        if (sslCtx != null) {
+                            pipeline.addLast(sslCtx.newHandler(ch.alloc(), host, port));
                         }
-                    });
+                        pipeline.addLast(new HttpClientCodec());
+                        pipeline.addLast(new HttpObjectAggregator(8192));
+                        pipeline.addLast(WebSocketClientCompressionHandler.INSTANCE);
+                        if (idleTimeout > 0) {
+                            pipeline.addLast(new IdleStateHandler(idleTimeout, idleTimeout,
+                                                           idleTimeout, TimeUnit.MILLISECONDS));
+                        }
+                        pipeline.addLast(webSocketTargetHandler);
+                    }
+                });
 
             clientBootstrap.connect(uri.getHost(), port).sync();
             ChannelFuture future = webSocketTargetHandler
@@ -145,7 +144,6 @@ public class WebSocketClient {
                     String actualSubProtocol = websocketHandshaker.actualSubprotocol();
                     webSocketTargetHandler.setActualSubProtocol(actualSubProtocol);
                     session.setNegotiatedSubProtocol(actualSubProtocol);
-                    session.setIsOpen(true);
                     handshakeFuture.notifySuccess(session);
                 } else {
                     handshakeFuture.notifyError(cause);

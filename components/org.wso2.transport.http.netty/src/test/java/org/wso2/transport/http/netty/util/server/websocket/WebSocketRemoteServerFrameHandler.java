@@ -38,6 +38,7 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
     private static final Logger log = LoggerFactory.getLogger(WebSocketRemoteServerFrameHandler.class);
     private static final String PING = "ping";
     private static final String CLOSE = "close";
+    private static final String CLOSE_WITHOUT_FRAME = "close-without-frame";
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -58,7 +59,10 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
                     ctx.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(new byte[]{1, 2, 3, 4})));
                     break;
                 case CLOSE:
-                    ctx.writeAndFlush(new CloseWebSocketFrame(1001, "Close on request"));
+                    ctx.writeAndFlush(new CloseWebSocketFrame(1000, "Close on request"));
+                    break;
+                case CLOSE_WITHOUT_FRAME:
+                    ctx.close();
                     break;
                 default:
                     ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
