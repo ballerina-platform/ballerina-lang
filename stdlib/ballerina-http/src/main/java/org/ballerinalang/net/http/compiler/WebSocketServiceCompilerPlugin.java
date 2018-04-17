@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 
 import java.util.List;
 
@@ -52,12 +53,12 @@ public class WebSocketServiceCompilerPlugin extends AbstractCompilerPlugin {
         if (serviceType != null) {
             if (WebSocketConstants.WEBSOCKET_SERVICE.equals(serviceType.getTypeName().getValue())) {
                 List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
-                resources.forEach(
-                        res -> WebSocketResourceValidator.validate(WebSocketConstants.WEBSOCKET_SERVICE, res, dlog));
+                resources.forEach(res -> WebSocketResourceValidator
+                        .validate(((BLangService) serviceNode).symbol.getName().value, res, dlog));
             } else if (WebSocketConstants.WEBSOCKET_CLIENT_SERVICE.equals(serviceType.getTypeName().getValue())) {
                 List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
                 resources.forEach(res -> WebSocketResourceValidator
-                        .validate(WebSocketConstants.WEBSOCKET_CLIENT_SERVICE, res, dlog));
+                        .validate(((BLangService) serviceNode).symbol.getName().value, res, dlog));
             }
         }
     }
