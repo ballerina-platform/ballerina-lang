@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.util.observability;
 
-import org.ballerinalang.bre.bvm.ObservableContext;
-
 /**
  * Observe Ballerina Server and Client execution code.
  */
@@ -28,32 +26,28 @@ public interface BallerinaObserver {
      * Start observing server execution code.
      *
      * @param observerContext  The {@link ObserverContext}
-     * @param observableContext The {@link ObservableContext}
      */
-    void startServerObservation(ObserverContext observerContext, ObservableContext observableContext);
+    void startServerObservation(ObserverContext observerContext);
 
     /**
      * Start observing client execution code.
      *
      * @param observerContext  The {@link ObserverContext}
-     * @param observableContext The {@link ObservableContext}
      */
-    void startClientObservation(ObserverContext observerContext, ObservableContext observableContext);
+    void startClientObservation(ObserverContext observerContext);
 
     /**
      * Stop observing server execution code.
      *
      * @param observerContext  The {@link ObserverContext}
-     * @param observableContext The {@link ObservableContext}
      */
-    void stopServerObservation(ObserverContext observerContext, ObservableContext observableContext);
+    void stopServerObservation(ObserverContext observerContext);
 
     /**
      * Stop observing client execution code.
      *
      * @param observerContext  The {@link ObserverContext}
-     * @param observableContext The {@link ObservableContext}
      */
-    void stopClientObservation(ObserverContext observerContext, ObservableContext observableContext);
+    void stopClientObservation(ObserverContext observerContext);
 
 }

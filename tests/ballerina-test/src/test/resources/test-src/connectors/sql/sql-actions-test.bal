@@ -6,6 +6,11 @@ type ResultCustomers {
     string FIRSTNAME,
 };
 
+type ResultCustomers2 {
+    string FIRSTNAME,
+    string LASTNAME,
+};
+
 type ResultIntType {
     int INT_TYPE,
 };
@@ -209,7 +214,7 @@ function testCallProcedureWithResultSet() returns (string) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtsRet = testDB -> call("{call SelectPersonData()}", ResultCustomers);
+    var dtsRet = testDB -> call("{call SelectPersonData()}", [ResultCustomers]);
     table[] dts = check dtsRet;
 
     string firstName;
@@ -221,18 +226,19 @@ function testCallProcedureWithResultSet() returns (string) {
     return firstName;
 }
 
-function testCallProcedureWithMultipleResultSets() returns (string, string) {
+function testCallProcedureWithMultipleResultSets() returns (string, string, string) {
     endpoint sql:Client testDB {
         url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", ResultCustomers);
+    var dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2]);
     table[] dts = check dtsRet;
 
     string firstName1;
     string firstName2;
+    string lastName;
 
     while (dts[0].hasNext()) {
         ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
@@ -240,12 +246,13 @@ function testCallProcedureWithMultipleResultSets() returns (string, string) {
     }
 
     while (dts[1].hasNext()) {
-        ResultCustomers rs = check <ResultCustomers>dts[1].getNext();
+        ResultCustomers2 rs = check <ResultCustomers2>dts[1].getNext();
         firstName2 = rs.FIRSTNAME;
+        lastName = rs.LASTNAME;
     }
 
     _ = testDB -> close();
-    return (firstName1, firstName2);
+    return (firstName1, firstName2, lastName);
 }
 
 function testQueryParameters() returns (string) {
