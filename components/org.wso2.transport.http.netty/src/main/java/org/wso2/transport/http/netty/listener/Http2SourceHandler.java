@@ -51,6 +51,8 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
+import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
+
 /**
  * {@code HTTP2SourceHandler} read the HTTP/2 binary frames sent from client through the channel.
  *
@@ -70,10 +72,10 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     private Http2Connection conn;
     private String serverName;
 
-    public Http2SourceHandler(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
-                              Http2Settings initialSettings,
-                              String interfaceId, Http2Connection conn, ServerConnectorFuture serverConnectorFuture,
-                              String serverName) {
+    Http2SourceHandler(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
+                       Http2Settings initialSettings,
+                       String interfaceId, Http2Connection conn, ServerConnectorFuture serverConnectorFuture,
+                       String serverName) {
         super(decoder, encoder, initialSettings);
         http2FrameListener = new Http2FrameListener();
         this.interfaceId = interfaceId;
@@ -86,7 +88,7 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         super.handlerAdded(ctx);
         // Remove unwanted handlers after upgrade
-        Util.safelyRemoveHandlers(ctx.pipeline(), Constants.HTTP2_TO_HTTP_FALLBACK_HANDLER, Constants.HTTP_COMPRESSOR,
+        safelyRemoveHandlers(ctx.pipeline(), Constants.HTTP2_TO_HTTP_FALLBACK_HANDLER, Constants.HTTP_COMPRESSOR,
                                   Constants.HTTP_TRACE_LOG_HANDLER);
         this.ctx = ctx;
     }

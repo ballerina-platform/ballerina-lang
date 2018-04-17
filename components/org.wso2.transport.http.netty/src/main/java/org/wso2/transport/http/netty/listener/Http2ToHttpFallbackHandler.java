@@ -22,11 +22,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelPipeline;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.Util;
+
+import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
 
 /**
  * {@code Http2ToHttpFallbackHandler} is responsible for fallback from http2 to http when http2 upgrade fails.
- *
  */
 public class Http2ToHttpFallbackHandler extends ChannelInboundHandlerAdapter {
 
@@ -39,7 +39,7 @@ public class Http2ToHttpFallbackHandler extends ChannelInboundHandlerAdapter {
 
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ChannelPipeline pipeline = ctx.pipeline();
-        Util.safelyRemoveHandlers(pipeline, Constants.HTTP2_UPGRADE_HANDLER);
+        safelyRemoveHandlers(pipeline, Constants.HTTP2_UPGRADE_HANDLER);
         serverChannelInitializer.configureHttpPipeline(pipeline, Constants.HTTP2_CLEARTEXT_PROTOCOL);
         pipeline.remove(this);
         ctx.fireChannelRead(msg);
