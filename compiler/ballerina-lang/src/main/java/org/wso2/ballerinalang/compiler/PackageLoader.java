@@ -139,8 +139,10 @@ public class PackageLoader {
         Repo remote = new RemoteRepo(URI.create("https://api.central.ballerina.io/packages/"));
         Repo homeCacheRepo = new CacheRepo(balHomeDir);
         Repo homeRepo = new BinaryRepo(balHomeDir);
+        Repo homeSourceRepo = new ZipRepo(balHomeDir);  // To be removed after balo change
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir);
-        Repo projectRepo = new ZipRepo(projectHiddenDir);
+        Repo projectRepo = new BinaryRepo(projectHiddenDir);
+        Repo projectSourceRepo = new ZipRepo(projectHiddenDir);  // To be removed after balo change
 
 
         RepoHierarchyBuilder.RepoNode homeCacheNode;
@@ -151,8 +153,9 @@ public class PackageLoader {
             homeCacheNode = node(homeCacheRepo, node(remote, systemArr));
         }
         RepoHierarchyBuilder.RepoNode nonLocalRepos = node(projectRepo,
-                                                           node(projectCacheRepo, homeCacheNode),
-                                                           node(homeRepo, homeCacheNode));
+                                                           node(projectSourceRepo,
+                                                                node(projectCacheRepo, homeCacheNode),
+                                                                node(homeRepo, node(homeSourceRepo, homeCacheNode))));
         RepoHierarchyBuilder.RepoNode fullRepoGraph;
         if (converter != null) {
             Repo programingSource = new ProgramingSourceRepo(converter);
