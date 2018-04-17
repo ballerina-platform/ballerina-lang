@@ -31,7 +31,6 @@ documentation {
     This represents the protocol associated with the coordination type.
 
     F{{name}} - protocol name
-    F{{transactionBlockId}} - ID of the transaction block corresponding to this local participant
 }
 public type LocalProtocol {
     @readonly string name;
@@ -55,11 +54,13 @@ type Participant object {
     }
 
     function prepare(string protocol) returns PrepareResult | () | error   {
-
+        error err = {message: "Unsupported function"};
+        throw err;
     }
 
-    function notify(string action, string? protocolName) returns NotifyResult | error {
-
+    function notify(string action, string? protocolName) returns NotifyResult | () | error {
+        error err = {message: "Unsupported function"};
+        throw err;
     }
 };
 
@@ -83,7 +84,7 @@ type RemoteParticipant object {
         return (); // No matching protocol
     }
 
-    function notify(string action, string? protocolName) returns NotifyResult | error {
+    function notify(string action, string? protocolName) returns NotifyResult | () | error {
         match protocolName {
             string proto => {
                 foreach remoteProtocol in participantProtocols {
@@ -106,6 +107,7 @@ type RemoteParticipant object {
                 return notifyResult;
             }
         }
+        return (); // No matching protocol
     }
 
     function prepareMe(string protocolUrl) returns PrepareResult|error {
@@ -216,12 +218,9 @@ type LocalParticipant object {
                 return PREPARE_RESULT_ABORTED;
             }
         }
-
-        error err = {message: "Local participant:" + participantId + " outcome invalid"};
-        throw err;
     }
 
-    function notify(string action, string? protocolName) returns NotifyResult | error {
+    function notify(string action, string? protocolName) returns NotifyResult | () | error {
         match protocolName {
             string proto => {
                 foreach localProto in participantProtocols {
@@ -243,7 +242,8 @@ type LocalParticipant object {
                 }
                 return notifyResult;
             }
-        }    
+        }
+        return (); // No matching protocol
     }
 
     function notifyMe(string action, int participatedTxnBlockId) returns NotifyResult | error {
