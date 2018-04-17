@@ -65,7 +65,7 @@ function testCall() returns (string) {
         dbOptions:()
     };
 
-    var dtsRet = testDB -> call("{call JAVAFUNC('select * from Customers where customerId=1')}", Customer);
+    var dtsRet = testDB -> call("{call JAVAFUNC('select * from Customers where customerId=1')}", [Customer]);
     table[] dts = check dtsRet;
 
     string name;
@@ -208,20 +208,16 @@ function testUpdateInMemory() returns (int, string) {
     var insertCountRet = testDB -> update("insert into Customers2 (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')");
     int insertCount = check insertCountRet;
-
     io:println(insertCount);
-
 
     var x = testDB -> select("SELECT  * from Customers2", Customer);
     table t = check x;
 
     json j = check <json>t;
-
-    string s = j.toString() but { () => "" };
-
+    string s = j.toString();
 
     _ = testDB -> close();
-    return (insertCount, s);
+    return (insertCount, j.toString());
 }
 
 function testInitWithNilDbOptions() returns (int[]) {
