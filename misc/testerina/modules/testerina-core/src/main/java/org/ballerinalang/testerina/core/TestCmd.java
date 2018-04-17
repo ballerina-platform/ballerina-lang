@@ -70,10 +70,7 @@ public class TestCmd implements BLauncherCmd {
     @DynamicParameter(names = "-B", description = "Ballerina VM options")
     private Map<String, String> vmOptions = new HashMap<>();
 
-    @Parameter(names = "--debug", hidden = true)
-    private String debugPort;
-
-    @Parameter(names = {"--config", "-c"}, description = "path to the Ballerina configuration file")
+    @Parameter(names = {"--config", "-c"}, description = "path to the testerina configuration file")
     private String configFilePath;
 
     // Testerina Flags
@@ -96,11 +93,6 @@ public class TestCmd implements BLauncherCmd {
             Path userDir = Paths.get(System.getProperty("user.dir"));
             SourceDirectory srcDirectory = new FileSystemProjectDirectory(userDir);
             sourceFileList = srcDirectory.getSourcePackageNames();
-        }
-
-        // Enable remote debugging
-        if (null != debugPort) {
-            System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
 
         if (groupList != null && disableGroupList != null) {
