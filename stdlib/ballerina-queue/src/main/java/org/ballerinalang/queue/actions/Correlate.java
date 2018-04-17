@@ -29,6 +29,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 @BallerinaFunction(orgName = "ballerina", packageName = "queue",
                    functionName = "correlate",
                    receiver = @Receiver(type = TypeKind.STRUCT,
@@ -56,7 +58,7 @@ public class Correlate extends Receive {
         String map = ((BJSON) jsonMap).getMessageAsString();
         String selector = "correlationId = '"+ map + "'";
         PersistenceUtils
-                .saveJsonFIle(PersistenceUtils.getJson(context.getParentWorkerExecutionContext()), map);
+                .saveJsonFIle(PersistenceUtils.getJson(context.getParentWorkerExecutionContext()), new File(map));
         startSubscriber(context, callableUnitCallback, selector);
     }
 }

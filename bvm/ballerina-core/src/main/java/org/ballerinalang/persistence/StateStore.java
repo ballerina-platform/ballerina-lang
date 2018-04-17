@@ -17,11 +17,20 @@
  */
 package org.ballerinalang.persistence;
 
+import org.ballerinalang.bre.bvm.persistency.reftypes.DataMapper;
+import org.ballerinalang.model.values.BStruct;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class StateStore {
 
     private static StateStore stateStore;
+
+    private static DataMapper dataMapper;
+
+    public static Map<String, Map<String, BStruct>> tempBStructs = new HashMap<>();
 
     public static StateStore getInstance() {
         if (stateStore == null) {
@@ -45,4 +54,11 @@ public abstract class StateStore {
     public abstract List<State> getFailedStates(String instanceId);
 
     public abstract void removeFailedStates(String instanceId);
+
+    public static DataMapper getDataMapper() {
+        if (dataMapper == null) {
+            dataMapper = new DataMapper();
+        }
+        return dataMapper;
+    }
 }

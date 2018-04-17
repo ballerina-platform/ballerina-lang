@@ -157,7 +157,7 @@ public class RecordTest {
 
     @Test(description = "Test negative default values in record")
     public void testStructToString() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "getStruct");
+        BValue[] returns = BRunUtil.invoke(compileResult, "getBStruct");
         Assert.assertEquals(returns[0].stringValue(), "{name:\"aaa\", lname:\"\", adrs:{}, age:25, " +
                 "family:{spouse:\"\", noOfChildren:0, children:[]}, parent:{name:\"bbb\", lname:\"ccc\", " +
                 "adrs:{}, age:50, family:{spouse:\"\", noOfChildren:0, children:[]}, parent:null}}");

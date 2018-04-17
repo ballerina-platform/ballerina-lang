@@ -37,20 +37,20 @@ import java.util.StringJoiner;
  */
 
 public final class BStruct implements BRefType, LockableStructureType {
-    private HashMap<String, Object> nativeData = new HashMap<>();
+    public HashMap<String, Object> nativeData = new HashMap<>();
 
-    private long[] longFields;
-    private VarLock[] longLocks;
-    private double[] doubleFields;
-    private VarLock[] doubleLocks;
-    private String[] stringFields;
-    private VarLock[] stringLocks;
-    private int[] intFields;
-    private VarLock[] intLocks;
-    private byte[][] byteFields;
-    private VarLock[] byteLocks;
-    private BRefType[] refFields;
-    private VarLock[] refLocks;
+    public long[] longFields;
+    public VarLock[] longLocks;
+    public double[] doubleFields;
+    public VarLock[] doubleLocks;
+    public String[] stringFields;
+    public VarLock[] stringLocks;
+    public int[] intFields;
+    public VarLock[] intLocks;
+    public byte[][] byteFields;
+    public VarLock[] byteLocks;
+    public BRefType[] refFields;
+    public VarLock[] refLocks;
 
     private BStructType structType;
 
