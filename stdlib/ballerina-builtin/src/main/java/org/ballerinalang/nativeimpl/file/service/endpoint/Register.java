@@ -127,7 +127,7 @@ public class Register extends BlockingNativeCallableUnit {
                     + DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE + " ,"
                     + DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE + " ,"
                     + DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY + ". " + "Parameter should be of type - "
-                    + FILE_PACKAGE + ":" + FILE_SYSTEM_EVENT;
+                    + "file:" + FILE_SYSTEM_EVENT;
             throw new BallerinaConnectorException(msg);
         }
         return registry;
@@ -136,14 +136,14 @@ public class Register extends BlockingNativeCallableUnit {
     private void validateParameter(Resource resource) {
         final List<ParamDetail> paramDetails = resource.getParamDetails();
         if (paramDetails.size() != 1) {
-            String msg = "Invalid resource signature in " + resource.getName() + ". A single " + FILE_PACKAGE + ":"
+            String msg = "Invalid resource signature in " + resource.getName() + ". A single file:"
                     + FILE_SYSTEM_EVENT + " parameter allow in the resource signature.";
             throw new BallerinaConnectorException(msg);
         }
         final ParamDetail paramDetail = paramDetails.get(0);
         final BType varType = paramDetail.getVarType();
         if (!FILE_PACKAGE.equals(varType.getPackagePath()) || !FILE_SYSTEM_EVENT.equals(varType.getName())) {
-            String msg = "Parameter should be of type - " + FILE_PACKAGE + ":" + FILE_SYSTEM_EVENT + " in " + resource
+            String msg = "Parameter should be of type - file:" + FILE_SYSTEM_EVENT + " in " + resource
                     .getName();
             throw new BallerinaConnectorException(msg);
         }

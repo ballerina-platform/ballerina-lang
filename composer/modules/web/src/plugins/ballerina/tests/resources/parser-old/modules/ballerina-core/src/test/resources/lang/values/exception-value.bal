@@ -1,4 +1,4 @@
-function main (string[] arg) {
+function main (string... arg) {
     string a = "Followings are valid exception initializations.";
 
     exception e1;

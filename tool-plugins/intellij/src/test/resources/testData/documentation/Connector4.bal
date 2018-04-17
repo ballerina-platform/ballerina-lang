@@ -1,6 +1,6 @@
 package org.test;
 
-function main (string[] args) {
+function main (string... args) {
     ClientConnector nyseEP = create ClientConnector("http://localhost:9090");
     message response = nyseEP.ge<caret>t ("/nyseStock", m);
 }

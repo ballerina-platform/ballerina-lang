@@ -2,7 +2,7 @@ import ballerina/lang.system;
 
 xmlns "http://ballerina.com/aa" as ns0;
 
-function main (string[] args) {
+function main (string... args) {
 
     // Namespaces can be declared at package levels, as well as function level. The identifier followed by 'as' keyword is the prefix bound to this namespace name.
     xmlns "http://ballerina.com/bb" as ns1;
