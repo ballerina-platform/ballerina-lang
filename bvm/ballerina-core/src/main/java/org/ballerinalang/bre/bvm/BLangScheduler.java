@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.LongAdder;
  */
 public class BLangScheduler {
     
-    private static final String SCHEDULER_STATS_CONFIG_PROP = "scheduler.stats";
+    private static final String SCHEDULER_STATS_CONFIG_PROP = "b7a.runtime.scheduler.statistics";
 
     private static AtomicInteger workerCount = new AtomicInteger(0);
     
