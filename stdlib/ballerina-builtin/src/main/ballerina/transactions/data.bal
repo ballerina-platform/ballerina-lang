@@ -29,14 +29,36 @@ type TransactionState "active" | "prepared" | "committed" | "aborted";
 @final public string COMMAND_COMMIT = "commit";
 @final public string COMMAND_ABORT = "abort";
 
-@final public string OUTCOME_PREPARED = "prepared";
-@final public string OUTCOME_NOT_PREPARED = "Not-Prepared";
-@final public string OUTCOME_MIXED = "mixed";
-@final public string OUTCOME_ABORTED = "aborted";
-@final public string OUTCOME_COMMITTED = "committed";
-@final public string OUTCOME_HAZARD = "Hazard-Outcome";
-@final public string OUTCOME_FAILED_EOT = "Failed-EOT";
-@final public string OUTCOME_READ_ONLY = "read-only";
+@final string PREPARE_RESULT_PREPARED_STR = "prepared";
+@final string PREPARE_RESULT_ABORTED_STR = "aborted";
+@final string PREPARE_RESULT_COMMITTED_STR = "committed";
+@final string PREPARE_RESULT_READ_ONLY_STR = "read-only";
+@final string PREPARE_RESULT_FAILED_STR = "failed";
+@final string PREPARE_RESULT_NOT_PREPARED_STR = "not-prepared";
+
+type PrepareResult "prepared" | "aborted" | "committed" | "read-only" | "failed" | "not-prepared";
+@final PrepareResult PREPARE_RESULT_PREPARED = "prepared";
+@final PrepareResult PREPARE_RESULT_ABORTED = "aborted";
+@final PrepareResult PREPARE_RESULT_COMMITTED = "committed";
+@final PrepareResult PREPARE_RESULT_READ_ONLY = "read-only";
+@final PrepareResult PREPARE_RESULT_FAILED = "failed";
+@final PrepareResult PREPARE_RESULT_NOT_PREPARED = "not-prepared";
+
+type NotifyResult "committed" | "aborted";
+@final NotifyResult NOTIFY_RESULT_COMMITTED = "committed";
+@final NotifyResult NOTIFY_RESULT_ABORTED = "aborted";
+
+@final string NOTIFY_RESULT_COMMITTED_STR = "committed";
+@final string NOTIFY_RESULT_ABORTED_STR = "aborted";
+
+type PrepareDecision "commit" | "abort";
+@final PrepareDecision PREPARE_DECISION_COMMIT = "commit";
+@final PrepareDecision PREPARE_DECISION_ABORT = "abort";
+
+@final string OUTCOME_COMMITTED = "committed";
+@final string OUTCOME_ABORTED = "aborted";
+@final string OUTCOME_MIXED = "mixed";
+@final string OUTCOME_HAZARD = "hazard";
 
 public type TransactionContext {
     @readonly string contextVersion = "1.0";
@@ -44,55 +66,6 @@ public type TransactionContext {
     @readonly int transactionBlockId;
     @readonly string coordinationType;
     @readonly string registerAtURL;
-};
-
-type Participant {
-    string participantId;
-};
-
-type LocalParticipant {
-    string participantId;
-    LocalProtocol[] participantProtocols;
-};
-
-type RemoteParticipant {
-    string participantId;
-    RemoteProtocol[] participantProtocols;
-};
-
-documentation {
-    This represents the protocol associated with the coordination type.
-
-    F{{name}} - protocol name
-}
-public type Protocol {
-    @readonly string name;
-};
-
-documentation {
-    This represents the protocol associated with the coordination type.
-
-    F{{name}} - protocol name
-    F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
-}
-public type LocalProtocol {
-    @readonly string name;
-    @readonly int transactionBlockId;
-    @readonly (function (string transactionId,
-                            int transactionBlockId,
-                            string protocolAction) returns boolean) protocolFn;
-};
-
-documentation {
-    This represents the protocol associated with the coordination type.
-
-    F{{name}} - protocol name
-    F{{url}}  - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
-                the `protocolFn` will be called
-}
-public type RemoteProtocol {
-    @readonly string name;
-    @readonly string url;
 };
 
 public type RegistrationRequest {

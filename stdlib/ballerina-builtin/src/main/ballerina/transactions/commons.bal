@@ -157,17 +157,6 @@ function respondToBadRequest (http:Listener conn, string msg) {
     }
 }
 
-function getProtocols(Participant participant) returns LocalProtocol[] | RemoteProtocol[] {
-    match participant {
-        LocalParticipant localParticipant => return localParticipant.participantProtocols;
-        RemoteParticipant remoteParticipant => return remoteParticipant.participantProtocols;
-        any => {
-            error err = {message: "Invalid participant type"};
-            throw err;
-        }
-    }
-}
-
 function createNewTransaction (string coordinationType, int transactionBlockId) returns TwoPhaseCommitTransaction {
     if (coordinationType == TWO_PHASE_COMMIT) {
         TwoPhaseCommitTransaction twopcTxn = new (util:uuid(), transactionBlockId, coordinationType = coordinationType);
@@ -219,77 +208,36 @@ function registerParticipantWithLocalInitiator (string transactionId,
                                                 string registerAtURL) returns TransactionContext|error {
     string participantId = getParticipantId(transactionBlockId);
     //TODO: Protocol name should be passed down from the transaction statement
-    LocalProtocol participantProtocol = {name:PROTOCOL_DURABLE, transactionBlockId:transactionBlockId,
-                                                    protocolFn:localParticipantProtocolFn};
+    LocalProtocol participantProtocol = {name:PROTOCOL_DURABLE, transactionBlockId:transactionBlockId};
     if (!initiatedTransactions.hasKey(transactionId)) {
         error err = {message:"Transaction-Unknown. Invalid TID:" + transactionId};
         return err;
     } else {
-        TwoPhaseCommitTransaction txn = initiatedTransactions[transactionId];
-        if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
+        TwoPhaseCommitTransaction initiatedTxn = initiatedTransactions[transactionId];
+        if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
             error err = {message:"Already-Registered. TID:" + transactionId + ",participant ID:" + participantId};
             return err;
-        } else if (!protocolCompatible(txn.coordinationType, [participantProtocol])) { // Invalid-Protocol
-            error err = {message:"Invalid-Protocol. TID:" + transactionId + ",participant ID:" + participantId};
+        } else if (!protocolCompatible(initiatedTxn.coordinationType, [participantProtocol])) { // Invalid-Protocol
+            error err = {message:"Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
+                                    participantId};
             return err;
         } else {
-            LocalParticipant participant = {participantId:participantId};
-            participant.participantProtocols = [participantProtocol];
-            txn.participants[participantId] = participant;
+            LocalParticipant participant = new(participantId, initiatedTxn, [participantProtocol]);
+            initiatedTxn.participants[participantId] = <Participant>participant;
 
             //Set initiator protocols
-            TwoPhaseCommitTransaction twopcTxn = new (transactionId, transactionBlockId);
+            TwoPhaseCommitTransaction participatedTxn = new(transactionId, transactionBlockId);
             //Protocol initiatorProto = {name: PROTOCOL_DURABLE, transactionBlockId:transactionBlockId};
-            //twopcTxn.coordinatorProtocols = [initiatorProto];
+            //participatedTxn.coordinatorProtocols = [initiatorProto];
 
             string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-            participatedTransactions[participatedTxnId] = twopcTxn;
+            participatedTransactions[participatedTxnId] = participatedTxn;
             TransactionContext txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,
                                             coordinationType: TWO_PHASE_COMMIT, registerAtURL:registerAtURL};
             log:printInfo("Registered local participant: " + participantId + " for transaction:" + transactionId);
             return txnCtx;
         }
     }
-}
-
-function localParticipantProtocolFn (string transactionId,
-                                     int transactionBlockId,
-                                     string protocolAction) returns boolean {
-    string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-    if (!participatedTransactions.hasKey(participatedTxnId)) {
-        return false;
-    }
-    TwoPhaseCommitTransaction txn = participatedTransactions[participatedTxnId];
-    if (protocolAction == COMMAND_PREPARE) {
-        if (txn.state == TXN_STATE_ABORTED) {
-            removeParticipatedTransaction(participatedTxnId);
-            return false;
-        } else if (txn.state == TXN_STATE_COMMITTED) {
-            removeParticipatedTransaction(participatedTxnId);
-            txn.possibleMixedOutcome = true;
-            return true;
-        } else {
-            boolean successful = prepareResourceManagers(transactionId, transactionBlockId);
-            if (successful) {
-                txn.state = TXN_STATE_PREPARED;
-            }
-            return successful;
-        }
-    } else if (protocolAction == COMMAND_COMMIT) {
-        if (txn.state == TXN_STATE_PREPARED) {
-            boolean successful = commitResourceManagers(transactionId, transactionBlockId);
-            removeParticipatedTransaction(participatedTxnId);
-            return successful;
-        }
-    } else if (protocolAction == COMMAND_ABORT) {
-        boolean successful = abortResourceManagers(transactionId, transactionBlockId);
-        removeParticipatedTransaction(participatedTxnId);
-        return successful;
-    } else {
-        error err = {message:"Invalid protocol action:" + protocolAction};
-        throw err;
-    }
-    return false;
 }
 
 function removeParticipatedTransaction (string participatedTxnId) {
