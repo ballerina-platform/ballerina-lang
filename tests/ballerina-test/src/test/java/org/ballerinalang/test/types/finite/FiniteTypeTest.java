@@ -132,5 +132,14 @@ public class FiniteTypeTest {
         Assert.assertEquals((((BInteger) returns[0]).intValue()), 4);
     }
 
+    @Test()
+    public void testFiniteTypeWithMatch() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeWithMatch");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals((((BString) returns[0]).stringValue()), "ss");
+    }
+
 }
 

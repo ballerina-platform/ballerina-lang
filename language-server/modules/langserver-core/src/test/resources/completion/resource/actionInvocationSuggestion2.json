@@ -1,0 +1,73 @@
+{
+  "position": {
+    "line": 5,
+    "character": 20
+  },
+  "source": "resource/source/actionInvocationSuggestion2.bal",
+  "items": [
+    {
+      "label":"new()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"new()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"respond(http:Response res)(ballerina.http:HttpConnectorError?)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"respond(${1:res})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"promise(http:PushPromise promise)(ballerina.http:HttpConnectorError?)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"promise(${1:promise})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"pushPromisedResponse(http:PushPromise promise, http:Response res)(ballerina.http:HttpConnectorError?)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"pushPromisedResponse(${1:promise}, ${2:res})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"acceptWebSocketUpgrade(map headers)(ballerina.http:WebSocketListener)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"acceptWebSocketUpgrade(${1:headers})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"cancelWebSocketUpgrade(int status, string reason)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"cancelWebSocketUpgrade(${1:status}, ${2:reason})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"continue()(ballerina.http:HttpConnectorError?)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"continue()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"redirect(http:Response response, http:RedirectCode code, string locations)(ballerina.http:HttpConnectorError?)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"redirect(${1:response}, ${2:code}, ${3:locations})",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

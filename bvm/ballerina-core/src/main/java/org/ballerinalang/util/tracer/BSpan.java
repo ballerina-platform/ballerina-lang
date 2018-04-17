@@ -19,7 +19,7 @@
 package org.ballerinalang.util.tracer;
 
 import io.opentracing.Span;
-import org.ballerinalang.bre.bvm.ObservableContext;
+import org.ballerinalang.util.observability.ObserverContext;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,6 +27,7 @@ import java.util.Map;
 
 import static org.ballerinalang.util.tracer.TraceConstants.DEFAULT_ACTION_NAME;
 import static org.ballerinalang.util.tracer.TraceConstants.DEFAULT_CONNECTOR_NAME;
+import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
 import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_STR_ERROR;
 import static org.ballerinalang.util.tracer.TraceConstants.TAG_STR_TRUE;
 
@@ -57,34 +58,25 @@ public class BSpan {
      */
     private String actionName = DEFAULT_ACTION_NAME;
     /**
-     * Active Ballerina {@link ObservableContext}.
+     * Active Ballerina {@link ObserverContext}.
      */
-    private ObservableContext observableContext = null;
+    private ObserverContext observerContext = null;
     /**
      * Map of spans belongs to each open tracer.
      */
     private Map<String, Span> spans;
-    /**
-     * Indicate whether this is a root tracer.
-     */
-    private boolean isRoot = false;
 
-    private BSpan() {
-
-    }
-
-    public BSpan(ObservableContext observableContext, boolean isClientContext) {
+    BSpan(ObserverContext observerContext, boolean isClientContext) {
         this.properties = new HashMap<>();
         this.tags = new HashMap<>();
-        this.observableContext = observableContext;
-        this.isRoot = !isClientContext;
+        this.observerContext = observerContext;
         this.tags.put(TraceConstants.TAG_KEY_SPAN_KIND, isClientContext
                 ? TraceConstants.TAG_SPAN_KIND_CLIENT
                 : TraceConstants.TAG_SPAN_KIND_SERVER);
     }
 
     public void startSpan() {
-        manager.startSpan(observableContext);
+        manager.startSpan(getParentBSpan(), this);
     }
 
     public void finishSpan() {
@@ -158,11 +150,14 @@ public class BSpan {
         this.spans = spans;
     }
 
-    public boolean isRoot() {
-        return isRoot;
-    }
-
     public Map<String, String> getTraceContext() {
         return manager.extractTraceContext(spans, connectorName);
+    }
+
+    private BSpan getParentBSpan() {
+        if (observerContext.getParent() != null) {
+            return (BSpan) observerContext.getParent().getProperty(KEY_SPAN);
+        }
+        return null;
     }
 }

@@ -13,7 +13,7 @@ json j1 = {name:"bob", age:10, pass:true, subjects:[{subject:"maths", marks:75},
 function testJSONObject () returns (string) {
     output = "";
     foreach j in j1 {
-        concatString(j.toString() but {error => ""});
+        concatString(j.toString());
     }
     return output;
 }
@@ -21,7 +21,7 @@ function testJSONObject () returns (string) {
 function testJSONArray () returns (string) {
     output = "";
     foreach j in j1.subjects {
-        concatString(j.toString() but {error => ""});
+        concatString(j.toString());
     }
     return output;
 }
@@ -34,7 +34,7 @@ function testArrayOfJSON () returns string | error {
         error err1 => return err1;
     }
     foreach i, j in array {
-        concatIntString(i, j.toString() but {error => ""});
+        concatIntString(i, j.toString());
     }
     return output;
 }
@@ -42,7 +42,7 @@ function testArrayOfJSON () returns string | error {
 function testJSONString () returns (string) {
     output = "";
     foreach j in j1.name {
-        concatString(j.toString() but {error => ""});
+        concatString(j.toString());
     }
     return output;
 }
@@ -50,7 +50,7 @@ function testJSONString () returns (string) {
 function testJSONNumber () returns (string) {
     output = "";
     foreach j in j1.age {
-        concatString(j.toString() but {error => ""});
+        concatString(j.toString());
     }
     return output;
 }
@@ -58,7 +58,7 @@ function testJSONNumber () returns (string) {
 function testJSONBoolean () returns (string) {
     output = "";
     foreach j in j1.pass {
-        concatString(j.toString() but {error => ""});
+        concatString(j.toString());
     }
     return output;
 }
@@ -66,7 +66,7 @@ function testJSONBoolean () returns (string) {
 function testJSONNull () returns (string) {
     output = "";
     foreach j in j1.city {
-        concatString(j.toString() but {error => ""});
+        concatString(j.toString());
     }
     return output;
 }
@@ -98,12 +98,12 @@ function testJSONToStructCast () returns string | error {
 function testAddWhileIteration () returns (string) {
     output = "";
     foreach j in j1 {
-        if (j.toString() but {() => ""} == "bob") {
+        if (j.toString() == "bob") {
             j1["lastname"] = "smith";
         }
     }
     foreach j in j1 {
-        concatString(j.toString() but {error => ""});
+        concatString(j.toString());
     }
     return output;
 }
@@ -111,7 +111,7 @@ function testAddWhileIteration () returns (string) {
 function testDeleteWhileIteration () returns (string) {
     output = "";
     foreach j in j1 {
-        string str = j.toString() but {() => ""};
+        string str = j.toString();
         if (str == "bob") {
            any x = j1.remove("subjects");
         }
@@ -119,7 +119,7 @@ function testDeleteWhileIteration () returns (string) {
     }
 
     foreach j in j1 {
-        concatString(j.toString() but {error => ""});
+        concatString(j.toString());
     }
     return output;
 }

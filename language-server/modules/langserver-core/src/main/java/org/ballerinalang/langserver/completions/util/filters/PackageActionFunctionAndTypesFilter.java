@@ -166,7 +166,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
         String variableName = CommonUtil.getPreviousDefaultToken(tokenStream, delimiterIndex).getText();
         SymbolInfo variable = this.getVariableByName(variableName, symbols);
-        String builtinPkgName = symbolTable.builtInPackageSymbol.name.getValue();
+        String builtinPkgName = symbolTable.builtInPackageSymbol.pkgID.name.getValue();
         Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
         String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY);
 
@@ -198,10 +198,10 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
             });
         } else {
             if (bType instanceof BArrayType) {
-                packageID = ((BArrayType) bType).eType.tsymbol.pkgID.toString();
+                packageID = ((BArrayType) bType).eType.tsymbol.pkgID.getName().getValue();
                 bTypeValue = bType.toString();
             } else {
-                packageID = bType.tsymbol.pkgID.toString();
+                packageID = bType.tsymbol.pkgID.getName().getValue();
                 bTypeValue = bType.toString();
             }
 
@@ -209,7 +209,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
             SymbolInfo packageSymbolInfo = symbols.stream().filter(item -> {
                 Scope.ScopeEntry scopeEntry = item.getScopeEntry();
                 return (scopeEntry.symbol instanceof BPackageSymbol)
-                        && scopeEntry.symbol.pkgID.toString().equals(packageID);
+                        && scopeEntry.symbol.pkgID.name.getValue().equals(packageID);
             }).findFirst().orElse(null);
 
             if (packageID.equals(builtinPkgName)) {
@@ -236,6 +236,8 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
                         actionFunctionList.add(actionFunctionSymbol);
                     }
                 } else if ((scopeEntry.symbol instanceof BTypeSymbol)
+                        && (SymbolKind.OBJECT.equals(scopeEntry.symbol.kind)
+                        || SymbolKind.RECORD.equals(scopeEntry.symbol.kind))
                         && bTypeValue.equals(scopeEntry.symbol.type.toString())) {
                     // Get the struct fields
                     Map<Name, Scope.ScopeEntry> fields = scopeEntry.symbol.scope.entries;
