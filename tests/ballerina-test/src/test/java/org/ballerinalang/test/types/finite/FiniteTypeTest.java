@@ -32,7 +32,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test finite type.
+ * Test for Finite types, Type definitions, Singleton types.
  */
 public class FiniteTypeTest {
 
