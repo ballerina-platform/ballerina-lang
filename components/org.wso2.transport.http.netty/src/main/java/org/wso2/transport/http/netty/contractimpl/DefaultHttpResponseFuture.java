@@ -103,7 +103,9 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
                 executionWaitSem.release();
             }
             if (httpConnectorListener != null) {
-                httpConnectorListener.onMessage(httpCarbonMessage);
+                HttpConnectorListener listener = httpConnectorListener;
+                removeHttpListener();
+                listener.onMessage(httpCarbonMessage);
             }
         } finally {
             responseLock.unlock();
@@ -120,7 +122,9 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
                 executionWaitSem.release();
             }
             if (httpConnectorListener != null) {
-                httpConnectorListener.onError(throwable);
+                HttpConnectorListener listener = httpConnectorListener;
+                removeHttpListener();
+                listener.onError(throwable);
             }
         } finally {
             responseLock.unlock();

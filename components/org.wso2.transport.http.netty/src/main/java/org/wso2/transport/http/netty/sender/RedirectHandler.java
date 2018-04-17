@@ -47,6 +47,8 @@ import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.HashMap;
@@ -75,7 +77,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     private ConnectionManager connectionManager;
 
     public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount,
-            ConnectionManager connectionManager) {
+                           ConnectionManager connectionManager) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.maxRedirectCount = maxRedirectCount;
@@ -83,8 +85,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     }
 
     public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount,
-            ChannelHandlerContext originalChannelContext, boolean isIdleHandlerOfTargetChannelRemoved,
-            ConnectionManager connectionManager) {
+                           ChannelHandlerContext originalChannelContext, boolean isIdleHandlerOfTargetChannelRemoved,
+                           ConnectionManager connectionManager) {
         this.sslEngine = sslEngine;
         this.httpTraceLogEnabled = httpTraceLogEnabled;
         this.maxRedirectCount = maxRedirectCount;
@@ -315,7 +317,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @param httpRequest       Http request
      */
     private void writeContentToExistingChannel(ChannelHandlerContext ctx, HTTPCarbonMessage httpCarbonRequest,
-            HttpRequest httpRequest) {
+                                               HttpRequest httpRequest) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Use existing channel" + ctx.channel().id() + " to send the redirect request.");
         }
@@ -436,7 +438,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @throws UnsupportedEncodingException
      */
     private Map<String, String> getRedirectState(String location, int statusCode, HTTPCarbonMessage originalRequest)
-            throws UnsupportedEncodingException {
+            throws UnsupportedEncodingException, URISyntaxException {
         Map<String, String> redirectState = new HashMap<String, String>();
         String originalRequestMethod =
                 originalRequest != null ? (String) originalRequest.getProperty(Constants.HTTP_METHOD) : null;
@@ -448,7 +450,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 if (Constants.HTTP_GET_METHOD.equals(originalRequestMethod) || Constants.HTTP_HEAD_METHOD
                         .equals(originalRequestMethod)) {
                     redirectState.put(Constants.HTTP_METHOD, originalRequestMethod);
-                    redirectState.put(HttpHeaderNames.LOCATION.toString(), getLocationURI(location, originalRequest));
+                    redirectState.put(HttpHeaderNames.LOCATION.toString(), getResolvedURI(location, originalRequest));
                 }
                 break;
             case 301:
@@ -456,12 +458,12 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 if (Constants.HTTP_GET_METHOD.equals(originalRequestMethod) || Constants.HTTP_HEAD_METHOD
                         .equals(originalRequestMethod)) {
                     redirectState.put(Constants.HTTP_METHOD, Constants.HTTP_GET_METHOD);
-                    redirectState.put(HttpHeaderNames.LOCATION.toString(), getLocationURI(location, originalRequest));
+                    redirectState.put(HttpHeaderNames.LOCATION.toString(), getResolvedURI(location, originalRequest));
                 }
                 break;
             case 303:
                 redirectState.put(Constants.HTTP_METHOD, Constants.HTTP_GET_METHOD);
-                redirectState.put(HttpHeaderNames.LOCATION.toString(), getLocationURI(location, originalRequest));
+                redirectState.put(HttpHeaderNames.LOCATION.toString(), getResolvedURI(location, originalRequest));
                 break;
             default:
                 return null;
@@ -473,81 +475,18 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         return redirectState;
     }
 
-    /**
-     * Build redirect url from the location header value.
-     *
-     * @param location        value of location header
-     * @param originalRequest Original request
-     * @return a string that holds redirect url
-     * @throws UnsupportedEncodingException
-     */
-    private String getLocationURI(String location, HTTPCarbonMessage originalRequest)
-            throws UnsupportedEncodingException {
-        if (location != null) {
-            //if location url starts either with http ot https that means an absolute path has been set in header
-            if (!isRelativePath(location)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Location contain an absolute path : " + location);
-                }
-                return location;
-            } else {
-                //Use relative path to build redirect url
-                String requestPath =
-                        originalRequest != null ? (String) originalRequest.getProperty(Constants.TO) : null;
-                String protocol = originalRequest != null ?
-                        (String) originalRequest.getProperty(Constants.PROTOCOL) :
-                        Constants.HTTP_SCHEME;
-                String host = originalRequest != null ? (String) originalRequest.getProperty(Constants.HTTP_HOST) :
-                        null;
-                if (host == null) {
-                    return null;
-                }
-                int defaultPort = getDefaultPort(protocol);
-                Integer port = originalRequest != null ?
-                        originalRequest.getProperty(Constants.HTTP_PORT) != null ?
-                                (Integer) originalRequest.getProperty(Constants.HTTP_PORT) :
-                                defaultPort :
-                        defaultPort;
-                return buildRedirectURL(requestPath, location, protocol, host, port);
+    private String getResolvedURI(String locationString, HTTPCarbonMessage originalRequest)
+            throws URISyntaxException, UnsupportedEncodingException {
+        URI location = new URI(locationString);
+        if (!location.isAbsolute()) {
+            // location is not absolute, we need to resolve it.
+            String baseURIAsString = (String) originalRequest.getProperty(Constants.REQUEST_URL);
+            if (baseURIAsString != null) {
+                URI baseUri = new URI(baseURIAsString);
+                location = baseUri.resolve(location.normalize());
             }
         }
-        return null;
-    }
-
-    /**
-     * Build redirect URL from relative path.
-     *
-     * @param requestPath request path of the original request
-     * @param location    relative path received as the location
-     * @param protocol    protocol used in the request
-     * @param host        host used in the request
-     * @param port        port used in the request
-     * @return a string containing absolute path for redirection
-     * @throws UnsupportedEncodingException
-     */
-    private String buildRedirectURL(String requestPath, String location, String protocol, String host, Integer port)
-            throws UnsupportedEncodingException {
-        String newPath = requestPath == null ? Constants.FORWRD_SLASH : URLDecoder.decode(requestPath, Constants.UTF8);
-        if (location.startsWith(Constants.FORWRD_SLASH)) {
-            newPath = location;
-        } else if (newPath.endsWith(Constants.FORWRD_SLASH)) {
-            newPath += location;
-        } else {
-            newPath += Constants.FORWRD_SLASH + location;
-        }
-        StringBuilder newLocation = new StringBuilder(protocol);
-        newLocation.append(Constants.URL_AUTHORITY).append(host);
-        if (Constants.DEFAULT_HTTP_PORT != port) {
-            newLocation.append(Constants.COLON).append(port);
-        }
-        if (newPath.charAt(0) != Constants.FORWRD_SLASH.charAt(0)) {
-            newLocation.append(Constants.FORWRD_SLASH.charAt(0));
-        }
-        newLocation.append(newPath);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Redirect URL build from relative path is : " + newLocation.toString());
-        }
-        return newLocation.toString();
+        return location.toString();
     }
 
     /**
@@ -616,8 +555,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         httpCarbonRequest.setProperty(Constants.PROTOCOL, locationUrl.getProtocol());
         httpCarbonRequest.setProperty(Constants.HTTP_HOST, locationUrl.getHost());
         httpCarbonRequest.setProperty(Constants.HTTP_METHOD, redirectState.get(Constants.HTTP_METHOD));
-        httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.getPath());
-        httpCarbonRequest.setProperty(Constants.TO, locationUrl.getPath());
+        httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.toString());
+        httpCarbonRequest.setProperty(Constants.TO, locationUrl.toString());
 
         StringBuffer host = new StringBuffer(locationUrl.getHost());
         if (locationUrl.getPort() != -1 && locationUrl.getPort() != Constants.DEFAULT_HTTP_PORT
@@ -656,7 +595,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @param httpRequest       HttpRequest that send through the newly created channel
      */
     private void writeContentToNewChannel(ChannelHandlerContext channelHandlerContext, URL redirectUrl,
-            HTTPCarbonMessage httpCarbonRequest, HttpRequest httpRequest) {
+                                          HTTPCarbonMessage httpCarbonRequest, HttpRequest httpRequest) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Send redirect request using a new channel");
         }
@@ -674,7 +613,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @return ChannelFuture
      */
     private void bootstrapClient(ChannelHandlerContext channelHandlerContext, URL redirectUrl,
-            HTTPCarbonMessage httpCarbonRequest, HttpRequest httpRequest) {
+                                 HTTPCarbonMessage httpCarbonRequest, HttpRequest httpRequest) {
         EventLoopGroup group = channelHandlerContext.channel().eventLoop();
         Bootstrap clientBootstrap = new Bootstrap();
         clientBootstrap.group(group).channel(NioSocketChannel.class).remoteAddress(
@@ -697,7 +636,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @param httpRequest           http request
      */
     private void registerListener(ChannelHandlerContext channelHandlerContext, ChannelFuture channelFuture,
-            HTTPCarbonMessage httpCarbonRequest, HttpRequest httpRequest) {
+                                  HTTPCarbonMessage httpCarbonRequest, HttpRequest httpRequest) {
         channelFuture.addListener((ChannelFutureListener) future -> {
             if (future.isSuccess() && future.isDone()) {
                 if (LOG.isDebugEnabled()) {
@@ -742,7 +681,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @param timeoutOfOriginalRequest Timeout of the original channel
      */
     private void setChannelAttributes(ChannelHandlerContext channelHandlerContext, ChannelFuture future,
-            HTTPCarbonMessage httpCarbonRequest, long channelStartTime, int timeoutOfOriginalRequest) {
+                                      HTTPCarbonMessage httpCarbonRequest, long channelStartTime,
+                                      int timeoutOfOriginalRequest) {
         HttpResponseFuture responseFuture = channelHandlerContext.channel()
                 .attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
         future.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(responseFuture);
