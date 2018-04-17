@@ -65,7 +65,7 @@ function testCall() returns (string) {
         dbOptions:()
     };
 
-    var dtsRet = testDB -> call("{call JAVAFUNC('select * from Customers where customerId=1')}", Customer);
+    var dtsRet = testDB -> call("{call JAVAFUNC('select * from Customers where customerId=1')}", [Customer]);
     table[] dts = check dtsRet;
 
     string name;
