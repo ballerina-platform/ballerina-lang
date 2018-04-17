@@ -221,11 +221,16 @@ function testPrintData() {
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
 
-    table<Person> dt = table{};
+    table<Person> dt = table{index:["id", "age"], primaryKey:["id", "age"]};
     _ = dt.add(p1);
     _ = dt.add(p2);
     _ = dt.add(p3);
 
+    io:println(dt);
+}
+
+function testPrintDataEmptyTable() {
+    table<Person> dt = table{};
     io:println(dt);
 }
 

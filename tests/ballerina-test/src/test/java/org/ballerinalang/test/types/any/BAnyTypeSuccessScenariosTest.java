@@ -60,16 +60,17 @@ public class BAnyTypeSuccessScenariosTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BTable.class);
         BTable table = (BTable) returns[0];
-        Assert.assertEquals(table.stringValue(), "{data: [{id:1, name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
+        Assert.assertEquals(table.stringValue(), "table<Employee> {index: [], primaryKey: [], data: [{id:1, "
+                + "name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
     }
 
     @Test(description = "Test any type as a return value with actual table returning")
     public void testInputAnyAsTable() {
         BValue[] returns = BRunUtil.invoke(result, "inputAnyAsTableTest");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BTable.class);
-        BTable table = (BTable) returns[0];
-        Assert.assertEquals(table.stringValue(), "{data: [{id:1, name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
+        Assert.assertSame(returns[0].getClass(), BJSON.class);
+        BJSON bjson = (BJSON) returns[0];
+        Assert.assertEquals(bjson.stringValue(), "[{\"id\":1,\"name\":\"Jane\"},{\"id\":2,\"name\":\"Anne\"}]");
     }
 
 //TODO fix below scenario - basically need to rewrite the tree in method visit(ReturnStmt returnStmt) in
