@@ -27,6 +27,7 @@ import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 
@@ -39,6 +40,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
+
+import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
  * Test command for ballerina launcher.
@@ -66,6 +69,7 @@ public class TestCmd implements BLauncherCmd {
 
     @DynamicParameter(names = "-B", description = "Ballerina VM options")
     private Map<String, String> vmOptions = new HashMap<>();
+
     @Parameter(names = "--debug", hidden = true)
     private String debugPort;
 
@@ -94,17 +98,24 @@ public class TestCmd implements BLauncherCmd {
             sourceFileList = srcDirectory.getSourcePackageNames();
         }
 
+        // Enable remote debugging
+        if (null != debugPort) {
+            System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
+        }
+
         if (groupList != null && disableGroupList != null) {
             throw LauncherUtils
                     .createUsageException("Cannot specify both --groups and --disable-groups flags at the same time");
         }
+        // Setting the vm options
+        VMOptions.getInstance().addOptions(vmOptions);
 
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         // Setting the source root so it can be accessed from anywhere
         System.setProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
         Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
         try {
-            ConfigRegistry.getInstance().initRegistry(configRuntimeParams, null, ballerinaConfPath);
+            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, ballerinaConfPath);
             ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
         } catch (IOException e) {
             throw new RuntimeException("failed to read the specified configuration file: " + ballerinaConfPath

@@ -60,9 +60,10 @@ public class Utils {
      */
     public static void cleanUpDir(Path path) {
         try {
-            Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            if (Files.exists(path)) {
+                Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            }
         } catch (IOException e) {
-            // Do nothing
             errStream.println("Error occurred while deleting the dir : " + path.toString() + " with error : "
                               + e.getMessage());
         }
