@@ -33,13 +33,10 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
-
-import static org.ballerinalang.util.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
 
 /**
  * This represents the Ballerina worker scheduling functionality. 
@@ -229,15 +226,12 @@ public class BLangScheduler {
 
     private static void checkAndObserveNativeAsync(Context nativeCtx, AsyncInvocableWorkerResponseContext respCtx,
                                               CallableUnitInfo callableUnitInfo, int flags) {
-        if (FunctionFlags.isObserved(flags)) {
+        if (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) {
             ObserverContext observerContext = ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType
                             .toString(), callableUnitInfo.getName(), nativeCtx.getParentWorkerExecutionContext());
             respCtx.registerResponseCallback(new CallbackObserver(observerContext));
-            WorkerExecutionContext workerExecutionContext = nativeCtx.getParentWorkerExecutionContext();
-            if (workerExecutionContext.localProps == null) {
-                workerExecutionContext.localProps = new HashMap<>();
-            }
-            workerExecutionContext.localProps.put(KEY_OBSERVER_CONTEXT, observerContext);
+            ObservabilityUtils.setObserverContextToWorkerExecutionContext(nativeCtx.getParentWorkerExecutionContext(),
+                    observerContext);
         }
     }
 

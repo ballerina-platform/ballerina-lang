@@ -19,14 +19,21 @@ package org.ballerinalang.util.observability;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.util.tracer.BSpan;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.util.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
+import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
 
 /**
  * Utility methods to start server/client observation.
@@ -34,6 +41,23 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.KEY_OB
 public class ObservabilityUtils {
 
     private static final List<BallerinaObserver> observers = new CopyOnWriteArrayList<>();
+
+    private static final ObserverContext emptyContext = new ObserverContext();
+
+    private static final boolean enabled;
+
+    static {
+        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+        enabled = configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED) ||
+                configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED);
+    }
+
+    /**
+     * @return whether observability is enabled.
+     */
+    public static boolean isObservabilityEnabled() {
+        return enabled;
+    }
 
     /**
      * Adds a {@link BallerinaObserver} to a collection of observers that will be notified on
@@ -68,6 +92,9 @@ public class ObservabilityUtils {
      */
     public static ObserverContext startServerObservation(String connectorName, String serviceName,
                                                          String resourceName, WorkerExecutionContext parentContext) {
+        if (!enabled) {
+            return new ObserverContext();
+        }
         Objects.requireNonNull(connectorName);
         ObserverContext ctx = new ObserverContext();
         ctx.setConnectorName(connectorName);
@@ -92,6 +119,9 @@ public class ObservabilityUtils {
      */
     public static ObserverContext startClientObservation(String connectorName, String actionName,
                                                          WorkerExecutionContext parentCtx) {
+        if (!enabled) {
+            return new ObserverContext();
+        }
         Objects.requireNonNull(connectorName);
         ObserverContext ctx = new ObserverContext();
         ctx.setConnectorName(connectorName);
@@ -111,6 +141,9 @@ public class ObservabilityUtils {
      * @param parentCtx The parent {@link WorkerExecutionContext} instance.
      */
     public static void continueServerObservation(ObserverContext observerContext, WorkerExecutionContext parentCtx) {
+        if (!enabled) {
+            return;
+        }
         Objects.requireNonNull(parentCtx);
         ObserverContext parentObserverContext = populateAndGetParentObserverContext(parentCtx);
         observerContext.setParent(parentObserverContext);
@@ -128,6 +161,9 @@ public class ObservabilityUtils {
      * @param parentCtx The {@link WorkerExecutionContext} instance.
      */
     public static void continueClientObservation(ObserverContext observerContext, WorkerExecutionContext parentCtx) {
+        if (!enabled) {
+            return;
+        }
         Objects.requireNonNull(parentCtx);
         ObserverContext parentObserverContext = populateAndGetParentObserverContext(parentCtx);
         observerContext.setParent(parentObserverContext);
@@ -142,6 +178,9 @@ public class ObservabilityUtils {
      * @param observerContext The {@link ObserverContext} instance.
      */
     public static void stopObservation(ObserverContext observerContext) {
+        if (!enabled) {
+            return;
+        }
         Objects.requireNonNull(observerContext);
         if (observerContext.isServer()) {
             observers.forEach(observer -> observer.stopServerObservation(observerContext));
@@ -150,13 +189,32 @@ public class ObservabilityUtils {
         }
     }
 
-    public static ObserverContext getTransitionContext(Context context) {
+    public static ObserverContext getParentContext(Context context) {
         ObserverContext observerContext = populateAndGetParentObserverContext(
                 context.getParentWorkerExecutionContext());
         if (observerContext == null) {
             observerContext = new ObserverContext();
         }
         return observerContext;
+    }
+
+    public static Map<String, String> getContextProperties(ObserverContext observerContext) {
+        BSpan bSpan = (BSpan) observerContext.getProperty(KEY_SPAN);
+        if (bSpan != null) {
+            return bSpan.getTraceContext();
+        }
+        return Collections.emptyMap();
+    }
+
+    public static void setObserverContextToWorkerExecutionContext(WorkerExecutionContext workerExecutionContext,
+                                                                  ObserverContext observerContext) {
+        if (!enabled && observerContext == null) {
+            return;
+        }
+        if (workerExecutionContext.localProps == null) {
+            workerExecutionContext.localProps = new HashMap<>();
+        }
+        workerExecutionContext.localProps.put(KEY_OBSERVER_CONTEXT, observerContext);
     }
 
     private static ObserverContext populateAndGetParentObserverContext(WorkerExecutionContext parentCtx) {
@@ -172,7 +230,7 @@ public class ObservabilityUtils {
             }
             parent = parent.parent;
         }
-        ObserverContext observerContext = (ctx != null) ? (ObserverContext) ctx : ObserverContext.emptyContext();
+        ObserverContext observerContext = (ctx != null) ? (ObserverContext) ctx : emptyContext;
         ancestors.forEach(w -> {
             if (w.localProps == null) {
                 w.localProps = new HashMap<>();

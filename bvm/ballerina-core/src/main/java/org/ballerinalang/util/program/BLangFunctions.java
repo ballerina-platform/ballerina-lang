@@ -64,8 +64,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
-import static org.ballerinalang.util.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
-
 /**
  * This class contains helper methods to invoke Ballerina functions.
  *
@@ -370,7 +368,7 @@ public class BLangFunctions {
         WorkerData workerResult = BLangVMUtils.createWorkerData(wdi);
         WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo, workerInfo,
                 workerLocal, workerResult, wdi.retRegs, runInCaller);
-        setObserverContextToWorkerExecutionContext(ctx, observerContext);
+        ObservabilityUtils.setObserverContextToWorkerExecutionContext(ctx, observerContext);
         BLangScheduler.schedule(ctx);
         return ctx;
     }
@@ -482,15 +480,17 @@ public class BLangFunctions {
     private static void checkAndObserveServiceCallable(WorkerExecutionContext parentCtx,
                                                        ObserverContext observerContext,
                                                        CallableWorkerResponseContext respCtx) {
-        observerContext = (observerContext != null) ? observerContext : new ObserverContext();
-        respCtx.registerResponseCallback(new CallbackObserver(observerContext));
-        ObservabilityUtils.continueServerObservation(observerContext, parentCtx);
+        if (ObservabilityUtils.isObservabilityEnabled()) {
+            observerContext = (observerContext != null) ? observerContext : new ObserverContext();
+            respCtx.registerResponseCallback(new CallbackObserver(observerContext));
+            ObservabilityUtils.continueServerObservation(observerContext, parentCtx);
+        }
     }
 
     private static ObserverContext checkAndObserveNonNativeCallable(WorkerExecutionContext parentCtx,
                                                                     CallableWorkerResponseContext respCtx,
                                                                     CallableUnitInfo callableUnitInfo, int flags) {
-        if (FunctionFlags.isObserved(flags)) {
+        if (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) {
             ObserverContext observerContext = startCallableObservation(parentCtx, callableUnitInfo);
             respCtx.registerResponseCallback(new CallbackObserver(observerContext));
             return observerContext;
@@ -499,7 +499,7 @@ public class BLangFunctions {
     }
 
     private static void checkAndStopCallableObservation(ObserverContext ctx, int flags) {
-        if (FunctionFlags.isObserved(flags)) {
+        if (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) {
             ObservabilityUtils.stopObservation(ctx);
         }
     }
@@ -507,14 +507,11 @@ public class BLangFunctions {
     private static ObserverContext checkAndStartNativeCallableObservation(Context ctx,
                                                                           CallableUnitInfo callableUnitInfo,
                                                                           int flags) {
-        if (FunctionFlags.isObserved(flags)) {
+        if (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) {
             ObserverContext observerContext = startCallableObservation(ctx.getParentWorkerExecutionContext(),
                     callableUnitInfo);
-            WorkerExecutionContext workerExecutionContext = ctx.getParentWorkerExecutionContext();
-            if (workerExecutionContext.localProps == null) {
-                workerExecutionContext.localProps = new HashMap<>();
-            }
-            workerExecutionContext.localProps.put(KEY_OBSERVER_CONTEXT, observerContext);
+            ObservabilityUtils.setObserverContextToWorkerExecutionContext(ctx.getParentWorkerExecutionContext(),
+                    observerContext);
             return observerContext;
         }
         return null;
@@ -523,26 +520,15 @@ public class BLangFunctions {
     private static CallableUnitCallback getNativeCallableUnitCallback(WorkerExecutionContext parentCtx, Context ctx,
                                                                       ObserverContext observerContext, int[] retRegs,
                                                                       BType[] retTypes, int flags) {
-        if (FunctionFlags.isObserved(flags)) {
-            return new CallableUnitCallbackObserver(observerContext, new BLangCallableUnitCallback(ctx, parentCtx,
-                    retRegs, retTypes));
-        } else {
-            return new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes);
-        }
+        BLangCallableUnitCallback callback = new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes);
+        return (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) ?
+                new CallableUnitCallbackObserver(observerContext, callback) : callback;
     }
 
     private static ObserverContext startCallableObservation(WorkerExecutionContext parentCtx,
                                                             CallableUnitInfo callableUnitInfo) {
         return ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
                 callableUnitInfo.getName(), parentCtx);
-    }
-
-    private static void setObserverContextToWorkerExecutionContext(WorkerExecutionContext workerExecutionContext,
-                                                                   ObserverContext observerContext) {
-        if (workerExecutionContext.localProps == null) {
-            workerExecutionContext.localProps = new HashMap<>();
-        }
-        workerExecutionContext.localProps.put(KEY_OBSERVER_CONTEXT, observerContext);
     }
     
     /**
