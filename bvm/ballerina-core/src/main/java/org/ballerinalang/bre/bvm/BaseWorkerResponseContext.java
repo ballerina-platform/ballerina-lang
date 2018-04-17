@@ -155,16 +155,16 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
 
     @Override
     public void setLocalProperty(String key, Object val) {
-        if (localProps == null) {
-            localProps = new HashMap<>();
+        if (this.localProps == null) {
+            this.localProps = new HashMap<>();
         }
-        localProps.put(key, val);
+        this.localProps.put(key, val);
     }
 
     @Override
     public Object getLocalProperty(String key) {
-        if (localProps != null) {
-            return localProps.get(key);
+        if (this.localProps != null) {
+            return this.localProps.get(key);
         }
         return null;
     }

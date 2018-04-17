@@ -118,7 +118,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             // TODO: Need to revisit this code of observation.
             ObserverContext ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_WEBSOCKET,
                                                                             onUpgradeResource.getServiceName(),
-                                                                            onUpgradeResource.getName(), null);
+                                                                            onUpgradeResource.getName(), null, null);
 //            ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
 
             Executor.submit(onUpgradeResource, new CallableUnitCallback() {

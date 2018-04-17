@@ -17,15 +17,24 @@
  */
 package org.ballerinalang.util.observability;
 
+import org.ballerinalang.util.tracer.BSpan;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
+
 /**
  * Context object used for observation purposes.
  */
 public class ObserverContext {
+
+    /**
+     * Singleton {@link ObserverContext} to pass as the context for non observable contexts.
+     */
+    private static final ObserverContext emptyContext = new ObserverContext();
 
     /**
      * {@link Map} of properties, which is used to represent addition information required for observers.
@@ -49,9 +58,15 @@ public class ObserverContext {
 
     private boolean started;
 
+    private ObserverContext parent;
+
     public ObserverContext() {
         this.properties = new HashMap<>();
         this.tags = new HashMap<>();
+    }
+
+    public static ObserverContext emptyContext() {
+        return emptyContext;
     }
 
     public void addProperty(String key, Object value) {
@@ -120,5 +135,21 @@ public class ObserverContext {
 
     void setStarted() {
         this.started = true;
+    }
+
+    public ObserverContext getParent() {
+        return parent;
+    }
+
+    public void setParent(ObserverContext parent) {
+        this.parent = parent;
+    }
+
+    public Map<String, String> getTraceProperties() {
+        BSpan bSpan = (BSpan) getProperty(KEY_SPAN);
+        if (bSpan != null) {
+            return bSpan.getTraceContext();
+        }
+        return Collections.emptyMap();
     }
 }

@@ -32,8 +32,6 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.util.Map;
-
 
 /**
  * {@code Post} is the POST action implementation of the HTTP Connector.
@@ -74,9 +72,8 @@ public class Post extends AbstractHTTPAction {
         HTTPCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_POST);
 
-        ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context);
-        Map<String, String> traceContext = ObservabilityUtils.getTraceProperties();
-        HttpUtil.injectHeaders(outboundRequestMsg, traceContext);
+        ObserverContext observerContext = ObservabilityUtils.getTransitionContext(context);
+        HttpUtil.injectHeaders(outboundRequestMsg, observerContext.getTraceProperties());
         observerContext.addTags(HttpUtil.extractTags(outboundRequestMsg));
 
         return outboundRequestMsg;

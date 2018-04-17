@@ -34,8 +34,6 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.util.Map;
-
 
 /**
  * {@code Head} is the HEAD action implementation of the HTTP Connector.
@@ -76,9 +74,8 @@ public class Head extends AbstractHTTPAction {
         HTTPCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
         outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_HEAD);
 
-        ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context);
-        Map<String, String> traceContext = ObservabilityUtils.getTraceProperties();
-        HttpUtil.injectHeaders(outboundReqMsg, traceContext);
+        ObserverContext observerContext = ObservabilityUtils.getTransitionContext(context);
+        HttpUtil.injectHeaders(outboundReqMsg, observerContext.getTraceProperties());
         observerContext.addTags(HttpUtil.extractTags(outboundReqMsg));
 
         return outboundReqMsg;
