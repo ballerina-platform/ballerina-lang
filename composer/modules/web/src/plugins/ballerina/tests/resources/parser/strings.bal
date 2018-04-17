@@ -2,7 +2,7 @@ import ballerina/lang.system;
 import ballerina/lang.strings;
 import ballerina/lang.blobs;
 
-function main (string[] args) {
+function main (string... args) {
 
     string statement = "Lion in Town. Catch the Lion ";
 

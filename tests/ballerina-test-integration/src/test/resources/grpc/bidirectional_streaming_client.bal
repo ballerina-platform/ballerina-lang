@@ -7,7 +7,7 @@ import ballerina/log;
 import ballerina/runtime;
 
 int total = 0;
-function main (string[] args) {
+function main (string... args) {
 
     endpoint ChatClient chatEp {
         host:"localhost",

@@ -1,11 +1,11 @@
 import ballerina/sql;
 import ballerina/io;
 
-function testSelectData () returns (string) {
+function testSelectData() returns (string) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
     string returnData;
     try {
@@ -27,11 +27,11 @@ function testSelectData () returns (string) {
     return returnData;
 }
 
-function testGeneratedKeyOnInsert () returns (string) {
+function testGeneratedKeyOnInsert() returns (string) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     string id = "";
@@ -42,10 +42,10 @@ function testGeneratedKeyOnInsert () returns (string) {
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", ());
 
         match x {
-            (int, string[] ) =>{
+            (int, string[])=> {
                 id = generatedID[0];
             }
-                error err1 =>{
+            error err1 => {
                 id = err1.message;
             }
         }
@@ -56,21 +56,21 @@ function testGeneratedKeyOnInsert () returns (string) {
     return id;
 }
 
-function testCallProcedure () returns (string) {
+function testCallProcedure() returns (string) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
     string returnData;
     try {
         var x = testDB -> call("{call InsertPersonDataInfo(100,'James')}", (), ());
         match x {
-            table[] dt  =>{
+            table[] dt => {
                 var j = check <json>dt[0];
                 returnData = io:sprintf("%j", [j]);
             }
-            error err1 =>{
+            error err1 => {
                 returnData = err1.message;
             }
         }
@@ -80,11 +80,11 @@ function testCallProcedure () returns (string) {
     return returnData;
 }
 
-function testBatchUpdate () returns (string) {
+function testBatchUpdate() returns (string) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int[] updateCount;
@@ -109,11 +109,11 @@ function testBatchUpdate () returns (string) {
         var x = testDB -> batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
         match x {
-            int[] data  =>{
+            int[] data => {
                 updateCount = data;
                 returnVal = "success";
             }
-            error err1 =>{
+            error err1 => {
                 returnVal = err1.message;
             }
         }
@@ -123,11 +123,11 @@ function testBatchUpdate () returns (string) {
     return returnVal;
 }
 
-function testInvalidArrayofQueryParameters () returns (string) {
+function testInvalidArrayofQueryParameters() returns (string) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     string returnData;
@@ -139,11 +139,11 @@ function testInvalidArrayofQueryParameters () returns (string) {
         var x = testDB -> select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
         match x {
-            table dt  =>{
-                var j =  check <json>dt;
+            table dt => {
+                var j = check <json>dt;
                 returnData = io:sprintf("%j", [j]);
             }
-            error err1 =>{
+            error err1 => {
                 returnData = err1.message;
             }
         }

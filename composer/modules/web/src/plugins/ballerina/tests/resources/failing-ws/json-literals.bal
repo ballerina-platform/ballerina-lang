@@ -1,6 +1,6 @@
 import ballerina/lang.system;
 
-function main (string[] args) {
+function main (string... args) {
 
     //Creates an empty JSON Object.
     json empty = {};

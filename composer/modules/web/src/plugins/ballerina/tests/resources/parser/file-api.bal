@@ -3,7 +3,7 @@ import ballerina/lang.blobs;
 import ballerina/lang.system;
 import ballerina/lang.strings;
 
-function main (string[] args) {
+function main (string... args) {
     //Create 'File' struct and open for writing.
     files:File target = {path:"/tmp/result.txt"};
     files:open(target, "w");

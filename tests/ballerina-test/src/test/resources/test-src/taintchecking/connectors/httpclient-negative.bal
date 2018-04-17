@@ -6,7 +6,7 @@ endpoint http:Client clientEndpoint {
     }]
 };
 
-function main (string[] args) {
+function main (string... args) {
     string param = args[0];
     string headerName = args[0];
     string headerValue = args[0];

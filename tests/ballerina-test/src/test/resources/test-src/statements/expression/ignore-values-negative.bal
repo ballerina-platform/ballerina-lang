@@ -12,7 +12,7 @@ function checkAndAdd (int x, int y) returns (string|error) {
     return (result);
 }
 
-function main(string[] args){
+function main(string... args){
     int i = 10;
     int j = 15;
     int k = -1;
