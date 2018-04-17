@@ -21,16 +21,26 @@ dispatched to the relevant resource. Any Filter implementation should be struct-
 @Field {value:"filterRequest: Request filter function pointer"}
 @Field {value:"filterResponse: Response filter function pointer"}
 public type Filter object {
-    public {
-        function (Request request, FilterContext context) returns (FilterResult) filterRequest;
-        function (Response response, FilterContext context) returns (FilterResult) filterResponse;
+    @Description {value:"filterRequest: Request filter function"}
+    public function requestFilter (Request request, FilterContext context) returns FilterResult {
+        error e = {message:"Not implemented"};
+        throw e;
     }
-
-    public new (filterRequest, filterResponse) {
+    @Description {value:"filterResponse: Response filter function"}
+    public function responseFilter(Response response, FilterContext context) returns FilterResult {
+        error e = {message:"Not implemented"};
+        throw e;
     }
-
-    public function init ();
-    public function terminate ();
+    @Description {value:"Initializes the filter"}
+    public function init () {
+        error e = {message:"Not implemented"};
+        throw e;
+    }
+    @Description {value:"Stops the filter"}
+    public function terminate () {
+        error e = {message:"Not implemented"};
+        throw e;
+    }
 };
 
 @Description {value:"Representation of filter Context."}
@@ -38,7 +48,7 @@ public type Filter object {
 @Field {value:"serviceName: Name of the service"}
 @Field {value:"filterResponse: Name of the resource"}
 public type FilterContext object {
-    // TODO should have a map of properties
+// TODO should have a map of properties
     public {
         typedesc serviceType;
         string serviceName;
@@ -53,7 +63,7 @@ filter function"}
 @Field {value:"statusCode: Status code which will be returned to the request sender if the canProceed is set to false"}
 @Field {value:"message: Message which will be returned to the request sender if the canProceed is set to false"}
 public type FilterResult {
-    boolean canProceed;
-    int statusCode;
-    string message;
+    boolean canProceed,
+    int statusCode,
+    string message,
 };

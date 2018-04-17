@@ -26,55 +26,45 @@ AuthnHandlerChain authnHandlerChain = new(registry);
 @Field {value:"filterRequest: request filter method which attempts to authenticated the request"}
 @Field {value:"filterRequest: response filter method (not used this scenario)"}
 public type AuthnFilter object {
-    public {
-        function (Request request, FilterContext context) returns (FilterResult) filterRequest;
-        function (Response response, FilterContext context) returns (FilterResult) filterResponse;
+    @Description {value:"filterRequest: Request filter function"}
+    public function requestFilter (Request request, FilterContext context) returns FilterResult {
+	// get auth config for this resource
+    	boolean authenticated;
+    	var (isSecured, authProviders) = getResourceAuthConfig(context);
+    	if (isSecured) {
+        	// if auth providers are there, use those to authenticate
+	        match authProviders {
+        	    string[] providers => {
+                	if (lengthof providers > 0) {
+	                    authenticated = authnHandlerChain.handleWithSpecificAuthnHandlers(providers, request);
+        	        } else {
+                	    // if not, try to authenticate using any of available authn handlers
+	                    authenticated = authnHandlerChain.handle(request);
+        	        }
+	            }
+        	    () => {
+                	authenticated = authnHandlerChain.handle(request);
+	            }
+       		 }
+    	} else {
+        	// not secured
+	        return createAuthnResult(true);
+	    }        
     }
-
-    public new (filterRequest, filterResponse) {
+    @Description {value:"Filter function implementation for the response flow"}
+    @Param {value:"request: Request instance"}
+    @Param {value:"context: FilterContext instance"}
+    @Return {value:"FilterResult: returns a FilterResult instance with a hard coded successful message"}
+    public function responseFilter(Response response, FilterContext context) returns FilterResult {
+        FilterResult responseFilterResult = {canProceed:true, statusCode:200, message:"Successful"};
+        return responseFilterResult;
     }
-
-    public function init ();
-    public function terminate ();
+    @Description {value:"Initializes the AuthnFilter"}
+    public function init (){
+    }
+    @Description {value:"Stops the AuthnFilter"}
+    public function terminate (){}
 };
-
-@Description {value:"Initializes the AuthnFilter"}
-public function AuthnFilter::init () {
-}
-
-@Description {value:"Stops the AuthnFilter"}
-public function AuthnFilter::terminate () {
-}
-
-@Description {value:"Filter function implementation which tries to authenticate the request"}
-@Param {value:"request: Request instance"}
-@Param {value:"context: FilterContext instance"}
-@Return {value:"FilterResult: Authentication result to indicate if the request can proceed or not"}
-public function authnRequestFilterFunc (Request request, FilterContext context) returns (FilterResult) {
-    // get auth config for this resource
-    boolean authenticated;
-    var (isSecured, authProviders) = getResourceAuthConfig(context);
-    if (isSecured) {
-        // if auth providers are there, use those to authenticate
-        match authProviders {
-            string[] providers => {
-                if (lengthof providers > 0) {
-                    authenticated = authnHandlerChain.handleWithSpecificAuthnHandlers(providers, request);
-                } else {
-                    // if not, try to authenticate using any of available authn handlers
-                    authenticated = authnHandlerChain.handle(request);
-                }
-            }
-            () => {
-                authenticated = authnHandlerChain.handle(request);
-            }
-        }
-    } else {
-        // not secured
-        return createAuthnResult(true);
-    }
-    return createAuthnResult(authenticated);
-}
 
 @Description {value:"Creates an instance of FilterResult"}
 @Param {value:"authorized: authorization status for the request"}
@@ -150,8 +140,7 @@ and then from the service level, if its not there in the resource level"}
 @Param {value:"annotationName: annotation name"}
 @Param {value:"annData: array of annotationData instances"}
 @Return {value:"ListenerAuthConfig: ListenerAuthConfig instance if its defined, else nil"}
-function getAuthAnnotation (string annotationPackage, string annotationName, internal:annotationData[] annData)
-                                                                                            returns (ListenerAuthConfig?) {
+function getAuthAnnotation (string annotationPackage, string annotationName, internal:annotationData[] annData) returns (ListenerAuthConfig?) {
     if (lengthof annData == 0) {
         return ();
     }
@@ -165,10 +154,10 @@ function getAuthAnnotation (string annotationPackage, string annotationName, int
     match authAnn {
         internal:annotationData annData1 => {
             if (annotationName == RESOURCE_ANN_NAME) {
-                HttpResourceConfig resourceConfig = check <HttpResourceConfig> annData1.value;
+                HttpResourceConfig resourceConfig = check <HttpResourceConfig>annData1.value;
                 return resourceConfig.authConfig;
             } else if (annotationName == SERVICE_ANN_NAME) {
-                HttpServiceConfig serviceConfig = check <HttpServiceConfig> annData1.value;
+                HttpServiceConfig serviceConfig = check <HttpServiceConfig>annData1.value;
                 return serviceConfig.authConfig;
             } else {
                 return ();
@@ -178,13 +167,4 @@ function getAuthAnnotation (string annotationPackage, string annotationName, int
             return ();
         }
     }
-}
-
-@Description {value:"Filter function implementation for the response flow"}
-@Param {value:"request: Request instance"}
-@Param {value:"context: FilterContext instance"}
-@Return {value:"FilterResult: returns a FilterResult instance with a hard coded successful message"}
-public function responseFilterFunc (Response response, FilterContext context) returns (FilterResult) {
-    FilterResult responseFilterResult = {canProceed:true, statusCode:200, message:"Successful"};
-    return responseFilterResult;
 }

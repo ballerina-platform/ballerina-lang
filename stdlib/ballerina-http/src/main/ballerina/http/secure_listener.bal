@@ -142,8 +142,8 @@ function createAuthFiltersForSecureListener (SecureEndpointConfiguration config)
     }
     Filter[] authFilters = [];
     //AuthnHandlerChain authnHandlerChain = new(registry);
-    AuthnFilter authnFilter = new(authnRequestFilterFunc, responseFilterFunc);
-    AuthzFilter authzFilter = new(authzRequestFilterFunc, responseFilterFunc);
+    AuthnFilter authnFilter;
+    AuthzFilter authzFilter;
     authFilters[0] = <Filter>authnFilter;
     authFilters[1] = authzFilter;
     return authFilters;
