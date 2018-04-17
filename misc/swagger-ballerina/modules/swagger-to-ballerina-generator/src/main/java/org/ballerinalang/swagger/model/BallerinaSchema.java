@@ -18,12 +18,15 @@ package org.ballerinalang.swagger.model;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 import org.ballerinalang.swagger.utils.GeneratorConstants;
 
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -41,29 +44,19 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
     private Set<Map.Entry<String, Schema>> properties;
 
     @Override
-    public BallerinaSchema buildContext(Schema schema) throws BallerinaOpenApiException {
+    public BallerinaSchema buildContext(Schema schema, OpenAPI openAPI) throws BallerinaOpenApiException {
         this.oasSchema = schema;
 
         // identify array type schema definitions
         if (schema instanceof ArraySchema) {
-            this.properties = new LinkedHashSet<>();
-            Schema propSchema = new Schema();
-            String type;
-
-            if (((ArraySchema) schema).getItems().get$ref() != null) {
-                type = getReferenceType(((ArraySchema) schema).getItems().get$ref());
-            } else {
-                type = ((ArraySchema) schema).getItems().getType();
-            }
-            String name = type.toLowerCase(Locale.ENGLISH) + LIST_SUFFIX;
-            toPropertyName(name);
-            type = type.isEmpty() ? UNSUPPORTED_PROPERTY_MSG : type + "[]";
-
-            propSchema.setType(type);
-            AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry<>(name, propSchema);
-            this.properties.add(entry);
-
+            extractArraySchema((ArraySchema) schema);
             return this;
+        } else if (schema instanceof ComposedSchema) {
+            extractComposedSchema((ComposedSchema) schema, openAPI);
+            return this;
+        } else if (schema.get$ref() != null) {
+            String refType = getReferenceType(schema.get$ref());
+            schema = openAPI.getComponents().getSchemas().get(refType);
         }
 
         if (schema.getProperties() == null) {
@@ -98,8 +91,8 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
     }
 
     @Override
-    public BallerinaSchema buildContext(Schema schema, OpenAPI openAPI) throws BallerinaOpenApiException {
-        return buildContext(schema);
+    public BallerinaSchema buildContext(Schema schema) throws BallerinaOpenApiException {
+        return buildContext(schema, null);
     }
 
     @Override
@@ -146,6 +139,37 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
         }
 
         return type;
+    }
+
+    private void extractArraySchema(ArraySchema schema) {
+        this.properties = new LinkedHashSet<>();
+        Schema propSchema = new Schema();
+        String type;
+
+        if (schema.getItems().get$ref() != null) {
+            type = getReferenceType(schema.getItems().get$ref());
+        } else {
+            type = schema.getItems().getType();
+        }
+        String name = type.toLowerCase(Locale.ENGLISH) + LIST_SUFFIX;
+        name = toPropertyName(name);
+        type = type.isEmpty() ? UNSUPPORTED_PROPERTY_MSG : type + "[]";
+
+        propSchema.setType(type);
+        AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry<>(name, propSchema);
+        this.properties.add(entry);
+    }
+
+    private void extractComposedSchema(ComposedSchema cSchema, OpenAPI openAPI) throws BallerinaOpenApiException {
+        this.properties = new LinkedHashSet<>();
+        List<Schema> allOf = cSchema.getAllOf();
+
+        List<BallerinaSchema> childSchemas = new ArrayList<>();
+        for (Schema schema: allOf) {
+            childSchemas.add(new BallerinaSchema().buildContext(schema, openAPI));
+        }
+
+        childSchemas.forEach(schema -> this.properties.addAll(schema.getProperties()));
     }
 
     /**
