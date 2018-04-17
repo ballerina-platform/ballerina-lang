@@ -117,12 +117,14 @@ function Listener::sendSubscriptionRequest() {
         string resourceUrl = <string> subscriptionDetails["resourceUrl"];
         string hub = <string> subscriptionDetails["hub"];
         string topic = <string> subscriptionDetails["topic"];
+        http:SecureSocket? secureSocket = <http:SecureSocket> subscriptionDetails["secureSocket"] but { error => () };
+
         if (hub == "" || topic == "") {
             if (resourceUrl == "") {
                 log:printError("Subscription Request not sent since hub and/or topic and resource URL are unavailable");
                 return;
             }
-            match (retrieveHubAndTopicUrl(resourceUrl)) {
+            match (retrieveHubAndTopicUrl(resourceUrl, secureSocket)) {
                 (string, string) discoveredDetails => {
                     var (retHub, retTopic) = discoveredDetails;
                     match (http:decode(retHub, "UTF-8")) {
@@ -145,7 +147,7 @@ function Listener::sendSubscriptionRequest() {
             }
         }
         http:AuthConfig? auth = <http:AuthConfig> subscriptionDetails["auth"] but { error => () };
-        invokeClientConnectorForSubscription(hub, auth, subscriptionDetails);
+        invokeClientConnectorForSubscription(hub, secureSocket, auth, subscriptionDetails);
     }
 }
 
@@ -170,8 +172,15 @@ public type SubscriberServiceEndpointConfiguration {
 @Description {value:"The function called to discover hub and topic URLs defined by a resource URL"}
 @Param {value:"resourceUrl: The resource URL advertising hub and topic URLs"}
 @Return {value:"The (hub, topic) URLs if successful, WebSubError if not"}
-function retrieveHubAndTopicUrl (string resourceUrl) returns @tainted ((string, string) | WebSubError) {
-    endpoint http:Client resourceEP {targets:[{url:resourceUrl}]};
+function retrieveHubAndTopicUrl (string resourceUrl, http:SecureSocket? secureSocket) returns @tainted
+((string, string) | WebSubError) {
+    endpoint http:Client resourceEP {
+        targets:[{
+            url:resourceUrl,
+            secureSocket: secureSocket
+        }]
+        //followRedirects:{enabled:true} //TODO: enable when re-direction is fixed
+    };
     http:Request request = new;
     var discoveryResponse = resourceEP -> get("", request);
     WebSubError websubError = {};
@@ -179,7 +188,7 @@ function retrieveHubAndTopicUrl (string resourceUrl) returns @tainted ((string, 
         http:Response response => {
             int responseStatusCode = response.statusCode;
             if (responseStatusCode == http:MOVED_PERMANENTLY_301 || responseStatusCode == http:FOUND_302) {
-                return retrieveHubAndTopicUrl(response.getHeader("Location"));
+                return retrieveHubAndTopicUrl(response.getHeader("Location"), secureSocket);
             }
             string[] linkHeaders;
             if (response.hasHeader("Link")) {
@@ -224,7 +233,8 @@ function retrieveHubAndTopicUrl (string resourceUrl) returns @tainted ((string, 
             }
         }
         http:HttpConnectorError connErr => {
-            websubError = { message:"Error occurred with WebSub discovery for Resource URL [" + resourceUrl + "]",
+            websubError = { message:"Error occurred with WebSub discovery for Resource URL [" + resourceUrl + "]: "
+                                    + connErr.message,
                             cause:connErr };
         }
     }
@@ -290,8 +300,13 @@ returns (http:FilterResult) {
 @Description {value:"Function to invoke the WebSubSubscriberConnector's actions for subscription"}
 @Param {value:"hub: The hub to which the subscription request is to be sent"}
 @Param {value:"subscriptionDetails: Map containing subscription details"}
-function invokeClientConnectorForSubscription (string hub, http:AuthConfig? auth, map subscriptionDetails) {
-    endpoint Client websubHubClientEP { url:hub, auth:auth };
+function invokeClientConnectorForSubscription (string hub, http:SecureSocket? secureSocket, http:AuthConfig? auth,
+map subscriptionDetails) {
+    endpoint Client websubHubClientEP {
+        url:hub,
+        secureSocket:secureSocket,
+        auth:auth
+    };
 
     string topic = <string> subscriptionDetails["topic"];
     string callback = <string> subscriptionDetails["callback"];
