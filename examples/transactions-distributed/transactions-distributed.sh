@@ -1,13 +1,17 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command to start the `initiator` service.  
 $ ballerina run iniator.bal
 ballerina: initiating service(s) in 'initiator'
 ballerina: started HTTP/WS server connector localhost:8080
 ballerina: started HTTP/WS server connector 10.100.1.182:53871
 
+#Next, run this command to start the `participant` service. 
 $ ballerina run participant.bal
 ballerina: initiating service(s) in 'participant'
 ballerina: started HTTP/WS server connector 10.100.1.182:54774
 ballerina: started HTTP/WS server connector localhost:8889
 
+#Run this curl command to invoke the services. 
 $ curl -v localhost:8080
 
 Output from initiator:
