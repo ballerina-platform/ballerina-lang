@@ -5,7 +5,7 @@ type Record {
     string name;
 };
 
-@Description {value:"Here's how you can throw an error. Next example shows you how to catch thrown errors."}
+@Description {value:"This example demonstrates throwing an error. The next example demonstrates how to catch thrown errors."}
 function readRecord (Record|() value) {
     var result = value;
     match result{
@@ -18,8 +18,8 @@ function readRecord (Record|() value) {
         }
     }
 }
-
-function main (string... args) {
+// Catch a thrown error. 
+function main (string[] args) {
     Record r1 = {id:1, name:"record1"};
     readRecord(r1);
     Record|() r2;
@@ -32,7 +32,7 @@ function main (string... args) {
             readRecord(r2);
         }
     }
-    // Following lines will not execute.
+    // The following lines of code will not be executed.
     Record r3 = {id:3, name:"record3"};
     readRecord(r3);
 }
