@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
@@ -60,7 +61,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private ClientOutboundHandler http2ClientOutboundHandler;
     private HTTPCarbonMessage incomingMsg;
     private HandlerExecutor handlerExecutor;
-    private boolean keepAlive;
+    private KeepAliveConfig keepAliveConfig;
     private boolean idleTimeoutTriggered;
 
     @Override
@@ -111,7 +112,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                         this.targetRespMsg = null;
                         targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
 
-                        if (!keepAlive) {
+                        if (!isKeepAlive(keepAliveConfig)) {
                             closeChannel(ctx);
                         }
 
@@ -268,6 +269,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         this.connectionManager = connectionManager;
     }
 
+    public HTTPCarbonMessage getIncomingMsg() {
+        return incomingMsg;
+    }
+
     public void setIncomingMsg(HTTPCarbonMessage incomingMsg) {
         this.incomingMsg = incomingMsg;
     }
@@ -276,8 +281,12 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         this.targetChannel = targetChannel;
     }
 
-    public void setKeepAlive(boolean keepAlive) {
-        this.keepAlive = keepAlive;
+    public KeepAliveConfig getKeepAliveConfig() {
+        return keepAliveConfig;
+    }
+
+    public void setKeepAliveConfig(KeepAliveConfig keepAliveConfig) {
+        this.keepAliveConfig = keepAliveConfig;
     }
 
     public HttpResponseFuture getHttpResponseFuture() {
@@ -286,5 +295,23 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     public void setHttp2ClientOutboundHandler(ClientOutboundHandler http2ClientOutboundHandler) {
         this.http2ClientOutboundHandler = http2ClientOutboundHandler;
+    }
+
+    private boolean isKeepAlive(KeepAliveConfig keepAliveConfig) {
+        switch (keepAliveConfig) {
+            case AUTO:
+                if (Float.valueOf((String) getIncomingMsg().getProperty(Constants.HTTP_VERSION)) > Constants.HTTP_1_0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            case ALWAYS:
+                return true;
+            case NEVER:
+                return false;
+            default:
+               // The execution will never reach here. To make the code compilable, default case has to be placed here.
+               return true;
+        }
     }
 }

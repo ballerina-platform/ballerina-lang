@@ -46,6 +46,7 @@ import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
@@ -73,7 +74,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     private int maxRedirectCount;
     private int cacheSize;
     private int cacheDelay;
-    private boolean isKeepAlive;
+    private KeepAliveConfig keepAliveConfig;
     private ProxyServerConfiguration proxyServerConfiguration;
     private ConnectionManager connectionManager;
     private Http2ConnectionManager http2ConnectionManager;
@@ -92,7 +93,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         this.httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
         this.followRedirect = senderConfiguration.isFollowRedirect();
         this.maxRedirectCount = senderConfiguration.getMaxRedirectCount(Constants.MAX_REDIRECT_COUNT);
-        this.isKeepAlive = senderConfiguration.isKeepAlive();
+        this.keepAliveConfig = senderConfiguration.getKeepAliveConfig();
         this.proxyServerConfiguration = senderConfiguration.getProxyServerConfiguration();
         this.connectionManager = connectionManager;
         this.http2ConnectionManager = connectionManager.getHttp2ConnectionManager();
@@ -129,7 +130,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         HttpClientCodec sourceCodec = new HttpClientCodec();
         targetHandler = new TargetHandler();
         targetHandler.setHttp2ClientOutboundHandler(clientOutboundHandler);
-        targetHandler.setKeepAlive(isKeepAlive);
+        targetHandler.setKeepAliveConfig(getKeepAliveConfig());
         if (http2) {
             SSLConfig sslConfig = senderConfiguration.getSSLConfig();
             if (sslConfig != null) {
@@ -316,8 +317,8 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         return connection;
     }
 
-    public boolean isKeepAlive() {
-        return isKeepAlive;
+    public KeepAliveConfig getKeepAliveConfig() {
+        return keepAliveConfig;
     }
 
     public void setHttp2ClientChannel(Http2ClientChannel http2ClientChannel) {
