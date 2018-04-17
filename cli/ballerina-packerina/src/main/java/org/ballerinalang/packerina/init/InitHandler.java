@@ -85,7 +85,7 @@ public class InitHandler {
             // Creating main function file.
             Files.createDirectory(cacheFolder);
         }
-        String ignoreFileContent = "*\n!.gitignore\n!.svnignore";
+        String ignoreFileContent = "*\n!.gitignore\n";
         createIgnoreFiles(cacheFolder, ignoreFileContent);
     }
 
@@ -132,17 +132,12 @@ public class InitHandler {
      */
     private static void createIgnoreFiles(Path projectPath, String ignoreFileContent) throws IOException {
         Path gitIgnorePath = projectPath.resolve(".gitignore");
-        Path svnIgnorePath = projectPath.resolve(".svnignore");
         if (Files.exists(gitIgnorePath)) {
             writeIgnoreFileContent(gitIgnorePath, ignoreFileContent);
-        } else if (Files.exists(svnIgnorePath)) {
-            writeIgnoreFileContent(svnIgnorePath, ignoreFileContent);
         } else {
             // Creating ignore files.
             Files.createFile(gitIgnorePath);
-            Files.createFile(svnIgnorePath);
             writeIgnoreFileContent(gitIgnorePath, ignoreFileContent);
-            writeIgnoreFileContent(svnIgnorePath, ignoreFileContent);
         }
     }
     
