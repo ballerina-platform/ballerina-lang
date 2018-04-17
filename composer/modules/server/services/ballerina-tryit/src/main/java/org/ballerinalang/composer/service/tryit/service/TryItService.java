@@ -29,6 +29,7 @@ import org.ballerinalang.composer.service.ballerina.launcher.service.LaunchManag
 import org.ballerinalang.composer.service.tryit.Constants;
 import org.wso2.msf4j.Request;
 
+import java.util.Set;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
@@ -39,7 +40,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Set;
 
 /**
  * Microservice for try-it service. This acts as a proxy for different protocols.

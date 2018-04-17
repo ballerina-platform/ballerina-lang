@@ -27,13 +27,13 @@ import org.ballerinalang.composer.service.ballerina.launcher.service.util.LogPar
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.websocket.Session;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.HashSet;
+import javax.websocket.Session;
 
 /**
  * Launch Manager which manage launch requests from the clients.
@@ -166,7 +166,8 @@ public class LaunchManager {
                         && getServerStartedURL() == null) {
                     this.updatePort(line);
                     line = LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL + " " +
-                            String.format(LauncherConstants.LOCAL_TRY_IT_URL, LauncherConstants.LOCALHOST, getPort(line));
+                            String.format(LauncherConstants.LOCAL_TRY_IT_URL,
+                                    LauncherConstants.LOCALHOST, getPort(line));
                     pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
                 } else {
                     pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
