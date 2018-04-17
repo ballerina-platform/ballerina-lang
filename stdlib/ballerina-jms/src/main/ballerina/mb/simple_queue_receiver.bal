@@ -89,11 +89,9 @@ public type QueueReceiverConnector object {
     public function receive (int timeoutInMilliSeconds = 0) returns Message|Error|() {
         var result = helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
         match (result) {
-            jms:Message m => {
-                return new Message(m);
-            }
+            jms:Message m => return new Message(m);
             jms:Error e => return e;
-            () => {}
+            () => return ();
         }
     }
 };
