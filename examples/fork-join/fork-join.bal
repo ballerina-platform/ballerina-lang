@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string[] args) {
+function main (string... args) {
     // The fork-join allows developers to spawn (fork) multiple workers within a ballerina program, join the results of
     // those workers, and execute code on joined results.
     // In this example, you are forking worker w1 and w2.

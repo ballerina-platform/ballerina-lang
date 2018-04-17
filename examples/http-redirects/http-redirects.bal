@@ -7,7 +7,7 @@ endpoint http:Client clientEP {
     followRedirects : { enabled : true, maxCount : 5 }
 };
 
-function main (string[] args) {
+function main (string... args) {
     http:Request req = new;
 
     //Send a GET request to the specified endpoint

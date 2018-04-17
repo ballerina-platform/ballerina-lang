@@ -35,7 +35,7 @@ function testAggregationQuery (stream<StatusCount> filteredStatusCountStream,
     }
 }
 
-function main (string[] args) {
+function main (string... args) {
 
     //Create a stream that is constrained by the StatusCount struct type.
     stream<StatusCount> filteredStatusCountStream;

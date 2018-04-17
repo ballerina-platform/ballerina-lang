@@ -13,7 +13,7 @@ type Student {
 };
 
 
-public function main (string[] args) {
+function main (string... args) {
     endpoint mysql:Client customerDatabase {
         host: "localhost",
         port: 3306,

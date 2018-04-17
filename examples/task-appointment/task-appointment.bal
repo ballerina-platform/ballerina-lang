@@ -6,7 +6,7 @@ import ballerina/runtime;
 int app1Count;
 task:Appointment? appointment1;
 
-function main (string[] args) {
+function main (string... args) {
     worker w1 {
         log:printInfo("------- Scheduling Appointments ----------------");
 

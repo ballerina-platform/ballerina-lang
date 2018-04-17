@@ -79,7 +79,7 @@ endpoint http:Client clientEP {
     httpVersion:"2.0"
 };
 
-function main (string[] args) {
+function main (string... args) {
 
     http:Request serviceReq = new;
     http:HttpFuture httpFuture = new;

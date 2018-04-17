@@ -2,7 +2,7 @@ import ballerina/observe;
 import ballerina/io;
 import ballerina/time;
 
-function main (string[] args) {
+function main (string... args) {
 
 	map tags = {"event_type":"test"};
 

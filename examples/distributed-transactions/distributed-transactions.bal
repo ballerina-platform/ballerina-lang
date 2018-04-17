@@ -2,7 +2,7 @@ import ballerina/mysql;
 import ballerina/sql;
 import ballerina/io;
 
-function main (string[] args) {
+function main (string... args) {
     //Create an endpoint for the first database named testdb1. Since this endpoint is
     //participated in a distributed transaction, the isXA property should be true.
     endpoint mysql:Client testDBEP1 {

@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/math;
 
-function main (string[] args) {
+function main (string... args) {
 
     io:println("Value of PI : " + math:PI );
     io:println("Value of E  : " + math:E );

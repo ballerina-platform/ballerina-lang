@@ -8,7 +8,7 @@ type Person {
     string status;
 };
 
-function main (string[] args) {
+function main (string... args) {
     //Create an instance of 'Person' using the default values.
     Person p1 = {};
     io:println(p1);

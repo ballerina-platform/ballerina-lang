@@ -14,7 +14,7 @@ type movie{
     person writer;
 };
 //This function creates a movie object.  
-function main (string[] args) {
+function main (string... args) {
     movie theRevenant = {title:"The Revenant", year:"2015",
                             released:"08 Jan 2016",
                             writer:{fname:"Michael",

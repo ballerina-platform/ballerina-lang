@@ -7,7 +7,7 @@ endpoint http:Client clientEndpoint {
               }]
     };
 
-function main (string[] args) {
+function main (string... args) {
 
     http:Request req = new;
     // Send a GET request to the specified endpoint. 

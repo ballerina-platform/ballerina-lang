@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string[] args) {
+function main (string... args) {
     //Create an int array of length 0.
     int[] a = [];
     io:println(lengthof a);

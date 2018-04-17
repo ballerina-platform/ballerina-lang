@@ -2,7 +2,7 @@ import ballerina/caching;
 import ballerina/io;
 import ballerina/runtime;
 
-public function main (string[] args) {
+function main (string... args) {
     // Create a new cache. Cache cleanup task runs every 5 seconds and clears
     // any expired cache. So cache expiry time is set to 4 seconds to demonstrate
     // cache cleaning.

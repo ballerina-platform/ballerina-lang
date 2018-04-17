@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string[] args) {
+function main (string... args) {
     //A 'float' to 'int' conversion is considered as a type conversion in Ballerina
     // because the underlying representation of the value changes with this conversion.
     float f = 10.0;
