@@ -41,8 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
 
-import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
-
 /**
  * Test command for ballerina launcher.
  */
