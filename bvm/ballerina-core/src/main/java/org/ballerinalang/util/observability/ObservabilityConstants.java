@@ -38,8 +38,8 @@ public class ObservabilityConstants {
     public static final String TAG_KEY_HTTP_URL = "http.url";
     public static final String TAG_KEY_PROTOCOL = "protocol";
 
-    public static final String TAG_KEY_HTTP_HOST = "http.host";
-    public static final String TAG_KEY_HTTP_PORT = "http.port";
+    public static final String TAG_KEY_PEER_HOSTNAME = "peer.hostname";
+    public static final String TAG_KEY_PEER_PORT = "peer.port";
 
     public static final String PROPERTY_HTTP_HOST = "Host";
     public static final String PROPERTY_HTTP_PORT = "PORT";
