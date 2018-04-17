@@ -162,3 +162,53 @@ type THREE 3;
 function passSingletons(ONE a, TWO b, THREE c) returns TWO {
     return b;
 }
+
+THREE uniqueKey = 3;
+
+function testSingletonAsGlobalVar() returns THREE {
+    return uniqueKey;
+}
+
+function testSingletonArray() returns ONE {
+    ONE[] oneArr = [];
+    oneArr[0] = 1;
+    oneArr[1] = 1;
+    oneArr[2] = 1;
+    oneArr[3] = 1;
+    return oneArr[3];
+}
+
+function testSingletonToIntAssignment() returns int {
+    ONE a = 1;
+    int b = a;
+    return b;
+}
+
+function testSingletonToFloatAssignment() returns float {
+    ONE a = 1;
+    float b = a;
+    return b;
+}
+
+type BINARY_TRUE true;
+type BINARY_FALSE false;
+
+type BINARY_STATE BINARY_TRUE | BINARY_FALSE;
+
+function testBooleanSingletons() returns boolean {
+    BINARY_TRUE a = true;
+    BINARY_STATE master = a;
+    if( master == true){
+       return a;
+    }
+    return false;
+}
+
+function testBooleanSingletonsCaseTwo() returns boolean {
+    BINARY_FALSE a = false;
+    BINARY_STATE master = a;
+    if( master == false){
+       return a;
+    }
+    return true;
+}

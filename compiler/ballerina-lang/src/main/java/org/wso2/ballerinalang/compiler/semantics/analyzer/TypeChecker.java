@@ -1064,7 +1064,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             checkExpr(pattern.expr, matchExprEnv, expType);
             pattern.variable.type = symResolver.resolveTypeNode(pattern.variable.typeNode, matchExprEnv);
-            matchExprTypes.addAll(getMatchExprTypes(getActualType(pattern.expr)));
+            matchExprTypes.add(types.resolveToSuperType(getActualType(pattern.expr)));
         });
 
         BType actualType;
@@ -1077,20 +1077,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(bLangMatchExpression, actualType, expType);
-    }
-
-    private Set<BType> getMatchExprTypes(BType t) {
-        Set<BType> matchExprTypes = new LinkedHashSet<>();
-        if (t.tag == TypeTags.UNION) {
-            BUnionType ut = (BUnionType) t;
-            ut.getMemberTypes().forEach(mt -> {
-                matchExprTypes.addAll(getMatchExprTypes(mt));
-            });
-
-        } else {
-            matchExprTypes.add(t);
-        }
-        return matchExprTypes;
     }
 
     @Override

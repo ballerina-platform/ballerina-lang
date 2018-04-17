@@ -21,6 +21,8 @@ package org.ballerinalang.test.types.finite;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -186,5 +188,58 @@ public class FiniteTypeTest {
         Assert.assertEquals((((BInteger) returns[0]).intValue()), 4);
     }
 
+    @Test()
+    public void testSingletonAsGlobalVar() {
+        BValue[] returns = BRunUtil.invoke(result, "testSingletonAsGlobalVar");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals((((BInteger) returns[0]).intValue()), 3);
+    }
+
+    @Test()
+    public void testSingletonArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testSingletonArray");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals((((BInteger) returns[0]).intValue()), 1);
+    }
+
+    @Test()
+    public void testSingletonToIntAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testSingletonToIntAssignment");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals((((BInteger) returns[0]).intValue()), 1);
+    }
+
+    @Test()
+    public void testSingletonToFloatAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testSingletonToFloatAssignment");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BFloat);
+        Assert.assertEquals((((BFloat) returns[0]).floatValue()), 1.0);
+    }
+
+    @Test()
+    public void testBooleanSingletons() {
+        BValue[] returns = BRunUtil.invoke(result, "testBooleanSingletons");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertEquals((((BBoolean) returns[0]).booleanValue()), true);
+    }
+
+    @Test()
+    public void testBooleanSingletonsCaseTwo() {
+        BValue[] returns = BRunUtil.invoke(result, "testBooleanSingletonsCaseTwo");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertEquals((((BBoolean) returns[0]).booleanValue()), false);
+    }
 }
 
