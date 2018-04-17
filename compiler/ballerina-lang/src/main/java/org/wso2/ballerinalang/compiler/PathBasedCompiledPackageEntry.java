@@ -17,34 +17,40 @@
  */
 package org.wso2.ballerinalang.compiler;
 
-import org.ballerinalang.repository.CompiledPackage;
-import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
+import org.ballerinalang.repository.CompilerOutputEntry;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 /**
- * @since 0.965.0
+ * {@code PathBasedCompiledPackageEntry} represents compiled package entry.
+ *
+ * @since 0.970.0
  */
-public interface SourceDirectory {
+public class PathBasedCompiledPackageEntry implements CompilerOutputEntry {
 
-    boolean canHandle(Path dirPath);
+    private Path path;
+    private Kind kind;
 
-    Path getPath();
+    public PathBasedCompiledPackageEntry(Path path, Kind kind) {
+        this.path = path;
+        this.kind = kind;
+    }
 
-    List<String> getSourceFileNames();
+    @Override
+    public String getEntryName() {
+        return this.path.toString();
+    }
 
-    List<String> getSourcePackageNames();
+    @Override
+    public Kind getEntryKind() {
+        return this.kind;
+    }
 
-    InputStream getManifestContent();
-
-    InputStream getLockFileContent();
-
-    Path saveCompiledProgram(InputStream source, String fileName);
-
-    void saveCompiledPackage(CompiledPackage compiledPackage, Path dirPath, String fileName) throws IOException;
-
-    Converter<Path> getConverter();
+    @Override
+    public InputStream getInputStream() throws IOException {
+        return Files.newInputStream(this.path);
+    }
 }

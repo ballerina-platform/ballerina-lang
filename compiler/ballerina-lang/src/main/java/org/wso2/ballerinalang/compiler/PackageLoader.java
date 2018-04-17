@@ -21,7 +21,9 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.repository.CompilerInput;
+import org.ballerinalang.repository.CompilerOutputEntry;
 import org.ballerinalang.repository.PackageBinary;
 import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
@@ -31,6 +33,7 @@ import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.packaging.GenericPackageSource;
+import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
@@ -53,9 +56,12 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.HomeRepoUtils;
 
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -65,11 +71,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 import static org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder.node;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.PACKAGE_MD_FILE_NAME;
 
 /**
  * This class contains methods to load a given package symbol.
@@ -85,12 +94,13 @@ public class PackageLoader {
     private final boolean offline;
     private final Manifest manifest;
 
-    private CompilerOptions options;
-    private Parser parser;
-    private SourceDirectory sourceDirectory;
-    private PackageCache packageCache;
-    private SymbolEnter symbolEnter;
-    private Names names;
+    private final CompilerOptions options;
+    private final Parser parser;
+    private final SourceDirectory sourceDirectory;
+    private final PackageCache packageCache;
+    private final SymbolEnter symbolEnter;
+    private final Names names;
+    private final BLangDiagnosticLog dlog;
 
     public static PackageLoader getInstance(CompilerContext context) {
         PackageLoader loader = context.get(PACKAGE_LOADER_KEY);
@@ -114,6 +124,7 @@ public class PackageLoader {
         this.packageCache = PackageCache.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
         this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
         this.manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
@@ -203,14 +214,24 @@ public class PackageLoader {
         }
     }
 
-    public BLangPackage loadPackage(PackageID pkgId) {
-        BLangPackage packageNode = loadPackage(pkgId, null);
+    public BLangPackage loadEntryPackage(PackageID pkgId) {
+        PackageEntity pkgEntity = loadPackageEntity(pkgId);
+        if (pkgEntity == null) {
+            throw ProjectDirs.getPackageNotFoundError(pkgId);
+        }
+
+        BLangPackage packageNode = parse(pkgId, (PackageSource) pkgEntity);
+        if (dlog.errorCount > 0) {
+            return packageNode;
+        }
+
         addImportPkg(packageNode, Names.BUILTIN_ORG.value, Names.RUNTIME_PACKAGE.value, Names.EMPTY.value);
+        define(packageNode);
         return packageNode;
     }
 
     public BLangPackage loadPackage(PackageID pkgId, PackageRepository packageRepo) {
-        // TODO loadPackageSymbol()
+        // TODO Remove this method()
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
             return bLangPackage;
@@ -297,18 +318,23 @@ public class PackageLoader {
     private List<Name> getPackageNameComps(String sourcePkg) {
         String[] pkgParts = sourcePkg.split("\\.|\\\\|\\/");
         return Arrays.stream(pkgParts)
-                     .map(part -> names.fromString(part))
+                     .map(names::fromString)
                      .collect(Collectors.toList());
     }
 
     private BPackageSymbol parseAndDefine(PackageID pkgId, PackageSource pkgSource) {
         // 1) Parse the source package
-        BLangPackage pkgNode = parse(pkgSource);
-        this.packageCache.put(pkgId, pkgNode);
+        BLangPackage pkgNode = parse(pkgId, pkgSource);
+        return define(pkgNode);
+    }
 
+    private BPackageSymbol define(BLangPackage pkgNode) {
         // 2) Define all package-level symbols
         this.symbolEnter.definePackage(pkgNode);
-        this.packageCache.putSymbol(pkgId, pkgNode.symbol);
+        this.packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
+
+        // 3) Create the compiledPackage structure
+        pkgNode.symbol.compiledPackage = createInMemoryCompiledPackage(pkgNode);
         return pkgNode.symbol;
     }
 
@@ -317,17 +343,51 @@ public class PackageLoader {
             return null;
         }
 
-        BLangPackage bLangPackage = parse((PackageSource) pkgEntity);
+        BLangPackage bLangPackage = parse(pkgId, (PackageSource) pkgEntity);
         this.packageCache.put(pkgId, bLangPackage);
         return bLangPackage;
     }
 
-    private BLangPackage parse(PackageSource pkgSource) {
-        return this.parser.parse(pkgSource);
+    private BLangPackage parse(PackageID pkgId, PackageSource pkgSource) {
+        BLangPackage packageNode = this.parser.parse(pkgSource);
+        packageNode.packageID = pkgId;
+        this.packageCache.put(pkgId, packageNode);
+        return packageNode;
     }
 
     private BPackageSymbol loadCompiledPackageAndDefine(PackageID pkgId, PackageBinary pkgBinary) {
         // TODO
         return null;
+    }
+
+    private CompiledPackage createInMemoryCompiledPackage(BLangPackage pkgNode) {
+        PackageID packageID = pkgNode.packageID;
+        // TODO find a better solution
+        if (Names.BUILTIN_ORG.value.equals(packageID.getOrgName().value)) {
+            return null;
+        }
+        InMemoryCompiledPackage compiledPackage = new InMemoryCompiledPackage(packageID);
+
+        // Get the list of source entries.
+        Path projectPath = this.sourceDirectory.getPath();
+        ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(projectPath);
+        Patten packageIDPattern = projectSourceRepo.calculate(packageID);
+        Stream<Path> srcPathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance());
+        compiledPackage.srcEntries = srcPathStream
+                .filter(path -> Files.exists(path, LinkOption.NOFOLLOW_LINKS))
+                .map(projectPath::relativize)
+                .map(path -> new PathBasedCompiledPackageEntry(path, CompilerOutputEntry.Kind.SRC))
+                .collect(Collectors.toList());
+
+        // Get the Package.md file
+        Patten pkgMDPattern = packageIDPattern.sibling(path(PACKAGE_MD_FILE_NAME));
+        pkgMDPattern.convert(projectSourceRepo.getConverterInstance())
+                .filter(pkgMDPath -> Files.exists(pkgMDPath, LinkOption.NOFOLLOW_LINKS))
+                .map(projectPath::relativize)
+                .map(pkgMDPath -> new PathBasedCompiledPackageEntry(pkgMDPath,
+                        CompilerOutputEntry.Kind.ROOT))
+                .findAny()
+                .ifPresent(pkgEntry -> compiledPackage.pkgMDEntry = pkgEntry);
+        return compiledPackage;
     }
 }

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.codegen;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
@@ -55,7 +56,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -158,6 +158,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.AttachedFunctionInfo;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.DefaultValue;
@@ -172,6 +173,7 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.programfile.InstructionFactory;
 import org.wso2.ballerinalang.programfile.LineNumberInfo;
 import org.wso2.ballerinalang.programfile.LocalVariableInfo;
+import org.wso2.ballerinalang.programfile.PackageFileWriter;
 import org.wso2.ballerinalang.programfile.PackageInfo;
 import org.wso2.ballerinalang.programfile.PackageVarInfo;
 import org.wso2.ballerinalang.programfile.ResourceInfo;
@@ -205,6 +207,8 @@ import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -325,36 +329,41 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add all the packages to the program file structure.
         addPackageInfo(pkgNode.symbol, programFile);
         programFile.entryPkgCPIndex = addPackageRefCPEntry(programFile, pkgNode.symbol.pkgID);
+        // TODO Remove the following line..
         setEntryPoints(programFile, pkgNode);
         return programFile;
     }
 
     public BLangPackage generateBALO(BLangPackage pkgNode) {
-        PackageFile packageFile = pkgNode.symbol.packageFile;
-
         // Reset package level variable indexes.
         this.pvIndexes = new VariableIndex(VariableIndex.Kind.REG);
 
         // Generate code for the given package.
-        genPackage(pkgNode.symbol);
-        packageFile.packageInfo = this.currentPkgInfo;
+        this.currentPkgInfo = new PackageInfo();
+        genNode(pkgNode, this.symTable.pkgEnvMap.get(pkgNode.symbol));
 
         // Add global variable indexes to the ProgramFile
         // Create Global variable attribute info
         prepareIndexes(this.pvIndexes);
-        addVarCountAttrInfo(packageFile.packageInfo, packageFile.packageInfo, pvIndexes);
+        addVarCountAttrInfo(this.currentPkgInfo, this.currentPkgInfo, pvIndexes);
+
+        byte[] pkgBinaryContent = getPackageBinaryContent(pkgNode);
+        pkgNode.symbol.packageFile = new PackageFile(this.currentPkgInfo, pkgBinaryContent);
+        setEntryPoints(pkgNode.symbol.packageFile, pkgNode);
         this.currentPkgInfo = null;
         return pkgNode;
     }
 
-    private void setEntryPoints(ProgramFile programFile, BLangPackage pkgNode) {
+    private void setEntryPoints(CompiledBinaryFile compiledBinaryFile, BLangPackage pkgNode) {
         BLangFunction mainFunc = getMainFunction(pkgNode);
         if (mainFunc != null) {
-            programFile.setMainEPAvailable(true);
+            compiledBinaryFile.setMainEPAvailable(true);
+            pkgNode.symbol.entryPointExists = true;
         }
 
         if (pkgNode.services.size() != 0) {
-            programFile.setServiceEPAvailable(true);
+            compiledBinaryFile.setServiceEPAvailable(true);
+            pkgNode.symbol.entryPointExists = true;
         }
     }
 
@@ -385,7 +394,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
 
-        this.currentPkgInfo = new PackageInfo();
         pkgNode.imports.forEach(impPkgNode -> {
             int impPkgNameCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.name.value);
             int impPkgVersionCPIndex = addUTF8CPEntry(this.currentPkgInfo, PackageID.DEFAULT.version.value);
@@ -444,11 +452,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     private void visitBuiltinFunctions(BLangFunction function) {
         createFunctionInfoEntry(function);
         genNode(function, this.env);
-    }
-
-    public void visit(BLangImportPackage importPkgNode) {
-        BPackageSymbol pkgSymbol = importPkgNode.symbol;
-        genPackage(pkgSymbol);
     }
 
     public void visit(BLangService serviceNode) {
@@ -1290,12 +1293,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         t.accept(this);
         this.env = prevEnv;
         return t;
-    }
-
-    private void genPackage(BPackageSymbol pkgSymbol) {
-        // TODO First check whether this symbol is from a BALO file.
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
-        genNode(pkgEnv.node, pkgEnv);
     }
 
     private String generateSig(BType[] types) {
@@ -3268,5 +3265,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (!programFile.packageInfoMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
             programFile.packageInfoMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile.packageInfo);
         }
+    }
+
+    private byte[] getPackageBinaryContent(BLangPackage pkgNode) {
+        byte[] pkgBinaryContent;
+        try (ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream()) {
+            PackageFileWriter.writePackage(this.currentPkgInfo, byteArrayOS);
+            pkgBinaryContent = byteArrayOS.toByteArray();
+        } catch (IOException e) {
+            // This code will not be executed under normal condition
+            throw new BLangCompilerException("failed to generate bytecode for package '" +
+                    pkgNode.packageID + "': " + e.getMessage(), e);
+        }
+        return pkgBinaryContent;
     }
 }

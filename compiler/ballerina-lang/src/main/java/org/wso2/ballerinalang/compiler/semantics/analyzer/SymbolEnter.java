@@ -166,7 +166,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     public BLangPackage definePackage(BLangPackage pkgNode) {
         populatePackageNode(pkgNode);
         defineNode(pkgNode, null);
-//        this.packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
         return pkgNode;
     }
 
@@ -330,24 +329,18 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        // Attempt to load the imported package.
-        BLangPackage pkgNode = pkgLoader.loadPackage(pkgId, env.enclPkg.packageRepository);
-        if (pkgNode == null) {
+        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, env.enclPkg.packageRepository);
+        if (pkgSymbol == null) {
             dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
             return;
         }
 
-        // This import package is not defined.
-        if (pkgNode.symbol == null) {
-            // Define import package now.
-            definePackage(pkgNode);
-            populateInitFunctionInvocation(importPkgNode, pkgNode.symbol);
-        }
+        populateInitFunctionInvocation(importPkgNode, pkgSymbol);
 
         // define the import package symbol in the current package scope
-        importPkgNode.symbol = pkgNode.symbol;
-        this.env.scope.define(pkgAlias, pkgNode.symbol);
+        importPkgNode.symbol = pkgSymbol;
+        this.env.scope.define(pkgAlias, pkgSymbol);
     }
 
     @Override
@@ -1511,12 +1504,17 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void populateInitFunctionInvocation(BLangImportPackage importPkgNode, BPackageSymbol pkgSymbol) {
+        if (pkgSymbol.initFunctionsInvoked) {
+            return;
+        }
+
         ((BLangPackage) env.node).initFunction.body
                 .addStatement(createInitFuncInvocationStmt(importPkgNode, pkgSymbol.initFunctionSymbol));
         ((BLangPackage) env.node).startFunction.body
                 .addStatement(createInitFuncInvocationStmt(importPkgNode, pkgSymbol.startFunctionSymbol));
         ((BLangPackage) env.node).stopFunction.body
                 .addStatement(createInitFuncInvocationStmt(importPkgNode, pkgSymbol.stopFunctionSymbol));
+        pkgSymbol.initFunctionsInvoked = true;
     }
 
     private void validateTransformerMappingTypes(BLangTransformer transformerNode) {

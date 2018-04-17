@@ -19,12 +19,10 @@ package org.wso2.ballerinalang.programfile;
 
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
-import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 /**
  * Dump Ballerina {@code PackageFile} model (BALO) to a file.
@@ -33,19 +31,19 @@ import java.nio.file.Path;
  */
 public class PackageFileWriter {
 
-    public static void writePackage(PackageFile packageFile, Path packageFilePath) throws IOException {
-        BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(packageFilePath));
-        writePackage(packageFile, bos);
+    public static byte[] writePackage(PackageInfo packageInfo) throws IOException {
+        ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
+        writePackage(packageInfo, byteArrayOS);
+        return byteArrayOS.toByteArray();
     }
 
-    public static void writePackage(PackageFile packageFile, OutputStream programOutStream) throws IOException {
+    public static void writePackage(PackageInfo packageInfo, OutputStream programOutStream) throws IOException {
         DataOutputStream dataOutStream = null;
         try {
             dataOutStream = new DataOutputStream(programOutStream);
             dataOutStream.writeInt(PackageFile.MAGIC_VALUE);
             dataOutStream.writeShort(PackageFile.LANG_VERSION);
 
-            PackageInfo packageInfo = packageFile.packageInfo;
             PackageInfoWriter.writeCP(dataOutStream, packageInfo.getConstPoolEntries());
             dataOutStream.writeInt(packageInfo.nameCPIndex);
             dataOutStream.writeInt(packageInfo.versionCPIndex);

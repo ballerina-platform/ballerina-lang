@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler;
+package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
@@ -38,10 +38,16 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
- * Zip Utils needed to zip the packages.
+ * This class contains a set of file manipulation utility methods.
+ *
+ * @since 0.970.0
  */
-class ZipUtils {
+public class FileUtils {
     private static final String SRC_DIR = "src";
+
+    public static void deleteFile(Path filePath) throws IOException {
+        Files.deleteIfExists(filePath);
+    }
 
     /**
      * Generates the balo/zip of the package.

@@ -46,6 +46,10 @@ public class PackageCache {
         return packageCache;
     }
 
+    public static void setInstance(PackageCache packageCache, CompilerContext context) {
+        context.put(PACKAGE_CACHE_KEY, packageCache);
+    }
+
     protected PackageCache(CompilerContext context) {
         context.put(PACKAGE_CACHE_KEY, this);
         this.packageMap = new HashMap<>();

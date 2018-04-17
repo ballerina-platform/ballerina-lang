@@ -39,6 +39,24 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
 
     private List<ConstantPoolEntry> constPool = new ArrayList<>();
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
+    private boolean mainFucAvailable = false;
+    private boolean servicesAvailable = false;
+
+    public boolean isMainEPAvailable() {
+        return mainFucAvailable;
+    }
+
+    public void setMainEPAvailable(boolean mainFuncAvailable) {
+        this.mainFucAvailable = mainFuncAvailable;
+    }
+
+    public boolean isServiceEPAvailable() {
+        return servicesAvailable;
+    }
+
+    public void setServiceEPAvailable(boolean servicesAvailable) {
+        this.servicesAvailable = servicesAvailable;
+    }
 
     // ConstantPool interface methods
 
@@ -100,8 +118,6 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
         public Map<String, PackageInfo> packageInfoMap = new LinkedHashMap<>();
 
         public int entryPkgCPIndex;
-        private boolean mainFucAvailable = false;
-        private boolean servicesAvailable = false;
 
         public int getMagicValue() {
             return ProgramFileConstants.MAGIC_NUMBER;
@@ -113,22 +129,6 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
 
         public void setVersion(short version) {
             this.version = version;
-        }
-
-        public boolean isMainEPAvailable() {
-            return mainFucAvailable;
-        }
-
-        public void setMainEPAvailable(boolean mainFuncAvailable) {
-            this.mainFucAvailable = mainFuncAvailable;
-        }
-
-        public boolean isServiceEPAvailable() {
-            return servicesAvailable;
-        }
-
-        public void setServiceEPAvailable(boolean servicesAvailable) {
-            this.servicesAvailable = servicesAvailable;
         }
 
         public PackageInfo[] getPackageInfoEntries() {
@@ -146,7 +146,12 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
         public static final int MAGIC_VALUE = 0xFFFFFFFF;
         public static final int LANG_VERSION = VERSION_NUMBER;
 
-        // TODO Temp
-        public PackageInfo packageInfo = new PackageInfo();
+        public PackageInfo packageInfo;
+        public byte[] pkgBinaryContent;
+
+        public PackageFile(PackageInfo packageInfo, byte[] pkgBinaryContent) {
+            this.packageInfo = packageInfo;
+            this.pkgBinaryContent = pkgBinaryContent;
+        }
     }
 }

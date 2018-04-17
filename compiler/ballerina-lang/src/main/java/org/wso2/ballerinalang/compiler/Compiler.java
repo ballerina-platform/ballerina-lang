@@ -17,17 +17,15 @@
  */
 package org.wso2.ballerinalang.compiler;
 
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
-import java.util.stream.Stream;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @since 0.94
@@ -38,14 +36,11 @@ public class Compiler {
             new CompilerContext.Key<>();
 
     private final SourceDirectoryManager sourceDirectoryManager;
-    private final SymbolEnter symbolEnter;
     private final CompilerDriver compilerDriver;
     private final BinaryFileWriter binaryFileWriter;
     private final DependencyTree dependencyTree;
     private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
-    private final boolean listPkg;
-    private final boolean dryRun;
 
     public static Compiler getInstance(CompilerContext context) {
         Compiler compiler = context.get(COMPILER_KEY);
@@ -59,15 +54,11 @@ public class Compiler {
         context.put(COMPILER_KEY, this);
 
         this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
-        this.symbolEnter = SymbolEnter.getInstance(context);
         this.compilerDriver = CompilerDriver.getInstance(context);
         this.binaryFileWriter = BinaryFileWriter.getInstance(context);
         this.dependencyTree = DependencyTree.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
-
-        this.listPkg = Boolean.parseBoolean(CompilerOptions.getInstance(context).get(CompilerOptionName.LIST_PKG));
-        this.dryRun = Boolean.parseBoolean(CompilerOptions.getInstance(context).get(CompilerOptionName.DRY_RUN));
     }
 
     public BLangPackage compile(String sourcePackage) {
@@ -84,19 +75,9 @@ public class Compiler {
         this.compilerDriver.loadBuiltinPackage();
 
         // 1) Load the source package. i.e. source-code -> BLangPackageNode
-        BLangPackage packageNode = this.pkgLoader.loadPackage(packageID);
-        if (packageNode == null) {
-            throw ProjectDirs.getPackageNotFoundError(packageID);
-        }
+        BLangPackage packageNode = this.pkgLoader.loadEntryPackage(packageID);
 
         // Check for syntax errors
-        if (dlog.errorCount > 0) {
-            return packageNode;
-        }
-
-        // 2) Define all package level symbols for all the packages including imported packages in the AST
-        // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
-        this.compilerDriver.define(packageNode);
         if (dlog.errorCount > 0) {
             return packageNode;
         }
@@ -112,24 +93,18 @@ public class Compiler {
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode
         // 2) Define all package level symbols for all the packages including imported packages in the AST
         // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
-        Stream<BLangPackage> packages = this.sourceDirectoryManager.listSourceFilesAndPackages()
-                .map(this.pkgLoader::loadPackage)
-                .map(this::define)
+        List<BLangPackage> packages = this.sourceDirectoryManager.listSourceFilesAndPackages()
+                .map(this.pkgLoader::loadEntryPackage)
                 .map(this.compilerDriver::compilePackage)
-                .filter(bLangPackage -> this.dlog.errorCount == 0);
+                .collect(Collectors.toList());
 
         if (dlog.errorCount > 0) {
             // Check for compilation errors if there are any compilation errors don't write BALOs or BALXs
             return;
         }
 
-        if (!dryRun) {
-            packages.forEach(this.binaryFileWriter::writeExecutableBinary);
-        }
-
-        if (listPkg) {
-            packages.forEach(this.dependencyTree::listDependencyPackages);
-        }
+        // TODO Reuse binary content in PackageFile when writing the program file..
+        packages.forEach(this.binaryFileWriter::write);
     }
 
     public void build(String sourcePackage, String targetFileName) {
@@ -139,7 +114,11 @@ public class Compiler {
         }
 
         // Code gen and save...
-        this.binaryFileWriter.writeExecutableBinary(bLangPackage, targetFileName);
+        this.binaryFileWriter.write(bLangPackage, targetFileName);
+    }
+
+    public void listDependencies() {
+        //packages.forEach(this.dependencyTree::listDependencyPackages);
     }
 
     public ProgramFile getExecutableProgram(BLangPackage entryPackageNode) {
@@ -147,12 +126,5 @@ public class Compiler {
             return null;
         }
         return this.binaryFileWriter.genExecutable(entryPackageNode);
-    }
-
-
-    // private methods
-
-    public BLangPackage define(BLangPackage packageNode) {
-        return this.symbolEnter.definePackage(packageNode);
     }
 }
