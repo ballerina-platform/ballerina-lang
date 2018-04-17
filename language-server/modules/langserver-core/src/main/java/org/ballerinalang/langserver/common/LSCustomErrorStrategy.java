@@ -64,8 +64,11 @@ public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
         if (context instanceof BallerinaParser.CallableUnitBodyContext) {
             context.exception = null;
             return;
+        } else if (context instanceof BallerinaParser.SimpleVariableReferenceContext) {
+            context.exception = null;
+        } else {
+            context.exception = e;
         }
-        context.exception = e;
         // Note: Following check added, when the context is variable definition and the type name context is hit,
         // We need to set the error for the variable definition as well.
         if (context.getParent() instanceof BallerinaParser.VariableDefinitionStatementContext) {

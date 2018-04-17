@@ -274,11 +274,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             boolean invokableReturns = invNode.returnTypeNode.type != symTable.nilType;
             if (invNode.workers.isEmpty()) {
-                analyzeNode(invNode.body, invokableEnv);
-                /* the function returns, but none of the statements surely returns */
-                if (invokableReturns && !this.statementReturns) {
-                    this.dlog.error(invNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
-                            invNode.getKind().toString().toLowerCase());
+                /* the body can be null in the case of Object type function declarations */
+                if (invNode.body != null) {
+                    analyzeNode(invNode.body, invokableEnv);
+                    /* the function returns, but none of the statements surely returns */
+                    if (invokableReturns && !this.statementReturns) {
+                        this.dlog.error(invNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
+                                invNode.getKind().toString().toLowerCase());
+                    }
                 }
             } else {
                 boolean workerReturns = false;
