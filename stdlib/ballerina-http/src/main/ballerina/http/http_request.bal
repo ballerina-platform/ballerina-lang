@@ -112,7 +112,7 @@ public type Request object {
 
     @Description {value:"Gets the form parameters from the HTTP request as a map"}
     @Return {value:"The map of form params or 'PayloadError' in case of errors"}
-    public function getFormParams () returns (map | PayloadError);
+    public function getFormParams () returns (map<string> | PayloadError);
 
     @Description {value:"Get multiparts from request"}
     @Return {value:"Returns the body parts as an array of entities"}
@@ -275,13 +275,13 @@ public function Request::getByteChannel () returns (io:ByteChannel | PayloadErro
     }
 }
 
-public function Request::getFormParams () returns (map | PayloadError) {
+public function Request::getFormParams () returns (map<string> | PayloadError) {
     var mimeEntity = self.getEntity();
     match mimeEntity {
         mime:EntityError err => return <PayloadError>err;
         mime:Entity entity => {
 
-            map parameters;
+            map<string> parameters;
             var entityText = entity.getText();
             match entityText {
                 mime:EntityError txtErr => return <PayloadError>txtErr; // TODO: Check if this is ok

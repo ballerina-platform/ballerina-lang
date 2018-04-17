@@ -24,7 +24,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.handler.ssl.SslContext;
 
 /**
  * Simple WebSocket server for Test cases.
@@ -40,17 +39,14 @@ public final class WebSocketRemoteServer {
     }
 
     public void run() throws InterruptedException {
-        final SslContext sslCtx = null;
-        bossGroup = new NioEventLoopGroup(1);
-        workerGroup = new NioEventLoopGroup();
+        bossGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup(2);
 
-        ServerBootstrap b = new ServerBootstrap();
-        b.group(bossGroup, workerGroup)
-         .channel(NioServerSocketChannel.class)
-         .handler(new LoggingHandler(LogLevel.INFO))
-         .childHandler(new WebSocketRemoteServerInitializer(sslCtx));
-
-        b.bind(port).sync().channel();
+        ServerBootstrap bootstrap = new ServerBootstrap();
+        bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
+                .handler(new LoggingHandler(LogLevel.INFO))
+                .childHandler(new WebSocketRemoteServerInitializer());
+        bootstrap.bind(port).sync();
     }
 
     public void stop() {

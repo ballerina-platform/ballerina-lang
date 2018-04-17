@@ -39,7 +39,7 @@ public type Listener object {
     }
 
     @Description {value:"Gets called when the endpoint is being initialized during package init"}
-    @Param {value:"config: The HTTP ServiceEndpointConfiguration of the endpoint"}
+    @Param {value:"config: The Subscriber Service Endpoint Configuration of the endpoint"}
     public function init(SubscriberServiceEndpointConfiguration config);
 
     @Description {value:"Gets called whenever a service attaches itself to this endpoint and during package init"}
@@ -76,6 +76,7 @@ public type Listener object {
 };
 
 public function Listener::init(SubscriberServiceEndpointConfiguration config) {
+    self.config = config;
     SignatureValidationFilter sigValFilter = new(interceptWebSubRequest, interceptionPlaceholder);//TODO:rem placeholder
     http:Filter[] filters = [<http:Filter> sigValFilter];
     http:ServiceEndpointConfiguration serviceConfig = { host:config.host, port:config.port,
@@ -143,7 +144,8 @@ function Listener::sendSubscriptionRequest() {
                 }
             }
         }
-        invokeClientConnectorForSubscription(hub, subscriptionDetails);
+        http:AuthConfig? auth = <http:AuthConfig> subscriptionDetails["auth"] but { error => () };
+        invokeClientConnectorForSubscription(hub, auth, subscriptionDetails);
     }
 }
 
@@ -151,11 +153,18 @@ function Listener::sendSubscriptionRequest() {
 @Field {value:"host: The configuration for the endpoint"}
 @Field {value:"port: The underlying HTTP service endpoint"}
 @Field {value:"secureSocket: The SSL configurations for the service endpoint"}
+@Field {value:"topicIdentifier: The identifier based on which dispatching should happen for custom subscriber services"}
+@Field {value:"topicHeader: The header to consider if required with dispatching for custom services"}
+@Field {value:"topicPayloadKeys: The payload keys to consider if required with dispatching for custom services"}
+@Field {value:"topicResourceMap: The mapping between topics and resources if required for custom services"}
 public type SubscriberServiceEndpointConfiguration {
     string host;
     int port;
     http:ServiceSecureSocket? secureSocket;
-    //TODO: include header, topic-resource map
+    TopicIdentifier? topicIdentifier;
+    string? topicHeader;
+    string[]? topicPayloadKeys;
+    map<map<string>>? topicResourceMap;
 };
 
 @Description {value:"The function called to discover hub and topic URLs defined by a resource URL"}
@@ -281,8 +290,8 @@ returns (http:FilterResult) {
 @Description {value:"Function to invoke the WebSubSubscriberConnector's actions for subscription"}
 @Param {value:"hub: The hub to which the subscription request is to be sent"}
 @Param {value:"subscriptionDetails: Map containing subscription details"}
-function invokeClientConnectorForSubscription (string hub, map subscriptionDetails) {
-    endpoint Client websubHubClientEP { url:hub };
+function invokeClientConnectorForSubscription (string hub, http:AuthConfig? auth, map subscriptionDetails) {
+    endpoint Client websubHubClientEP { url:hub, auth:auth };
 
     string topic = <string> subscriptionDetails["topic"];
     string callback = <string> subscriptionDetails["callback"];

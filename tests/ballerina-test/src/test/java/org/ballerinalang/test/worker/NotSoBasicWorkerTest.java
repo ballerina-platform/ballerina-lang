@@ -22,7 +22,6 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -38,9 +37,6 @@ public class NotSoBasicWorkerTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/not-so-basic-worker-actions.bal");
-        for (Diagnostic d : this.result.getDiagnostics()) {
-            System.out.println("** X: " + d);
-        }
         Assert.assertEquals(result.getErrorCount(), 0);
     }
     
@@ -167,13 +163,6 @@ public class NotSoBasicWorkerTest {
         BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSameWorkerContent", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(vals[0].stringValue(), "W1: data1, W2: data2");
-    }
-
-    @Test(enabled = false)
-    public void testWorkerStackCreation() {
-        BValue[] values = BRunUtil.invoke(result, "testWorkerStackCreation", new BValue[0]);
-        Assert.assertEquals(values.length, 1);
-        Assert.assertEquals(((BInteger) values[0]).intValue(), 1);
     }
 
     @Test

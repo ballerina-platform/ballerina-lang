@@ -121,7 +121,7 @@ public class BallerinaDocGenerator {
                 Collections.sort(packageNames);
 
                 List<Link> packageNameList = PackageName.convertList(packageNames);
-                if (packageNames.contains("ballerina.builtin")) {
+                if (packageNames.contains("builtin")) {
                     StaticCaption primitivesLinkName = new StaticCaption(BallerinaDocConstants
                             .PRIMITIVE_TYPES_PAGE_NAME);
                     packageNameList.add(0, new Link(primitivesLinkName, BallerinaDocConstants
@@ -156,7 +156,7 @@ public class BallerinaDocGenerator {
                     String filePath = output + File.separator + packagePath + HTML;
                     Writer.writeHtmlDocument(page, packageTemplateName, filePath);
 
-                    if ("ballerina.builtin".equals(packagePath)) {
+                    if ("builtin".equals(packagePath)) {
                         Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packageNameList);
                         String primitivesFilePath = output + File.separator + "primitive-types" + HTML;
                         Writer.writeHtmlDocument(primitivesPage, packageTemplateName, primitivesFilePath);

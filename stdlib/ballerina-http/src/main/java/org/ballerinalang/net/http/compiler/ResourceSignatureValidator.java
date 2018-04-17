@@ -28,14 +28,17 @@ public class ResourceSignatureValidator {
 
         if (nParams < COMPULSORY_PARAM_COUNT) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "resource signature parameter count should be >= 2");
+            return;
         }
 
         if (!isValidResourceParam(signatureParams.get(0), ENDPOINT_TYPE)) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "first parameter should be of type " + ENDPOINT_TYPE);
+            return;
         }
 
         if (!isValidResourceParam(signatureParams.get(1), HTTP_REQUEST_TYPE)) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "second parameter should be of type " + HTTP_REQUEST_TYPE);
+            return;
         }
 
         if (nParams == COMPULSORY_PARAM_COUNT) {

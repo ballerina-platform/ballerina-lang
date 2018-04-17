@@ -2003,7 +2003,7 @@ public class BallerinaPsiImplUtil {
      * Resolves the corresponding struct definition of the provided identifier node if possible.
      * Eg:
      * <pre>
-     * function main (string[] args) {
+     * function main (string... args) {
      *     var person = getData();
      *     var person2 = person;
      *     var person3 = person2;

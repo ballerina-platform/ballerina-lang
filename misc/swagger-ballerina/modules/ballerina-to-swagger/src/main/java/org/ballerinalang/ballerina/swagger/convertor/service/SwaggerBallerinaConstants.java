@@ -22,6 +22,8 @@ import org.ballerinalang.net.http.HttpConstants;
  * This class will hold all constants related to swagger ballerina conversion.
  */
 public class SwaggerBallerinaConstants {
+    public static final String YAML_EXTENSION = ".yaml";
+
     public static final String RESOURCE_UUID_NAME = "x-UniqueResourceKey";
     public static final String VARIABLE_UUID_NAME = "x-UniqueVariableKey";
     public static final String HTTP_VERB_MATCHING_PATTERN = "(?i)|" +

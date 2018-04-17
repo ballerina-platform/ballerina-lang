@@ -354,9 +354,9 @@ public class TransactionStmtFlowTest {
     public void testRetryNegativeCases() {
         CompileResult res = BCompileUtil.compile("test-src/statements/transaction/transaction-retry-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 4);
-        BAssertUtil.validateError(res, 0, "invalid transaction retry count", 3, 30);
-        BAssertUtil.validateError(res, 1, "invalid transaction retry count", 16, 30);
-        BAssertUtil.validateError(res, 2, "incompatible types: expected 'int', found 'float'", 31, 30);
-        BAssertUtil.validateError(res, 3, "invalid transaction retry count", 31, 30);
+        BAssertUtil.validateError(res, 0, "invalid transaction retry count", 3, 32);
+        BAssertUtil.validateError(res, 1, "invalid transaction retry count", 16, 32);
+        BAssertUtil.validateError(res, 2, "incompatible types: expected 'int', found 'float'", 31, 32);
+        BAssertUtil.validateError(res, 3, "invalid transaction retry count", 31, 32);
     }
 }

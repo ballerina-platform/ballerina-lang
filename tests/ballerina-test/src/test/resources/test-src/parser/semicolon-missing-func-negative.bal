@@ -1,4 +1,4 @@
-function main(string[] str) {
+function main(string... str) {
 
 	// Following line is invalid.
 	int b

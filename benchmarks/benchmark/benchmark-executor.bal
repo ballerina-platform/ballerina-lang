@@ -9,7 +9,7 @@ public type functionRecord {
     function () f;
 };
 
-public function main(string[] args) {
+function main(string... args) {
 
     if (lengthof args < 3) {
         io:println("ERROR: Please specify the number of warm-up iterations and benchmark iterations.");

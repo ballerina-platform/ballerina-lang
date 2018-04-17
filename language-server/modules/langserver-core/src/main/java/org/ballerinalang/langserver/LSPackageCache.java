@@ -34,13 +34,19 @@ public class LSPackageCache {
     private static final CompilerContext.Key<LSPackageCache> LS_PACKAGE_CACHE_KEY =
             new CompilerContext.Key<>();
 
+    private static final Object LOCK = new Object();
+
     private final ExtendedPackageCache packageCache;
     private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
 
     public static LSPackageCache getInstance(CompilerContext context) {
         LSPackageCache lsPackageCache = context.get(LS_PACKAGE_CACHE_KEY);
         if (lsPackageCache == null) {
-            lsPackageCache = new LSPackageCache(context);
+            synchronized (LOCK) {
+                if (context.get(LS_PACKAGE_CACHE_KEY) == null) {
+                    lsPackageCache = new LSPackageCache(context);
+                }
+            }
         }
         return lsPackageCache;
     }

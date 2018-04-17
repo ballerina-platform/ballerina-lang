@@ -21,6 +21,8 @@ import org.ballerinalang.util.metrics.AbstractMetric;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.Timer;
 
+import java.util.Collections;
+import java.util.SortedMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -53,7 +55,7 @@ public class NoOpTimer extends AbstractMetric implements Timer {
     }
 
     @Override
-    public double percentile(double percentile, TimeUnit unit) {
-        return 0;
+    public SortedMap<Double, Double> percentileValues(TimeUnit unit) {
+        return Collections.emptySortedMap();
     }
 }

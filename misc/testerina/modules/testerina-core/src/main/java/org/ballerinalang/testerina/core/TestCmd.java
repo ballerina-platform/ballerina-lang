@@ -26,6 +26,7 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.testerina.util.Utils;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 
@@ -96,6 +97,8 @@ public class TestCmd implements BLauncherCmd {
         }
 
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        // Setting the source root so it can be accessed from anywhere
+        System.setProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
         Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
         try {
             ConfigRegistry.getInstance().initRegistry(configRuntimeParams, null, ballerinaConfPath);
@@ -109,17 +112,19 @@ public class TestCmd implements BLauncherCmd {
 
         BTestRunner testRunner = new BTestRunner();
         if (listGroups) {
-            testRunner.listGroups(sourceRoot, paths);
+            testRunner.listGroups(sourceRootPath.toString(), paths);
             Runtime.getRuntime().exit(0);
         }
         if (disableGroupList != null) {
-            testRunner.runTest(sourceRoot, paths, disableGroupList, false);
+            testRunner.runTest(sourceRootPath.toString(), paths, disableGroupList, false);
         } else {
-            testRunner.runTest(sourceRoot, paths, groupList, true);
+            testRunner.runTest(sourceRootPath.toString(), paths, groupList, true);
         }
         if (testRunner.getTesterinaReport().isFailure()) {
+            Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
             Runtime.getRuntime().exit(1);
         }
+        Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
         Runtime.getRuntime().exit(0);
     }
 

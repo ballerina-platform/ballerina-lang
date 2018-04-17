@@ -23,16 +23,16 @@ function search (string url, string querySearched) {
     http:Request req = new;
     var result = httpEndpoint -> get(untaint querySearched, req);
     http:Response httpResponse = check result;
-
-    json jsonResponse = check (httpResponse.getJsonPayload());
+    json jsonResponse = null;
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
-        error err = {message:"remote registry failed for url :" + url};
-        throw err;
+        io:println("remote registry failed for url : " + url + "/" + querySearched);
     } else if (statusCode != "200") {
+        jsonResponse = check (httpResponse.getJsonPayload());
         string message = (jsonResponse.msg.toString() but {()=> "error occurred when searching for packages"});
         io:println(message);
     } else {
+        jsonResponse = check (httpResponse.getJsonPayload());
         json[] artifacts = check <json[]>jsonResponse.artifacts;
         if (artifacts == null || lengthof artifacts > 0) {
             int artifactsLength = lengthof artifacts;
@@ -94,6 +94,6 @@ function getDateCreated(json jsonObj) returns string {
     return customTimeString;
 }
 
-function main (string[] args) {
-    search(args[0], args[1]);
+function main (string... args) {
+     search(args[0], args[1]);
 }

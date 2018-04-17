@@ -10,10 +10,10 @@ function testForkJoinAny() returns string[] {
                 "xyz" -> fork;
             }
         } join (some 1) (map airlineResponses) {
-            if (airlineResponses["ABC_Airline"] != null) {
+            if (airlineResponses.hasKey("ABC_Airline")) {
                 results[0] = <string> airlineResponses["ABC_Airline"];
             }
-            if (airlineResponses["XYZ_Airline"] != null) {
+            if (airlineResponses.hasKey("XYZ_Airline")) {
                 results[0] = <string> airlineResponses["XYZ_Airline"];
             }
             return results;
