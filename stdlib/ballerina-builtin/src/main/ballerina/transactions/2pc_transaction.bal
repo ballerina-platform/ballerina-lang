@@ -76,7 +76,6 @@ type TwoPhaseCommitTransaction object {
                 // If some durable participants voted NO, next call notify(abort) on all participants
                 // and return aborted to the initiator
                 var result = self.notifyParticipants(COMMAND_ABORT, ());
-                io:println("############## ABORTING durables");
                 match result {
                     error => {
                         // return Hazard outcome if a participant cannot successfully end its branch of the transaction
@@ -148,21 +147,14 @@ type TwoPhaseCommitTransaction object {
 
     // The result of this function is whether we can commit or abort
     function prepareParticipants(string protocol) returns PrepareDecision {
-        io:print("############# BEFORE"); io:println(lengthof participants);
-
         PrepareDecision prepareDecision = PREPARE_DECISION_COMMIT;
         boolean successful = true;
         foreach _, participant in self.participants {
             string participantId = participant.participantId;
             PrepareResult|()|error result = participant.prepare(protocol);
-            io:print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-            io:println(result);
             match result {
                 PrepareResult prepRes => {
-                    io:print("INSIDE AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA prepRes: ");
-                    io:println(prepRes);
                     if(prepRes == PREPARE_RESULT_PREPARED) {// All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
-                        io:println("%%%%%%%%%%%%%%% PREPARE_RESULT_PREPARED");
                     } else if (prepRes == PREPARE_RESULT_COMMITTED) {
                         // If one or more participants returns "committed" and the overall prepare fails, we have to
                         // report a mixed-outcome to the initiator
@@ -177,38 +169,27 @@ type TwoPhaseCommitTransaction object {
                                 " from transaction: " + self.transactionId);
                         // All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
                     } else if (prepRes == PREPARE_RESULT_ABORTED) {
-                        io:println("%%%%%%%%%%%%%%% PREPARE_RESULT_ABORTED");
-
                         // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
                         // participant
                         self.removeParticipant(participantId, "Could not remove aborted participant: " + participantId +
-                                " from transaction: " + transactionId);
-                        prepareDecision = PREPARE_DECISION_ABORT;
-                    } else if (prepRes == PREPARE_RESULT_FAILED) {
-                        self.removeParticipant(participantId, "Could not remove failed-eot participant: " + participantId +
                                 " from transaction: " + transactionId);
                         prepareDecision = PREPARE_DECISION_ABORT;
                     }
                 }
                 () => {}
                 error err => {
-                    io:println("############# ERRRRROoooooooooooooooRRRR =============================================");
-                    self.removeParticipant(participantId, "Could not remove failed-eot participant: " + participantId +
+                    self.removeParticipant(participantId, "Could not remove prepare failed participant: " + participantId +
                             " from transaction: " + transactionId);
                     prepareDecision = PREPARE_DECISION_ABORT;
                 }
             }
         }
-        io:print("############# AFTER"); io:println(lengthof participants);
         return prepareDecision;
     }
 
     function notifyParticipants(string action, string? protocolName) returns NotifyResult | error {
         NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
-        io:println("+++++++++++++++++++");
         foreach _, participant in self.participants {
-            io:print("-------------------");
-            io:println(participant.participantId);
             var result = participant.notify(action, protocolName);
             match result {
                 NotifyResult => {}
@@ -242,6 +223,7 @@ type TwoPhaseCommitTransaction object {
                 }
             }
         }
+        return ret;
     }
 
     documentation {

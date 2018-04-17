@@ -15,7 +15,6 @@
 // under the License.
 
 package ballerina.transactions;
-import ballerina/io;
 
 documentation {
     When a transaction block in Ballerina code begins, it will call this function to begin a transaction.

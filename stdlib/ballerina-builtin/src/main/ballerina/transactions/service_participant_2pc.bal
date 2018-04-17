@@ -51,7 +51,7 @@ service Participant2pcService bind coordinatorListener {
 
         if (!participatedTransactions.hasKey(participatedTxnId)) {
             res.statusCode = http:NOT_FOUND_404;
-            prepareRes.message = "Transaction-Unknown";
+            prepareRes.message = TRANSACTION_UNKNOWN;
         } else {
             TwoPhaseCommitTransaction participatedTxn = participatedTransactions[participatedTxnId];
             if (participatedTxn.state == TXN_STATE_ABORTED) {
@@ -108,13 +108,13 @@ service Participant2pcService bind coordinatorListener {
         NotifyResponse notifyRes = {};
         if (!participatedTransactions.hasKey(participatedTxnId)) {
             res.statusCode = http:NOT_FOUND_404;
-            notifyRes.message = "Transaction-Unknown";
+            notifyRes.message = TRANSACTION_UNKNOWN;
         } else {
             TwoPhaseCommitTransaction txn = participatedTransactions[participatedTxnId];
             if (notifyReq.message == COMMAND_COMMIT) {
                 if (txn.state != TXN_STATE_PREPARED) {
                     res.statusCode = http:BAD_REQUEST_400;
-                    notifyRes.message = PREPARE_RESULT_NOT_PREPARED_STR;
+                    notifyRes.message = NOTIFY_RESULT_NOT_PREPARED_STR;
                 } else {
                     // Notify commit to the resource manager
                     boolean commitSuccessful = commitResourceManagers(transactionId, transactionBlockId);
