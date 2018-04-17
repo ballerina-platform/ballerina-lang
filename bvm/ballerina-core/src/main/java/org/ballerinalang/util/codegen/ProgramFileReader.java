@@ -1464,7 +1464,6 @@ public class ProgramFileReader {
                 case InstructionCodes.BFIELDSTORE:
                 case InstructionCodes.LFIELDSTORE:
                 case InstructionCodes.RFIELDSTORE:
-                case InstructionCodes.MAPLOAD:
                 case InstructionCodes.MAPSTORE:
                 case InstructionCodes.JSONLOAD:
                 case InstructionCodes.JSONSTORE:
@@ -1530,6 +1529,7 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWQNAME:
                 case InstructionCodes.NEWXMLELEMENT:
                 case InstructionCodes.TR_BEGIN:
+                case InstructionCodes.MAPLOAD:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

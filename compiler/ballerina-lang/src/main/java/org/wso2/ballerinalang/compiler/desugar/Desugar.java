@@ -219,6 +219,7 @@ public class Desugar extends BLangNodeVisitor {
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
+    Stack<BLangAccessExpression> accessExprStack = new Stack<>();
     private BLangMatchStmtPatternClause successPattern;
     private BLangAssignment safeNavigationAssignment;
 
@@ -600,6 +601,14 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
+        if (safeNavigateLHS(assignNode.varRef)) {
+            BLangAccessExpression accessExpr = (BLangAccessExpression) assignNode.varRef;
+            accessExpr.leafNode = true;
+            result = rewriteSafeNavigationAssignment(accessExpr, assignNode.expr, assignNode.safeAssignment);
+            result = rewrite(result, env);
+            return;
+        }
+
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         assignNode.expr = rewriteExpr(assignNode.expr);
         result = assignNode;
@@ -1108,7 +1117,7 @@ public class Desugar extends BLangNodeVisitor {
                     indexAccessExpr.expr, (BVarSymbol) indexAccessExpr.symbol);
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos,
-                    indexAccessExpr.expr, indexAccessExpr.indexExpr);
+                    indexAccessExpr.expr, indexAccessExpr.indexExpr, false);
         } else if (varRefType.tag == TypeTags.JSON || getElementType(varRefType).tag == TypeTags.JSON) {
             targetVarRef = new BLangJSONAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
@@ -1627,6 +1636,12 @@ public class Desugar extends BLangNodeVisitor {
         bLangStatementExpression.expr = rewriteExpr(bLangStatementExpression.expr);
         bLangStatementExpression.stmt = rewrite(bLangStatementExpression.stmt, env);
         result = bLangStatementExpression;
+    }
+
+    @Override
+    public void visit(BLangJSONArrayLiteral jsonArrayLiteral) {
+        jsonArrayLiteral.exprs = rewriteExprs(jsonArrayLiteral.exprs);
+        result = jsonArrayLiteral;
     }
 
     // private functions
@@ -2436,6 +2451,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Reset the variables
         this.matchStmtStack = new Stack<>();
+        this.accessExprStack = new Stack<>();
         this.successPattern = null;
         this.safeNavigationAssignment = null;
         return stmtExpression;
@@ -2616,5 +2632,156 @@ public class Desugar extends BLangNodeVisitor {
             return errorLiftedType.memberTypes.toArray(new BType[0])[0];
         }
         return errorLiftedType;
+    }
+
+    private boolean safeNavigateLHS(BLangExpression expr) {
+        if (expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR && expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            return false;
+        }
+
+        BLangAccessExpression accessExpr = (BLangAccessExpression) expr;
+        if (accessExpr.expr.type.tag == TypeTags.JSON) {
+            return accessExpr.expr.type.isNullable();
+        }
+
+        return safeNavigateLHS(accessExpr.expr);
+    }
+
+    private BLangStatement rewriteSafeNavigationAssignment(BLangAccessExpression accessExpr, BLangExpression rhsExpr,
+                                                           boolean safeAssignment) {
+        List<BLangStatement> stmts = createLHSSafeNavigation(accessExpr, accessExpr.type, rhsExpr, safeAssignment);
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(accessExpr.pos, stmts);
+        return blockStmt;
+    }
+
+    private List<BLangStatement> createLHSSafeNavigation(BLangVariableReference expr, BType type,
+                                                         BLangExpression rhsExpr, boolean safeAssignment) {
+        List<BLangStatement> stmts = new ArrayList<>();
+        NodeKind kind = expr.getKind();
+        if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR || kind == NodeKind.INDEX_BASED_ACCESS_EXPR ||
+                kind == NodeKind.INVOCATION) {
+            BLangAccessExpression accessExpr = (BLangAccessExpression) expr;
+            this.accessExprStack.push(accessExpr);
+            if (accessExpr.expr != null) {
+                // If the parent of current expr is the root, terminate
+                stmts.addAll(createLHSSafeNavigation((BLangVariableReference) accessExpr.expr, type, rhsExpr,
+                        safeAssignment));
+            }
+            accessExpr.type = accessExpr.childType;
+
+            // if its the leaf node, assign the original rhs expression to the access expression
+            if (accessExpr.leafNode) {
+                BLangVariableReference accessExprForFinalAssignment = cloneExpression(accessExpr);
+                BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(accessExpr.pos,
+                        accessExprForFinalAssignment, rhsExpr, false);
+                assignmentStmt.safeAssignment = safeAssignment;
+                stmts.add(assignmentStmt);
+                return stmts;
+            }
+        }
+
+        if (!expr.type.isNullable()) {
+            return stmts;
+        }
+
+        BLangIf ifStmt = getSafeNaviDefaultInitStmt(expr);
+        stmts.add(ifStmt);
+        return stmts;
+    }
+
+    private BLangIf getSafeNaviDefaultInitStmt(BLangVariableReference accessExpr) {
+        // Create if-condition. eg:
+        // if (a.b == () )
+        BLangVariableReference accessExprForNullCheck = cloneExpression(accessExpr);
+        BLangLiteral bLangLiteral = ASTBuilderUtil.createLiteral(accessExpr.pos, symTable.nilType, null);
+        BLangBinaryExpr ifCondition = ASTBuilderUtil.createBinaryExpr(accessExpr.pos, accessExprForNullCheck,
+                bLangLiteral, symTable.booleanType, OperatorKind.EQUAL, (BOperatorSymbol) symResolver
+                        .resolveBinaryOperator(OperatorKind.EQUAL, symTable.anyType, symTable.nilType));
+
+        // Create if body. eg:
+        // a.b = {};
+        BLangVariableReference accessExprForInit = cloneExpression(accessExpr);
+        // Look one step ahead to determine the type of the child, and get the default value expression
+        BLangExpression defaultValue = getDefaultValueExpr(this.accessExprStack.peek());
+        BLangAssignment assignmentStmt =
+                ASTBuilderUtil.createAssignmentStmt(accessExpr.pos, accessExprForInit, defaultValue, false);
+
+        // Create If-statement
+        BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(accessExpr.pos, Lists.of(assignmentStmt));
+        return ASTBuilderUtil.createIfElseStmt(accessExpr.pos, ifCondition, ifBody, null);
+    }
+
+    private BLangVariableReference cloneExpression(BLangVariableReference expr) {
+        switch (expr.getKind()) {
+            case SIMPLE_VARIABLE_REF:
+                return ASTBuilderUtil.createVariableRef(expr.pos, (BVarSymbol) ((BLangSimpleVarRef) expr).symbol);
+            case FIELD_BASED_ACCESS_EXPR:
+            case INDEX_BASED_ACCESS_EXPR:
+            case INVOCATION:
+                return cloneAccessExpr((BLangAccessExpression) expr);
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
+    private BLangAccessExpression cloneAccessExpr(BLangAccessExpression originalAccessExpr) {
+        if (originalAccessExpr.expr == null) {
+            return originalAccessExpr;
+        }
+
+        BLangVariableReference varRef;
+        NodeKind kind = originalAccessExpr.expr.getKind();
+        if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR || kind == NodeKind.INDEX_BASED_ACCESS_EXPR ||
+                kind == NodeKind.INVOCATION) {
+            varRef = cloneAccessExpr((BLangAccessExpression) originalAccessExpr.expr);
+        } else {
+            varRef = cloneExpression(originalAccessExpr.expr);
+        }
+        varRef.type = getSafeType(originalAccessExpr.expr.type, false);
+
+        BLangAccessExpression accessExpr;
+        switch (originalAccessExpr.getKind()) {
+            case FIELD_BASED_ACCESS_EXPR:
+                accessExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
+                        ((BLangFieldBasedAccess) originalAccessExpr).field);
+                break;
+            case INDEX_BASED_ACCESS_EXPR:
+                accessExpr = ASTBuilderUtil.createIndexAccessExpr(varRef,
+                        ((BLangIndexBasedAccess) originalAccessExpr).indexExpr);
+                break;
+            case INVOCATION:
+                // TODO
+                accessExpr = null;
+                break;
+            default:
+                throw new IllegalStateException();
+        }
+
+        accessExpr.childType = originalAccessExpr.childType;
+        accessExpr.pos = originalAccessExpr.pos;
+        accessExpr.lhsVar = originalAccessExpr.lhsVar;
+        accessExpr.safeNavigate = false;
+
+        // Type of the field access expression should be always taken from the child type.
+        // Because the type assigned to expression contains the inherited error/nil types,
+        // and may not reflect the actual type of the child/field expr.
+        accessExpr.type = originalAccessExpr.childType;
+        return accessExpr;
+    }
+
+    private BLangExpression getDefaultValueExpr(BLangAccessExpression expr) {
+        BType type = expr.type;
+        switch (type.tag) {
+            case TypeTags.JSON:
+                if (expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR &&
+                        ((BLangIndexBasedAccess) expr).indexExpr.type.tag == TypeTags.INT) {
+                    return new BLangJSONArrayLiteral(new ArrayList<>(), type);
+                }
+                return new BLangJSONLiteral(new ArrayList<>(), type);
+            case TypeTags.MAP:
+                return new BLangMapLiteral(new ArrayList<>(), type);
+            default:
+                throw new IllegalStateException();
+        }
     }
 }

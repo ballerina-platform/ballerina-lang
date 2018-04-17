@@ -1341,7 +1341,9 @@ public class CPU {
                     break;
                 }
 
-                sf.refRegs[k] = bMap.get(sf.stringRegs[j]);
+                IntegerCPEntry exceptCPEntry = (IntegerCPEntry) ctx.constPool[operands[3]];
+                boolean except = exceptCPEntry.getValue() == 1;
+                sf.refRegs[k] = bMap.get(sf.stringRegs[j], except);
                 break;
 
             case InstructionCodes.JSONLOAD:
