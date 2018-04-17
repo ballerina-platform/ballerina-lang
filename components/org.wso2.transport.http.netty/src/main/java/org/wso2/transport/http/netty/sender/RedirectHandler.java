@@ -47,6 +47,8 @@ import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.HashMap;
@@ -436,7 +438,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @throws UnsupportedEncodingException
      */
     private Map<String, String> getRedirectState(String location, int statusCode, HTTPCarbonMessage originalRequest)
-            throws UnsupportedEncodingException {
+            throws UnsupportedEncodingException, URISyntaxException {
         Map<String, String> redirectState = new HashMap<String, String>();
         String originalRequestMethod =
                 originalRequest != null ? (String) originalRequest.getProperty(Constants.HTTP_METHOD) : null;
@@ -448,7 +450,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 if (Constants.HTTP_GET_METHOD.equals(originalRequestMethod) || Constants.HTTP_HEAD_METHOD
                         .equals(originalRequestMethod)) {
                     redirectState.put(Constants.HTTP_METHOD, originalRequestMethod);
-                    redirectState.put(HttpHeaderNames.LOCATION.toString(), getLocationURI(location, originalRequest));
+                    redirectState.put(HttpHeaderNames.LOCATION.toString(), getResolvedURI(location, originalRequest));
                 }
                 break;
             case 301:
@@ -456,12 +458,12 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 if (Constants.HTTP_GET_METHOD.equals(originalRequestMethod) || Constants.HTTP_HEAD_METHOD
                         .equals(originalRequestMethod)) {
                     redirectState.put(Constants.HTTP_METHOD, Constants.HTTP_GET_METHOD);
-                    redirectState.put(HttpHeaderNames.LOCATION.toString(), getLocationURI(location, originalRequest));
+                    redirectState.put(HttpHeaderNames.LOCATION.toString(), getResolvedURI(location, originalRequest));
                 }
                 break;
             case 303:
                 redirectState.put(Constants.HTTP_METHOD, Constants.HTTP_GET_METHOD);
-                redirectState.put(HttpHeaderNames.LOCATION.toString(), getLocationURI(location, originalRequest));
+                redirectState.put(HttpHeaderNames.LOCATION.toString(), getResolvedURI(location, originalRequest));
                 break;
             default:
                 return null;
@@ -473,14 +475,29 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         return redirectState;
     }
 
-    /**
+    private String getResolvedURI(String locationString, HTTPCarbonMessage originalRequest)
+            throws URISyntaxException, UnsupportedEncodingException {
+        URI location;
+        location = new URI(locationString);
+        if (!location.isAbsolute()) {
+            // location is not absolute, we need to resolve it.
+            String baseURIAsString = (String) originalRequest.getProperty(Constants.REQUEST_URL);
+            if (baseURIAsString != null) {
+                URI baseUri = new URI(baseURIAsString);
+                location = baseUri.resolve(location.normalize());
+            }
+        }
+        return location.toString();
+    }
+
+   /* *//**
      * Build redirect url from the location header value.
      *
      * @param location        value of location header
      * @param originalRequest Original request
      * @return a string that holds redirect url
      * @throws UnsupportedEncodingException
-     */
+     *//*
     private String getLocationURI(String location, HTTPCarbonMessage originalRequest)
             throws UnsupportedEncodingException {
         if (location != null) {
@@ -514,7 +531,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         return null;
     }
 
-    /**
+    *//**
      * Build redirect URL from relative path.
      *
      * @param requestPath request path of the original request
@@ -524,7 +541,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @param port        port used in the request
      * @return a string containing absolute path for redirection
      * @throws UnsupportedEncodingException
-     */
+     *//*
     private String buildRedirectURL(String requestPath, String location, String protocol, String host, Integer port)
             throws UnsupportedEncodingException {
         String newPath = requestPath == null ? Constants.FORWRD_SLASH : URLDecoder.decode(requestPath, Constants.UTF8);
@@ -548,7 +565,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             LOG.debug("Redirect URL build from relative path is : " + newLocation.toString());
         }
         return newLocation.toString();
-    }
+    }*/
 
     /**
      * Check whether the location indicates a cross domain.
