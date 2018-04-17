@@ -30,7 +30,7 @@ public class BSingletonType extends BType {
     public BValue valueSpace;
 
     public BSingletonType(BType superSetType, BValue valueSpace) {
-        super(null, null, BValue.class);
+        super(TypeConstants.SINGLETON_TNAME, null, BValue.class);
         this.superSetType = superSetType;
         this.valueSpace = valueSpace;
     }
@@ -53,5 +53,27 @@ public class BSingletonType extends BType {
     @Override
     public int getTag() {
         return TypeTags.SINGLETON_TAG;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        BSingletonType singletonType = (BSingletonType) o;
+        if (this.valueSpace == null) {
+            return singletonType.valueSpace == null;
+        } else {
+            return this.valueSpace.equals(singletonType.valueSpace);
+        }
+    }
+
+    @Override
+    public BType getSuperType() {
+        return superSetType;
     }
 }

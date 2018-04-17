@@ -21,7 +21,6 @@ import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.types.BSingletonType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -52,13 +51,6 @@ public class BLangVMUtils {
 
     private static final String GLOBAL_TRANSACTION_ENABLED = "GLOBAL_TRANSACTION_ENABLED";
 
-    private static BType resolveToSuperType(BType bType) {
-        if (bType.getTag() == TypeTags.SINGLETON_TAG) {
-            return ((BSingletonType) bType).superSetType;
-        }
-        return bType;
-    }
-
     public static void copyArgValues(WorkerData caller, WorkerData callee, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
         int doubleRegIndex = -1;
@@ -67,7 +59,7 @@ public class BLangVMUtils {
         int refRegIndex = -1;
         int blobRegIndex = -1;
         for (int i = 0; i < argRegs.length; i++) {
-            BType paramType = resolveToSuperType(paramTypes[i]);
+            BType paramType = paramTypes[i].getSuperType();
             int argReg = argRegs[i];
             switch (paramType.getTag()) {
             case TypeTags.INT_TAG:
@@ -149,7 +141,7 @@ public class BLangVMUtils {
         }
         for (int i = 0; i < vals.length; i++) {
             int callersRetRegIndex = regIndexes[i];
-            BType retType = resolveToSuperType(types[i]);
+            BType retType = types[i].getSuperType();
             switch (retType.getTag()) {
             case TypeTags.INT_TAG:
                 if (vals[i] == null) {
@@ -204,7 +196,7 @@ public class BLangVMUtils {
         int refRegCount = 0;
         int byteRegCount = 0;
         for (int i = 0; i < vals.length; i++) {
-            BType retType = resolveToSuperType(types[i]);
+            BType retType = types[i].getSuperType();
             switch (retType.getTag()) {
             case TypeTags.INT_TAG:
                 if (vals[i] == null) {
@@ -253,7 +245,7 @@ public class BLangVMUtils {
         BType[] retTypes = callableUnitInfo.getRetParamTypes();
         BValue[] returnValues = new BValue[retTypes.length];
         for (int i = 0; i < returnValues.length; i++) {
-            BType retType = resolveToSuperType(retTypes[i]);
+            BType retType = retTypes[i].getSuperType();
             switch (retType.getTag()) {
             case TypeTags.INT_TAG:
                 returnValues[i] = new BInteger(data.longRegs[retRegs[i]]);
@@ -283,7 +275,7 @@ public class BLangVMUtils {
         int[] result = new int[retWDI.retRegs.length];
         System.arraycopy(retWDI.retRegs, 0, result, 0, result.length);
         for (int i = 0; i < result.length; i++) {
-            BType retType = resolveToSuperType(retTypes[i]);
+            BType retType = retTypes[i].getSuperType();
             switch (retType.getTag()) {
             case TypeTags.INT_TAG:
                 result[i] += paramWDI.longRegCount;
@@ -318,7 +310,7 @@ public class BLangVMUtils {
         int longParamCount = 0, doubleParamCount = 0, stringParamCount = 0, intParamCount = 0, 
                 byteParamCount = 0, refParamCount = 0;
         for (int i = 0; i < types.length; i++) {
-            switch (resolveToSuperType(types[i]).getTag()) {
+            switch (types[i].getSuperType().getTag()) {
                 case TypeTags.INT_TAG:
                     if (args[i] instanceof BString) {
                         local.longRegs[longParamCount] = ((BString) args[i]).intValue();
@@ -380,7 +372,7 @@ public class BLangVMUtils {
         int refRegCount = 0;
         int byteRegCount = 0;
         for (int i = 0; i < types.length; i++) {
-            BType retType = resolveToSuperType(types[i]);
+            BType retType = types[i].getSuperType();
             callersRetRegIndex = regIndexes[i];
             switch (retType.getTag()) {
             case TypeTags.INT_TAG:

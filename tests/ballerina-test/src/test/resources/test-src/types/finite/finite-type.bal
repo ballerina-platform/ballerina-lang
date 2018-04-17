@@ -1,6 +1,6 @@
 type State "on"|"off";
 
-function finiteAssignmentStateType() returns State {
+function testAssignmentStateType() returns State {
     State p = "on";
     if (p == "on") {
        p = "off";
@@ -10,22 +10,22 @@ function finiteAssignmentStateType() returns State {
 
 type NumberSet 1|2|3|4|5;
 
-type SN State|NumberSet;
+type TypeAlias State|NumberSet;
 
-type SNR SN;
+type TypeAliasOfAlias TypeAlias;
 
-function finiteAssignmentCompositeFiniteTypes() returns SNR {
-    SNR v1 = "on";
-    SNR v2 = 5;
-    SNR v3;
+function testAssignmentCompositeFiniteTypes() returns TypeAliasOfAlias {
+    TypeAliasOfAlias v1 = "on";
+    TypeAliasOfAlias v2 = 5;
+    TypeAliasOfAlias v3;
     if (v1 != v2) {
        v3 = "off";
     }
     return v3;
 }
 
-function finiteTypeSetIntersectionCaseOne() returns State {
-    SNR v1 = "on";
+function testTypeSetIntersectionCaseOne() returns State {
+    TypeAliasOfAlias v1 = "on";
     State v2 = "off";
     State v3;
     if (v1 != v2) {
@@ -34,7 +34,7 @@ function finiteTypeSetIntersectionCaseOne() returns State {
     return v3;
 }
 
-function finiteTypeSetIntersectionCaseTwo() returns int {
+function testTypeSetIntersectionCaseTwo() returns int {
     int v1 = 2;
     NumberSet v2 = 1;
     int v3;
@@ -44,7 +44,7 @@ function finiteTypeSetIntersectionCaseTwo() returns int {
     return v3;
 }
 
-function finiteTypeSetIntersectionCaseThree() returns string {
+function testTypeSetIntersectionCaseThree() returns string {
     string v1 = "off";
     State v2 = "off";
     string v3 = "good";
@@ -54,7 +54,7 @@ function finiteTypeSetIntersectionCaseThree() returns string {
     return v3;
 }
 
-function finiteAssignmentNumberSetType() returns NumberSet {
+function testAssignmentNumberSetType() returns NumberSet {
     NumberSet n = 1;
     if (n == 1) {
        n = 5;
@@ -64,7 +64,7 @@ function finiteAssignmentNumberSetType() returns NumberSet {
 
 type StringOrInt int|string;
 
-function finiteAssignmentStringOrIntSetType() returns StringOrInt {
+function testAssignmentStringOrIntSetType() returns StringOrInt {
     StringOrInt si = 1;
     if (si == 1) {
        si = "This is a string";
@@ -72,7 +72,7 @@ function finiteAssignmentStringOrIntSetType() returns StringOrInt {
     return si;
 }
 
-function finiteAssignmentStringOrIntSetTypeCaseTwo() returns StringOrInt {
+function testAssignmentStringOrIntSetTypeCaseTwo() returns StringOrInt {
     StringOrInt si = "This is a string";
     if (si == "This is a string") {
        si = 111;
@@ -82,7 +82,7 @@ function finiteAssignmentStringOrIntSetTypeCaseTwo() returns StringOrInt {
 
 type Int int;
 
-function finiteAssignmentIntSetType() returns Int {
+function testAssignmentIntSetType() returns Int {
     Int si = 1;
     if (si == 1) {
        si = 222;
@@ -90,7 +90,7 @@ function finiteAssignmentIntSetType() returns Int {
     return si;
 }
 
-function finiteAssignmentIntArrayType() returns Int {
+function testAssignmentIntArrayType() returns Int {
     Int[] si = [];
     si[0] = 10001;
     si[1] = 2345;
@@ -100,7 +100,7 @@ function finiteAssignmentIntArrayType() returns Int {
     return si[1];
 }
 
-function finiteAssignmentStateSameTypeComparison() returns int {
+function testAssignmentStateSameTypeComparison() returns int {
     State a = "off";
     if (a == "on"){
        return 1;
@@ -108,7 +108,7 @@ function finiteAssignmentStateSameTypeComparison() returns int {
     return 2;
 }
 
-function finiteAssignmentStateSameTypeComparisonCaseTwo() returns State {
+function testAssignmentStateSameTypeComparisonCaseTwo() returns State {
     State a = "off";
     if (a != "on"){
        a = "on";
@@ -123,13 +123,13 @@ type Person {
    string name;
 };
 
-function finiteAssignmentRefValueType() returns POrInt {
+function testAssignmentRefValueType() returns POrInt {
     Person p = {name:"abc"};
     POrInt pi = p;
     return pi;
 }
 
-function finiteAssignmentRefValueTypeCaseTwo() returns POrInt {
+function testAssignmentRefValueTypeCaseTwo() returns POrInt {
     Person p = {name:"abc"};
     POrInt pi = 4;
     return pi;

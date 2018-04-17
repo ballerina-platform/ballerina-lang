@@ -56,7 +56,7 @@ public class BLangVMStructs {
                 break;
             }
             BType paramType = structFields[i].getFieldType();
-            setValue(bStruct, indexes, paramType.getTag(), values[i]);
+            setValue(bStruct, indexes, paramType.getSuperType().getTag(), values[i]);
         }
         return bStruct;
     }

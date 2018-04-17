@@ -164,7 +164,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BSymbol resolveConversionOperator(BType sourceType,
                                              BType targetType) {
-        return types.getConversionOperator(resolveToSuperType(sourceType), resolveToSuperType(targetType));
+        return types.getConversionOperator(resolveToSuperType(sourceType), targetType);
     }
 
     public BSymbol resolveBinaryOperator(OperatorKind opKind,

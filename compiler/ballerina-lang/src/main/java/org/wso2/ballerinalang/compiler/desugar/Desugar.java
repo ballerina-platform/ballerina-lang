@@ -1218,33 +1218,34 @@ public class Desugar extends BLangNodeVisitor {
         result = binaryExpr;
 
         // Check lhs and rhs type compatibility
-        if (binaryExpr.lhsExpr.type.tag == binaryExpr.rhsExpr.type.tag) {
+        if (types.resolveToSuperType(binaryExpr.lhsExpr.type).tag ==
+                types.resolveToSuperType(binaryExpr.rhsExpr.type).tag) {
             return;
         }
 
         if (types.resolveToSuperType(binaryExpr.lhsExpr.type).tag == TypeTags.STRING
                 && binaryExpr.opKind == OperatorKind.ADD) {
             binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
-                    binaryExpr.rhsExpr.type, binaryExpr.lhsExpr.type);
+                    binaryExpr.rhsExpr.type, types.resolveToSuperType(binaryExpr.lhsExpr.type));
             return;
         }
 
         if (types.resolveToSuperType(binaryExpr.rhsExpr.type).tag == TypeTags.STRING
                 && binaryExpr.opKind == OperatorKind.ADD) {
             binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
-                    binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+                    binaryExpr.lhsExpr.type, types.resolveToSuperType(binaryExpr.rhsExpr.type));
             return;
         }
 
         if (types.resolveToSuperType(binaryExpr.lhsExpr.type).tag == TypeTags.FLOAT) {
             binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
-                    binaryExpr.rhsExpr.type, binaryExpr.lhsExpr.type);
+                    binaryExpr.rhsExpr.type, types.resolveToSuperType(binaryExpr.lhsExpr.type));
             return;
         }
 
         if (types.resolveToSuperType(binaryExpr.rhsExpr.type).tag == TypeTags.FLOAT) {
             binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
-                    binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+                    binaryExpr.lhsExpr.type, types.resolveToSuperType(binaryExpr.rhsExpr.type));
         }
     }
 

@@ -27,8 +27,7 @@ import java.util.Objects;
  */
 public class SingletonInfo extends StructureTypeInfo {
 
-    //TODO Generalize this properly across struct/annotation etc.
-    public DefaultValue valueSpace;
+    public ValueSpaceInfo valueSpace;
     public BType singletonType;
 
     public SingletonInfo(int pkgNameCPIndex,

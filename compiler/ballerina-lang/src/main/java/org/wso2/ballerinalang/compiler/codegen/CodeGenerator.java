@@ -180,6 +180,7 @@ import org.wso2.ballerinalang.programfile.SingletonInfo;
 import org.wso2.ballerinalang.programfile.StructFieldInfo;
 import org.wso2.ballerinalang.programfile.StructInfo;
 import org.wso2.ballerinalang.programfile.TransformerInfo;
+import org.wso2.ballerinalang.programfile.ValueSpaceInfo;
 import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 import org.wso2.ballerinalang.programfile.WorkerInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
@@ -1965,7 +1966,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 singletonNameCPIndex, singletonDefSymbol.flags);
         currentPkgInfo.addSingletonInfo(singletonDefSymbol.name.value, singletonDefInfo);
         singletonDefInfo.singletonType = singletonDefSymbol.type;
-        singletonDefInfo.valueSpace = getDefaultValue((BLangLiteral) singleton.valueSpace);
+        singletonDefInfo.valueSpace = getSingletonValueSpace((BLangLiteral) singleton.valueSpace);
     }
 
     private void createTransformerInfoEntry(BLangInvokableNode invokable) {
@@ -3302,6 +3303,36 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
         }
         return opcode;
+    }
+
+    private ValueSpaceInfo getSingletonValueSpace(BLangLiteral literalExpr) {
+        BType effectiveType = resolveToSuperType(literalExpr.type);
+        String desc = effectiveType.getDesc();
+        int typeDescCPIndex = addUTF8CPEntry(currentPkgInfo, desc);
+        ValueSpaceInfo valueSpaceInfo = new ValueSpaceInfo(typeDescCPIndex, desc);
+
+        int typeTag = effectiveType.tag;
+        switch (typeTag) {
+            case TypeTags.INT:
+                valueSpaceInfo.intValue = (Long) literalExpr.value;
+                valueSpaceInfo.valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(valueSpaceInfo.intValue));
+                break;
+            case TypeTags.FLOAT:
+                valueSpaceInfo.floatValue = (Double) literalExpr.value;
+                valueSpaceInfo.valueCPIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(valueSpaceInfo.floatValue));
+                break;
+            case TypeTags.STRING:
+                valueSpaceInfo.stringValue = (String) literalExpr.value;
+                valueSpaceInfo.valueCPIndex = currentPkgInfo.addCPEntry(new UTF8CPEntry(valueSpaceInfo.stringValue));
+                break;
+            case TypeTags.BOOLEAN:
+                valueSpaceInfo.booleanValue = (Boolean) literalExpr.value;
+                break;
+            default:
+                valueSpaceInfo = null;
+        }
+
+        return valueSpaceInfo;
     }
 
 }

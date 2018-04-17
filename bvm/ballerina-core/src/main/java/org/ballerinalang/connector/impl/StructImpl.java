@@ -51,7 +51,8 @@ public class StructImpl extends AnnotatableNode implements Struct {
         this.value = value;
         type = value.getType();
         Arrays.stream(value.getType().getStructFields()).forEach(sf -> {
-            final StructFieldImpl structField = new StructFieldImpl(sf.fieldName, sf.fieldType.getTag());
+            final StructFieldImpl structField = new StructFieldImpl(sf.fieldName,
+                    sf.fieldType.getSuperType().getTag());
             setIndex(structField, indexes);
             structFields.put(sf.fieldName, structField);
         });

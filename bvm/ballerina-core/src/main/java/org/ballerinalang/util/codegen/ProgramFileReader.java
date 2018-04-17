@@ -485,7 +485,7 @@ public class ProgramFileReader {
 
             int defaultValueCount = dataInStream.readShort();
             if (defaultValueCount == 1) {
-                BValue value = getDefaultValueToBValue(getDefaultValue(dataInStream, packageInfo));
+                BValue value = getSingletonValueSpace(dataInStream, packageInfo);
                 singletonInfo.setType(new BSingletonType(value.getType(), value));
             } else {
                 singletonInfo.setType(BTypes.typeNull);
@@ -1737,33 +1737,37 @@ public class ProgramFileReader {
         return defaultValue;
     }
 
-    private BValue getDefaultValueToBValue(DefaultValue defaultValue)
+    private BValue getSingletonValueSpace(DataInputStream dataInStream, ConstantPool constantPool)
             throws IOException {
-        String typeDesc = defaultValue.getTypeDesc();
         BValue value;
+        int typeDescCPIndex = dataInStream.readInt();
+        UTF8CPEntry typeDescCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeDescCPIndex);
+        String typeDesc = typeDescCPEntry.getValue();
 
+        int valueCPIndex;
         switch (typeDesc) {
             case TypeSignature.SIG_BOOLEAN:
-                boolean boolValue = defaultValue.getBooleanValue();
+                boolean boolValue = dataInStream.readBoolean();
                 value = new BBoolean(boolValue);
                 break;
             case TypeSignature.SIG_INT:
-                long intValue = defaultValue.getIntValue();
-                value = new BInteger(intValue);
+                valueCPIndex = dataInStream.readInt();
+                IntegerCPEntry integerCPEntry = (IntegerCPEntry) constantPool.getCPEntry(valueCPIndex);
+                value = new BInteger(integerCPEntry.getValue());
                 break;
             case TypeSignature.SIG_FLOAT:
-                double floatValue = defaultValue.getFloatValue();
-                value = new BFloat(floatValue);
+                valueCPIndex = dataInStream.readInt();
+                FloatCPEntry floatCPEntry = (FloatCPEntry) constantPool.getCPEntry(valueCPIndex);
+                value = new BFloat(floatCPEntry.getValue());
                 break;
             case TypeSignature.SIG_STRING:
-                String stringValue = defaultValue.getStringValue();
-                value = new BString(stringValue);
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry stringCPEntry = (UTF8CPEntry) constantPool.getCPEntry(valueCPIndex);
+                value = new BString(stringCPEntry.getValue());
                 break;
             default:
-                throw new ProgramFileFormatException("unknown default value type " + typeDesc);
-
+                throw new ProgramFileFormatException("unknown singleton value type " + typeDesc);
         }
-
         return value;
     }
 

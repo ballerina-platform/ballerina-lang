@@ -88,7 +88,7 @@ public class TableUtils {
             int blobFieldIndex = 0;
             int index = 1;
             for (BStructType.StructField sf : structFields) {
-                int type = sf.getFieldType().getTag();
+                int type = sf.getFieldType().getSuperType().getTag();
                 switch (type) {
                 case TypeTags.INT_TAG:
                     stmt.setLong(index, constrainedType.getIntField(intFieldIndex));

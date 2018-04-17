@@ -766,7 +766,7 @@ public class CPU {
         int refIndex = expandRefRegs(sf, fp);
 
         for (BClosure closure : closureVars) {
-            switch (closure.getType().getTag()) {
+            switch (closure.getType().getSuperType().getTag()) {
                 case TypeTags.INT_TAG: {
                     sf.longRegs[longIndex] = ((BInteger) closure.value()).intValue();
                     newArgRegs[argRegIndex++] = longIndex++;
@@ -2533,7 +2533,7 @@ public class CPU {
         for (int i = 0; i < varRegs.length && lockAcquired; i++) {
             BType paramType = types[i];
             int regIndex = varRegs[i];
-            switch (paramType.getTag()) {
+            switch (paramType.getSuperType().getTag()) {
                 case TypeTags.INT_TAG:
                     lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockIntField(ctx, regIndex);
                     break;
@@ -2560,7 +2560,7 @@ public class CPU {
         for (int i = varRegs.length - 1; i > -1; i--) {
             BType paramType = types[i];
             int regIndex = varRegs[i];
-            switch (paramType.getTag()) {
+            switch (paramType.getSuperType().getTag()) {
                 case TypeTags.INT_TAG:
                     ctx.programFile.getGlobalMemoryBlock().unlockIntField(regIndex);
                     break;
@@ -2879,7 +2879,7 @@ public class CPU {
     @SuppressWarnings("rawtypes")
     private static BRefType extractValue(WorkerData data, BType type, int reg) {
         BRefType result;
-        switch (type.getTag()) {
+        switch (type.getSuperType().getTag()) {
             case TypeTags.INT_TAG:
                 result = new BInteger(data.longRegs[reg]);
                 break;
@@ -2923,7 +2923,7 @@ public class CPU {
     @SuppressWarnings("rawtypes")
     public static void copyArgValueForWorkerReceive(WorkerData currentSF, int regIndex, BType paramType,
                                                      BRefType passedInValue) {
-        switch (paramType.getTag()) {
+        switch (paramType.getSuperType().getTag()) {
             case TypeTags.INT_TAG:
                 currentSF.longRegs[regIndex] = ((BInteger) passedInValue).intValue();
                 break;
@@ -2966,7 +2966,7 @@ public class CPU {
         for (int i = 0; i < argRegs.length; i++) {
             BType paramType = paramTypes[i];
             int argReg = argRegs[i];
-            switch (paramType.getTag()) {
+            switch (paramType.getSuperType().getTag()) {
                 case TypeTags.INT_TAG:
                     calleeSF.longRegs[++longRegIndex] = callerSF.longRegs[argReg];
                     break;
@@ -3858,7 +3858,7 @@ public class CPU {
         int j = operands[2];
 
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-        int typeTag = typeRefCPEntry.getType().getTag();
+        int typeTag = typeRefCPEntry.getType().getSuperType().getTag();
         if (typeTag == TypeTags.STRING_TAG) {
             String value = sf.stringRegs[i];
             if (value == null) {

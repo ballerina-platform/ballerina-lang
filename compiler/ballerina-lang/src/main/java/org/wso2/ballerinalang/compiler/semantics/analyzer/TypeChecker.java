@@ -26,7 +26,6 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -50,7 +49,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BSingletonType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -58,7 +56,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangSingleton;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
@@ -108,7 +105,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -147,7 +143,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private Types types;
     private IterableAnalyzer iterableAnalyzer;
     private BLangDiagnosticLog dlog;
-    private BLangAnonymousModelHelper anonymousModelHelper;
 
     private SymbolEnv env;
 
@@ -178,7 +173,6 @@ public class TypeChecker extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.iterableAnalyzer = IterableAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
-        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -227,8 +221,12 @@ public class TypeChecker extends BLangNodeVisitor {
     // Expressions
 
     public void visit(BLangLiteral literalExpr) {
-        BType literalType = new BSingletonType((BTypeSymbol) defineSingletonNode(literalExpr), literalExpr,
-                this.symTable.getTypeFromTag(literalExpr.typeTag));
+        BType literalType;
+        if (literalExpr.singletonType != null) {
+            literalType = symResolver.resolveTypeNode(literalExpr.singletonType, env);
+        } else {
+            literalType = symTable.getTypeFromTag(literalExpr.typeTag);
+        }
         resultType = types.checkType(literalExpr, literalType, expType);
     }
 
@@ -1720,19 +1718,6 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualType;
     }
 
-    private BLangTypedescExpr getTypeAccessExpression(BLangSimpleVarRef varRef) {
-        BLangUserDefinedType userDefinedType = new BLangUserDefinedType();
-        userDefinedType.pkgAlias = varRef.pkgAlias;
-        userDefinedType.typeName = varRef.variableName;
-        userDefinedType.pos = varRef.pos;
-        BLangTypedescExpr typeAccessExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
-        typeAccessExpr.typeNode = userDefinedType;
-        typeAccessExpr.resolvedType = symResolver.resolveTypeNode(userDefinedType, env);
-        typeAccessExpr.pos = varRef.pos;
-        typeAccessExpr.type = symTable.typeDesc;
-        return typeAccessExpr;
-    }
-
     private BType getTypeOfExprInFieldAccess(BLangExpression expr) {
         // First check whether variable expression is of type enum.
         if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -1964,17 +1949,4 @@ public class TypeChecker extends BLangNodeVisitor {
         return new BUnionType(null, new LinkedHashSet<>(lhsTypes), false);
     }
 
-    private BSymbol defineSingletonNode(BLangLiteral literalExpr) {
-        String genName = anonymousModelHelper.getNextAnonymousSingletonKey(literalExpr.pos.src.pkgID);
-        BLangIdentifier anonSingletonGenName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        anonSingletonGenName.setValue(genName);
-        anonSingletonGenName.setLiteral(false);
-        BLangSingleton singletonNode = (BLangSingleton) TreeBuilder.createSingletonNode();
-        singletonNode.name = anonSingletonGenName;
-        singletonNode.addFlag(Flag.PUBLIC);
-        singletonNode.valueSpace = literalExpr;
-        env.enclPkg.singletons.add(singletonNode);
-        symbolEnter.defineNode(singletonNode, env);
-        return singletonNode.symbol;
-    }
 }

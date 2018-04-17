@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 /**
  * @since 0.94
@@ -28,6 +29,7 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
 
     public int typeTag;
     public Object value;
+    public BLangType singletonType;
 
     @Override
     public Object getValue() {

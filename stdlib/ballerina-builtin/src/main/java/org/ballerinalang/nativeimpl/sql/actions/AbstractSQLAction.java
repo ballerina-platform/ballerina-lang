@@ -305,14 +305,10 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 } else if (((BRefValueArray) typeValue).size() == 2) {
                     paramStruct.setRefField(0, ((BRefValueArray) typeValue).get(0));
 
-                    if (((BTupleType) typeValue.getType()).getTupleTypes().get(1).getTag()
-                            == TypeTags.FINITE_TYPE_TAG) {
-                        paramStruct.setRefField(1, null);
-                        paramStruct.setRefField(2, ((BRefValueArray) typeValue).get(1));
-                    } else {
-                        paramStruct.setRefField(1, ((BRefValueArray) typeValue).get(1));
-                        paramStruct.setRefField(2, new BString(Constants.QueryParamDirection.DIR_IN));
-                    }
+
+                    paramStruct.setRefField(1, ((BRefValueArray) typeValue).get(1));
+                    paramStruct.setRefField(2, new BString(Constants.QueryParamDirection.DIR_IN));
+
 
                 } else {
                     throw new BallerinaException("Invalid argument combination is given for input parameter:" + i);

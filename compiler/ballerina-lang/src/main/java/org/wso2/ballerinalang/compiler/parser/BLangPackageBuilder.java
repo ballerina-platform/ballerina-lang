@@ -396,6 +396,12 @@ public class BLangPackageBuilder {
     }
 
     public void addSingletonType(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangLiteral langLiteral = (BLangLiteral) exprNodeStack.pop();
+        BLangType typeNode = createSingletonTypeNode(pos, ws, langLiteral);
+        addType(typeNode);
+    }
+
+    private BLangType createSingletonTypeNode(DiagnosticPos pos, Set<Whitespace> ws, BLangLiteral literal) {
         // Create Anonymous Singleton Node
         String genName = anonymousModelHelper.getNextAnonymousSingletonKey(pos.src.pkgID);
         IdentifierNode anonSingletonGenName = createIdentifier(genName);
@@ -409,13 +415,12 @@ public class BLangPackageBuilder {
         BLangSingletonTypeNode typeNode = (BLangSingletonTypeNode) TreeBuilder.createSingletonTypeNode();
         typeNode.addWS(ws);
         typeNode.pos = pos;
-        typeNode.literal = (BLangLiteral) exprNodeStack.pop();
+        typeNode.literal = literal;
         typeNode.name = (BLangIdentifier) anonSingletonGenName;
         typeNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
 
         singletonNode.valueSpace = typeNode.literal;
-
-        addType(typeNode);
+        return typeNode;
     }
 
     public void addUnionType(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -972,6 +977,7 @@ public class BLangPackageBuilder {
         litExpr.pos = pos;
         litExpr.typeTag = typeTag;
         litExpr.value = value;
+        litExpr.singletonType = createSingletonTypeNode(pos, ws, litExpr);
         addExpressionNode(litExpr);
     }
 
@@ -2078,6 +2084,7 @@ public class BLangPackageBuilder {
             nilLiteral.pos = pos;
             nilLiteral.value = Names.NIL_VALUE;
             nilLiteral.typeTag = TypeTags.NIL;
+            nilLiteral.singletonType = createSingletonTypeNode(pos, ws, nilLiteral);
             retStmt.expr = nilLiteral;
         }
         addStmtToCurrentBlock(retStmt);

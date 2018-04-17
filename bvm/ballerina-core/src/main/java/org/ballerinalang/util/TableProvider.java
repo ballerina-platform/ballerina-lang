@@ -152,7 +152,7 @@ public class TableProvider {
         BStructType.StructField[] structFields = ((BStructType) constrainedType).getStructFields();
         String seperator = "";
         for (BStructType.StructField sf : structFields) {
-            int type = sf.getFieldType().getTag();
+            int type = sf.getFieldType().getSuperType().getTag();
             String name = sf.getFieldName();
             sb.append(seperator).append(name).append(" ");
             switch (type) {
@@ -242,7 +242,7 @@ public class TableProvider {
             stmt = conn.prepareStatement(queryStatement);
             for (int index = 1; index <= params.size(); index++) {
                 BRefType param = params.get(index - 1);
-                switch (param.getType().getTag()) {
+                switch (param.getType().getSuperType().getTag()) {
                     case TypeTags.INT_TAG:
                         stmt.setLong(index, (Long) param.value());
                         break;

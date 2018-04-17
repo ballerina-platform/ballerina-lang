@@ -272,7 +272,7 @@ public class PackageInfoWriter {
     }
 
     private static void writeSingletonInfo(DataOutputStream dataOutStream,
-                                                SingletonInfo singletonInfo) throws IOException {
+                                           SingletonInfo singletonInfo) throws IOException {
         dataOutStream.writeInt(singletonInfo.nameCPIndex);
         dataOutStream.writeInt(singletonInfo.flags);
 
@@ -280,7 +280,7 @@ public class PackageInfoWriter {
             dataOutStream.writeShort(0);
         } else {
             dataOutStream.writeShort(1);
-            writeDefaultValue(dataOutStream, singletonInfo.valueSpace);
+            writeValueSpaceInfo(dataOutStream, singletonInfo.valueSpace);
         }
 
         // Write attribute info
@@ -525,6 +525,17 @@ public class PackageInfoWriter {
             dataOutStream.writeBoolean(defaultValueInfo.booleanValue);
         } else {
             dataOutStream.writeInt(defaultValueInfo.valueCPIndex);
+        }
+    }
+
+    private static void writeValueSpaceInfo(DataOutputStream dataOutStream, ValueSpaceInfo valueSpaceInfo)
+            throws IOException {
+        dataOutStream.writeInt(valueSpaceInfo.typeDescCPIndex);
+        String typeDesc = valueSpaceInfo.desc;
+        if (TypeDescriptor.SIG_BOOLEAN.equals(typeDesc)) {
+            dataOutStream.writeBoolean(valueSpaceInfo.booleanValue);
+        } else {
+            dataOutStream.writeInt(valueSpaceInfo.valueCPIndex);
         }
     }
 }

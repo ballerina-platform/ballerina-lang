@@ -61,8 +61,8 @@ public class FiniteTypeTest {
     }
 
     @Test()
-    public void finiteAssignmentCompositeFiniteTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentCompositeFiniteTypes");
+    public void testAssignmentCompositeFiniteTypes() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssignmentCompositeFiniteTypes");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
@@ -70,8 +70,8 @@ public class FiniteTypeTest {
     }
 
     @Test()
-    public void finiteTypeSetIntersectionCaseOne() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteTypeSetIntersectionCaseOne");
+    public void testTypeSetIntersectionCaseOne() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeSetIntersectionCaseOne");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
@@ -79,8 +79,8 @@ public class FiniteTypeTest {
     }
 
     @Test()
-    public void finiteTypeSetIntersectionCaseTwo() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteTypeSetIntersectionCaseTwo");
+    public void testTypeSetIntersectionCaseTwo() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeSetIntersectionCaseTwo");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BInteger);
@@ -88,8 +88,8 @@ public class FiniteTypeTest {
     }
 
     @Test()
-    public void finiteTypeSetIntersectionCaseThree() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteTypeSetIntersectionCaseThree");
+    public void testTypeSetIntersectionCaseThree() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeSetIntersectionCaseThree");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
@@ -97,8 +97,8 @@ public class FiniteTypeTest {
     }
 
     @Test()
-    public void finiteAssignmentStateType() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentStateType");
+    public void testAssignmentStateType() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssignmentStateType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
@@ -106,8 +106,8 @@ public class FiniteTypeTest {
     }
 
     @Test()
-    public void finiteAssignmentNumberSetType() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentNumberSetType");
+    public void testAssignmentNumberSetType() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssignmentNumberSetType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BInteger);
@@ -115,8 +115,8 @@ public class FiniteTypeTest {
     }
 
     @Test()
-    public void finiteAssignmentStringOrIntSetType() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentStringOrIntSetType");
+    public void testAssignmentStringOrIntSetType() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssignmentStringOrIntSetType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
@@ -124,8 +124,8 @@ public class FiniteTypeTest {
     }
 
     @Test()
-    public void finiteAssignmentStringOrIntSetTypeCaseTwo() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentStringOrIntSetTypeCaseTwo");
+    public void testAssignmentStringOrIntSetTypeCaseTwo() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssignmentStringOrIntSetTypeCaseTwo");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BInteger);
@@ -134,8 +134,8 @@ public class FiniteTypeTest {
 
 
     @Test()
-    public void finiteAssignmentIntSetType() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentIntSetType");
+    public void testAssignmentIntSetType() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssignmentIntSetType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BInteger);
@@ -143,8 +143,8 @@ public class FiniteTypeTest {
     }
 
     @Test()
-    public void finiteAssignmentIntArrayType() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentIntArrayType");
+    public void testAssignmentIntArrayType() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssignmentIntArrayType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BInteger);
@@ -152,8 +152,8 @@ public class FiniteTypeTest {
     }
 
     @Test()
-    public void finiteAssignmentStateSameTypeComparison() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentStateSameTypeComparison");
+    public void testAssignmentStateSameTypeComparison() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssignmentStateSameTypeComparison");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BInteger);
@@ -161,8 +161,8 @@ public class FiniteTypeTest {
     }
 
     @Test()
-    public void finiteAssignmentStateSameTypeComparisonCaseTwo() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentStateSameTypeComparisonCaseTwo");
+    public void testAssignmentStateSameTypeComparisonCaseTwo() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssignmentStateSameTypeComparisonCaseTwo");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
@@ -170,16 +170,16 @@ public class FiniteTypeTest {
     }
 
     @Test()
-    public void finiteAssignmentRefValueType() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentRefValueType");
+    public void testAssignmentRefValueType() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssignmentRefValueType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BStruct);
     }
 
     @Test()
-    public void finiteAssignmentRefValueTypeCaseTwo() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentRefValueTypeCaseTwo");
+    public void testAssignmentRefValueTypeCaseTwo() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssignmentRefValueTypeCaseTwo");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BInteger);

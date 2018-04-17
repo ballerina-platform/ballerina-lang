@@ -185,7 +185,7 @@ public class TableIterator implements DataIterator {
             for (BStructType.StructField sf : structFields) {
                 BType type = sf.getFieldType();
                 ++index;
-                switch (type.getTag()) {
+                switch (type.getSuperType().getTag()) {
                 case TypeTags.INT_TAG:
                     long iValue = rs.getInt(index);
                     bStruct.setIntField(++longRegIndex, iValue);
@@ -291,7 +291,7 @@ public class TableIterator implements DataIterator {
         for (BStructType.StructField sf : structFields) {
             BType type = sf.getFieldType();
             TypeKind typeKind = TypeKind.ANY;
-            switch (type.getTag()) {
+            switch (type.getSuperType().getTag()) {
             case TypeTags.INT_TAG:
                 typeKind = TypeKind.INT;
                 break;
