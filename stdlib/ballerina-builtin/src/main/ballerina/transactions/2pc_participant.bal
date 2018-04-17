@@ -35,7 +35,6 @@ documentation {
 }
 public type LocalProtocol {
     @readonly string name;
-    @readonly int transactionBlockId;
 };
 
 documentation {
@@ -228,7 +227,7 @@ type LocalParticipant object {
                 foreach localProto in participantProtocols {
                     if(proto == localProto.name) {
                         log:printInfo("Notify(" + action + ") local participant: " + self.participantId);
-                        return notifyMe(action, localProto.transactionBlockId);
+                        return notifyMe(action, participatedTxn.transactionBlockId);
                     }
                 }
             }
@@ -236,7 +235,7 @@ type LocalParticipant object {
                 NotifyResult|error notifyResult =
                                 (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
                 foreach localProto in participantProtocols {
-                    var result = self.notifyMe(action, localProto.transactionBlockId);
+                    var result = self.notifyMe(action, participatedTxn.transactionBlockId);
                     match result {
                         error err => notifyResult = err;
                         NotifyResult notifyRes => {} // Nothing to do since we have set the notifyResult already
