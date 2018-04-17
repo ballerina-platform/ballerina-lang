@@ -13,7 +13,6 @@ Functions
 Errors
 Var
 Any Type
-Type Casting
 Type Conversion
 Typeof
 Structs
