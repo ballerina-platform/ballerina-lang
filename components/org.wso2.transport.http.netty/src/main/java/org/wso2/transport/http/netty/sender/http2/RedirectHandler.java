@@ -130,19 +130,13 @@ public class RedirectHandler implements Http2DataEventListener {
             HTTPCarbonMessage originalRequest = outboundMsgHolder.getRequest();
             String redirectionMethod = getRedirectionRequestMethod(statusCode, originalRequest);
             String redirectionURL = RedirectUtil.getLocationURI(location, originalRequest);
-            boolean crossDomain = RedirectUtil.isCrossDomain(location, originalRequest);
-
             HTTPCarbonMessage request =
                     RedirectUtil.createRedirectCarbonRequest(redirectionURL, redirectionMethod, userAgent);
             outboundMsgHolder.clearRedirectionState();
             http2ClientChannel.removeInFlightMessage(streamId);
             outboundMsgHolder.updateRequest(request);
-            if (crossDomain) {
-                DefaultHttpClientConnector connector = ctx.channel().attr(Constants.CLIENT_CONNECTOR).get();
-                connector.send(outboundMsgHolder, request);
-            } else {
-                ctx.write(outboundMsgHolder);
-            }
+            DefaultHttpClientConnector connector = ctx.channel().attr(Constants.CLIENT_CONNECTOR).get();
+            connector.send(outboundMsgHolder, request);
         } catch (UnsupportedEncodingException e) {
             log.error("UnsupportedEncodingException occurred when deciding whether a redirection is required",
                       e);

@@ -186,10 +186,13 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                         freshHttp2ClientChannel.addDataEventListener(
                                 new TimeoutHandler(socketIdleTimeout, freshHttp2ClientChannel));
 
+                        if (followRedirect) {
+                            setChannelAttributes(channelFuture.channel(), httpOutboundRequest, httpResponseFuture,
+                                                 targetChannel);
+                        }
                         freshHttp2ClientChannel.getChannel().eventLoop().execute(() -> {
                             freshHttp2ClientChannel.getChannel().write(outboundMsgHolder);
                         });
-
                         httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                     } else {
                         // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id.

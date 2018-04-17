@@ -299,7 +299,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             }
             if (ctx == originalChannelContext) {
                 originalChannelContext.fireChannelRead(msg);
-                ctx.close();
+                //ctx.close();
             } else {
                 markEndOfMessage(ctx, (HttpContent) msg);
             }
