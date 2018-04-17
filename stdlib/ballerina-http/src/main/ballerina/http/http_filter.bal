@@ -23,8 +23,6 @@ dispatched to the relevant resource. Any Filter implementation should be struct-
 public type Filter object {
     @Description {value:"filterRequest: Request filter function"}
     public function filterRequest (Request request, FilterContext context) returns FilterResult;
-    @Description {value:"Initializes the filter"}
-    public function init ();
 };
 
 @Description {value:"Representation of filter Context."}

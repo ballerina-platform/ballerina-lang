@@ -54,9 +54,6 @@ public type AuthzFilter object {
 		}
 		return createAuthzResult(authorized);
     }
-    
-    @Description {value:"Initializes the AuthzFilter"}
-    public function init (){}
 };
 
 @Description {value:"Creates an instance of FilterResult"}

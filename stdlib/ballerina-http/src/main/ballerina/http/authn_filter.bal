@@ -46,9 +46,6 @@ public type AuthnFilter object {
     	} 
         return createAuthnResult(authenticated);
     }
-    
-    @Description {value:"Initializes the AuthnFilter"}
-    public function init (){}
 };
 
 @Description {value:"Creates an instance of FilterResult"}

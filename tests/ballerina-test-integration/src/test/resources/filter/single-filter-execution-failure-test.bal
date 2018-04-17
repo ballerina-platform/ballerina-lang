@@ -7,10 +7,6 @@ public type Filter1 object {
         http:FilterResult filterResponse = {canProceed:false, statusCode:401, message:"Authentication failure"};
         return filterResponse;
     }
-
-    public function init () {
-        log:printInfo("Initializing filter 1");
-    }
 };
 
 Filter1 filter1;

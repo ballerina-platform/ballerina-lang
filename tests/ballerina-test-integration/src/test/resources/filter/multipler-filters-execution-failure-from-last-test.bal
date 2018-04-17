@@ -9,10 +9,6 @@ public type Filter1 object {
         http:FilterResult filterResponse = {canProceed:true, statusCode:200, message:"successful"};
         return filterResponse;
     }
-
-    public function init () {
-        log:printInfo("Initializing filter 1");
-    }
 };
 
 Filter1 filter1;
@@ -24,10 +20,6 @@ public type Filter2 object {
         log:printInfo("Intercepting request for filter 2");
         http:FilterResult filterResponse = {canProceed:false, statusCode:403, message:"Authorization failure"};
         return filterResponse;
-    }
-
-    public function init () {
-        log:printInfo("Initializing filter 2");
     }
 };
 
