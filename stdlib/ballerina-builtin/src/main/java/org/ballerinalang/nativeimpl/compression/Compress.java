@@ -98,21 +98,30 @@ public class Compress extends BlockingNativeCallableUnit {
      * @throws IOException exception if an error occurrs when compressing
      */
     static OutputStream compressFiles(Path dir, OutputStream outputStream) throws IOException {
-        Stream<Path> list = Files.walk(dir);
         ZipOutputStream zos = new ZipOutputStream(outputStream);
-        list.forEach(p -> {
-            StringJoiner joiner = new StringJoiner("/");
-            for (Path path : dir.relativize(p)) {
-                joiner.add(path.toString());
+        if (Files.isRegularFile(dir)) {
+            Path fileName = dir.getFileName();
+            if (fileName != null) {
+                addEntry(zos, dir, fileName.toString());
+            } else {
+                throw new BLangRuntimeException("Error occurred when compressing");
             }
-            if (Files.isRegularFile(p)) {
-                try {
-                    addEntry(zos, p, joiner.toString());
-                } catch (IOException e) {
-                    throw new BLangRuntimeException("Error occurred when compressing");
+        } else {
+            Stream<Path> list = Files.walk(dir);
+            list.forEach(p -> {
+                StringJoiner joiner = new StringJoiner("/");
+                for (Path path : dir.relativize(p)) {
+                    joiner.add(path.toString());
                 }
-            }
-        });
+                if (Files.isRegularFile(p)) {
+                    try {
+                        addEntry(zos, p, joiner.toString());
+                    } catch (IOException e) {
+                        throw new BLangRuntimeException("Error occurred when compressing");
+                    }
+                }
+            });
+        }
         zos.close();
         return outputStream;
     }

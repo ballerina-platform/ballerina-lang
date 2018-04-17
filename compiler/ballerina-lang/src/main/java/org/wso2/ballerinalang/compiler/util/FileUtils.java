@@ -64,13 +64,27 @@ public class FileUtils {
             try {
                 Files.createDirectories(destPath);
             } catch (IOException e) {
-                throw new BLangCompilerException("Error occurred when creating directories in " +
-                                                         "./ballerina/repo/ to save the generated balo");
+                throw new BLangCompilerException("error creating directories in ./ballerina/repo/ to save the " +
+                                                         "artifact");
             }
         }
         String fileName = packageID.getName() + ".zip";
         Path baloDirPath = destPath.resolve(fileName);
+        deleteBalo(baloDirPath);
         createArchive(paths, baloDirPath);
+    }
+
+    /**
+     * Delete the balo if it exist before creating a new balo.
+     *
+     * @param baloDirPath path of the balo
+     */
+    private static void deleteBalo(Path baloDirPath) {
+        try {
+            Files.deleteIfExists(baloDirPath);
+        } catch (IOException ignore) {
+            throw new BLangCompilerException("error deleting artifact : " + baloDirPath);
+        }
     }
 
     /**
@@ -90,12 +104,12 @@ public class FileUtils {
                                  filepath.getPath() + "!/",
                                  filepath.getQuery(), filepath.getFragment());
         } catch (URISyntaxException ignore) {
-            throw new BLangCompilerException("error creating artifact" + outDirPath.getFileName());
+            throw new BLangCompilerException("error creating artifact: " + outDirPath.getFileName());
         }
         try (FileSystem zipFS = FileSystems.newFileSystem(zipFileURI, zipFSEnv)) {
             addFileToArchive(filesToBeArchived, zipFS, outDirPath);
         } catch (IOException e) {
-            throw new BLangCompilerException("error creating artifact" + outDirPath.getFileName());
+            throw new BLangCompilerException("error creating artifact: " + outDirPath.getFileName());
         }
     }
 
@@ -118,7 +132,7 @@ public class FileUtils {
                     copyFileToArchive(new FileInputStream(path.toFile()), dest);
                 }
             } catch (IOException e) {
-                throw new BLangCompilerException("error generating artifact " + outDirPath.getFileName());
+                throw new BLangCompilerException("error generating artifact: " + outDirPath.getFileName());
             }
         });
     }

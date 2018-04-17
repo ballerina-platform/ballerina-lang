@@ -21,17 +21,17 @@ type EmployeeSalaryIncompatible {
 };
 
 function getSalaryInCompatibleInput(EmployeeIncompatible e) returns (EmployeeSalary) {
-    EmployeeSalary s = {id: e.id, salary: e.salary};
+    EmployeeSalary s = {id:e.id, salary:e.salary};
     return s;
 }
 
 function getSalaryIncompatibleOutput(Employee e) returns (EmployeeSalaryIncompatible) {
-    EmployeeSalaryIncompatible s = {id: e.id, salary: e.salary};
+    EmployeeSalaryIncompatible s = {id:e.id, salary:e.salary};
     return s;
 }
 
 function getSalaryIncompatibleInputOutput(EmployeeIncompatible e) returns (EmployeeSalaryIncompatible) {
-    EmployeeSalaryIncompatible s = {id: e.id, salary: e.salary};
+    EmployeeSalaryIncompatible s = {id:e.id, salary:e.salary};
     return s;
 }
 

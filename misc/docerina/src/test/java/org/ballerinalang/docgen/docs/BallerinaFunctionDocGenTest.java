@@ -22,8 +22,11 @@ import org.ballerinalang.docgen.model.PackageDoc;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -58,8 +61,9 @@ public class BallerinaFunctionDocGenTest {
             Assert.assertEquals(functions.size(), 1);
 
             BLangFunction function = functions.iterator().next();
-            Assert.assertEquals(function.getParameters().size(), 1);
-//            Assert.assertEquals(function.getReturnParameters().size(), 1);
+            Assert.assertEquals(((BLangVariable) function.getRestParameters()).type.tag, TypeTags.ARRAY);
+            BArrayType argsType = (BArrayType) ((BLangVariable) function.getRestParameters()).type;
+            Assert.assertEquals(argsType.eType.tag, TypeTags.STRING);
         } catch (IOException e) {
             Assert.fail();
         } finally {

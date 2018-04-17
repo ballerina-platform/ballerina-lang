@@ -17,7 +17,7 @@ function testSelect() returns (int[]) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
 
     var val = testDB -> select("select * from Customers where customerId=1 OR customerId=2", Customer);
@@ -44,7 +44,7 @@ function testUpdate() returns (int) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
 
     var insertCountRet = testDB -> update("insert into Customers (customerId, name, creditLimit, country)
@@ -62,10 +62,10 @@ function testCall() returns (string) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
 
-    var dtsRet = testDB -> call("{call JAVAFUNC('select * from Customers where customerId=1')}", Customer);
+    var dtsRet = testDB -> call("{call JAVAFUNC('select * from Customers where customerId=1')}", [Customer]);
     table[] dts = check dtsRet;
 
     string name;
@@ -84,7 +84,7 @@ function testGeneratedKeyOnInsert() returns (string) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
 
     string returnVal;
@@ -115,7 +115,7 @@ function testBatchUpdate() returns (int[]) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
 
     int[] updateCount;
@@ -157,7 +157,7 @@ function testAddToMirrorTable() returns (Customer[]) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
 
     try {
@@ -199,7 +199,7 @@ function testUpdateInMemory() returns (int, string) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
 
     _ = testDB -> update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300),
@@ -208,20 +208,16 @@ function testUpdateInMemory() returns (int, string) {
     var insertCountRet = testDB -> update("insert into Customers2 (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')");
     int insertCount = check insertCountRet;
-
     io:println(insertCount);
-
 
     var x = testDB -> select("SELECT  * from Customers2", Customer);
     table t = check x;
 
     json j = check <json>t;
-
-    string s = j.toString() but { () => "" };
-
+    string s = j.toString();
 
     _ = testDB -> close();
-    return (insertCount, s);
+    return (insertCount, j.toString());
 }
 
 function testInitWithNilDbOptions() returns (int[]) {
@@ -231,7 +227,7 @@ function testInitWithNilDbOptions() returns (int[]) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
     return selectFunction(testDB);
 }

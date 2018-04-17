@@ -142,6 +142,7 @@
         "package": "vsce package"
     },
     "dependencies": {
+        "lodash": "^4.17.5",
         "openport": "0.0.4",
         "vscode": "^1.1.10",
         "vscode-debugadapter": "^1.25.0",

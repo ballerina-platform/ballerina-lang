@@ -23,10 +23,20 @@ import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
+
 /**
  * Utility methods.
  */
 public class Utils {
+
+    private static PrintStream errStream = System.err;
+
 
     public static void startService(ProgramFile programFile) {
         if (!programFile.isServiceEPAvailable()) {
@@ -42,6 +52,21 @@ public class Utils {
         BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
 
         BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
+    }
+
+    /**
+     * Cleans up any remaining testerina metadata.
+     * @param path The path of the Directory/File to be deleted
+     */
+    public static void cleanUpDir(Path path) {
+        try {
+            if (Files.exists(path)) {
+                Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            }
+        } catch (IOException e) {
+            errStream.println("Error occurred while deleting the dir : " + path.toString() + " with error : "
+                              + e.getMessage());
+        }
     }
 
     private static void initDebugger(ProgramFile programFile, Debugger debugger) {
