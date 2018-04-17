@@ -17,11 +17,7 @@
  */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.logging.exceptions.TraceLogConfigurationException;
-import org.ballerinalang.logging.util.BLogLevel;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportProperty;
@@ -33,18 +29,14 @@ import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.LogManager;
 
-import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG;
-import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG;
-import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG_FILE;
-import static org.ballerinalang.logging.util.Constants.LOG_TO;
+import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG_ENABLED;
+import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG_ENABLED;
 
 /**
  * {@code HttpConnectionManager} is responsible for managing all the server connectors with ballerina runtime.
@@ -64,16 +56,6 @@ public class HttpConnectionManager {
         trpConfig = buildDefaultTransportConfig();
         serverBootstrapConfiguration = HTTPConnectorUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
-
-        if (isHTTPTraceLoggerEnabled()) {
-            try {
-                ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
-            } catch (IOException e) {
-                throw new BallerinaConnectorException("Invalid HTTP trace log parameters found.", e);
-            } catch (TraceLogConfigurationException e) {
-                throw new BallerinaConnectorException("Unsupported HTTP trace log configuration. " + e.getMessage(), e);
-            }
-        }
     }
 
     public static HttpConnectionManager getInstance() {
@@ -97,7 +79,7 @@ public class HttpConnectionManager {
             listenerConfig.setHttpTraceLogEnabled(true);
         }
 
-        if (getHttpAccessLoggerConfig() != null) {
+        if (isHTTPAccessLoggerEnabled()) {
             listenerConfig.setHttpAccessLogEnabled(true);
         }
 
@@ -177,18 +159,11 @@ public class HttpConnectionManager {
     }
 
     public boolean isHTTPTraceLoggerEnabled() {
-        // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
-//        return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
-//                org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
-        return Boolean.parseBoolean(ConfigRegistry.getInstance().getAsString(HTTP_TRACE_LOG));
+        return Boolean.parseBoolean(System.getProperty(HTTP_TRACE_LOG_ENABLED));
     }
 
-    /**
-     * Gets the access logto value if available.
-     * @return the access logto value from the ConfigRegistry
-     */
-    public String getHttpAccessLoggerConfig() {
-        return ConfigRegistry.getInstance().getAsString(HTTP_ACCESS_LOG, LOG_TO);
+    private boolean isHTTPAccessLoggerEnabled() {
+        return Boolean.parseBoolean(System.getProperty(HTTP_ACCESS_LOG_ENABLED));
     }
 
     private TransportsConfiguration buildDefaultTransportConfig() {
