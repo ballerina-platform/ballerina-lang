@@ -15,6 +15,8 @@
 // under the License.
 package ballerina.websub;
 
+import ballerina/http;
+
 ///////////////////////////
 /// Service Annotations ///
 ///////////////////////////
@@ -29,6 +31,7 @@ specified."}
 @Field {value:"leaseSeconds: The period for which the subscription is expected to be active."}
 @Field {value:"secret: The secret to be used for authenticated content distribution."}
 @Field {value:"callback: The callback to use when registering, if unspecified host:port/path will be used."}
+@Field {value:"auth: The auth configuration to use when subscribing at the hub."}
 public type SubscriberServiceConfiguration {
     Listener[] endpoints,
     string path,
@@ -39,6 +42,7 @@ public type SubscriberServiceConfiguration {
     int leaseSeconds,
     string secret,
     string callback,
+    http:AuthConfig? auth,
 };
 
 @Description {value:"WebebSubSubscriber Configuration for service"}

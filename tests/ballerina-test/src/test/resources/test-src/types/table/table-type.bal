@@ -112,11 +112,11 @@ type TestTypeData {
     string[] sA;
 };
 
-function testToJson () returns (json) {
+function testToJson() returns (json) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     sql:Parameter[] parameters = [];
@@ -131,11 +131,11 @@ function testToJson () returns (json) {
     return null;
 }
 
-function testToXml () returns (xml) {
+function testToXml() returns (xml) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     try {
@@ -150,11 +150,11 @@ function testToXml () returns (xml) {
     return xml`<empty/>`;
 }
 
-function testToXmlMultipleConsume () returns (xml) {
+function testToXmlMultipleConsume() returns (xml) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     try {
@@ -171,11 +171,11 @@ function testToXmlMultipleConsume () returns (xml) {
     return xml`<empty/>`;
 }
 
-function testToXmlWithAdd () returns (xml) {
+function testToXmlWithAdd() returns (xml) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:2}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:2}
     };
 
     try {
@@ -198,11 +198,11 @@ function testToXmlWithAdd () returns (xml) {
     return xml`<empty/>`;
 }
 
-function testToJsonMultipleConsume () returns (json) {
+function testToJsonMultipleConsume() returns (json) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     try {
@@ -220,11 +220,11 @@ function testToJsonMultipleConsume () returns (json) {
 }
 
 
-function toXmlComplex () returns (xml) {
+function toXmlComplex() returns (xml) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     try {
@@ -233,18 +233,18 @@ function toXmlComplex () returns (xml) {
                     from MixTypes where row_id =1", ());
         table dt = check dtRet;
 
-        return  check <xml>dt;
+        return check <xml>dt;
     } finally {
         _ = testDB -> close();
     }
     return xml`<empty/>`;
 }
 
-function testToXmlComplexWithStructDef () returns (xml) {
+function testToXmlComplexWithStructDef() returns (xml) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     try {
@@ -261,11 +261,11 @@ function testToXmlComplexWithStructDef () returns (xml) {
 }
 
 
-function testToJsonComplex () returns (json) {
+function testToJsonComplex() returns (json) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     try {
@@ -282,11 +282,11 @@ function testToJsonComplex () returns (json) {
 }
 
 
-function testToJsonComplexWithStructDef () returns (json) {
+function testToJsonComplexWithStructDef() returns (json) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     try {
@@ -302,30 +302,30 @@ function testToJsonComplexWithStructDef () returns (json) {
     return null;
 }
 
-function testJsonWithNull () returns (json) {
+function testJsonWithNull() returns (json) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     try {
-        var dtRet =  testDB -> select("SELECT int_type, long_type, float_type, double_type,
+        var dtRet = testDB -> select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 2", ());
         table dt = check dtRet;
 
         return check <json>dt;
-    }  finally {
+    } finally {
         _ = testDB -> close();
     }
     return null;
 }
 
-function testXmlWithNull () returns (xml) {
+function testXmlWithNull() returns (xml) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     try {
@@ -333,18 +333,18 @@ function testXmlWithNull () returns (xml) {
                    boolean_type, string_type from DataTable WHERE row_id = 2", ());
         table dt = check dtRet;
 
-        return  check <xml>dt;
+        return check <xml>dt;
     } finally {
         _ = testDB -> close();
     }
     return xml`<empty/>`;
 }
 
-function testToXmlWithinTransaction () returns (string, int) {
+function testToXmlWithinTransaction() returns (string, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnValue = 0;
@@ -364,11 +364,11 @@ function testToXmlWithinTransaction () returns (string, int) {
     return ("<fail></fail>", -1);
 }
 
-function testToJsonWithinTransaction () returns (string, int) {
+function testToJsonWithinTransaction() returns (string, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int returnValue = 0;
@@ -388,11 +388,11 @@ function testToJsonWithinTransaction () returns (string, int) {
     return ("", -2);
 }
 
-function testGetPrimitiveTypes () returns (int, int, float, float , boolean, string) {
+function testGetPrimitiveTypes() returns (int, int, float, float, boolean, string) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT int_type, long_type, float_type, double_type,
@@ -418,14 +418,14 @@ function testGetPrimitiveTypes () returns (int, int, float, float , boolean, str
     return (i, l, f, d, b, s);
 }
 
-function testGetComplexTypes () returns (string, string, string) {
+function testGetComplexTypes() returns (string, string, string) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB -> select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",ResultObject);
+    var dtRet = testDB -> select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1", ResultObject);
     table dt = check dtRet;
 
     string blobValue;
@@ -443,11 +443,11 @@ function testGetComplexTypes () returns (string, string, string) {
     return (blobValue, clob, binary);
 }
 
-function testArrayData () returns (int[], int[], float[], string[], boolean[]) {
+function testArrayData() returns (int[], int[], float[], string[], boolean[]) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT int_array, long_array, float_array, boolean_array,
@@ -472,11 +472,11 @@ function testArrayData () returns (int[], int[], float[], string[], boolean[]) {
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
-function testArrayDataInsertAndPrint () returns (int, int, int, int, int, int) {
+function testArrayDataInsertAndPrint() returns (int, int, int, int, int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int[] dataint = [1, 2, 3];
@@ -491,11 +491,11 @@ function testArrayDataInsertAndPrint () returns (int, int, int, int, int, int) {
     sql:Parameter paraString = (sql:TYPE_ARRAY, datastring);
     sql:Parameter paraBool = (sql:TYPE_ARRAY, databoolean);
 
-   int intArrLen;
-   int longArrLen;
-   int floatArrLen;
-   int boolArrLen;
-   int strArrLen;
+    int intArrLen;
+    int longArrLen;
+    int floatArrLen;
+    int boolArrLen;
+    int strArrLen;
 
     var updateRetVal = testDB -> update("insert into ArrayTypes(row_id, int_array, long_array, float_array,
                                 string_array, boolean_array) values (?,?,?,?,?,?)",
@@ -523,11 +523,11 @@ function testArrayDataInsertAndPrint () returns (int, int, int, int, int, int) {
     return (updateRet, intArrLen, longArrLen, floatArrLen, boolArrLen, strArrLen);
 }
 
-function testDateTime (int datein, int timein, int timestampin) returns (string, string, string, string) {
+function testDateTime(int datein, int timein, int timestampin) returns (string, string, string, string) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
     string date;
     string time;
@@ -560,11 +560,11 @@ function testDateTime (int datein, int timein, int timestampin) returns (string,
     return (date, time, timestamp, datetime);
 }
 
-function testDateTimeAsTimeStruct () returns (int, int, int, int, int, int, int, int ) {
+function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     int dateInserted;
@@ -579,7 +579,7 @@ function testDateTimeAsTimeStruct () returns (int, int, int, int, int, int, int,
     time:Time dateStruct = time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
 
     time:Timezone zoneValue = {zoneId:"UTC"};
-    time:Time timeStruct =new (51323000, zoneValue);
+    time:Time timeStruct = new(51323000, zoneValue);
 
     time:Time timestampStruct = time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
     time:Time datetimeStruct = time:createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
@@ -610,16 +610,16 @@ function testDateTimeAsTimeStruct () returns (int, int, int, int, int, int, int,
         timestampRetrieved = rs.TIMESTAMP_TYPE.time;
         datetimeRetrieved = rs.DATETIME_TYPE.time;
     }
-     _ = testDB -> close();
+    _ = testDB -> close();
     return (dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
-        datetimeInserted, datetimeRetrieved);
+    datetimeInserted, datetimeRetrieved);
 }
 
-function testDateTimeInt (int datein, int timein, int timestampin) returns (int, int, int, int) {
+function testDateTimeInt(int datein, int timein, int timestampin) returns (int, int, int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     sql:Parameter para0 = (sql:TYPE_INTEGER, 32);
@@ -628,7 +628,7 @@ function testDateTimeInt (int datein, int timein, int timestampin) returns (int,
     sql:Parameter para3 = (sql:TYPE_TIMESTAMP, timestampin);
     sql:Parameter para4 = (sql:TYPE_DATETIME, timestampin);
 
-    int  date;
+    int date;
     int time;
     int timestamp;
     int datetime;
@@ -653,11 +653,11 @@ function testDateTimeInt (int datein, int timein, int timestampin) returns (int,
     return (date, time, timestamp, datetime);
 }
 
-function testBlobData () returns (string) {
+function testBlobData() returns (string) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     string blobStringData;
@@ -675,11 +675,11 @@ function testBlobData () returns (string) {
     return blobStringData;
 }
 
-function testColumnAlias () returns (int, int, float, float, boolean, string, int) {
+function testColumnAlias() returns (int, int, float, float, boolean, string, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT dt1.int_type, dt1.long_type, dt1.float_type,
@@ -709,11 +709,11 @@ function testColumnAlias () returns (int, int, float, float, boolean, string, in
     return (i, l, f, d, b, s, i2);
 }
 
-function testBlobInsert () returns (int) {
+function testBlobInsert() returns (int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
@@ -734,11 +734,11 @@ function testBlobInsert () returns (int) {
 }
 
 
-function testTableAutoClose () returns (int, json) {
+function testTableAutoClose() returns (int, json) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT int_type from DataTable WHERE row_id = 1", ResultPrimitiveInt);
@@ -755,7 +755,7 @@ function testTableAutoClose () returns (int, json) {
               boolean_type, string_type from DataTable WHERE row_id = 1", ());
     table dt2 = check dt2Ret;
 
-    json jsonData = check <json> dt2;
+    json jsonData = check <json>dt2;
     _ = jsonData.remove("int_type");
 
     _ = testDB -> select("SELECT int_type, long_type, float_type, double_type,
@@ -765,11 +765,11 @@ function testTableAutoClose () returns (int, json) {
     return (i, jsonData);
 }
 
-function testTableManualClose () returns (int) {
+function testTableManualClose() returns (int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT int_type from DataTable", ResultPrimitiveInt);
@@ -799,11 +799,11 @@ function testTableManualClose () returns (int) {
     return data;
 }
 
-function testCloseConnectionPool () returns (int) {
+function testCloseConnectionPool() returns (int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount);
@@ -811,7 +811,7 @@ function testCloseConnectionPool () returns (int) {
 
     int count;
     while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount> dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
     _ = testDB -> close();
@@ -820,9 +820,9 @@ function testCloseConnectionPool () returns (int) {
 
 function testTablePrintAndPrintln() {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT int_type, long_type, float_type, double_type,
@@ -834,11 +834,11 @@ function testTablePrintAndPrintln() {
     _ = testDB -> close();
 }
 
-function testMutltipleRows () returns (int, int) {
+function testMutltipleRows() returns (int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
@@ -859,11 +859,11 @@ function testMutltipleRows () returns (int, int) {
     return (rs1.INT_TYPE, rs2.INT_TYPE);
 }
 
-function testMutltipleRowsWithoutLoop () returns (int, int, int, int, string, string) {
+function testMutltipleRowsWithoutLoop() returns (int, int, int, int, string, string) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     //Iterate the whole result
@@ -960,11 +960,11 @@ function testMutltipleRowsWithoutLoop () returns (int, int, int, int, string, st
     return (i1, i2, i3, i4, s1, s2);
 }
 
-function testHasNextWithoutConsume () returns (boolean, boolean, boolean) {
+function testHasNextWithoutConsume() returns (boolean, boolean, boolean) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt);
@@ -987,11 +987,11 @@ function testHasNextWithoutConsume () returns (boolean, boolean, boolean) {
     return (b1, b2, b3);
 }
 
-function testGetFloatTypes () returns (float, float, float, float) {
+function testGetFloatTypes() returns (float, float, float, float) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT float_type, double_type,
@@ -1014,11 +1014,11 @@ function testGetFloatTypes () returns (float, float, float, float) {
     return (f, d, num, dec);
 }
 
-function testSignedIntMaxMinValues () returns (int, int, int, string, string, string) {
+function testSignedIntMaxMinValues() returns (int, int, int, string, string, string) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     string insertSQL = "INSERT INTO IntegerTypes(id,tinyIntData, smallIntData, intData, bigIntData) VALUES (?,?, ?,?,?)";
@@ -1046,7 +1046,7 @@ function testSignedIntMaxMinValues () returns (int, int, int, string, string, st
     para3 = (sql:TYPE_SMALLINT, -32768);
     para4 = (sql:TYPE_INTEGER, -2147483648);
     para5 = (sql:TYPE_BIGINT, -9223372036854775808);
-    var minInsertRet =  testDB -> update(insertSQL, para1, para2, para3, para4, para5);
+    var minInsertRet = testDB -> update(insertSQL, para1, para2, para3, para4, para5);
     minInsert = check minInsertRet;
 
     //Insert null
@@ -1077,17 +1077,17 @@ function testSignedIntMaxMinValues () returns (int, int, int, string, string, st
     while (dt.hasNext()) {
         var result = check <ResultSignedInt>dt.getNext();
         str = str + result.ID + "|" + result.TINYINTDATA + "|" + result.SMALLINTDATA + "|" + result.INTDATA + "|" +
-              result.BIGINTDATA + "#";
+            result.BIGINTDATA + "#";
     }
     _ = testDB -> close();
     return (maxInsert, minInsert, nullInsert, jsonStr, xmlStr, str);
 }
 
-function testComplexTypeInsertAndRetrieval () returns (int, int, string, string, string) {
+function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, string) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     string insertSQL = "INSERT INTO ComplexTypes(row_id, blob_type, clob_type, binary_type) VALUES (?,?,?,?)";
@@ -1141,34 +1141,34 @@ function testComplexTypeInsertAndRetrieval () returns (int, int, string, string,
     return (retDataInsert, retNullInsert, jsonStr, xmlStr, str);
 }
 
-function testJsonXMLConversionwithDuplicateColumnNames () returns (json, xml) {
+function testJsonXMLConversionwithDuplicateColumnNames() returns (json, xml) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:2}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:2}
     };
 
     var dtRet = testDB -> select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
             join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ());
     table dt = check dtRet;
 
-    json j = check <json> dt;
+    json j = check <json>dt;
 
     var dt2Ret = testDB -> select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
             join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ());
     table dt2 = check dt2Ret;
 
-    xml x = check <xml> dt2;
+    xml x = check <xml>dt2;
 
     _ = testDB -> close();
     return (j, x);
 }
 
-function testStructFieldNotMatchingColumnName () returns (int, int, int, int, int) {
+function testStructFieldNotMatchingColumnName() returns (int, int, int, int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT count(*) from DataTable WHERE row_id = 1", ResultCount);
@@ -1199,11 +1199,11 @@ function testStructFieldNotMatchingColumnName () returns (int, int, int, int, in
     return (countAll, i1, i2, i3, i4);
 }
 
-function testGetPrimitiveTypesWithForEach () returns (int, int, float, float, boolean, string) {
+function testGetPrimitiveTypesWithForEach() returns (int, int, float, float, boolean, string) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dt1Ret = testDB -> select("SELECT int_type, long_type, float_type, double_type,
@@ -1228,18 +1228,18 @@ function testGetPrimitiveTypesWithForEach () returns (int, int, float, float, bo
     return (i, l, f, d, b, s);
 }
 
-function testMutltipleRowsWithForEach () returns (int, int) {
+function testMutltipleRowsWithForEach() returns (int, int) {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dt1Ret = testDB -> select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
     table<ResultPrimitiveInt> dt = check dt1Ret;
 
-    ResultPrimitiveInt rs1 = {INT_TYPE: -1};
-    ResultPrimitiveInt rs2 = {INT_TYPE: -1};
+    ResultPrimitiveInt rs1 = {INT_TYPE:-1};
+    ResultPrimitiveInt rs2 = {INT_TYPE:-1};
     int i = 0;
     foreach x in dt {
         if (i == 0) {
@@ -1253,11 +1253,11 @@ function testMutltipleRowsWithForEach () returns (int, int) {
     return (rs1.INT_TYPE, rs2.INT_TYPE);
 }
 
-function testTableAddInvalid () {
+function testTableAddInvalid() {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
@@ -1271,11 +1271,11 @@ function testTableAddInvalid () {
     }
 }
 
-function testTableRemoveInvalid () {
+function testTableRemoveInvalid() {
     endpoint sql:Client testDB {
-        url: "hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-        username: "SA",
-        poolOptions: {maximumPoolSize:1}
+        url:"hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtRet = testDB -> select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
@@ -1285,10 +1285,10 @@ function testTableRemoveInvalid () {
         ResultPrimitiveInt row = {INT_TYPE:443};
         _ = dt.remove(isDelete);
     } finally {
-       _ = testDB -> close();
+        _ = testDB -> close();
     }
 }
 
-function isDelete (ResultPrimitiveInt p) returns (boolean) {
+function isDelete(ResultPrimitiveInt p) returns (boolean) {
     return p.INT_TYPE < 2000;
 }

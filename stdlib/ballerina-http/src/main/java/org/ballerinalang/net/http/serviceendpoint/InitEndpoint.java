@@ -143,15 +143,15 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
 
-        if (host == null || host.isEmpty()) {
+        if (host == null || host.trim().isEmpty()) {
             listenerConfiguration.setHost(
-                    configRegistry.getConfigOrDefault("ballerina.http.host", HttpConstants.HTTP_DEFAULT_HOST));
+                    configRegistry.getConfigOrDefault("b7a.http.host", HttpConstants.HTTP_DEFAULT_HOST));
         } else {
             listenerConfiguration.setHost(host);
         }
 
-        if (port == HTTP_DEFAULT_PORT && configRegistry.contains("ballerina.http.port")) {
-            port = Long.parseLong(configRegistry.getAsString("ballerina.http.port"));
+        if (port == HTTP_DEFAULT_PORT && configRegistry.contains("b7a.http.port")) {
+            port = Long.parseLong(configRegistry.getAsString("b7a.http.port"));
         }
         listenerConfiguration.setPort(Math.toIntExact(port));
 

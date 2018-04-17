@@ -17,7 +17,7 @@ function testSelect() returns (int[]) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
 
     var val = testDB -> select("select * from Customers where customerId=1 OR customerId=2", Customer);
@@ -44,7 +44,7 @@ function testUpdate() returns (int) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
 
     var insertCountRet = testDB -> update("insert into Customers (customerId, name, creditLimit, country)
@@ -62,7 +62,7 @@ function testCall() returns (string) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
 
     var dtsRet = testDB -> call("{call JAVAFUNC('select * from Customers where customerId=1')}", Customer);
@@ -84,7 +84,7 @@ function testGeneratedKeyOnInsert() returns (string) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
 
     string returnVal;
@@ -115,7 +115,7 @@ function testBatchUpdate() returns (int[]) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
 
     int[] updateCount;
@@ -157,7 +157,7 @@ function testAddToMirrorTable() returns (Customer[]) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
 
     try {
@@ -199,7 +199,7 @@ function testUpdateInMemory() returns (int, string) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
 
     _ = testDB -> update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300),
@@ -231,7 +231,7 @@ function testInitWithNilDbOptions() returns (int[]) {
         username:"SA",
         password:"",
         poolOptions:{maximumPoolSize:1},
-        dbOptions: ()
+        dbOptions:()
     };
     return selectFunction(testDB);
 }

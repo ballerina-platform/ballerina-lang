@@ -50,7 +50,8 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG
 public class MicrometerMetricProvider implements MetricProvider {
 
     private MeterRegistry meterRegistry;
-    private static final String METER_REGISTRY_NAME = CONFIG_TABLE_METRICS + ".micrometer_registry";
+    private static final String MICROMETER_CONFIGS = CONFIG_TABLE_METRICS + ".micrometer";
+    private static final String METER_REGISTRY_NAME = MICROMETER_CONFIGS + ".registry.name";
 
     public MicrometerMetricProvider() {
     }
