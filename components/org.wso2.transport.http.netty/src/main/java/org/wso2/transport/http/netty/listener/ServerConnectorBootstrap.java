@@ -121,12 +121,14 @@ public class ServerConnectorBootstrap {
         serverBootstrap.childOption(ChannelOption.TCP_NODELAY, serverBootstrapConfiguration.isTcpNoDelay());
         serverBootstrap.childOption(ChannelOption.SO_RCVBUF, serverBootstrapConfiguration.getReceiveBufferSize());
         serverBootstrap.childOption(ChannelOption.SO_SNDBUF, serverBootstrapConfiguration.getSendBufferSize());
+        serverBootstrap.childOption(ChannelOption.AUTO_READ, false);
 
         log.debug("Netty Server Socket BACKLOG " + serverBootstrapConfiguration.getSoBackLog());
         log.debug("Netty Server Socket TCP_NODELAY " + serverBootstrapConfiguration.isTcpNoDelay());
         log.debug("Netty Server Socket CONNECT_TIMEOUT_MILLIS " + serverBootstrapConfiguration.getConnectTimeOut());
         log.debug("Netty Server Socket SO_RCVBUF " + serverBootstrapConfiguration.getReceiveBufferSize());
         log.debug("Netty Server Socket SO_SNDBUF " + serverBootstrapConfiguration.getSendBufferSize());
+        log.debug("Netty Server Socket AUTO_READ " + false);
     }
 
     public void addSecurity(SSLConfig sslConfig) {

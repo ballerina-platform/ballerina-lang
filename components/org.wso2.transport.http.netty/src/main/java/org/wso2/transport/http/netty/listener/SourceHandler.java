@@ -104,6 +104,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
         this.ctx = ctx;
         this.remoteAddress = ctx.channel().remoteAddress();
+        ctx.channel().read();
     }
 
     @SuppressWarnings("unchecked")
