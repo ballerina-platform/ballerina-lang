@@ -251,6 +251,9 @@
     input[type=text]::-webkit-input-placeholder{
         color: #ccc;
     }
+    .description{
+        color: #b1b1b1!important;
+    }
 }
 
 .http-client-request {
@@ -414,6 +417,13 @@
     }
     .current-headers input[type=text] {
         width: 340px;
+        height: 28px;
+    }
+}
+
+.http-client-wrapper{
+    .http-client-request .current-headers input[type=text] {
+        height: 28px!important;
     }
 }
 

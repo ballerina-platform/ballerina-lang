@@ -443,6 +443,7 @@ class HttpClient extends React.Component {
                 urlItems.push({
                     text: url,
                     value: url,
+                    description: resourceNode.getName().getValue(),
                 });
             });
         });
@@ -450,10 +451,11 @@ class HttpClient extends React.Component {
         return (
             <Select
                 search
+                allowAdditions
                 selection
                 placeholder='Select path'
                 options={urlItems}
-                value={this.state.appendUrl}
+                defaultValue={this.state.appendUrl}
                 onChange={this.onAppendUrlChange}
             />
         );
@@ -476,8 +478,6 @@ class HttpClient extends React.Component {
             });
         }
 
-        const defaultValue = this.state.selectedResource;
-
         return (
             <Select
                 search
@@ -486,7 +486,6 @@ class HttpClient extends React.Component {
                 options={resourceItems}
                 value={this.state.selectedResource}
                 onChange={this.onResourceSelected}
-                defaultValue={defaultValue}
             />
         );
     }
@@ -521,6 +520,7 @@ class HttpClient extends React.Component {
                                         options={this.state.httpMethods}
                                         onChange={this.onHttpMethodChanged}
                                         defaultValue={this.state.httpMethod}
+                                        compact
                                     />
                                     <Select
                                         search
@@ -532,7 +532,8 @@ class HttpClient extends React.Component {
                                             })
                                         }
                                         onChange={this.onChangeUrl}
-                                        defaultValue={this.state.baseUrl}
+                                        value={this.state.baseUrl}
+                                        compact
                                     />
                                     {pathsDropdown}
                                     {sendOrCancelButton}
