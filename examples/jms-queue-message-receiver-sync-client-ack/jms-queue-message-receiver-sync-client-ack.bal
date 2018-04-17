@@ -19,12 +19,13 @@ endpoint jms:QueueReceiver queueReceiver {
 };
 
 public function main(string[] args) {
-    // Waits for 1 seconds for the message to be received by the JMS provider.
+    // Wait for the message to be received by the JMS provider. If the message is not received within 1
+    // second, it times out.
     var result = queueReceiver -> receive(timeoutInMilliSeconds = 1000);
 
     match result {
         jms:Message msg => {
-            // If the message is received, this block is executed. It checks for client acknowledgement.
+            // If the message is received, this block is executed and acknowledges the message.
             log:printInfo("Message received " + check msg.getTextMessageContent());
             check queueReceiver -> acknowledge(msg);
         }

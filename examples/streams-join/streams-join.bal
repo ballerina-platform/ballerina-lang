@@ -2,13 +2,11 @@ import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
-// Create an object type named `ProductMaterial` and define the attributes.
 type ProductMaterial {
     string name;
     float amount;
 };
 
-// Create an object type named `MaterialUsage` and define the attributes.
 type MaterialUsage {
     string name;
     float totalRawMaterial;
