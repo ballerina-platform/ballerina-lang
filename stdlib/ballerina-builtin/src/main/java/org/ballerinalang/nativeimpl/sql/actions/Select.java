@@ -69,7 +69,7 @@ public class Select extends AbstractSQLAction {
             BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(2);
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
 
-            ObserverContext observerContext = ObservabilityUtils.getTransitionContext(context);
+            ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
             observerContext.addTag(TAG_KEY_DB_STATEMENT, query);
             observerContext.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
 

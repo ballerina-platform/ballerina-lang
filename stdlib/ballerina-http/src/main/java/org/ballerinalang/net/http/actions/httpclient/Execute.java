@@ -96,8 +96,8 @@ public class Execute extends AbstractHTTPAction {
                     ENCODING_DEFLATE + ", " + ENCODING_GZIP);
         }
 
-        ObserverContext observerContext = ObservabilityUtils.getTransitionContext(context);
-        HttpUtil.injectHeaders(outboundRequestMsg, observerContext.getTraceProperties());
+        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
+        HttpUtil.injectHeaders(outboundRequestMsg, ObservabilityUtils.getContextProperties(observerContext));
         observerContext.addTags(HttpUtil.extractTags(outboundRequestMsg));
 
         return outboundRequestMsg;

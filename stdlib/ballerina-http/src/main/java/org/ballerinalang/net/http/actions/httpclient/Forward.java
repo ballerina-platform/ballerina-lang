@@ -89,8 +89,8 @@ public class Forward extends AbstractHTTPAction {
         String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
 
-        ObserverContext observerContext = ObservabilityUtils.getTransitionContext(context);
-        HttpUtil.injectHeaders(outboundRequestMsg, observerContext.getTraceProperties());
+        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
+        HttpUtil.injectHeaders(outboundRequestMsg, ObservabilityUtils.getContextProperties(observerContext));
         observerContext.addTags(HttpUtil.extractTags(outboundRequestMsg));
 
         return outboundRequestMsg;

@@ -72,8 +72,8 @@ public class Delete extends AbstractHTTPAction {
         HTTPCarbonMessage cMsg = super.createOutboundRequestMsg(context);
         cMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_DELETE);
 
-        ObserverContext observerContext = ObservabilityUtils.getTransitionContext(context);
-        HttpUtil.injectHeaders(cMsg, observerContext.getTraceProperties());
+        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
+        HttpUtil.injectHeaders(cMsg, ObservabilityUtils.getContextProperties(observerContext));
         observerContext.addTags(HttpUtil.extractTags(cMsg));
 
         return cMsg;

@@ -72,8 +72,8 @@ public class Get extends AbstractHTTPAction {
         HTTPCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
         outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_GET);
 
-        ObserverContext observerContext = ObservabilityUtils.getTransitionContext(context);
-        HttpUtil.injectHeaders(outboundReqMsg, observerContext.getTraceProperties());
+        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
+        HttpUtil.injectHeaders(outboundReqMsg, ObservabilityUtils.getContextProperties(observerContext));
         observerContext.addTags(HttpUtil.extractTags(outboundReqMsg));
 
         return outboundReqMsg;
