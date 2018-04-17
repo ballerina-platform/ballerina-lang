@@ -37,70 +37,70 @@ public type Time object {
         Timezone zone;
     }
 
-    public new (time, zone){}
+    public new(time, zone) {}
 
     @Description {value:"Returns ISO 8601 string representation of the given time."}
     @Param {value:"time: The time object for which needs to get the string representation"}
-    @Return { value:"The ISO 8601 formatted string of the given time."}
+    @Return {value:"The ISO 8601 formatted string of the given time."}
     public native function toString() returns (string);
 
     @Description {value:"Returns formatted string representation of the given time."}
     @Param {value:"time: The time object for which needs to get the string representation"}
     @Param {value:"format: The format which is used to format the given text"}
-    @Return { value:"The formatted string of the given time."}
+    @Return {value:"The formatted string of the given time."}
     public native function format(string format) returns (string);
 
     @Description {value:"Formats the given string to the specified standard time format and returns the formatted string."}
     @Param {value:"time: The time object for which the string representation is needed"}
     @Param {value:"format: The format which is used to format the given text"}
-    @Return { value:"The formatted string of the given time."}
+    @Return {value:"The formatted string of the given time."}
     public native function formatTo(TimeFormat format) returns (string);
 
     @Description {value:"Returns the year representation of the given time."}
     @Param {value:"time: The time object which needs to get the year representation"}
-    @Return { value:"The year representation."}
+    @Return {value:"The year representation."}
     public native function year() returns (int);
 
     @Description {value:"Returns the month representation of the given time."}
     @Param {value:"time: The time object which needs to get the month representation"}
-    @Return { value:"The month-of-year, from 1 (January) to 12 (December)."}
+    @Return {value:"The month-of-year, from 1 (January) to 12 (December)."}
     public native function month() returns (int);
 
     @Description {value:"Returns the date representation of the given time."}
     @Param {value:"time: The time object which needs to get the date representation"}
-    @Return { value:"The day-of-month, from 1 to 31."}
+    @Return {value:"The day-of-month, from 1 to 31."}
     public native function day() returns (int);
 
     @Description {value:"Returns the weekday representation of the given time."}
     @Param {value:"time: The time object which needs to get the weekday representation"}
-    @Return { value:"The weekday representation from SUNDAY to SATURDAY."}
+    @Return {value:"The weekday representation from SUNDAY to SATURDAY."}
     public native function weekday() returns (string);
 
     @Description {value:"Returns the hour representation of the given time."}
     @Param {value:"time: The time object which needs to get the hour representation"}
-    @Return { value:"The hour-of-day, from 0 to 23."}
+    @Return {value:"The hour-of-day, from 0 to 23."}
     public native function hour() returns (int);
 
     @Description {value:"Returns the minute representation of the given time."}
     @Param {value:"time: The time object which needs to get the minute representation"}
-    @Return { value:"The minute-of-hour to represent, from 0 to 59."}
+    @Return {value:"The minute-of-hour to represent, from 0 to 59."}
     public native function minute() returns (int);
 
     @Description {value:"Returns the second representation of the given time."}
     @Param {value:"time: The time object which needs to get the second representation"}
-    @Return { value:"The second-of-minute, from 0 to 59."}
+    @Return {value:"The second-of-minute, from 0 to 59."}
     public native function second() returns (int);
 
     @Description {value:"Returns the millisecond representation of the given time."}
     @Param {value:"time: The time object which needs to get the millisecond representation"}
-    @Return { value:"The milli-of-second, from 0 to 999."}
+    @Return {value:"The milli-of-second, from 0 to 999."}
     public native function milliSecond() returns (int);
 
     @Description {value:"Returns the date representation of the given time."}
     @Param {value:"time: The time object which needs to get the date representation"}
-    @Return { value:"The year representation."}
-    @Return { value:"The month-of-year, from 1 (January) to 12 (December)."}
-    @Return { value:"The day-of-month, from 1 to 31."}
+    @Return {value:"The year representation."}
+    @Return {value:"The month-of-year, from 1 (January) to 12 (December)."}
+    @Return {value:"The day-of-month, from 1 to 31."}
     public native function getDate() returns (int, int, int);
 
     @Description {value:"Returns the time representation of the given time."}
@@ -120,9 +120,9 @@ public type Time object {
     @Param {value:"minutes: The minute-of-hour to represent, from 0 to 59"}
     @Param {value:"seconds: The second-of-minute to represent, from 0 to 59"}
     @Param {value:"milliSeconds: The milli-of-second to represent, from 0 to 999"}
-    @Return { value:"Time object containing time and zone information after the addition."}
+    @Return {value:"Time object containing time and zone information after the addition."}
     public native function addDuration(int years, int months, int days, int hours, int minutes, int seconds,
-                                                   int milliSeconds) returns (Time);
+    int milliSeconds) returns (Time);
 
     @Description {value:"Subtract specified durations from the given time value."}
     @Param {value:"years: The year representation"}
@@ -132,19 +132,19 @@ public type Time object {
     @Param {value:"minutes: The minute-of-hour to represent, from 0 to 59"}
     @Param {value:"seconds: The second-of-minute to represent, from 0 to 59"}
     @Param {value:"milliSeconds: The milli-of-second to represent, from 0 to 999"}
-    @Return { value:"Time object containing time and zone information after the subtraction."}
+    @Return {value:"Time object containing time and zone information after the subtraction."}
     public native function subtractDuration(int years, int months, int days, int hours, int minutes, int seconds,
-                                                        int milliSeconds) returns (Time);
+    int milliSeconds) returns (Time);
 
     @Description {value:"Change the timezone of the given time."}
     @Param {value:"time: The time object which needs to change the timezone information"}
     @Param {value:"zoneId: The new timezone id"}
-    @Return { value:"Time object containing time and zone information after the conversion."}
+    @Return {value:"Time object containing time and zone information after the conversion."}
     public native function toTimezone(string zoneId) returns (Time);
 };
 
 @Description {value:"Returns the current time value with the system default timezone."}
-@Return { value:"Time object containing the time and zone information."}
+@Return {value:"Time object containing the time and zone information."}
 public native function currentTime() returns (Time);
 
 @Description {value:"Returns the current system time in nano seconds"}
@@ -160,18 +160,18 @@ public native function nanoTime() returns (int);
 @Param {value:"second: The second-of-minute to represent, from 0 to 59"}
 @Param {value:"milliSecond: The milli-of-second to represent, from 0 to 999"}
 @Param {value:"zoneId: The zone id of the required timezone.If empty the system local timezone will be used"}
-@Return { value:"Time object containing time and zone information."}
+@Return {value:"Time object containing time and zone information."}
 public native function createTime(int year, int month, int date, int hour, int minute, int second, int milliSecond,
-                                  string zoneId) returns (Time);
+string zoneId) returns (Time);
 
 @Description {value:"Returns the time for the given string representation based on the given format string."}
 @Param {value:"data: The time text to parse"}
 @Param {value:"format: The format which is used to parse the given text"}
-@Return { value:"Time object containing time and zone information."}
+@Return {value:"Time object containing time and zone information."}
 public native function parse(string data, string format) returns (Time);
 
 @Description {value:"Returns the time for the given string representation based on the specified standard time format."}
 @Param {value:"timestamp: The time text to parse"}
 @Param {value:"format: The format which is used to parse the given date/time string"}
-@Return { value:"Time object containing time and zone information."}
+@Return {value:"Time object containing time and zone information."}
 public native function parseTo(string timestamp, TimeFormat format) returns Time;

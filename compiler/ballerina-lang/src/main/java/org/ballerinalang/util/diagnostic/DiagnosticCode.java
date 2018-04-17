@@ -66,6 +66,7 @@ public enum DiagnosticCode {
     INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
+    MAIN_CANNOT_BE_PUBLIC("main.cannot.be.public"),
     ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
     FORK_JOIN_WORKER_CANNOT_RETURN("fork.join.worker.cannot.return"),
     FORK_JOIN_INVALID_WORKER_COUNT("fork.join.invalid.worker.count"),

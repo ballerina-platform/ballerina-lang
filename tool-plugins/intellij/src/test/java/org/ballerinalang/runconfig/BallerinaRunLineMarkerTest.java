@@ -24,7 +24,7 @@ import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 public class BallerinaRunLineMarkerTest extends BallerinaCodeInsightFixtureTestCase {
 
     public void testMainWithoutPackageRunLineMarker() {
-        myFixture.configureByText("a.bal", "function <caret>main(string[] args){}\nfunction test(){}\n");
+        myFixture.configureByText("a.bal", "function <caret>main(string... args){}\nfunction test(){}\n");
         assertEquals(1, myFixture.findGuttersAtCaret().size());
         assertEquals(1, myFixture.findAllGutters().size());
     }
@@ -36,7 +36,7 @@ public class BallerinaRunLineMarkerTest extends BallerinaCodeInsightFixtureTestC
     }
 
     public void testMainWithPackageRunLineMarker() {
-        myFixture.configureByText("a.bal", "package test;\nfunction <caret>main(string[] args){}\nfunction test(){}\n");
+        myFixture.configureByText("a.bal", "package test;\nfunction <caret>main(string... args){}\nfunction test(){}\n");
         assertEquals(1, myFixture.findGuttersAtCaret().size());
         assertEquals(1, myFixture.findAllGutters().size());
     }
@@ -48,13 +48,13 @@ public class BallerinaRunLineMarkerTest extends BallerinaCodeInsightFixtureTestC
     }
 
     public void testMainAndServiceWithoutPackageRunLineMarker() {
-        myFixture.configureByText("a.bal", "function <caret>main(string[] args){}\nservice<http> main{}\n");
+        myFixture.configureByText("a.bal", "function <caret>main(string... args){}\nservice<http> main{}\n");
         assertEquals(1, myFixture.findGuttersAtCaret().size());
         assertEquals(2, myFixture.findAllGutters().size());
     }
 
     public void testMainAndServiceWithPackageRunLineMarker() {
-        myFixture.configureByText("a.bal", "package test; function <caret>main(string[] args){}\nservice<http> " +
+        myFixture.configureByText("a.bal", "package test; function <caret>main(string... args){}\nservice<http> " +
                 "main{}\n");
         assertEquals(1, myFixture.findGuttersAtCaret().size());
         assertEquals(2, myFixture.findAllGutters().size());
