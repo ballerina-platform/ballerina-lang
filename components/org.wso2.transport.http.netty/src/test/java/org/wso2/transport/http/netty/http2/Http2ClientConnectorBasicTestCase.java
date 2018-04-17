@@ -34,7 +34,7 @@ import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.MessageSender;
-import org.wso2.transport.http.netty.util.client.http2.RequestGenerator;
+import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.Http2EchoServerInitializer;
 
@@ -67,7 +67,7 @@ public class Http2ClientConnectorBasicTestCase {
 
     @Test
     public void testHttp2Get() {
-        HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.GET, null);
+        HTTPCarbonMessage httpCarbonMessage = MessageGenerator.generateRequest(HttpMethod.GET, null);
         HTTPCarbonMessage response = new MessageSender(httpClientConnector).sendMessage(httpCarbonMessage);
         assertNotNull(response, "Expected response not received");
     }
@@ -75,7 +75,7 @@ public class Http2ClientConnectorBasicTestCase {
     @Test
     public void testHttp2Post() {
         String testValue = "Test Message";
-        HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.POST, testValue);
+        HTTPCarbonMessage httpCarbonMessage = MessageGenerator.generateRequest(HttpMethod.POST, testValue);
         HTTPCarbonMessage response = new MessageSender(httpClientConnector).sendMessage(httpCarbonMessage);
         assertNotNull(response);
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());

@@ -28,33 +28,35 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.http2.listeners.Http2RedirectListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
-import org.wso2.transport.http.netty.util.client.http2.MessageSender;
 import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
+import org.wso2.transport.http.netty.util.client.http2.MessageSender;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
 /**
- * This contains basic test cases for HTTP2 Client connector.
+ * This contains test cases for HTTP2 redirection.
  */
-public class Http2ServerConnectorBasicTestCase {
+public class Http2RedirectionTestCase {
 
-    private static Logger log = LoggerFactory.getLogger(Http2ServerConnectorBasicTestCase.class);
+    private static Logger log = LoggerFactory.getLogger(Http2RedirectionTestCase.class);
 
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
     private SenderConfiguration senderConfiguration;
     private HttpWsConnectorFactory connectorFactory;
+
+    private final String expectedResponse = "Expected-Response";
 
     @BeforeClass
     public void setup() throws InterruptedException {
@@ -66,25 +68,26 @@ public class Http2ServerConnectorBasicTestCase {
         serverConnector = connectorFactory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = serverConnector.start();
-        future.setHttpConnectorListener(new EchoMessageListener());
+        future.setHttpConnectorListener(new Http2RedirectListener(2, expectedResponse));
         future.sync();
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         senderConfiguration =
                 HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
+        senderConfiguration.setFollowRedirect(true);
+        senderConfiguration.setMaxRedirectCount(5);
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
 
     @Test
-    public void testHttp2Post() {
-        String testValue = "Test Http2 Message";
-        HTTPCarbonMessage httpCarbonMessage = MessageGenerator.generateRequest(HttpMethod.POST, testValue);
+    public void testHttp2Redirection() {
+        HTTPCarbonMessage httpCarbonMessage = MessageGenerator.generateRequest(HttpMethod.GET, null);
         HTTPCarbonMessage response = new MessageSender(httpClientConnector).sendMessage(httpCarbonMessage);
         assertNotNull(response, "Expected response not received");
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
-        assertEquals(result, testValue, "Expected response not received");
+        assertEquals(result, expectedResponse, "Expected response not received, but received" + result);
     }
 
     @AfterClass

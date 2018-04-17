@@ -102,7 +102,8 @@ public class RedirectUtil {
                     return null;
                 }
                 String requestPath = (String) originalRequest.getProperty(Constants.TO);
-                String protocol = (String) originalRequest.getProperty(Constants.PROTOCOL);
+                String protocol = originalRequest.getProperty(Constants.PROTOCOL) != null ?
+                                  (String) originalRequest.getProperty(Constants.PROTOCOL) : Constants.HTTP_SCHEME;
                 String host = (String) originalRequest.getProperty(Constants.HTTP_HOST);
                 if (host == null) {
                     return null;

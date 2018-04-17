@@ -41,7 +41,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.MessageSender;
-import org.wso2.transport.http.netty.util.client.http2.RequestGenerator;
+import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -93,7 +93,7 @@ public class Http2ServerPushTestCase {
     public void testHttp2ServerPush() {
         MessageSender msgSender = new MessageSender(httpClientConnector);
 
-        HTTPCarbonMessage request = RequestGenerator.generateRequest(HttpMethod.POST, expectedResource);
+        HTTPCarbonMessage request = MessageGenerator.generateRequest(HttpMethod.POST, expectedResource);
         // Submit a request and get the handle
         ResponseHandle handle = msgSender.submitMessage(request);
         assertNotNull(handle, "Response handle not found");
