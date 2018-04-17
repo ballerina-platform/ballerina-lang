@@ -83,7 +83,7 @@ public class RedirectUtil {
      * Builds redirect url from the location header value.
      *
      * @param location        value of the location header
-     * @param originalRequest Original request message
+     * @param originalRequest original request message
      * @return a string that holds redirect url
      * @throws UnsupportedEncodingException if url decoding fails
      */
