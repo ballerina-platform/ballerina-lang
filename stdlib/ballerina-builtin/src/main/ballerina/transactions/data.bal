@@ -15,7 +15,6 @@
 // under the License.
 
 package ballerina.transactions;
-import ballerina/io;
 
 type TransactionState "active" | "prepared" | "committed" | "aborted";
 @final TransactionState TXN_STATE_ACTIVE = "active";
@@ -34,19 +33,19 @@ type TransactionState "active" | "prepared" | "committed" | "aborted";
 @final string PREPARE_RESULT_COMMITTED_STR = "committed";
 @final string PREPARE_RESULT_READ_ONLY_STR = "read-only";
 @final string PREPARE_RESULT_FAILED_STR = "failed";
-@final string PREPARE_RESULT_NOT_PREPARED_STR = "not-prepared";
 
-type PrepareResult "prepared" | "aborted" | "committed" | "read-only" | "failed" | "not-prepared";
+type PrepareResult "prepared" | "aborted" | "committed" | "read-only";
 @final PrepareResult PREPARE_RESULT_PREPARED = "prepared";
 @final PrepareResult PREPARE_RESULT_ABORTED = "aborted";
 @final PrepareResult PREPARE_RESULT_COMMITTED = "committed";
 @final PrepareResult PREPARE_RESULT_READ_ONLY = "read-only";
-@final PrepareResult PREPARE_RESULT_FAILED = "failed";
-@final PrepareResult PREPARE_RESULT_NOT_PREPARED = "not-prepared";
 
 type NotifyResult "committed" | "aborted";
 @final NotifyResult NOTIFY_RESULT_COMMITTED = "committed";
 @final NotifyResult NOTIFY_RESULT_ABORTED = "aborted";
+
+@final string NOTIFY_RESULT_NOT_PREPARED_STR = "not-prepared";
+@final string NOTIFY_RESULT_FAILED_EOT_STR = "failed-eot";
 
 @final string NOTIFY_RESULT_COMMITTED_STR = "committed";
 @final string NOTIFY_RESULT_ABORTED_STR = "aborted";
@@ -59,6 +58,8 @@ type PrepareDecision "commit" | "abort";
 @final string OUTCOME_ABORTED = "aborted";
 @final string OUTCOME_MIXED = "mixed";
 @final string OUTCOME_HAZARD = "hazard";
+
+@final string TRANSACTION_UNKNOWN = "Transaction-Unknown";
 
 public type TransactionContext {
     @readonly string contextVersion = "1.0";

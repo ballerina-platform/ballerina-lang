@@ -92,7 +92,7 @@ service InitiatorService bind coordinatorListener {
                                             participantId);
             } else {
                 RemoteProtocol[] participantProtocols = regReq.participantProtocols;
-                RemoteParticipant participant = new(participantId, txn, participantProtocols);
+                RemoteParticipant participant = new(participantId, txn.transactionId, participantProtocols);
                 txn.participants[participantId] = <Participant>participant;
                 RemoteProtocol[] coordinatorProtocols = [];
                 int i = 0;

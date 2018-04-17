@@ -222,13 +222,14 @@ function registerParticipantWithLocalInitiator (string transactionId,
                                     participantId};
             return err;
         } else {
-            LocalParticipant participant = new(participantId, initiatedTxn, [participantProtocol]);
-            initiatedTxn.participants[participantId] = <Participant>participant;
 
             //Set initiator protocols
             TwoPhaseCommitTransaction participatedTxn = new(transactionId, transactionBlockId);
             //Protocol initiatorProto = {name: PROTOCOL_DURABLE, transactionBlockId:transactionBlockId};
             //participatedTxn.coordinatorProtocols = [initiatorProto];
+
+            LocalParticipant participant = new(participantId, participatedTxn, [participantProtocol]);
+            initiatedTxn.participants[participantId] = <Participant>participant;
 
             string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
             participatedTransactions[participatedTxnId] = participatedTxn;
