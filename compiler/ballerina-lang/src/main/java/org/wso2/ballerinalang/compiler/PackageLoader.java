@@ -101,6 +101,7 @@ public class PackageLoader {
     private final SymbolEnter symbolEnter;
     private final Names names;
     private final BLangDiagnosticLog dlog;
+    private static final boolean shouldReadBalo = Boolean.parseBoolean(System.getenv("BALLERINA_READ_BALO"));
 
     public static PackageLoader getInstance(CompilerContext context) {
         PackageLoader loader = context.get(PACKAGE_LOADER_KEY);
@@ -138,11 +139,9 @@ public class PackageLoader {
 
         Repo remote = new RemoteRepo(URI.create("https://api.central.ballerina.io/packages/"));
         Repo homeCacheRepo = new CacheRepo(balHomeDir);
-        Repo homeRepo = new BinaryRepo(balHomeDir);
-        Repo homeSourceRepo = new ZipRepo(balHomeDir);  // To be removed after balo change
+        Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir) : new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir);
-        Repo projectRepo = new BinaryRepo(projectHiddenDir);
-        Repo projectSourceRepo = new ZipRepo(projectHiddenDir);  // To be removed after balo change
+        Repo projectRepo = shouldReadBalo ? new BinaryRepo(projectHiddenDir) : new ZipRepo(projectHiddenDir);
 
 
         RepoHierarchyBuilder.RepoNode homeCacheNode;
@@ -153,9 +152,8 @@ public class PackageLoader {
             homeCacheNode = node(homeCacheRepo, node(remote, systemArr));
         }
         RepoHierarchyBuilder.RepoNode nonLocalRepos = node(projectRepo,
-                                                           node(projectSourceRepo,
-                                                                node(projectCacheRepo, homeCacheNode),
-                                                                node(homeRepo, node(homeSourceRepo, homeCacheNode))));
+                                                           node(projectCacheRepo, homeCacheNode),
+                                                           node(homeRepo, homeCacheNode));
         RepoHierarchyBuilder.RepoNode fullRepoGraph;
         if (converter != null) {
             Repo programingSource = new ProgramingSourceRepo(converter);
