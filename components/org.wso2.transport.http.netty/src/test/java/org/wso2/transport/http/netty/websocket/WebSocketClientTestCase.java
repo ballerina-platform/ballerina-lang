@@ -30,6 +30,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
@@ -66,7 +67,7 @@ public class WebSocketClientTestCase {
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
     }
 
-    @Test(priority = 1, description = "Test the WebSocket handshake and sending and receiving text messages.")
+    @Test(description = "Test the WebSocket handshake and sending and receiving text messages.")
     public void testTextReceived() throws Throwable {
         CountDownLatch latch = new CountDownLatch(1);
         String textSent = "testText";
@@ -90,7 +91,7 @@ public class WebSocketClientTestCase {
         Assert.assertEquals(textReceived, textSent);
     }
 
-    @Test(priority = 2, description = "Test binary message sending and receiving.")
+    @Test(description = "Test binary message sending and receiving.")
     public void testBinaryReceived() throws Throwable {
         CountDownLatch latch = new CountDownLatch(1);
         byte[] bytes = {1, 2, 3, 4, 5};
@@ -115,7 +116,7 @@ public class WebSocketClientTestCase {
         Assert.assertEquals(bufferReceived, bufferSent);
     }
 
-    @Test(priority = 3, description = "Test PING pong messaging.")
+    @Test(description = "Test PING pong messaging.")
     public void testPingPong() throws Throwable {
         // Request PING from remote and test receive.
         CountDownLatch pingLatch = new CountDownLatch(1);
@@ -165,7 +166,7 @@ public class WebSocketClientTestCase {
         Assert.assertTrue(pongConnectorListener.isPongReceived(), "Pong message should be received");
     }
 
-    @Test(priority = 4, description = "Test multiple clients handling, sending and receiving text messages for them.")
+    @Test(description = "Test multiple clients handling, sending and receiving text messages for them.")
     public void testMultipleClients() throws Throwable {
         CountDownLatch latch1 = new CountDownLatch(1);
         WebSocketTestClientConnectorListener connectorListener1 = new WebSocketTestClientConnectorListener(latch1);
@@ -212,7 +213,7 @@ public class WebSocketClientTestCase {
         }
     }
 
-    @Test(priority = 5, description = "Test the idle timeout for WebSocket")
+    @Test(description = "Test the idle timeout for WebSocket")
     public void testIdleTimeout() throws Throwable {
         configuration.setIdleTimeoutInMillis(1000);
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
@@ -235,7 +236,7 @@ public class WebSocketClientTestCase {
         Assert.assertTrue(connectorListener.isIdleTimeout(), "Should reach idle timeout");
     }
 
-    @Test(priority = 6, description = "Test the sub protocol negotiation with the remote server")
+    @Test(description = "Test the sub protocol negotiation with the remote server")
     public void testSubProtocolNegotiationSuccessful() throws InterruptedException {
         String[] subProtocolsSuccess = {"xmlx", "json"};
         configuration.setSubProtocols(subProtocolsSuccess);
@@ -261,7 +262,7 @@ public class WebSocketClientTestCase {
         latchSuccess.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
     }
 
-    @Test(priority = 7, description = "Test the sub protocol negotiation with the remote server")
+    @Test(description = "Test the sub protocol negotiation with the remote server")
     public void testSubProtocolNegotiationFail() throws InterruptedException {
         String[] subProtocolsFail = {"xmlx", "jsonx"};
         configuration.setSubProtocols(subProtocolsFail);
@@ -285,6 +286,32 @@ public class WebSocketClientTestCase {
             }
         });
         latchFail.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void testConnectionClosureFromServerSide() throws Throwable {
+        CountDownLatch latch = new CountDownLatch(1);
+        String closeText = "close";
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener(latch);
+        HandshakeFuture handshakeFuture = handshake(connectorListener);
+        handshakeFuture.setHandshakeListener(new HandshakeListener() {
+            @Override
+            public void onSuccess(Session session) {
+                session.getAsyncRemote().sendText(closeText);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                log.error(t.getMessage());
+                Assert.assertTrue(false, t.getMessage());
+            }
+        });
+
+        latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        Assert.assertTrue(connectorListener.isClose());
+        WebSocketCloseMessage closeMessage = connectorListener.getCloseMessage();
+        Assert.assertEquals(closeMessage.getCloseCode(), 1001);
+        Assert.assertEquals(closeMessage.getCloseReason(), "Close on request");
     }
 
     @AfterClass

@@ -107,12 +107,12 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws ServerConnectorException {
-        if (channelSession != null) {
+        if (channelSession != null && channelSession.isOpen()) {
             channelSession.setIsOpen(false);
+            int statusCode = 1001;
+            String reasonText = "Server is going away";
+            notifyCloseMessage(statusCode, reasonText, ctx);
         }
-        int statusCode = 1001;
-        String reasonText = "Server is going away";
-        notifyCloseMessage(statusCode, reasonText, ctx);
     }
 
     @Override

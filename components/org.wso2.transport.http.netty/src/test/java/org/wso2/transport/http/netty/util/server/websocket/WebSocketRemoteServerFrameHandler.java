@@ -37,6 +37,7 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketRemoteServerFrameHandler.class);
     private static final String PING = "ping";
+    private static final String CLOSE = "close";
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -51,13 +52,17 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) throws Exception {
         if (frame instanceof TextWebSocketFrame) {
-            // Echos the same text
             String text = ((TextWebSocketFrame) frame).text();
-            if (PING.equals(text)) {
-                ctx.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(new byte[]{1, 2, 3, 4})));
-                return;
+            switch (text) {
+                case PING:
+                    ctx.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(new byte[]{1, 2, 3, 4})));
+                    break;
+                case CLOSE:
+                    ctx.writeAndFlush(new CloseWebSocketFrame(1001, "Close on request"));
+                    break;
+                default:
+                    ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
             }
-            ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
         } else if (frame instanceof BinaryWebSocketFrame) {
             ctx.channel().writeAndFlush(frame.retain());
         } else if (frame instanceof CloseWebSocketFrame) {
