@@ -12,9 +12,9 @@ function startService(){
     after:"stopService"
 }
 function testFunc() {
-    // Invoking the main function
+    // Invoking the main function.
     endpoint http:Client httpEndpoint { targets:[{ url:"http://localhost:9090" }] };
-    // Chck whether the server is started
+    // Check whether the server has started.
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
     string response1 = "Hello World!!!";
@@ -30,7 +30,7 @@ function testFunc() {
     }
 
     http:Request req2 = new;
-    // Send a GET request to the specified endpoint
+    // Send a GET request to the specified endpoint.
     var response2 = httpEndpoint -> get("/cb", req2);
     match response2 {
         http:Response resp => {
@@ -41,7 +41,7 @@ function testFunc() {
     }
 
     http:Request req3 = new;
-    // Send a GET request to the specified endpoint
+    // Send a GET request to the specified endpoint.
     var response3 = httpEndpoint -> get("/cb", req3);
     match response3 {
         http:Response resp => {
@@ -52,7 +52,7 @@ function testFunc() {
     }
 
     http:Request req4 = new;
-    // Send a GET request to the specified endpoint
+    // Send a GET request to the specified endpoint.
     var response4 = httpEndpoint -> get("/cb", req4);
     match response4 {
         http:Response resp => {
@@ -62,7 +62,7 @@ function testFunc() {
     }
 
     http:Request req5 = new;
-    // Send a GET request to the specified endpoint
+    // Send a GET request to the specified endpoint.
     var response5 = httpEndpoint -> get("/cb", req5);
     match response5 {
         http:Response resp => {
@@ -74,7 +74,7 @@ function testFunc() {
     io:println("Reached");
 
     http:Request req6 = new;
-    // Send a GET request to the specified endpoint
+    // Send a GET request to the specified endpoint.
     var response6 = httpEndpoint -> get("/cb", req6);
     match response6 {
         http:Response resp => {

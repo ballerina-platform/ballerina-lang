@@ -3,7 +3,7 @@ import ballerina/io;
 
 any [] outputs = [];
 int counter = 0;
- // This is the mock function which will replace the real function
+ // This is the mock function that will replace the real function.
 @test:Mock {
     packageName : "ballerina.io" ,
     functionName : "println"
@@ -15,7 +15,7 @@ public function mockPrint (any s) {
 
 @test:Config
 function testFunc() {
-    // Invoking the main function
+    // Invoking the main function.
     main([]);
     string op1 = "{data: [{id:1, name:\"Jane\", salary:300.5}, {id:2, name:\"Anne\", salary:100.5}, {id:3,name:\"John\", salary:400.5}, {id:4, name:\"Peter\", salary:150.0}]}";
 
