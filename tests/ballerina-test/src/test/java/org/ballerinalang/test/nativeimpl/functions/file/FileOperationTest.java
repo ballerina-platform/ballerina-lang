@@ -166,24 +166,6 @@ public class FileOperationTest {
         Assert.assertFalse(emptyString.equals(result.stringValue()));
     }
 
-/*
-    @Test(description = "Test 'move' function in ballerina.file package",
-            dependsOnMethods = {"testCreateFile", "testListDirectory"})
-    public void testFileMove() throws URISyntaxException {
-        String srcPath = currentDirectoryPath + "/parent";
-        String dstPath = currentDirectoryPath + "/dst";
-        //Will initialize the channel
-        BValue[] args = {new BString(srcPath), new BString(dstPath)};
-        BRunUtil.invoke(fileOperationProgramFile, "testMove", args);
-
-        BValue[] args2 = {new BString(dstPath)};
-        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testPathExistance", args2);
-
-        BBoolean existance = (BBoolean) returns[0];
-        Assert.assertEquals(existance.booleanValue(), true);
-    }
-*/
-
     @Test(description = "Test 'newByteChannel' function in ballerina.file package",
             dependsOnMethods = {"testCreateFile", "testListDirectory", "testWriteBytesToFile"})
     public void testDirectoryExistanceAndDeletion() {
