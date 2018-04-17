@@ -45,12 +45,12 @@ type ResultCount {
 table<Person> dt1 = table{};
 table<Company> dt2 = table{};
 
-function testEmptyTableCreate () returns (int, int) {
+function testEmptyTableCreate() returns (int, int) {
     table<Person> dt3 = table{};
     table<Person> dt4 = table{};
     table<Company> dt5 = table{};
-    table < Person > dt6;
-    table < Company > dt7;
+    table<Person> dt6;
+    table<Company> dt7;
     table dt8;
     int count1 = checkTableCount("TABLE_PERSON_%");
     int count2 = checkTableCount("TABLE_COMPANY_%");
@@ -59,12 +59,12 @@ function testEmptyTableCreate () returns (int, int) {
 
 function checkTableCount(string tablePrefix) returns (int) {
     endpoint sql:Client testDB {
-        url: "h2:mem:TABLEDB",
-        username: "sa",
-        poolOptions: {maximumPoolSize:1}
+        url:"h2:mem:TABLEDB",
+        username:"sa",
+        poolOptions:{maximumPoolSize:1}
     };
 
-    sql:Parameter  p1 = (sql:TYPE_VARCHAR ,tablePrefix );
+    sql:Parameter p1 = (sql:TYPE_VARCHAR, tablePrefix);
 
     int count;
     try {
@@ -72,7 +72,7 @@ function checkTableCount(string tablePrefix) returns (int) {
          ?", ResultCount, p1);
         table dt = check temp;
         while (dt.hasNext()) {
-            var rs = check <ResultCount> dt.getNext();
+            var rs = check <ResultCount>dt.getNext();
             count = rs.COUNTVAL;
         }
     } finally {
@@ -81,11 +81,11 @@ function checkTableCount(string tablePrefix) returns (int) {
     return count;
 }
 
-function testEmptyTableCreateInvalid () {
+function testEmptyTableCreateInvalid() {
     table t1 = table{};
 }
 
-function testAddData () returns (int, int, int, int[], int[], int[]) {
+function testAddData() returns (int, int, int, int[], int[], int[]) {
     Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
@@ -107,7 +107,7 @@ function testAddData () returns (int, int, int, int[], int[], int[]) {
     int[] dt1data;
     int i = 0;
     while (dt1.hasNext()) {
-        var p = check <Person> dt1.getNext();
+        var p = check <Person>dt1.getNext();
         dt1data[i] = p.id;
         i = i + 1;
     }
@@ -116,7 +116,7 @@ function testAddData () returns (int, int, int, int[], int[], int[]) {
     int[] dt2data;
     i = 0;
     while (dt2.hasNext()) {
-        var p = check <Person> dt2.getNext();
+        var p = check <Person>dt2.getNext();
         dt2data[i] = p.id;
         i = i + 1;
     }
@@ -125,21 +125,21 @@ function testAddData () returns (int, int, int, int[], int[], int[]) {
     int[] ct1data;
     i = 0;
     while (ct1.hasNext()) {
-        var p = check <Company> ct1.getNext();
+        var p = check <Company>ct1.getNext();
         ct1data[i] = p.id;
         i = i + 1;
     }
     return (count1, count2, count3, dt1data, dt2data, ct1data);
 }
 
-function testTableAddInvalid () {
+function testTableAddInvalid() {
     Company c1 = {id:100, name:"ABC"};
 
     table<Person> dt1 = table{};
     _ = dt1.add(c1);
 }
 
-function testMultipleAccess () returns (int, int, int[], int[]) {
+function testMultipleAccess() returns (int, int, int[], int[]) {
     Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
@@ -153,7 +153,7 @@ function testMultipleAccess () returns (int, int, int[], int[]) {
     int[] dtdata1;
     int i = 0;
     while (dt1.hasNext()) {
-        var p = check <Person> dt1.getNext();
+        var p = check <Person>dt1.getNext();
         dtdata1[i] = p.id;
         i = i + 1;
     }
@@ -162,14 +162,14 @@ function testMultipleAccess () returns (int, int, int[], int[]) {
     int[] dtdata2;
     i = 0;
     while (dt1.hasNext()) {
-        var p = check <Person> dt1.getNext();
+        var p = check <Person>dt1.getNext();
         dtdata2[i] = p.id;
         i = i + 1;
     }
     return (count1, count2, dtdata1, dtdata2);
 }
 
-function testLoopingTable () returns (string) {
+function testLoopingTable() returns (string) {
     Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
@@ -188,7 +188,7 @@ function testLoopingTable () returns (string) {
     return names;
 }
 
-function testToJson () returns (json) {
+function testToJson() returns (json) {
     Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
@@ -202,7 +202,7 @@ function testToJson () returns (json) {
     return j;
 }
 
-function testToXML () returns (xml) {
+function testToXML() returns (xml) {
     Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
@@ -216,7 +216,7 @@ function testToXML () returns (xml) {
     return x;
 }
 
-function testPrintData () {
+function testPrintData() {
     Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
@@ -229,14 +229,14 @@ function testPrintData () {
     io:println(dt);
 }
 
-function testTableDrop () {
+function testTableDrop() {
     Person p1 = {id:1, age:30, salary:300.50, name:"jane", married:true};
 
     table<Person> dt = table{};
     _ = dt.add(p1);
 }
 
-function testTableWithAllDataToJson () returns (json) {
+function testTableWithAllDataToJson() returns (json) {
     json j1 = {name:"apple", color:"red", price:30.3};
     xml x1 = xml `<book>The Lost World</book>`;
     TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
@@ -250,7 +250,7 @@ function testTableWithAllDataToJson () returns (json) {
     return j;
 }
 
-function testTableWithAllDataToXml () returns (xml) {
+function testTableWithAllDataToXml() returns (xml) {
     json j1 = {name:"apple", color:"red", price:30.3};
     xml x1 = xml `<book>The Lost World</book>`;
     TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
@@ -265,7 +265,7 @@ function testTableWithAllDataToXml () returns (xml) {
 }
 
 
-function testTableWithAllDataToStruct () returns (json, xml) {
+function testTableWithAllDataToStruct() returns (json, xml) {
     json j1 = {name:"apple", color:"red", price:30.3};
     xml x1 = xml `<book>The Lost World</book>`;
     TypeTest t1 = {id:1, jsonData:j1, xmlData:x1};
@@ -283,7 +283,7 @@ function testTableWithAllDataToStruct () returns (json, xml) {
     return (jData, xData);
 }
 
-function testTableWithBlobDataToJson () returns (json) {
+function testTableWithBlobDataToJson() returns (json) {
     string text = "Sample Text";
     blob content = text.toBlob("UTF-8");
     BlobTypeTest t1 = {id:1, blobData:content};
@@ -295,7 +295,7 @@ function testTableWithBlobDataToJson () returns (json) {
     return j;
 }
 
-function testTableWithBlobDataToXml () returns (xml) {
+function testTableWithBlobDataToXml() returns (xml) {
     string text = "Sample Text";
     blob content = text.toBlob("UTF-8");
     BlobTypeTest t1 = {id:1, blobData:content};
@@ -307,7 +307,7 @@ function testTableWithBlobDataToXml () returns (xml) {
     return x;
 }
 
-function testTableWithBlobDataToStruct () returns (blob) {
+function testTableWithBlobDataToStruct() returns (blob) {
     string text = "Sample Text";
     blob content = text.toBlob("UTF-8");
     BlobTypeTest t1 = {id:1, blobData:content};
@@ -323,7 +323,7 @@ function testTableWithBlobDataToStruct () returns (blob) {
     return bData;
 }
 
-function testTableWithAnyDataToJson () returns (json) {
+function testTableWithAnyDataToJson() returns (json) {
     AnyTypeTest t1 = {id:1, anyData:"Sample Text"};
 
     table<AnyTypeTest> dt1 = table{};
@@ -333,7 +333,7 @@ function testTableWithAnyDataToJson () returns (json) {
     return j;
 }
 
-function testStructWithDefaultDataToJson () returns (json) {
+function testStructWithDefaultDataToJson() returns (json) {
     Person p1 = {id:1};
 
     table<Person> dt1 = table{};
@@ -343,7 +343,7 @@ function testStructWithDefaultDataToJson () returns (json) {
     return j;
 }
 
-function testStructWithDefaultDataToXml () returns (xml) {
+function testStructWithDefaultDataToXml() returns (xml) {
     Person p1 = {id:1};
 
     table<Person> dt1 = table{};
@@ -354,7 +354,7 @@ function testStructWithDefaultDataToXml () returns (xml) {
 }
 
 
-function testStructWithDefaultDataToStruct () returns (int, float, string, boolean) {
+function testStructWithDefaultDataToStruct() returns (int, float, string, boolean) {
     Person p1 = {id:1};
 
     table<Person> dt1 = table{};
@@ -375,20 +375,20 @@ function testStructWithDefaultDataToStruct () returns (int, float, string, boole
     return (iData, fData, sData, bData);
 }
 
-function testTableWithArrayDataToJson () returns (json) {
+function testTableWithArrayDataToJson() returns (json) {
     int[] intArray = [1, 2, 3];
     float[] floatArray = [11.1, 22.2, 33.3];
     string[] stringArray = ["Hello", "World"];
     boolean[] boolArray = [true, false, true];
     ArraTypeTest t1 = {id:1, intArrData:intArray, floatArrData:floatArray, stringArrData:stringArray,
-                          booleanArrData:boolArray};
+        booleanArrData:boolArray};
 
     int[] intArray2 = [10, 20, 30];
     float[] floatArray2 = [111.1, 222.2, 333.3];
     string[] stringArray2 = ["Hello", "World", "test"];
     boolean[] boolArray2 = [false, false, true];
     ArraTypeTest t2 = {id:2, intArrData:intArray2, floatArrData:floatArray2, stringArrData:stringArray2,
-                          booleanArrData:boolArray2};
+        booleanArrData:boolArray2};
 
     table<ArraTypeTest> dt1 = table{};
     _ = dt1.add(t1);
@@ -398,20 +398,20 @@ function testTableWithArrayDataToJson () returns (json) {
     return j;
 }
 
-function testTableWithArrayDataToXml () returns (xml) {
+function testTableWithArrayDataToXml() returns (xml) {
     int[] intArray = [1, 2, 3];
     float[] floatArray = [11.1, 22.2, 33.3];
     string[] stringArray = ["Hello", "World"];
     boolean[] boolArray = [true, false, true];
     ArraTypeTest t1 = {id:1, intArrData:intArray, floatArrData:floatArray, stringArrData:stringArray,
-                          booleanArrData:boolArray};
+        booleanArrData:boolArray};
 
     int[] intArray2 = [10, 20, 30];
     float[] floatArray2 = [111.1, 222.2, 333.3];
     string[] stringArray2 = ["Hello", "World", "test"];
     boolean[] boolArray2 = [false, false, true];
     ArraTypeTest t2 = {id:2, intArrData:intArray2, floatArrData:floatArray2, stringArrData:stringArray2,
-                          booleanArrData:boolArray2};
+        booleanArrData:boolArray2};
 
     table<ArraTypeTest> dt1 = table{};
     _ = dt1.add(t1);
@@ -421,13 +421,13 @@ function testTableWithArrayDataToXml () returns (xml) {
     return x;
 }
 
-function testTableWithArrayDataToStruct () returns (int[], float[], string[], boolean[]) {
+function testTableWithArrayDataToStruct() returns (int[], float[], string[], boolean[]) {
     int[] intArray = [1, 2, 3];
     float[] floatArray = [11.1, 22.2, 33.3];
     string[] stringArray = ["Hello", "World"];
     boolean[] boolArray = [true, false, true];
     ArraTypeTest t1 = {id:1, intArrData:intArray, floatArrData:floatArray, stringArrData:stringArray,
-                          booleanArrData:boolArray};
+        booleanArrData:boolArray};
 
     table<ArraTypeTest> dt1 = table{};
     _ = dt1.add(t1);
@@ -447,7 +447,7 @@ function testTableWithArrayDataToStruct () returns (int[], float[], string[], bo
     return (intArr, floatArr, stringArr, boolArr);
 }
 
-function testTableRemoveSuccess () returns (int, json) {
+function testTableRemoveSuccess() returns (int, json) {
     Person p1 = {id:1, age:35, salary:300.50, name:"jane", married:true};
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
@@ -460,10 +460,10 @@ function testTableRemoveSuccess () returns (int, json) {
     int count = check dt.remove(isBellow35);
     var j = check <json>dt;
 
-    return(count, j);
+    return (count, j);
 }
 
-function testTableRemoveSuccessMultipleMatch () returns (int, json) {
+function testTableRemoveSuccessMultipleMatch() returns (int, json) {
     Person p1 = {id:1, age:35, salary:300.50, name:"john", married:true};
     Person p2 = {id:2, age:20, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:32, salary:100.50, name:"john", married:false};
@@ -479,7 +479,7 @@ function testTableRemoveSuccessMultipleMatch () returns (int, json) {
     return (count, j);
 }
 
-function testTableRemoveFailed () returns (int, json) {
+function testTableRemoveFailed() returns (int, json) {
     Person p1 = {id:1, age:35, salary:300.50, name:"jane", married:true};
     Person p2 = {id:2, age:40, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:42, salary:100.50, name:"john", married:false};
@@ -496,7 +496,7 @@ function testTableRemoveFailed () returns (int, json) {
     return (count, j);
 }
 
-function testTableAddAndAccess () returns (string, string) {
+function testTableAddAndAccess() returns (string, string) {
     Person p1 = {id:1, age:35, salary:300.50, name:"jane", married:true};
     Person p2 = {id:2, age:40, salary:200.50, name:"martin", married:true};
     Person p3 = {id:3, age:42, salary:100.50, name:"john", married:false};
@@ -516,18 +516,18 @@ function testTableAddAndAccess () returns (string, string) {
     return (s1, s2);
 }
 
-function getPersonId (Person p) returns (int) {
+function getPersonId(Person p) returns (int) {
     return p.id;
 }
 
-function getCompanyId (Company p) returns (int) {
+function getCompanyId(Company p) returns (int) {
     return p.id;
 }
 
-function isBellow35 (Person p) returns (boolean) {
+function isBellow35(Person p) returns (boolean) {
     return p.age < 35;
 }
 
-function isJohn (Person p) returns (boolean) {
+function isJohn(Person p) returns (boolean) {
     return p.name == "john";
 }

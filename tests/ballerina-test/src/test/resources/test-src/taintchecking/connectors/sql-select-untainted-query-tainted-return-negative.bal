@@ -5,11 +5,11 @@ type Employee {
     string name;
 };
 
-public function main (string[] args) {
-    testSelectWithUntaintedQueryProducingTaintedReturnNegative(args);
+function main (string... args) {
+    testSelectWithUntaintedQueryProducingTaintedReturnNegative(...args);
 }
 
-public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(string[] args) {
+public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(string... args) {
     endpoint mysql:Client testDB {
         host: "localhost",
         port: 3306,

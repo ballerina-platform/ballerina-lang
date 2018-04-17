@@ -1,4 +1,4 @@
-function main (string[] args) {
+function main (string... args) {
     int p = 15;
     int q = 5;
     // Invoke Some random Logic.

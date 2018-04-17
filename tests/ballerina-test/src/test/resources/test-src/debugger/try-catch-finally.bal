@@ -15,7 +15,7 @@ public struct testInputError {
     string input;
 }
 
-function main(string[] args) {
+function main(string... args) {
     _ = testTryCatch(11);
     _ = testTryCatch(-1);
     _ = testTryCatch(5);

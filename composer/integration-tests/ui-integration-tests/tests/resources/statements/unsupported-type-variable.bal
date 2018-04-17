@@ -1,4 +1,4 @@
-function main(string[] i) {
+function main(string... i) {
 
 	Foo bar;
 	reply m;

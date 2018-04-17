@@ -18,6 +18,8 @@
 
 package org.ballerinalang.util.tracer;
 
+import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
+
 /**
  * {@code TraceConstants} define tracer constants.
  *
@@ -30,7 +32,6 @@ public class TraceConstants {
 
     static final String DEFAULT_CONNECTOR_NAME = "BallerinaConnector";
     static final String DEFAULT_ACTION_NAME = "BallerinaAction";
-    public static final String TRACE_PREFIX = "trace___";
     public static final String TRACE_HEADER = "x-b7a-trace";
     public static final String USER_TRACE_HEADER = "x-b7a-utrace-";
     public static final String KEY_SPAN = "_span_";
@@ -52,7 +53,6 @@ public class TraceConstants {
     public static final String DEFAULT_USER_API_GROUP = "default-group";
 
     public static final String JAEGER = "jaeger";
-    public static final String ENABLED_CONFIG = "enabled";
-    public static final String TRACER_NAME_CONFIG = "name";
+    public static final String TRACER_NAME_CONFIG = CONFIG_TABLE_TRACING + ".name";
 
 }

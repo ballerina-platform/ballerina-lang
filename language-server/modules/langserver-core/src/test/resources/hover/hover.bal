@@ -37,7 +37,7 @@ function test1 (string s, int sd) returns int{
 
 
 
-function main (string[] args) {
+function main (string... args) {
     string s = "mars";
     io:println(s);
     var df = s.contains("mar");
