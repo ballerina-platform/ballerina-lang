@@ -37,8 +37,8 @@ import javax.websocket.RemoteEndpoint;
 /**
  * This is spec implementation of {@link javax.websocket.Session} which uses {@link WebSocketSessionAdapter}.
  */
-public class WebSocketSessionImpl extends WebSocketSessionAdapter {
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketSessionImpl.class);
+public class DefaultWebSocketSession extends WebSocketSessionAdapter {
+    private static final Logger logger = LoggerFactory.getLogger(DefaultWebSocketSession.class);
 
     private final ChannelHandlerContext ctx;
     private final boolean isSecure;
@@ -47,14 +47,14 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
     private final WebSocketBasicRemoteEndpoint basicRemoteEndpoint;
     private final WebSocketAsyncRemoteEndpoint asyncRemoteEndpoint;
     private String negotiatedSubProtocol = null;
-    private boolean isOpen = false;
+    private boolean open = false;
     private Map<String, Object> userProperties = new HashMap<>();
 
-    public WebSocketSessionImpl(ChannelHandlerContext ctx, boolean isSecure, String requestedUri,
-                                String sessionId) throws URISyntaxException {
+    public DefaultWebSocketSession(ChannelHandlerContext ctx, boolean isSecure, String requestedUri,
+                                   String sessionId) throws URISyntaxException {
         this.ctx = ctx;
         this.isSecure = isSecure;
-        this.isOpen = true;
+        this.open = true;
         this.requestedUri = new URI(requestedUri);
         this.sessionId = sessionId;
         this.basicRemoteEndpoint = new WebSocketBasicRemoteEndpoint(ctx);
@@ -79,7 +79,7 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
     @Override
     public void close() throws IOException {
         ctx.channel().close();
-        this.isOpen = false;
+        this.open = false;
     }
 
     @Override
@@ -87,7 +87,7 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
         ctx.channel().writeAndFlush(new CloseWebSocketFrame(closeReason.getCloseCode().getCode(),
                                                     closeReason.getReasonPhrase()));
         ctx.channel().close();
-        this.isOpen = false;
+        this.open = false;
     }
 
     @Override
@@ -111,7 +111,7 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
 
     @Override
     public boolean isOpen() {
-        return isOpen;
+        return open;
     }
 
     @Override
@@ -124,7 +124,7 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
      * @param isOpen true if the connection is still open.
      */
     public void setIsOpen(boolean isOpen) {
-        this.isOpen = isOpen;
+        this.open = isOpen;
     }
 
     /**

@@ -29,6 +29,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
 
 /**
  * Simple WebSocket frame handler for testing
@@ -59,7 +60,8 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
                     ctx.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(new byte[]{1, 2, 3, 4})));
                     break;
                 case CLOSE:
-                    ctx.writeAndFlush(new CloseWebSocketFrame(1000, "Close on request"));
+                    ctx.writeAndFlush(new CloseWebSocketFrame(Constants.WEBSOCKET_STATUS_CODE_NORMAL_CLOSURE,
+                                                              "Close on request"));
                     break;
                 case CLOSE_WITHOUT_FRAME:
                     ctx.close();

@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.HandshakeFutureImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
-import org.wso2.transport.http.netty.internal.websocket.WebSocketSessionImpl;
+import org.wso2.transport.http.netty.internal.websocket.DefaultWebSocketSession;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.transport.http.netty.listener.WebSocketSourceHandler;
 
@@ -139,7 +139,7 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
                 String selectedSubProtocol = handshaker.selectedSubprotocol();
                 webSocketSourceHandler.setNegotiatedSubProtocol(selectedSubProtocol);
                 setSubProtocol(selectedSubProtocol);
-                WebSocketSessionImpl session = (WebSocketSessionImpl) getChannelSession();
+                DefaultWebSocketSession session = (DefaultWebSocketSession) getChannelSession();
                 session.setIsOpen(true);
                 session.setNegotiatedSubProtocol(selectedSubProtocol);
 

@@ -48,7 +48,7 @@ import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketCloseMessageImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketControlMessageImpl;
 import org.wso2.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
-import org.wso2.transport.http.netty.internal.websocket.WebSocketSessionImpl;
+import org.wso2.transport.http.netty.internal.websocket.DefaultWebSocketSession;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 
 import java.net.InetSocketAddress;
@@ -70,7 +70,7 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
     private final String requestedUri;
     private final WebSocketConnectorListener connectorListener;
     private String actualSubProtocol = null;
-    private WebSocketSessionImpl channelSession;
+    private DefaultWebSocketSession channelSession;
     private ChannelPromise handshakeFuture;
 
     public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, boolean isSecure, String requestedUri,
@@ -109,9 +109,8 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws ServerConnectorException {
         if (channelSession != null && channelSession.isOpen()) {
             channelSession.setIsOpen(false);
-            int statusCode = 1001;
             String reasonText = "Server is going away";
-            notifyCloseMessage(statusCode, reasonText, ctx);
+            notifyCloseMessage(Constants.WEBSOCKET_STATUS_CODE_GOING_AWAY, reasonText, ctx);
         }
     }
 

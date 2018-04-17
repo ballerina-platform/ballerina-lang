@@ -45,7 +45,7 @@ import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketCon
 import org.wso2.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
-import org.wso2.transport.http.netty.internal.websocket.WebSocketSessionImpl;
+import org.wso2.transport.http.netty.internal.websocket.DefaultWebSocketSession;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 
 import java.net.InetSocketAddress;
@@ -62,7 +62,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
     private final ChannelHandlerContext ctx;
     private final boolean isSecured;
     private final ServerConnectorFuture connectorFuture;
-    private final WebSocketSessionImpl channelSession;
+    private final DefaultWebSocketSession channelSession;
     private final Map<String, String> headers;
     private final String interfaceId;
     private String subProtocol = null;
@@ -78,7 +78,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
      * @param interfaceId     given ID for the socket interface.
      */
     public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, boolean isSecured,
-                                  WebSocketSessionImpl channelSession, HttpRequest httpRequest,
+                                  DefaultWebSocketSession channelSession, HttpRequest httpRequest,
                                   Map<String, String> headers, ChannelHandlerContext ctx, String interfaceId) {
         this.connectorFuture = connectorFuture;
         this.isSecured = isSecured;
@@ -108,7 +108,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
      *
      * @return the server session of this source handler.
      */
-    public WebSocketSessionImpl getChannelSession() {
+    public DefaultWebSocketSession getChannelSession() {
         return channelSession;
     }
 

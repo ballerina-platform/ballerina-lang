@@ -43,9 +43,9 @@ public class WebSocketUtil {
         return ctx.channel().id().asLongText();
     }
 
-    public static WebSocketSessionImpl getSession(ChannelHandlerContext ctx,
-                                                  boolean isSecured, String uri) throws URISyntaxException {
-        return new WebSocketSessionImpl(ctx, isSecured, uri, getSessionID(ctx));
+    public static DefaultWebSocketSession getSession(ChannelHandlerContext ctx,
+                                                     boolean isSecured, String uri) throws URISyntaxException {
+        return new DefaultWebSocketSession(ctx, isSecured, uri, getSessionID(ctx));
     }
 
     public static WebSocketControlMessage getWebsocketControlMessage(WebSocketFrame webSocketFrame,

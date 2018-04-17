@@ -185,6 +185,9 @@ public final class Constants {
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
     public static final String WEBSOCKET_HEADER_SUBPROTOCOL = "Sec-WebSocket-Protocol";
 
+    public static final int WEBSOCKET_STATUS_CODE_NORMAL_CLOSURE = 1000;
+    public static final int WEBSOCKET_STATUS_CODE_GOING_AWAY = 1001;
+
     // Callback related parameters
     public static final String HTTP_CONNECTION_CLOSE = "close";
 
