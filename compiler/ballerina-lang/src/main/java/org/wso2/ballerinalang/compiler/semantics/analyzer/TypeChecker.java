@@ -1045,19 +1045,21 @@ public class TypeChecker extends BLangNodeVisitor {
             if (!pattern.variable.name.value.endsWith(Names.IGNORE.value)) {
                 symbolEnter.defineNode(pattern.variable, matchExprEnv);
             }
-            checkExpr(pattern.expr, matchExprEnv);
+            checkExpr(pattern.expr, matchExprEnv, expType);
             pattern.variable.type = symResolver.resolveTypeNode(pattern.variable.typeNode, matchExprEnv);
-            matchExprTypes.add(pattern.expr.type);
+            matchExprTypes.add(getActualType(pattern.expr));
         });
 
-        if (matchExprTypes.size() == 1) {
-            bLangMatchExpression.type = matchExprTypes.toArray(new BType[matchExprTypes.size()])[0];
+        BType actualType;
+        if (matchExprTypes.contains(symTable.errType)) {
+            actualType = symTable.errType;
+        } else if (matchExprTypes.size() == 1) {
+            actualType = matchExprTypes.toArray(new BType[matchExprTypes.size()])[0];
         } else {
-            bLangMatchExpression.type =
-                    new BUnionType(null, matchExprTypes, matchExprTypes.contains(symTable.nilType));
+            actualType = new BUnionType(null, matchExprTypes, matchExprTypes.contains(symTable.nilType));
         }
 
-        types.checkTypes(bLangMatchExpression, Lists.of(bLangMatchExpression.type), Lists.of(expType));
+        resultType = types.checkType(bLangMatchExpression, actualType, expType);
     }
 
     @Override
@@ -1235,7 +1237,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
-        if (iExpr.expr != null) {
+        // if this is a function invocation on json, then do not add nil to the return types.
+        if (iExpr.expr != null && iExpr.expr.type.tag != TypeTags.JSON) {
             actualType = getAccessExprFinalType(iExpr, actualType);
         }
 
@@ -1928,4 +1931,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
         return new BUnionType(null, new LinkedHashSet<>(lhsTypes), false);
     }
+
+    private BType getActualType(BLangExpression expr) {
+        return expr.impConversionExpr == null ? expr.type : getActualType(expr.impConversionExpr);
+    }
+
 }

@@ -109,11 +109,14 @@
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3 cBallerina-io-Home-Left-col">
                 <div class="cBlallerina-io-docs-right-nav-container">
                   <div class="cLectColStyle cLeftColTop">
-                      
-                     {{!-- 
-                     <div class="cBallerina-io-docs-Title">PRIMITIVE TYPES</div>
-                     --}}
-                     <div class="cBallerina-io-docs-Title cBallerina-io-packages">BALLERINA PACKAGES</div>
+                      <div class="cBallerina-io-docs-Title">PRIMITIVE TYPES</div>
+                    
+                     </div>
+                  </div>
+               </div>
+                <div class="cBlallerina-io-docs-right-nav-container">
+                  <div class="cLectColStyle cLeftColTop">
+                  <div class="cBallerina-io-docs-Title cBallerina-io-packages">BALLERINA PACKAGES</div>
                      <div class="cCollaps-Menu">
                      {{#each links}}
                      <ul class=" {{#if active}}active-package{{/if}}">
@@ -297,38 +300,36 @@
                                                    <span class="fw-right gray xs-icon"></span>{{description}}
                                                 </p>
                                                 {{/if}} {{#if parameters}}
-                                                <p>
-                                                   <label class="table-header-text">Parameters:</label>
-                                                </p>
                                                 <table>
                                                    <tr>
-                                                      <th class="col-md-3">Parameter Name</th>
-                                                      <th class="col-md-2">Data Type</th>
-                                                      <th class="col-md-7 cAPI-table-desc">Description</th>
+                                                      <th class="cAPI-table-name">Parameter Name</th>
+                                                      <th class="cAPI-table-type">Data Type</th>
+                                                      <th class="cAPI-table-defult"></th>
+                                                      <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each parameters}}
                                                    <tr>
-                                                      <td class="col-md-3">{{name}}</td>
-                                                      <td class="col-md-2">{{dataType}}</td>
-                                                      <td class="col-md-7 cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-name">{{name}}</td>
+                                                      <td class="cAPI-table-type">{{dataType}}</td>
+                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-desc">{{description}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
                                                 {{/if}} {{#if returnParams}}
-                                                <p class="cReturn">
-                                                   <label class="table-header-text">Return Parameters:</label>
-                                                </p>
                                                 <table>
                                                    <tr>
-                                                      <th class="col-md-3">Return Variable</th>
-                                                      <th class="col-md-2">Data Type</th>
-                                                      <th class="col-md-7 cAPI-table-desc">Description</th>
+                                                      <th class="cAPI-table-name"></th>
+                                                      <th class="cAPI-table-type">Return Type</th>
+                                                      <th class="cAPI-table-defult"></th>
+                                                      <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each returnParams}}
                                                    <tr>
-                                                      <td class="col-md-3">{{name}}</td>
-                                                      <td class="col-md-2">{{dataType}}</td>
-                                                      <td class="col-md-7 cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-name"></td>
+                                                      <td class="cAPI-table-type">{{dataType}}</td>
+                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-desc">{{description}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
@@ -349,38 +350,36 @@
                                           <span class="fw-right gray xs-icon"></span>{{description}}
                                        </p>
                                        {{/if}} {{#if parameters}}
-                                       <p>
-                                          <label class="table-header-text">Parameters:</label>
-                                       </p>
                                        <table>
                                           <tr>
-                                             <th class="col-md-3">Parameter Name</th>
-                                             <th class="col-md-2">Data Type</th>
-                                             <th class="col-md-7 cAPI-table-desc">Description</th>
+                                             <th class="cAPI-table-name">Parameter Name</th>
+                                             <th class="cAPI-table-type">Data Type</th>
+                                             <th class="cAPI-table-defult"></th>
+                                             <th class="cAPI-table-desc">Description</th>
                                           </tr>
                                           {{#each parameters}}
                                           <tr>
-                                             <td class="col-md-3">{{name}}</td>
-                                             <td class="col-md-2">{{dataType}}</td>
-                                             <td class="col-md-7 cAPI-table-desc">{{description}}</td>
+                                             <td class="cAPI-table-name">{{name}}</td>
+                                             <td class="cAPI-table-type">{{dataType}}</td>
+                                             <td class="cAPI-table-defult"></td>
+                                             <td class="cAPI-table-desc">{{description}}</td>
                                           </tr>
                                           {{/each}}
                                        </table>
                                        {{/if}} {{#if returnParams}}
-                                       <p class="cReturn">
-                                          <label class="table-header-text">Return Parameters:</label>
-                                       </p>
                                        <table>
                                           <tr>
-                                             <th class="col-md-3">Return Variable</th>
-                                             <th class="col-md-2">Data Type</th>
-                                             <th class="col-md-7 cAPI-table-desc">Description</th>
+                                             <th class="cAPI-table-name"></th>
+                                             <th class="cAPI-table-type">Return Type</th>
+                                             <th class="cAPI-table-defult"></th>
+                                             <th class="cAPI-table-desc">Description</th>
                                           </tr>
                                           {{#each returnParams}}
                                           <tr>
-                                             <td class="col-md-3">{{name}}</td>
-                                             <td class="col-md-2">{{dataType}} </td>
-                                             <td class="col-md-7 cAPI-table-desc">{{description}}</td>
+                                             <td class="cAPI-table-name"></td>
+                                             <td class="cAPI-table-type">{{dataType}} </td>
+                                             <td class="cAPI-table-defult"></td>
+                                             <td class="cAPI-table-desc">{{description}}</td>
                                           </tr>
                                           {{/each}}
                                        </table>
@@ -401,18 +400,18 @@
                                        </p>
                                        <table>
                                           <tr>
-                                             <th class="col-md-3">Field Name</th>
-                                             <th class="col-md-2">Data Type</th>
-                                             <th class="col-md-2">Default Value</th>
-                                             <th class="col-md-5 cAPI-table-desc">Description</th>
+                                             <th class="cAPI-table-name">Field Name</th>
+                                             <th class="cAPI-table-type">Data Type</th>
+                                             <th class="cAPI-table-defult">Default Value</th>
+                                             <th class="cAPI-table-desc">Description</th>
                                              
                                           </tr>
                                           {{#each fields}}
                                           <tr>
-                                             <td class="col-md-3">{{name}}</td>
-                                             <td class="col-md-2">{{dataType}}</td>
-                                             <td class="col-md-2">{{defaultValue}}</td>
-                                             <td class="col-md-5 cAPI-table-desc">{{description}}</td>
+                                             <td class="cAPI-table-name">{{name}}</td>
+                                             <td class="cAPI-table-type">{{dataType}}</td>
+                                             <td class="cAPI-table-defult">{{defaultValue}}</td>
+                                             <td class="cAPI-table-desc">{{description}}</td>
                                             
                                           </tr>
                                           {{/each}}
@@ -432,38 +431,36 @@
                                                    <span class="fw-right gray xs-icon"></span>{{description}}
                                                 </p>
                                                 {{/if}} {{#if parameters}}
-                                                <p>
-                                                   <label class="table-header-text">Parameters:</label>
-                                                </p>
                                                 <table>
                                                    <tr>
-                                                      <th class="col-md-3">Parameter Name</th>
-                                                      <th class="col-md-2">Data Type</th>
-                                                      <th class="col-md-7 cAPI-table-desc">Description</th>
+                                                      <th class="cAPI-table-name">Parameter Name</th>
+                                                      <th class="cAPI-table-type">Data Type</th>
+                                                      <th class="cAPI-table-defult"></th>
+                                                      <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each parameters}}
                                                    <tr>
-                                                      <td class="col-md-3">{{name}}</td>
-                                                      <td class="col-md-2">{{dataType}}</td>
-                                                      <td class="col-md-7 cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-name">{{name}}</td>
+                                                      <td class="cAPI-table-type">{{dataType}}</td>
+                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-desc">{{description}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
                                                 {{/if}} {{#if returnParams}}
-                                                <p class="cReturn">
-                                                   <label class="table-header-text">Return Parameters:</label>
-                                                </p>
                                                 <table>
                                                    <tr>
-                                                      <th class="col-md-3">Return Variable</th>
-                                                      <th class="col-md-2">Data Type</th>
-                                                      <th class="col-md-7 cAPI-table-desc">Description</th>
+                                                      <th class="cAPI-table-name"></th>
+                                                      <th class="cAPI-table-type">Return Type</th>
+                                                      <th class="cAPI-table-defult"></th>
+                                                      <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each returnParams}}
                                                    <tr>
-                                                      <td class="col-md-3">{{name}}</td>
-                                                      <td class="col-md-2">{{dataType}}</td>
-                                                      <td class="col-md-7 cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-name"></td>
+                                                      <td class="cAPI-table-type">{{dataType}}</td>
+                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-desc">{{description}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
@@ -484,20 +481,19 @@
                                           <span class="fw-right gray xs-icon"></span>{{description}}
                                        </p>
                                        {{/if}} {{#if parameters}}
-                                       <p>
-                                          <label class="table-header-text">Parameters:</label>
-                                       </p>
                                        <table>
                                           <tr>
-                                             <th class="col-md-4">Parameter Name</th>
-                                             <th class="col-md-2">Data Type</th>
-                                             <th class="col-md-6 cAPI-table-desc">Description</th>
+                                             <th class="cAPI-table-name">Parameter Name</th>
+                                             <th class="cAPI-table-type">Data Type</th>
+                                             <th class="cAPI-table-defult"></th>
+                                             <th class="cAPI-table-desc">Description</th>
                                           </tr>
                                           {{#each parameters}}
                                           <tr>
-                                             <td class="col-md-3">{{name}}</td>
-                                             <td class="col-md-2">{{dataType}}</td>
-                                             <td class="col-md-7 cAPI-table-desc">{{description}}</td>
+                                             <td class="cAPI-table-name">{{name}}</td>
+                                             <td class="cAPI-table-type">{{dataType}}</td>
+                                             <td class="cAPI-table-defult"></td>
+                                             <td class="cAPI-table-desc">{{description}}</td>
                                           </tr>
                                           {{/each}}
                                        </table>
@@ -519,38 +515,36 @@
                                                    <span class="fw-right gray xs-icon"></span>{{description}}
                                                 </p>
                                                 {{/if}} {{#if parameters}}
-                                                <p>
-                                                   <label class="table-header-text">Parameters:</label>
-                                                </p>
                                                 <table>
                                                    <tr>
-                                                      <th class="col-md-3">Parameter Name</th>
-                                                      <th class="col-md-2">Data Type</th>
-                                                      <th class="col-md-7 cAPI-table-desc">Description</th>
+                                                      <th class="cAPI-table-name">Parameter Name</th>
+                                                      <th class="cAPI-table-type">Data Type</th>
+                                                      <th class="cAPI-table-defult"></th>
+                                                      <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each parameters}}
                                                    <tr>
-                                                      <td class="col-md-3">{{name}}</td>
-                                                      <td class="col-md-2">{{dataType}}</td>
-                                                      <td class="col-md-7 cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-name">{{name}}</td>
+                                                      <td class="cAPI-table-type">{{dataType}}</td>
+                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-desc">{{description}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
                                                 {{/if}} {{#if returnParams}}
-                                                <p class="cReturn">
-                                                   <label class="table-header-text">Return Parameters:</label>
-                                                </p>
                                                 <table>
                                                    <tr>
-                                                      <th class="col-md-3">Return Variable</th>
-                                                      <th class="col-md-2">Data Type</th>
-                                                      <th class="col-md-7 cAPI-table-desc">Description</th>
+                                                      <th class="cAPI-table-name"></th>
+                                                      <th class="cAPI-table-type">Return Type</th>
+                                                      <th class="cAPI-table-defult"></th>
+                                                      <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each returnParams}}
                                                    <tr>
-                                                      <td class="col-md-3">{{name}}</td>
-                                                      <td class="col-md-2">{{dataType}}</td>
-                                                      <td class="col-md-7 cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-name"></td>
+                                                      <td class="cAPI-table-type">{{dataType}}</td>
+                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-desc">{{description}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
@@ -571,20 +565,19 @@
                                           <span class="fw-right gray xs-icon"></span>{{description}}
                                        </p>
                                        {{/if}} {{#if parameters}}
-                                       <p>
-                                          <label class="table-header-text">Parameters:</label>
-                                       </p>
                                        <table>
                                           <tr>
-                                             <th class="col-md-4">Parameter Name</th>
-                                             <th class="col-md-2">Data Type</th>
-                                             <th class="col-md-6 cAPI-table-desc">Description</th>
+                                             <th class="cAPI-table-name">Parameter Name</th>
+                                             <th class="cAPI-table-type">Data Type</th>
+                                             <th class="cAPI-table-defult"></th>
+                                             <th class="cAPI-table-desc">Description</th>
                                           </tr>
                                           {{#each parameters}}
                                           <tr>
-                                             <td class="col-md-3">{{name}}</td>
-                                             <td class="col-md-2">{{dataType}}</td>
-                                             <td class="col-md-7 cAPI-table-desc">{{description}}</td>
+                                             <td class="cAPI-table-name">{{name}}</td>
+                                             <td class="cAPI-table-type">{{dataType}}</td>
+                                             <td class="cAPI-table-defult"></td>
+                                             <td class="cAPI-table-desc">{{description}}</td>
                                           </tr>
                                           {{/each}}
                                        </table>
@@ -606,38 +599,36 @@
                                                    <span class="fw-right gray xs-icon"></span>{{description}}
                                                 </p>
                                                 {{/if}} {{#if parameters}}
-                                                <p>
-                                                   <label class="table-header-text">Parameters:</label>
-                                                </p>
                                                 <table>
                                                    <tr>
-                                                      <th class="col-md-3">Parameter Name</th>
-                                                      <th class="col-md-2">Data Type</th>
-                                                      <th class="col-md-7 cAPI-table-desc">Description</th>
+                                                      <th class="cAPI-table-name">Parameter Name</th>
+                                                      <th class="cAPI-table-type">Data Type</th>
+                                                      <th class="cAPI-table-type"></th>
+                                                      <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each parameters}}
                                                    <tr>
-                                                      <td class="col-md-3">{{name}}</td>
-                                                      <td class="col-md-2">{{dataType}}</td>
-                                                      <td class="col-md-7 cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-name">{{name}}</td>
+                                                      <td class="cAPI-table-type">{{dataType}}</td>
+                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-desc">{{description}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
                                                 {{/if}} {{#if returnParams}}
-                                                <p class="cReturn">
-                                                   <label class="table-header-text">Return Parameters:</label>
-                                                </p>
                                                 <table>
                                                    <tr>
-                                                      <th class="col-md-3">Return Variable</th>
-                                                      <th class="col-md-2">Data Type</th>
-                                                      <th class="col-md-7 cAPI-table-desc">Description</th>
+                                                      <th class="cAPI-table-name"></th>
+                                                      <th class="cAPI-table-type">Return Type</th>
+                                                      <th class="cAPI-table-defult"></th>
+                                                      <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each returnParams}}
                                                    <tr>
-                                                      <td class="col-md-3">{{name}}</td>
-                                                      <td class="col-md-2">{{dataType}}</td>
-                                                      <td class="col-md-7 cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-name"></td>
+                                                      <td class="cAPI-table-type">{{dataType}}</td>
+                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-desc">{{description}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
@@ -663,13 +654,13 @@
                                        </p>
                                        <table>
                                           <tr>
-                                             <th class="col-md-3">Name</th>
-                                             <th class="col-md-9 cAPI-table-desc">Description</th>
+                                             <th class="cAPI-table-name">Name</th>
+                                             <th class="cAPI-table-desc">Description</th>
                                           </tr>
                                           {{#each enumerators}}
                                           <tr>
-                                             <td class="col-md-3">{{name}}</td>
-                                             <td class="col-md- cAPI-table-desc9">{{description}}</td>
+                                             <td class="cAPI-table-name">{{name}}</td>
+                                             <td class="cAPI-table-desc">{{description}}</td>
                                           </tr>
                                           {{/each}}
                                        </table>
@@ -690,15 +681,15 @@
                                        </p>
                                        <table>
                                           <tr>
-                                             <th class="col-md-3">Attribute Name</th>
-                                             <th class="col-md-2">Data Type</th>
-                                             <th class="col-md-7 cAPI-table-desc">Description</th>
+                                             <th class="cAPI-table-name">Attribute Name</th>
+                                             <th class="cAPI-table-type">Data Type</th>
+                                             <th class="cAPI-table-desc">Description</th>
                                           </tr>
                                           {{#each attributes}}
                                           <tr>
-                                             <td class="col-md-3">{{name}}</td>
-                                             <td class="col-md-2">{{dataType}}</td>
-                                             <td class="col-md-7 cAPI-table-desc">{{description}}</td>
+                                             <td class="cAPI-table-name">{{name}}</td>
+                                             <td class="cAPI-table-type">{{dataType}}</td>
+                                             <td class="cAPI-table-desc">{{description}}</td>
                                           </tr>
                                           {{/each}}
                                        </table>
@@ -711,14 +702,14 @@
                                        </h2>
                                        <table>
                                           <tr>
-                                             <th class="col-md-3">Attribute Name</th>
-                                             <th class="col-md-2">Data Type</th>
-                                             <th class="col-md-7 cAPI-table-desc">Description</th>
+                                             <th class="cAPI-table-name">Attribute Name</th>
+                                             <th class="cAPI-table-type">Data Type</th>
+                                             <th class="cAPI-table-desc">Description</th>
                                           </tr>
                                           <tr>
-                                             <td class="col-md-3">{{name}}</td>
-                                             <th class="col-md-2">{{dataType}}</th>
-                                             <td class="col-md-7 cAPI-table-desc">{{description}}</td>
+                                             <td class="cAPI-table-name">{{name}}</td>
+                                             <th class="cAPI-table-type">{{dataType}}</th>
+                                             <td class="cAPI-table-desc">{{description}}</td>
                                           </tr>
                                        </table>
                                        {{/if}}
@@ -738,5 +729,5 @@
       <div id="iBallerinaFooter" class="row cBallerina-io-White-row">
       </div>
       <script type="text/javascript" src="/search/search.js"/>
-   </body>
-</html>
+      </body>
+      </html>

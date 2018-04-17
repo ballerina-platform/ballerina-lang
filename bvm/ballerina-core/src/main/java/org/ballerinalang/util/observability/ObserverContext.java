@@ -49,6 +49,8 @@ public class ObserverContext {
 
     private boolean started;
 
+    private ObserverContext parent;
+
     public ObserverContext() {
         this.properties = new HashMap<>();
         this.tags = new HashMap<>();
@@ -121,4 +123,13 @@ public class ObserverContext {
     void setStarted() {
         this.started = true;
     }
+
+    public ObserverContext getParent() {
+        return parent;
+    }
+
+    public void setParent(ObserverContext parent) {
+        this.parent = parent;
+    }
+
 }

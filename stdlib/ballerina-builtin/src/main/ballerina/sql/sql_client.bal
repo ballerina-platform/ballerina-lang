@@ -166,7 +166,7 @@ public type SQLClient object {
     @Param {value:"parameters: Parameters used with the SQL query"}
     @Return {value:"Result set(s) for the given query"}
     @Return {value:"The Error occured during SQL client invocation"}
-    public native function call(@sensitive string sqlQuery, (typedesc|()) recordType, Parameter... parameters)
+    public native function call(@sensitive string sqlQuery, (typedesc[]|()) recordType, Parameter... parameters)
         returns @tainted (table[]|error);
 
     @Description {value:"The select action implementation for SQL connector to select data from tables."}

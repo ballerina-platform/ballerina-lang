@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -72,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAct
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
@@ -134,6 +136,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -619,7 +622,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangObject objectNode) {
-        /* ignore */
+        objectNode.functions.forEach(e -> this.analyzeNode(e, this.env));
     }
 
     public void visit(BLangRecord record) {
@@ -1038,7 +1041,64 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchExpression bLangMatchExpression) {
-        // TODO
+        analyzeExpr(bLangMatchExpression.expr);
+        List<BType> exprTypes;
+
+        if (bLangMatchExpression.expr.type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) bLangMatchExpression.expr.type;
+            exprTypes = new ArrayList<>(unionType.memberTypes);
+        } else {
+            exprTypes = Lists.of(bLangMatchExpression.expr.type);
+        }
+
+        List<BType> unmatchedExprTypes = new ArrayList<>();
+        for (BType exprType : exprTypes) {
+            boolean assignable = false;
+            for (BLangMatchExprPatternClause pattern : bLangMatchExpression.patternClauses) {
+                BType patternType = pattern.variable.type;
+                if (exprType.tag == TypeTags.ERROR || patternType.tag == TypeTags.ERROR) {
+                    return;
+                }
+
+                assignable = this.types.isAssignable(exprType, patternType);
+                if (assignable) {
+                    pattern.matchedTypesDirect.add(exprType);
+                    break;
+                } else if (exprType.tag == TypeTags.ANY) {
+                    pattern.matchedTypesIndirect.add(exprType);
+                } else if (exprType.tag == TypeTags.JSON && this.types.isAssignable(patternType, exprType)) {
+                    pattern.matchedTypesIndirect.add(exprType);
+                } else if (exprType.tag == TypeTags.STRUCT && this.types.isAssignable(patternType, exprType)) {
+                    pattern.matchedTypesIndirect.add(exprType);
+                } else {
+                    // TODO Support other assignable types
+                }
+            }
+
+            // check if the exprType can be added to implicit default pattern 
+            if (!assignable && !this.types.isAssignable(exprType, bLangMatchExpression.type)) {
+                unmatchedExprTypes.add(exprType);
+            }
+        }
+
+        if (!unmatchedExprTypes.isEmpty()) {
+            dlog.error(bLangMatchExpression.pos, DiagnosticCode.MATCH_STMT_CANNOT_GUARANTEE_A_MATCHING_PATTERN,
+                    unmatchedExprTypes);
+        }
+
+        boolean matchedPatternsAvailable = false;
+        for (int i = bLangMatchExpression.patternClauses.size() - 1; i >= 0; i--) {
+            BLangMatchExprPatternClause pattern = bLangMatchExpression.patternClauses.get(i);
+            if (pattern.matchedTypesDirect.isEmpty() && pattern.matchedTypesIndirect.isEmpty()) {
+                if (matchedPatternsAvailable) {
+                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
+                } else {
+                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+                }
+            } else {
+                matchedPatternsAvailable = true;
+            }
+        }
     }
 
     @Override

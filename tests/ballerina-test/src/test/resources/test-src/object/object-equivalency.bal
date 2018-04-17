@@ -536,12 +536,7 @@ type AnyStruct object {
 
 function AnyStruct::shout (AnotherAnyStruct aa) returns (string) {
     var j =check <json>aa;
-    string str;
-    match j.toString() {
-        string s => str = s;
-        () => str = "";
-    }
-    return "anyStruct" + str;
+    return "anyStruct" + j.toString();
 }
 
 function AnyStruct::call () returns (AnotherAnyStruct) {
@@ -560,7 +555,7 @@ type SomeStruct object {
 
 function SomeStruct::shout (SomeOtherStruct aa) returns (string) {
     var j = check <json>aa;
-    return "someStruct" + (j.toString() but {()=> ""});
+    return "someStruct" + (j.toString());
 }
 
 function SomeStruct::call () returns (SomeOtherStruct) {
