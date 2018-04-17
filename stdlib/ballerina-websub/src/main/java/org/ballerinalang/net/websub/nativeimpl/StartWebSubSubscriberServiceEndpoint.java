@@ -20,12 +20,8 @@ package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
-import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.logging.exceptions.TraceLogConfigurationException;
-import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -39,9 +35,7 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
-import java.io.IOException;
 import java.util.HashSet;
-import java.util.logging.LogManager;
 
 /**
  * Set WebSub connection listener on startup.
@@ -65,15 +59,6 @@ public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunc
                 (BStruct) ((BStruct) (subscriberServiceEndpoint.getVMValue())).getRefField(1));
 
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
-        if (isHTTPTraceLoggerEnabled()) {
-            try {
-                ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
-            } catch (IOException e) {
-                throw new BallerinaConnectorException("Invalid HTTP trace log parameters found.", e);
-            } catch (TraceLogConfigurationException e) {
-                throw new BallerinaConnectorException("Unsupported HTTP trace log configuration. " + e.getMessage(), e);
-            }
-        }
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         WebSubServicesRegistry webSubServicesRegistry = (WebSubServicesRegistry) serviceEndpoint.getNativeData(
                                                                 WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY);
@@ -83,11 +68,5 @@ public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunc
         serverConnectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener());
 
         context.setReturnValues();
-    }
-
-    private boolean isHTTPTraceLoggerEnabled() {
-        // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
-        return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
-                org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
     }
 }
