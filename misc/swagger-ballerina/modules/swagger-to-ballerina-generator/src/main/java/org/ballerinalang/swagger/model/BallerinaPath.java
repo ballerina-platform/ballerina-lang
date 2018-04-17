@@ -16,6 +16,7 @@
 
 package org.ballerinalang.swagger.model;
 
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 
@@ -89,6 +90,11 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
         }
 
         return this;
+    }
+
+    @Override
+    public BallerinaPath buildContext(PathItem item, OpenAPI openAPI) throws BallerinaOpenApiException {
+        return buildContext(item);
     }
 
     @Override

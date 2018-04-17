@@ -16,6 +16,7 @@
 
 package org.ballerinalang.swagger.model;
 
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
@@ -94,6 +95,11 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
 
         this.properties = newEntries;
         return this;
+    }
+
+    @Override
+    public BallerinaSchema buildContext(Schema schema, OpenAPI openAPI) throws BallerinaOpenApiException {
+        return buildContext(schema);
     }
 
     @Override

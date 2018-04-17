@@ -17,6 +17,7 @@
 package org.ballerinalang.swagger.model;
 
 import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.callbacks.Callback;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -77,6 +78,11 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
         }
 
         return this;
+    }
+
+    @Override
+    public BallerinaOperation buildContext(Operation operation, OpenAPI openAPI) throws BallerinaOpenApiException {
+        return buildContext(operation);
     }
 
     @Override

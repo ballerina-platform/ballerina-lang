@@ -80,6 +80,11 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
     }
 
     @Override
+    public BallerinaOpenApi buildContext(OpenAPI definition, OpenAPI openAPI) throws BallerinaOpenApiException {
+        return buildContext(definition);
+    }
+
+    @Override
     public BallerinaOpenApi getDefaultValue() {
         return null;
     }
