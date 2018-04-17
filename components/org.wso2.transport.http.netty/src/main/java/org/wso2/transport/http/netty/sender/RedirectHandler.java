@@ -682,7 +682,8 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @param timeoutOfOriginalRequest Timeout of the original channel
      */
     private void setChannelAttributes(ChannelHandlerContext channelHandlerContext, ChannelFuture future,
-                                      HTTPCarbonMessage httpCarbonRequest, long channelStartTime, int timeoutOfOriginalRequest) {
+                                      HTTPCarbonMessage httpCarbonRequest, long channelStartTime,
+                                      int timeoutOfOriginalRequest) {
         HttpResponseFuture responseFuture = channelHandlerContext.channel()
                 .attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
         future.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(responseFuture);
