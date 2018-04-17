@@ -1,11 +1,11 @@
-# To perform authentication and authorization, credentials and related data is stored in a simple file based
-# userstore. The ballerina.conf file is used for this purpose.
+# To perform authentication and authorization, credentials and related data are stored in a simple file-based
+# user store. The `ballerina.conf` file is used for this purpose.
 #
-# To generate the file based userstore and insert relevant data, two sample bash scripts are used.
-# These scripts will add user credentials, create the mapping between the user & groups and create the mapping
+# To generate the file-based user store and insert relevant data, two sample bash scripts are used.
+# These scripts will add user credentials, create the mapping between the user & groups, and create the mapping
 # between the scopes & the groups.
 #
-# To generate the userstore with user credentials, the following bash script can be used.
+# To generate the user store with user credentials, the following bash script can be used.
 usage () {
     echo "Usage: bash userstore-generator.sh -u {username} -p {password} -g {comma separated groups} " 1>&2;
     exit 1;
@@ -50,7 +50,7 @@ if [ -z "${username}" ] || [ -z "${password}" ]; then
 fi
 writeToFile "ballerina.conf" "${username}" "$(generateUid ${username})" "$(generateHash ${password})" "${groups}"
 
-# To use the script, copy the content to a file named "userstore-generator.sh" and execute it with the relevant
+# To use the script, create a file named `userstore-generator.sh`, copy the content to it, and execute it with the relevant
 # parameters.
 $ bash userstore-generator.sh -u {username} -p {password} -g {comma separated groups}
 
@@ -85,21 +85,21 @@ if [ -z "${scope}" ] || [ -z "${groups}" ]; then
 fi
 writeToFile "ballerina.conf" "${scope}" "${groups}"
 
-# To use the script, copy the content to a file named "permissionstore-generator.sh" and execute it with the relevant
+# To use the script, create a file named `permissionstore-generator.sh` and execute it with the relevant
 # parameters.
 $ bash permissionstore-generator.sh -s {scope name} -g {comma separated groups}
 
-# To start the service, put the code in "secured-hello-world-service-with-basic-auth.bal"
-# and use "ballerina run" command.
-# Make sure the ballerina.conf file populated by the scripts above is present in the
-# same directory as the secured-hello-world-service-with-basic-auth.bal file.
+# Create a file named `secured-hello-world-service-with-basic-auth.bal`, copy the code into it,
+# and use the `ballerina run` command to start the service.
+# Make sure the `ballerina.conf` file populated by the scripts given above is located in the
+# same directory as the `secured-hello-world-service-with-basic-auth.bal` file.
 $ ballerina run secured-hello-world-service-with-basic-auth.bal
 ballerina: initiating service(s) in 'secured-hello-world-service-with-basic-auth.bal'
 ballerina: started HTTPS/WSS endpoint 0.0.0.0:9090
 
-# To build a compiled program file, we can use the
-# "ballerina build" command followed by
-# the service package.
+# To build a compiled program file, use the
+# `ballerina build` command followed by
+# the service package name.
 $ ballerina build secured-hello-world-service-with-basic-auth.bal
 $ ls
 secured-hello-world-service-with-basic-auth.balx	secured-hello-world-service-with-basic-auth.bal
