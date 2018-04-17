@@ -32,7 +32,7 @@ public enum Snippet {
     FUNCTION_SIGNATURE("function ${1:name} (${2});"),
     IF("if (${1:true}) {\n\t${2}\n}"),
     LOCK("lock {\n\t${1}\n}"),
-    MAIN_FUNCTION("function main (string[] args) {\n\t${1}\n}"),
+    MAIN_FUNCTION("function main (string... args) {\n\t${1}\n}"),
     NAMESPACE_DECLARATION("xmlns \"${1}\" as ${2:ns};"),
     NEXT("next;"),
     RESOURCE("${1:newResource} (endpoint ${2:caller}, ${3:http:Request request}) {\n\t${4}\n}"),

@@ -6,7 +6,7 @@ import ballerina/lang.system;
 import ballerina/http;
 import ballerina/net.uri;
 import ballerina/utils;
-function main(string[] args) {
+function main(string... args) {
     http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
     http:ClientConnector gitHubEP = create http:ClientConnector("https://api.github.com");
     int argumentLength = arrays:length(args);

@@ -322,7 +322,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     json generatedToken = check requestAccessTokenJson;
 
     if (tokenResponse.statusCode == 200) {
-        return generatedToken.access_token.toString() but { () => EMPTY_STRING };
+        return generatedToken.access_token.toString();
     }
     return EMPTY_STRING;
 }

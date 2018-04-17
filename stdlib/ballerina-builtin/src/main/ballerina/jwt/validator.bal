@@ -102,24 +102,23 @@ function parseHeader (json jwtHeaderJson) returns (Header) {
     Header jwtHeader = {};
     map customClaims;
     
-    string [] keys;
-    keys = jwtHeaderJson.getKeys() but { () => keys };
+    string [] keys = jwtHeaderJson.getKeys();
     
     foreach key in keys {
         //TODO get alg from a constant
         if (key == "alg") {
-            jwtHeader.alg = jwtHeaderJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            jwtHeader.alg = jwtHeaderJson[key].toString();
         } else if (key == TYP) {
-            jwtHeader.typ = jwtHeaderJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            jwtHeader.typ = jwtHeaderJson[key].toString();
         } else if (key == CTY) {
-            jwtHeader.cty = jwtHeaderJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            jwtHeader.cty = jwtHeaderJson[key].toString();
         } else if (key == KID) {
-            jwtHeader.kid = jwtHeaderJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            jwtHeader.kid = jwtHeaderJson[key].toString();
         } else {
             if (lengthof jwtHeaderJson[key] > 0) {
                 customClaims[key] = convertToStringArray(jwtHeaderJson[key]);
             } else {
-                customClaims[key] = jwtHeaderJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+                customClaims[key] = jwtHeaderJson[key].toString();
             }
         }
     }
@@ -130,32 +129,31 @@ function parseHeader (json jwtHeaderJson) returns (Header) {
 function parsePayload (json jwtPayloadJson) returns (Payload) {
     Payload jwtPayload = {};
     map customClaims;
-    string [] keys;
-    keys = jwtPayloadJson.getKeys() but { () => keys };
+    string [] keys = jwtPayloadJson.getKeys();
     foreach key in keys {
         if (key == ISS) {
-            jwtPayload.iss = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            jwtPayload.iss = jwtPayloadJson[key].toString();
         } else if (key == SUB) {
-            jwtPayload.sub = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            jwtPayload.sub = jwtPayloadJson[key].toString();
         } else if (key == AUD) {
             jwtPayload.aud = convertToStringArray(jwtPayloadJson[key]);
         } else if (key == JTI) {
-            jwtPayload.jti = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            jwtPayload.jti = jwtPayloadJson[key].toString();
         } else if (key == EXP) {
-            var value = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            var value = jwtPayloadJson[key].toString();
             jwtPayload.exp = <int>value but {error => 0};
         } else if (key == NBF) {
-            var value = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            var value = jwtPayloadJson[key].toString();
             jwtPayload.nbf = <int>value but {error => 0};
         } else if (key == IAT) {
-            var value = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+            var value = jwtPayloadJson[key].toString();
             jwtPayload.iat = <int>value but {error => 0};
         }
         else {
             if (lengthof jwtPayloadJson[key] > 0) {
                 customClaims[key] = convertToStringArray(jwtPayloadJson[key]);
             } else {
-                customClaims[key] = jwtPayloadJson[key].toString() but {() => ""}; // TODO: Double check if this is right
+                customClaims[key] = jwtPayloadJson[key].toString();
             }
         }
     }
@@ -232,11 +230,11 @@ function convertToStringArray (json jsonData) returns (string[]) {
     if (lengthof jsonData > 0) {
         int i = 0;
         while (i < lengthof jsonData) {
-            outData[i] = jsonData[i].toString() but {() => ""}; // TODO: Double check if this is right
+            outData[i] = jsonData[i].toString();
             i = i + 1;
         }
     } else {
-        outData[0] = jsonData.toString() but {() => ""}; // TODO: Double check if this is right
+        outData[0] = jsonData.toString();
     }
     return outData;
 }

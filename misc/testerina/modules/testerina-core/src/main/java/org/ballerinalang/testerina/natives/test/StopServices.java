@@ -55,7 +55,6 @@ public class StopServices extends BlockingNativeCallableUnit {
             if (servicesPackage == null || !servicesPackage.getPkgPath().equals(packageName)) {
                 continue;
             }
-
             BLangFunctions.invokeVMUtilFunction(servicesPackage.getStopFunctionInfo());
             break;
         }
