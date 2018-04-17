@@ -77,10 +77,10 @@ file:Path filePath = new(filePathValue);
 var isExists = file:exists(directoryPath);
 //If the path does not exist, creates a new directory in the given path.
 if (!isExists) {
-var result = file:createDirectory(directoryPath);
+ var result = file: createDirectory(directoryPath);
 }
 // Checks if the path represents a directory or file. 
-If (file:isDirectory(directoryPath)) {
-var createFileResult = file:createFile(filePath);
+If(file: isDirectory(directoryPath)) {
+ var createFileResult = file: createFile(filePath);
 }
 ```
