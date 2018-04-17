@@ -30,7 +30,7 @@ import org.wso2.transport.http.netty.common.Util;
  */
 public class Http2ToHttpFallbackHandler extends ChannelInboundHandlerAdapter {
 
-    HttpServerChannelInitializer serverChannelInitializer;
+    private HttpServerChannelInitializer serverChannelInitializer;
 
     public Http2ToHttpFallbackHandler(
             HttpServerChannelInitializer serverChannelInitializer) {
