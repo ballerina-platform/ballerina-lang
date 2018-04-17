@@ -212,3 +212,57 @@ function testBooleanSingletonsCaseTwo() returns boolean {
     }
     return true;
 }
+
+type PreparedResult "ss"|"sss"|"qqq";
+
+function testFiniteTypeWithMatch() returns PreparedResult {
+     match foo() {
+          PreparedResult x => return x;
+          () => return "qqq";
+          error => return "qqq";
+     }
+}
+
+function foo() returns PreparedResult | error | () {
+        PreparedResult x = "ss";
+        return x;
+}
+
+function testFiniteTypeWithMatchCaseTwo() returns PreparedResult {
+     match fooTwo() {
+          PreparedResult x => return x;
+          () => return "qqq";
+          error => return "qqq";
+     }
+}
+
+function fooTwo() returns PreparedResult | error | () {
+     return ();
+}
+
+type UNIQUE_NUM 11211;
+
+function testSingletonTypeWithMatch() returns int {
+     match getUnique() {
+          UNIQUE_NUM x => return x;
+          () => return 0;
+          error => return 0;
+     }
+}
+
+function getUnique() returns UNIQUE_NUM | error | () {
+        UNIQUE_NUM x = 11211;
+        return x;
+}
+
+function testSingletonTypeWithMatchCaseTwo() returns int {
+     match getUniqueTwo() {
+          UNIQUE_NUM x => return x;
+          () => return 0;
+          error => return 0;
+     }
+}
+
+function getUniqueTwo() returns UNIQUE_NUM | error | () {
+     return ();
+}

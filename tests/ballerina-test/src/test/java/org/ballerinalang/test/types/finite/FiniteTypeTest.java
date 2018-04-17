@@ -241,5 +241,41 @@ public class FiniteTypeTest {
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertEquals((((BBoolean) returns[0]).booleanValue()), false);
     }
+
+    @Test()
+    public void testFiniteTypeWithMatch() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeWithMatch");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "ss");
+    }
+
+    @Test()
+    public void testFiniteTypeWithMatchCaseTwo() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeWithMatchCaseTwo");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "qqq");
+    }
+
+    @Test()
+    public void testSingletonTypeWithMatch() {
+        BValue[] returns = BRunUtil.invoke(result, "testSingletonTypeWithMatch");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals((((BInteger) returns[0]).intValue()), 11211);
+    }
+
+    @Test()
+    public void testSingletonTypeWithMatchCaseTwo() {
+        BValue[] returns = BRunUtil.invoke(result, "testSingletonTypeWithMatchCaseTwo");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals((((BInteger) returns[0]).intValue()), 0);
+    }
 }
 

@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BSingletonType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
@@ -3058,7 +3059,27 @@ public class CPU {
         if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
             return checkTupleCast(rhsValue, lhsType);
         }
-        
+
+        if (lhsType.getTag() == TypeTags.SINGLETON_TAG || lhsType.getTag() == TypeTags.NULL_TAG) {
+            return checkSingletonAssignable(rhsValue, lhsType);
+        }
+
+        return false;
+    }
+
+    private static boolean checkSingletonAssignable(BValue rhsValue, BType lhsType) {
+        BSingletonType singletonType = (BSingletonType) lhsType;
+        if (rhsValue == null) {
+            if (lhsType.getTag() == TypeTags.NULL_TAG) {
+                return true;
+            }
+        } else {
+            if (rhsValue.getType().getTag() == singletonType.getSuperType().getTag()) {
+                if (rhsValue.equals(singletonType.valueSpace)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
     
