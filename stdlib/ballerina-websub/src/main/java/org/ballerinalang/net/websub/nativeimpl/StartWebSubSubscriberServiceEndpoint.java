@@ -35,8 +35,6 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
-import java.util.HashSet;
-
 /**
  * Set WebSub connection listener on startup.
  *
