@@ -192,7 +192,7 @@ type TwoPhaseCommitTransaction object {
         foreach _, participant in self.participants {
             var result = participant.notify(action, protocolName);
             match result {
-                NotifyResult => {}
+                NotifyResult|() => {}
                 error err => notifyResult = err;
             }
         }
