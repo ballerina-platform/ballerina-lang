@@ -151,12 +151,6 @@ public class ParserUtils {
      */
     public static Map<String, ModelPackage> getAllPackages() {
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
-        // TODO: remove once the packerina api for package listing is available
-        final String[] packageNames = {"http", "http.swagger", "net.uri", "mime", "auth", "auth.authz",
-                "auth.authz.permissionstore", "auth.basic", "auth.jwtAuth", "auth.userstore", "auth.utils", "caching",
-                "collections", "config", "data.sql", "file", "internal", "io", "jwt", "jwt.signature", "log", "math",
-                "os", "reflect", "runtime", "security.crypto", "task", "time", "transactions.coordinator", "user",
-                "util"};
         try {
             CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
             List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages(context);
@@ -164,7 +158,7 @@ public class ParserUtils {
                 loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
             }
 
-            for (String packageName : packageNames) {
+            for (String packageName : LSPackageLoader.getStaticPkgNames()) {
                 PackageID packageID = new PackageID(new Name("ballerina"),
                         new Name(packageName), new Name("0.0.0"));
                 BLangPackage bLangPackage = LSPackageLoader.getPackageById(context, packageID);
