@@ -113,7 +113,7 @@ public function Connection::redirect(Response response, RedirectCode code, strin
     } else if (code == REDIRECT_TEMPORARY_REDIRECT_307) {
         response.statusCode = TEMPORARY_REDIRECT_307;
     } else if (code == REDIRECT_PERMANENT_REDIRECT_308) {
-        response.statusCode = REDIRECT_PERMANENT_REDIRECT_308;
+        response.statusCode = PERMANENT_REDIRECT_308;
     }
     string locationsStr = "";
     foreach location in locations {
