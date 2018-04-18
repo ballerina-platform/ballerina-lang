@@ -69,12 +69,12 @@ public class KeyStoreHolder {
      *                           {@code alias} or {@code keyPassword} does not contain
      *                           the information needed to recover the key (e.g. wrong password)
      */
-    public PrivateKey getPrivateKey(String keyAlias, char[] keyPassword, String keyStoreFilePath, char[] keyStorePassword) throws BallerinaException {
+    public PrivateKey getPrivateKey(String keyAlias, char[] keyPassword, String keyStoreFilePath,
+                                    char[] keyStorePassword) throws BallerinaException {
         KeyStore.PrivateKeyEntry pkEntry;
         try {
-            pkEntry = (KeyStore.PrivateKeyEntry) getKeyStore(keyStoreFilePath, keyStorePassword).getEntry(keyAlias, new KeyStore
-                    .PasswordProtection
-                    (keyPassword));
+            pkEntry = (KeyStore.PrivateKeyEntry) getKeyStore(keyStoreFilePath, keyStorePassword)
+                    .getEntry(keyAlias, new KeyStore.PasswordProtection(keyPassword));
         } catch (NoSuchAlgorithmException | UnrecoverableEntryException | java.security.KeyStoreException e) {
             throw new BallerinaException("Failed to load private key: " + keyAlias, e);
         }
