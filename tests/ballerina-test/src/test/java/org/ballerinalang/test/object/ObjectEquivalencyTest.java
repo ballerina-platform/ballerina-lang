@@ -117,4 +117,11 @@ public class ObjectEquivalencyTest {
         Assert.assertEquals(returns[0].stringValue(), "anyStruct{\"s\":\"sss\"}");
         Assert.assertEquals(returns[1].stringValue(), "someStruct{\"s\":\"sss\"}");
     }
+    
+    @Test(description = "Test tuple equivalency with object equivalency ")
+    public void testTupleMatchWithObjectEquivalency() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleMatchWithObjectEquivalency");
+        Assert.assertEquals(returns[0].stringValue(), "SUCCESS");
+    }
+    
 }

@@ -354,8 +354,7 @@ public class HttpUtil {
         Object carbonStatusCode = requestMessage.getProperty(HTTP_STATUS_CODE);
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = ex.getMessage();
-        log.error(errorMsg);
-        ErrorHandlerUtils.printError(ex);
+        log.error(errorMsg, ex);
         sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 

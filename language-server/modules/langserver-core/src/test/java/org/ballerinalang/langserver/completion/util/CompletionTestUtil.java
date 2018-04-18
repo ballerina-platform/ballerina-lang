@@ -19,22 +19,21 @@ package org.ballerinalang.langserver.completion.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.LSServiceOperationContext;
-import org.ballerinalang.langserver.TextDocumentServiceUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -116,10 +115,8 @@ public class CompletionTestUtil {
         LSServiceOperationContext completionContext = new LSServiceOperationContext();
         completionContext.put(DocumentServiceKeys.POSITION_KEY, pos);
         completionContext.put(DocumentServiceKeys.FILE_URI_KEY, pos.getTextDocument().getUri());
-
-        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext,
-                documentManager, false, CompletionCustomErrorStrategy.class, false)
-                .get(0);
+        BLangPackage bLangPackage = LSCompiler.getBLangPackage(completionContext, documentManager,
+                                   false, CompletionCustomErrorStrategy.class, false).get(0);
         completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                 bLangPackage.symbol.getName().getValue());
         // Visit the package to resolve the symbols

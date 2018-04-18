@@ -236,6 +236,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>language-server-compiler</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>composer-server-distribution</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>

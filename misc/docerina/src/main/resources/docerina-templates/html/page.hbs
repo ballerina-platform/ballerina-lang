@@ -111,9 +111,17 @@
                   <div class="cLectColStyle cLeftColTop">
                       <div class="cBallerina-io-docs-Title cBallerina-io-primitive-types">PRIMITIVE TYPES</div>
                         <div class="cCollaps-Menu-first">
-                          
+                            {{#each primitives}}
+                                <ul class="">
+                                    <li>
+                                        <a href="{{href}}">
+                                            <span class="bold">{{caption.value}}</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            {{/each}}
                         </div>
-                     </div>
+                  </div>
                 </div>
                 <div class="cBlallerina-io-docs-right-nav-container">
                   <div class="cLectColStyle cLeftColTop">
@@ -282,14 +290,14 @@
                                     <div class="construct-wrapper">
                                        <!--Primitive Types-->
                                        {{#if isPrimitiveType}}
-                                       <h2 id="{{name}}">
+                                       <h2 id="{{name}}" class="cPrimitive">
                                           <span class="{{icon}} sm-icon"></span>
                                           {{name}}
                                        </h2>
                                        {{#if description}}
-                                       <p>
-                                          <span class="fw-right gray xs-icon"></span>{{description}}
-                                       </p>
+                                       <div class="cPrimitiveDescription">
+                                          <span class="fw-right gray xs-icon"></span>{{{description}}}
+                                       </div>
                                        {{/if}} {{#if children}}
                                        <div class="function-wrapper">
                                           <ul>
@@ -297,12 +305,12 @@
                                              <li class="cFunctionList">
                                                 <h2 id="{{../name}}-{{name}}">
                                                    <span class={{icon}}></span>
-                                                   <span class="thin-text light-gray">&lt; {{../name}} &gt;</span>
+                                                   <span class="thin-text light-gray">&lt;{{../name}}&gt;</span>
                                                    {{name}}({{join parameters ", "}}) {{#if returnParams}}returns ({{join returnParams ", "}}) {{/if}}
                                                 </h2>
                                                 {{#if description}}
                                                 <p>
-                                                   <span class="fw-right gray xs-icon"></span>{{description}}
+                                                   <span class="fw-right gray xs-icon"></span>{{{description}}}
                                                 </p>
                                                 {{/if}} {{#if parameters}}
                                                 <table>
@@ -317,7 +325,7 @@
                                                       <td class="cAPI-table-name">{{name}}</td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
                                                       <td class="cAPI-table-defult"></td>
-                                                      <td class="cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
@@ -335,7 +343,7 @@
                                                       <td class="cAPI-table-name"></td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
                                                       <td class="cAPI-table-defult"></td>
-                                                      <td class="cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
@@ -353,7 +361,7 @@
                                        </h2>
                                        {{#if description}}
                                        <p>
-                                          <span class="fw-right gray xs-icon"></span>{{description}}
+                                          <span class="fw-right gray xs-icon"></span>{{{description}}}
                                        </p>
                                        {{/if}} {{#if parameters}}
                                        <table>
@@ -368,7 +376,7 @@
                                              <td class="cAPI-table-name">{{name}}</td>
                                              <td class="cAPI-table-type">{{dataType}}</td>
                                              <td class="cAPI-table-defult"></td>
-                                             <td class="cAPI-table-desc">{{description}}</td>
+                                             <td class="cAPI-table-desc">{{{description}}}</td>
                                           </tr>
                                           {{/each}}
                                        </table>
@@ -386,7 +394,7 @@
                                              <td class="cAPI-table-name"></td>
                                              <td class="cAPI-table-type">{{dataType}} </td>
                                              <td class="cAPI-table-defult"></td>
-                                             <td class="cAPI-table-desc">{{description}}</td>
+                                             <td class="cAPI-table-desc">{{{description}}}</td>
                                           </tr>
                                           {{/each}}
                                        </table>
@@ -399,7 +407,7 @@
                                        </h2>
                                        {{#if description}}
                                        <p>
-                                          <span class="fw-right gray xs-icon"></span>{{description}}
+                                          <span class="fw-right gray xs-icon"></span>{{{description}}}
                                        </p>
                                        {{/if}} {{#if fields}}
                                        <table>
@@ -415,7 +423,7 @@
                                              <td class="cAPI-table-name">{{name}}</td>
                                              <td class="cAPI-table-type">{{dataType}}</td>
                                              <td class="cAPI-table-defult">{{defaultValue}}</td>
-                                             <td class="cAPI-table-desc">{{description}}</td>
+                                             <td class="cAPI-table-desc">{{{description}}}</td>
                                             
                                           </tr>
                                           {{/each}}
@@ -432,7 +440,7 @@
                                                 </h3>
                                                 {{#if description}}
                                                 <p>
-                                                   <span class="fw-right gray xs-icon"></span>{{description}}
+                                                   <span class="fw-right gray xs-icon"></span>{{{description}}}
                                                 </p>
                                                 {{/if}} {{#if parameters}}
                                                 <table>
@@ -447,7 +455,7 @@
                                                       <td class="cAPI-table-name">{{name}}</td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
                                                       <td class="cAPI-table-defult"></td>
-                                                      <td class="cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
@@ -465,7 +473,7 @@
                                                       <td class="cAPI-table-name"></td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
                                                       <td class="cAPI-table-defult"></td>
-                                                      <td class="cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
@@ -483,7 +491,7 @@
                                        </h2>
                                        {{#if description}}
                                        <p>
-                                          <span class="fw-right gray xs-icon"></span>{{description}}
+                                          <span class="fw-right gray xs-icon"></span>{{{description}}}
                                        </p>
                                        {{/if}} {{#if parameters}}
                                        <table>
@@ -498,7 +506,7 @@
                                              <td class="cAPI-table-name">{{name}}</td>
                                              <td class="cAPI-table-type">{{dataType}}</td>
                                              <td class="cAPI-table-defult"></td>
-                                             <td class="cAPI-table-desc">{{description}}</td>
+                                             <td class="cAPI-table-desc">{{{description}}}</td>
                                           </tr>
                                           {{/each}}
                                        </table>
@@ -517,7 +525,7 @@
                                                 </h3>
                                                 {{#if description}}
                                                 <p>
-                                                   <span class="fw-right gray xs-icon"></span>{{description}}
+                                                   <span class="fw-right gray xs-icon"></span>{{{description}}}
                                                 </p>
                                                 {{/if}} {{#if parameters}}
                                                 <table>
@@ -532,7 +540,7 @@
                                                       <td class="cAPI-table-name">{{name}}</td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
                                                       <td class="cAPI-table-defult"></td>
-                                                      <td class="cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
@@ -550,7 +558,7 @@
                                                       <td class="cAPI-table-name"></td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
                                                       <td class="cAPI-table-defult"></td>
-                                                      <td class="cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
@@ -568,7 +576,7 @@
                                        </h2>
                                        {{#if description}}
                                        <p>
-                                          <span class="fw-right gray xs-icon"></span>{{description}}
+                                          <span class="fw-right gray xs-icon"></span>{{{description}}}
                                        </p>
                                        {{/if}} {{#if parameters}}
                                        <table>
@@ -583,7 +591,7 @@
                                              <td class="cAPI-table-name">{{name}}</td>
                                              <td class="cAPI-table-type">{{dataType}}</td>
                                              <td class="cAPI-table-defult"></td>
-                                             <td class="cAPI-table-desc">{{description}}</td>
+                                             <td class="cAPI-table-desc">{{{description}}}</td>
                                           </tr>
                                           {{/each}}
                                        </table>
@@ -601,7 +609,7 @@
                                                 </h3>
                                                 {{#if description}}
                                                 <p>
-                                                   <span class="fw-right gray xs-icon"></span>{{description}}
+                                                   <span class="fw-right gray xs-icon"></span>{{{description}}}
                                                 </p>
                                                 {{/if}} {{#if parameters}}
                                                 <table>
@@ -616,7 +624,7 @@
                                                       <td class="cAPI-table-name">{{name}}</td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
                                                       <td class="cAPI-table-defult"></td>
-                                                      <td class="cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
@@ -634,7 +642,7 @@
                                                       <td class="cAPI-table-name"></td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
                                                       <td class="cAPI-table-defult"></td>
-                                                      <td class="cAPI-table-desc">{{description}}</td>
+                                                      <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}
                                                 </table>
@@ -652,7 +660,7 @@
                                        </h2>
                                        {{#if description}}
                                        <p>
-                                          <span class="fw-right gray xs-icon"></span>{{description}}
+                                          <span class="fw-right gray xs-icon"></span>{{{description}}}
                                        </p>
                                        {{/if}} {{#if enumerators}}
                                        <p>
@@ -666,7 +674,7 @@
                                           {{#each enumerators}}
                                           <tr>
                                              <td class="cAPI-table-name">{{name}}</td>
-                                             <td class="cAPI-table-desc">{{description}}</td>
+                                             <td class="cAPI-table-desc">{{{description}}}</td>
                                           </tr>
                                           {{/each}}
                                        </table>
@@ -679,7 +687,7 @@
                                        </h2>
                                        {{#if description}}
                                        <p>
-                                          <span class="fw-right gray xs-icon"></span>{{description}}
+                                          <span class="fw-right gray xs-icon"></span>{{{description}}}
                                        </p>
                                        {{/if}} {{#if attributes}}
                                        <p>
@@ -695,7 +703,7 @@
                                           <tr>
                                              <td class="cAPI-table-name">{{name}}</td>
                                              <td class="cAPI-table-type">{{dataType}}</td>
-                                             <td class="cAPI-table-desc">{{description}}</td>
+                                             <td class="cAPI-table-desc">{{{description}}}</td>
                                           </tr>
                                           {{/each}}
                                        </table>
@@ -714,8 +722,8 @@
                                           </tr>
                                           <tr>
                                              <td class="cAPI-table-name">{{name}}</td>
-                                             <th class="cAPI-table-type">{{dataType}}</th>
-                                             <td class="cAPI-table-desc">{{description}}</td>
+                                             <td class="cAPI-table-type">{{dataType}}</td>
+                                             <td class="cAPI-table-desc">{{{description}}}</td>
                                           </tr>
                                        </table>
                                        {{/if}}

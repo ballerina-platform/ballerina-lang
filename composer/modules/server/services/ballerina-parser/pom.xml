@@ -49,7 +49,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>language-server-core</artifactId>
+            <artifactId>language-server-compiler</artifactId>
         </dependency>
     </dependencies>
 </project>
