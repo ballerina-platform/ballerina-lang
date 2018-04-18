@@ -13,41 +13,18 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.mysql;
 
-import ballerina/sql;
-
-documentation {
-    The Client endpoint configuration for mysql databases.
-
-    F{{host}} - The host name of the database to connect.
-    F{{port}} - The port of the database to connect.
-    F{{name}} - The name of the database to connect.
-    F{{username}} - Username for the database connection.
-    F{{password}} - Password for the database connection.
-    F{{poolOptions}} - Properties for the connection pool configuration.
-    F{{dbOptions}} - DB specific properties.
-}
-public type ClientEndpointConfiguration {
-    string host = "",
-    int port = 0,
-    string name = "",
-    string username = "",
-    string password = "",
-    sql:PoolOptions poolOptions,
-    map? dbOptions,
-};
+package ballerina.sql;
 
 documentation {
-    Represents an MySQL client endpoint.
+    Represents an SQL client endpoint.
 
     F{{config}} - The configurations associated with the SQL endpoint.
 }
-
 public type Client object {
     public {
         ClientEndpointConfiguration config;
-        sql:CallerActions mysqlClient;
+        CallerActions callerActions;
     }
 
     documentation {
@@ -56,15 +33,15 @@ public type Client object {
         P{{config}} - he ClientEndpointConfiguration of the endpoint.
     }
     public function init(ClientEndpointConfiguration config) {
-        self.mysqlClient = createClient(config);
+        self.callerActions = createSQLClient(config);
     }
 
     documentation {
         Returns the connector that the client code uses.
     }
-    public function getClient() returns sql:CallerActions {
-        return self.mysqlClient;
+    public function getClient() returns CallerActions {
+        return self.callerActions;
     }
 };
 
-native function createClient(ClientEndpointConfiguration config) returns sql:CallerActions;
+native function createSQLClient(ClientEndpointConfiguration config) returns CallerActions;
