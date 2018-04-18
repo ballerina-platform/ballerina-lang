@@ -1343,7 +1343,9 @@ public class CPU {
                     break;
                 }
 
-                sf.refRegs[k] = bMap.get(sf.stringRegs[j]);
+                IntegerCPEntry exceptCPEntry = (IntegerCPEntry) ctx.constPool[operands[3]];
+                boolean except = exceptCPEntry.getValue() == 1;
+                sf.refRegs[k] = bMap.get(sf.stringRegs[j], except);
                 break;
 
             case InstructionCodes.JSONLOAD:
@@ -1615,15 +1617,7 @@ public class CPU {
                 }
 
                 BMapType mapType = (BMapType) bMap.getType();
-                if (sf.refRegs[k] == null) {
-                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
-                } else if (mapType.getConstrainedType() == BTypes.typeAny ||
-                        mapType.getConstrainedType().equals(sf.refRegs[k].getType())) {
-                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
-                } else if (sf.refRegs[k].getType().getTag() == TypeTags.STRUCT_TAG
-                        && mapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG
-                        && checkStructEquivalency((BStructType) sf.refRegs[k].getType(),
-                        (BStructType) mapType.getConstrainedType())) {
+                if (isValidMapInsertion(mapType, sf.refRegs[k])) {
                     bMap.put(sf.stringRegs[j], sf.refRegs[k]);
                 } else {
                     ctx.setError(BLangVMErrors.createError(ctx,
@@ -3136,6 +3130,10 @@ public class CPU {
         if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
             return checkTupleCast(rhsValue, lhsType);
         } 
+        
+        if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return checkFiniteTypeAssignable(rhsValue, lhsType);
+        }
 
         return false;
     }
@@ -3390,12 +3388,11 @@ public class CPU {
         }
 
         if (jsonNode.isLong()) {
-            sf.longRegs[j] = jsonNode.longValue();
+            sf.refRegs[j] = new BInteger(jsonNode.longValue());
             return;
         }
 
-        sf.longRegs[j] = 0;
-//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.INT_TNAME);
+        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.INT_TNAME);
     }
 
     private static void castJSONToFloat(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
@@ -3420,12 +3417,11 @@ public class CPU {
         }
 
         if (jsonNode.isDouble()) {
-            sf.doubleRegs[j] = jsonNode.doubleValue();
+            sf.refRegs[j] = new BFloat(jsonNode.doubleValue());
             return;
         }
 
-        sf.doubleRegs[j] = 0;
-//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.FLOAT_TNAME);
+        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.FLOAT_TNAME);
     }
 
     private static void castJSONToString(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
@@ -3451,12 +3447,11 @@ public class CPU {
         }
 
         if (jsonNode.isString()) {
-            sf.stringRegs[j] = jsonNode.stringValue();
+            sf.refRegs[j] = new BString(jsonNode.stringValue());
             return;
         }
 
-        sf.stringRegs[j] = STRING_NULL_VALUE;
-//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
+        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
     }
 
     private static void castJSONToBoolean(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
@@ -3481,13 +3476,11 @@ public class CPU {
         }
 
         if (jsonNode.isBoolean()) {
-            sf.intRegs[j] = jsonNode.booleanValue() ? 1 : 0;
+            sf.refRegs[j] = new BBoolean(jsonNode.booleanValue());
             return;
         }
 
-        // Reset the value in the case of an error;
-        sf.intRegs[j] = 0;
-//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
+        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
     }
 
     private static boolean checkJSONEquivalency(JsonNode json, BJSONType sourceType, BJSONType targetType) {
@@ -3949,4 +3942,30 @@ public class CPU {
 
     }
 
+    private static boolean isValidMapInsertion(BMapType mapType, BValue value) {
+        if (value == null) {
+            return true;
+        }
+
+        BType constraintType = mapType.getConstrainedType();
+        if (constraintType == BTypes.typeAny || constraintType.equals(value.getType())) {
+            return true;
+        }
+       
+        if (value.getType().getTag() == TypeTags.STRUCT_TAG && constraintType.getTag() == TypeTags.STRUCT_TAG &&
+                checkStructEquivalency((BStructType) value.getType(), (BStructType) constraintType)) {
+            return true;
+        }
+
+        // TODO: check for subsets
+        if (constraintType.getTag() == TypeTags.UNION_TAG) {
+            BUnionType unionType = (BUnionType) constraintType;
+            if (unionType.getMemberTypes().contains(BTypes.typeAny)) {
+                return true;
+            }
+            return unionType.getMemberTypes().contains(value.getType());
+        }
+
+        return false;
+    }
 }

@@ -137,8 +137,7 @@ class TreeBuilder {
             }
             if (node.packageName.length === 2
                 && node.packageName[0].value === 'transactions' && node.packageName[1].value === 'coordinator') {
-
-                node.isInternal = true
+                node.isInternal = true;
             }
         }
 
@@ -165,7 +164,7 @@ class TreeBuilder {
         // Mark the first argument ad a service endpoint.
         if (node.kind === 'Resource' && node.parameters[0]) {
             const endpointParam = node.parameters[0];
-            const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value
+            const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value;
             endpointParam.serviceEndpoint = true;
             endpointParam.name.setValue(endpointParam.name.getValue().replace('$', ''));
             endpointParam.name.valueWithBar = valueWithBar.replace('$', '');
@@ -312,6 +311,13 @@ class TreeBuilder {
                         }
                     }
                 }
+            }
+        }
+
+        // Tag rest variable nodes
+        if (node.kind === 'Function' || node.kind === 'Resource') {
+            if (node.restParameters) {
+                node.restParameters.rest = true;
             }
         }
     }
