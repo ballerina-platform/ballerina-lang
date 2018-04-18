@@ -3388,12 +3388,11 @@ public class CPU {
         }
 
         if (jsonNode.isLong()) {
-            sf.longRegs[j] = jsonNode.longValue();
+            sf.refRegs[j] = new BInteger(jsonNode.longValue());
             return;
         }
 
-        sf.longRegs[j] = 0;
-//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.INT_TNAME);
+        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.INT_TNAME);
     }
 
     private static void castJSONToFloat(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
@@ -3418,12 +3417,11 @@ public class CPU {
         }
 
         if (jsonNode.isDouble()) {
-            sf.doubleRegs[j] = jsonNode.doubleValue();
+            sf.refRegs[j] = new BFloat(jsonNode.doubleValue());
             return;
         }
 
-        sf.doubleRegs[j] = 0;
-//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.FLOAT_TNAME);
+        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.FLOAT_TNAME);
     }
 
     private static void castJSONToString(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
@@ -3449,12 +3447,11 @@ public class CPU {
         }
 
         if (jsonNode.isString()) {
-            sf.stringRegs[j] = jsonNode.stringValue();
+            sf.refRegs[j] = new BString(jsonNode.stringValue());
             return;
         }
 
-        sf.stringRegs[j] = STRING_NULL_VALUE;
-//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
+        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
     }
 
     private static void castJSONToBoolean(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
@@ -3479,13 +3476,11 @@ public class CPU {
         }
 
         if (jsonNode.isBoolean()) {
-            sf.intRegs[j] = jsonNode.booleanValue() ? 1 : 0;
+            sf.refRegs[j] = new BBoolean(jsonNode.booleanValue());
             return;
         }
 
-        // Reset the value in the case of an error;
-        sf.intRegs[j] = 0;
-//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
+        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
     }
 
     private static boolean checkJSONEquivalency(JsonNode json, BJSONType sourceType, BJSONType targetType) {
