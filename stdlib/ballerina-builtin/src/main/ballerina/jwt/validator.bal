@@ -24,8 +24,10 @@ import ballerina/util;
 public type JWTValidatorConfig {
     string issuer,
     string audience,
-    string certificateAlias,
     int timeSkew,
+    string certificateAlias,
+    string trustStoreFilePath,
+    string trustStorePassword,
 };
 
 @Description {value:"Validity given JWT token"}
@@ -201,7 +203,11 @@ function validateMandatoryFields (Payload jwtPayload) returns (boolean) {
 function validateSignature (string[] encodedJWTComponents, Header jwtHeader, JWTValidatorConfig config) returns (boolean) {
     string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
     string signPart = encodedJWTComponents[2];
-    return verifySignature(assertion, signPart, jwtHeader.alg, config.certificateAlias);
+    TrustStore trustStore = {};
+    trustStore.certificateAlias = config.certificateAlias;
+    trustStore.trustStoreFilePath = config.trustStoreFilePath;
+    trustStore.trustStorePassword = config.trustStorePassword;
+    return verifySignature(assertion, signPart, jwtHeader.alg, trustStore);
 }
 
 function validateIssuer (Payload jwtPayload, JWTValidatorConfig config) returns (boolean) {

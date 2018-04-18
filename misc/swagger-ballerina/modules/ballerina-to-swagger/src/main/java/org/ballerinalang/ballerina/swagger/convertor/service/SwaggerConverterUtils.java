@@ -133,6 +133,7 @@ public class SwaggerConverterUtils {
     /**
      * This method will read the contents of ballerina service in {@code servicePath} and write output to
      * {@code outPath} in OAS3 format.
+     * @see #generateOAS3Definitions(String, String)
      *
      * @param servicePath path to ballerina service
      * @param outPath output path to write generated swagger file
@@ -152,6 +153,7 @@ public class SwaggerConverterUtils {
     /**
      * This method will read the contents of ballerina service in {@code servicePath} and write output to
      * {@code outPath} in Swagger (OAS2) format.
+     * @see #generateSwaggerDefinitions(String, String)
      *
      * @param servicePath path to ballerina service
      * @param outPath output path to write generated swagger file

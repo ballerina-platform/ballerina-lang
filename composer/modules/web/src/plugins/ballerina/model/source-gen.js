@@ -260,7 +260,12 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.constraint, pretty, l, replaceLambda) + w() + '>';
         case 'Documentation':
             return dent() + w() + 'documentation' + a(' ') + w() + '{' + indent()
-                 + w() + node.documentationText + outdent() + w() + '}';
+                 + w() + node.documentationText
+                 + join(node.attributes, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
+        case 'DocumentationAttribute':
+            return w() + node.paramType + w() + '{{' + w()
+                 + node.documentationField.valueWithBar + w() + '}}' + a(' ') + w()
+                 + node.documentationText;
         case 'Deprecated':
             return dent() + w() + 'deprecated' + a(' ') + w() + '{' + indent() + w()
                  + node.documentationText + outdent() + w() + '}';

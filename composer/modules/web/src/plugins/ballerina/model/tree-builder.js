@@ -184,7 +184,7 @@ class TreeBuilder {
 
         // Check if sorrounded by curlies
         if (node.kind === 'MatchPatternClause') {
-            if (node.ws && node.ws.length < 3) {
+            if (!node.ws) {
                 node.withoutCurlies = true;
             }
         }
@@ -266,6 +266,26 @@ class TreeBuilder {
 
                 if (node.expression.value === 'null') {
                     node.emptyBrackets = true;
+                }
+            }
+        }
+
+        if (node.kind === "Documentation") {
+            for(let j = 0; j < node.attributes.length; j++) {
+                let attribute = node.attributes[j];
+                if (attribute.ws) {
+                    let wsLength = attribute.ws.length;
+                    for (let i = 0; i < wsLength; i++) {
+                        let text = attribute.ws[i].text;
+                        if (text.includes('{{') && !attribute.paramType) {
+                            let lastIndex = text.indexOf('{{');
+                            let paramType = text.substr(0, lastIndex);
+                            let startCurl = text.substr(lastIndex, text.length);
+                            attribute.ws[i].text = paramType;
+                            attribute.paramType = paramType;
+                            attribute.ws.splice((++i), 0, {text: startCurl, ws: "", static: false});
+                        }
+                    }
                 }
             }
         }

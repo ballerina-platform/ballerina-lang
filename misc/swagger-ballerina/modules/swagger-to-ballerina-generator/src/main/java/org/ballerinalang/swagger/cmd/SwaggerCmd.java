@@ -98,6 +98,7 @@ public class SwaggerCmd implements BLauncherCmd {
                 break;
             case export:
                 exportFromBal();
+                msg.append("generated swagger definition");
                 break;
             default:
                 throw LauncherUtils.createUsageException(

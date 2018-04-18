@@ -631,6 +631,9 @@ a.item.menu-button.ui.button.primary {
 .brand-color{
   color: $brand-primary;
 }
+.brand .brand-color {
+    margin-left: 0.3em;
+}
 .aboutWrapper{
   margin: 0em 0em 1em;
   line-height: 1em;
