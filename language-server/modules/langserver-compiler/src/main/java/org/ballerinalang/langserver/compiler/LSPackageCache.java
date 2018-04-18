@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.Map;
 
