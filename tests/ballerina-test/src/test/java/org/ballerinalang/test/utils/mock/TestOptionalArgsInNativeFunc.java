@@ -20,14 +20,20 @@ package org.ballerinalang.test.utils.mock;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BTupleType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.util.Arrays;
 
 /**
  * Mocked native function.
@@ -47,6 +53,10 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 )
 public class TestOptionalArgsInNativeFunc extends BlockingNativeCallableUnit {
 
+    private static final BTupleType tupleType = new BTupleType(
+            Arrays.asList(BTypes.typeInt, BTypes.typeFloat, BTypes.typeString, BTypes.typeInt, BTypes.typeString,
+                    new BArrayType(BTypes.typeInt)));
+
     @Override
     public void execute(Context ctx) {
         long a;
@@ -56,6 +66,8 @@ public class TestOptionalArgsInNativeFunc extends BlockingNativeCallableUnit {
         String e;
         BIntArray z;
 
+        BRefValueArray tuple = new BRefValueArray(tupleType);
+
         try {
             a = ctx.getIntArgument(0);
             b = ctx.getFloatArgument(0);
@@ -63,11 +75,18 @@ public class TestOptionalArgsInNativeFunc extends BlockingNativeCallableUnit {
             d = ctx.getIntArgument(1);
             e = ctx.getStringArgument(1);
             z = (BIntArray) ctx.getRefArgument(0);
+
+            tuple.add(0, new BInteger(a));
+            tuple.add(1, new BFloat(b));
+            tuple.add(2, new BString(c));
+            tuple.add(3, new BInteger(d));
+            tuple.add(4, new BString(e));
+            tuple.add(5, z);
         } catch (Throwable t) {
             throw new BallerinaException("Mocked function failed: " + t.getMessage());
         }
         
         // Setting output value.
-        ctx.setReturnValues(new BInteger(a), new BFloat(b), new BString(c), new BInteger(d), new BString(e), z);
+        ctx.setReturnValues(tuple);
     }
 }

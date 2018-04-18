@@ -50,16 +50,15 @@ public class ObjectWithPrivateFieldsNegativeTest {
     public void testPrivateObjAccess1() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/object", "private-field1");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 7);
+        Assert.assertEquals(compileResult.getErrorCount(), 6);
         String expectedErrMsg = "attempt to refer to non-public symbol ";
 
-        BAssertUtil.validateError(compileResult, 0, "too many arguments in call to 'new()'", 4, 24);
-        BAssertUtil.validateError(compileResult, 1, expectedErrMsg + "'privatePerson'", 8, 9);
-        BAssertUtil.validateError(compileResult, 2, expectedErrMsg + "'privatePerson'", 8, 13);
-        BAssertUtil.validateError(compileResult, 3, expectedErrMsg + "'privatePerson'", 16, 9);
-        BAssertUtil.validateError(compileResult, 4, expectedErrMsg + "'privatePerson'", 16, 13);
-        BAssertUtil.validateError(compileResult, 5, expectedErrMsg + "'privatePerson'", 20, 5);
-        BAssertUtil.validateError(compileResult, 6, "unknown type 'privatePerson'", 20, 5);
+        BAssertUtil.validateError(compileResult, 0, expectedErrMsg + "'privatePerson'", 8, 9);
+        BAssertUtil.validateError(compileResult, 1, expectedErrMsg + "'privatePerson'", 8, 13);
+        BAssertUtil.validateError(compileResult, 2, expectedErrMsg + "'privatePerson'", 16, 9);
+        BAssertUtil.validateError(compileResult, 3, expectedErrMsg + "'privatePerson'", 16, 13);
+        BAssertUtil.validateError(compileResult, 4, expectedErrMsg + "'privatePerson'", 20, 5);
+        BAssertUtil.validateError(compileResult, 5, "unknown type 'privatePerson'", 20, 5);
     }
 
     @Test(description = "Test private object access in public functions")
