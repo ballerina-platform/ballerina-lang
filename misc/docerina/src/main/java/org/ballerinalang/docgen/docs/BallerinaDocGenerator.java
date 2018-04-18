@@ -23,11 +23,13 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.Writer;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
+import org.ballerinalang.docgen.model.Caption;
 import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.PackageDoc;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.StaticCaption;
+import org.ballerinalang.model.types.TypeKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -87,6 +89,7 @@ public class BallerinaDocGenerator {
     public static void generateApiDocs(String sourceRoot, String output, String packageFilter, boolean isNative,
                                        String... sources) {
         out.println("docerina: API documentation generation for sources - " + Arrays.toString(sources));
+        List<Link> primitives = primitives();
         for (String source : sources) {
             source = source.trim();
             try {
@@ -152,12 +155,13 @@ public class BallerinaDocGenerator {
 
                     String packagePath = refinePackagePath(bLangPackage);
 
-                    Page page = Generator.generatePage(bLangPackage, packageNameList, pkgDescription);
+                    Page page = Generator.generatePage(bLangPackage, packageNameList, pkgDescription, primitives);
                     String filePath = output + File.separator + packagePath + HTML;
                     Writer.writeHtmlDocument(page, packageTemplateName, filePath);
 
                     if ("builtin".equals(packagePath)) {
-                        Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packageNameList);
+                        Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packageNameList,
+                                primitives);
                         String primitivesFilePath = output + File.separator + "primitive-types" + HTML;
                         Writer.writeHtmlDocument(primitivesPage, packageTemplateName, primitivesFilePath);
                     }
@@ -320,6 +324,15 @@ public class BallerinaDocGenerator {
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
         return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(),
                 Names.BUILTIN_PACKAGE.getValue())));
+    }
+
+    private static List<Link> primitives() {
+        List<Link> primitives = new ArrayList<>();
+        for (TypeKind type : TypeKind.values()) {
+            primitives.add(new Link(new Caption(type.toString().toLowerCase()), BallerinaDocConstants
+                    .PRIMITIVE_TYPES_PAGE_HREF.concat("" + ".html#" + type.toString().toLowerCase()), true));
+        }
+        return primitives;
     }
 
     private static String refinePackagePath(BLangPackage bLangPackage) {

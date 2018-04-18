@@ -30,11 +30,9 @@ package org.ballerinalang.nativeimpl.jwt.crypto;
 public class RSASSAProvider {
 
     /**
-     * Gets the matching Java Cryptography Architecture (JCA) algorithm
-     * name for the specified RSA-based JSON Web Algorithm (JWA).
+     * Gets the matching JCA algorithm name for the specified RSA-based JSON Web Algorithm.
      *
-     * @param algorithm The JSON Web Algorithm (JWA). Must be supported and not
-     *                  {@code null}.
+     * @param algorithm The JSON Web Algorithm (JWA). Must not {@code null}.
      * @return The matching JCA algorithm name.
      * @throws JWSException If the algorithm is not supported.
      */

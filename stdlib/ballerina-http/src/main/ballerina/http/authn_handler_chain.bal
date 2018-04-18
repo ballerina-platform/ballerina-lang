@@ -59,7 +59,9 @@ public function AuthnHandlerChain::handleWithSpecificAuthnHandlers (string[] aut
                     return authnHandler.handle(req);
                 }
             }
-            () => {}
+            () => {
+                // nothing to do
+            }
         }
     }
     return false;

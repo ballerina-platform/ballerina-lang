@@ -2213,14 +2213,13 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(ifNode);
     }
 
-    public void createMatchNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void createMatchNode(DiagnosticPos pos) {
         if (this.matchStmtStack == null) {
             this.matchStmtStack = new ArrayDeque<>();
         }
 
         BLangMatch matchStmt = (BLangMatch) TreeBuilder.createMatchStatement();
         matchStmt.pos = pos;
-        matchStmt.addWS(ws);
         matchStmt.patternClauses = new ArrayList<>();
 
         this.matchStmtStack.addFirst(matchStmt);
