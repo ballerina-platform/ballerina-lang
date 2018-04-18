@@ -15,10 +15,12 @@
  */
 package org.ballerinalang.langserver.workspace.repository;
 
+import org.ballerinalang.repository.CompiledPackage;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -64,8 +66,7 @@ public class NullSourceDirectory implements SourceDirectory {
     }
 
     @Override
-    public void saveCompiledPackage(InputStream source, String fileName) {
-
+    public void saveCompiledPackage(CompiledPackage compiledPackage, Path dirPath, String fileName) throws IOException {
     }
 
     @Override

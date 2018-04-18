@@ -380,8 +380,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         pkgNode.imports.forEach(impPkgNode -> {
-            int impPkgNameCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.name.value);
-            int impPkgVersionCPIndex = addUTF8CPEntry(this.currentPkgInfo, PackageID.DEFAULT.version.value);
+            int impPkgNameCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.bvmAlias());
+            int impPkgVersionCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.version.value);
             ImportPackageInfo importPkgInfo = new ImportPackageInfo(impPkgNameCPIndex, impPkgVersionCPIndex);
             this.currentPkgInfo.importPkgInfoSet.add(importPkgInfo);
         });

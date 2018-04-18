@@ -99,6 +99,7 @@ public class PackageLoader {
     private final SourceDirectory sourceDirectory;
     private final PackageCache packageCache;
     private final SymbolEnter symbolEnter;
+    private final CompiledPackageSymbolEnter compiledPkgSymbolEnter;
     private final Names names;
     private final BLangDiagnosticLog dlog;
     private static final boolean shouldReadBalo = Boolean.parseBoolean(System.getenv("BALLERINA_READ_BALO"));
@@ -124,6 +125,7 @@ public class PackageLoader {
         this.parser = Parser.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
+        this.compiledPkgSymbolEnter = CompiledPackageSymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
@@ -357,8 +359,13 @@ public class PackageLoader {
     }
 
     private BPackageSymbol loadCompiledPackageAndDefine(PackageID pkgId, PackageBinary pkgBinary) {
-        // TODO
-        return null;
+        byte[] pkgBinaryContent = pkgBinary.getCompilerInput().getCode();
+
+        BPackageSymbol pkgSymbol = this.compiledPkgSymbolEnter.definePackage(
+                pkgId, null, pkgBinaryContent);
+        this.packageCache.putSymbol(pkgId, pkgSymbol);
+        // TODO create CompiledPackage
+        return pkgSymbol;
     }
 
     private CompiledPackage createInMemoryCompiledPackage(BLangPackage pkgNode) {

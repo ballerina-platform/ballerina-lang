@@ -115,10 +115,15 @@ public class CompiledPackageSymbolEnter {
 
     public BPackageSymbol definePackage(PackageID packageId,
                                         PackageRepository packageRepository,
+                                        byte[] packageBinaryContent) {
+        return definePackage(packageId, packageRepository, new ByteArrayInputStream(packageBinaryContent));
+    }
+
+    public BPackageSymbol definePackage(PackageID packageId,
+                                        PackageRepository packageRepository,
                                         InputStream programFileInStream) {
         // TODO packageID --> package to be loaded. this is required for error reporting..
-        DataInputStream dataInStream = new DataInputStream(programFileInStream);
-        try {
+        try (DataInputStream dataInStream = new DataInputStream(programFileInStream)) {
             CompiledPackageSymbolEnv prevEnv = this.env;
             this.env = new CompiledPackageSymbolEnv();
             this.env.requestedPackageId = packageId;
@@ -128,8 +133,12 @@ public class CompiledPackageSymbolEnter {
             return pkgSymbol;
         } catch (IOException e) {
             // TODO dlog.error();
-//            throw new BLangCompilerException(e.getMessage(), e);
-            return null;
+            throw new BLangCompilerException("io error: " + e.getMessage(), e);
+//            return null;
+        } catch (Throwable e) {
+            // TODO format error
+            throw new BLangCompilerException("format error: " + e.getMessage(), e);
+//            return null;
         }
     }
 
@@ -172,8 +181,14 @@ public class CompiledPackageSymbolEnter {
         defineSymbols(dataInStream, rethrow(this::defineObject));
 
         // define type defs
+        defineSymbols(dataInStream, rethrow(this::defineTypeDef));
 
         // define services
+        defineSymbols(dataInStream, rethrow(this::defineService));
+
+        // Define package level variables
+        defineSymbols(dataInStream, rethrow(this::definePackageLevelVariables));
+
 
         // Resolve unresolved types..
 
@@ -183,8 +198,10 @@ public class CompiledPackageSymbolEnter {
 
         // Define functions
         defineSymbols(dataInStream, rethrow(this::defineFunction));
+        assignInitFunctions();
 
         // Read package level attributes
+        readAttributes(dataInStream);
 
         // Read instructions array
 
@@ -327,7 +344,7 @@ public class CompiledPackageSymbolEnter {
         int noOfWorkerDataBytes = dataInStream.readInt();
         byte[] workerData = new byte[noOfWorkerDataBytes];
         int bytesRead = dataInStream.read(workerData);
-        if (bytesRead == noOfWorkerDataBytes) {
+        if (bytesRead != noOfWorkerDataBytes) {
             // TODO throw an error
         }
 
@@ -340,6 +357,21 @@ public class CompiledPackageSymbolEnter {
         invokableSymbol.type = createInvokableType(funcSig);
         this.env.pkgSymbol.scope.define(invokableSymbol.name, invokableSymbol);
     }
+
+    private void defineTypeDef(DataInputStream dataInStream) throws IOException {
+    }
+
+    private void defineService(DataInputStream dataInStream) throws IOException {
+    }
+
+    private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {
+        String name = getUTF8CPEntryValue(dataInStream);
+        String typeSig = getUTF8CPEntryValue(dataInStream);
+        int memIndex = dataInStream.readInt();
+
+        readAttributes(dataInStream);
+    }
+
 
     private Map<AttributeInfo.Kind, byte[]> readAttributes(DataInputStream dataInStream) throws IOException {
         int attributesCount = dataInStream.readShort();
@@ -399,7 +431,7 @@ public class CompiledPackageSymbolEnter {
     private PackageID createPackageID(String pkgName, String pkgVersion) {
         String[] parts = pkgName.split("\\.");
         if (parts.length < 2) {
-            throw new BLangCompilerException("Invalid package name in compiled package file");
+            throw new BLangCompilerException("Invalid package name '" + pkgName + "' in compiled package file");
         }
 
         StringJoiner joiner = new StringJoiner(Names.DOT.value);
@@ -416,7 +448,8 @@ public class CompiledPackageSymbolEnter {
         String retParamSig = sig.substring(indexOfSep + 2, sig.length() - 1);
         BType[] paramTypes = getParamTypes(paramSig);
         BType[] retParamTypes = getParamTypes(retParamSig);
-        return new BInvokableType(Arrays.asList(paramTypes), retParamTypes[0], null);
+        BType retType = retParamTypes.length != 0 ? retParamTypes[0] : this.symTable.nilType;
+        return new BInvokableType(Arrays.asList(paramTypes), retType, null);
     }
 
     private BType[] getParamTypes(String signature) {
@@ -659,6 +692,8 @@ public class CompiledPackageSymbolEnter {
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & expSymTag) != expSymTag) {
                 entry = entry.next;
+            } else {
+                return entry.symbol;
             }
         }
 
@@ -681,6 +716,22 @@ public class CompiledPackageSymbolEnter {
         }
 
         return typeSymbol.type;
+    }
+
+    private void assignInitFunctions() {
+        BPackageSymbol pkgSymbol = this.env.pkgSymbol;
+        PackageID pkgId = pkgSymbol.pkgID;
+        Name initFuncName = names.merge(names.fromString(pkgId.bvmAlias()), Names.INIT_FUNCTION_SUFFIX);
+        BSymbol initFuncSymbol = lookupMemberSymbol(pkgSymbol.scope, initFuncName, SymTag.FUNCTION);
+        pkgSymbol.initFunctionSymbol = (BInvokableSymbol) initFuncSymbol;
+
+        Name startFuncName = names.merge(names.fromString(pkgId.bvmAlias()), Names.START_FUNCTION_SUFFIX);
+        BSymbol startFuncSymbol = lookupMemberSymbol(pkgSymbol.scope, startFuncName, SymTag.FUNCTION);
+        pkgSymbol.startFunctionSymbol = (BInvokableSymbol) startFuncSymbol;
+
+        Name stopFuncName = names.merge(names.fromString(pkgId.bvmAlias()), Names.STOP_FUNCTION_SUFFIX);
+        BSymbol stopFuncSymbol = lookupMemberSymbol(pkgSymbol.scope, stopFuncName, SymTag.FUNCTION);
+        pkgSymbol.stopFunctionSymbol = (BInvokableSymbol) stopFuncSymbol;
     }
 
     /**

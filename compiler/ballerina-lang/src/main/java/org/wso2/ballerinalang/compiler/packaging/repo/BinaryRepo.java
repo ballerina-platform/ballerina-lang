@@ -28,7 +28,7 @@ public class BinaryRepo implements Repo<Path> {
         String version = pkg.getPackageVersion().getValue();
         String artifactName = pkgName + ".zip";
         String binaryFileName = pkgName + ".balo";
-        return new Patten(path("repo", orgName, pkgName, version, artifactName, "bin", binaryFileName));
+        return new Patten(path("repo", orgName, pkgName, version, artifactName, "obj", binaryFileName));
     }
 
     @Override
