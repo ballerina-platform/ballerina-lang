@@ -158,9 +158,6 @@ public class PackageInfoWriter {
             writeResourceInfo(dataOutStream, serviceInfo);
         }
 
-        // Emit constant info entries
-        writeGlobalVarInfoEntries(dataOutStream, packageInfo.getConstantInfoEntries());
-
         // Emit global variable info entries
         writeGlobalVarInfoEntries(dataOutStream, packageInfo.getPackageInfoEntries());
 
@@ -168,12 +165,6 @@ public class PackageInfoWriter {
         dataOutStream.writeShort(packageInfo.functionInfoMap.size());
         for (FunctionInfo functionInfo : packageInfo.functionInfoMap.values()) {
             writeCallableUnitInfo(dataOutStream, functionInfo);
-        }
-
-        // Emit transformer info entries
-        dataOutStream.writeShort(packageInfo.transformerInfoMap.size());
-        for (TransformerInfo transformerInfo : packageInfo.transformerInfoMap.values()) {
-            writeCallableUnitInfo(dataOutStream, transformerInfo);
         }
 
         // Emit Package level attributes

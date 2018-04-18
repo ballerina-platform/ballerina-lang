@@ -382,17 +382,12 @@ public class ProgramFileReader {
         // Read resource info entries.
         readResourceInfoEntries(dataInStream, packageInfo);
 
-        // Read constant info entries
-        readConstantInfoEntries(dataInStream, packageInfo);
 
         // Read global var info entries
         readGlobalVarInfoEntries(dataInStream, packageInfo);
 
         // Read function info entries in the package
         readFunctionInfoEntries(dataInStream, packageInfo);
-
-        // Read transformer info entries in the package
-        readTransformerInfoEntries(dataInStream, packageInfo);
 
         // TODO Read annotation info entries
 
