@@ -1700,7 +1700,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             if (argExpr == null) {
                 DefaultValue defaultVal = defaultValAttrInfo.getDefaultValueInfo()[i];
                 BLangExpression defaultValExpr = getDefaultValExpr(defaultVal);
-                BType namedArgType = callableUnitInfo.paramTypes[iExpr.requiredArgs.size() + i];
+                int paramPosition = iExpr.requiredArgs.size() + i +
+                        (((BInvokableSymbol) iExpr.symbol).receiverSymbol != null ? 1 : 0);
+                BType namedArgType = callableUnitInfo.paramTypes[paramPosition];
                 argExpr = createTypeConversionExpr(defaultValExpr, namedArgType);
             }
             operands[currentIndex++] = genNode(argExpr, this.env).regIndex;
