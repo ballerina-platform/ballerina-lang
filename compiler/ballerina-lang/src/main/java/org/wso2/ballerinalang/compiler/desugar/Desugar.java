@@ -2790,6 +2790,7 @@ public class Desugar extends BLangNodeVisitor {
         accessExpr.childType = originalAccessExpr.childType;
         accessExpr.pos = originalAccessExpr.pos;
         accessExpr.lhsVar = originalAccessExpr.lhsVar;
+        accessExpr.symbol = originalAccessExpr.symbol;
         accessExpr.safeNavigate = false;
 
         // Type of the field access expression should be always taken from the child type.
