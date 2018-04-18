@@ -109,6 +109,13 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         workerReplyItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(workerReplyItem);
         
+        // Populate Match statement template
+        CompletionItem matchItem = new CompletionItem();
+        matchItem.setLabel(ItemResolverConstants.MATCH);
+        matchItem.setInsertText(Snippet.MATCH.toString());
+        matchItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        completionItems.add(matchItem);
+        
         if (completionContext.get(CompletionKeys.LOOP_COUNT_KEY) > 0
                 && !completionContext.get(CompletionKeys.CURRENT_NODE_TRANSACTION_KEY)) {
             /*
