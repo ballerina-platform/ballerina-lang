@@ -391,7 +391,7 @@ public class FunctionSignatureTest {
         Assert.assertEquals(returns[5].stringValue(), "[]");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testOptionalArgsInNativeFunc() {
         NativeElementRepository repo = NativeUnitLoader.getInstance().getNativeElementRepository();
         StandardNativeElementProvider provider = new StandardNativeElementProvider();
