@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -86,7 +87,7 @@ public class Compiler {
         return packageNode;
     }
 
-    public void build() {
+    public List<BLangPackage> listAllPackages() {
         // TODO This is hack to load the builtin package. We will fix this with BALO support
         this.compilerDriver.loadBuiltinPackage();
 
@@ -94,17 +95,20 @@ public class Compiler {
         // 2) Define all package level symbols for all the packages including imported packages in the AST
         // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
         List<BLangPackage> packages = this.sourceDirectoryManager.listSourceFilesAndPackages()
-                .map(this.pkgLoader::loadEntryPackage)
-                .map(this.compilerDriver::compilePackage)
-                .collect(Collectors.toList());
+                                                                 .map(this.pkgLoader::loadEntryPackage)
+                                                                 .map(this.compilerDriver::compilePackage)
+                                                                 .collect(Collectors.toList());
 
         if (dlog.errorCount > 0) {
             // Check for compilation errors if there are any compilation errors don't write BALOs or BALXs
-            return;
+            return Collections.emptyList();
         }
+        return packages;
+    }
 
+    public void build() {
         // TODO Reuse binary content in PackageFile when writing the program file..
-        packages.forEach(this.binaryFileWriter::write);
+        listAllPackages().forEach(this.binaryFileWriter::write);
     }
 
     public void build(String sourcePackage, String targetFileName) {
@@ -117,8 +121,17 @@ public class Compiler {
         this.binaryFileWriter.write(bLangPackage, targetFileName);
     }
 
-    public void listDependencies() {
-        //packages.forEach(this.dependencyTree::listDependencyPackages);
+    public void list() {
+        listAllPackages().forEach(this.dependencyTree::listDependencyPackages);
+    }
+
+    public void list(String sourcePackage) {
+        BLangPackage bLangPackage = compile(sourcePackage);
+        if (this.dlog.errorCount > 0) {
+            return;
+        }
+
+        this.dependencyTree.listDependencyPackages(bLangPackage);
     }
 
     public ProgramFile getExecutableProgram(BLangPackage entryPackageNode) {
