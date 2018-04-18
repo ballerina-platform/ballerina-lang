@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Keeps list of n Repos in lookup order.p
+ * Keeps list of n Repos in lookup order.
  * Also has a list of (n-1) child RepoHierarchy objects.
  * <p>
  * (n-1) because, each Repo is matched with one child RepoHierarchy,
@@ -21,7 +21,7 @@ public class RepoHierarchy {
 
     private final Repo[] repos;
     private final RepoHierarchy[] dags;
-    private static final boolean verbose = true;
+    private static final boolean verbose = false;
     private static final PrintStream out = System.out;
 
     RepoHierarchy(Repo[] repos, RepoHierarchy[] dags) {
