@@ -3032,14 +3032,15 @@ public class BLangPackageBuilder {
         streamActionNode.addWS(ws);
         this.streamActionNodeStack.push(streamActionNode);
         this.startLambdaFunctionDef(packageID);
+        this.startBlock();
     }
 
     public void endStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        endCallableUnitBody(ws);
         StreamActionNode streamActionNode = this.streamActionNodeStack.peek();
         ((BLangStreamAction) streamActionNode).pos = pos;
         streamActionNode.addWS(ws);
         this.addLambdaFunctionDef(pos, ws, true, false, false);
-        // we dont pop the exprNodeStack.It will be popped in a later stage after creating streamActionNode
         streamActionNode.setInvokableBody((BLangLambdaFunction) this.exprNodeStack.pop());
     }
 
