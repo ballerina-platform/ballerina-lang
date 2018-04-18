@@ -62,9 +62,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 
 /**
  * Generates the Page objects for bal packages.
@@ -162,8 +165,14 @@ public class Generator {
      * @param packages   List of available packages.
      * @return A page model for the primitive types.
      */
-    public static Page generatePageForPrimitives(BLangPackage balPackage, List<Link> packages) {
+    public static Page generatePageForPrimitives(BLangPackage balPackage, List<Link> packages, List<Link> primitives) {
         ArrayList<Documentable> primitiveTypes = new ArrayList<>();
+        Properties descriptions = loadPrimitivesDescriptions();
+
+        for (Link primitiveType : primitives) {
+            String type = primitiveType.caption.value;
+            primitiveTypes.add(new PrimitiveTypeDoc(type, descriptions.getProperty(type), new ArrayList<>()));
+        }
 
         // Check for functions in the package
         if (balPackage.getFunctions().size() > 0) {
@@ -180,7 +189,8 @@ public class Generator {
                         if (existingPrimitiveType.isPresent()) {
                             primitiveTypeDoc = existingPrimitiveType.get();
                         } else {
-                            primitiveTypeDoc = new PrimitiveTypeDoc(langType.toString(), new ArrayList<>());
+                            primitiveTypeDoc = new PrimitiveTypeDoc(langType.toString(), descriptions.getProperty
+                                    (langType.toString()), new ArrayList<>());
                             primitiveTypes.add(primitiveTypeDoc);
                         }
 
@@ -673,7 +683,32 @@ public class Generator {
         return "";
     }
 
-    /**
+    private static Properties loadPrimitivesDescriptions() {
+        Properties prop = new Properties();
+        InputStream input = null;
+
+        try {
+            String filename = "primitives-descriptions.properties";
+            input = Generator.class.getResourceAsStream(filename);
+            if (input == null) {
+                return prop;
+            }
+            prop.load(input);
+        } catch (IOException e) {
+            //TODO
+            return prop;
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+        return prop;
+    }
+
+        /**
      * Get the anonymous struct string.
      *
      * @param type struct type.

@@ -160,7 +160,8 @@ public class BallerinaDocGenerator {
                     Writer.writeHtmlDocument(page, packageTemplateName, filePath);
 
                     if ("builtin".equals(packagePath)) {
-                        Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packageNameList);
+                        Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packageNameList,
+                                primitives);
                         String primitivesFilePath = output + File.separator + "primitive-types" + HTML;
                         Writer.writeHtmlDocument(primitivesPage, packageTemplateName, primitivesFilePath);
                     }
@@ -328,8 +329,8 @@ public class BallerinaDocGenerator {
     private static List<Link> primitives() {
         List<Link> primitives = new ArrayList<>();
         for (TypeKind type : TypeKind.values()) {
-            primitives.add(new Link(new Caption(type.typeName()), BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF
-                    .concat("" + ".html#" + type.typeName()), true));
+            primitives.add(new Link(new Caption(type.toString().toLowerCase()), BallerinaDocConstants
+                    .PRIMITIVE_TYPES_PAGE_HREF.concat("" + ".html#" + type.toString().toLowerCase()), true));
         }
         return primitives;
     }
