@@ -1,3 +1,5 @@
+# Package overview
+
 `ballerina/time` package contains implementations related to time, date and durations. 
 
 It has 2 main Types, `Time` and `Timezone`. The type `Time` represents a particular time with its associated timezone and has `time` and `zone` attributes. 
@@ -10,6 +12,7 @@ The type `Timezone` represents the timezone information associated with a partic
 `zoneId` - Short ID of the zone (eg. "America/Panama") or offset string (eg. "-05:00")<br/> 
 `zoneOffset` - The offset in seconds
 
+# Samples
 
 ## Get current time/date
 
