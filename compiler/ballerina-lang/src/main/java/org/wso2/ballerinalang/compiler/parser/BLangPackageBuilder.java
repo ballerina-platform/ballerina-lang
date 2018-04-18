@@ -173,7 +173,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -183,6 +182,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -2143,11 +2143,11 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(doneNode);
     }
 
-    public void addFailStatement(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangFail failNode = (BLangFail) TreeBuilder.createFailNode();
-        failNode.pos = pos;
-        failNode.addWS(ws);
-        addStmtToCurrentBlock(failNode);
+    public void addRetryStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangRetry retryNode = (BLangRetry) TreeBuilder.createRetryNode();
+        retryNode.pos = pos;
+        retryNode.addWS(ws);
+        addStmtToCurrentBlock(retryNode);
     }
 
     public void addRetryCountExpression() {

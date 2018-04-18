@@ -100,7 +100,7 @@ public enum NodeKind {
     /* Statements */
     ABORT,
     DONE,
-    FAIL,
+    RETRY,
     ASSIGNMENT,
     COMPOUND_ASSIGNMENT,
     POST_INCREMENT,

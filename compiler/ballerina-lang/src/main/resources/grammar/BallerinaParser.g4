@@ -288,7 +288,7 @@ statement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
-    |   failStatement
+    |   retryStatement
     |   lockStatement
     |   namespaceDeclarationStatement
     |   foreverStatement
@@ -549,8 +549,8 @@ abortStatement
     :   ABORT SEMICOLON
     ;
 
-failStatement
-    :   FAIL SEMICOLON
+retryStatement
+    :   RETRY SEMICOLON
     ;
 
 retriesStatement

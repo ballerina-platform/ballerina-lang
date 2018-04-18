@@ -1,4 +1,4 @@
-// Generated from BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from /home/anupama/Anupama/Workspace/WSO2_SRC/BallerinaLang/Release_Work/FinalRelease/TransactionOptions/ballerina/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -1274,15 +1274,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitAbortStatement(BallerinaParser.AbortStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#failStatement}.
+	 * Enter a parse tree produced by {@link BallerinaParser#retryStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterFailStatement(BallerinaParser.FailStatementContext ctx);
+	void enterRetryStatement(BallerinaParser.RetryStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#failStatement}.
+	 * Exit a parse tree produced by {@link BallerinaParser#retryStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitFailStatement(BallerinaParser.FailStatementContext ctx);
+	void exitRetryStatement(BallerinaParser.RetryStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#retriesStatement}.
 	 * @param ctx the parse tree

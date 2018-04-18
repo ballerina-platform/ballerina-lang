@@ -18,9 +18,9 @@
 package org.ballerinalang.model.tree.statements;
 
 /**
- * {@code FailNode} represents a fail statement within a transaction in Ballerina.
+ * {@code RetryNode} represents a retry statement within a transaction in Ballerina.
  *
  * @since 0.965.0
  */
-public interface FailNode extends StatementNode {
+public interface RetryNode extends StatementNode {
 }
