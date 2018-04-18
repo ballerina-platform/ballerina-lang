@@ -24,8 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.ballerina.swagger.convertor.Constants;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BFile;
-import org.ballerinalang.langserver.common.modal.BallerinaFile;
-import org.ballerinalang.langserver.common.utils.LSParserUtils;
+import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -61,7 +61,7 @@ public class SwaggerConverterUtils {
         balFile.setContent(ballerinaSource);
         //Create empty swagger object.
         Swagger swaggerDefinition = new Swagger();
-        BallerinaFile ballerinaFile = LSParserUtils.compile(balFile.getContent(), CompilerPhase.DEFINE);
+        BallerinaFile ballerinaFile = LSCompiler.compileContent(balFile.getContent(), CompilerPhase.DEFINE);
         BLangCompilationUnit topCompilationUnit  = ballerinaFile.getBLangPackage().getCompilationUnits().get(0);
         String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
         String swaggerAlias = getAlias(topCompilationUnit, Constants.SWAGGER_PACKAGE_NAME);
@@ -103,7 +103,7 @@ public class SwaggerConverterUtils {
         balFile.setContent(ballerinaSource);
         //Create empty swagger object.
         Swagger swaggerDefinition = new Swagger();
-        BallerinaFile ballerinaFile = LSParserUtils.compile(balFile.getContent(), CompilerPhase.DEFINE);
+        BallerinaFile ballerinaFile = LSCompiler.compileContent(balFile.getContent(), CompilerPhase.DEFINE);
         BLangCompilationUnit topCompilationUnit  = ballerinaFile.getBLangPackage().getCompilationUnits().get(0);
         String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
         String swaggerAlias = getAlias(topCompilationUnit, Constants.SWAGGER_PACKAGE_NAME);

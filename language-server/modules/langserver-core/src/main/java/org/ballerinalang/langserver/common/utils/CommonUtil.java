@@ -15,44 +15,24 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
-import com.google.common.base.CaseFormat;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.langserver.CollectDiagnosticListener;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.LSServiceOperationContext;
-import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.format.TextDocumentFormatUtil;
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.workspace.repository.NullSourceDirectory;
-import org.ballerinalang.model.Whitespace;
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
@@ -70,19 +50,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -93,25 +65,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * Common utils to be reuse in language server implementation.
  */
 public class CommonUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(TextDocumentFormatUtil.class);
-
-    private static final String SYMBOL_TYPE = "symbolType";
-
-    private static final String INVOCATION_TYPE = "invocationType";
-
-    private static final String UNESCAPED_VALUE = "unescapedValue";
+    private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
     private static final String OPEN_BRACKET_KEY_WORD = "(";
 
@@ -264,206 +224,6 @@ public class CommonUtil {
     }
 
     /**
-     * Generate json representation for the given node.
-     *
-     * @param node        Node to get the json representation
-     * @param anonStructs Map of anonymous structs
-     * @return {@link JsonElement}          Json Representation of the node
-     */
-    public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs) {
-        if (node == null) {
-            return JsonNull.INSTANCE;
-        }
-        Set<Method> methods = ClassUtils.getAllInterfaces(node.getClass()).stream()
-                .flatMap(aClass -> Arrays.stream(aClass.getMethods()))
-                .collect(Collectors.toSet());
-        JsonObject nodeJson = new JsonObject();
-
-        JsonArray wsJsonArray = new JsonArray();
-        Set<Whitespace> ws = node.getWS();
-        if (ws != null && !ws.isEmpty()) {
-            for (Whitespace whitespace : ws) {
-                JsonObject wsJson = new JsonObject();
-                wsJson.addProperty("ws", whitespace.getWs());
-                wsJson.addProperty("i", whitespace.getIndex());
-                wsJson.addProperty("text", whitespace.getPrevious());
-                wsJson.addProperty("static", whitespace.isStatic());
-                wsJsonArray.add(wsJson);
-            }
-            nodeJson.add("ws", wsJsonArray);
-        }
-        org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition position = node.getPosition();
-        if (position != null) {
-            JsonObject positionJson = new JsonObject();
-            positionJson.addProperty("startColumn", position.getStartColumn());
-            positionJson.addProperty("startLine", position.getStartLine());
-            positionJson.addProperty("endColumn", position.getEndColumn());
-            positionJson.addProperty("endLine", position.getEndLine());
-            nodeJson.add("position", positionJson);
-        }
-
-        JsonArray type = getType(node);
-        if (type != null) {
-            nodeJson.add(SYMBOL_TYPE, type);
-        }
-        if (node.getKind() == NodeKind.INVOCATION) {
-            assert node instanceof BLangInvocation : node.getClass();
-            BLangInvocation invocation = (BLangInvocation) node;
-            if (invocation.symbol != null && invocation.symbol.kind != null) {
-                nodeJson.addProperty(INVOCATION_TYPE, invocation.symbol.kind.toString());
-            }
-        }
-
-        for (Method m : methods) {
-            String name = m.getName();
-
-            if (name.equals("getWS") || name.equals("getPosition")) {
-                continue;
-            }
-
-            String jsonName;
-            if (name.startsWith("get")) {
-                jsonName = toJsonName(name, 3);
-            } else if (name.startsWith("is")) {
-                jsonName = toJsonName(name, 2);
-            } else {
-                continue;
-            }
-
-            Object prop = null;
-            try {
-                prop = m.invoke(node);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                logger.error("Error while serializing source to JSON: [" + e.getMessage() + "]");
-            }
-
-            /* Literal class - This class is escaped in backend to address cases like "ss\"" and 8.0 and null */
-            if (node.getKind() == NodeKind.LITERAL && "value".equals(jsonName)) {
-                if (prop instanceof String) {
-                    nodeJson.addProperty(jsonName, '"' + StringEscapeUtils.escapeJava((String) prop) + '"');
-                    nodeJson.addProperty(UNESCAPED_VALUE, String.valueOf(prop));
-                } else {
-                    nodeJson.addProperty(jsonName, String.valueOf(prop));
-                }
-                continue;
-            }
-
-            if (node.getKind() == NodeKind.USER_DEFINED_TYPE && jsonName.equals("typeName")) {
-                IdentifierNode typeNode = (IdentifierNode) prop;
-                Node structNode;
-                if (typeNode.getValue().startsWith("$anonStruct$") &&
-                        (structNode = anonStructs.remove(typeNode.getValue())) != null) {
-                    JsonObject anonStruct = generateJSON(structNode, anonStructs).getAsJsonObject();
-                    anonStruct.addProperty("anonStruct", true);
-                    nodeJson.add("anonStruct", anonStruct);
-                    continue;
-                }
-            }
-
-            if (prop instanceof List && jsonName.equals("types")) {
-                // Currently we don't need any Symbols for the UI. So skipping for now.
-                continue;
-            }
-
-            /* Node classes */
-            if (prop instanceof Node) {
-                nodeJson.add(jsonName, generateJSON((Node) prop, anonStructs));
-            } else if (prop instanceof List) {
-                List listProp = (List) prop;
-                JsonArray listPropJson = new JsonArray();
-                nodeJson.add(jsonName, listPropJson);
-                for (Object listPropItem : listProp) {
-                    if (listPropItem instanceof Node) {
-                        /* Remove top level anon func and struct */
-                        if (node.getKind() == NodeKind.COMPILATION_UNIT) {
-                            if (listPropItem instanceof BLangStruct && ((BLangStruct) listPropItem).isAnonymous) {
-                                anonStructs.put(((BLangStruct) listPropItem).getName().getValue(),
-                                        ((BLangStruct) listPropItem));
-                                continue;
-                            }
-                            if (listPropItem instanceof BLangFunction
-                                    && (((BLangFunction) listPropItem)).name.value.startsWith("$lambda$")) {
-                                continue;
-                            }
-                        }
-                        listPropJson.add(generateJSON((Node) listPropItem, anonStructs));
-                    } else {
-                        logger.debug("Can't serialize " + jsonName + ", has a an array of " + listPropItem);
-                    }
-                }
-                /* Runtime model classes */
-            } else if (prop instanceof Set && jsonName.equals("flags")) {
-                Set flags = (Set) prop;
-                for (Flag flag : Flag.values()) {
-                    nodeJson.addProperty(StringUtils.lowerCase(flag.toString()), flags.contains(flag));
-                }
-            } else if (prop instanceof Set) {
-                // TODO : limit this else if to getInputs getOutputs of transform.
-                Set vars = (Set) prop;
-                JsonArray listVarJson = new JsonArray();
-                nodeJson.add(jsonName, listVarJson);
-                for (Object obj : vars) {
-                    listVarJson.add(obj.toString());
-                }
-            } else if (prop instanceof NodeKind) {
-                String kindName = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, prop.toString());
-                nodeJson.addProperty(jsonName, kindName);
-            } else if (prop instanceof OperatorKind) {
-                nodeJson.addProperty(jsonName, prop.toString());
-                /* Generic classes */
-            } else if (prop instanceof String) {
-                nodeJson.addProperty(jsonName, (String) prop);
-            } else if (prop instanceof Number) {
-                nodeJson.addProperty(jsonName, (Number) prop);
-            } else if (prop instanceof Boolean) {
-                nodeJson.addProperty(jsonName, (Boolean) prop);
-            } else if (prop instanceof Enum) {
-                nodeJson.addProperty(jsonName, StringUtils.lowerCase(((Enum) prop).name()));
-            } else if (prop != null) {
-                nodeJson.addProperty(jsonName, prop.toString());
-                String message = "Node " + node.getClass().getSimpleName() +
-                        " contains unknown type prop: " + jsonName + " of type " + prop.getClass();
-                logger.error(message);
-            }
-        }
-        return nodeJson;
-    }
-
-    /**
-     * Convert given name to the Json object name.
-     *
-     * @param name      Name to be converted
-     * @param prefixLen Length of prefix
-     * @return {@link String}   Converted value
-     */
-    private static String toJsonName(String name, int prefixLen) {
-        return Character.toLowerCase(name.charAt(prefixLen)) + name.substring(prefixLen + 1);
-    }
-
-    /**
-     * Get Type of the node as an Json Array.
-     *
-     * @param node Node to get the types
-     * @return {@link JsonArray}    Converted array value
-     */
-    public static JsonArray getType(Node node) {
-        if (node instanceof BLangNode) {
-            BType type = ((BLangNode) node).type;
-            if (node instanceof BLangInvocation) {
-                JsonArray jsonElements = new JsonArray();
-                jsonElements.add(((BLangInvocation) node).type.getKind().typeName());
-                return jsonElements;
-            } else if (type != null) {
-                JsonArray jsonElements = new JsonArray();
-                jsonElements.add(type.getKind().typeName());
-                return jsonElements;
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * Check whether the given cursor position is within the brackets.
      *
      * @param context        Text document context
@@ -519,7 +279,7 @@ public class CommonUtil {
                                                 WorkspaceDocumentManager docManager) {
         // TODO: Need to support service and resources as well.
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "struct", "enum",
-                "transformer", "object");
+                                                      "transformer", "object");
         LSDocument document = new LSDocument(identifier.getUri());
         String fileContent = docManager.getFileContent(getPath(document));
         String[] splitedFileContent = fileContent.split("\\n|\\r\\n|\\r");
@@ -566,30 +326,10 @@ public class CommonUtil {
     }
 
     /**
-     * Prepare a new compiler context.
-     * @deprecated use LSContextManager.createTempCompilerContext() instead. If you need global singleton compiler
-     * context please use LSContextManager.getBuiltInPackagesCompilerContext()
-     * @return {@link CompilerContext} Prepared compiler context
-     */
-    @Deprecated
-    public static CompilerContext prepareTempCompilerContext() {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, "");
-        options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
-        options.put(PRESERVE_WHITESPACE, "false");
-        context.put(SourceDirectory.class, new NullSourceDirectory());
-        List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
-        CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
-        context.put(DiagnosticListener.class, diagnosticListener);
-
-        return context;
-    }
-
-    /**
      * Get the Annotation completion Item.
-     * @param packageID                 Package Id
-     * @param annotation                BLang annotation to extract the completion Item
+     *
+     * @param packageID  Package Id
+     * @param annotation BLang annotation to extract the completion Item
      * @return {@link CompletionItem}   Completion item for the annotation
      */
     public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BLangAnnotation annotation) {
@@ -599,14 +339,15 @@ public class CommonUtil {
         annotationItem.setLabel(label);
         annotationItem.setInsertText(insertText);
         annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
-        
+
         return annotationItem;
     }
 
     /**
      * Get the annotation Insert text.
-     * @param packageID         Package ID
-     * @param annotation        Annotation to get the insert text
+     *
+     * @param packageID  Package ID
+     * @param annotation Annotation to get the insert text
      * @return {@link String}   Insert text
      */
     private static String getAnnotationInsertText(PackageID packageID, BLangAnnotation annotation) {
@@ -625,31 +366,33 @@ public class CommonUtil {
                 fieldEntries.add(defaultFieldEntry);
             });
         }
-        
+
         return annotationStart + String.join(",", fieldEntries)
                 + System.lineSeparator() + UtilSymbolKeys.CLOSE_BRACE_KEY;
     }
 
     /**
      * Get the completion Label for the annotation.
-     * @param packageID         Package ID
-     * @param annotation        BLang annotation
+     *
+     * @param packageID  Package ID
+     * @param annotation BLang annotation
      * @return {@link String}          Label string
      */
     private static String getAnnotationLabel(PackageID packageID, BLangAnnotation annotation) {
         String pkgComponent = UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY;
         if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
-            
+
             pkgComponent += packageID.getNameComps().get(packageID.getNameComps().size() - 1).getValue()
                     + UtilSymbolKeys.PKG_DELIMITER_KEYWORD;
         }
-        
+
         return pkgComponent + annotation.getName().getValue();
     }
 
     /**
      * Get the default value for the given BType.
-     * @param bType             BType to get the default value
+     *
+     * @param bType BType to get the default value
      * @return {@link String}   Default value as a String
      */
     public static String getDefaultValueForType(BType bType) {
@@ -692,7 +435,8 @@ public class CommonUtil {
 
     /**
      * Get the base indentation of a given node.
-     * @param token             Token to be evaluated
+     *
+     * @param token Token to be evaluated
      * @return {@link String}   Calculated base indentation
      */
     public static String getBaseIndentationFromNode(Token token) {
@@ -701,11 +445,11 @@ public class CommonUtil {
     }
 
 
-
     /**
      * Get the variable symbol info by the name.
-     * @param name      name of the variable
-     * @param symbols   list of symbol info
+     *
+     * @param name    name of the variable
+     * @param symbols list of symbol info
      * @return {@link SymbolInfo}   Symbol Info extracted
      */
     public static SymbolInfo getVariableByName(String name, List<SymbolInfo> symbols) {
@@ -717,12 +461,13 @@ public class CommonUtil {
 
     /**
      * Get the invocations and fields against an identifier (functions, struct fields and types including the enums).
-     * @param context     Text Document Service context (Completion Context)
-     * @param delimiterIndex        delimiter index (index of either . or :)
+     *
+     * @param context        Text Document Service context (Completion Context)
+     * @param delimiterIndex delimiter index (index of either . or :)
      * @return {@link ArrayList}    List of filtered symbol info
      */
     public static ArrayList<SymbolInfo> invocationsAndFieldsOnIdentifier(LSServiceOperationContext context,
-                                                                   int delimiterIndex) {
+                                                                         int delimiterIndex) {
         ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
         TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         List<SymbolInfo> symbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
@@ -945,9 +690,10 @@ public class CommonUtil {
 
     /**
      * Get the scope entries.
-     * @param bType             BType 
-     * @param completionCtx     Completion context
-     * @return                  {@link Map} Scope entries map
+     *
+     * @param bType         BType
+     * @param completionCtx Completion context
+     * @return {@link Map} Scope entries map
      */
     private static Map<Name, Scope.ScopeEntry> getScopeEntries(BType bType, LSServiceOperationContext completionCtx) {
         HashMap<Name, Scope.ScopeEntry> returnMap = new HashMap<>();

@@ -16,8 +16,8 @@
 package org.ballerinalang.langserver.command;
 
 import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.ballerinalang.langserver.LSContext;
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 
 import java.util.List;
 
