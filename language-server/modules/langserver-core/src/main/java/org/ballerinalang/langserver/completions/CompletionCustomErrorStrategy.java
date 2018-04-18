@@ -120,7 +120,9 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             if (tokenBefore != null && ((UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY.equals(tokenBefore.getText())
                     && parser.getContext() instanceof BallerinaParser.ServiceBodyContext)
                     || (UtilSymbolKeys.IMPORT_KEYWORD_KEY.equals(tokenBefore.getText())
-                    && parser.getContext() instanceof BallerinaParser.ImportDeclarationContext))) {
+                    && parser.getContext() instanceof BallerinaParser.ImportDeclarationContext)
+                    || (UtilSymbolKeys.MATCH_KEYWORD_KEY.equals(tokenBefore.getText())
+                    && parser.getContext() instanceof BallerinaParser.MatchStatementContext))) {
                 overriddenTokenIndex = true;
                 this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, tokenBefore.getTokenIndex());
                 return true;

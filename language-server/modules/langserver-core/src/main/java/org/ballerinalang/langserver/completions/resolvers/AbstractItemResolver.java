@@ -145,7 +145,7 @@ public abstract class AbstractItemResolver {
      * @param symbolInfo - symbol information
      * @return completion item
      */
-    private CompletionItem populateBTypeCompletionItem(SymbolInfo symbolInfo) {
+    public CompletionItem populateBTypeCompletionItem(SymbolInfo symbolInfo) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(symbolInfo.getSymbolName());
         String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
