@@ -122,6 +122,9 @@ public class BStream implements BRefType<Object> {
     }
 
     public void subscribe(InputHandler inputHandler) {
+        if (constraintType.getTag() != TypeTags.STRUCT_TAG) {
+            throw new BallerinaException("Streaming Support is only available with streams accepting objects");
+        }
         String queueName = String.valueOf(UUID.randomUUID());
         BrokerUtils.addSubscription(topicName, new InternalStreamSubscriber(topicName, queueName, inputHandler));
     }
@@ -179,9 +182,6 @@ public class BStream implements BRefType<Object> {
         protected void send(Message message) throws BrokerException {
             BValue data =
                     ((BallerinaStreamByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).streamEvent;
-            if (!(data instanceof BStruct)) {
-                throw new BallerinaException("Streaming Support is not available for type: [" + data.getType() + "]");
-            }
             Object[] event = createEvent((BStruct) data);
             try {
                 inputHandler.send(event);
