@@ -59,7 +59,7 @@ documentation {
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
-function abortTransaction (string transactionId, int transactionBlockId) returns string|error {
+function abortTransaction (string transactionId, int transactionBlockId) returns error? {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (participatedTransactions.hasKey(participatedTxnId)) {
         TwoPhaseCommitTransaction txn = participatedTransactions[participatedTxnId];
