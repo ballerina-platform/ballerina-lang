@@ -48,6 +48,8 @@ import org.wso2.transport.http.netty.sender.http2.ClientOutboundHandler;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
+import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
+
 /**
  * A class responsible for handling responses coming from BE.
  */
@@ -220,8 +222,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         http2ClientChannel.setUpgradedToHttp2(true);
 
         // Remove Http specific handlers
-        Util.safelyRemoveHandlers(targetChannel.getChannel().pipeline(), Constants.IDLE_STATE_HANDLER,
-                                  Constants.HTTP_TRACE_LOG_HANDLER, Constants.REDIRECT_HANDLER);
+        safelyRemoveHandlers(targetChannel.getChannel().pipeline(), Constants.REDIRECT_HANDLER,
+                             Constants.IDLE_STATE_HANDLER, Constants.HTTP_TRACE_LOG_HANDLER);
         http2ClientChannel.getInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID).setRequestWritten(true);
         http2ClientChannel.getDataEventListeners().
                 forEach(dataEventListener ->
@@ -292,7 +294,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         return httpResponseFuture;
     }
 
-    public void setHttp2ClientOutboundHandler(ClientOutboundHandler http2ClientOutboundHandler) {
+    void setHttp2ClientOutboundHandler(ClientOutboundHandler http2ClientOutboundHandler) {
         this.http2ClientOutboundHandler = http2ClientOutboundHandler;
     }
 

@@ -311,13 +311,13 @@ public class HttpClientRedirectTestCase {
     public void relativePathStartsWithSlash() {
         RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, this.connectionManager);
         try {
-            Method method = RedirectUtil.class
-                    .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
-                            Integer.class);
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("getResolvedURI", String.class, HTTPCarbonMessage.class);
             method.setAccessible(true);
             String redirectUrl = (String) method
-                    .invoke(redirectHandler, "/test", "/redirect1", "https", "localhost", 8080);
-            assertEquals("https://localhost:8080/redirect1", redirectUrl);
+                    .invoke(redirectHandler, "/redirect1", createHttpRequest(
+                            "GET", "https://localhost:8080/test"));
+            assertEquals(redirectUrl, "https://localhost:8080/redirect1");
 
         } catch (NoSuchMethodException e) {
             TestUtil.handleException("NoSuchMethodException occurred while running relativePathStartsWithSlash", e);
@@ -335,13 +335,13 @@ public class HttpClientRedirectTestCase {
     public void relativePathEndsWithSlash() {
         RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, this.connectionManager);
         try {
-            Method method = RedirectUtil.class
-                    .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
-                            Integer.class);
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("getResolvedURI", String.class, HTTPCarbonMessage.class);
             method.setAccessible(true);
             String redirectUrl = (String) method
-                    .invoke(redirectHandler, "/test", "redirect1/", "https", "localhost", 8080);
-            assertEquals("https://localhost:8080/test/redirect1/", redirectUrl);
+                    .invoke(redirectHandler, "redirect1/", createHttpRequest(
+                            "GET", "https://localhost:8080/test"));
+            assertEquals(redirectUrl, "https://localhost:8080/redirect1/");
 
         } catch (NoSuchMethodException e) {
             TestUtil.handleException("NoSuchMethodException occurred while running relativePathEndsWithSlash", e);
@@ -359,13 +359,13 @@ public class HttpClientRedirectTestCase {
     public void justRelativePathName() {
         RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, this.connectionManager);
         try {
-            Method method = RedirectUtil.class
-                    .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
-                            Integer.class);
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("getResolvedURI", String.class, HTTPCarbonMessage.class);
             method.setAccessible(true);
             String redirectUrl = (String) method
-                    .invoke(redirectHandler, "/test", "redirect1", "https", "localhost", 8080);
-            assertEquals("https://localhost:8080/test/redirect1", redirectUrl);
+                    .invoke(redirectHandler, "redirect1", createHttpRequest(
+                            "GET", "https://localhost:8080/test"));
+            assertEquals(redirectUrl, "https://localhost:8080/redirect1");
 
         } catch (NoSuchMethodException e) {
             TestUtil.handleException("NoSuchMethodException occurred while running justRelativePathName", e);
@@ -383,13 +383,79 @@ public class HttpClientRedirectTestCase {
     public void requestPathEndsWithSlash() {
         RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, this.connectionManager);
         try {
-            Method method = RedirectUtil.class
-                    .getDeclaredMethod("buildRedirectURL", String.class, String.class, String.class, String.class,
-                            Integer.class);
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("getResolvedURI", String.class, HTTPCarbonMessage.class);
             method.setAccessible(true);
             String redirectUrl = (String) method
-                    .invoke(redirectHandler, "test/", "/redirect1", "https", "localhost", 8080);
-            assertEquals("https://localhost:8080/redirect1", redirectUrl);
+                    .invoke(redirectHandler, "/redirect1", createHttpRequest(
+                            "GET", "https://localhost:8080/test/"));
+            assertEquals(redirectUrl, "https://localhost:8080/redirect1");
+
+        } catch (NoSuchMethodException e) {
+            TestUtil.handleException("NoSuchMethodException occurred while running requestPathEndsWithSlash", e);
+        } catch (InvocationTargetException e) {
+            TestUtil.handleException("InvocationTargetException occurred while running requestPathEndsWithSlash", e);
+        } catch (IllegalAccessException e) {
+            TestUtil.handleException("IllegalAccessException occurred while running requestPathEndsWithSlash", e);
+        }
+    }
+
+    @Test
+    public void absolutePathWithQueryParams() {
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0,
+                this.connectionManager);
+        try {
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("getResolvedURI", String.class, HTTPCarbonMessage.class);
+            method.setAccessible(true);
+            String redirectUrl = (String) method
+                    .invoke(redirectHandler, "https://localhost:8888/test?key=value&tt=kk",
+                            createHttpRequest("GET", "https://localhost:8080/test1/"));
+            assertEquals(redirectUrl, "https://localhost:8888/test?key=value&tt=kk");
+
+        } catch (NoSuchMethodException e) {
+            TestUtil.handleException("NoSuchMethodException occurred while running requestPathEndsWithSlash", e);
+        } catch (InvocationTargetException e) {
+            TestUtil.handleException("InvocationTargetException occurred while running requestPathEndsWithSlash", e);
+        } catch (IllegalAccessException e) {
+            TestUtil.handleException("IllegalAccessException occurred while running requestPathEndsWithSlash", e);
+        }
+    }
+
+    @Test
+    public void relativePathWithQueryParams() {
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0,
+                this.connectionManager);
+        try {
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("getResolvedURI", String.class, HTTPCarbonMessage.class);
+            method.setAccessible(true);
+            String redirectUrl = (String) method
+                    .invoke(redirectHandler, "/test?key=value&tt=kk", createHttpRequest(
+                            "GET", "https://localhost:8080/test1/"));
+            assertEquals(redirectUrl, "https://localhost:8080/test?key=value&tt=kk");
+
+        } catch (NoSuchMethodException e) {
+            TestUtil.handleException("NoSuchMethodException occurred while running requestPathEndsWithSlash", e);
+        } catch (InvocationTargetException e) {
+            TestUtil.handleException("InvocationTargetException occurred while running requestPathEndsWithSlash", e);
+        } catch (IllegalAccessException e) {
+            TestUtil.handleException("IllegalAccessException occurred while running requestPathEndsWithSlash", e);
+        }
+    }
+
+    @Test
+    public void originalRequestWithQueryParams() {
+        RedirectHandler redirectHandler = new RedirectHandler(null, false, 0,
+                this.connectionManager);
+        try {
+            Method method = RedirectHandler.class
+                    .getDeclaredMethod("getResolvedURI", String.class, HTTPCarbonMessage.class);
+            method.setAccessible(true);
+            String redirectUrl = (String) method
+                    .invoke(redirectHandler, "/test", createHttpRequest(
+                            "GET", "https://localhost:9999/test2?kk=ll"));
+            assertEquals(redirectUrl, "https://localhost:9999/test");
 
         } catch (NoSuchMethodException e) {
             TestUtil.handleException("NoSuchMethodException occurred while running requestPathEndsWithSlash", e);
@@ -626,8 +692,8 @@ public class HttpClientRedirectTestCase {
         httpCarbonRequest.setProperty(Constants.PROTOCOL, locationUrl.getProtocol());
         httpCarbonRequest.setProperty(Constants.HTTP_HOST, locationUrl.getHost());
         httpCarbonRequest.setProperty(Constants.HTTP_METHOD, method);
-        httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.getPath());
-        httpCarbonRequest.setProperty(Constants.TO, locationUrl.getPath());
+        httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.toString());
+        httpCarbonRequest.setProperty(Constants.TO, locationUrl.toString());
 
         httpCarbonRequest.setHeader(HttpHeaderNames.HOST.toString(), locationUrl.getHost());
         httpCarbonRequest.setHeader(Constants.HTTP_PORT, Integer.toString(locationUrl.getPort()));
