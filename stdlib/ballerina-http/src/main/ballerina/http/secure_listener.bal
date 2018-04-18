@@ -122,7 +122,7 @@ function addAuthFiltersForSecureListener (SecureEndpointConfiguration config) {
 @Return {value:"Array of Filters comprising of authn and authz Filters"}
 function createAuthFiltersForSecureListener (SecureEndpointConfiguration config) returns (Filter[]) {
     // parse and create authentication handlers
-    AuthHandlerRegistry registry = new;
+    AuthHandlerRegistry registry;
     match config.authProviders {
         AuthProvider[] providers => {
             int i = 1;
