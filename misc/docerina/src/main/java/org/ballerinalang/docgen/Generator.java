@@ -171,7 +171,9 @@ public class Generator {
 
         for (Link primitiveType : primitives) {
             String type = primitiveType.caption.value;
-            primitiveTypes.add(new PrimitiveTypeDoc(type, descriptions.getProperty(type), new ArrayList<>()));
+            String desc = descriptions.getProperty(type);
+            primitiveTypes.add(new PrimitiveTypeDoc(type, desc != null && !desc.isEmpty() ? BallerinaDocUtils
+                    .mdToHtml(desc) : desc, new ArrayList<>()));
         }
 
         // Check for functions in the package
@@ -189,8 +191,9 @@ public class Generator {
                         if (existingPrimitiveType.isPresent()) {
                             primitiveTypeDoc = existingPrimitiveType.get();
                         } else {
-                            primitiveTypeDoc = new PrimitiveTypeDoc(langType.toString(), descriptions.getProperty
-                                    (langType.toString()), new ArrayList<>());
+                            String desc = descriptions.getProperty(langType.toString());
+                            primitiveTypeDoc = new PrimitiveTypeDoc(langType.toString(), desc != null && !desc
+                                    .isEmpty() ? BallerinaDocUtils.mdToHtml(desc) : desc, new ArrayList<>());
                             primitiveTypes.add(primitiveTypeDoc);
                         }
 
