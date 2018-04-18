@@ -35,24 +35,32 @@ public type AuthzFilter object {
 	@Return {value:"FilterResult: Authorization result to indicate if the request can proceed or not"}
     public function filterRequest (Request request, FilterContext context) returns FilterResult {
 		// first check if the resource is marked to be authenticated. If not, no need to authorize.
-		// TODO: check if we can remove this once the security context is there.
-		string[]? scopes = getScopesForResource(context);
-		boolean authorized;
-		match scopes {
-			string[] scopeNames => {
-				if (authzHandler.canHandle(request)) {
-					authorized = authzHandler.handle(runtime:getInvocationContext().authenticationContext.username,
-												context.serviceName, context.resourceName, request.method, scopeNames);
-				} else {
-					authorized = false;
-				}
-			}
-			() => {
-				// scopes are not defined, no need to authorize
-				authorized = true;
-			}
-		}
-		return createAuthzResult(authorized);
+        ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
+            internal:getResourceAnnotations(context.serviceType, context.resourceName));
+        ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
+            internal:getServiceAnnotations(context.serviceType));
+        if (!isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn)) {
+            // not secured, no need to authorize
+            return createAuthzResult(true);
+        }
+
+        string[]? scopes = getScopesForResource(resourceLevelAuthAnn, serviceLevelAuthAnn);
+        boolean authorized;
+        match scopes {
+            string[] scopeNames => {
+                if (authzHandler.canHandle(request)) {
+                    authorized = authzHandler.handle(runtime:getInvocationContext().authenticationContext.username,
+                        context.serviceName, context.resourceName, request.method, scopeNames);
+                } else {
+                    authorized = false;
+                }
+            }
+            () => {
+                // scopes are not defined, no need to authorize
+                authorized = true;
+            }
+        }
+        return createAuthzResult(authorized);
     }
 };
 
@@ -70,18 +78,16 @@ function createAuthzResult (boolean authorized) returns (FilterResult) {
 }
 
 @Description {value:"Retrieves the scope for the resource, if any"}
-@Param {value:"context: FilterContext object"}
+@Param {value:"resourceLevelAuthAnn: Resource level auth annotation"}
+@Param {value:"serviceLevelAuthAnn: service level auth annotation"}
 @Return {value:"string: Scope name if defined, else nil"}
-function getScopesForResource (FilterContext context) returns (string[]|()) {
-    ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
-        internal:getResourceAnnotations(context.serviceType, context.resourceName));
+function getScopesForResource (ListenerAuthConfig? resourceLevelAuthAnn, ListenerAuthConfig? serviceLevelAuthAnn)
+                                                                                            returns (string[]|()) {
     match resourceLevelAuthAnn.scopes {
         string[] scopes => {
             return scopes;
         }
         () => {
-            ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
-                internal:getServiceAnnotations(context.serviceType));
             match serviceLevelAuthAnn.scopes {
                 string[] scopes => {
                     return scopes;
