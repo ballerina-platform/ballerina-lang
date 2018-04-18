@@ -77,7 +77,7 @@ public type Listener object {
 
 public function Listener::init(SubscriberServiceEndpointConfiguration config) {
     self.config = config;
-    SignatureValidationFilter sigValFilter = new(interceptWebSubRequest, interceptionPlaceholder);//TODO:rem placeholder
+    SignatureValidationFilter sigValFilter;
     http:Filter[] filters = [<http:Filter> sigValFilter];
     http:ServiceEndpointConfiguration serviceConfig = { host:config.host, port:config.port,
                                                           secureSocket:config.secureSocket, filters:filters };
@@ -251,28 +251,10 @@ function retrieveHubAndTopicUrl (string resourceUrl, http:SecureSocket? secureSo
 
 @Description {value:"Signature validation filter for WebSub services"}
 public type SignatureValidationFilter object {
-
-    public {
-        function (http:Request request, http:FilterContext context) returns (http:FilterResult) filterRequest;
-        function (http:Response response, http:FilterContext context) returns (http:FilterResult) filterResponse;
+    public function filterRequest (http:Request request, http:FilterContext context) returns http:FilterResult {
+        return interceptWebSubRequest(request, context);
     }
-
-    public new (filterRequest, filterResponse) {
-    }
-
-    public function init ();
-    public function terminate ();
-
 };
-
-
-public function SignatureValidationFilter::init () {
-    log:printInfo("Initializing WebSub signature validation filter");
-}
-
-public function SignatureValidationFilter::terminate () {
-    log:printInfo("Terminating WebSub signature validation filter");
-}
 
 @Description {value:"The function called to validate signature for content received by WebSub services"}
 @Param {value:"request: The request being intercepted"}
