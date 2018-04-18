@@ -36,7 +36,8 @@ public class BallerinaRunLineMarkerTest extends BallerinaCodeInsightFixtureTestC
     }
 
     public void testMainWithPackageRunLineMarker() {
-        myFixture.configureByText("a.bal", "package test;\nfunction <caret>main(string... args){}\nfunction test(){}\n");
+        myFixture.configureByText("a.bal", "package test;\nfunction <caret>main(string... args){}\nfunction test()" +
+                "{}\n");
         assertEquals(1, myFixture.findGuttersAtCaret().size());
         assertEquals(1, myFixture.findAllGutters().size());
     }

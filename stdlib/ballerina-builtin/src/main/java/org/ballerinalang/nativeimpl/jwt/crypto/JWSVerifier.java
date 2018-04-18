@@ -33,8 +33,8 @@ public interface JWSVerifier {
      * @param signature Signature part of the JWT.
      * @param algorithm JWS algorithm used to secure the JWS.
      *                  This is the 'alg' header parameter.
-     * @return {@code true} if the signature was successfully verified,
-     * {@code false} if the signature is invalid or if a critical
+     * @return {@code true} if the signature was verified,
+     * {@code false} if the signature is invalid.
      * @throws JWSException If the JWS algorithm is not supported, or if
      *                      signature verification failed for some other
      *                      internal reason.
