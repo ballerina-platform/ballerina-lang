@@ -237,7 +237,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                                    LSCustomErrorStrategy.class, false).get(0);
                 definitionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                       currentBLangPackage.symbol.getName().getValue());
-//            LSPackageCache.getInstance().addPackage(currentBLangPackage.packageID, currentBLangPackage);
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(definitionContext);
                 currentBLangPackage.accept(positionTreeVisitor);
                 LSContextManager lsContextManager = LSContextManager.getInstance();
