@@ -95,7 +95,11 @@ ConstrainedType
    ;
 
 Documentation
-   : documentation { <documentationText> }
+   : documentation { <documentationText> <attributes>* }
+   ;
+
+DocumentationAttribute
+   :  <paramType> {{ <documentationField.value> }} <documentationText>
    ;
 
 Deprecated
