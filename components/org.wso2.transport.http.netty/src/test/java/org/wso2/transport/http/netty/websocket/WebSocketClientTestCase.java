@@ -308,7 +308,7 @@ public class WebSocketClientTestCase {
         });
 
         latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
-        Assert.assertTrue(connectorListener.isClose());
+        Assert.assertTrue(connectorListener.isClosed());
         WebSocketCloseMessage closeMessage = connectorListener.getCloseMessage();
         Assert.assertEquals(closeMessage.getCloseCode(), 1000);
         Assert.assertEquals(closeMessage.getCloseReason(), "Close on request");
@@ -334,7 +334,7 @@ public class WebSocketClientTestCase {
         });
 
         latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
-        Assert.assertTrue(connectorListener.isClose());
+        Assert.assertTrue(connectorListener.isClosed());
         WebSocketCloseMessage closeMessage = connectorListener.getCloseMessage();
         Assert.assertEquals(closeMessage.getCloseCode(), 1001);
         Assert.assertEquals(closeMessage.getCloseReason(), "Server is going away");

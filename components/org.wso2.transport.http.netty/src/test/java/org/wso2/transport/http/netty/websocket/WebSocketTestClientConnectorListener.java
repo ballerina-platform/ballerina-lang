@@ -188,7 +188,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
      * @return true if the connection is closed.
      * @throws Throwable if any error occurred.
      */
-    public boolean isClose() throws Throwable {
+    public boolean isClosed() throws Throwable {
         if (errorsQueue.isEmpty()) {
             boolean temp = isClose;
             isClose = false;
