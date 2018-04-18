@@ -44,7 +44,7 @@ public type SubscriberServiceConfiguration {
     string secret,
     string callback,
     http:AuthConfig? auth,
-    http:SecureSocket secureSocket,
+    http:SecureSocket? secureSocket,
 };
 
 @Description {value:"WebebSubSubscriber Configuration for service"}

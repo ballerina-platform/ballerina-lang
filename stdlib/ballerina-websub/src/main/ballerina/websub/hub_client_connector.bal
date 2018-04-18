@@ -145,7 +145,7 @@ public function HubClientConnector::publishUpdate (string topic, json payload,
     request.setJsonPayload(payload);
 
     if (secret != "") {
-        string stringPayload = payload.toString() but { () => "" };
+        string stringPayload = payload.toString();
         string publisherSignature = signatureMethod + "=";
         string generatedSignature = "";
         if (SHA1.equalsIgnoreCase(signatureMethod)) {
@@ -160,8 +160,8 @@ public function HubClientConnector::publishUpdate (string topic, json payload,
     }
 
     foreach headerJson in headers {
-        string strHeaderKey = headerJson.headerKey.toString() but { () => "" };
-        string strHeaderValue = headerJson.headerValue.toString() but { () => "" };
+        string strHeaderKey = headerJson.headerKey.toString();
+        string strHeaderValue = headerJson.headerValue.toString();
         request.setHeader(strHeaderKey, strHeaderValue);
     }
 
@@ -181,8 +181,8 @@ public function HubClientConnector::notifyUpdate (string topic, json... notifica
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
 
     foreach headerJson in notificationHeaders {
-        string strHeaderKey = headerJson.headerKey.toString() but { () => "" };
-        string strHeaderValue = headerJson.headerValue.toString() but { () => "" };
+        string strHeaderKey = headerJson.headerKey.toString();
+        string strHeaderValue = headerJson.headerValue.toString();
         request.setHeader(strHeaderKey, strHeaderValue);
     }
 

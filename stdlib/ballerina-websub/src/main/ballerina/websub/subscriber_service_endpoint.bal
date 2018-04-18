@@ -117,7 +117,11 @@ function Listener::sendSubscriptionRequest() {
         string resourceUrl = <string> subscriptionDetails["resourceUrl"];
         string hub = <string> subscriptionDetails["hub"];
         string topic = <string> subscriptionDetails["topic"];
-        http:SecureSocket? secureSocket = <http:SecureSocket> subscriptionDetails["secureSocket"] but { error => () };
+        http:SecureSocket? secureSocket;
+        match (<http:SecureSocket> subscriptionDetails["secureSocket"]) {
+            http:SecureSocket httpSecureSocket => { secureSocket = httpSecureSocket; }
+            error => { secureSocket = (); }
+        }
 
         if (hub == "" || topic == "") {
             if (resourceUrl == "") {
@@ -146,7 +150,11 @@ function Listener::sendSubscriptionRequest() {
                 }
             }
         }
-        http:AuthConfig? auth = <http:AuthConfig> subscriptionDetails["auth"] but { error => () };
+        http:AuthConfig? auth;
+        match (<http:AuthConfig> subscriptionDetails["auth"]) {
+            http:AuthConfig httpAuthConfig => { auth = httpAuthConfig; }
+            error => { auth = (); }
+        }
         invokeClientConnectorForSubscription(hub, secureSocket, auth, subscriptionDetails);
     }
 }
