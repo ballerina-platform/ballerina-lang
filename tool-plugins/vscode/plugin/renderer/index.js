@@ -53,7 +53,3 @@ exports.activate = function(context) {
 	provider.activate();
 	context.subscriptions.push(diagramRenderDisposable, registration);
 }
-
-exports.deactivate = function() {
-	return diagramProvider.deactivate();
-}

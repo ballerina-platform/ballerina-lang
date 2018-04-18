@@ -1,0 +1,23 @@
+{
+  "name": "ballerina-grammar",
+  "version": "0.970.0-alpha1",
+  "description": "Grammar files for ballerina",
+  "main": "index.js",
+  "scripts": {
+    "build": "node build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ballerina-platform/ballerina-grammar.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ballerina-platform/ballerina-grammar/issues"
+  },
+  "homepage": "https://github.com/ballerina-platform/ballerina-grammar#readme",
+  "devDependencies": {
+    "js-yaml": "^3.11.0",
+    "plist": "^3.0.1"
+  }
+}

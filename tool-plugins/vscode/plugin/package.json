@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Intellisense, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "0.970.0-beta1-SNAPSHOT",
+    "version": "0.970.0-beta1",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
@@ -131,7 +131,26 @@
                     }
                 ]
             }
-        ]
+        ],
+        "commands": [
+            {
+                "command": "ballerina.showDiagram",
+                "title": "Ballerina: Show Diagram",
+                "icon": {
+                    "dark": "./icons/design-view-white.svg",
+                    "light": "./icons/design-view.svg"
+                }
+            }
+        ],
+        "menus": {
+            "editor/title": [
+                {
+                    "when": "resourceLangId == ballerina",
+                    "command": "ballerina.showDiagram",
+                    "group": "navigation"
+                }
+            ]
+        }
     },
     "main": "./extension.js",
     "scripts": {
@@ -144,6 +163,7 @@
     "dependencies": {
         "lodash": "^4.17.5",
         "openport": "0.0.4",
+        "request-promise": "^4.2.2",
         "vscode": "^1.1.10",
         "vscode-debugadapter": "^1.25.0",
         "vscode-languageclient": "^3.4.2",

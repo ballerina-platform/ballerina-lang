@@ -21,6 +21,8 @@ const { workspace, commands, window, ExtensionContext, debug } = require('vscode
 const { LanguageClient, LanguageClientOptions, ServerOptions } = require('vscode-languageclient');
 const path = require('path');
 const fs = require('fs');
+const { getLSService } = require('./serverStarter');
+const { activate:activateRenderer } = require('./renderer');
 
 let oldConfig;
 
@@ -36,11 +38,20 @@ const debugConfigResolver = {
 
 		if (config['ballerina.sdk']) {
 			if (fs.readdirSync(config['ballerina.sdk']).indexOf('bin') < 0) {
-				const msg = "Couldn't find a bin directory inside the configured sdk path. Please set ballerina.sdk correctly."
-				window.showErrorMessage(msg);
+				const msg = "Couldn't find a bin directory inside the configured SDK path. Please set the Ballerina SDK path correctly."
+				window.showWarningMessage(msg, action).then((selection) => {
+					if (action === selection) {
+						commands.executeCommand('workbench.action.openGlobalSettings');
+					}
+				});
 			}
 		} else {
-			const msg = "To start the debug server please set ballerina.sdk."
+			const msg = "To start the debug server please set Ballerina SDK path."
+			window.showWarningMessage(msg, action).then((selection) => {
+				if (action === selection) {
+					commands.executeCommand('workbench.action.openGlobalSettings');
+				}
+			});
 			window.showErrorMessage(msg);
 		}
 
@@ -48,11 +59,36 @@ const debugConfigResolver = {
 	}
 }
 
-exports.activate = function(context) {
-	// The server is implemented in java
-	let serverModule = context.asAbsolutePath(path.join('server-build', 'langserver.jar'));
-	const main = 'org.ballerinalang.langserver.launchers.stdio.Main';
+function showSDKNotSetWarning() {
+	const sdkSetWarning = 'Ballerina SDK path is not configured';
+	const action = 'Open Settings';
 
+	window.showWarningMessage(sdkSetWarning, action).then((selection) => {
+		if (action === selection) {
+			commands.executeCommand('workbench.action.openGlobalSettings');
+		}
+	});
+}
+
+function checkSDK(sdkPath) {
+	try {
+		if (fs.readdirSync(path.join(sdkPath, 'resources')).indexOf('composer') > -1) {
+			return;
+		}
+	} catch(e) {
+		// could not read the sdk path. Let the warning show
+	}
+
+	const sdkSetWarning = 'The configured Ballerina SDK path seems incorrect. Please set the SDK path (path to ballerina-tools distribution) correctly.';
+	const action = 'Open Settings';	
+	window.showWarningMessage(sdkSetWarning, action).then((selection) => {
+		if (action === selection) {
+			commands.executeCommand('workbench.action.openGlobalSettings');
+		}
+	});
+}
+
+exports.activate = function(context) {
 	// Options to control the language client
 	const clientOptions = {
 		documentSelector: [{ scheme: 'file', language: 'ballerina' }],
@@ -61,37 +97,27 @@ exports.activate = function(context) {
 	const config = workspace.getConfiguration('ballerina');
 	oldConfig = config;
 	// in windows class path seperated by ';'
-	const sep = process.platform === 'win32' ? ';' : ':';
-	
-	if (config.sdk) {
-		// sdk path is set in configurations
-		serverModule = context.asAbsolutePath(path.join('server-build', 'langserver-no-bal-deps.jar'));
-		serverModule += (sep + path.join(config.sdk, 'bre', 'lib', '*'));
+	//const sep = process.platform === 'win32' ? ';' : ':';
+
+	if (!config.sdk) {
+		// sdk path is not set. The plugin can't activate. Show warning and exit.
+		showSDKNotSetWarning();
+		return;
 	}
+
+	checkSDK(config.sdk);
 
 	if (!config.showLSErrors) {
 		clientOptions.outputChannel = dropOutputChannel;
 	}
 
-	const args = ['-cp', serverModule, main];
-	// If the extension is launched in debug mode then the debug server options are used
-	// Otherwise the run options are used
-	const serverOptions = {
-		run: { command: 'java', args },
-		debug: {
-			command: 'java', 
-			args: [
-				'-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y',
-				...args,
-			],
-		},
-	}
-
-	const forceDebug = (process.env.LSDEBUG === "true");
+	const serverOptions = getLSService;
 
 	const langClientDisposable = new LanguageClient('ballerina-vscode', 'Ballerina vscode lanugage client',
-		serverOptions, clientOptions, forceDebug).start();
+		serverOptions, clientOptions).start();
 	
+	activateRenderer(context);
+
 	// Push the disposable to the context's subscriptions so that the 
 	// client can be deactivated on extension deactivation
 	context.subscriptions.push(langClientDisposable);
@@ -102,7 +128,7 @@ exports.activate = function(context) {
 workspace.onDidChangeConfiguration(params => {
 	const newConfig = workspace.getConfiguration('ballerina');
 	if (newConfig.sdk != oldConfig.sdk) {
-		const msg = 'Ballerina sdk path configuration changed. Please restart vscode for changes to take effect.';
+		const msg = 'Ballerina SDK path configuration changed. Please restart vscode for changes to take effect.';
 		const action = 'Restart Now';
 		window.showWarningMessage(msg, action).then((selection) => {
 			if (action === selection) {

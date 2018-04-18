@@ -1,6 +1,6 @@
 const vscode = require('vscode');
 const fs = require('fs');
-const { render, deactivate, activate } = require('./renderer');
+const { render, activate } = require('./renderer');
 
 class DiagramProvider {
 
@@ -24,10 +24,6 @@ class DiagramProvider {
 
         const text = render(editor.document.getText());
         return text;
-    }
-
-    deactivate() {
-        return deactivate();
     }
 
     activate() {
