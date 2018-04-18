@@ -80,7 +80,7 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Client object {
 {{/client}}
 {{#structs}}
 type {{structId}} {
-    {{#attribute}}{{type}} {{name}};
+    {{#attribute}}{{type}}{{label}} {{name}};
     {{/attribute}}
 };
 {{/structs}}
