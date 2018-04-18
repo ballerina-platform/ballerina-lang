@@ -53,7 +53,7 @@ public class ObservabilityConstants {
     public static final String PROPERTY_BSTRUCT_ERROR = "bstruct_error";
 
     // TOML Configs
-    public static final String CONFIG_TABLE_OBSERVABILITY = "observability";
+    public static final String CONFIG_TABLE_OBSERVABILITY = "b7a.observability";
     public static final String CONFIG_TABLE_METRICS = CONFIG_TABLE_OBSERVABILITY + ".metrics";
     public static final String CONFIG_TABLE_TRACING = CONFIG_TABLE_OBSERVABILITY + ".tracing";
 

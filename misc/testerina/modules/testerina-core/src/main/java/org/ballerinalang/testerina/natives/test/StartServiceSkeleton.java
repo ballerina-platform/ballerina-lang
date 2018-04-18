@@ -33,6 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.swagger.CodeGenerator;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 import org.ballerinalang.swagger.utils.GeneratorConstants;
+import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.util.Utils;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -52,49 +53,26 @@ import java.nio.file.Paths;
  * @since 0.97.0
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "test", functionName = "startServiceSkeleton", args =
-        {@Argument(name = "sourceRoot", type = TypeKind.STRING), @Argument(name = "packageName", type = TypeKind
+        {@Argument(name = "packageName", type = TypeKind
                 .STRING), @Argument(name = "swaggerFilePath", type = TypeKind.STRING)}, returnType = {@ReturnType
         (type = TypeKind.BOOLEAN)}, isPublic = true)
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value", value = "Start a " +
         "service skeleton from a given Swagger definition in the given ballerina package.")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "sourceRoot", value = "Root directory " +
-        "" + "of the package to be generated"), @Attribute(name = "packageName", value = "Name of the package"),
-        @Attribute(name = "swaggerFilePath", value = "Path to the Swagger definition")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "packageName", value = "Name of " +
+        "the package"), @Attribute(name = "swaggerFilePath", value = "Path to the Swagger definition")})
 public class StartServiceSkeleton extends BlockingNativeCallableUnit {
 
     private static PrintStream errStream = System.err;
 
     @Override
     public void execute(Context ctx) {
-        String sourceRoot = ctx.getStringArgument(0);
-        String packageName = ctx.getStringArgument(1);
-        String swaggerFilePath = ctx.getStringArgument(2);
+        String packageName = ctx.getStringArgument(0);
+        String swaggerFilePath = ctx.getStringArgument(1);
 
-        // create the .ballerina directory
-        Path projectRoot = Paths.get(sourceRoot, ".ballerina");
-        if (!Files.exists(projectRoot)) {
-            try {
-                Files.createDirectories(projectRoot);
-            } catch (IOException e) {
-                throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to create " +
-                        "[.ballerina] %s [cause] %s", projectRoot.toString(), e.getMessage()), e);
-            }
-        }
-
-        // create the package dir, if not exist
-        Path rootDir = Paths.get(sourceRoot, packageName);
-        if (!Files.exists(rootDir)) {
-            try {
-                Files.createDirectories(rootDir);
-            } catch (IOException e) {
-                throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to create " +
-                        "[source root] %s [cause] %s", rootDir.toString(), e.getMessage()), e);
-            }
-        } else {
-            throw new BallerinaIOException(String.format("Service skeleton creation failed. Source root already " +
-                    "exists [source root] %s", rootDir.toString()));
-        }
-
+        //TODO : validate for duplicate package in the source which can conflict with mock packages
+        String sourceRoot = System.getProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT);
+        initTempDir(sourceRoot);
+        Path rootDir = Paths.get(sourceRoot, TesterinaConstants.TESTERINA_TEMP_DIR);
         CodeGenerator generator = new CodeGenerator();
         generator.setSrcPackage(packageName);
 
@@ -106,18 +84,19 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
                     + "service from the [Swagger file] %s [cause] %s", swaggerFilePath, e.getMessage()), e);
         }
 
-        CompileResult compileResult = BCompileUtil.compile(sourceRoot, packageName, CompilerPhase.CODE_GEN);
+        CompileResult compileResult = BCompileUtil.compile(rootDir.toString(), packageName, CompilerPhase.CODE_GEN);
 
         // print errors
         for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
             errStream.println(diagnostic.getKind() + ": " + diagnostic.getPosition() + " " + diagnostic.getMessage());
         }
-        if (compileResult.getDiagnostics().length > 0) {
+        if (compileResult.getErrorCount() > 0) {
             throw new BallerinaException("Service skeleton creation failed. Compilation failed.");
         }
         // set the debugger
+
         ProgramFile programFile = compileResult.getProgFile();
-        programFile.setProgramFilePath(Paths.get(sourceRoot));
+        programFile.setProgramFilePath(Paths.get(rootDir.toString()));
         // start the service
         Utils.startService(programFile);
         // keep a reference to be used in stop service skeleton
@@ -125,4 +104,16 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
         ctx.setReturnValues(new BBoolean(true));
     }
 
+    private void initTempDir(String sourceRoot) {
+        // create the .testerina directory and .ballerina directory
+        Path projectRoot = Paths.get(sourceRoot, TesterinaConstants.TESTERINA_TEMP_DIR, ".ballerina");
+        if (!Files.exists(projectRoot)) {
+            try {
+                Files.createDirectories(projectRoot);
+            } catch (IOException e) {
+                throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to create " +
+                               "[.ballerina] %s [cause] %s", projectRoot.toString(), e.getMessage()), e);
+            }
+        }
+    }
 }

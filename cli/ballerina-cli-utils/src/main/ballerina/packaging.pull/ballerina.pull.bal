@@ -96,7 +96,7 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
     }
 }
 
-public function main(string[] args){
+function main(string... args){
     pullPackage(args[0], args[1], args[2], args[3]);
 }
 

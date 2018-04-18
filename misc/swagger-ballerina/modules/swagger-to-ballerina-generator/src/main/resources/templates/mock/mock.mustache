@@ -25,7 +25,7 @@ import ballerina/swagger;
     basePath: "{{servers.0.basePath}}"{{!-- {{only one base path is allowed for all endpoints}} --}}
 }
 service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unless @last}}, {{/unless}}{{/servers}} {
-{{#paths}}{{#value}}{{#get}}
+{{#paths}}{{#value}}{{#operations}}{{#value}}
     @swagger:ResourceInfo {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
@@ -43,195 +43,13 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
         ]
     }
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"{{key}}"
+        methods:["{{upper key}}"],
+        path:"{{../../key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
     {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
         _ = outboundEp -> respond(res);
     }
-{{/get}}{{#post}}
-    @swagger:ResourceInfo {
-        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
-        summary: "{{summary}}",
-        description: "{{description}}",
-        externalDocs: {{>doc}},
-        parameters: [{{#parameters}}
-            {
-                name: "{{name}}",
-                inInfo: "{{in}}",
-                description: "{{description}}", {{#required}}
-                required: {{required}},{{/required}} {{#deprecated}}
-                discontinued: {{deprecated}},{{/deprecated}}
-                allowEmptyValue: "{{allowEmptyValue}}"
-            }{{#unless @last}},{{/unless}}{{/parameters}}
-        ]
-    }
-    @http:ResourceConfig {
-        methods:["POST"],
-        path:"{{key}}"
-    }{{#deprecated}}
-    deprecated {}{{/deprecated}}
-    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
-        _ = outboundEp -> respond(res);
-    }
-{{/post}}{{#put}}
-    @swagger:ResourceInfo {
-        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
-        summary: "{{summary}}",
-        description: "{{description}}",
-        externalDocs: {{>doc}},
-        parameters: [{{#parameters}}
-            {
-                name: "{{name}}",
-                inInfo: "{{in}}",
-                description: "{{description}}", {{#required}}
-                required: {{required}},{{/required}} {{#deprecated}}
-                discontinued: {{deprecated}},{{/deprecated}}
-                allowEmptyValue: "{{allowEmptyValue}}"
-            }{{#unless @last}},{{/unless}}{{/parameters}}
-        ]
-    }
-    @http:ResourceConfig {
-        methods:["PUT"],
-        path:"{{key}}"
-    }{{#deprecated}}
-    deprecated {}{{/deprecated}}
-    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
-        _ = outboundEp -> respond(res);
-    }
-{{/put}}{{#delete}}
-    @swagger:ResourceInfo {
-        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
-        summary: "{{summary}}",
-        description: "{{description}}",
-        externalDocs: {{>doc}},
-        parameters: [{{#parameters}}
-            {
-                name: "{{name}}",
-                inInfo: "{{in}}",
-                description: "{{description}}", {{#required}}
-                required: {{required}},{{/required}} {{#deprecated}}
-                discontinued: {{deprecated}},{{/deprecated}}
-                allowEmptyValue: "{{allowEmptyValue}}"
-            }{{#unless @last}},{{/unless}}{{/parameters}}
-        ]
-    }
-    @http:ResourceConfig {
-        methods:["DELETE"],
-        path:"{{key}}"
-    }{{#deprecated}}
-    deprecated {}{{/deprecated}}
-    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
-        _ = outboundEp -> respond(res);
-    }
-{{/delete}}{{#options}}
-    @swagger:ResourceInfo {
-        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
-        summary: "{{summary}}",
-        description: "{{description}}",
-        externalDocs: {{>doc}},
-        parameters: [{{#parameters}}
-            {
-                name: "{{name}}",
-                inInfo: "{{in}}",
-                description: "{{description}}", {{#required}}
-                required: {{required}},{{/required}} {{#deprecated}}
-                discontinued: {{deprecated}},{{/deprecated}}
-                allowEmptyValue: "{{allowEmptyValue}}"
-            }{{#unless @last}},{{/unless}}{{/parameters}}
-        ]
-    }
-    @http:ResourceConfig {
-        methods:["OPTIONS"],
-        path:"{{key}}"
-    }{{#deprecated}}
-    deprecated {}{{/deprecated}}
-    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
-        _ = outboundEp -> respond(res);
-    }
-{{/options}}{{#head}}
-    @swagger:ResourceInfo {
-        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
-        summary: "{{summary}}",
-        description: "{{description}}",
-        externalDocs: {{>doc}},
-        parameters: [{{#parameters}}
-            {
-                name: "{{name}}",
-                inInfo: "{{in}}",
-                description: "{{description}}", {{#required}}
-                required: {{required}},{{/required}} {{#deprecated}}
-                discontinued: {{deprecated}},{{/deprecated}}
-                allowEmptyValue: "{{allowEmptyValue}}"
-            }{{#unless @last}},{{/unless}}{{/parameters}}
-        ]
-    }
-    @http:ResourceConfig {
-        methods:["HEAD"],
-        path:"{{key}}"
-    }{{#deprecated}}
-    deprecated {}{{/deprecated}}
-    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
-        _ = outboundEp -> respond(res);
-    }
-{{/head}}{{#patch}}
-    @swagger:ResourceInfo {
-        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
-        summary: "{{summary}}",
-        description: "{{description}}",
-        externalDocs: {{>doc}},
-        parameters: [{{#parameters}}
-            {
-                name: "{{name}}",
-                inInfo: "{{in}}",
-                description: "{{description}}", {{#required}}
-                required: {{required}},{{/required}} {{#deprecated}}
-                discontinued: {{deprecated}},{{/deprecated}}
-                allowEmptyValue: "{{allowEmptyValue}}"
-            }{{#unless @last}},{{/unless}}{{/parameters}}
-        ]
-    }
-    @http:ResourceConfig {
-        methods:["PATCH"],
-        path:"{{key}}"
-    }{{#deprecated}}
-    deprecated {}{{/deprecated}}
-    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
-        _ = outboundEp -> respond(res);
-    }
-{{/patch}}{{#trace}}
-    @swagger:ResourceInfo {
-        tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
-        summary: "{{summary}}",
-        description: "{{description}}",
-        externalDocs: {{>doc}},
-        parameters: [{{#parameters}}
-            {
-                name: "{{name}}",
-                inInfo: "{{in}}",
-                description: "{{description}}", {{#required}}
-                required: {{required}},{{/required}} {{#deprecated}}
-                discontinued: {{deprecated}},{{/deprecated}}
-                allowEmptyValue: "{{allowEmptyValue}}"
-            }{{#unless @last}},{{/unless}}{{/parameters}}
-        ]
-    }
-    @http:ResourceConfig {
-        methods:["TRACE"],
-        path:"{{key}}"
-    }{{#deprecated}}
-    deprecated {}{{/deprecated}}
-    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
-        _ = outboundEp -> respond(res);
-    }
-{{/trace}}{{/value}}{{/paths}}
+{{/value}}{{/operations}}{{/value}}{{/paths}}
 }

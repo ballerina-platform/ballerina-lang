@@ -1,7 +1,7 @@
 import ballerina/lang.system;
 import ballerina/data.sql;
 
-function main (string[] args) {
+function main (string... args) {
     map props = {"jdbcUrl":"jdbc:mysql://localhost:3306/db",
                     "username":"root", "password":"root"};
     sql:ClientConnector testDB = create sql:ClientConnector(props);

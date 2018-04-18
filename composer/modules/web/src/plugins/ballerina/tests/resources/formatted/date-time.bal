@@ -1,7 +1,7 @@
 import ballerina/lang.system;
 import ballerina/lang.time;
 
-function main (string[] args) {
+function main (string... args) {
     //Time struct can be created by currentTime, createTime or parse functions.
     //Get the current time
     time:Time currentTime = time:currentTime();
