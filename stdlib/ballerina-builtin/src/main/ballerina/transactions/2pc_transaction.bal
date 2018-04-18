@@ -125,7 +125,7 @@ type TwoPhaseCommitTransaction object {
         When an abort statement is executed, this function gets called. The transaction in concern will be marked for
         abortion.
     }
-    function markForAbortion() returns string|error {
+    function markForAbortion() returns error? {
         if (self.isInitiated) {
             self.state = TXN_STATE_ABORTED;
             log:printInfo("Marked initiated transaction for abortion");
@@ -142,7 +142,7 @@ type TwoPhaseCommitTransaction object {
                 return err;
             }
         }
-        return ""; //TODO: check what will happen if nothing is returned
+        return ();
     }
 
     // The result of this function is whether we can commit or abort
