@@ -20,6 +20,8 @@ package org.ballerinalang.net.grpc.builder.components;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.net.grpc.MessageConstants.EMPTY_DATATYPE_NAME;
+
 /**
  * Stub Object bean class.
  */
@@ -43,6 +45,17 @@ public class StubObject {
     public void addBlockingFunction(String operationId, String inputDataType, String outputDataType, String methodId) {
         BlockingFunction blockingFunctionsObj = new BlockingFunction
                 ("Blocking", connectorId, operationId, inputDataType, outputDataType, methodId);
+        if(EMPTY_DATATYPE_NAME.equals(inputDataType)) {
+            blockingFunctionsObj.setInputComma(null);
+            blockingFunctionsObj.setInputAttributeName(null);
+            blockingFunctionsObj.setInputDataType(null);
+            blockingFunctionsObj.initEmptyStruct();
+        }
+        if(EMPTY_DATATYPE_NAME.equals(outputDataType)) {
+            blockingFunctionsObj.setOutputComma(null);
+            blockingFunctionsObj.setOutputDataType(null);
+            blockingFunctionsObj.ignoreCast();
+        }
         blockingFunctions.add(blockingFunctionsObj);
     }
     

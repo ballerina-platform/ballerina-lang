@@ -14,7 +14,8 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
         self.serviceStub = navStub;
     }
     {{/stubs}}{{#blockingFunctions}}
-    function {{operationId}} ({{inputDataType}} req, grpc:Headers... headers) returns (({{outputDataType}}, grpc:Headers)|error) {
+    function {{operationId}} ({{inputDataType}}{{&space}}{{inputAttributeName}}{{inputComma}}{{&space}}grpc:Headers... headers) returns (({{outputDataType}}{{outputComma}} grpc:Headers)|error) {
+        {{&initEmptyStub}}
         (any,grpc:Headers)|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("{{methodId}}", req, ...headers);
         match unionResp {
             grpc:ConnectorError payloadError => {
@@ -24,8 +25,8 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
             (any, grpc:Headers) payload => {
                 any result;
                 grpc:Headers resHeaders;
-                (result, resHeaders) = payload;
-                return (<{{outputDataType}}>result, resHeaders);
+                ({{resultCast}}, resHeaders) = payload;
+                return {{&openBracket}}{{&castSymbolOpen}}{{outputDataType}}{{&castSymbolClose}}{{resultOut}}{{outputComma}}{{&space}}resHeaders{{&closeBracket}};
             }
         }
     }
