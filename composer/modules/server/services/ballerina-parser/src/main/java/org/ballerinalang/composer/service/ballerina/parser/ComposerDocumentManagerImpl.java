@@ -49,7 +49,6 @@ public class ComposerDocumentManagerImpl extends WorkspaceDocumentManagerImpl {
         }
     }
 
-
     @Override
     public String getFileContent(Path filePath) {
         if (isTempFile(filePath)) {
