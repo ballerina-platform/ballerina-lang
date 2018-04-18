@@ -6,6 +6,7 @@ The `getArchitecture()`, `getVersion()`, and `getName()` functions return the ar
 The environmental variables can have many values and these value can be separated using  path separators. The Path separator separates the path values and it is OS specific. Unix-based systems use the colon `:` as the path separator while Windows-based systems use the semicolon `;` as the path separator.
 
 The table given below shows how the `getEnv()` and `getMultivaluedEnv()`functions return values that are separated by path separators.
+
 Statement |Return Values
 --- | --- 
 `os:getEnv("PATH");` | `“/home/user/ballerina/test:/home/user/ballerina/examples”`

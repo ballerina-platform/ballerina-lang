@@ -17,7 +17,7 @@
 package org.ballerinalang.composer.service.ballerina.launcher.service;
 
 import org.ballerinalang.composer.service.ballerina.launcher.service.util.LaunchUtils;
-import org.ballerinalang.langserver.TextDocumentServiceUtil;
+import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,11 +115,11 @@ public class Command {
         }
         commandList.add(ballerinaExecute);
         commandList.add("run");
-        sourceRoot = TextDocumentServiceUtil.getSourceRoot(Paths.get(filePath + fileName));
+        sourceRoot = LSCompiler.getSourceRoot(Paths.get(filePath + fileName));
 
         if (filePath != null && !filePath.equals(sourceRoot + File.separator)) {
             packageName =
-                    TextDocumentServiceUtil.getPackageNameForGivenFile(sourceRoot, filePath + fileName);
+                    LSCompiler.getPackageNameForGivenFile(sourceRoot, filePath + fileName);
             commandList.add("--sourceroot");
             commandList.add(sourceRoot);
         }

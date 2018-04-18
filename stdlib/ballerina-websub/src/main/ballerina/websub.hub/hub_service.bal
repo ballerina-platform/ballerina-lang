@@ -237,12 +237,13 @@ function verifyIntent(string callback, string topic, map params) {
     };
 
     string mode = <string> params[websub:HUB_MODE];
-    string secret = <string> params[websub:HUB_SECRET];
     int leaseSeconds;
 
-    match (<int> params[websub:HUB_LEASE_SECONDS]) {
-        int extrLeaseSeconds => { leaseSeconds = extrLeaseSeconds; }
-        error => { leaseSeconds = 0; }
+    if (params.hasKey(websub:HUB_LEASE_SECONDS)) {
+        match (<int> params[websub:HUB_LEASE_SECONDS]) {
+            int extrLeaseSeconds => { leaseSeconds = extrLeaseSeconds; }
+            error => { leaseSeconds = 0; }
+        }
     }
 
     //measured from the time the verification request was made from the hub to the subscriber from the recommendation
@@ -271,9 +272,13 @@ function verifyIntent(string callback, string topic, map params) {
                         log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: ["
                                                      + callback + "]: Challenge not echoed correctly.");
                     } else {
-                        websub:SubscriptionDetails subscriptionDetails = {topic:topic, callback:callback, secret:secret,
+                        websub:SubscriptionDetails subscriptionDetails = {topic:topic, callback:callback,
                                               leaseSeconds:leaseSeconds, createdAt:createdAt};
                         if (mode == websub:MODE_SUBSCRIBE) {
+                            if (params.hasKey(websub:HUB_SECRET)) {
+                                string secret = <string> params[websub:HUB_SECRET];
+                                subscriptionDetails.secret = secret;
+                            }
                             websub:addSubscription(subscriptionDetails);
                         } else {
                             websub:removeSubscription(topic, callback);
