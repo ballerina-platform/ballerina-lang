@@ -105,4 +105,8 @@
         </snapshotRepository>
     </distributionManagement>
 
+    <properties>
+        <project.scm.id>ballerina-scm-server</project.scm.id>
+    </properties>
+
 </project>
