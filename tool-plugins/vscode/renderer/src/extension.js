@@ -19,20 +19,22 @@
 
 const { workspace, commands, window, Uri, ViewColumn } = require('vscode');
 const path = require('path');
+const _ = require('lodash');
 
 const DiagramProvider = require('./content-provider');
 let diagramProvider;
+const DEBOUNCE_WAIT = 500;
 
 exports.activate = function(context) {
 
 	const provider = diagramProvider = new DiagramProvider();
 
-	workspace.onDidChangeTextDocument((e) => {
+	workspace.onDidChangeTextDocument(_.debounce((e) => {
         if ((window.activeTextEditor) && (e.document === window.activeTextEditor.document) &&
             e.document.fileName.endsWith('.bal')) {
 			provider.update(Uri.parse('ballerina-diagram:///ballerina/diagram'));
 		}
-	});
+	}, DEBOUNCE_WAIT));
 
 	window.onDidChangeActiveTextEditor((e) => {
         if ((window.activeTextEditor) && (e.document === window.activeTextEditor.document) &&

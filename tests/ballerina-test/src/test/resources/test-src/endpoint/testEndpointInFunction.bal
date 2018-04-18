@@ -1,6 +1,6 @@
 string exFlow = "";
 
-function main (string[] args) {
+function main (string... args) {
     endpoint DummyEndpoint ep { conf1 : "test1"};
     exFlow = exFlow + "<main>";
     ep -> invoke1("t", 1);

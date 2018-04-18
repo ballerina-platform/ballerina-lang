@@ -1,6 +1,6 @@
 import ballerina/lang.system;
 
-function main (string[] args) {
+function main (string... args) {
     //Here we assign a 'string' typed value to a variable of type 'any'.
     any a = "Jungle cat";
     //Here is how you can cast an 'any' typed variable to the 'string' type.

@@ -77,4 +77,10 @@
         </classes>
     </test>
 
+    <test name="ballerina-streaming-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.streaming.StreamsWithinServicesTestCase"/>
+        </classes>
+    </test>
+
 </suite>

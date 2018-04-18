@@ -26,7 +26,7 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
     //    public void testMainFunction() {
     //        myFixture.configureByText("test.bal", "<caret>");
     //        myFixture.type("funm\t");
-    //        myFixture.checkResult("function main (string[] args) {\n    \n}");
+    //        myFixture.checkResult("function main (string... args) {\n    \n}");
     //    }
     //
     //    public void testFunctionInEmptyFile() {

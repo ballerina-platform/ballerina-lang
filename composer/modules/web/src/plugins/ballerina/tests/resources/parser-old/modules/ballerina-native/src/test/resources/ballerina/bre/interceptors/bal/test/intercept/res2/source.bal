@@ -3,7 +3,7 @@ package bal.test.intercept.res2;
 import ballerina/lang.system;
 import ballerina/lang.messages;
 
-function main (string[] args) {
+function main (string... args) {
     system:println("Hello, World!");
 }
 
