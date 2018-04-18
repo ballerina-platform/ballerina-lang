@@ -22,10 +22,10 @@ string absolutePathValue = “/home/user/ballerina/doc”;
 file:Path absolutePath = new(absolutePathValue);
 ```
 
-## Absolute paths on different operating systems
+### Absolute paths on different operating systems
 The absolute path differs in each operating system (OS). For example, a Unix-based OS defines the path as `/home/user/ballerina/examples` and a Windows-based OS defines the path as `C:\windows\user\ballerina\examples`.
 
-## Convert relative paths to absolute paths
+### Convert relative paths to absolute paths
 The `toAbsolutePath()` function converts a relative path to an absolute path.
 
 ```ballerina
