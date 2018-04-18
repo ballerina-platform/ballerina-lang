@@ -47,22 +47,19 @@ Follow the steps given below to run the sample and get sample log outputs.
       `ballerina run foo/`
 
 3. By default, the logs are printed to the console. To write logs to the `test.log` file, execute the following command.
-
-     `ballerina run foo/ 2> test.log`
+`ballerina run foo/ 2> test.log`
 
 
 4. Controlling the log level of the `foo` package:
 
-* The log level for the `foo` package can be changed to ERROR as follows using CLI arguments.
+	* The log level for the `foo` package can be changed to ERROR using CLI arguments as shown below.
+	`ballerina run foo/ -e foo.loglevel=ERROR`
 
-     `ballerina run foo/ -e foo.loglevel=ERROR`
 
-
-* To set the log level of `foo` pacakge using a configuration file, create a file named `ballerina.conf` in the source root of `test.bal`, and place the following entry..
-
-     ```ballerina
-      [foo]
-      loglevel="ERROR"
-     ```
-   Next, run the `test.bal` file to print the ERROR logs.
-    `ballerina run foo/`
+	* To set the log level of the `foo` pacakge using a configuration file, create a file named `ballerina.conf` in the source root of `test.bal`, and copy the following entry.
+	     ```ballerina
+	      [foo]
+	      loglevel="ERROR"
+	     ```
+	Next, run the `test.bal` file to print the ERROR logs.
+	`ballerina run foo/`

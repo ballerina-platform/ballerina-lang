@@ -214,7 +214,7 @@ public class Generator {
         }
 
         StaticCaption primitivesPageHeading = new StaticCaption(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME);
-        return new Page(primitivesPageHeading, primitiveTypes, links);
+        return new Page(null, primitivesPageHeading, primitiveTypes, links, primitives);
     }
 
     /**

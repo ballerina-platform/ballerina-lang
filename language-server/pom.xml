@@ -46,6 +46,7 @@
         <google.guava.version>21.0</google.guava.version>
     </properties>
     <modules>
+        <module>modules/langserver-compiler</module>
         <module>modules/langserver-core</module>
         <module>modules/launchers</module>
     </modules>
