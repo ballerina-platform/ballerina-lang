@@ -19,9 +19,6 @@
 package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-
-import java.util.List;
 
 /**
  * @since 0.970.0

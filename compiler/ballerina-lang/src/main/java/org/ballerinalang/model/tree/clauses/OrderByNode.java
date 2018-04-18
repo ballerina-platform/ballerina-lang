@@ -19,13 +19,12 @@
 package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 import java.util.List;
 
 /**
  * @since 0.965.0
- *
+ * <p>
  * The interface with the APIs to implement the "order by" in ballerina streams/table SQLish syntax.
  * <pre> Grammar:
  *      ORDER BY variableReferenceList

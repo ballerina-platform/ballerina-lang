@@ -2799,7 +2799,8 @@ public class BLangPackageBuilder {
         this.orderByVariableStack.push(orderByVariableNode);
     }
 
-    public void endOrderByVariableNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAscending, boolean isDescending) {
+    public void endOrderByVariableNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAscending,
+                                       boolean isDescending) {
         OrderByVariableNode orderByVariableNode = this.orderByVariableStack.peek();
         ((BLangOrderByVariable) orderByVariableNode).pos = pos;
         orderByVariableNode.addWS(ws);
