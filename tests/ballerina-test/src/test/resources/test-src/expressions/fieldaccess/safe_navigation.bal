@@ -177,19 +177,29 @@ function testSafeNavigateOnJSONArrayOfArray() returns json {
     return j.values[0][1];
 }
 
-function testNilLiftingOnLHS_1() returns json {
-    json j = {};
-    j.info["address"].city = "Colombo";
+function testJSONNilLiftingOnLHS_1() returns (json, json, json, json) {
+    json j1 = {};
+    j1.info["address1"].city = "Colombo";
+
+    json j2 = { info:{} };
+    j2.info["address2"].city = "Kandy";
+
+    json j3 = { info : { address3: {} } };
+    j3.info["address3"].city = "Galle";
+
+    json j4;
+    j4.info["address4"].city = "Jaffna";
+
+    return (j1, j2, j3, j4);
+}
+
+function testJSONNilLiftingOnLHS_2() returns json {
+    json j;
+    j[2].address[3].city = "Colombo";
     return j;
 }
 
-function testNilLiftingOnLHS_2() returns json {
-    json j = [null];
-    j[0].address.city = "Colombo";
-    return j;
-}
-
-function testNonExistingMapKeyWithIndexAccess() returns string? {
+function testNonExistingMapKeyWithIndexAccess() returns string {
     map<string> m;
     return m["a"];
 }
@@ -198,3 +208,15 @@ function testNonExistingMapKeyWithFieldAccess() returns string {
     map<string> m;
     return m.a;
 }
+
+function testMapNilLiftingOnLHS_1() returns map {
+    map m;
+    m.name = "John";
+    return m;
+}
+
+// function testMapNilLiftingOnLHS_2() returns map {
+//     map<json> m;
+//     m["name"].fname = "John";
+//     return m;
+// }

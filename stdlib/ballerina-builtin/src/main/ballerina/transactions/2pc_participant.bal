@@ -53,7 +53,7 @@ type Participant object {
         string participantId;
     }
 
-    function prepare(string protocol) returns PrepareResult | () | error   {
+    function prepare(string protocol) returns (PrepareResult,Participant) | () | error   {
         error err = {message: "Unsupported function"};
         throw err;
     }
@@ -73,18 +73,18 @@ type RemoteParticipant object {
 
     new(participantId, transactionId, participantProtocols){}
 
-    function prepare(string protocol) returns PrepareResult | () | error  {
+    function prepare(string protocol) returns (PrepareResult,Participant) | () | error  {
         boolean successful = true;
         foreach remoteProto in participantProtocols {
             if(remoteProto.name == protocol) {
                 // We are assuming a participant will have only one instance of a protocol
-                return self.prepareMe(remoteProto.url);
+                return (self.prepareMe(remoteProto.url), self);
             }
         }
         return (); // No matching protocol
     }
 
-    function notify(string action, string? protocolName) returns NotifyResult | () | error {
+    function notify(string action, string? protocolName) returns NotifyResult| () | error {
         match protocolName {
             string proto => {
                 foreach remoteProtocol in participantProtocols {
@@ -183,12 +183,12 @@ type LocalParticipant object {
 
     new(participantId, participatedTxn, participantProtocols){}
 
-    function prepare(string protocol) returns PrepareResult|()|error  {
+    function prepare(string protocol) returns (PrepareResult,Participant) | () | error  {
         boolean successful = true;
         foreach localProto in participantProtocols {
             if(localProto.name == protocol) {
                 log:printInfo("Preparing local participant: " + self.participantId);
-                return prepareMe(participatedTxn.transactionId, participatedTxn.transactionBlockId);
+                return (prepareMe(participatedTxn.transactionId, participatedTxn.transactionBlockId), self);
             }
         }
         return ();
