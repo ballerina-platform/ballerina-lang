@@ -23,11 +23,13 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.Writer;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
+import org.ballerinalang.docgen.model.Caption;
 import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.PackageDoc;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.StaticCaption;
+import org.ballerinalang.model.types.TypeKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -41,7 +43,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.msf4j.internal.DataHolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,6 +89,7 @@ public class BallerinaDocGenerator {
     public static void generateApiDocs(String sourceRoot, String output, String packageFilter, boolean isNative,
                                        String... sources) {
         out.println("docerina: API documentation generation for sources - " + Arrays.toString(sources));
+        List<Link> primitives = primitives();
         for (String source : sources) {
             source = source.trim();
             try {
@@ -153,7 +155,7 @@ public class BallerinaDocGenerator {
 
                     String packagePath = refinePackagePath(bLangPackage);
 
-                    Page page = Generator.generatePage(bLangPackage, packageNameList, pkgDescription);
+                    Page page = Generator.generatePage(bLangPackage, packageNameList, pkgDescription, primitives);
                     String filePath = output + File.separator + packagePath + HTML;
                     Writer.writeHtmlDocument(page, packageTemplateName, filePath);
 
@@ -307,17 +309,6 @@ public class BallerinaDocGenerator {
         return sj.toString();
     }
 
-    private static void storeBuiltInPackage () {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
-        options.put(CompilerOptionName.PRESERVE_WHITESPACE, "false");
-
-        Compiler compiler = Compiler.getInstance(context);
-        BLangPackage bLangPackage = loadBuiltInPackage(context);
-        DataHolder
-    }
-
     private static BLangPackage loadBuiltInPackage(CompilerContext context) {
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         // Load built-in packages.
@@ -332,6 +323,15 @@ public class BallerinaDocGenerator {
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
         return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(),
                 Names.BUILTIN_PACKAGE.getValue())));
+    }
+
+    private static List<Link> primitives() {
+        List<Link> primitives = new ArrayList<>();
+        for (TypeKind type : TypeKind.values()) {
+            primitives.add(new Link(new Caption(type.typeName()), BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF
+                    .concat("" + ".html#" + type.typeName()), true));
+        }
+        return primitives;
     }
 
     private static String refinePackagePath(BLangPackage bLangPackage) {

@@ -79,7 +79,8 @@ public class Generator {
      * @param packages   List of available packages.
      * @return A page model for the current package.
      */
-    public static Page generatePage(BLangPackage balPackage, List<Link> packages, String description) {
+    public static Page generatePage(BLangPackage balPackage, List<Link> packages, String description, List<Link>
+            primitives) {
         ArrayList<Documentable> documentables = new ArrayList<>();
         String currentPackageName = (balPackage.symbol).pkgID.name.value;
 
@@ -151,7 +152,7 @@ public class Generator {
             }
         }
 
-        return new Page(description, packageNameHeading, documentables, links);
+        return new Page(description, packageNameHeading, documentables, links, primitives);
     }
 
     /**

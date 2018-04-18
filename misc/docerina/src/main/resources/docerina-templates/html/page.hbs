@@ -111,7 +111,15 @@
                   <div class="cLectColStyle cLeftColTop">
                       <div class="cBallerina-io-docs-Title cBallerina-io-primitive-types">PRIMITIVE TYPES</div>
                         <div class="cCollaps-Menu-first">
-                          
+                            {{#each primitives}}
+                                <ul class="">
+                                    <li>
+                                        <a href="{{href}}">
+                                            <span class="bold">{{caption.value}}</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            {{/each}}
                         </div>
                   </div>
                 </div>
