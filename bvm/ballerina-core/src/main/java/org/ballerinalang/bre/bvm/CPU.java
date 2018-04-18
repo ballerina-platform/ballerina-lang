@@ -3137,9 +3137,9 @@ public class CPU {
             return checkTupleCast(rhsValue, lhsType);
         } 
         
-//        if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-//            return checkFiniteTypeAssignable(rhsValue, lhsType);
-//        }
+        if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return checkFiniteTypeAssignable(rhsValue, lhsType);
+        }
 
         return false;
     }
