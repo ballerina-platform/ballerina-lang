@@ -23,14 +23,11 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMessage;
-import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -56,8 +53,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLEngine;
-
-import static org.wso2.transport.http.netty.sender.RedirectUtil.isRelativePath;
 
 /**
  * Class responsible for handling redirects for client connector.
@@ -235,7 +230,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 LOG.debug("Handling redirect state for channel : " + ctx.channel().id());
             }
             if (isRedirectEligible()) {
-                isCrossDoamin = RedirectUtil.isCrossDomain(location, originalRequest);
+                isCrossDoamin = isCrossDomain(location, originalRequest);
                 currentRedirectCount = updateAndGetRedirectCount(ctx);
                 if (currentRedirectCount <= maxRedirectCount) {
                     if (LOG.isDebugEnabled()) {
@@ -504,7 +499,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      */
     private boolean isCrossDomain(String location, HTTPCarbonMessage originalRequest)
             throws UnsupportedEncodingException, MalformedURLException {
-        if (!isRelativePath(location)) {
+        if (!RedirectUtil.isRelativePath(location)) {
             try {
                 URL locationUrl = new URL(location);
                 String protocol =
@@ -538,43 +533,6 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             LOG.debug("Is cross domain url : " + false);
         }
         return false;
-    }
-
-    /**
-     * Create redirect request.
-     *
-     * @return HTTPCarbonMessage with request properties
-     * @throws MalformedURLException
-     */
-    private HTTPCarbonMessage createHttpCarbonRequest() throws MalformedURLException {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Create redirect request with http method  : " + redirectState.get(Constants.HTTP_METHOD));
-        }
-        URL locationUrl = new URL(redirectState.get(HttpHeaderNames.LOCATION.toString()));
-
-        HttpMethod httpMethod = new HttpMethod(redirectState.get(Constants.HTTP_METHOD));
-        HTTPCarbonMessage httpCarbonRequest = new HTTPCarbonMessage(
-                new DefaultHttpRequest(HttpVersion.HTTP_1_1, httpMethod, ""));
-        httpCarbonRequest.setProperty(Constants.HTTP_PORT,
-                locationUrl.getPort() != -1 ? locationUrl.getPort() : getDefaultPort(locationUrl.getProtocol()));
-        httpCarbonRequest.setProperty(Constants.PROTOCOL, locationUrl.getProtocol());
-        httpCarbonRequest.setProperty(Constants.HTTP_HOST, locationUrl.getHost());
-        httpCarbonRequest.setProperty(Constants.HTTP_METHOD, redirectState.get(Constants.HTTP_METHOD));
-        httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.toString());
-        httpCarbonRequest.setProperty(Constants.TO, locationUrl.toString());
-
-        StringBuffer host = new StringBuffer(locationUrl.getHost());
-        if (locationUrl.getPort() != -1 && locationUrl.getPort() != Constants.DEFAULT_HTTP_PORT
-                && locationUrl.getPort() != Constants.DEFAULT_HTTPS_PORT) {
-            host.append(Constants.COLON).append(locationUrl.getPort());
-        }
-        if (redirectState.get(HttpHeaderNames.USER_AGENT.toString()) != null) {
-            httpCarbonRequest.setHeader(HttpHeaderNames.USER_AGENT.toString(),
-                    redirectState.get(HttpHeaderNames.USER_AGENT.toString()));
-        }
-        httpCarbonRequest.setHeader(HttpHeaderNames.HOST.toString(), host.toString());
-        httpCarbonRequest.completeMessage();
-        return httpCarbonRequest;
     }
 
     /**

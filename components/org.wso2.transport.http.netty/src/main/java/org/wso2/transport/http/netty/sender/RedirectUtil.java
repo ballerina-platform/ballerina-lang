@@ -118,51 +118,6 @@ public class RedirectUtil {
     }
 
     /**
-     * Checks whether the location indicates a cross domain.
-     *
-     * @param location        redirected location
-     * @param originalRequest Original request message
-     * @return whether the location is cross domain or not
-     * @throws UnsupportedEncodingException if url decoding fails
-     */
-    public static boolean isCrossDomain(String location, HTTPCarbonMessage originalRequest)
-            throws UnsupportedEncodingException, MalformedURLException {
-        if (!isRelativePath(location)) {
-            try {
-                URL locationUrl = new URL(location);
-                String protocol = (String) originalRequest.getProperty(Constants.PROTOCOL);
-                String host = (String) originalRequest.getProperty(Constants.HTTP_HOST);
-                String port = originalRequest.getProperty(Constants.HTTP_PORT) != null ?
-                              Integer.toString((Integer) originalRequest.getProperty(Constants.HTTP_PORT)) : null;
-                if (port == null) {
-                    port = String.valueOf(getDefaultPort(protocol));
-                }
-
-                if (locationUrl.getProtocol().equals(protocol) && locationUrl.getHost().equals(host)
-                    && locationUrl.getPort() == Integer.parseInt(port)) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Is cross domain url : " + false);
-                    }
-                    return false;
-                } else {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Is cross domain url : " + true);
-                    }
-                    return true;
-                }
-            } catch (MalformedURLException exception) {
-                log.error("MalformedURLException occurred while deciding whether the redirect url is cross domain",
-                          exception);
-                throw exception;
-            }
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Is cross domain url : " + false);
-        }
-        return false;
-    }
-
-    /**
      * Builds the redirect URL from relative path.
      *
      * @param requestPath request path of the original request
