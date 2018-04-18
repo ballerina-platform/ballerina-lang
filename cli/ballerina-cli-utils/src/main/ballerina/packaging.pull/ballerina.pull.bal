@@ -22,7 +22,6 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
              }
         }
         ]
-        // followRedirects : { enabled : true, maxCount : 5 }
     };
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
@@ -33,74 +32,71 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
     http:Response httpResponse = check result;
 
     http:Response res = new;
-    // To be fixed with redirect
-    if (httpResponse.statusCode == 302){
+    string statusCode = <string> httpResponse.statusCode;
+    if (statusCode == "302"){
         string locationHeader;
         if (httpResponse.hasHeader("Location")) {
             locationHeader = httpResponse.getHeader("Location");
+            res = callFileServer(locationHeader);
+            if (res.statusCode != 200) {
+                json jsonResponse = check (res.getJsonPayload());
+                string message = jsonResponse.message.toString();
+                io:println(message);
+            } else {
+                string contentLengthHeader;
+                int pkgSize = MAX_INT_VALUE;
+                if (res.hasHeader("content-length")) {
+                    contentLengthHeader = res.getHeader("content-length");
+                    pkgSize = check <int> contentLengthHeader;
+                } else {
+                    io:println("warning: package size information is missing from the remote repository");
+                }
+
+                io:ByteChannel sourceChannel = check (res.getByteChannel());
+
+                string rawPathVal;
+                if (res.hasHeader("raw-path")) {
+                    rawPathVal = res.getHeader("raw-path");
+                    string pkgVersion;
+                    string [] pathArray = rawPathVal.split("/");
+                    int sizeOfArray = lengthof pathArray;
+                    if (sizeOfArray > 3) {
+                        pkgVersion = pathArray[sizeOfArray - 2];
+                        string pkgName = fullPkgPath.subString(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
+                        fullPkgPath = fullPkgPath + ":" + pkgVersion;
+
+                        // Create the version directory
+                        destDirPath = destDirPath + fileSeparator + pkgVersion;
+                        if (!createDirectories(destDirPath)) {
+                            return;
+                        }
+                        string archiveFileName = pkgName + ".zip";
+                        string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
+
+                        io:ByteChannel destDirChannel = getFileChannel(destArchivePath, "w");
+                        string toAndFrom = " [central.ballerina.io -> home repo]";
+
+                        copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom);
+                        _ = destDirChannel.close();
+                        _ = sourceChannel.close();
+                    } else {
+                        io:println("package version information is missing from the remote repository");
+                    }
+                } else {
+                    io:println("package version information is missing from the remote repository");
+                }
+            }
         } else {
-            error err = {message:"package location information is missing from the remote repository"};
-            throw err;
+            io:println("package location information is missing from the remote repository");
         }
-        res = callFileServer(locationHeader);
+    } else if (statusCode.hasPrefix("5")) {
+        io:println("remote registry failed for url :" + url);
     } else {
-       error err = {message:"error occurred when pulling the package"};
-       throw err;
-    }
-    if (res.statusCode != 200) {
-        json jsonResponse = check (res.getJsonPayload());
-        string message = (jsonResponse.message.toString() but {()=> "error occurred when pulling the package"});
-        io:println(message);
-    } else {
-        string contentLengthHeader;
-        int pkgSize = MAX_INT_VALUE;
-        if (res.hasHeader("content-length")) {
-            contentLengthHeader = res.getHeader("content-length");
-            pkgSize = check <int> contentLengthHeader;
-        } else {
-            io:println("warning: package size information is missing from the remote repository");
-        }
-
-        io:ByteChannel sourceChannel = check (res.getByteChannel());
-
-        string rawPathVal;
-        if (res.hasHeader("raw-path")) {
-            rawPathVal = res.getHeader("raw-path");
-         } else {
-             error err = {message:"package version information is missing from the remote repository"};
-             throw err;
-         }
-        string pkgVersion;
-        string [] pathArray = rawPathVal.split("/");
-        int sizeOfArray = lengthof pathArray;
-        if (sizeOfArray > 3) {
-            pkgVersion = pathArray[sizeOfArray - 2];
-         } else {
-             error err = {message:"package version information is missing from the remote repository"};
-             throw err;
-         }
-
-        string pkgName = fullPkgPath.subString(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
-        fullPkgPath = fullPkgPath + ":" + pkgVersion;
-
-        // Create the version directory
-        destDirPath = destDirPath + fileSeparator + pkgVersion;
-        if (!createDirectories(destDirPath)) {
-            return;
-        }
-        string archiveFileName = pkgName + ".zip";
-        string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
-
-        io:ByteChannel destDirChannel = getFileChannel(destArchivePath, "w");
-        string toAndFrom = " [central.ballerina.io -> home repo]";
-
-        copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom);
-        _ = destDirChannel.close();
-        _ = sourceChannel.close();
+       io:println("error occurred when pulling the package");
     }
 }
 
-public function main(string[] args){
+function main(string... args){
     pullPackage(args[0], args[1], args[2], args[3]);
 }
 
@@ -151,7 +147,7 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
             io:print("\r" + rightPad(msg, 100) + "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize);
         }
     } catch (error err) {
-        throw err;
+        io:println("");
     }
     io:print("\r" + rightPad(fullPkgPath + toAndFrom, (115 + noOfBytesRead.length())) + "\n");
 }

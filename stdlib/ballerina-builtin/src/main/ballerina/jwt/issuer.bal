@@ -17,13 +17,14 @@
 package ballerina.jwt;
 
 import ballerina/util;
-import ballerina/jwt.signature;
 import ballerina/io;
 
 @Description {value:"Represents JWT issuer configurations"}
 public type JWTIssuerConfig {
-    string certificateAlias;
-    string keyPassword;
+    string keyAlias,
+    string keyPassword,
+    string keyStoreFilePath,
+    string keyStorePassword,
 };
 
 @Description {value:"Issue a JWT token"}
@@ -40,7 +41,12 @@ public function issue (Header header, Payload payload, JWTIssuerConfig config) r
         string result => jwtPayload = result;
     }
     string jwtAssertion = jwtHeader + "." + jwtPayload;
-    string signature = signature:sign(jwtAssertion, header.alg, config.certificateAlias, config.keyPassword);
+    KeyStore keyStore = {};
+    keyStore.keyAlias = config.keyAlias;
+    keyStore.keyPassword = config.keyPassword;
+    keyStore.keyStoreFilePath = config.keyStoreFilePath;
+    keyStore.keyStorePassword = config.keyStorePassword;
+    string signature = sign(jwtAssertion, header.alg, keyStore);
     return (jwtAssertion + "." + signature);
 }
 
@@ -49,7 +55,7 @@ function createHeader (Header header) returns (string) {
     headerJson[ALG] = header.alg;
     headerJson[TYP] = "JWT";
     headerJson = addMapToJson(headerJson, header.customClaims);
-    string headerValInString = headerJson.toString()  but {() => ""};
+    string headerValInString = headerJson.toString();
     string encodedPayload = check util:base64EncodeString(headerValInString);
     return encodedPayload;
 }
@@ -69,7 +75,7 @@ function createPayload (Payload payload) returns (string|error) {
     }
     payloadJson[AUD] = convertStringArrayToJson(payload.aud);
     payloadJson = addMapToJson(payloadJson, payload.customClaims);
-    string payloadInString = payloadJson.toString()  but {() => ""};
+    string payloadInString = payloadJson.toString();
     return util:base64EncodeString(payloadInString);
 }
 

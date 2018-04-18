@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.SQLDBUtils;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -114,13 +115,42 @@ public class H2ClientActionsTest {
                 "{customerId:41, name:\"Devni\", creditLimit:1000.0, country:\"Sri Lanka\"}");
     }
 
-    //@Test
+    @Test
     public void testUpdateInMemory() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdateInMemory");
+        Assert.assertEquals(returns.length, 2);
         BInteger retValue = (BInteger) returns[0];
-        BString retValue2 = (BString) returns[1];
         Assert.assertEquals(retValue.intValue(), 1);
-        //TODO: Need to be completed
+        Assert.assertEquals(returns[1].stringValue(),
+                "[{\"customerId\":15,\"name\":\"Anne\",\"creditLimit\":1000.0," + "\"country\":\"UK\"}]");
+    }
+
+    @Test
+    public void testInitWithNilDbOptions() {
+        BValue[] returns = BRunUtil.invoke(result, "testInitWithNilDbOptions");
+        assertInitTestReturnValues(returns);
+    }
+
+    @Test
+    public void testInitWithDbOptions() {
+        BValue[] returns = BRunUtil.invoke(result, "testInitWithDbOptions");
+        assertInitTestReturnValues(returns);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*error in sql connector configuration:Failed to initialize pool: "
+                  + "Unsupported connection setting \"INVALID_PARAM\".*")
+    public void testInitWithInvalidDbOptions() {
+        BRunUtil.invoke(result, "testInitWithInvalidDbOptions");
+        Assert.fail("Expected exception should have been thrown by this point");
+    }
+
+    private void assertInitTestReturnValues(BValue[] returns) {
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BIntArray);
+        Assert.assertEquals(((BIntArray) returns[0]).size(), 2);
+        Assert.assertEquals(((BIntArray) returns[0]).get(0), 1);
+        Assert.assertEquals(((BIntArray) returns[0]).get(1), 2);
     }
 
     @AfterSuite

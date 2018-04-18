@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.compiler.LSContext;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,7 +25,7 @@ import java.util.Map;
  * 
  * @since 0.970.0
  */
-class LSGlobalContext implements LSContext {
+public class LSGlobalContext implements LSContext {
 
     private Map<Key<?>, Object> props = new HashMap<>();
     

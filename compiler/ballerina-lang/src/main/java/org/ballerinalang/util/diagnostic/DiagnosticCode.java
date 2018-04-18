@@ -39,10 +39,15 @@ public enum DiagnosticCode {
     UNDEFINED_CONNECTOR("undefined.connector"),
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
     UNDEFINED_OBJECT_FIELD("undefined.field.in.object"),
+    CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
+    OBJECT_UN_INITIALIZABLE_FIELD("object.non.initialised.field"),
+    CYCLIC_TYPE_REFERENCE("cyclic.type.reference"),
     ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
     UNDEFINED_PARAMETER("undefined.parameter"),
     CANNOT_FIND_MATCHING_FUNCTION("cannot.find.function.sig.for.function.in.object"),
     IMPLEMENTATION_ALREADY_EXIST("implementation.already.exist"),
+    CANNOT_INITIALIZE_OBJECT("cannot.initialize.object"),
+    CANNOT_FIND_MATCHING_INTERFACE("cannot.find.matching.interface.function"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
@@ -61,6 +66,7 @@ public enum DiagnosticCode {
     INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
+    MAIN_CANNOT_BE_PUBLIC("main.cannot.be.public"),
     ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
     FORK_JOIN_WORKER_CANNOT_RETURN("fork.join.worker.cannot.return"),
     FORK_JOIN_INVALID_WORKER_COUNT("fork.join.invalid.worker.count"),
@@ -145,6 +151,7 @@ public enum DiagnosticCode {
     INVALID_FUNCTION_INVOCATION("invalid.function.invocation"),
     INVALID_FUNCTION_INVOCATION_WITH_NAME("invalid.function.invocation.with.name"),
     DUPLICATE_NAMED_ARGS("duplicate.named.args"),
+    INVALID_DEFAULT_PARAM_VALUE("invalid.default.param.value"),
 
     DUPLICATED_ERROR_CATCH("duplicated.error.catch"),
 

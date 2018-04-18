@@ -30,6 +30,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
+import org.ballerinalang.testerina.util.Utils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -37,7 +38,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,7 +51,6 @@ import java.util.stream.Collectors;
  */
 public class BTestRunner {
 
-    private Path programDirPath = Paths.get(System.getProperty("user.dir"));
     private static PrintStream errStream = System.err;
     private static PrintStream outStream = System.out;
     private TesterinaReport tReport = new TesterinaReport();
@@ -139,21 +138,20 @@ public class BTestRunner {
 
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
             // compile
-            CompileResult compileResult = BCompileUtil.compile(sourceRoot == null ? programDirPath.toString() :
-                sourceRoot, sourcePackage.toString(), CompilerPhase.CODE_GEN);
+            CompileResult compileResult = BCompileUtil.compile(sourceRoot, sourcePackage.toString(),
+                CompilerPhase.CODE_GEN);
             // print errors
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
                 errStream.println(diagnostic.getKind() + ": " + diagnostic.getPosition() + " " + diagnostic
                     .getMessage());
             }
-            if (compileResult.getDiagnostics().length > 0) {
+            if (compileResult.getErrorCount() > 0) {
                 throw new BallerinaException("[ERROR] Compilation failed.");
             }
             // set the debugger
             ProgramFile programFile = compileResult.getProgFile();
             Debugger debugger = new Debugger(programFile);
-            programFile.setDebugger(debugger);
-
+            Utils.initDebugger(programFile, debugger);
             TesterinaRegistry.getInstance().addProgramFile(programFile);
 
             // process the compiled files
@@ -392,5 +390,4 @@ public class BTestRunner {
     }
 
 }
-
 

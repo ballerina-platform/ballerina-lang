@@ -360,7 +360,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isReceiverAttached = ctx.parameter() != null;
 
         this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc,
-                bodyExists, isReceiverAttached);
+                bodyExists, isReceiverAttached, false);
     }
 
     @Override
@@ -392,7 +392,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endCallableUnitSignature(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+        this.pkgBuilder.endCallableUnitSignature(getCurrentPos(ctx), getWS(ctx), ctx.anyIdentifierName().getText(),
                 ctx.formalParameterList() != null, ctx.returnParameter() != null,
                 ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
     }
@@ -605,7 +605,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endCallableUnitSignature(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+        this.pkgBuilder.endCallableUnitSignature(getCurrentPos(ctx), getWS(ctx), ctx.anyIdentifierName().getText(),
                 ctx.formalParameterList() != null, ctx.returnParameter() != null,
                 ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
     }
@@ -1141,7 +1141,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.createMatchNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.createMatchNode(getCurrentPos(ctx));
     }
 
     @Override
@@ -1191,7 +1191,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.addIntRangeExpression(getCurrentPos(ctx), getWS(ctx),
-                ctx.LEFT_PARENTHESIS() == null, ctx.RIGHT_PARENTHESIS() == null);
+                ctx.LEFT_PARENTHESIS() == null, ctx.RIGHT_PARENTHESIS() == null,
+                ctx.expression(1) == null);
     }
 
     /**
@@ -1786,7 +1787,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx), ctx.ASYNC() != null);
+        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx), ctx.START() != null);
     }
 
     @Override
@@ -1889,6 +1890,22 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addNameReference(getCurrentPos(ctx), getWS(ctx), pkgName, name);
         } else {
             String name = ctx.Identifier(0).getText();
+            this.pkgBuilder.addNameReference(getCurrentPos(ctx), getWS(ctx), null, name);
+        }
+    }
+
+    @Override
+    public void exitFunctionNameReference(BallerinaParser.FunctionNameReferenceContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        if (ctx.Identifier() != null) {
+            String pkgName = ctx.Identifier().getText();
+            String name = ctx.anyIdentifierName().getText();
+            this.pkgBuilder.addNameReference(getCurrentPos(ctx), getWS(ctx), pkgName, name);
+        } else {
+            String name = ctx.anyIdentifierName().getText();
             this.pkgBuilder.addNameReference(getCurrentPos(ctx), getWS(ctx), null, name);
         }
     }
@@ -2267,6 +2284,44 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterLimitClause(BallerinaParser.LimitClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startLimitClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitLimitClause(BallerinaParser.LimitClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endLimitClauseNode(getCurrentPos(ctx), getWS(ctx), ctx.DecimalIntegerLiteral().getText());
+    }
+
+    @Override
+    public void enterOrderByVariable(BallerinaParser.OrderByVariableContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startOrderByVariableNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override public void exitOrderByVariable(BallerinaParser.OrderByVariableContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean isAscending = ctx.orderByType() != null && ctx.orderByType().ASCENDING() != null;
+        boolean isDescending = ctx.orderByType() != null && ctx.orderByType().DESCENDING() != null;
+
+        this.pkgBuilder.endOrderByVariableNode(getCurrentPos(ctx), getWS(ctx), isAscending, isDescending);
+    }
+
+    @Override
     public void enterGroupByClause(BallerinaParser.GroupByClauseContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2529,9 +2584,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean forWithNotAvailable = ctx.simpleLiteral() != null;
         boolean onlyAndAvailable = ctx.AND() != null && ctx.NOT() == null && ctx.FOR() == null;
         boolean onlyOrAvailable = ctx.OR() != null && ctx.NOT() == null && ctx.FOR() == null;
+        boolean commaSeparated = ctx.COMMA() != null;
         this.pkgBuilder.endPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx), followedByAvailable,
                 enclosedInParenthesis, andWithNotAvailable, forWithNotAvailable, onlyAndAvailable,
-                onlyOrAvailable);
+                onlyOrAvailable, commaSeparated);
     }
 
     @Override
@@ -2654,8 +2710,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isSelectClauseAvailable = ctx.selectClause() != null;
         boolean isOrderByClauseAvailable = ctx.orderByClause() != null;
         boolean isJoinClauseAvailable = ctx.joinStreamingInput() != null;
+        boolean isLimitClauseAvailable = ctx.limitClause() != null;
         this.pkgBuilder.endTableQueryNode(isJoinClauseAvailable, isSelectClauseAvailable, isOrderByClauseAvailable,
-                getCurrentPos(ctx), getWS(ctx));
+                isLimitClauseAvailable, getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -2773,7 +2830,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        if (ctx.ASYNC() != null) {
+        if (ctx.START() != null) {
             this.pkgBuilder.markLastInvocationAsAsync(getCurrentPos(ctx));
         }
     }

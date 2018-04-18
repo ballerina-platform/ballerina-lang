@@ -27,19 +27,21 @@ export default {
     createHTTPServiceDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `
-                service serviceName bind serviceEp {
-                    resourceName (endpoint conn, http:Request req) {
-
-                    }
+            service<http:Service> serviceName bind endpointName {
+                getAction (endpoint client){
+                    http:Response res = new;
+                    res.setStringPayload("Successful");
+                    _ = client -> respond(res);
                 }
+            }
             `);
     },
     createHTTPEndpointDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `
-                endpoint http:Listener serviceEp {
-                    port:9090
-                };
+            endpoint http:Listener endpointName {
+                port:9095
+            };
             `);
     },
     createWSServiceDef: () => {
@@ -50,7 +52,7 @@ export default {
                 subProtocols:["xml", "json"],
                 idleTimeoutInSeconds:120
             }
-            service<http:WebSocketService> WSServer bind serviceEp {
+            service<http:WebSocketService> WSServer bind wsEnpointName {
             
                 onOpen (endpoint conn) {
 
@@ -69,9 +71,9 @@ export default {
     createWSEndpointDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
             `
-endpoint http:Listener serviceEp {
-    port:9090
-};
+            endpoint http:Listener wsEnpointName {
+                port:9090
+            };
             `);
     },
     createJMSServiceDef: () => {
@@ -106,7 +108,7 @@ endpoint http:Listener serviceEp {
     },
     createMainFunction: () => {
         return FragmentUtils.createTopLevelNodeFragment(`
-            function main(string[] args) {
+            function main(string... args) {
 
             }
         `);

@@ -26,7 +26,6 @@ import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Tracer extension that returns an instance of Mock tracer.
@@ -38,11 +37,15 @@ public class BMockTracer implements OpenTracer {
     private static final String NAME = "BMockTracer";
 
     @Override
-    public Tracer getTracer(String tracerName, Map<String, String> configProperties, String serviceName)
-            throws InvalidConfigurationException {
+    public Tracer getTracer(String tracerName, String serviceName) {
         MockTracer mockTracer = new MockTracer();
         BMockTracer.tracerMap.add(mockTracer);
         return mockTracer;
+    }
+
+    @Override
+    public void init() throws InvalidConfigurationException {
+        // Do Nothing
     }
 
     @Override

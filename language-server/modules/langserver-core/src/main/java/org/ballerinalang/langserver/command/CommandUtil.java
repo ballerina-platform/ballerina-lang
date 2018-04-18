@@ -15,11 +15,11 @@
  */
 package org.ballerinalang.langserver.command;
 
-import org.ballerinalang.langserver.LSPackageCache;
-import org.ballerinalang.langserver.TextDocumentServiceUtil;
-import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSPackageCache;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.FunctionNode;
@@ -96,7 +96,7 @@ public class CommandUtil {
                     diagnosticMessage.lastIndexOf("'"));
             LSDocument sourceDocument = new LSDocument(params.getTextDocument().getUri());
             Path openedPath = CommonUtil.getPath(sourceDocument);
-            String sourceRoot = TextDocumentServiceUtil.getSourceRoot(openedPath);
+            String sourceRoot = LSCompiler.getSourceRoot(openedPath);
             sourceDocument.setSourceRoot(sourceRoot);
 
             lsPackageCache.getPackageMap().entrySet().stream()

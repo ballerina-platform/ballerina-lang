@@ -45,7 +45,7 @@ under the License.
             <package name="org.ballerinalang.test.types.*">
                 <exclude name="org.ballerinalang.test.types.service.*"/>
                 <exclude name="org.ballerinalang.test.types.null.*"/>
-                
+
                 <!-- TODO: remove once constraint tests are fixed -->
                 <exclude name="org.ballerinalang.test.types.map.*"/>
             </package>
@@ -53,6 +53,7 @@ under the License.
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.nativeimpl.*"/>
             <package name="org.ballerinalang.test.connectors.sql.*"/>
+            <package name="org.ballerinalang.test.connectors.h2.*"/>
             <!-- <package name="org.ballerinalang.test.net.*"/> -->
             <!-- <package name="org.ballerinalang.test.connectors.*"/> -->
             <!--<package name="org.ballerinalang.test.debugger.*"/>-->
@@ -60,7 +61,6 @@ under the License.
             <package name="org.ballerinalang.test.endpoint.*"/>
             <package name="org.ballerinalang.test.closures.*"/>
             <!--<package name="org.ballerinalang.test.services.nativeimpl.*"/>-->
-            <package name="org.ballerinalang.test.services.session"/>
             <package name="org.ballerinalang.test.services.basics"/>
             <package name="org.ballerinalang.test.services.cors"/>
             <package name="org.ballerinalang.test.services.configuration"/>
@@ -93,6 +93,7 @@ under the License.
 			<class name="org.ballerinalang.test.types.map.BMapValueTest" />
 			<class name="org.ballerinalang.test.types.map.MapAccessExprTest" />
 			<class name="org.ballerinalang.test.types.map.MapInitializerExprTest" />
+		        <class name="org.ballerinalang.test.net.websocket.compilation.WebSocketCompilationTest" />
 		</classes>
     </test>
     <test name="ballerina-security-test-suite" preserve-order="true" parallel="false">

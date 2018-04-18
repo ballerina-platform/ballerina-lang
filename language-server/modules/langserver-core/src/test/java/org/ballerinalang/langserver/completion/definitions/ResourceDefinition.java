@@ -40,6 +40,8 @@ public class ResourceDefinition extends CompletionTest {
                 {"allVisibleSymbolsEmptyLine.json", "resource"},
                 {"languageConstructsEmptyLine.json", "resource"},
                 {"languageConstructsNonEmptyLine.json", "resource"},
+                {"actionInvocationSuggestion1.json", "resource"},
+                {"actionInvocationSuggestion2.json", "resource"},
 //                {"enumSuggestAssignment1.json", "resource"},
 //                {"enumSuggestAssignment2.json", "resource"},
 //                {"enumSuggestVarDef1.json", "resource"},

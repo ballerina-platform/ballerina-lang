@@ -15,7 +15,8 @@
  */
 package org.ballerinalang.langserver;
 
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 
 /**
  * Language Server Global Context Keys.

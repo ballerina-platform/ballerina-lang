@@ -19,24 +19,27 @@ package ballerina.http;
 import ballerina/caching;
 
 type HttpCache object {
+
     private {
         caching:Cache cache;
-        CachingPolicy policy;
+        CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
         boolean isShared;
     }
 
     function isAllowedToCache (Response response) returns boolean {
-        if (policy == CACHE_CONTROL_AND_VALIDATORS) {
+        if (self.policy == CACHE_CONTROL_AND_VALIDATORS) {
             return response.hasHeader(CACHE_CONTROL) && (response.hasHeader(ETAG) || response.hasHeader(LAST_MODIFIED));
         }
 
         return true;
     }
 
-    function put (string key, RequestCacheControl requestCacheControl, Response inboundResponse) {
-        if (inboundResponse.cacheControl.noStore ||
-            requestCacheControl.noStore ||
-            (inboundResponse.cacheControl.isPrivate && isShared)) {
+    function put (string key, RequestCacheControl? requestCacheControl, Response inboundResponse) {
+        ResponseCacheControl? respCacheControl = inboundResponse.cacheControl;
+
+        if ((respCacheControl.noStore ?: false) ||
+            (requestCacheControl.noStore ?: false) ||
+            ((respCacheControl.isPrivate ?: false)  && isShared)) {
             // TODO: Need to consider https://tools.ietf.org/html/rfc7234#section-3.2 as well here
             return;
         }
@@ -44,18 +47,18 @@ type HttpCache object {
         // Based on https://tools.ietf.org/html/rfc7234#page-6
         // TODO: Consider cache control extensions as well here
         if (inboundResponse.hasHeader(EXPIRES) ||
-            inboundResponse.cacheControl.maxAge >= 0 ||
-            (inboundResponse.cacheControl.sMaxAge >= 0 && isShared) ||
+            (respCacheControl.maxAge ?: -1) >= 0 ||
+            ((respCacheControl.sMaxAge ?: -1) >= 0 && isShared) ||
             isCacheableStatusCode(inboundResponse.statusCode) ||
-            !inboundResponse.cacheControl.isPrivate) {
+            !(respCacheControl.isPrivate ?: false)) {
 
-            // IMPT: The call to getBinaryPayload() builds the payload from the stream. If this is not done, the stream will
-            // be read by the client and the response will be after the first cache hit.
+            // IMPT: The call to getBinaryPayload() builds the payload from the stream. If this is not done, the stream
+            // will be read by the client and the response will be after the first cache hit.
             match inboundResponse.getBinaryPayload() {
-            // TODO: remove these dummy assignments once empty blocks are supported
-                blob => {int x = 0;}
-                mime:EntityError => {int x = 0;}
+                blob => {}
+                mime:EntityError => {}
             }
+            log:printDebug("Adding new cache entry for: " + key);
             addEntry(cache, key, inboundResponse);
         }
     }

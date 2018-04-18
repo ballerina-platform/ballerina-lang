@@ -20,6 +20,9 @@ import ballerina/log;
 import ballerina/http;
 
 @final string TWO_PHASE_COMMIT = "2pc";
+@final string PROTOCOL_COMPLETION = "completion";
+@final string PROTOCOL_VOLATILE = "volatile";
+@final string PROTOCOL_DURABLE = "durable";
 
 string[] coordinationTypes = [TWO_PHASE_COMMIT];
 
@@ -84,25 +87,24 @@ service InitiatorService bind coordinatorListener {
             if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
                 respondToBadRequest(conn, "Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
             } else if (!protocolCompatible(txn.coordinationType,
-                                           regReq.participantProtocols)) { // Invalid-Protocol
-                respondToBadRequest(conn, "Invalid-Protocol. TID:" + txnId + ",participant ID:" + participantId);
+                                           toProtocolArray(regReq.participantProtocols))) { // Invalid-Protocol
+                respondToBadRequest(conn, "Invalid-Protocol in remote participant. TID:" + txnId + ",participant ID:" +
+                                            participantId);
             } else {
-                Participant participant = {participantId:participantId,
-                                              participantProtocols:regReq.participantProtocols};
-                txn.participants[participantId] = participant;
-                Protocol[] participantProtocols = regReq.participantProtocols;
-                Protocol[] coordinatorProtocols = [];
+                RemoteProtocol[] participantProtocols = regReq.participantProtocols;
+                RemoteParticipant participant = new(participantId, txn.transactionId, participantProtocols);
+                txn.participants[participantId] = <Participant>participant;
+                RemoteProtocol[] coordinatorProtocols = [];
                 int i = 0;
                 foreach participantProtocol in participantProtocols {
-                    Protocol coordinatorProtocol = {name:participantProtocol.name,
+                    RemoteProtocol coordinatorProtocol = {name:participantProtocol.name,
                                                        url:getCoordinatorProtocolAt(participantProtocol.name,
                                                                                     transactionBlockId)};
                     coordinatorProtocols[i] = coordinatorProtocol;
                     i = i + 1;
                 }
 
-                RegistrationResponse regRes = {transactionId:txnId,
-                                                  coordinatorProtocols:coordinatorProtocols};
+                RegistrationResponse regRes = {transactionId:txnId, coordinatorProtocols:coordinatorProtocols};
                 json resPayload = regResponseToJson(regRes);
                 http:Response res = new; res.statusCode = http:OK_200;
                 res.setJsonPayload(resPayload);

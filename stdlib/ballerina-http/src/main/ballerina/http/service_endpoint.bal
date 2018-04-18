@@ -108,7 +108,6 @@ public type ServiceEndpointConfiguration {
     int port = 9090,
     KeepAlive keepAlive = KEEPALIVE_AUTO,
     TransferEncoding transferEncoding = TRANSFERENCODE_CHUNKING,
-    Chunking chunking = CHUNKING_AUTO,
     ServiceSecureSocket? secureSocket,
     string httpVersion = "1.1",
     RequestLimits? requestLimits,
@@ -151,12 +150,6 @@ public function Listener::init (ServiceEndpointConfiguration config) {
     if (err != null) {
         throw err;
     }
-    // if filters are defined, call init on them
-    if (config.filters != null) {
-        foreach filter in config.filters {
-            filter.init();
-        }
-    }
 }
 
 //////////////////////////////////
@@ -178,8 +171,6 @@ public type WebSocketListener object {
     }
 
     public new () {
-        Listener httpEndpoint = new;
-        self.httpEndpoint = httpEndpoint;
     }
 
     @Description {value:"Gets called when the endpoint is being initialize during package init time"}

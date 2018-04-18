@@ -41,8 +41,9 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG
 @JavaSPIService("org.ballerinalang.observe.metrics.extension.micrometer.spi.MeterRegistryProvider")
 public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
 
-    private static final String METRICS_HOSTNAME = CONFIG_TABLE_METRICS + ".hostname";
-    private static final String METRICS_PORT = CONFIG_TABLE_METRICS + ".port";
+    private static final String METRICS_PROMETHEUS_CONFIGS = CONFIG_TABLE_METRICS + ".prometheus";
+    private static final String METRICS_HOSTNAME = METRICS_PROMETHEUS_CONFIGS + ".hostname";
+    private static final String METRICS_PORT = METRICS_PROMETHEUS_CONFIGS + ".port";
     private static final int DEFAULT_PORT = 9797;
 
     private static final PrintStream console = System.out;
@@ -56,16 +57,13 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
     public MeterRegistry get() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
         PrometheusMeterRegistry registry = new PrometheusMeterRegistry(new BallerinaPrometheusConfig());
-        String hostname = configRegistry.getConfiguration(METRICS_HOSTNAME);
+        String hostname = configRegistry.getAsString(METRICS_HOSTNAME);
         boolean hostnameAvailable = hostname != null && !hostname.isEmpty();
-        String portConfigValue = configRegistry.getConfiguration(METRICS_PORT);
-        int configuredPort = 0;
-        if (portConfigValue != null && portConfigValue.length() > 0) {
-            try {
-                configuredPort = Integer.parseInt(portConfigValue);
-            } catch (NumberFormatException e) {
-                throw new IllegalStateException("Invalid port used for Prometheus HTTP endpoint");
-            }
+        int configuredPort;
+        try {
+            configuredPort = Integer.parseInt(configRegistry.getConfigOrDefault(METRICS_PORT, String.valueOf(0)));
+        } catch (IllegalArgumentException e) {
+            configuredPort = 0;
         }
         // Start in default port if there is no configured port.
         int port = configuredPort > 0 ? configuredPort : DEFAULT_PORT;
@@ -123,7 +121,7 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
 
         @Override
         public String prefix() {
-            return CONFIG_TABLE_METRICS;
+            return METRICS_PROMETHEUS_CONFIGS;
         }
 
         @Override
@@ -143,7 +141,7 @@ public class PrometheusMeterRegistryProvider implements MeterRegistryProvider {
 
         @Override
         public String get(String key) {
-            return configRegistry.getConfiguration(key);
+            return configRegistry.getAsString(key);
         }
     }
 }

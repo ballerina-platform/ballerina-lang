@@ -1,17 +1,40 @@
 import ballerina/compression;
+import ballerina/file;
 
-function testUnzipFile(string dirPath, string destDir, string folderToExtract) {
-    compression:unzipFile(dirPath, destDir, folderToExtract);
+function decompressFile(string src, string destDir) returns error? {
+    file:Path srcPath = new(src);
+    file:Path dstPath = new(destDir);
+    var result = compression:decompress(srcPath, dstPath);
+    match result {
+        compression:CompressionError err => return err;
+        ()=> return;
+    }
 }
 
-function testZipFile(string dirPath, string destDir) {
-    compression:zipFile(dirPath, destDir);
+function compressFile(string src, string destDir) returns error? {
+    file:Path srcPath = new(src);
+    file:Path dstPath = new(destDir);
+    var result =compression:compress(srcPath, dstPath);
+    match result {
+        compression:CompressionError err => return err;
+        ()=> return;
+    }
 }
 
-function testUnzipBytes(blob content, string destDir, string folderToExtract) {
-    compression:unzipBytes(content, destDir, folderToExtract);
+function decompressBlob(blob content, string destDir) returns error? {
+    file:Path dstPath = new(destDir);
+    var result = compression:decompressFromBlob(content, dstPath);
+    match result {
+        compression:CompressionError err => return err;
+        ()=> return;
+    }
 }
 
-function testZipToBytes(string dirPath) returns (blob) {
-    return compression:zipToBytes(dirPath);
+function compressDirToBlob(string src) returns blob|error {
+    file:Path srcPath = new(src);
+    var result = compression:compressToBlob(srcPath);
+    match result {
+        compression:CompressionError err => return err;
+        blob b => return b;
+    }
 }

@@ -24,8 +24,12 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
+import org.ballerinalang.util.observability.CallbackObserver;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.io.PrintStream;
@@ -41,7 +45,7 @@ import java.util.concurrent.atomic.LongAdder;
  */
 public class BLangScheduler {
     
-    private static final String SCHEDULER_STATS_CONFIG_PROP = "scheduler.stats";
+    private static final String SCHEDULER_STATS_CONFIG_PROP = "b7a.runtime.scheduler.statistics";
 
     private static AtomicInteger workerCount = new AtomicInteger(0);
     
@@ -52,7 +56,7 @@ public class BLangScheduler {
     private static boolean schedulerStatsEnabled;
     
     static {
-        String statsConfigProp = ConfigRegistry.getInstance().getConfiguration(SCHEDULER_STATS_CONFIG_PROP);
+        String statsConfigProp = ConfigRegistry.getInstance().getAsString(SCHEDULER_STATS_CONFIG_PROP);
         if (statsConfigProp != null) {
             schedulerStatsEnabled = Boolean.parseBoolean(statsConfigProp);
         }
@@ -197,18 +201,20 @@ public class BLangScheduler {
     }
     
     public static AsyncInvocableWorkerResponseContext executeBlockingNativeAsync(NativeCallableUnit nativeCallable, 
-            Context nativeCtx) {
+            Context nativeCtx, int flags) {
         CallableUnitInfo callableUnitInfo = nativeCtx.getCallableUnitInfo();
         AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo);
+        checkAndObserveNativeAsync(nativeCtx, respCtx, callableUnitInfo, flags);
         NativeCallExecutor exec = new NativeCallExecutor(nativeCallable, nativeCtx, respCtx);
         ThreadPoolFactory.getInstance().getWorkerExecutor().submit(exec);
         return respCtx;
     }
     
     public static AsyncInvocableWorkerResponseContext executeNonBlockingNativeAsync(NativeCallableUnit nativeCallable,
-            Context nativeCtx) {
+            Context nativeCtx, int flags) {
         CallableUnitInfo callableUnitInfo = nativeCtx.getCallableUnitInfo();
         AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo);
+        checkAndObserveNativeAsync(nativeCtx, respCtx, callableUnitInfo, flags);
         BLangAsyncCallableUnitCallback callback = new BLangAsyncCallableUnitCallback(respCtx, nativeCtx);
         nativeCallable.execute(nativeCtx, callback);
         return respCtx;
@@ -217,7 +223,18 @@ public class BLangScheduler {
     public static SchedulerStats getStats() {
         return schedulerStats;
     }
-    
+
+    private static void checkAndObserveNativeAsync(Context nativeCtx, AsyncInvocableWorkerResponseContext respCtx,
+                                              CallableUnitInfo callableUnitInfo, int flags) {
+        if (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) {
+            ObserverContext observerContext = ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType
+                            .toString(), callableUnitInfo.getName(), nativeCtx.getParentWorkerExecutionContext());
+            respCtx.registerResponseCallback(new CallbackObserver(observerContext));
+            ObservabilityUtils.setObserverContextToWorkerExecutionContext(nativeCtx.getParentWorkerExecutionContext(),
+                    observerContext);
+        }
+    }
+
     /**
      * This represents the thread used to execute a runnable worker.
      */

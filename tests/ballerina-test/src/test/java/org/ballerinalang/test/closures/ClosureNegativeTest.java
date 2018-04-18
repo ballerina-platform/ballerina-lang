@@ -33,5 +33,8 @@ public class ClosureNegativeTest {
 
         BAssertUtil.validateError(compileResult, 0, "undefined symbol 'functionR'", 6, 56);
         BAssertUtil.validateError(compileResult, 1, "undefined symbol 'methodInt3'", 17, 44);
+        BAssertUtil.validateError(compileResult, 2, "cannot assign a value to function argument 'a'", 29, 9);
+        BAssertUtil.validateError(compileResult, 3, "cannot assign a value to function argument 'fOut'", 34, 17);
+        BAssertUtil.validateError(compileResult, 4, "cannot assign a value to function argument 'a'", 56, 13);
     }
 }

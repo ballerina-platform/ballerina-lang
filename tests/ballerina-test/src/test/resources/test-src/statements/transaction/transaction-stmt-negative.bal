@@ -1,10 +1,10 @@
-function testTransactionAbort3 () {
+function testTransactionAbort3() {
     int i = 10;
     abort;
     i = i + 11;
 }
 
-function testTransactionAbort4 () {
+function testTransactionAbort4() {
     int i = 10;
     transaction {
         i = i + 1;
@@ -13,7 +13,7 @@ function testTransactionAbort4 () {
     }
 }
 
-function testTransactionAbort5 () {
+function testTransactionAbort5() {
     int i = 10;
     transaction {
         i = i + 1;
@@ -32,7 +32,7 @@ function testTransactionAbort5 () {
     }
 }
 
-function testBreakWithinTransaction () returns (string) {
+function testBreakWithinTransaction() returns (string) {
     int i = 0;
     while (i < 5) {
         i = i + 1;
@@ -45,7 +45,7 @@ function testBreakWithinTransaction () returns (string) {
     return "done";
 }
 
-function testNextWithinTransaction () returns (string) {
+function testNextWithinTransaction() returns (string) {
     int i = 0;
     while (i < 5) {
         i = i + 1;
@@ -58,7 +58,7 @@ function testNextWithinTransaction () returns (string) {
     return "done";
 }
 
-function testReturnWithinTransaction () returns (string) {
+function testReturnWithinTransaction() returns (string) {
     int i = 0;
     while (i < 5) {
         i = i + 1;
@@ -71,7 +71,7 @@ function testReturnWithinTransaction () returns (string) {
     return "done";
 }
 
-function testInvalidDoneWithinTransaction () {
+function testInvalidDoneWithinTransaction() {
     string workerTest = "";
 
     int i = 0;

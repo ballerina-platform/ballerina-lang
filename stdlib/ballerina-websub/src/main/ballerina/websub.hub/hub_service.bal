@@ -54,20 +54,15 @@ service<http:Service> hubService bind hubServiceEP {
     }
     hub (endpoint client, http:Request request) {
         http:Response response = new;
+        string mode;
+        string topic;
 
-        var reqFormParams = request.getFormParams();
-        map params;
-        match (reqFormParams) {
-            map reqParams => { params = reqParams; }
-            mime:EntityError => {
-                response.statusCode = http:BAD_REQUEST_400;
-                _ = client -> respond(response);
-                done;
-            }
+        map params = request.getFormParams() but { http:PayloadError => {} };
+
+        if (params.hasKey(websub:HUB_MODE)) {
+            mode = <string> params[websub:HUB_MODE];
         }
 
-        string mode = <string> params[websub:HUB_MODE];
-        string topic;
         if (params.hasKey(websub:HUB_TOPIC)) {
             string topicFromParams = <string> params[websub:HUB_TOPIC];
             topic = http:decode(topicFromParams, "UTF-8") but { error => topicFromParams };
@@ -242,12 +237,13 @@ function verifyIntent(string callback, string topic, map params) {
     };
 
     string mode = <string> params[websub:HUB_MODE];
-    string secret = <string> params[websub:HUB_SECRET];
     int leaseSeconds;
 
-    match (<int> params[websub:HUB_LEASE_SECONDS]) {
-        int extrLeaseSeconds => { leaseSeconds = extrLeaseSeconds; }
-        error => { leaseSeconds = 0; }
+    if (params.hasKey(websub:HUB_LEASE_SECONDS)) {
+        match (<int> params[websub:HUB_LEASE_SECONDS]) {
+            int extrLeaseSeconds => { leaseSeconds = extrLeaseSeconds; }
+            error => { leaseSeconds = 0; }
+        }
     }
 
     //measured from the time the verification request was made from the hub to the subscriber from the recommendation
@@ -265,7 +261,7 @@ function verifyIntent(string callback, string topic, map params) {
                          + "&" + websub:HUB_CHALLENGE + "=" + challenge
                          + "&" + websub:HUB_LEASE_SECONDS + "=" + leaseSeconds;
 
-    var subscriberResponse = callbackEp -> get("?" + queryParams, request);
+    var subscriberResponse = callbackEp -> get(untaint ("?" + queryParams), request);
 
     match (subscriberResponse) {
         http:Response response => {
@@ -276,9 +272,13 @@ function verifyIntent(string callback, string topic, map params) {
                         log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: ["
                                                      + callback + "]: Challenge not echoed correctly.");
                     } else {
-                        websub:SubscriptionDetails subscriptionDetails = {topic:topic, callback:callback, secret:secret,
+                        websub:SubscriptionDetails subscriptionDetails = {topic:topic, callback:callback,
                                               leaseSeconds:leaseSeconds, createdAt:createdAt};
                         if (mode == websub:MODE_SUBSCRIBE) {
+                            if (params.hasKey(websub:HUB_SECRET)) {
+                                string secret = <string> params[websub:HUB_SECRET];
+                                subscriptionDetails.secret = secret;
+                            }
                             websub:addSubscription(subscriptionDetails);
                         } else {
                             websub:removeSubscription(topic, callback);
@@ -318,30 +318,27 @@ function verifyIntent(string callback, string topic, map params) {
 @Param {value:"secret: The secret if specified when registering, empty string if not"}
 function changeTopicRegistrationInDatabase(string mode, string topic, string secret) {
     endpoint sql:Client subscriptionDbEp {
-        database: sql:DB_MYSQL,
-        host: hubDatabaseHost,
-        port: hubDatabasePort,
-        name: hubDatabaseName,
+        url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
 
-    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
-    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:secret};
+    sql:Parameter para1 = (sql:TYPE_VARCHAR, topic);
+    sql:Parameter para2 = (sql:TYPE_VARCHAR, secret);
     sql:Parameter[] sqlParams = [para1, para2];
     if (mode == websub:MODE_REGISTER) {
         var updateStatus = subscriptionDbEp -> update("INSERT INTO topics (topic,secret) VALUES (?,?)", sqlParams);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for registration");
-            sql:SQLConnectorError err => log:printError("Error occurred updating registration data: " + err.message);
+            error err => log:printError("Error occurred updating registration data: " + err.message);
         }
     } else {
         var updateStatus = subscriptionDbEp -> update("DELETE FROM topics WHERE topic=? AND secret=?",
                                                       sqlParams);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unregistration");
-            sql:SQLConnectorError err => log:printError("Error occurred updating unregistration data: " + err.message);
+            error err => log:printError("Error occurred updating unregistration data: " + err.message);
         }
     }
     _ = subscriptionDbEp -> close();
@@ -352,22 +349,19 @@ function changeTopicRegistrationInDatabase(string mode, string topic, string sec
 @Param {value:"subscriptionDetails: The details of the subscription changing"}
 function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails subscriptionDetails) {
     endpoint sql:Client subscriptionDbEp {
-        database: sql:DB_MYSQL,
-        host: hubDatabaseHost,
-        port: hubDatabasePort,
-        name: hubDatabaseName,
+        url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
 
-    sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.topic};
-    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.callback};
+    sql:Parameter para1 = (sql:TYPE_VARCHAR, subscriptionDetails.topic);
+    sql:Parameter para2 = (sql:TYPE_VARCHAR, subscriptionDetails.callback);
     sql:Parameter[] sqlParams;
     if (mode == websub:MODE_SUBSCRIBE) {
-        sql:Parameter para3 = {sqlType:sql:TYPE_VARCHAR, value:subscriptionDetails.secret};
-        sql:Parameter para4 = {sqlType:sql:TYPE_BIGINT, value:subscriptionDetails.leaseSeconds};
-        sql:Parameter para5 = {sqlType:sql:TYPE_BIGINT, value:subscriptionDetails.createdAt};
+        sql:Parameter para3 = (sql:TYPE_VARCHAR, subscriptionDetails.secret);
+        sql:Parameter para4 = (sql:TYPE_BIGINT, subscriptionDetails.leaseSeconds);
+        sql:Parameter para5 = (sql:TYPE_BIGINT, subscriptionDetails.createdAt);
         sqlParams = [para1, para2, para3, para4, para5, para3, para4, para5];
         var updateStatus = subscriptionDbEp -> update("INSERT INTO subscriptions"
                                              + " (topic,callback,secret,lease_seconds,created_at) VALUES (?,?,?,?,?) ON"
@@ -375,7 +369,7 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
                                              sqlParams);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for subscription");
-            sql:SQLConnectorError err => log:printError("Error occurred updating subscription data: " + err.message);
+            error err => log:printError("Error occurred updating subscription data: " + err.message);
         }
     } else {
         sqlParams = [para1, para2];
@@ -383,7 +377,7 @@ function changeSubscriptionInDatabase(string mode, websub:SubscriptionDetails su
                                                "DELETE FROM subscriptions WHERE topic=? AND callback=?", sqlParams);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unsubscription");
-            sql:SQLConnectorError err => log:printError("Error occurred updating unsubscription data: " + err.message);
+            error err => log:printError("Error occurred updating unsubscription data: " + err.message);
         }
     }
     _ = subscriptionDbEp -> close();
@@ -403,20 +397,17 @@ function setupOnStartup() {
 @Description {value:"Function to load topic registrations from the database"}
 function addTopicRegistrationsOnStartup() {
     endpoint sql:Client subscriptionDbEp {
-        database: sql:DB_MYSQL,
-        host: hubDatabaseHost,
-        port: hubDatabasePort,
-        name: hubDatabaseName,
+        url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
     sql:Parameter[] sqlParams = [];
     table dt;
-    var dbResult = subscriptionDbEp -> select("SELECT topic, secret FROM topics", sqlParams, TopicRegistration);
+    var dbResult = subscriptionDbEp -> select("SELECT topic, secret FROM topics", TopicRegistration, sqlParams);
     match (dbResult) {
         table t => { dt = t; }
-        sql:SQLConnectorError sqlErr => {
+        error sqlErr => {
             log:printError("Error retreiving data from the database: " + sqlErr.message);
         }
     }
@@ -440,26 +431,23 @@ function addTopicRegistrationsOnStartup() {
 @Description {value:"Function to add subscriptions to the broker on startup, if persistence is enabled"}
 function addSubscriptionsOnStartup() {
     endpoint sql:Client subscriptionDbEp {
-        database: sql:DB_MYSQL,
-        host: hubDatabaseHost,
-        port: hubDatabasePort,
-        name: hubDatabaseName,
+        url: hubDatabaseUrl,
         username: hubDatabaseUsername,
         password: hubDatabasePassword,
-        options: {maximumPoolSize:5}
+        poolOptions: {maximumPoolSize:5}
     };
 
     int time = time:currentTime().time;
-    sql:Parameter para1 = {sqlType:sql:TYPE_BIGINT, value:time};
+    sql:Parameter para1 = (sql:TYPE_BIGINT, time);
     sql:Parameter[] sqlParams = [para1];
     _ = subscriptionDbEp -> update("DELETE FROM subscriptions WHERE ? - lease_seconds > created_at", sqlParams);
     sqlParams = [];
     table dt;
     var dbResult = subscriptionDbEp -> select("SELECT topic, callback, secret, lease_seconds, created_at"
-                                                + " FROM subscriptions", sqlParams, websub:SubscriptionDetails);
+                                                + " FROM subscriptions", websub:SubscriptionDetails, sqlParams);
     match (dbResult) {
         table t => { dt = t; }
-        sql:SQLConnectorError sqlErr => {
+        error sqlErr => {
             log:printError("Error retreiving data from the database: " + sqlErr.message);
         }
     }

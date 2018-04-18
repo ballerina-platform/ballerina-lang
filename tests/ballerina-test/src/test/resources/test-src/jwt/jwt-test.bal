@@ -2,7 +2,7 @@ import ballerina/jwt;
 import ballerina/time;
 import ballerina/io;
 
-function testIssueJwt () returns (string)|error {
+function testIssueJwt (string keyStorePath) returns (string)|error {
     jwt:Header header = {};
     header.alg = "RS256";
     header.typ = "JWT";
@@ -15,24 +15,32 @@ function testIssueJwt () returns (string)|error {
     payload.exp = time:currentTime().time + 600000;
 
     jwt:JWTIssuerConfig config = {};
-    config.certificateAlias = "ballerina";
+    config.keyAlias = "ballerina";
     config.keyPassword = "ballerina";
+    config.keyStoreFilePath = keyStorePath;
+    config.keyStorePassword = "ballerina";
     match jwt:issue(header, payload, config) {
         string jwtString => return jwtString;
         error err => return err;
     }
 }
 
-function testValidateJwt (string jwtToken) returns (boolean)|error {
+function testValidateJwt (string jwtToken, string trustStorePath) returns (boolean)|error {
     io:println(jwtToken);
     jwt:JWTValidatorConfig config = {};
     config.issuer = "wso2";
     config.certificateAlias = "ballerina";
     config.audience = "ballerinaSamples";
+    config.timeSkew = 100;
+    config.trustStoreFilePath = trustStorePath;
+    config.trustStorePassword = "ballerina";
+
     var value = jwt:validate(jwtToken, config);
     match value {
-        jwt:Payload result => return true;
-        boolean isValid => return isValid;
+        (boolean, jwt:Payload) result => {
+        var (isValid, payload) = result;
+            return isValid;
+        }
         error err => return err;
     }
 }

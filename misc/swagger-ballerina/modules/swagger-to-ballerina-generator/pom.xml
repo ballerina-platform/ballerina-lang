@@ -19,7 +19,7 @@
     <parent>
         <artifactId>swagger-ballerina</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.970.0-alpha4-SNAPSHOT</version>
+        <version>0.970.0-beta1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -29,14 +29,20 @@
     
     <dependencies>
         <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-models</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.parser.v3</groupId>
+            <artifactId>swagger-parser</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-models</artifactId>
-            <version>2.0.0-rc2</version>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-parser</artifactId>
-            <version>2.0.0-rc1</version>
         </dependency>
         <dependency>
             <groupId>com.github.jknack</groupId>
@@ -55,6 +61,10 @@
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-to-swagger</artifactId>
         </dependency>
     </dependencies>
 
@@ -82,11 +92,17 @@
                                     <include>io.swagger:swagger-core</include>
                                     <include>io.swagger:swagger-models</include>
                                     <include>io.swagger:swagger-parser</include>
-                                    <include>io.swagger:swagger-parser-core</include>
-                                    <include>io.swagger:swagger-parser-v2</include>
-                                    <include>io.swagger:swagger-parser-v2-converter</include>
-                                    <include>io.swagger:swagger-parser-v3</include>
+                                    <include>io.swagger.core.v3:swagger-core</include>
+                                    <include>io.swagger.core.v3:swagger-models</include>
+                                    <include>io.swagger.parser.v3:swagger-parser</include>
+                                    <include>io.swagger.parser.v3:swagger-parser-core</include>
+                                    <include>io.swagger.parser.v3:swagger-parser-v2-converter</include>
+                                    <include>io.swagger.parser.v3:swagger-parser-v3</include>
                                     <include>javax.validation:validation-api</include>
+                                    <include>com.google.code.gson:gson</include>
+                                    <include>org.ballerinalang:ballerina-to-swagger</include>
+                                    <include>org.ballerinalang:composer-ballerina-parser-service</include>
+                                    <include>org.ballerinalang:language-server-core</include>
                                 </includes>
                             </artifactSet>
                             <filters>

@@ -175,6 +175,14 @@ public class CachingTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 5);
     }
 
+    @Test
+    public void testExpiredCacheAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testExpiredCacheAccess");
+        Assert.assertTrue(returns.length == 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testCreateCacheWithZeroExpiryTime() {
         BRunUtil.invoke(compileResult, "testCreateCacheWithZeroExpiryTime");

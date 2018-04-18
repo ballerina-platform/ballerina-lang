@@ -32,8 +32,6 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.util.Map;
-
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -74,10 +72,8 @@ public class Get extends AbstractHTTPAction {
         HTTPCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
         outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_GET);
 
-        ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
-                getParentWorkerExecutionContext());
-        Map<String, String> traceContext = ObservabilityUtils.getTraceContext();
-        HttpUtil.injectHeaders(outboundReqMsg, traceContext);
+        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
+        HttpUtil.injectHeaders(outboundReqMsg, ObservabilityUtils.getContextProperties(observerContext));
         observerContext.addTags(HttpUtil.extractTags(outboundReqMsg));
 
         return outboundReqMsg;

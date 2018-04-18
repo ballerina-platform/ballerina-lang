@@ -19,11 +19,11 @@
 package org.ballerinalang.net.websub.hub;
 
 import org.ballerinalang.BLangProgramRunner;
+import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.BrokerUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
@@ -163,6 +163,9 @@ public class Hub {
         }
         HubSubscriber subscriberToUnregister = new HubSubscriber("", topic, callback, null);
         if (!subscribers.contains(subscriberToUnregister)) {
+            if (callback.endsWith("/")) {
+                unregisterSubscription(topic, callback.substring(0, callback.length() - 1));
+            }
             return;
         } else {
             for (HubSubscriber subscriber:subscribers) {

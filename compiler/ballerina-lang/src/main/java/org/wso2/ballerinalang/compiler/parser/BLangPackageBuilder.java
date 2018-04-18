@@ -52,7 +52,9 @@ import org.ballerinalang.model.tree.clauses.FunctionClauseNode;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
+import org.ballerinalang.model.tree.clauses.LimitNode;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
 import org.ballerinalang.model.tree.clauses.OutputRateLimitNode;
 import org.ballerinalang.model.tree.clauses.PatternClause;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
@@ -111,7 +113,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimit;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOutputRateLimit;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
@@ -297,6 +301,10 @@ public class BLangPackageBuilder {
     private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
 
     private Stack<OrderByNode> orderByClauseStack = new Stack<>();
+
+    private Stack<OrderByVariableNode> orderByVariableStack = new Stack<>();
+
+    private Stack<LimitNode> limitClauseStack = new Stack<>();
 
     private Stack<GroupByNode> groupByClauseStack = new Stack<>();
 
@@ -712,6 +720,7 @@ public class BLangPackageBuilder {
         if (retParamsAvail) {
             BLangVariable varNode = (BLangVariable) this.varStack.pop();
             returnTypeNode = varNode.getTypeNode();
+            returnTypeNode.addWS(varNode.getWS());
             varNode.getAnnotationAttachments().forEach(invNode::addReturnTypeAnnotationAttachment);
         } else {
             BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
@@ -760,7 +769,7 @@ public class BLangPackageBuilder {
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
-        endFunctionDef(pos, null, false, false, true, false);
+        endFunctionDef(pos, null, false, false, true, false, true);
         //this is added for analysing closures
         if (!(blockNodeStack.empty())) {
             lambdaFunction.enclBlockStmt = (BLangBlockStmt) blockNodeStack.peek();
@@ -1213,12 +1222,15 @@ public class BLangPackageBuilder {
                                boolean publicFunc,
                                boolean nativeFunc,
                                boolean bodyExists,
-                               boolean isReceiverAttached) {
+                               boolean isReceiverAttached,
+                               boolean isLambda) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         endEndpointDeclarationScope();
         function.pos = pos;
         function.addWS(ws);
-
+        if (!isLambda) {
+            function.addWS(invocationWsStack.pop());
+        }
         if (publicFunc) {
             function.flagSet.add(Flag.PUBLIC);
         }
@@ -1600,6 +1612,7 @@ public class BLangPackageBuilder {
         if (!bodyExists) {
             function.body = null;
             if (!nativeFunc) {
+                function.flagSet.add(Flag.INTERFACE);
                 function.interfaceFunction = true;
             }
         }
@@ -2208,14 +2221,13 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(ifNode);
     }
 
-    public void createMatchNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void createMatchNode(DiagnosticPos pos) {
         if (this.matchStmtStack == null) {
             this.matchStmtStack = new ArrayDeque<>();
         }
 
         BLangMatch matchStmt = (BLangMatch) TreeBuilder.createMatchStatement();
         matchStmt.pos = pos;
-        matchStmt.addWS(ws);
         matchStmt.patternClauses = new ArrayList<>();
 
         this.matchStmtStack.addFirst(matchStmt);
@@ -2607,11 +2619,14 @@ public class BLangPackageBuilder {
     public void addIntRangeExpression(DiagnosticPos pos,
                                       Set<Whitespace> ws,
                                       boolean includeStart,
-                                      boolean includeEnd) {
+                                      boolean includeEnd,
+                                      boolean noUpperBound) {
         BLangIntRangeExpression intRangeExpr = (BLangIntRangeExpression) TreeBuilder.createIntRangeExpression();
         intRangeExpr.pos = pos;
         intRangeExpr.addWS(ws);
-        intRangeExpr.endExpr = (BLangExpression) this.exprNodeStack.pop();
+        if (!noUpperBound) {
+            intRangeExpr.endExpr = (BLangExpression) this.exprNodeStack.pop();
+        }
         intRangeExpr.startExpr = (BLangExpression) this.exprNodeStack.pop();
         intRangeExpr.includeStart = includeStart;
         intRangeExpr.includeEnd = includeEnd;
@@ -2771,7 +2786,40 @@ public class BLangPackageBuilder {
         OrderByNode orderByNode = this.orderByClauseStack.peek();
         ((BLangOrderBy) orderByNode).pos = pos;
         orderByNode.addWS(ws);
-        this.exprNodeListStack.pop().forEach(orderByNode::addVariableReference);
+        Collections.reverse(orderByVariableStack);
+        while (!this.orderByVariableStack.empty()) {
+            orderByNode.addOrderByVariable(this.orderByVariableStack.pop());
+        }
+    }
+
+    public void startOrderByVariableNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        OrderByVariableNode orderByVariableNode = TreeBuilder.createOrderByVariableNode();
+        ((BLangOrderByVariable) orderByVariableNode).pos = pos;
+        orderByVariableNode.addWS(ws);
+        this.orderByVariableStack.push(orderByVariableNode);
+    }
+
+    public void endOrderByVariableNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isAscending,
+                                       boolean isDescending) {
+        OrderByVariableNode orderByVariableNode = this.orderByVariableStack.peek();
+        ((BLangOrderByVariable) orderByVariableNode).pos = pos;
+        orderByVariableNode.addWS(ws);
+        orderByVariableNode.setVariableReference(this.exprNodeStack.pop());
+        orderByVariableNode.setOrderByType(isAscending, isDescending);
+    }
+
+    public void startLimitClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        LimitNode limitNode = TreeBuilder.createLimitNode();
+        ((BLangLimit) limitNode).pos = pos;
+        limitNode.addWS(ws);
+        this.limitClauseStack.push(limitNode);
+    }
+
+    public void endLimitClauseNode(DiagnosticPos pos, Set<Whitespace> ws, String limitValue) {
+        LimitNode limitNode = this.limitClauseStack.peek();
+        ((BLangLimit) limitNode).pos = pos;
+        limitNode.addWS(ws);
+        limitNode.setLimitValue(limitValue);
     }
 
     public void startGroupByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2954,7 +3002,8 @@ public class BLangPackageBuilder {
     }
 
     public void endTableQueryNode(boolean isJoinClauseAvailable, boolean isSelectClauseAvailable,
-                                  boolean isOrderByClauseAvailable, DiagnosticPos pos, Set<Whitespace> ws) {
+                                  boolean isOrderByClauseAvailable, boolean isLimitClauseAvailable, DiagnosticPos pos,
+                                  Set<Whitespace> ws) {
         BLangTableQuery tableQuery = (BLangTableQuery) this.tableQueriesStack.peek();
         tableQuery.pos = pos;
         tableQuery.addWS(ws);
@@ -2967,6 +3016,9 @@ public class BLangPackageBuilder {
         }
         if (isOrderByClauseAvailable) {
             tableQuery.setOrderByClause(this.orderByClauseStack.pop());
+        }
+        if (isLimitClauseAvailable) {
+            tableQuery.setLimitClause(this.limitClauseStack.pop());
         }
     }
 
@@ -3069,8 +3121,9 @@ public class BLangPackageBuilder {
     }
 
     public void endPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isFollowedBy,
-            boolean enclosedInParenthesis, boolean andWithNotAvailable, boolean forWithNotAvailable,
-            boolean onlyAndAvailable, boolean onlyOrAvailable) {
+                                             boolean enclosedInParenthesis, boolean andWithNotAvailable,
+                                             boolean forWithNotAvailable, boolean onlyAndAvailable,
+                                             boolean onlyOrAvailable, boolean commaSeparated) {
         if (!this.patternStreamingInputStack.empty()) {
             PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.pop();
 
@@ -3101,8 +3154,12 @@ public class BLangPackageBuilder {
                 processNegationPatternWithTimeDuration(patternStreamingInputNode);
             }
 
+            if (commaSeparated) {
+                processCommaSeparatedSequence(patternStreamingInputNode);
+            }
+
             if (!(isFollowedBy || enclosedInParenthesis || forWithNotAvailable ||
-                  onlyAndAvailable || onlyOrAvailable || andWithNotAvailable)) {
+                    onlyAndAvailable || onlyOrAvailable || andWithNotAvailable || commaSeparated)) {
                 patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
                 this.recentStreamingPatternInputNode = patternStreamingInputNode;
             }
@@ -3112,6 +3169,13 @@ public class BLangPackageBuilder {
             this.patternStreamingInputStack.push(this.recentStreamingPatternInputNode);
             this.recentStreamingPatternInputNode = null;
         }
+    }
+
+    private void processCommaSeparatedSequence(PatternStreamingInputNode patternStreamingInputNode) {
+        patternStreamingInputNode.setCommaSeparated(true);
+        patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
+        patternStreamingInputNode.setPatternStreamingInput(this.recentStreamingPatternInputNode);
+        this.recentStreamingPatternInputNode = patternStreamingInputNode;
     }
 
     private void processNegationPatternWithTimeDuration(PatternStreamingInputNode patternStreamingInputNode) {
@@ -3280,7 +3344,7 @@ public class BLangPackageBuilder {
         pattern.expr = (BLangExpression) this.exprNodeStack.pop();
         pattern.pos = pos;
         pattern.addWS(ws);
-        
+
         identifier = identifier == null ? Names.IGNORE.value : identifier;
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;

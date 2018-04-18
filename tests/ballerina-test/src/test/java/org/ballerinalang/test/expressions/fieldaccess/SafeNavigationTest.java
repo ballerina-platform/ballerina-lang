@@ -21,8 +21,11 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -45,31 +48,33 @@ public class SafeNavigationTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 12);
+        Assert.assertEquals(negativeResult.getErrorCount(), 13);
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'string?', found 'string|error'",
                 25, 19);
         BAssertUtil.validateError(negativeResult, 1,
                 "invalid operation: type 'Info|error' does not support field access", 34, 25);
         BAssertUtil.validateError(negativeResult, 2,
                 "incompatible types: expected 'string|error?', found 'other|error'", 34, 25);
-        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'string', found 'string?'", 40, 16);
-        BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'string[]', found 'string[]?'", 41,
-                21);
+        BAssertUtil.validateError(negativeResult, 3,
+                "invalid operation: type 'Person|error' does not support field access", 46, 5);
+        BAssertUtil.validateError(negativeResult, 4,
+                "invalid operation: type 'other|error' does not support field access", 46, 5);
         BAssertUtil.validateError(negativeResult, 5,
-                "safe navigation cannot be used in the target expression of an assignment", 46, 5);
+                "invalid operation: type 'other|error' does not support field access", 46, 5);
         BAssertUtil.validateError(negativeResult, 6,
-                "safe navigation cannot be used in the target expression of an assignment", 46, 5);
-        BAssertUtil.validateError(negativeResult, 7,
-                "safe navigation cannot be used in the target expression of an assignment", 46, 5);
-        BAssertUtil.validateError(negativeResult, 8,
                 "invalid operation: type 'Person[]|error' does not support indexing", 51, 12);
-        BAssertUtil.validateError(negativeResult, 9, "safe navigation operator not required for type 'error?'", 56,
+        BAssertUtil.validateError(negativeResult, 7, "safe navigation operator not required for type 'error?'", 56,
                 12);
-        BAssertUtil.validateError(negativeResult, 10, "incompatible types: expected 'string', found 'other|error?'",
+        BAssertUtil.validateError(negativeResult, 8, "incompatible types: expected 'string', found 'other|error?'",
                 56, 12);
-        BAssertUtil.validateError(negativeResult, 11, "safe navigation operator not required for type 'error'", 61,
+        BAssertUtil.validateError(negativeResult, 9, "safe navigation operator not required for type 'error'", 61,
                 12);
-
+        BAssertUtil.validateError(negativeResult, 10,
+                "invalid operation: type 'Person?' does not support field access", 69, 5);
+        BAssertUtil.validateError(negativeResult, 11, "invalid operation: type 'other?' does not support field access",
+                69, 5);
+        BAssertUtil.validateError(negativeResult, 12, "invalid operation: type 'other?' does not support field access",
+                69, 5);
     }
 
     @Test
@@ -149,12 +154,6 @@ public class SafeNavigationTest {
     }
 
     @Test
-    public void testSafeNavigatingNilMap() {
-        BValue[] returns = BRunUtil.invoke(result, "testSafeNavigatingNilMap");
-        Assert.assertEquals(returns[0], null);
-    }
-
-    @Test
     public void testSafeNavigatingWithFuncInovc_1() {
         BValue[] returns = BRunUtil.invoke(result, "testSafeNavigatingWithFuncInovc_1");
         Assert.assertEquals(returns[0], null);
@@ -200,5 +199,55 @@ public class SafeNavigationTest {
     public void testSafeNavigateOnErrorOrNull() {
         BValue[] returns = BRunUtil.invoke(result, "testSafeNavigateOnErrorOrNull");
         Assert.assertEquals(returns[0], null);
+    }
+
+    @Test
+    public void testSafeNavigateOnJSONArrayOfArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeNavigateOnJSONArrayOfArray");
+        Assert.assertEquals(returns[0].stringValue(), "Bob");
+    }
+
+    @Test
+    public void testJSONNilLiftingOnLHS_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testJSONNilLiftingOnLHS_1");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"info\":{\"address1\":{\"city\":\"Colombo\"}}}");
+
+        Assert.assertTrue(returns[1] instanceof BJSON);
+        Assert.assertEquals(returns[1].stringValue(), "{\"info\":{\"address2\":{\"city\":\"Kandy\"}}}");
+
+        Assert.assertTrue(returns[2] instanceof BJSON);
+        Assert.assertEquals(returns[2].stringValue(), "{\"info\":{\"address3\":{\"city\":\"Galle\"}}}");
+
+        Assert.assertTrue(returns[3] instanceof BJSON);
+        Assert.assertEquals(returns[3].stringValue(), "{\"info\":{\"address4\":{\"city\":\"Jaffna\"}}}");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: error, message: failed to get element from json: array index " +
+                    "out of range: index: 2, size: 0.*")
+    public void testJSONNilLiftingOnLHS_2() {
+        BRunUtil.invoke(result, "testJSONNilLiftingOnLHS_2");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: error, message: cannot find key 'a'.*")
+    public void testNonExistingMapKeyWithIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testNonExistingMapKeyWithIndexAccess");
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: error, message: cannot find key 'a'.*")
+    public void testNonExistingMapKeyWithFieldAccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testNonExistingMapKeyWithFieldAccess");
+        Assert.assertEquals(returns[0].stringValue(), "Bob");
+    }
+
+    @Test
+    public void testMapNilLiftingOnLHS_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testMapNilLiftingOnLHS_1");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John\"}");
     }
 }

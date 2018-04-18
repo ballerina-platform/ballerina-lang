@@ -15,11 +15,6 @@
 // under the License.
 
 package ballerina.transactions;
-import ballerina/io;
-
-@final string PROTOCOL_COMPLETION = "completion";
-@final string PROTOCOL_VOLATILE = "volatile";
-@final string PROTOCOL_DURABLE = "durable";
 
 type TransactionState "active" | "prepared" | "committed" | "aborted";
 @final TransactionState TXN_STATE_ACTIVE = "active";
@@ -33,14 +28,38 @@ type TransactionState "active" | "prepared" | "committed" | "aborted";
 @final public string COMMAND_COMMIT = "commit";
 @final public string COMMAND_ABORT = "abort";
 
-@final public string OUTCOME_PREPARED = "prepared";
-@final public string OUTCOME_NOT_PREPARED = "Not-Prepared";
-@final public string OUTCOME_MIXED = "mixed";
-@final public string OUTCOME_ABORTED = "aborted";
-@final public string OUTCOME_COMMITTED = "committed";
-@final public string OUTCOME_HAZARD = "Hazard-Outcome";
-@final public string OUTCOME_FAILED_EOT = "Failed-EOT";
-@final public string OUTCOME_READ_ONLY = "read-only";
+@final string PREPARE_RESULT_PREPARED_STR = "prepared";
+@final string PREPARE_RESULT_ABORTED_STR = "aborted";
+@final string PREPARE_RESULT_COMMITTED_STR = "committed";
+@final string PREPARE_RESULT_READ_ONLY_STR = "read-only";
+@final string PREPARE_RESULT_FAILED_STR = "failed";
+
+type PrepareResult "prepared" | "aborted" | "committed" | "read-only";
+@final PrepareResult PREPARE_RESULT_PREPARED = "prepared";
+@final PrepareResult PREPARE_RESULT_ABORTED = "aborted";
+@final PrepareResult PREPARE_RESULT_COMMITTED = "committed";
+@final PrepareResult PREPARE_RESULT_READ_ONLY = "read-only";
+
+type NotifyResult "committed" | "aborted";
+@final NotifyResult NOTIFY_RESULT_COMMITTED = "committed";
+@final NotifyResult NOTIFY_RESULT_ABORTED = "aborted";
+
+@final string NOTIFY_RESULT_NOT_PREPARED_STR = "not-prepared";
+@final string NOTIFY_RESULT_FAILED_EOT_STR = "failed-eot";
+
+@final string NOTIFY_RESULT_COMMITTED_STR = "committed";
+@final string NOTIFY_RESULT_ABORTED_STR = "aborted";
+
+type PrepareDecision "commit" | "abort";
+@final PrepareDecision PREPARE_DECISION_COMMIT = "commit";
+@final PrepareDecision PREPARE_DECISION_ABORT = "abort";
+
+@final string OUTCOME_COMMITTED = "committed";
+@final string OUTCOME_ABORTED = "aborted";
+@final string OUTCOME_MIXED = "mixed";
+@final string OUTCOME_HAZARD = "hazard";
+
+@final string TRANSACTION_UNKNOWN = "Transaction-Unknown";
 
 public type TransactionContext {
     @readonly string contextVersion = "1.0";
@@ -50,32 +69,10 @@ public type TransactionContext {
     @readonly string registerAtURL;
 };
 
-type Participant {
-    string participantId;
-    Protocol[] participantProtocols;
-};
-
-documentation {
-    This represents the protocol associated with the coordination type.
-
-    F{{name}} - protocol name
-    F{{url}}  - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
-                the `protocolFn` will be called
-    F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
-}
-public type Protocol {
-    @readonly string name;
-    @readonly string url;
-    @readonly int transactionBlockId;
-    @readonly (function (string transactionId,
-                           int transactionBlockId,
-                           string protocolAction) returns boolean)? protocolFn;
-};
-
 public type RegistrationRequest {
     string transactionId;
     string participantId;
-    Protocol[] participantProtocols;
+    RemoteProtocol[] participantProtocols;
 };
 
 public function regRequestToJson (RegistrationRequest req) returns json {
@@ -93,7 +90,7 @@ public function regRequestToJson (RegistrationRequest req) returns json {
 
 public type RegistrationResponse {
     string transactionId;
-    Protocol[] coordinatorProtocols;
+    RemoteProtocol[] coordinatorProtocols;
 };
 
 public function regResponseToJson (RegistrationResponse res) returns json {
@@ -111,15 +108,24 @@ public function regResponseToJson (RegistrationResponse res) returns json {
 public function jsonToRegResponse (json j) returns RegistrationResponse {
     string transactionId = <string>jsonToAny(j.transactionId);
     RegistrationResponse res = {transactionId:transactionId};
-    Protocol[] protocols;
+    RemoteProtocol[] protocols;
     foreach proto in j.coordinatorProtocols {
         string name = <string>jsonToAny(proto.name);
         string url = <string>jsonToAny(proto.url);
-        Protocol p = {name:name, url:url};
+        RemoteProtocol p = {name:name, url:url};
         protocols[lengthof protocols] = p;
     }
     res.coordinatorProtocols = protocols;
     return res;
+}
+
+function toProtocolArray(RemoteProtocol[] remoteProtocols) returns Protocol[] {
+    Protocol[] protocols;
+    foreach remoteProtocol in remoteProtocols {
+        Protocol proto = {name: remoteProtocol.name};
+        protocols[lengthof protocols] = proto;
+    }
+    return protocols;
 }
 
 // TODO: temp function. Remove when =? is fixed for json

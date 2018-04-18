@@ -19,14 +19,15 @@ package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BConnectorType;
-import org.ballerinalang.model.types.BEnumType;
+import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
@@ -40,7 +41,6 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BCollection;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BFunctionPointer;
@@ -68,14 +68,11 @@ import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.TransactionStatus;
-import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
-import org.ballerinalang.util.codegen.ConnectorInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
-import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
@@ -113,6 +110,7 @@ import org.ballerinalang.util.transactions.TransactionUtils;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -287,7 +285,6 @@ public class CPU {
                     case InstructionCodes.RFIELDLOAD:
                     case InstructionCodes.MAPLOAD:
                     case InstructionCodes.JSONLOAD:
-                    case InstructionCodes.ENUMERATORLOAD:
                         execLoadOpcodes(ctx, sf, opcode, operands);
                         break;
     
@@ -409,14 +406,6 @@ public class CPU {
                             return;
                         }
                         break;
-                    case InstructionCodes.ACALL:
-                        InstructionACALL acallIns = (InstructionACALL) instruction;
-                        ctx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs,
-                                acallIns.flags);
-                        if (ctx == null) {
-                            return;
-                        }
-                        break;
                     case InstructionCodes.TCALL:
                         InstructionTCALL tcallIns = (InstructionTCALL) instruction;
                         ctx = BLangFunctions.invokeCallable(tcallIns.transformerInfo, ctx, tcallIns.argRegs,
@@ -509,6 +498,8 @@ public class CPU {
                     case InstructionCodes.ANY2S:
                     case InstructionCodes.ANY2B:
                     case InstructionCodes.ANY2L:
+                    case InstructionCodes.ARRAY2JSON:
+                    case InstructionCodes.JSON2ARRAY:
                     case InstructionCodes.ANY2JSON:
                     case InstructionCodes.ANY2XML:
                     case InstructionCodes.ANY2MAP:
@@ -618,9 +609,6 @@ public class CPU {
     
                     case InstructionCodes.NEWSTRUCT:
                         createNewStruct(ctx, operands, sf);
-                        break;
-                    case InstructionCodes.NEWCONNECTOR:
-                        createNewConnector(ctx, operands, sf);
                         break;
                     case InstructionCodes.NEWMAP:
                         i = operands[0];
@@ -764,6 +752,7 @@ public class CPU {
         List<BClosure> closureVars = fp.getClosureVars();
         int[] argRegs = funcCallCPEntry.getArgRegs();
         if (closureVars.isEmpty()) {
+            argRegs = expandArgRegs(argRegs, functionInfo.getParamTypes());
             return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(), false);
         }
 
@@ -814,9 +803,24 @@ public class CPU {
         return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, funcCallCPEntry.getRetRegs(), false);
     }
 
+    private static int[] expandArgRegs(int[] argRegs, BType[] paramTypes) {
+        if (paramTypes.length == 0 || paramTypes.length == argRegs.length ||
+                TypeTags.STRUCT_TAG != paramTypes[0].getTag()) {
+            return argRegs;
+        }
+        int[] expandedArgs = new int[paramTypes.length];
+        // self object/struct param is always at the 0'th index
+        expandedArgs[0] = 0;
+        System.arraycopy(argRegs, 0, expandedArgs, 1, argRegs.length);
+        return expandedArgs;
+    }
+
     private static int expandLongRegs(WorkerData sf, BFunctionPointer fp) {
         int longIndex = 0;
-        if (sf.longRegs != null && fp.getAdditionalIndexCount(BTypes.typeInt.getTag()) > 0) {
+        if (fp.getAdditionalIndexCount(BTypes.typeInt.getTag()) > 0) {
+            if (sf.longRegs == null) {
+                sf.longRegs = new long[0];
+            }
             long[] newLongRegs = new long[sf.longRegs.length + fp.getAdditionalIndexCount(BTypes.typeInt.getTag())];
             System.arraycopy(sf.longRegs, 0, newLongRegs, 0, sf.longRegs.length);
             longIndex = sf.longRegs.length;
@@ -827,7 +831,10 @@ public class CPU {
 
     private static int expandIntRegs(WorkerData sf, BFunctionPointer fp) {
         int intIndex = 0;
-        if (sf.intRegs != null && fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0) {
+        if (fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0) {
+            if (sf.intRegs == null) {
+                sf.intRegs = new int[0];
+            }
             int[] newIntRegs = new int[sf.intRegs.length + fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag())];
             System.arraycopy(sf.intRegs, 0, newIntRegs, 0, sf.intRegs.length);
             intIndex = sf.intRegs.length;
@@ -838,7 +845,10 @@ public class CPU {
 
     private static int expandDoubleRegs(WorkerData sf, BFunctionPointer fp) {
         int doubleIndex = 0;
-        if (sf.doubleRegs != null && fp.getAdditionalIndexCount(BTypes.typeFloat.getTag()) > 0) {
+        if (fp.getAdditionalIndexCount(BTypes.typeFloat.getTag()) > 0) {
+            if (sf.doubleRegs == null) {
+                sf.doubleRegs = new double[0];
+            }
             double[] newDoubleRegs = new double[sf.doubleRegs.length +
                     fp.getAdditionalIndexCount(BTypes.typeFloat.getTag())];
             System.arraycopy(sf.doubleRegs, 0, newDoubleRegs, 0, sf.doubleRegs.length);
@@ -850,7 +860,10 @@ public class CPU {
 
     private static int expandStringRegs(WorkerData sf, BFunctionPointer fp) {
         int stringIndex = 0;
-        if (sf.stringRegs != null && fp.getAdditionalIndexCount(BTypes.typeString.getTag()) > 0) {
+        if (fp.getAdditionalIndexCount(BTypes.typeString.getTag()) > 0) {
+            if (sf.stringRegs == null) {
+                sf.stringRegs = new String[0];
+            }
             String[] newStringRegs = new String[sf.stringRegs.length +
                     fp.getAdditionalIndexCount(BTypes.typeString.getTag())];
             System.arraycopy(sf.stringRegs, 0, newStringRegs, 0, sf.stringRegs.length);
@@ -862,7 +875,10 @@ public class CPU {
 
     private static int expandByteRegs(WorkerData sf, BFunctionPointer fp) {
         int byteIndex = 0;
-        if (sf.byteRegs != null && fp.getAdditionalIndexCount(BTypes.typeBlob.getTag()) > 0) {
+        if (fp.getAdditionalIndexCount(BTypes.typeBlob.getTag()) > 0) {
+            if (sf.byteRegs == null) {
+                sf.byteRegs = new byte[0][];
+            }
             byte[][] newByteRegs = new byte[sf.byteRegs.length +
                     fp.getAdditionalIndexCount(BTypes.typeBlob.getTag())][];
             System.arraycopy(sf.byteRegs, 0, newByteRegs, 0, sf.byteRegs.length);
@@ -874,7 +890,10 @@ public class CPU {
 
     private static int expandRefRegs(WorkerData sf, BFunctionPointer fp) {
         int refIndex = 0;
-        if (sf.refRegs != null && fp.getAdditionalIndexCount(BTypes.typeAny.getTag()) > 0) {
+        if (fp.getAdditionalIndexCount(BTypes.typeAny.getTag()) > 0) {
+            if (sf.refRegs == null) {
+                sf.refRegs = new BRefType[0];
+            }
             BRefType[] newRefRegs = new BRefType[sf.refRegs.length +
                     fp.getAdditionalIndexCount(BTypes.typeAny.getTag())];
             System.arraycopy(sf.refRegs, 0, newRefRegs, 0, sf.refRegs.length);
@@ -899,26 +918,27 @@ public class CPU {
             int index = operands[++operandIndex];
             switch (type) {
                 case TypeTags.INT_TAG: {
-                    fp.addClosureVar(new BClosure(new BInteger(ctx.workerLocal.longRegs[index])));
+                    fp.addClosureVar(new BClosure(new BInteger(ctx.workerLocal.longRegs[index])), TypeTags.INT_TAG);
                     break;
                 }
                 case TypeTags.FLOAT_TAG: {
-                    fp.addClosureVar(new BClosure(new BFloat(ctx.workerLocal.doubleRegs[index])));
+                    fp.addClosureVar(new BClosure(new BFloat(ctx.workerLocal.doubleRegs[index])), TypeTags.FLOAT_TAG);
                     break;
                 }
                 case TypeTags.BOOLEAN_TAG: {
-                    fp.addClosureVar(new BClosure(new BBoolean(ctx.workerLocal.intRegs[index] == 1)));
+                    fp.addClosureVar(new BClosure(new BBoolean(ctx.workerLocal.intRegs[index] == 1)),
+                            TypeTags.BOOLEAN_TAG);
                     break;
                 }
                 case TypeTags.STRING_TAG: {
-                    fp.addClosureVar(new BClosure(new BString(ctx.workerLocal.stringRegs[index])));
+                    fp.addClosureVar(new BClosure(new BString(ctx.workerLocal.stringRegs[index])), TypeTags.STRING_TAG);
                     break;
                 }
                 case TypeTags.BLOB_TAG:
-                    fp.addClosureVar(new BClosure(new BBlob(ctx.workerLocal.byteRegs[index])));
+                    fp.addClosureVar(new BClosure(new BBlob(ctx.workerLocal.byteRegs[index])), TypeTags.BLOB_TAG);
                     break;
                 default:
-                    fp.addClosureVar(new BClosure(ctx.workerLocal.refRegs[index]));
+                    fp.addClosureVar(new BClosure(ctx.workerLocal.refRegs[index]), TypeTags.ANY_TAG);
             }
         }
     }
@@ -1323,7 +1343,9 @@ public class CPU {
                     break;
                 }
 
-                sf.refRegs[k] = bMap.get(sf.stringRegs[j]);
+                IntegerCPEntry exceptCPEntry = (IntegerCPEntry) ctx.constPool[operands[3]];
+                boolean except = exceptCPEntry.getValue() == 1;
+                sf.refRegs[k] = bMap.get(sf.stringRegs[j], except);
                 break;
 
             case InstructionCodes.JSONLOAD:
@@ -1337,14 +1359,6 @@ public class CPU {
                 }
 
                 sf.refRegs[k] = JSONUtils.getElement(jsonVal, sf.stringRegs[j]);
-                break;
-            case InstructionCodes.ENUMERATORLOAD:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[i];
-                BEnumType enumType = (BEnumType) typeRefCPEntry.getType();
-                sf.refRegs[k] = enumType.getEnumerator(j);
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -1603,15 +1617,7 @@ public class CPU {
                 }
 
                 BMapType mapType = (BMapType) bMap.getType();
-                if (sf.refRegs[k] == null) {
-                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
-                } else if (mapType.getConstrainedType() == BTypes.typeAny ||
-                        mapType.getConstrainedType().equals(sf.refRegs[k].getType())) {
-                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
-                } else if (sf.refRegs[k].getType().getTag() == TypeTags.STRUCT_TAG
-                        && mapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG
-                        && checkStructEquivalency((BStructType) sf.refRegs[k].getType(),
-                        (BStructType) mapType.getConstrainedType())) {
+                if (isValidMapInsertion(mapType, sf.refRegs[k])) {
                     bMap.put(sf.stringRegs[j], sf.refRegs[k]);
                 } else {
                     ctx.setError(BLangVMErrors.createError(ctx,
@@ -2127,6 +2133,12 @@ public class CPU {
             case InstructionCodes.NULL2S:
                 j = operands[1];
                 sf.stringRegs[j] = null;
+                break;
+            case InstructionCodes.ARRAY2JSON:
+                convertArrayToJSON(ctx, operands, sf);
+                break;
+            case InstructionCodes.JSON2ARRAY:
+                convertJSONToArray(ctx, operands, sf);
                 break;
             case InstructionCodes.CHECK_CONVERSION:
                 i = operands[0];
@@ -2691,15 +2703,6 @@ public class CPU {
         sf.refRegs[operands[2]] = new BIntRange(startValue, endValue);
     }
 
-    private static void createNewConnector(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
-        int cpIndex = operands[0];
-        int i = operands[1];
-        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) ctx.constPool[cpIndex];
-        ConnectorInfo connectorInfo = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
-        BConnector bConnector = new BConnector(connectorInfo.getType());
-        sf.refRegs[i] = bConnector;
-    }
-
     private static void createNewStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int cpIndex = operands[0];
         int i = operands[1];
@@ -2849,21 +2852,6 @@ public class CPU {
         return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false, flags);
     }
 
-    private static WorkerExecutionContext invokeAction(WorkerExecutionContext ctx, String actionName, int[] argRegs,
-                                                       int[] retRegs, int flags) {
-        BConnector connector = (BConnector) ctx.workerLocal.refRegs[argRegs[0]];
-        if (connector == null) {
-            ctx.setError(BLangVMErrors.createNullRefException(ctx));
-            handleError(ctx);
-            return null;
-        }
-
-        BConnectorType actualCon = (BConnectorType) connector.getConnectorType();
-        ActionInfo actionInfo = ctx.programFile.getPackageInfo(actualCon.getPackagePath())
-                .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
-        return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false, flags);
-    }
-
     @SuppressWarnings("rawtypes")
     private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                          BType type, int reg) {
@@ -2997,6 +2985,10 @@ public class CPU {
         if (rhsValue == null) {
             return false;
         }
+        
+        if (lhsType.getTag() == TypeTags.UNION_TAG) {
+            return checkUnionCast(rhsValue, lhsType);
+        }
 
         BType rhsType = rhsValue.getType();
         if (rhsType.equals(lhsType)) {
@@ -3027,8 +3019,8 @@ public class CPU {
         }
 
         // Array casting
-        if (lhsType.getTag() == TypeTags.ARRAY_TAG || rhsType.getTag() == TypeTags.ARRAY_TAG) {
-            return checkArrayCast(rhsType, lhsType);
+        if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
+            return checkArrayCast((BNewArray) rhsValue, (BArrayType) lhsType);
         }
 
         // Check MAP casting
@@ -3050,12 +3042,58 @@ public class CPU {
                 lhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
             return true;
         }
+        
+        if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
+            return checkTupleCast(rhsValue, lhsType);
+        }
 
-        // TODO Union types, tuple types
+        if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return checkFiniteTypeAssignable(rhsValue, lhsType);
+        }
+
+        return false;
+    }
+
+    private static boolean checkFiniteTypeAssignable(BValue bRefTypeValue, BType lhsType) {
+        BFiniteType fType = (BFiniteType) lhsType;
+        if (bRefTypeValue == null) {
+            if (fType.memberTypes.contains(BTypes.typeNull)) {
+                return true;
+            }
+        } else {
+            BType valueType = bRefTypeValue.getType();
+            if (fType.memberTypes.contains(valueType)) {
+                return true;
+            }
+            Iterator<BValue> valueSpaceItr = fType.valueSpace.iterator();
+            while (valueSpaceItr.hasNext()) {
+                BValue valueSpaceItem = valueSpaceItr.next();
+                if (valueSpaceItem.getType().getTag() == bRefTypeValue.getType().getTag()) {
+                    if (valueSpaceItem.equals(bRefTypeValue)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    
+    private static boolean checkUnionCast(BValue rhsValue, BType lhsType) {
+        BUnionType unionType = (BUnionType) lhsType;
+        for (BType memberType : unionType.getMemberTypes()) {
+            if (checkCast(rhsValue, memberType)) {
+                return true;
+            }
+        }
         return false;
     }
 
     private static boolean checkCast(BValue rhsValue, BType lhsType) {
+        // Check union types
+        if (lhsType.getTag() == TypeTags.UNION_TAG) {
+            return checkUnionCast(rhsValue, lhsType);
+        }
+        
         BType rhsType = BTypes.typeNull;
         if (rhsValue != null) {
             rhsType = rhsValue.getType();
@@ -3079,13 +3117,22 @@ public class CPU {
         }
 
         // Array casting
-        if (lhsType.getTag() == TypeTags.ARRAY_TAG || rhsType.getTag() == TypeTags.ARRAY_TAG) {
-            return checkArrayCast(rhsType, lhsType);
+        if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
+            return checkArrayCast((BNewArray) rhsValue, (BArrayType) lhsType);
         }
 
         // Check MAP casting
         if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
             return checkMapCast(rhsType, lhsType);
+        }
+        
+        // Check tuple casting
+        if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
+            return checkTupleCast(rhsValue, lhsType);
+        } 
+        
+        if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return checkFiniteTypeAssignable(rhsValue, lhsType);
         }
 
         return false;
@@ -3108,7 +3155,11 @@ public class CPU {
 
         return false;
     }
-
+    
+    private static boolean checkArrayCast(BNewArray sourceValue, BArrayType targetType) {
+        return checkArrayCast(sourceValue.getType(), targetType.getElementType());
+    }
+    
     private static boolean checkArrayCast(BType sourceType, BType targetType) {
         if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
             BArrayType sourceArrayType = (BArrayType) sourceType;
@@ -3123,6 +3174,21 @@ public class CPU {
         }
 
         return sourceType.equals(targetType);
+    }
+    
+    private static boolean checkTupleCast(BValue sourceValue, BType targetType) {
+        BRefValueArray source = (BRefValueArray) sourceValue;
+        BTupleType target = (BTupleType) targetType;
+        List<BType> targetTupleTypes = target.getTupleTypes();
+        if (source.size() != targetTupleTypes.size()) {
+            return false;
+        }
+        for (int i = 0; i < source.size(); i++) {
+            if (!checkCast(source.getBValue(i), targetTupleTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static BType getElementType(BType type) {
@@ -3570,6 +3636,46 @@ public class CPU {
         }
     }
     
+    private static void convertArrayToJSON(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
+        int i = operands[0];
+        int j = operands[1];
+
+        BNewArray bArray = (BNewArray) sf.refRegs[i];
+        if (bArray == null) {
+            handleNullRefError(ctx);
+            return;
+        }
+
+        try {
+            sf.refRegs[j] = JSONUtils.convertArrayToJSON(bArray);
+        } catch (Exception e) {
+            String errorMsg = "cannot convert '" + bArray.getType() + "' to type '" + BTypes.typeJSON + "': " +
+                    e.getMessage();
+            handleTypeConversionError(ctx, sf, j, errorMsg);
+        }
+    }
+    
+    private static void convertJSONToArray(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
+        int i = operands[0];
+        int cpIndex = operands[1];
+        int j = operands[2];
+        BArrayType targetType = (BArrayType) ((TypeRefCPEntry) ctx.constPool[cpIndex]).getType();
+
+        BJSON json = (BJSON) sf.refRegs[i];
+        if (json == null) {
+            handleNullRefError(ctx);
+            return;
+        }
+
+        try {
+            sf.refRegs[j] = (BRefType<?>) JSONUtils.convertJSON(json.value(), targetType);
+        } catch (Exception e) {
+            String errorMsg = "cannot convert '" + json.getType() + "' to type '" + targetType + "': " +
+                    e.getMessage();
+            handleTypeConversionError(ctx, sf, j, errorMsg);
+        }
+    }
+    
     @SuppressWarnings("unchecked")
     private static void convertMapToJSON(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
@@ -3605,7 +3711,7 @@ public class CPU {
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.convertJSONToMap(json, targetType);
+            sf.refRegs[j] = JSONUtils.jsonNodeToBMap(json.value(), targetType);
         } catch (Exception e) {
             String errorMsg = "cannot convert '" + json.getType() + "' to type '" + targetType + "': " +
                     e.getMessage();
@@ -3841,4 +3947,30 @@ public class CPU {
 
     }
 
+    private static boolean isValidMapInsertion(BMapType mapType, BValue value) {
+        if (value == null) {
+            return true;
+        }
+
+        BType constraintType = mapType.getConstrainedType();
+        if (constraintType == BTypes.typeAny || constraintType.equals(value.getType())) {
+            return true;
+        }
+       
+        if (value.getType().getTag() == TypeTags.STRUCT_TAG && constraintType.getTag() == TypeTags.STRUCT_TAG &&
+                checkStructEquivalency((BStructType) value.getType(), (BStructType) constraintType)) {
+            return true;
+        }
+
+        // TODO: check for subsets
+        if (constraintType.getTag() == TypeTags.UNION_TAG) {
+            BUnionType unionType = (BUnionType) constraintType;
+            if (unionType.getMemberTypes().contains(BTypes.typeAny)) {
+                return true;
+            }
+            return unionType.getMemberTypes().contains(value.getType());
+        }
+
+        return false;
+    }
 }

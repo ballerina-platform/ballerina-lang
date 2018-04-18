@@ -148,8 +148,35 @@ public class SQLActionsTest {
         final String expected = "Peter";
         BString retValue2 = (BString) returns[1];
         final String expected2 = "John";
+        BString retValue3 = (BString) returns[2];
+        final String expected3 = "Watson";
         Assert.assertEquals(retValue.stringValue(), expected);
         Assert.assertEquals(retValue2.stringValue(), expected2);
+        Assert.assertEquals(retValue3.stringValue(), expected3);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() {
+        BValue[] returns = BRunUtil
+                .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndLowerConstraintCount");
+        Assert.assertTrue(returns[0].stringValue().contains("message:\"execute stored procedure failed: Mismatching "
+                + "record type count: 1 and returned result set count: 2 from the stored procedure\""));
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testCallProcedureWithMultipleResultSetsAndNilConstraintCount() {
+        BValue[] returns = BRunUtil
+                .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndNilConstraintCount");
+        Assert.assertTrue(returns[0].stringValue().contains("message:\"execute stored procedure failed: Mismatching "
+                + "record type count: 0 and returned result set count: 2 from the stored procedure\""));
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() {
+        BValue[] returns = BRunUtil
+                .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndHigherConstraintCount");
+        Assert.assertTrue(returns[0].stringValue().contains("message:\"execute stored procedure failed: Mismatching "
+                + "record type count: 3 and returned result set count: 2 from the stored procedure\""));
     }
 
     @Test(groups = "ConnectorTest")
@@ -161,8 +188,23 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
+    public void testQueryParameters2() {
+        BValue[] returns = BRunUtil.invoke(result, "testQueryParameters2");
+        BString retValue = (BString) returns[0];
+        final String expected = "Peter";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test(groups = "ConnectorTest")
     public void testInsertTableDataWithParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = "ConnectorTest", enabled = false)
+    public void testInsertTableDataWithParameters2() {
+        BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters2");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
@@ -440,7 +482,7 @@ public class SQLActionsTest {
     }
 
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = "ConnectorTest", enabled = false)
     public void testStructOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testStructOutParameters");
         BString retValue = (BString) returns[0];

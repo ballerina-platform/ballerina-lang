@@ -15,7 +15,6 @@
 // under the License.
 
 package ballerina.transactions;
-import ballerina/io;
 
 documentation {
     When a transaction block in Ballerina code begins, it will call this function to begin a transaction.
@@ -43,7 +42,7 @@ function beginTransaction (string? transactionId, int transactionBlockId, string
             } else {
                 //TODO: set the proper protocol
                 string protocolName = PROTOCOL_DURABLE;
-                Protocol[] protocols = [{name:protocolName, url:getParticipantProtocolAt(protocolName, transactionBlockId)}];
+                RemoteProtocol[] protocols = [{name:protocolName, url:getParticipantProtocolAt(protocolName, transactionBlockId)}];
                 return registerParticipantWithRemoteInitiator(txnId, transactionBlockId, registerAtUrl, protocols);
             }
         }
@@ -60,7 +59,7 @@ documentation {
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
-function abortTransaction (string transactionId, int transactionBlockId) returns string|error {
+function abortTransaction (string transactionId, int transactionBlockId) returns error? {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (participatedTransactions.hasKey(participatedTxnId)) {
         TwoPhaseCommitTransaction txn = participatedTransactions[participatedTxnId];
@@ -93,11 +92,11 @@ function endTransaction (string transactionId, int transactionBlockId) returns s
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is
     // an initiator or just a local participant
     if (initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
-        TwoPhaseCommitTransaction txn = initiatedTransactions[transactionId];
-        if (txn.state == TXN_STATE_ABORTED) {
-            return txn.abortInitiatorTransaction();
+        TwoPhaseCommitTransaction initiatedTxn = initiatedTransactions[transactionId];
+        if (initiatedTxn.state == TXN_STATE_ABORTED) {
+            return initiatedTxn.abortInitiatorTransaction();
         } else {
-            string|error ret = txn.twoPhaseCommit();
+            string|error ret = initiatedTxn.twoPhaseCommit();
             removeInitiatedTransaction(transactionId);
             return ret;
         }

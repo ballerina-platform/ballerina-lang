@@ -256,3 +256,282 @@ function test16() returns string {
     string k = "Program !!!";
     return foo("Im", (i, j, k));
 }
+
+function testClosureWithTupleTypesOrder((string, float, string) g) returns (function ((string, float, string), string) returns (string)){
+    string i = "HelloInner";
+    float j = 44.8;
+    string k = "World Inner!!!";
+    var r = (i, j, k);
+
+    return ((string, float, string) y, string x) => (string) {
+       var (a, b, c) = g;
+       var (d, e, f) = y;
+       var (i1, j1, k1) = r;
+
+       return x + a + b + c + d + e + f + i1 + j1 + k1;
+    };
+}
+
+function test17() returns string {
+    string d = "Ballerina";
+    float e = 15.0;
+    string f = "Program!!!";
+
+    string a = "Hello";
+    float b = 11.1;
+    string c = "World !!!";
+
+    var foo = testClosureWithTupleTypesOrder((a, b, c));
+    return foo((d, e, f), "I'm");
+}
+
+function globalVarAccessAndModifyTest() returns (int) {
+    int a = 3;
+    a = 6;
+    globalA = 7;
+    var addFunc = (int b) => (int) {
+        return b + globalA + a;
+    };
+    return addFunc(3);
+}
+
+function test18() returns int {
+    return globalVarAccessAndModifyTest();
+}
+
+type Person object {
+    public {
+        int age = 3,
+        string name = "Hello Ballerina";
+    }
+    private {
+        int year = 5;
+        string month = "february";
+    }
+
+    function getAttachedFn() returns string {
+        int b = 4;
+        var foo = (float w) => (string) {
+           return name + w + "K" + b + self.age;
+        };
+        return foo(7.4);
+    }
+
+    function getAttachedFP() returns function (float) returns (string) {
+        int b = 4;
+        var foo = (float w) => (string) {
+            return w + self.year + b + "Ballerina !!!";
+        };
+        return foo;
+    }
+
+    public function externalAttachedFP() returns (function (float) returns (string));
+
+};
+
+public function Person::externalAttachedFP() returns (function (float) returns (string)) {
+     int b = 4;
+     var foo = (float w) => (string) {
+        string d = w + "T" + b + self.year + self.name + self.age;
+        return d;
+     };
+     return foo;
+}
+
+
+function test19() returns (string) {
+    Person p = new;
+    return p.getAttachedFn();
+}
+
+function test20() returns (string) {
+    Person p = new;
+    var foo = p.getAttachedFP();
+    return foo(7.3);
+}
+
+public function test21() returns (string) {
+    Person p = new;
+    var foo = p.externalAttachedFP();
+    return foo(7.3);
+}
+
+function testDifferentArgs() returns (function (float) returns (function (float) returns (string))) {
+    int outerInt = 4;
+    boolean booOuter = false;
+    var outerFoo = (float fOut) => (function (float) returns (string)) {
+        int innerInt = 7;
+        boolean booInner = true;
+        var innerFoo = (float fIn) => (string) {
+            string str = "Plain";
+            if (!booOuter && booInner) {
+                str = innerInt + "InnerInt" + outerInt + fOut + "InnerFloat" + fIn + "Ballerina !!!";
+            }
+            return str;
+        };
+        return innerFoo;
+    };
+    return outerFoo;
+}
+
+function test22() returns (string) {
+    var fooOut = testDifferentArgs();
+    var fooIn = fooOut(1.2);
+    return fooIn(4.5);
+}
+
+function testVariableShadowingInClosure1(int a) returns function (float) returns (string){
+    int b = 4;
+    float f = 5.6;
+
+    if (a < 10) {
+        int a = 4;
+        b = a + b + <int>f;
+    }
+
+    var foo = (float f) => (string) {
+        if (a > 8) {
+            int a = 6;
+            b = a + <int>f + b;
+        }
+        return "Ballerina" + b;
+    };
+    return foo;
+}
+
+
+function test23() returns string {
+    var foo = testVariableShadowingInClosure1(9);
+    string a = foo(3.4);
+    return a;
+}
+
+function testVariableShadowingInClosure2(int a) returns function (float) returns (function (float, boolean) returns (string)){
+    int b = 4;
+    float f = 5.6;
+    boolean boo = true;
+
+    if (a < 10) {
+        int a = 4;
+        b = a + b + <int>f;
+    }
+
+    var fooOut = (float f) => (function (float, boolean) returns (string)) {
+        if (a > 8) {
+            int a = 6;
+            b = a + <int>f + b;
+        }
+        string s = "Out" + b;
+
+        var fooIn = (float f, boolean boo) => (string) {
+            if (a > 8 && !boo) {
+                int a = 6;
+                b = a + <int>f + b;
+            }
+            return s + "In" + b + "Ballerina!!!";
+        };
+        return fooIn;
+    };
+    return fooOut;
+}
+
+
+function test24() returns string {
+    var foo = testVariableShadowingInClosure2(9);
+    var bar = foo(3.4);
+    string s = bar(24.6, false);
+    return s;
+}
+
+function testVariableShadowingInClosure3(int a) returns (function (float) returns (function (float) returns
+                                                                        (function (float, boolean) returns (string)))){
+    int b = 4;
+    float f = 5.6;
+    boolean boo = true;
+
+    if (a < 10) {
+        int a = 4;
+        b = a + b + <int>f;
+    }
+
+    var fooOutMost = (float f) => (function (float) returns (function (float, boolean) returns (string))) {
+        if (a > 8) {
+            int a = 6;
+            b = a + <int>f + b;
+        }
+        string sOut = "OutMost" + b;
+
+        var fooOut = (float f) => (function (float, boolean) returns (string)) {
+            if (a == 9) {
+                int a = 10;
+                b = a + <int>f + b;
+            }
+            string s = sOut + "Out" + b;
+
+            var fooIn = (float f, boolean boo) => (string) {
+                if (a > 8 && !boo) {
+                    int a = 12;
+                    b = a + <int>f + b;
+                }
+                return s + "In" + b + "Ballerina!!!";
+            };
+            return fooIn;
+        };
+        return fooOut;
+    };
+    return fooOutMost;
+}
+
+function test25() returns string {
+    var foo = testVariableShadowingInClosure3(9);
+    var bar = foo(3.4);
+    var baz = bar(5.7);
+    string s = baz(24.6, false);
+    return s;
+}
+
+
+function testVariableShadowingInClosure4() returns (function (float) returns (function (float) returns
+                                                                        (function (float, boolean) returns (string)))){
+    int b = 4;
+    int a = 7;
+    float f = 5.6;
+    boolean boo = true;
+
+    var fooOutMost = (float f) => (function (float) returns (function (float, boolean) returns (string))) {
+        int a = 8;
+        string sOut = "OutMost" + b + a;
+
+        var fooOut = (float f) => (function (float, boolean) returns (string)) {
+            int a = 9;
+            string s = sOut + "Out" + b + a;
+
+            var fooIn = (float f, boolean boo) => (string) {
+                int a = 10;
+                b = a + <int>f + b;
+                return s + "In" + b + "Ballerina!!!";
+            };
+            return fooIn;
+        };
+        return fooOut;
+    };
+    return fooOutMost;
+}
+
+function test26() returns string {
+    var foo = testVariableShadowingInClosure4();
+    var bar = foo(3.4);
+    var baz = bar(5.7);
+    string s = baz(24.6, false);
+    return s;
+}
+
+function testLocalVarModifyWithinClosureScope() returns (float){
+    float fadd = 0;
+    float[] fa = [1.1, 2.2, -3.3, 4.4, 5.5];
+    fa.foreach((float i) => { fadd = fadd + i;});
+    float fsum = fadd;
+    return (fsum);
+}
+
+

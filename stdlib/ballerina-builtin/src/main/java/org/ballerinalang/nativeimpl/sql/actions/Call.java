@@ -18,7 +18,6 @@
 package org.ballerinalang.nativeimpl.sql.actions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
@@ -63,16 +62,16 @@ public class Call extends AbstractSQLAction {
         try {
             BStruct bConnector = (BStruct) context.getRefArgument(0);
             String query = context.getStringArgument(0);
-            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
-            BStructType structType = getStructType(context, 2);
+            BRefValueArray structTypes = (BRefValueArray) context.getNullableRefArgument(1);
+            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(2);
+
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
 
-            ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
-                    getParentWorkerExecutionContext());
+            ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
             observerContext.addTag(TAG_KEY_DB_STATEMENT, query);
             observerContext.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
 
-            executeProcedure(context, datasource, query, parameters, structType);
+            executeProcedure(context, datasource, query, parameters, structTypes);
         } catch (Throwable e) {
             context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
             SQLDatasourceUtils.handleErrorOnTransaction(context);

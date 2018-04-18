@@ -1,4 +1,4 @@
-function main (string[] args) {
+function main (string... args) {
     Client<caret>Connector nyseEP = create ClientConnector("http://localhost:9090");
     message response = nyseEP.get ("/nyseStock", m);
 }

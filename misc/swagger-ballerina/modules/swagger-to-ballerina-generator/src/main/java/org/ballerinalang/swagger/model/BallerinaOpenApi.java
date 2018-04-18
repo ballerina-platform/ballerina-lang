@@ -16,15 +16,17 @@
 
 package org.ballerinalang.swagger.model;
 
-import io.swagger.oas.models.Components;
-import io.swagger.oas.models.ExternalDocumentation;
-import io.swagger.oas.models.OpenAPI;
-import io.swagger.oas.models.PathItem;
-import io.swagger.oas.models.info.Info;
-import io.swagger.oas.models.media.Schema;
-import io.swagger.oas.models.security.SecurityRequirement;
-import io.swagger.oas.models.servers.Server;
-import io.swagger.oas.models.tags.Tag;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.Paths;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.tags.Tag;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 
 import java.util.AbstractMap;
@@ -35,11 +37,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Wrapper for <code>io.swagger.oas.models.OpenAPI</code>
+ * Wrapper for {@link OpenAPI}.
  * <p>This class can be used to push additional context variables for handlebars</p>
  */
 public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi, OpenAPI> {
-    private String apiPackage;
+    private String srcPackage;
     private String modelPackage;
     private String openapi = "3.0.0";
     private Info info = null;
@@ -47,7 +49,7 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
     private List<BallerinaServer> servers = null;
     private Set<Map.Entry<String, String>> security = null;
     private List<Tag> tags = null;
-    private Set<Map.Entry<String, PathItem>> paths = null;
+    private Set<Map.Entry<String, BallerinaPath>> paths = null;
     private Set<Map.Entry<String, BallerinaSchema>> schemas = null;
     private Components components = null;
     private Map<String, Object> extensions = null;
@@ -69,8 +71,8 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
         this.tags = openAPI.getTags();
         this.components = openAPI.getComponents();
         this.extensions = openAPI.getExtensions();
-        this.paths = openAPI.getPaths().entrySet();
 
+        setPaths(openAPI);
         setSecurityRequirements(openAPI);
         setServers(openAPI);
         setSchemas(openAPI);
@@ -80,6 +82,34 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
     @Override
     public BallerinaOpenApi getDefaultValue() {
         return null;
+    }
+
+    /**
+     * Populate path models into iterable structure.
+     * This method will also add an operationId to each operation,
+     * if operationId not provided in swagger definition
+     *
+     * @param openAPI {@code OpenAPI} definition object with schema definition
+     * @throws BallerinaOpenApiException when context building fails
+     */
+    private void setPaths(OpenAPI openAPI) throws BallerinaOpenApiException {
+        if (openAPI.getComponents() == null || openAPI.getComponents().getSchemas() == null) {
+            return;
+        }
+
+        this.paths = new LinkedHashSet<>();
+        Paths pathList = openAPI.getPaths();
+        for (Map.Entry<String, PathItem> path : pathList.entrySet()) {
+            BallerinaPath balPath = new BallerinaPath().buildContext(path.getValue());
+            balPath.getOperations().forEach(operation -> {
+                if (operation.getValue().getOperationId() == null) {
+                    String pathName = path.getKey().substring(1); // need to drop '/' prefix from the key, ex:'/path'
+                    String operationId = operation.getKey() + StringUtils.capitalize(pathName);
+                    operation.getValue().setOperationId(operationId);
+                }
+            });
+            paths.add(new AbstractMap.SimpleEntry<>(path.getKey(), balPath));
+        }
     }
 
     /**
@@ -152,9 +182,9 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
         }));
     }
 
-    public BallerinaOpenApi apiPackage(String apiPackage) {
-        if (apiPackage != null) {
-            this.apiPackage = apiPackage.replaceFirst("\\.", "/");
+    public BallerinaOpenApi srcPackage(String srcPackage) {
+        if (srcPackage != null) {
+            this.srcPackage = srcPackage.replaceFirst("\\.", "/");
         }
         return this;
     }
@@ -166,8 +196,8 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
         return this;
     }
 
-    public String getApiPackage() {
-        return apiPackage;
+    public String getSrcPackage() {
+        return srcPackage;
     }
 
     public String getModelPackage() {
@@ -198,7 +228,7 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
         return tags;
     }
 
-    public Set<Map.Entry<String, PathItem>> getPaths() {
+    public Set<Map.Entry<String, BallerinaPath>> getPaths() {
         return paths;
     }
 

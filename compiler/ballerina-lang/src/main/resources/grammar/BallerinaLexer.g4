@@ -75,6 +75,9 @@ DAY         : {inSiddhiTimeScaleQuery}? 'day' { inSiddhiTimeScaleQuery = false; 
 MONTH       : {inSiddhiTimeScaleQuery}? 'month' { inSiddhiTimeScaleQuery = false; } ;
 YEAR        : {inSiddhiTimeScaleQuery}? 'year' { inSiddhiTimeScaleQuery = false; } ;
 FOREVER     : 'forever' ;
+LIMIT       : 'limit' ;
+ASCENDING   : 'ascending' ;
+DESCENDING  : 'descending' ;
 
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
@@ -122,7 +125,7 @@ WITH        : 'with' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
 UNTAINT     : 'untaint' ;
-ASYNC       : 'async' ;
+START       : 'start' ;
 AWAIT       : 'await' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
@@ -792,7 +795,7 @@ DocumentationTemplateText
 
 fragment
 DocumentationTemplateStringChar
-    :   ~[`{}\\FPTRV]
+    :   ~[`{}\\FPTRVE]
     |   '\\' [{}`]
     |   WS
     |   DocumentationEscapedSequence
@@ -800,7 +803,7 @@ DocumentationTemplateStringChar
 
 fragment
 AttributePrefix
-    :   [FPTRV]
+    :   [FPTRVE]
     ;
 
 fragment
@@ -815,9 +818,9 @@ DocumentationEscapedSequence
 
 fragment
 DocumentationValidCharSequence
-     :  [FPTRV] ~[`{}\\]
-     |  [FPTRV] '\\' [{}`]
-     |  [FPTRV] '\\' ~[{}`]
+     :  [FPTRVE] ~[`{}\\]
+     |  [FPTRVE] '\\' [{}`]
+     |  [FPTRVE] '\\' ~[{}`]
      |  '\\' ~'\\'
      ;
 

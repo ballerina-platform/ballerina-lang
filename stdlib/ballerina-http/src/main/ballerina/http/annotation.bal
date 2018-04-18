@@ -25,13 +25,16 @@ package ballerina.http;
 @Field {value:"basePath: Service base path"}
 @Field {value:"compression: The status of compression {default value : AUTO}"}
 @Field {value:"cors: The CORS configurations for the service"}
+@Field {value:"authConfig: AuthConfig instance to secure the service"}
 public type HttpServiceConfig {
     Listener[] endpoints,
     HttpServiceLifeTime lifetime,
     string basePath,
     Compression compression = "AUTO",
+    Chunking chunking = CHUNKING_AUTO,
     CorsConfig cors,
     Versioning versioning,
+    ListenerAuthConfig? authConfig,
 };
 
 @Description {value:"Configurations for CORS support"}
@@ -69,7 +72,7 @@ public type Versioning {
 public type WSServiceConfig {
     Listener[] endpoints,
     WebSocketListener[] webSocketEndpoints,
-    string basePath,
+    string path,
     string[] subProtocols,
     int idleTimeoutInSeconds,
 };
@@ -105,6 +108,7 @@ public annotation <service> WebSocketServiceConfig WSServiceConfig;
 @Field {value:"produces: The media types which are produced by resource"}
 @Field {value:"cors: The CORS configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service."}
 @Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
+@Field {value:"authConfig: AuthConfig instance to secure the resource"}
 public type HttpResourceConfig {
         string[] methods,
         string path,
@@ -114,11 +118,28 @@ public type HttpResourceConfig {
         CorsConfig cors,
         boolean transactionInfectable = true,
         WebSocketUpgradeConfig? webSocketUpgrade,
+        ListenerAuthConfig? authConfig,
 };
 
 public type WebSocketUpgradeConfig {
         string upgradePath,
         typedesc upgradeService,
+};
+
+@Description {value:"Representation of AuthConfig"}
+@Field {value:"authentication: Authentication instance"}
+@Field {value:"providers: array of providers"}
+@Field {value:"scopes: array of scopes"}
+public type ListenerAuthConfig {
+    Authentication? authentication,
+    string[]? authProviders,
+    string[]? scopes,
+};
+
+@Description {value:"Representation of Authentication Config"}
+@Field {value:"enabled: flag to enable/disable authentication"}
+public type Authentication {
+    boolean enabled,
 };
 
 @Description {value:"Configurations annotation for an HTTP resource"}

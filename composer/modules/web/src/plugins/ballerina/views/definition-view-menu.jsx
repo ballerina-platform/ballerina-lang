@@ -75,7 +75,7 @@ class DefinitionViewMenu extends React.Component {
                     <Button as='div' labelPosition='right'>
                         <Grid divided className='top-bar' columns={2}>
                             <Grid.Row>
-                                <Grid.Column width={8}>
+                                <Grid.Column mobile={16} tablet={8} computer={8} floated='right'>
                                     <Grid.Row className='top-bar-row'>
                                         <Label> 
                                             <Icon name={'fw fw-struct'} />
@@ -84,8 +84,8 @@ class DefinitionViewMenu extends React.Component {
                                         <Label >{structs.length}</Label>
                                     </Grid.Row>
                                 </Grid.Column>
-                                <Grid.Column width={8}>
-                                    <Grid.Row>
+                                <Grid.Column mobile={16} tablet={8} computer={8} floated='right'>
+                                    <Grid.Row className='top-bar-row'>
                                         <Label> 
                                             <Icon name={'fw fw-endpoint'} />
                                         </Label>
@@ -107,8 +107,7 @@ class DefinitionViewMenu extends React.Component {
             >
                 {
                     <Grid divided columns={2} className='menu-pop-content'>
-                        <Grid.Row>
-                            <Grid.Column>
+                            <Grid.Column mobile={16} tablet={8} computer={8}>
                                 <Header as='h5'>
                                     <Icon name={'fw fw-struct'} />
                                     <Header.Content>Objects</Header.Content>
@@ -120,7 +119,7 @@ class DefinitionViewMenu extends React.Component {
                                     })
                                 }
                             </Grid.Column>
-                            <Grid.Column>
+                            <Grid.Column mobile={16} tablet={8} computer={8}>
                                 <Header as='h5'>
                                     <Icon size='mini' name={'fw fw-endpoint'} />
                                     <Header.Content>Endpoints</Header.Content>
@@ -132,7 +131,6 @@ class DefinitionViewMenu extends React.Component {
                                     })
                                 }
                             </Grid.Column>
-                        </Grid.Row>
                     </Grid>
             }
 

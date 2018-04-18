@@ -15,10 +15,10 @@
  */
 package org.ballerinalang.langserver.signature;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.LSPackageCache;
-import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSPackageCache;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.DocTag;
 import org.eclipse.lsp4j.ParameterInformation;
@@ -167,8 +167,8 @@ public class SignatureHelpUtil {
         List<ParameterInfoModel> paramModels = new ArrayList<>();
         String functionName = signatureContext.get(SignatureKeys.CALLABLE_ITEM_NAME);
         CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        BLangPackage bLangPackage = LSPackageCache.getInstance().findPackage(compilerContext, bInvokableSymbol.pkgID);
-
+        LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
+        BLangPackage bLangPackage = lsPackageCache.findPackage(compilerContext, bInvokableSymbol.pkgID);
         BLangFunction blangFunction = bLangPackage.getFunctions().stream()
                 .filter(bLangFunction -> bLangFunction.getName().getValue().equals(functionName))
                 .findFirst()

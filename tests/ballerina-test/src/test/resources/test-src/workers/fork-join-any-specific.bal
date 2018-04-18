@@ -15,13 +15,13 @@ function testForkJoinAnyOfSpecific () returns string[] {
             m1 -> fork;
         }
     } join (some 1 ABC_Airline, XYZ_Airline) (map airlineResponses) {
-        if (airlineResponses["ABC_Airline"] != null) {
+        if (airlineResponses.hasKey("ABC_Airline")) {
             results[0] = <string>airlineResponses["ABC_Airline"];
         }
-        if (airlineResponses["XYZ_Airline"] != null) {
+        if (airlineResponses.hasKey("XYZ_Airline")) {
             results[0] = <string> airlineResponses["XYZ_Airline"];
         }
-        if (airlineResponses["PQR_Airline"] != null) {
+        if (airlineResponses.hasKey("PQR_Airline")) {
             results[0] = <string> airlineResponses["PQR_Airline"];
         }
         return results;

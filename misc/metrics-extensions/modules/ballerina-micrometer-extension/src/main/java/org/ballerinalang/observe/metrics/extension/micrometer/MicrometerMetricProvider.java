@@ -50,7 +50,8 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG
 public class MicrometerMetricProvider implements MetricProvider {
 
     private MeterRegistry meterRegistry;
-    private static final String METER_REGISTRY_NAME = CONFIG_TABLE_METRICS + ".micrometer_registry";
+    private static final String MICROMETER_CONFIGS = CONFIG_TABLE_METRICS + ".micrometer";
+    private static final String METER_REGISTRY_NAME = MICROMETER_CONFIGS + ".registry.name";
 
     public MicrometerMetricProvider() {
     }
@@ -63,7 +64,7 @@ public class MicrometerMetricProvider implements MetricProvider {
     @Override
     public void initialize() {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        String registryName = configRegistry.getConfiguration(METER_REGISTRY_NAME);
+        String registryName = configRegistry.getAsString(METER_REGISTRY_NAME);
         // Look for MeterRegistryProvider implementations
         Iterator<MeterRegistryProvider> meterRegistryProviders = ServiceLoader.load(MeterRegistryProvider.class)
                 .iterator();

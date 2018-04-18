@@ -22,16 +22,10 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.config.ConfigRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 import java.util.stream.Collectors;
-
-import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
-import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
 
 /**
  * {@link TraceManager} loads {@link TraceManager} implementation
@@ -42,22 +36,17 @@ import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
 public class TraceManager {
     private static final TraceManager instance = new TraceManager();
     private TracersStore tracerStore;
-    private Stack<BSpan> bSpanStack;
 
     private TraceManager() {
-        Map<String, String> configurations = ConfigRegistry.getInstance().getConfigTable(CONFIG_TABLE_TRACING);
-        tracerStore = new TracersStore(configurations);
-        bSpanStack = new Stack<>();
+        tracerStore = TracersStore.getInstance();
     }
 
     public static TraceManager getInstance() {
         return instance;
     }
 
-    public void startSpan(WorkerExecutionContext ctx) {
-        BSpan activeBSpan = TraceUtil.getBSpan(ctx);
+    public void startSpan(BSpan parentBSpan, BSpan activeBSpan) {
         if (activeBSpan != null) {
-            BSpan parentBSpan = !bSpanStack.empty() ? bSpanStack.peek() : null;
             String service = activeBSpan.getConnectorName();
             String resource = activeBSpan.getActionName();
 
@@ -75,15 +64,11 @@ public class TraceManager {
             }
 
             activeBSpan.setSpans(spanList);
-            bSpanStack.push(activeBSpan);
         }
     }
 
     public void finishSpan(BSpan bSpan) {
         bSpan.getSpans().values().forEach(Span::finish);
-        if (!bSpanStack.empty()) {
-            bSpanStack.pop();
-        }
     }
 
     public void log(BSpan bSpan, Map<String, Object> fields) {
@@ -96,10 +81,6 @@ public class TraceManager {
         });
     }
 
-    public BSpan getParentBSpan() {
-        return !bSpanStack.empty() ? bSpanStack.peek() : null;
-    }
-
     public Map<String, String> extractTraceContext(Map<String, Span> activeSpanMap, String serviceName) {
         Map<String, String> carrierMap = new HashMap<>();
         for (Map.Entry<String, Span> activeSpanEntry : activeSpanMap.entrySet()) {
@@ -108,8 +89,11 @@ public class TraceManager {
             if (tracer != null) {
                 Span span = activeSpanEntry.getValue();
                 if (span != null) {
-                    tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS,
-                            new RequestInjector(TRACE_PREFIX, carrierMap));
+                    Map<String, String> tracerSpecificCarrier = new HashMap<>();
+                    RequestInjector requestInjector = new RequestInjector(tracerSpecificCarrier);
+                    tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, requestInjector);
+                    String value = requestInjector.getCarrierString();
+                    carrierMap.put(TraceConstants.TRACE_HEADER, value);
                 }
             }
         }
@@ -147,7 +131,8 @@ public class TraceManager {
         Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
         for (Map.Entry<String, Tracer> tracerEntry : tracers.entrySet()) {
             spanContext.put(tracerEntry.getKey(), tracerEntry.getValue()
-                    .extract(Format.Builtin.HTTP_HEADERS, new RequestExtractor(headers)));
+                    .extract(Format.Builtin.HTTP_HEADERS,
+                            new RequestExtractor(headers.get(TraceConstants.TRACE_HEADER))));
         }
         return spanContext;
     }

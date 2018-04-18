@@ -26,6 +26,8 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 
@@ -38,6 +40,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
+
+import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
  * Test command for ballerina launcher.
@@ -57,13 +61,23 @@ public class TestCmd implements BLauncherCmd {
     @Parameter(names = { "--help", "-h" }, hidden = true)
     private boolean helpFlag;
 
-    @Parameter(names = "--debug", hidden = true)
+    @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
+    private String sourceRoot;
+
+    @DynamicParameter(names = "-e", description = "Ballerina environment parameters")
+    private Map<String, String> runtimeParams = new HashMap<>();
+
+    @DynamicParameter(names = "-B", description = "Ballerina VM options")
+    private Map<String, String> vmOptions = new HashMap<>();
+
+    @Parameter(names = {"--config", "-c"}, description = "path to the testerina configuration file")
+    private String configFilePath;
+
+    @Parameter(names = "--debug", description = "remote debug testerina programs")
     private String debugPort;
 
-    @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
-    private String ballerinaDebugPort;
-
-    @Parameter(names = { "--list-groups", "-lg" }, description = "list the groups available in the tests")
+    // Testerina Flags
+    @Parameter(names = {"--list-groups", "-lg"}, description = "list the groups available in the tests")
     private boolean listGroups;
 
     @Parameter(names = "--groups", description = "test groups to be executed")
@@ -71,12 +85,6 @@ public class TestCmd implements BLauncherCmd {
 
     @Parameter(names = "--disable-groups", description = "test groups to be disabled")
     private List<String> disableGroupList;
-
-    @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
-    private String sourceRoot;
-
-    @DynamicParameter(names = "-B", description = "collects dynamic parameters")
-    private Map<String, String> configRuntimeParams = new HashMap<>();
 
     public void execute() {
         if (helpFlag) {
@@ -95,10 +103,19 @@ public class TestCmd implements BLauncherCmd {
                     .createUsageException("Cannot specify both --groups and --disable-groups flags at the same time");
         }
 
+        // Enable remote debugging
+        if (null != debugPort) {
+            System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
+        }
+        // Setting the vm options
+        VMOptions.getInstance().addOptions(vmOptions);
+
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        // Setting the source root so it can be accessed from anywhere
+        System.setProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
         Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
         try {
-            ConfigRegistry.getInstance().initRegistry(configRuntimeParams, null, ballerinaConfPath);
+            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, ballerinaConfPath);
             ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
         } catch (IOException e) {
             throw new RuntimeException("failed to read the specified configuration file: " + ballerinaConfPath
@@ -109,17 +126,19 @@ public class TestCmd implements BLauncherCmd {
 
         BTestRunner testRunner = new BTestRunner();
         if (listGroups) {
-            testRunner.listGroups(sourceRoot, paths);
+            testRunner.listGroups(sourceRootPath.toString(), paths);
             Runtime.getRuntime().exit(0);
         }
         if (disableGroupList != null) {
-            testRunner.runTest(sourceRoot, paths, disableGroupList, false);
+            testRunner.runTest(sourceRootPath.toString(), paths, disableGroupList, false);
         } else {
-            testRunner.runTest(sourceRoot, paths, groupList, true);
+            testRunner.runTest(sourceRootPath.toString(), paths, groupList, true);
         }
         if (testRunner.getTesterinaReport().isFailure()) {
+            Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
             Runtime.getRuntime().exit(1);
         }
+        Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
         Runtime.getRuntime().exit(0);
     }
 

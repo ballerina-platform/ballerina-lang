@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.TypeFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -28,6 +29,7 @@ import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
@@ -92,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
@@ -103,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -155,6 +159,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
+import org.wso2.ballerinalang.util.TypeFlags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -318,10 +323,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.processWorkers(funcNode, funcEnv);
     }
 
-    private List<BLangObject> findMatchingObject(BLangPackage pkgNode, String name) {
-        return pkgNode.objects.stream().filter(o -> o.name.value.equals(name)).collect(Collectors.toList());
-    }
-
     private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
         if (invNode.workers.size() > 0) {
             invEnv.scope.entries.putAll(invNode.body.scope.entries);
@@ -367,6 +368,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         analyzeDef(objectNode.initFunction, objectEnv);
 
+        validateConstructorAndCheckDefaultable(objectNode);
+
         //Visit temporary init statements in the init function
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(objectNode.initFunction,
                 objectNode.initFunction.symbol.scope, objectEnv);
@@ -388,6 +391,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
 
         analyzeDef(record.initFunction, structEnv);
+
+        validateDefaultable(record);
+
         record.docAttachments.forEach(doc -> analyzeDef(doc, structEnv));
     }
 
@@ -521,6 +527,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Analyze the init expression
         BLangExpression rhsExpr = varNode.expr;
         if (rhsExpr == null) {
+            if (varNode.symbol.owner.tag == SymTag.PACKAGE && !types.defaultValueExists(varNode.pos, varNode.type)) {
+                dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
+            }
             return;
         }
 
@@ -528,13 +537,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // variable symbol in the symbol environment
         // e.g. int a = x + a;
         SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
-
-        // If the variable is a package/service/connector level variable, we don't need to check types.
-        // It will we done during the init-function of the respective construct is visited.
-        if ((ownerSymTag & SymTag.SERVICE) == SymTag.SERVICE ||
-                (ownerSymTag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
-            return;
-        }
 
         // Return if this not a safe assignment
         if (!varNode.safeAssignment) {
@@ -559,7 +561,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Check whether variable is initialized, if the type don't support default values.
         // eg: struct types.
-        if (varDefNode.var.expr == null && !types.defaultValueExists(varDefNode.var.type)) {
+        if (varDefNode.var.expr == null && !types.defaultValueExists(varDefNode.pos, varDefNode.var.type)) {
             dlog.error(varDefNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varDefNode.var.name);
         }
     }
@@ -887,6 +889,47 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         this.typeChecker.checkExpr(serviceNode.anonymousEndpointBind, env,
                 endpointSPIAnalyzer.getEndpointConfigType((BStructSymbol) serviceNode.endpointType.tsymbol));
+    }
+
+    private void validateConstructorAndCheckDefaultable(BLangObject objectNode) {
+        boolean defaultableStatus = true;
+        for (BLangVariable field : objectNode.fields) {
+            if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
+                continue;
+            }
+            defaultableStatus = false;
+            if (objectNode.initFunction.symbol.params.stream().filter(p -> p.field ? p.originalName.equals(field
+                    .symbol.name) : p.name.equals(field.symbol.name)).collect(Collectors.toList()).size() == 0) {
+                dlog.error(objectNode.pos, DiagnosticCode.OBJECT_UN_INITIALIZABLE_FIELD, field);
+            }
+        }
+
+        if (objectNode.initFunction.symbol.params.size() > 0) {
+            defaultableStatus = false;
+        }
+        if (defaultableStatus) {
+            objectNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED,
+                    TypeFlag.DEFAULTABLE));
+        } else {
+            objectNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED));
+        }
+    }
+
+    private void validateDefaultable(BLangRecord recordNode) {
+        boolean defaultableStatus = true;
+        for (BLangVariable field : recordNode.fields) {
+            if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
+                continue;
+            }
+            defaultableStatus = false;
+            break;
+        }
+        if (defaultableStatus) {
+            recordNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED,
+                    TypeFlag.DEFAULTABLE));
+        } else {
+            recordNode.symbol.type.flags = TypeFlags.asMask(EnumSet.of(TypeFlag.DEFAULTABLE_CHECKED));
+        }
     }
 
     public void visit(BLangResource resourceNode) {
@@ -1283,6 +1326,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangStreamingInput streamingInput) {
         BLangExpression streamRef = (BLangExpression) streamingInput.getStreamReference();
         typeChecker.checkExpr(streamRef, env);
@@ -1303,11 +1347,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangWindow windowClause) {
         ExpressionNode expressionNode = windowClause.getFunctionInvocation();
         ((BLangExpression) expressionNode).accept(this);
     }
 
+    @Override
     public void visit(BLangInvocation invocationExpr) {
         VariableReferenceNode variableReferenceNode = invocationExpr.getExpression();
         if (variableReferenceNode != null) {
@@ -1315,11 +1361,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangWhere whereClause) {
         ExpressionNode expressionNode = whereClause.getExpression();
         ((BLangExpression) expressionNode).accept(this);
     }
 
+    @Override
     public void visit(BLangBinaryExpr binaryExpr) {
         ExpressionNode leftExpression = binaryExpr.getLeftExpression();
         ((BLangExpression) leftExpression).accept(this);
@@ -1328,6 +1376,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         ((BLangExpression) rightExpression).accept(this);
     }
 
+    @Override
     public void visit(BLangSelectClause selectClause) {
         GroupByNode groupByNode = selectClause.getGroupBy();
         if (groupByNode != null) {
@@ -1347,6 +1396,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangGroupBy groupBy) {
         List<? extends ExpressionNode> variableExpressionList = groupBy.getVariables();
         for (ExpressionNode expressionNode : variableExpressionList) {
@@ -1354,6 +1404,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangHaving having) {
         ExpressionNode expressionNode = having.getExpression();
         if (expressionNode != null) {
@@ -1361,17 +1412,34 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangOrderBy orderBy) {
+        List<? extends OrderByVariableNode> orderByVariableList = orderBy.getVariables();
+        for (OrderByVariableNode orderByVariableNode : orderByVariableList) {
+            ((BLangOrderByVariable) orderByVariableNode).accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangOrderByVariable orderByVariable) {
+        BLangExpression expression = (BLangExpression) orderByVariable.getVariableReference();
+        expression.accept(this);
+    }
+
+    @Override
     public void visit(BLangSelectExpression selectExpression) {
         ExpressionNode expressionNode = selectExpression.getExpression();
         ((BLangExpression) expressionNode).accept(this);
     }
 
+    @Override
     public void visit(BLangStreamAction streamAction) {
         BLangLambdaFunction function = (BLangLambdaFunction) streamAction.getInvokableBody();
         typeChecker.checkExpr(function, env);
         validateStreamingActionFunctionParameters(streamAction);
     }
 
+    @Override
     public void visit(BLangJoinStreamingInput joinStreamingInput) {
         StreamingInput streamingInput = joinStreamingInput.getStreamingInput();
         if (streamingInput != null) {
@@ -1384,6 +1452,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangSetAssignment setAssignmentClause) {
         ExpressionNode expressionNode = setAssignmentClause.getExpressionNode();
         ((BLangExpression) expressionNode).accept(this);
@@ -1392,6 +1461,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         ((BLangExpression) variableReference).accept(this);
     }
 
+    @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         VariableReferenceNode variableReferenceNode = fieldAccessExpr.getExpression();
         ((BLangVariableReference) variableReferenceNode).accept(this);
@@ -1402,10 +1472,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // ignore
     }
 
+    @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         // ignore
     }
 
+    @Override
     public void visit(BLangLiteral literalExpr) {
         //ignore
     }
@@ -1415,7 +1487,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         //ignore
     }
 
+    @Override
     public void visit(BLangTableLiteral tableLiteral) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         /* ignore */
     }
 

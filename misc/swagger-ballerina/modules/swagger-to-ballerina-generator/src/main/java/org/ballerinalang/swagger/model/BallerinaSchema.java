@@ -16,8 +16,8 @@
 
 package org.ballerinalang.swagger.model;
 
-import io.swagger.oas.models.media.ArraySchema;
-import io.swagger.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.Schema;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 import org.ballerinalang.swagger.utils.GeneratorConstants;
 
@@ -47,8 +47,13 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
         if (schema instanceof ArraySchema) {
             this.properties = new LinkedHashSet<>();
             Schema propSchema = new Schema();
+            String type;
 
-            String type = getReferenceType(((ArraySchema) schema).getItems().get$ref());
+            if (((ArraySchema) schema).getItems().get$ref() != null) {
+                type = getReferenceType(((ArraySchema) schema).getItems().get$ref());
+            } else {
+                type = ((ArraySchema) schema).getItems().getType();
+            }
             String name = type.toLowerCase(Locale.ENGLISH) + LIST_SUFFIX;
             toPropertyName(name);
             type = type.isEmpty() ? UNSUPPORTED_PROPERTY_MSG : type + "[]";

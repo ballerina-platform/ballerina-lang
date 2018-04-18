@@ -1,6 +1,6 @@
 package org.test;
 
-function main (string[] args) {
+function main (string... args) {
     Pers<caret>on person = {};
 }
 

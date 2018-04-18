@@ -9,15 +9,14 @@ endpoint http:APIListener listener {
 @http:ServiceConfig {
     basePath:"/echo"
 }
-
 service<http:Service> echo bind listener {
     @http:ResourceConfig {
         methods:["GET"],
-        path:"/test"
-    }
-    @auth:Config {
-        authentication:{enabled:true},
-        scopes:["scope2"]
+        path:"/test",
+        authConfig:{
+            authentication:{enabled:true},
+            scopes:["scope2"]
+        }
     }
     echo (endpoint client, http:Request req) {
         http:Response res = new;

@@ -48,8 +48,6 @@ import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.codegen.AnnAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -60,7 +58,6 @@ import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
-import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
@@ -90,15 +87,16 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
-import static org.ballerinalang.net.http.HttpConstants.IN_RESPONSE_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
@@ -123,6 +121,7 @@ public class HttpUtil {
 
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
+    private static final String CHUNKING_CONFIG = "chunking_config";
 
     public static BValue[] getProperty(Context context, boolean isRequest) {
         BStruct httpMessageStruct = (BStruct) context.getRefArgument(0);
@@ -216,8 +215,8 @@ public class HttpUtil {
      * @param entity            Represent an entity
      * @param isRequest         boolean representing whether the message is a request or a response
      */
-    protected static void populateEntityBody(Context context, BStruct httpMessageStruct, BStruct entity,
-                                             boolean isRequest) {
+    public static void populateEntityBody(Context context, BStruct httpMessageStruct, BStruct entity,
+                                          boolean isRequest) {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
@@ -253,21 +252,6 @@ public class HttpUtil {
         }
     }
 
-//    /**
-//     * Helper method to start pending http server connectors.
-//     *
-//     * @throws BallerinaConnectorException
-//     */
-//    public static void startPendingHttpConnectors(BallerinaHttpServerConnector httpServerConnector)
-//            throws BallerinaConnectorException {
-//        try {
-//            // Starting up HTTP Server connectors
-//            HttpConnectionManager.getInstance().startPendingHTTPConnectors(httpServerConnector);
-//        } catch (ServerConnectorException e) {
-//            throw new BallerinaConnectorException(e);
-//        }
-//    }
-
     public static void prepareOutboundResponse(Context context, HTTPCarbonMessage inboundRequestMsg,
                                                HTTPCarbonMessage outboundResponseMsg, BStruct outboundResponseStruct) {
 
@@ -276,6 +260,7 @@ public class HttpUtil {
         HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
         HttpUtil.setCompressionHeaders(context, inboundRequestMsg, outboundResponseMsg);
+        HttpUtil.setChunkingHeader(context, outboundResponseMsg);
     }
 
     public static BStruct createSessionStruct(Context context, Session session) {
@@ -294,23 +279,24 @@ public class HttpUtil {
 
     public static void addHTTPSessionAndCorsHeaders(Context context, HTTPCarbonMessage requestMsg,
                                                     HTTPCarbonMessage responseMsg) {
-        Session session = (Session) requestMsg.getProperty(HttpConstants.HTTP_SESSION);
-        if (session != null) {
-            boolean isSecureRequest = false;
-            AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
-                    HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
-            if (configAnn != null) {
-                AnnAttributeValue httpsPortAttrVal = configAnn
-                        .getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HTTPS_PORT);
-                if (httpsPortAttrVal != null) {
-                    Integer listenerPort = (Integer) requestMsg.getProperty(HttpConstants.LISTENER_PORT);
-                    if (listenerPort != null && httpsPortAttrVal.getIntValue() == listenerPort) {
-                        isSecureRequest = true;
-                    }
-                }
-            }
-            session.generateSessionHeader(responseMsg, isSecureRequest);
-        }
+        //TODO Remove once service session LC is introduced
+//        Session session = (Session) requestMsg.getProperty(HttpConstants.HTTP_SESSION);
+//        if (session != null) {
+//            boolean isSecureRequest = false;
+//            AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
+//                    HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
+//            if (configAnn != null) {
+//                AnnAttributeValue httpsPortAttrVal = configAnn
+//                        .getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HTTPS_PORT);
+//                if (httpsPortAttrVal != null) {
+//                    Integer listenerPort = (Integer) requestMsg.getProperty(HttpConstants.LISTENER_PORT);
+//                    if (listenerPort != null && httpsPortAttrVal.getIntValue() == listenerPort) {
+//                        isSecureRequest = true;
+//                    }
+//                }
+//            }
+//            session.generateSessionHeader(responseMsg, isSecureRequest);
+//        }
         //Process CORS if exists.
         if (requestMsg.getHeader(HttpHeaderNames.ORIGIN.toString()) != null) {
             CorsHeaderGenerator.process(requestMsg, responseMsg, true);
@@ -368,8 +354,7 @@ public class HttpUtil {
         Object carbonStatusCode = requestMessage.getProperty(HTTP_STATUS_CODE);
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = ex.getMessage();
-        log.error(errorMsg);
-        ErrorHandlerUtils.printError(ex);
+        log.error(errorMsg, ex);
         sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
@@ -606,7 +591,7 @@ public class HttpUtil {
         if (inboundResponseMsg.getHeader(CACHE_CONTROL.toString()) != null) {
             responseCacheControl.populateStruct(inboundResponseMsg.getHeader(CACHE_CONTROL.toString()));
         }
-        inboundResponse.setRefField(IN_RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl.getStruct());
+        inboundResponse.setRefField(RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl.getStruct());
 
         populateEntity(entity, mediaType, inboundResponseMsg);
         inboundResponse.addNativeData(MESSAGE_ENTITY, entity);
@@ -761,88 +746,6 @@ public class HttpUtil {
     public static String getListenerInterface(String host, int port) {
         host = host != null ? host : "0.0.0.0";
         return host + ":" + port;
-    }
-
-    @Deprecated
-    private static void extractBasicConfig(Annotation configInfo, Set<ListenerConfiguration> listenerConfSet) {
-        AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_HOST);
-        AnnAttrValue portAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_PORT);
-        AnnAttrValue keepAliveAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_KEEP_ALIVE);
-        AnnAttrValue transferEncoding = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_TRANSFER_ENCODING);
-        AnnAttrValue chunking = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_CHUNKING);
-        AnnAttrValue maxUriLength = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_MAXIMUM_URL_LENGTH);
-        AnnAttrValue maxHeaderSize = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE);
-        AnnAttrValue maxEntityBodySize = configInfo.getAnnAttrValue(
-                HttpConstants.ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE);
-        AnnAttrValue versionAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_HTTP_VERSION);
-
-        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
-        if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
-            listenerConfiguration.setPort(Math.toIntExact(portAttrVal.getIntValue()));
-
-            listenerConfiguration.setScheme(HttpConstants.PROTOCOL_HTTP);
-            if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                listenerConfiguration.setHost(hostAttrVal.getStringValue());
-            } else {
-                listenerConfiguration.setHost(HttpConstants.HTTP_DEFAULT_HOST);
-            }
-
-            // For the moment we don't have to pass it down to transport as we only support
-            // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
-            if (transferEncoding != null && !HttpConstants.ANN_CONFIG_ATTR_CHUNKING
-                    .equalsIgnoreCase(transferEncoding.getStringValue())) {
-                throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
-                        + transferEncoding.getStringValue());
-            }
-
-            if (chunking != null) {
-                ChunkConfig chunkConfig = getChunkConfig(chunking.getStringValue());
-                listenerConfiguration.setChunkConfig(chunkConfig);
-            } else {
-                listenerConfiguration.setChunkConfig(ChunkConfig.AUTO);
-            }
-
-            if (keepAliveAttrVal != null) {
-                KeepAliveConfig keepAliveConfig = getKeepAliveConfig(keepAliveAttrVal.getStringValue());
-                listenerConfiguration.setKeepAliveConfig(keepAliveConfig);
-            } else {
-                listenerConfiguration.setKeepAliveConfig(KeepAliveConfig.AUTO);
-            }
-
-            RequestSizeValidationConfig requestSizeValidationConfig =
-                    listenerConfiguration.getRequestSizeValidationConfig();
-            if (maxUriLength != null) {
-                if (maxUriLength.getIntValue() > 0) {
-                    requestSizeValidationConfig.setMaxUriLength(Math.toIntExact(maxUriLength.getIntValue()));
-                } else {
-                    throw new BallerinaConnectorException("Invalid configuration found for maxUriLength : "
-                            + maxUriLength.getIntValue());
-                }
-            }
-            if (maxHeaderSize != null) {
-                if (maxHeaderSize.getIntValue() > 0) {
-                    requestSizeValidationConfig.setMaxHeaderSize(Math.toIntExact(maxHeaderSize.getIntValue()));
-                } else {
-                    throw new BallerinaConnectorException("Invalid configuration found for maxHeaderSize : "
-                            + maxHeaderSize.getIntValue());
-                }
-            }
-            if (maxEntityBodySize != null) {
-                if (maxEntityBodySize.getIntValue() > 0) {
-                    requestSizeValidationConfig.setMaxEntityBodySize(Math.toIntExact(maxEntityBodySize.getIntValue()));
-                } else {
-                    throw new BallerinaConnectorException("Invalid configuration found for maxEntityBodySize : "
-                            + maxEntityBodySize.getIntValue());
-                }
-            }
-            if (versionAttrVal != null) {
-                listenerConfiguration.setVersion(versionAttrVal.getStringValue());
-            }
-
-            listenerConfiguration
-                    .setId(getListenerInterface(listenerConfiguration.getHost(), listenerConfiguration.getPort()));
-            listenerConfSet.add(listenerConfiguration);
-        }
     }
 
     public static ChunkConfig getChunkConfig(String chunkConfig) {
@@ -1184,6 +1087,20 @@ public class HttpUtil {
     public static void injectHeaders(HTTPCarbonMessage msg, Map<String, String> headers) {
         if (headers != null) {
             headers.forEach((key, value) -> msg.setHeader(key, String.valueOf(value)));
+        }
+    }
+
+    private static void setChunkingHeader(Context context, HTTPCarbonMessage
+            outboundResponseMsg) {
+        Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
+                context.getServiceInfo().getType());
+        Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
+        if (configAnnot == null) {
+            return;
+        }
+        String transferValue = configAnnot.getValue().getRefField(ANN_CONFIG_ATTR_CHUNKING).getStringValue();
+        if (transferValue != null) {
+            outboundResponseMsg.setProperty(CHUNKING_CONFIG, getChunkConfig(transferValue));
         }
     }
 }

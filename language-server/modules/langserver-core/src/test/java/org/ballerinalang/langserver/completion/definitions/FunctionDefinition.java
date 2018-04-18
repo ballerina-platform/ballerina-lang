@@ -39,6 +39,8 @@ public class FunctionDefinition extends CompletionTest {
                 {"allVisibleSymbolsEmptyLine.json", "function"},
                 {"languageConstructsEmptyLine.json", "function"},
                 {"languageConstructsNonEmptyLine.json", "function"},
+                {"actionInvocationSuggestion1.json", "function"},
+                {"actionInvocationSuggestion2.json", "function"},
 //                {"enumSuggestAssignment1.json", "function"},
 //                {"enumSuggestAssignment2.json", "function"},
 //                {"enumSuggestVarDef1.json", "function"},

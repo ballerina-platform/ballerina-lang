@@ -82,7 +82,7 @@ public final class Constants {
         public static final String H2 = "H2";
         public static final String H2_SERVER = "H2_SERVER";
         public static final String H2_FILE = "H2_FILE";
-        public static final String H2_MEM = "H2_MEM";
+        public static final String H2_MEMORY = "H2_MEMORY";
     }
 
     /**
@@ -124,6 +124,7 @@ public final class Constants {
         public static final int IN = 0;
         public static final int OUT = 1;
         public static final int INOUT = 2;
+        public static final String DIR_IN = "IN";
         public static final String DIR_OUT = "OUT";
         public static final String DIR_INOUT = "INOUT";
 
@@ -141,6 +142,7 @@ public final class Constants {
         public static final String USERNAME = "username";
         public static final String PASSWORD = "password";
         public static final String POOL_OPTIONS = "poolOptions";
+        public static final String DB_OPTIONS = "dbOptions";
     }
 
     /**
@@ -168,6 +170,17 @@ public final class Constants {
         public static final String DATASOURCE_PROPERTIES = "datasourceProperties";
     }
 
+    /**
+     * Constants used when appending JDBC driver properties for the connection URL.
+     */
+    public static final class JDBCUrlSeparators {
+        public static final String H2_SEPARATOR = ";";
+        public static final String H2_PROPERTY_BEGIN_SYMBOL = ";";
+        public static final String MYSQL_SEPARATOR = "&";
+        public static final String MYSQL_PROPERTY_BEGIN_SYMBOL = "?";
+        public static final String EQUAL_SYMBOL = "=";
+    }
+
     public static final String CONNECTOR_NAME = "ClientConnector";
     public static final String TIMEZONE_UTC = "UTC";
     public static final String QUESTION_MARK = "?";
@@ -178,6 +191,7 @@ public final class Constants {
     public static final String PASSWORD = "password";
 
     public static final String SQL_PACKAGE_PATH = "ballerina.sql";
+    public static final String SQL_PARAMETER_TYPE = "ParameterType";
     public static final String BUILTIN_PACKAGE_PATH = "ballerina.builtin";
     public static final String SQL_CLIENT = "SQLClient";
 

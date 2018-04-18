@@ -36,7 +36,6 @@ import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
-import java.util.Map;
 
 
 /**
@@ -90,10 +89,8 @@ public class Forward extends AbstractHTTPAction {
         String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
 
-        ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context.
-                getParentWorkerExecutionContext());
-        Map<String, String> traceContext = ObservabilityUtils.getTraceContext();
-        HttpUtil.injectHeaders(outboundRequestMsg, traceContext);
+        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
+        HttpUtil.injectHeaders(outboundRequestMsg, ObservabilityUtils.getContextProperties(observerContext));
         observerContext.addTags(HttpUtil.extractTags(outboundRequestMsg));
 
         return outboundRequestMsg;
