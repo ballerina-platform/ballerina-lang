@@ -137,8 +137,7 @@ class TreeBuilder {
             }
             if (node.packageName.length === 2
                 && node.packageName[0].value === 'transactions' && node.packageName[1].value === 'coordinator') {
-
-                node.isInternal = true
+                node.isInternal = true;
             }
         }
 
@@ -165,7 +164,7 @@ class TreeBuilder {
         // Mark the first argument ad a service endpoint.
         if (node.kind === 'Resource' && node.parameters[0]) {
             const endpointParam = node.parameters[0];
-            const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value
+            const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value;
             endpointParam.serviceEndpoint = true;
             endpointParam.name.setValue(endpointParam.name.getValue().replace('$', ''));
             endpointParam.name.valueWithBar = valueWithBar.replace('$', '');
@@ -197,7 +196,7 @@ class TreeBuilder {
         }
 
         if (node.kind === 'UnionTypeNode') {
-           if (node.ws && node.ws.length > 2) {
+            if (node.ws && node.ws.length > 2) {
                node.withParantheses = true;
            }
         }
@@ -207,7 +206,7 @@ class TreeBuilder {
                 node.hasReturns = true;
                 if (node.ws) {
                     for (let i = 0; i < node.ws.length; i++) {
-                        if (node.ws[i].text === ')' && node.ws[i+1].text !== 'returns') {
+                        if (node.ws[i].text === ')' && node.ws[i + 1].text !== 'returns') {
                             for (let j = 0; j < node.returnTypeNode.ws.length; j++) {
                                 if (node.returnTypeNode.ws[j].text === 'returns') {
                                     node.ws.splice((i + 1), 0, node.returnTypeNode.ws[j]);
@@ -224,7 +223,7 @@ class TreeBuilder {
         if (node.kind === 'Object') {
             node.publicFields = [];
             node.privateFields = [];
-            let fields = node.fields;
+            const fields = node.fields;
             if (fields.length <= 0) {
                 node.noFieldsAvailable = true;
             } else {
@@ -287,6 +286,13 @@ class TreeBuilder {
                         }
                     }
                 }
+            }
+        }
+
+        // Tag rest variable nodes
+        if (node.kind === 'Function' || node.kind === 'Resource') {
+            if (node.restParameters) {
+                node.restParameters.rest = true;
             }
         }
     }
