@@ -22,8 +22,8 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
@@ -1004,9 +1005,15 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOrderBy orderBy) {
-        for (ExpressionNode expr : orderBy.getVariables()) {
-            ((BLangExpression) expr).accept(this);
+        for (OrderByVariableNode orderByVariableNode : orderBy.getVariables()) {
+            ((BLangOrderByVariable) orderByVariableNode).accept(this);
         }
+    }
+
+    @Override
+    public void visit(BLangOrderByVariable orderByVariable) {
+        BLangExpression expression = (BLangExpression) orderByVariable.getVariableReference();
+        expression.accept(this);
     }
 
     @Override

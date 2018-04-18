@@ -19,32 +19,44 @@
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.clauses.OrderByNode;
 import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * @see OrderByNode
+ * @see OrderByVariableNode
  * @since 0.965.0
  *
- * Implementation of {@link OrderByNode}.
+ * Implementation of {@link OrderByVariableNode}.
  */
-public class BLangOrderBy extends BLangNode implements OrderByNode {
+public class BLangOrderByVariable extends BLangNode implements OrderByVariableNode {
 
-    private List<OrderByVariableNode> varRefs = new ArrayList<>();
+    private ExpressionNode varRef;
+    private String orderByType;
 
     @Override
-    public void addOrderByVariable(OrderByVariableNode varRef) {
-        varRefs.add(varRef);
+    public void setVariableReference(ExpressionNode varRef) {
+        this.varRef = varRef;
     }
 
     @Override
-    public List<? extends OrderByVariableNode> getVariables() {
-        return varRefs;
+    public ExpressionNode getVariableReference() {
+        return varRef;
+    }
+
+    @Override
+    public void setOrderByType(boolean isAscending, boolean isDescending) {
+        if (isAscending) {
+            this.orderByType = "asc";
+        } else if (isDescending) {
+            this.orderByType = "desc";
+        }
+    }
+
+    @Override
+    public String getOrderByType() {
+        return orderByType;
     }
 
     @Override
@@ -54,6 +66,6 @@ public class BLangOrderBy extends BLangNode implements OrderByNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.ORDER_BY;
+        return NodeKind.ORDER_BY_VARIABLE;
     }
 }

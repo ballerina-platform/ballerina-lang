@@ -19,23 +19,21 @@
 package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
-
-import java.util.List;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
- * @since 0.965.0
- * <p>
- * The interface with the APIs to implement the "order by" in ballerina streams/table SQLish syntax.
- * <pre> Grammar:
- *      ORDER BY variableReferenceList
+ * @since 0.970.0
  *
- * E.g
- *      order by age, rank;
- * </pre>
+ * The interface which represents orderBy variable in streams/tables in SQLish syntax.
+ *
  */
-public interface OrderByNode extends Node {
+public interface OrderByVariableNode extends Node {
 
-    void addOrderByVariable(OrderByVariableNode orderByVariableNode);
+    void setVariableReference(ExpressionNode varRef);
 
-    List<? extends OrderByVariableNode> getVariables();
+    ExpressionNode getVariableReference();
+
+    void setOrderByType(boolean isAscending, boolean isDescending);
+
+    String getOrderByType();
 }
