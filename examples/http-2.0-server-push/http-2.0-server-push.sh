@@ -1,4 +1,3 @@
-#Run the main function containing ballerina client.
 $ ballerina run http-2.0-server-push.bal
 Received a promise for /resource1
 Received a promise for /resource2
