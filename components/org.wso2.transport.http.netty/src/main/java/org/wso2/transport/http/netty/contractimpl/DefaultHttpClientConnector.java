@@ -182,9 +182,11 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     if (protocol.equalsIgnoreCase(Constants.HTTP2_CLEARTEXT_PROTOCOL) ||
                         protocol.equalsIgnoreCase(Constants.HTTP2_TLS_PROTOCOL)) {
 
+                        freshHttp2ClientChannel.setSocketIdleTimeout(socketIdleTimeout);
                         connectionManager.getHttp2ConnectionManager().
                                 addHttp2ClientChannel(route, freshHttp2ClientChannel);
                         freshHttp2ClientChannel.addDataEventListener(
+                                Constants.IDLE_STATE_HANDLER,
                                 new TimeoutHandler(socketIdleTimeout, freshHttp2ClientChannel));
 
                         if (followRedirect) {
