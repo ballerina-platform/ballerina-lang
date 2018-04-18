@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.exceptions.TraceLogConfigurationException;
@@ -32,7 +33,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
-import org.ballerinalang.net.http.serviceendpoint.FilterHolder;
 import org.ballerinalang.net.websub.BallerinaWebSubConnectionListener;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
 import org.ballerinalang.net.websub.WebSubSubscriberConstants;
@@ -40,7 +40,6 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.logging.LogManager;
 
 /**
@@ -77,7 +76,7 @@ public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunc
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         WebSubServicesRegistry webSubServicesRegistry = (WebSubServicesRegistry) serviceEndpoint.getNativeData(
                                                                 WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY);
-        HashSet<FilterHolder> filterHolder = getFilters(serviceEndpoint);
+        Value[] filterHolder = getFilters(serviceEndpoint);
         serverConnectorFuture.setHttpConnectorListener(new BallerinaWebSubConnectionListener(webSubServicesRegistry,
                                                                                              filterHolder));
         serverConnectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener());
