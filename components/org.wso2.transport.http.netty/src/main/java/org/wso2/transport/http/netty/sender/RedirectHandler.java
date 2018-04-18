@@ -667,11 +667,9 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @return default port as an int
      */
     private int getDefaultPort(String protocol) {
-        int defaultPort = Constants.HTTPS_SCHEME.equals(protocol) ?
-                          Constants.DEFAULT_HTTPS_PORT :
-                          Constants.DEFAULT_HTTP_PORT;
-
-        return defaultPort;
+        return Constants.HTTPS_SCHEME.equals(protocol) ?
+               Constants.DEFAULT_HTTPS_PORT :
+               Constants.DEFAULT_HTTP_PORT;
     }
 
     /**
