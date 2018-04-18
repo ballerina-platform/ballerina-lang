@@ -6,10 +6,10 @@ This package provides local file system operations, such as extending the `balle
 File I/O operations, such as writing, updating, copying, and moving, can be achieved in conjunction with the `ballerina/io` package when using `Path`. 
 
 ## Create, delete, and modify files
-The `ballerina/file` package  provides functions to manage metadata in the files and perform operations, such as for creating, and deleting files. The package can make the file system operations listen to a directory, identify events, and resiprocate. 
+The `ballerina/file` package  provides functions to manage metadata in the files and perform operations, such as creating and deleting files. The package can make the file system operations listen to a directory, identify events, and reciprocate. 
 
 ## Validate files
-Validation is required to ensure that all the pre-conditions and post-conditions of an operation are satisfied. This package supports pre-validation and post-validation actions through functions such as `exists()` and `isDirectory()` respectively.
+Validation is required to ensure that all the pre-conditions and post-conditions of an operation are satisfied. This package supports pre-validation and post-validation actions through functions such as `exists()` and `isDirectory()`.
 
 ## Types of file paths
 The `Path` is a unique identifier that can either be absolute or relative. The absolute path or the full path name is the location of a file relative to the root directory. The relative path indicates the location of a file relative to the current location of the execution. 
@@ -23,7 +23,7 @@ file:Path absolutePath = new(absolutePathValue);
 ```
 
 ## Absolute paths on different operating systems
-The absolute path differs from OS (Operating System ) to OS. For example, a Unix based OS defines the path as `/home/user/ballerina/examples` and a Windows based OS defines the path as `C:\windows\user\ballerina\examples`.
+The absolute path differs in each operating system (OS). For example, a Unix-based OS defines the path as `/home/user/ballerina/examples` and a Windows-based OS defines the path as `C:\windows\user\ballerina\examples`.
 
 ## Convert relative paths to absolute paths
 The `toAbsolutePath()` function converts a relative path to an absolute path.
@@ -31,10 +31,6 @@ The `toAbsolutePath()` function converts a relative path to an absolute path.
 ```ballerina
 file:Path absolutePath = relativePath.toAbsolutePath();
 ```
-
-## Access denied error
-File and directories are protected entities. The file operations are restricted using various methods depending on the OS. Functions that access a protected or non-existant entity returns an `AccessDenied` error. 
-
 # Samples
 
 The sample given below writes new content to a file. 
@@ -54,7 +50,7 @@ var closeResult = channel.close()
 }
 ```
 
-The sample give below shows how an endpoint is used to listen to the local folder and identify events, such as creating a new file.
+The sample given below shows how an endpoint is used to listen to the local folder and identify events, such as creating a new file.
 
 The `onCreate()` resource method gets invoked when a file is created inside the `target/fs` folder. In addition to the above operations, `onDelete()` and `onModify()` methods can be used to listen to the delete and modify events respectively.
 
