@@ -689,7 +689,7 @@ public class Generator {
 
         try {
             String filename = "primitives-descriptions.properties";
-            input = Generator.class.getResourceAsStream(filename);
+            input = Generator.class.getClassLoader().getResourceAsStream(filename);
             if (input == null) {
                 return prop;
             }
