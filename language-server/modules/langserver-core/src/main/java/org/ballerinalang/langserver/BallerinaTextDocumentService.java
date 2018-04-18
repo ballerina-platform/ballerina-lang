@@ -179,7 +179,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String sourceRoot = LSCompiler.getSourceRoot(path);
                 CompilerContext compilerContext = lsContextManager.getCompilerContext(currentBLangPackage.packageID,
                                                                                       sourceRoot);
-                //LSPackageCache.getInstance().addPackage(currentBLangPackage.packageID,currentBLangPackage);
                 LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
                 hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage, lsPackageCache);
             } catch (Exception | AssertionError e) {
