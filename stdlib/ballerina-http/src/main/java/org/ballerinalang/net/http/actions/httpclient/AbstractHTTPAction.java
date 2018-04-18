@@ -481,7 +481,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                                                          .getStructInfo(RESPONSE_CACHE_CONTROL));
         HttpUtil.populateInboundResponse(responseStruct, entity, mediaType, responseCacheControl, httpCarbonMessage);
 
-        ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context);
+        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
         observerContext.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE,
                 String.valueOf(httpCarbonMessage.getProperty(HTTP_STATUS_CODE)));
         return responseStruct;

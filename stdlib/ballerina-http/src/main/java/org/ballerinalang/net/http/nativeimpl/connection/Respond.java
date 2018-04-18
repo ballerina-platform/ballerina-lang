@@ -78,7 +78,7 @@ public class Respond extends ConnectionAction {
 
         BValue[] outboundResponseStatus = sendOutboundResponseRobust(context, inboundRequestMsg,
                                                                      outboundResponseStruct, outboundResponseMsg);
-        ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context);
+        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
         observerContext.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE,
                 String.valueOf(outboundResponseMsg.getProperty(HTTP_STATUS_CODE)));
         context.setReturnValues(outboundResponseStatus);
