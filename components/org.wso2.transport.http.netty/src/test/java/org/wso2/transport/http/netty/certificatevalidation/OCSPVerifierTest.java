@@ -120,7 +120,7 @@ public class OCSPVerifierTest {
      * @return Created OCSP request.
      * @throws Exception
      */
-    public OCSPReq getOCSPRequest(X509Certificate caCert, BigInteger revokedSerialNumber) throws Exception {
+    private OCSPReq getOCSPRequest(X509Certificate caCert, BigInteger revokedSerialNumber) throws Exception {
         OCSPVerifier ocspVerifier = new OCSPVerifier(null);
         Class ocspVerifierClass = ocspVerifier.getClass();
         Method generateOCSPRequest = ocspVerifierClass
