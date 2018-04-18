@@ -62,6 +62,6 @@ public class BStreamType extends BBuiltInRefType implements ConstrainedType {
             return TypeDescriptor.SIG_STREAM + ";";
         }
 
-        return TypeDescriptor.SIG_STREAM + constraint.getQualifiedTypeName() + ";";
+        return TypeDescriptor.SIG_STREAM + constraint.getDesc();
     }
 }

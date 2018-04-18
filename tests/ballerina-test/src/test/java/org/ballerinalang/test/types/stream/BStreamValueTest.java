@@ -50,7 +50,7 @@ public class BStreamValueTest {
 
     @Test(description = "Test publishing objects of invalid type to a stream",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*message: incompatible types: object of type:Job cannot be added to "
+            expectedExceptionsMessageRegExp = ".*message: incompatible types: value of type:Job cannot be added to "
                     + "a stream of type:Employee.*")
     public void testInvalidObjectPublishingToStream() {
         BRunUtil.invoke(result, "testInvalidObjectPublishingToStream");
@@ -59,7 +59,7 @@ public class BStreamValueTest {
     @Test(description = "Test subscribing with a function accepting a type other than an object",
             expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*message: incompatible function: subscription function needs to be a"
-                    + " function accepting an object of type:Employee.*")
+                    + " function accepting:Employee.*")
     public void testSubscriptionFunctionWithNonObjectParameter() {
         BRunUtil.invoke(result, "testSubscriptionFunctionWithNonObjectParameter");
     }
@@ -67,7 +67,7 @@ public class BStreamValueTest {
     @Test(description = "Test subscribing with a function accepting a different kind of object",
             expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*message: incompatible function: subscription function needs to be a "
-                    + "function accepting an object of type:Employee.*")
+                    + "function accepting:Employee.*")
     public void testSubscriptionFunctionWithIncorrectObjectParameter() {
         BRunUtil.invoke(result, "testSubscriptionFunctionWithIncorrectObjectParameter");
     }

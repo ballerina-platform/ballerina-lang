@@ -67,7 +67,7 @@ public class StartForever extends BlockingNativeCallableUnit {
             BStream stream = (BStream) inputStreamReferenceArray.get(i);
             siddhiQuery = siddhiQuery.replaceFirst("\\[\\[streamName\\]\\]", stream.getStreamId());
 
-            BStructType.StructField[] structFieldArray = stream.getConstraintType().getStructFields();
+            BStructType.StructField[] structFieldArray = ((BStructType) stream.getConstraintType()).getStructFields();
             StringBuilder streamDefinition = new StringBuilder("define stream ");
             streamDefinition.append(stream.getStreamId()).append("( ");
             generateStreamDefinition(structFieldArray, streamDefinition);

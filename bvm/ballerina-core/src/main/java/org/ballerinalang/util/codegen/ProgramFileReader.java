@@ -831,7 +831,6 @@ public class ProgramFileReader {
             case 'E':
             case 'D':
             case 'G':
-            case 'H':
             case 'Z':
                 char typeChar = chars[index];
                 // TODO Improve this logic
@@ -870,12 +869,6 @@ public class ProgramFileReader {
                     } else {
                         typeStack.push(new BTableType(packageInfoOfType.getStructInfo(name).getType()));
                     }
-                } else if (typeChar == 'H') {
-                    if (name.isEmpty()) {
-                        typeStack.push(BTypes.typeStream);
-                    } else {
-                        typeStack.push(new BStreamType(packageInfoOfType.getStructInfo(name).getType()));
-                    }
                 } else if (typeChar == 'G') {
                     typeStack.push(packageInfoOfType.getTypeDefinitionInfo(name).getType());
                 } else {
@@ -901,6 +894,22 @@ public class ProgramFileReader {
                 }
                 typeStack.push(mapType);
                 return index;
+            case 'H':
+                if (index == 0 && (chars.length > 1 && chars[1] == ';')) {
+                    typeStack.push(BTypes.typeStream);
+                    return index + 2;
+                } else {
+                    index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo);
+                    BType streamConstrainedType = typeStack.pop();
+                    BType streamType;
+                    if (streamConstrainedType == BTypes.typeAny) {
+                        streamType = BTypes.typeStream;
+                    } else {
+                        streamType = new BStreamType(streamConstrainedType);
+                    }
+                    typeStack.push(streamType);
+                    return index;
+                }
             case 'U':
                 // TODO : Fix this for type casting.
                 typeStack.push(new BFunctionType());
@@ -960,12 +969,21 @@ public class ProgramFileReader {
                 } else {
                     return new BMapType(constrainedType);
                 }
+            case 'H':
+                if (desc.length() == 1 || (desc.length() > 1 && desc.charAt(1) == ';')) {
+                    return BTypes.typeStream;
+                }
+                BType streamConstrainedType = getBTypeFromDescriptor(desc.substring(1));
+                if (streamConstrainedType == BTypes.typeAny) {
+                    return BTypes.typeStream;
+                } else {
+                    return new BStreamType(streamConstrainedType);
+                }
             case 'C':
             case 'X':
             case 'J':
             case 'T':
             case 'E':
-            case 'H':
             case 'Z':
             case 'G':
             case 'D':
@@ -977,8 +995,6 @@ public class ProgramFileReader {
                         return BTypes.typeJSON;
                     } else if (ch == 'D') {
                         return BTypes.typeTable;
-                    } else if (ch == 'H') { //TODO:CHECK
-                        return BTypes.typeStream;
                     }
                 }
 
@@ -991,8 +1007,6 @@ public class ProgramFileReader {
                     return packageInfoOfType.getServiceInfo(name).getType();
                 } else if (ch == 'D') {
                     return new BTableType(packageInfoOfType.getStructInfo(name).getType());
-                } else if (ch == 'H') {
-                    return new BStreamType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'G') {
                     return packageInfoOfType.getTypeDefinitionInfo(name).getType();
                 } else {
