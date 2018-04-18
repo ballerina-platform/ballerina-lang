@@ -83,17 +83,6 @@ public class LSPackageCache {
     public void removePackage(PackageID packageID) {
         packageCache.remove(packageID);
     }
-
-    /**
-     * Make built-in packages.
-     *
-     * @param packageID ballerina package id to be removed.
-     */
-    public void resetBuiltInPackages(PackageID packageID) {
-        BLangPackage bLangPackage = packageCache.get(
-                new PackageID(Names.BUILTIN_ORG, Names.BUILTIN_PACKAGE, Names.DEFAULT_VERSION));
-        bLangPackage.completedPhases.clear();
-    }
     
     public void clearCache() {
         packageCache.clearCache();
