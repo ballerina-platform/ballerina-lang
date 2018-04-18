@@ -29,9 +29,9 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.util.Locale;
 
 /**
  * {@code RedirectUtil} contains utility methods used to HTTP client side redirection.
@@ -63,8 +63,8 @@ public class RedirectUtil {
         httpCarbonRequest.setProperty(Constants.PROTOCOL, locationUrl.getProtocol());
         httpCarbonRequest.setProperty(Constants.HTTP_HOST, locationUrl.getHost());
         httpCarbonRequest.setProperty(Constants.HTTP_METHOD, redirectionMethod);
-        httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.getPath());
-        httpCarbonRequest.setProperty(Constants.TO, locationUrl.getPath());
+        httpCarbonRequest.setProperty(Constants.REQUEST_URL, locationUrl.toString());
+        httpCarbonRequest.setProperty(Constants.TO, locationUrl.toString());
 
         StringBuilder host = new StringBuilder(locationUrl.getHost());
         if (locationUrl.getPort() != -1 && locationUrl.getPort() != Constants.DEFAULT_HTTP_PORT
@@ -82,86 +82,24 @@ public class RedirectUtil {
     /**
      * Builds redirect url from the location header value.
      *
-     * @param location        value of the location header
-     * @param originalRequest original request message
-     * @return a string that holds redirect url
-     * @throws UnsupportedEncodingException if url decoding fails
+     * @param locationHeaderVal value of the location header
+     * @param originalRequest   original HTTPCarbon request
+     * @return  resolved redirect url
+     * @throws URISyntaxException   if uri syntax is not correct
+     * @throws UnsupportedEncodingException if uri decoding fails
      */
-    public static String getLocationURI(String location, HTTPCarbonMessage originalRequest)
-            throws UnsupportedEncodingException {
-        if (location != null) {
-            //if location url starts either with http ot https that means an absolute path has been set in header
-            if (!isRelativePath(location)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Location contain an absolute path : " + location);
-                }
-                return location;
-            } else {
-                //Use relative path to build redirect url
-                if (originalRequest == null) {
-                    return null;
-                }
-                String requestPath = (String) originalRequest.getProperty(Constants.TO);
-                String protocol = originalRequest.getProperty(Constants.PROTOCOL) != null ?
-                                  (String) originalRequest.getProperty(Constants.PROTOCOL) : Constants.HTTP_SCHEME;
-                String host = (String) originalRequest.getProperty(Constants.HTTP_HOST);
-                if (host == null) {
-                    return null;
-                }
-                int defaultPort = getDefaultPort(protocol);
-                Integer port = originalRequest.getProperty(Constants.HTTP_PORT) != null ?
-                               (Integer) originalRequest.getProperty(Constants.HTTP_PORT) : defaultPort;
-                return buildRedirectURL(requestPath, location, protocol, host, port);
+    public static String getResolvedRedirectURI(String locationHeaderVal, HTTPCarbonMessage originalRequest)
+            throws URISyntaxException, UnsupportedEncodingException {
+        URI location = new URI(locationHeaderVal);
+        if (!location.isAbsolute()) {
+            // location is not absolute, we need to resolve it.
+            String baseURIAsString = (String) originalRequest.getProperty(Constants.TO);
+            if (baseURIAsString != null) {
+                URI baseUri = new URI(baseURIAsString);
+                location = baseUri.resolve(location.normalize());
             }
         }
-        return null;
-    }
-
-    /**
-     * Builds the redirect URL from relative path.
-     *
-     * @param requestPath request path of the original request
-     * @param location    relative path received as the location
-     * @param protocol    protocol used in the request
-     * @param host        host used in the request
-     * @param port        port used in the request
-     * @return a string containing absolute path for redirection
-     * @throws UnsupportedEncodingException if url decoding fails
-     */
-    private static String buildRedirectURL(String requestPath, String location, String protocol,
-                                           String host, Integer port) throws UnsupportedEncodingException {
-        String newPath = requestPath == null ? Constants.FORWRD_SLASH : URLDecoder.decode(requestPath, Constants.UTF8);
-        if (location.startsWith(Constants.FORWRD_SLASH)) {
-            newPath = location;
-        } else if (newPath.endsWith(Constants.FORWRD_SLASH)) {
-            newPath += location;
-        } else {
-            newPath += Constants.FORWRD_SLASH + location;
-        }
-        StringBuilder newLocation = new StringBuilder(protocol);
-        newLocation.append(Constants.URL_AUTHORITY).append(host);
-        if (Constants.DEFAULT_HTTP_PORT != port) {
-            newLocation.append(Constants.COLON).append(port);
-        }
-        if (newPath.charAt(0) != Constants.FORWRD_SLASH.charAt(0)) {
-            newLocation.append(Constants.FORWRD_SLASH.charAt(0));
-        }
-        newLocation.append(newPath);
-        if (log.isDebugEnabled()) {
-            log.debug("Redirect URL build from relative path is : " + newLocation.toString());
-        }
-        return newLocation.toString();
-    }
-
-    /**
-     * Checks whether the location includes an absolute path or a relative path.
-     *
-     * @param location value of location header
-     * @return a boolean indicating url state
-     */
-    static boolean isRelativePath(String location) {
-        return !location.toLowerCase(Locale.ROOT).startsWith(Constants.HTTP_SCHEME + Constants.URL_AUTHORITY) &&
-               !location.toLowerCase(Locale.ROOT).startsWith(Constants.HTTPS_SCHEME + Constants.URL_AUTHORITY);
+        return location.toString();
     }
 
     /**

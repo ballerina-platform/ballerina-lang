@@ -34,6 +34,7 @@ import org.wso2.transport.http.netty.sender.RedirectUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 
 /**
  * {@code RedirectHandler} is responsible for HTTP/2 redirection.
@@ -129,7 +130,7 @@ public class RedirectHandler implements Http2DataEventListener {
         try {
             HTTPCarbonMessage originalRequest = outboundMsgHolder.getRequest();
             String redirectionMethod = getRedirectionRequestMethod(statusCode, originalRequest);
-            String redirectionURL = RedirectUtil.getLocationURI(location, originalRequest);
+            String redirectionURL = RedirectUtil.getResolvedRedirectURI(location, originalRequest);
             HTTPCarbonMessage request =
                     RedirectUtil.createRedirectCarbonRequest(redirectionURL, redirectionMethod, userAgent);
             outboundMsgHolder.clearRedirectionState();
@@ -138,10 +139,12 @@ public class RedirectHandler implements Http2DataEventListener {
             DefaultHttpClientConnector connector = ctx.channel().attr(Constants.CLIENT_CONNECTOR).get();
             connector.send(outboundMsgHolder, request);
         } catch (UnsupportedEncodingException e) {
-            log.error("UnsupportedEncodingException occurred when deciding whether a redirection is required",
+            log.error("UnsupportedEncodingException occurred when constructing direction request",
                       e);
         } catch (MalformedURLException e) {
-            log.error("MalformedURLException occurred when deciding whether a redirection is required", e);
+            log.error("MalformedURLException occurred when constructing direction request", e);
+        } catch (URISyntaxException e) {
+            log.error("URISyntaxException occurred when constructing direction request", e);
         }
     }
 
