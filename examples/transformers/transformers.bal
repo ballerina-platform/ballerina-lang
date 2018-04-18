@@ -37,7 +37,7 @@ transformer <Person p, Employee e> insertCountry(string country) {
     e.address = p.street + "," + p.city.toUpperCase() + ", " + country;
 }
 
-function main (string[] args) {
+function main (string... args) {
     //Initialize`Person` variable person.
     Person person = {firstName:"John", lastName:"Doe", age:30, city:"London"};
 

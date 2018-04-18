@@ -56,22 +56,22 @@ function handleNestedParts (mime:Entity parentPart) {
 
 @Description {value:"The logic depending on the format in which you want to retrieve body part content."}
 function handleContent (mime:Entity bodyPart) {
-    string contentType = bodyPart.contentType.toString();
-    if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
+    string baseType = bodyPart.contentType.getBaseType();
+    if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         //Extract xml data from the body part and print the content.
         var payload = bodyPart.getXml();
         match payload {
             mime:EntityError err => io:println("Error in getting xml payload");
             xml xmlContent => io:println(xmlContent);
         }
-    } else if (mime:APPLICATION_JSON == contentType) {
+    } else if (mime:APPLICATION_JSON == baseType) {
         //Extract json data from the body part and print the content.
         var payload = bodyPart.getJson();
         match payload {
             mime:EntityError err => io:println("Error in getting json payload");
             json jsonContent => io:println(jsonContent);
         }
-    } else if (mime:TEXT_PLAIN == contentType) {
+    } else if (mime:TEXT_PLAIN == baseType) {
         //Extract text data from the body part and print the content.
         var payload = bodyPart.getText();
         match payload {

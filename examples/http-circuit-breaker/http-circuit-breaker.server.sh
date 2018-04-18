@@ -1,3 +1,5 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command to start the server.
 $ ballerina run http-circuit-breaker.bal
 ballerina: initiating service(s) in 'http-circuit-breaker.bal'
 ballerina: started HTTP/WS server connector 0.0.0.0:9090

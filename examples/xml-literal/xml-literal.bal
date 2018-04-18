@@ -1,8 +1,8 @@
 import ballerina/io;
 
-function main (string[] args) {
+function main (string... args) {
 
-    // A complex XML defined using the literal syntax, having nested elements of different types.
+    // A complex XML defined using the literal syntax, containing nested elements of different types.
     xml x1 = xml `<book>
                     <name>Sherlock Holmes</name>
                     <author>Sir Arthur Conan Doyle</author>
@@ -10,11 +10,12 @@ function main (string[] args) {
                   </book>`;
     io:println(x1);
 
-    // Defined namespaces. These are visible to all the XML literals defined from here onwards.  
+    // Define namespaces. These are visible to all the XML literals defined from this point onwards.  
     xmlns "http://ballerina.com/";
     xmlns "http://ballerina.com/aa" as ns0;
 
-    // Create an XML element. Previously defined namespaces will get added to the element. The defined prefixes can be applied to elements and attributes inside the element. 
+    // Create an XML element. Previously defined namespaces will get added to the element. 
+    // The defined prefixes can be applied to elements and attributes inside the element. 
     xml x2 = xml `<book ns0:status="available">
                     <ns0:name>Sherlock Holmes</ns0:name>
                     <author>Sir Arthur Conan Doyle</author>
@@ -22,7 +23,9 @@ function main (string[] args) {
                   </book>`;
     io:println(x2);
 
-    // XML interpolated with expressions using the '{{}}' notation. The expression can be a previously defined variable, arithmetic expressions, or even a function call. These expressions get evaluated during runtime.
+    // XML interpolated with expressions using the `{{}}` notation. 
+    // The expression can be a previously defined variable, arithmetic expressions, or even a function call. 
+    // These expressions get evaluated during runtime.
     string rootTag = "{http://ballerina.com/aa}newBook";
     string title = "(Sir)";
 

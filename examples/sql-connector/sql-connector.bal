@@ -11,10 +11,10 @@ endpoint mysql:Client testDB {
     poolOptions: {maximumPoolSize:5}
 };
 
-function main (string[] args) {
+function main (string... args) {
 
-    //Create a DB table using update action.If the DDL
-    //statement execution is success update action returns 0.
+    //Create a DB table using the `update` action. If the DDL
+    //statement execution is successful, the `update` action returns 0.
     var ret = testDB -> update("CREATE TABLE STUDENT(ID INT AUTO_INCREMENT, AGE INT,
                                 NAME VARCHAR(255), PRIMARY KEY (ID))", null);
     match ret {
@@ -22,12 +22,12 @@ function main (string[] args) {
             io:println("Table creation status:" + status);
         }
         error err => {
-            io:println("SALARY table Creation failed:" + err.message);
+            io:println("SALARY table creation failed:" + err.message);
             return;
         }
     }
 
-    //Create a stored procedure using update action.
+    //Create a stored procedure using the `update` action.
     ret = testDB -> update("CREATE PROCEDURE GETCOUNT (IN pAge INT, OUT pCount INT,
                          INOUT pInt INT)
                          BEGIN SELECT COUNT(*) INTO pCount FROM STUDENT
@@ -39,13 +39,13 @@ function main (string[] args) {
             io:println("Stored proc creation status:" + status);
         }
         error err => {
-            io:println("SALARY table Creation failed:" + err.message);
+            io:println("SALARY table creation failed:" + err.message);
             return;
         }
     }
 
-    //Insert data using update action. If the DML statement execution
-    //is success update action returns the updated row count.
+    //Insert data using the `update` action. If the DML statement execution
+    //is successful, the `update` action returns the updated row count.
     sql:Parameter[] params = [];
     sql:Parameter para1 = {sqlType:sql:TYPE_INTEGER, value:8};
     sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:"Sam"};
@@ -61,12 +61,12 @@ function main (string[] args) {
         }
     }
 
-    //Column values generated during the update can be retrieved via
-    //updateWithGeneratedKeys action. If the table has several auto
+    //Column values generated during the update can be retrieved using the
+    //`updateWithGeneratedKeys` action. If the table has several auto
     //generated columns other than the auto incremented key, those column
     //names should be given as an array. The values of the auto incremented
-    //column and the auto generated columns are returned as string array.
-    //Similar to the update action, the inserted row count is also returned.
+    //column and the auto generated columns are returned as a string array.
+    //Similar to the `update` action, the inserted row count is also returned.
     var val = testDB -> updateWithGeneratedKeys("INSERT INTO STUDENT
                       (AGE,NAME) VALUES (?, ?)", params, null);
     match val {
@@ -82,8 +82,8 @@ function main (string[] args) {
         }
     }
 
-    //Select data using select action. Select action returns a table
-    //and see tables section for more details on how to access data.
+    //Select data using the `select` action. The `select` action returns a table.
+    //See the `sql-queries-on-tables` ballerina example for more details on how to access data.
     params = [para1];
     var dtReturned = testDB -> select("SELECT * FROM STUDENT WHERE AGE = ?", params, null);
     table dt = check dtReturned;
@@ -92,7 +92,7 @@ function main (string[] args) {
     jsonRes = j.toString() but {() => ""};
     io:println(jsonRes);
 
-    //A Batch of data can be inserted using  batchUpdate action. Number
+    //A batch of data can be inserted using the `batchUpdate` action. The number
     //of inserted rows for each insert in the batch is returned as an array.
     sql:Parameter p1 = {sqlType:sql:TYPE_INTEGER, value:10};
     sql:Parameter p2 = {sqlType:sql:TYPE_VARCHAR, value:"Smith"};
@@ -107,8 +107,8 @@ function main (string[] args) {
     io:println("Batch item 1 status:" + c[0]);
     io:println("Batch item 2 status:" + c[1]);
 
-    //A stored procedure can be invoked via call action. The direction is
-    //used to specify in/out/inout parameters.
+    //A stored procedure can be invoked using the `call` action. The direction is
+    //used to specify `IN`/`OUT`/`INOUT` parameters.
     sql:Parameter pAge = {sqlType:sql:TYPE_INTEGER, value:10};
     sql:Parameter pCount = {sqlType:sql:TYPE_INTEGER, direction:sql:DIRECTION_OUT};
     sql:Parameter pId = {sqlType:sql:TYPE_INTEGER, value:1, direction:sql:DIRECTION_INOUT};
@@ -157,6 +157,6 @@ function main (string[] args) {
         }
     }
 
-    //Finally close the connection pool.
+    //Finally, close the connection pool.
     _ = testDB -> close();
 }

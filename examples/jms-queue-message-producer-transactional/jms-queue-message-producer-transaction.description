@@ -1,1 +1,1 @@
-// This example shows you how to publish a message to a queue within a transaction using a JMS publisher.
+// In this example, you publish a message to a queue within a transaction using a Java Message Service (JMS) publisher.

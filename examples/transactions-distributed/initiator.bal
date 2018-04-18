@@ -2,7 +2,7 @@ import ballerina/math;
 import ballerina/http;
 import ballerina/log;
 
-// This is the initiator of the distributed transaction
+// This is the initiator of the distributed transaction.
 endpoint http:ServiceEndpoint initiatorEP {
     port:8080
 };
@@ -19,10 +19,10 @@ service<http:Service> InitiatorService bind initiatorEP{
         http:Response res = new;
         log:printInfo("Initiating transaction...");
 
-        // When the transaction statement starts, a distributed transaction context will be created.
+        // When the transaction statement starts, a distributed transaction context is created.
         transaction {
-            // When a participant is called, the transaction context will be propagated and that participant
-            // will get infected, and join the distributed transaction.
+            // When a participant is called, the transaction context is propagated, and that participant
+            // gets infected and joins the distributed transaction.
             boolean successful = callBusinessService();
             if (successful) {
                 res = {statusCode:200};
@@ -30,8 +30,8 @@ service<http:Service> InitiatorService bind initiatorEP{
                 res = {statusCode:500};
             }
         }
-        // As soon as the transaction block ends, the 2-phase commit coordination protocol will run. All participants
-        // will be prepared and then depending on the join outcome, either a notify commit or notify abort will
+        // As soon as the transaction block ends, the `2-phase commit coordination` protocol will run. All participants
+        // are prepared and depending on the join outcome, either a `notify commit` or `notify abort` will
         // be sent to the participants.
 
         var err = conn.respond(res);

@@ -12,6 +12,7 @@ endpoint http:WebSocketListener ep {
 }
 service<http:Service> ChatAppUpgrader bind ep {
 
+    //Upgrade from HTTP to WebSocket and define the service the WebSocket client needs to connect to.
     @http:ResourceConfig {
         webSocketUpgrade: {
             upgradePath: "/{name}",
@@ -35,18 +36,22 @@ map<http:WebSocketListener> consMap;
 
 service<http:WebSocketService> chatApp {
 
+    //Store the attributes of the user, such as username and age, once the user connects to the chat client, and
+    //broadcast that the user has joined the chat.
     onOpen (endpoint conn) {
         string msg = string `{{getAttributeStr(conn, NAME)}} with age {{getAttributeStr(conn, AGE)}} connected to chat`;
         broadcast(consMap, msg);
         consMap[conn.id] = conn;
     }
 
+    //Broadcast the messages sent by a user.
     onText (endpoint conn, string text) {
         string msg = string `{{getAttributeStr(conn, NAME)}}: {{text}}`;
         log:printInfo(msg);
         broadcast(consMap, msg);
     }
 
+    //Broadcast that a user has left the chat once a user leaves the chat client.
     onClose (endpoint conn, int statusCode, string reason) {
         _ = consMap.remove(conn.id);
         string msg = string `{{getAttributeStr(conn, NAME)}} left the chat`;

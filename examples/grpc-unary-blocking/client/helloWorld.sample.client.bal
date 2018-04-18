@@ -2,7 +2,7 @@
 import ballerina/io;
 import ballerina/grpc;
 
-function main (string[] args) {
+function main (string... args) {
     // Client endpoint configuration
     endpoint HelloWorldBlockingClient helloWorldBlockingEp {
         host:"localhost",

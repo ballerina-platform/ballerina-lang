@@ -1,3 +1,3 @@
-#For the demonstration purpose curl -k command will be used to invoke the service.
+#Run this curl command with the `-k` option to invoke the service.
 $ curl -k https://localhost:9095/hello
 Successful

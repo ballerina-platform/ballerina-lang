@@ -1,1 +1,1 @@
-// This example shows you how to consume a message from Ballerina Message Broker.
+// In this example, you subscribe to a topic in the Ballerina Message Broker.

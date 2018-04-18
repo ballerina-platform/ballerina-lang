@@ -13,11 +13,11 @@ endpoint http:Listener backendEP {
 endpoint http:Client backendClientEP {
     circuitBreaker: {
         rollingWindow: {
-                            timeWindow:10000,
-                            bucketSize:2000
-                       },
+            timeWindowMillis:10000,
+            bucketSizeMillis:2000
+        },
         failureThreshold:0.2,
-        resetTimeMillies:10000,
+        resetTimeMillis:10000,
         statusCodes:[400, 404, 500]
     },
     targets: [
@@ -54,8 +54,9 @@ service<http:Service> circuitbreaker bind passthruEP {
 
 public  int counter = 1;
 
-// This sample service can be used to mock connection timeouts and service outages. Service outage can be mocked by stopping/starting this service.
-// This should be run separately from the circuitBreakerDemo service.
+// This sample service can be used to mock connection timeouts and service outages. 
+// Service outage can be mocked by stopping/starting this service.
+// This should be run separately from the `circuitBreakerDemo` service.
 @http:ServiceConfig {basePath:"/hello"}
 service<http:Service> helloWorld bind backendEP {
     @http:ResourceConfig {

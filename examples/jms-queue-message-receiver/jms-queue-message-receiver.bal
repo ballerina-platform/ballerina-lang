@@ -10,7 +10,7 @@ jms:Connection conn = new ({
 
 // Initialize a JMS session on top of the created connection.
 jms:Session jmsSession = new (conn, {
-    // Optional property. Defaults to AUTO_ACKNOWLEDGE
+    // An optional property that defaults to `AUTO_ACKNOWLEDGE`.
     acknowledgementMode: "AUTO_ACKNOWLEDGE"
 });
 
@@ -23,7 +23,7 @@ endpoint jms:QueueReceiver consumer {
 // Bind the created consumer to the listener service.
 service<jms:Consumer> jmsListener bind consumer {
 
-    // OnMessage resource get invoked when a message is received.
+    // The `OnMessage` resource gets invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
         string messageText = check message.getTextMessageContent();
         log:printInfo("Message : " + messageText);

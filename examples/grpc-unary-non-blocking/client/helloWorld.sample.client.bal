@@ -2,7 +2,7 @@
 import ballerina/io;
 
 int total = 0;
-function main (string[] args) {
+function main (string... args) {
     // Client endpoint configuration
     endpoint HelloWorldClient helloWorldEp {
         host:"localhost",

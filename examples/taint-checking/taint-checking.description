@@ -1,2 +1,9 @@
-//Ballerina compiler includes a taint analyzer that prevents untrusted
-//data from being passed to security sensitive parameters.
+//Ballerina programs are secure by design. They are inherently resilient 
+//to major security vulnerabilities such as SQL injection, path manipulation,
+//file manipulation, unauthorized file access, and unvalidated
+//redirect (open redirect).
+//
+//The Ballerina compiler has the ability to perform comprehensive
+//taint analysis. It identifies untrusted (tainted) data by
+// observing how tainted data propagates through the program. 
+//If untrusted data is passed to a security sensitive parameter, it generates errors.

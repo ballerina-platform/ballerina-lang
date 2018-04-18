@@ -11,7 +11,7 @@ endpoint http:Listener backendEP {
 };
 
 endpoint http:Client backendClientEP {
-    lbMode: {
+    availabilityMode: {
         failoverCodes : [400, 404, 500],
         interval : 0
     },

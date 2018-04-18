@@ -2,7 +2,7 @@ import ballerina/sql;
 import ballerina/mysql;
 import ballerina/io;
 
-@Description {value:"This is the Employee struct. The field names of this should match column names of the table. The field types should match with the sql types."}
+@Description {value:"This is a struct called 'Employee'. The field names of this struct should match the column names of the table and the field types should match the sql types."}
 type Employee {
     int id;
     string name;
@@ -13,7 +13,7 @@ type Employee {
     string updated;
 };
 
-function main (string[] args) {
+function main (string... args) {
 
     endpoint mysql:Client testDB {
         host: "localhost",
@@ -28,7 +28,7 @@ function main (string[] args) {
     table dt;
     int ret;
 
-    //Create table named EMPLOYEE and populate sample data.
+    //Create a table named EMPLOYEE and populate it with sample data.
     var returnValue = testDB -> update("CREATE TABLE EMPLOYEE (id INT,name
         VARCHAR(25),salary DOUBLE,status BOOLEAN,birthdate DATE,birthtime TIME,
         updated TIMESTAMP)", null);
@@ -60,8 +60,8 @@ function main (string[] args) {
         error e => io:println("Error in executing INSERT INTO EMPLOYEE");
     }
 
-    //Query the table using SQL connector select action. Either select or call
-    //action can return a table.
+    //Query the table using the SQL connector 'select' action. Either the 'select' 
+    //or 'call' action returns a table.
     var returnVal = testDB -> select("SELECT * from EMPLOYEE", null, Employee);
 
     match returnVal {
@@ -71,7 +71,7 @@ function main (string[] args) {
         error e => io:println("Error in executing SELECT * from EMPLOYEE");
     }
 
-    //Iterate through the result until hasNext() become false and retrieve
+    //Iterate through the result until hasNext() becomes false and retrieve
     //the data struct corresponding to each row.
     while (dt.hasNext()) {
         var returnedNextRec = <Employee>dt.getNext();
@@ -85,10 +85,9 @@ function main (string[] args) {
         }
     }
 
-    //The table to json/xml conversion is resulted in streamed data. With the data
-    //streaming functionality, when a service client makes a request, the result is
-    //streamed to the service client rather than building the full result in the server
-    //and returning it. This allows virtually unlimited payload sizes in the result, and
+    //Conversion from type 'table' to either JSON or XML results in data streaming. When a service client makes a request, 
+    //the result is streamed to the service client rather than building the full result in the server
+    //and returning it. This allows unlimited payload sizes in the result and
     //the response is instantaneous to the client. <br>
     //Convert a table to JSON.
     var returnVal2 = testDB -> select("SELECT id,name FROM EMPLOYEE", null, null);
