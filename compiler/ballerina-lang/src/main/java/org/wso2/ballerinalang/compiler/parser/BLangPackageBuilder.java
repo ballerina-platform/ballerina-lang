@@ -1473,6 +1473,11 @@ public class BLangPackageBuilder {
 
     }
 
+    void addObjectFieldsBlock (Set<Whitespace> ws) {
+        BLangObject objectNode = (BLangObject) this.objectStack.peek();
+        objectNode.addWS(ws);
+    }
+
     private BLangObject populateObjectNode(DiagnosticPos pos, Set<Whitespace> ws,
                                            IdentifierNode name, boolean isAnonymous) {
         BLangObject objectNode = (BLangObject) this.objectStack.pop();
@@ -1590,6 +1595,7 @@ public class BLangPackageBuilder {
         endEndpointDeclarationScope();
         function.pos = pos;
         function.addWS(ws);
+        function.addWS(this.invocationWsStack.pop());
 
         function.flagSet.add(Flag.ATTACHED);
 

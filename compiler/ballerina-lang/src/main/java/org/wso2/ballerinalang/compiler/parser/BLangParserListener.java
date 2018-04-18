@@ -448,6 +448,34 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override
+    public void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
+        if (ctx.exception != null) {
+           return;
+        }
+
+        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
     public void enterObjectInitializer(BallerinaParser.ObjectInitializerContext ctx) {
         if (ctx.exception != null) {
             return;
