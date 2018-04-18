@@ -108,18 +108,15 @@
 }
 
 .http-client-wrapper {
-    height: 100%;
+    // height: calc(100% - 375px);
     border-top: 1px solid #333;
     margin-top: 20px;
     clear: both;
 }
 
-.http-client-main-wrapper.segment{
-    background-color: #333;
-    padding:20px 20px 10px;
+.http-client-main-wrapper{
     width:auto;
     margin-bottom: 15px;
-    max-width: 900px;
     .main-wrapper-top {
         height: 45px;
         .http-client-request-method-wrapper {
@@ -204,6 +201,7 @@
                 padding: 6px 20px;
                 background-color: #398B72;
                 border-color: #398B72;
+                width: 90px;
             }
             .cancel-request {
                 color: #000;
@@ -211,6 +209,7 @@
                 padding: 6px 20px;
                 background-color: #eb6526;
                 border-color: #eb6526;
+                width: 90px;
                 span {
                     padding-left: 5px;
                 }
@@ -254,6 +253,18 @@
     .description{
         color: #b1b1b1!important;
     }
+    .select-method{
+        min-width: 120px!important;;
+    }
+    .paths-dropdown {
+        width: 100%;
+        .text .description{
+            display: none;
+        }
+        .visible.menu .description{
+            display: block;
+        }
+    }
 }
 
 .http-client-request {
@@ -262,7 +273,7 @@
     width: 100%;
     background: #252525;
     border-top: 1px solid #333;
-    margin-right: 20px;
+    margin-right: 10px;
 
     .content{
         overflow: hidden;
