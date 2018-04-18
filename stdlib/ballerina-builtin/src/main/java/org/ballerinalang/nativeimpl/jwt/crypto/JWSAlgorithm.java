@@ -27,17 +27,17 @@ package org.ballerinalang.nativeimpl.jwt.crypto;
 public final class JWSAlgorithm {
 
     /**
-     * RSASSA-PKCS-v1_5 using SHA-256 hash algorithm.
+     * RSASSA-PKCS-v1_5 SHA-256 hash algorithm.
      */
     public static final String RS256 = "RS256";
 
     /**
-     * RSASSA-PKCS-v1_5 using SHA-384 hash algorithm.
+     * RSASSA-PKCS-v1_5 SHA-384 hash algorithm.
      */
     public static final String RS384 = "RS384";
 
     /**
-     * RSASSA-PKCS-v1_5 using SHA-512 hash algorithm (optional).
+     * RSASSA-PKCS-v1_5 SHA-512 hash algorithm (optional).
      */
     public static final String RS512 = "RS512";
 
