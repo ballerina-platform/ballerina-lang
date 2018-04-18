@@ -1,5 +1,5 @@
-## Package Overview
-This package compresses and decompresses files and folders. The content is encoded when the file or folder is compressed and a .zip file is created. Similarly, when decompressing, the content of the zipped file or folder is decoded.
+## Package overview
+This package provides functions to compresses and decompresses files and folders. The content is encoded when the file or folder is compressed and a .zip file is created. Similarly, when decompressing, the content of the zipped file or folder is decoded.
 ### Perform compressing operations  
 This package provides functions to compress files and directories. Th output of the compressed folders and files can be a . zip file or a`blob`. A `blob` is a primitive type in `ballerina` and it represents a sequence of bytes.
 
