@@ -43,7 +43,10 @@ public type AuthnFilter object {
                 // if not, try to authenticate using any of available authn handlers
                 authenticated = self.authnHandlerChain.handle(request);
             }
-    	} 
+    	} else {
+            // not secured, no need to authenticate
+            return createAuthnResult(true);
+        }
         return createAuthnResult(authenticated);
     }
 };
@@ -65,7 +68,7 @@ function createAuthnResult (boolean authenticated) returns (FilterResult) {
 @Param {value:"context: FilterContext object"}
 @Return {value:"boolean, string[]: tuple of whether the resource is secured and the list of auth provider ids "}
 function getResourceAuthConfig (FilterContext context) returns (boolean, string[]) {
-    boolean isResourceSecured;
+    boolean resourceSecured;
     string[] authProviderIds = [];
     // get authn details from the resource level
     ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
@@ -73,27 +76,10 @@ function getResourceAuthConfig (FilterContext context) returns (boolean, string[
     ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, SERVICE_ANN_NAME,
                                     internal:getServiceAnnotations(context.serviceType));
     // check if authentication is enabled
-    match resourceLevelAuthAnn.authentication {
-        Authentication authn => {
-            isResourceSecured  = authn.enabled;
-        }
-        () => {
-            // if not found at resource level, check in the service level
-            match serviceLevelAuthAnn.authentication {
-                Authentication authn => {
-                    isResourceSecured  = authn.enabled;
-                }
-                () => {
-                    // if still authentication annotation is nil, means the user has not specified that the service
-                    // should be secured. However since the authn filter has been engaged, need to authenticate.
-                    isResourceSecured = true;
-                }
-            }
-        }
-    }
+    resourceSecured = isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn);
     // if resource is not secured, no need to check further
-    if (!isResourceSecured) {
-        return (isResourceSecured, authProviderIds);
+    if (!resourceSecured) {
+        return (resourceSecured, authProviderIds);
     }
     // check if auth providers are given at resource level
     match resourceLevelAuthAnn.authProviders {
@@ -112,7 +98,31 @@ function getResourceAuthConfig (FilterContext context) returns (boolean, string[
             }
         }
     }
-    return (isResourceSecured, authProviderIds);
+    return (resourceSecured, authProviderIds);
+}
+
+function isResourceSecured (ListenerAuthConfig? resourceLevelAuthAnn, ListenerAuthConfig? serviceLevelAuthAnn)
+                                                                                                    returns boolean {
+    boolean isSecured;
+    match resourceLevelAuthAnn.authentication {
+        Authentication authn => {
+            isSecured = authn.enabled;
+        }
+        () => {
+            // if not found at resource level, check in the service level
+            match serviceLevelAuthAnn.authentication {
+                Authentication authn => {
+                    isSecured = authn.enabled;
+                }
+                () => {
+                    // if still authentication annotation is nil, means the user has not specified that the service
+                    // should be secured. However since the authn filter has been engaged, need to authenticate.
+                    isSecured = true;
+                }
+            }
+        }
+    }
+    return isSecured;
 }
 
 @Description {value:"Tries to retrieve the annotation value for authentication hierarchically - first from the resource
