@@ -109,10 +109,12 @@
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-3 cBallerina-io-Home-Left-col">
                 <div class="cBlallerina-io-docs-right-nav-container">
                   <div class="cLectColStyle cLeftColTop">
-                      <div class="cBallerina-io-docs-Title">PRIMITIVE TYPES</div>
-                    
+                      <div class="cBallerina-io-docs-Title cBallerina-io-primitive-types">PRIMITIVE TYPES</div>
+                        <div class="cCollaps-Menu-first">
+                          
+                        </div>
                      </div>
-                  </div>
+                </div>
                 <div class="cBlallerina-io-docs-right-nav-container">
                   <div class="cLectColStyle cLeftColTop">
                   <div class="cBallerina-io-docs-Title cBallerina-io-packages">BALLERINA PACKAGES</div>
@@ -251,6 +253,7 @@
                         <li>
                            <a href="/learn">Learn</a>
                         </li>
+                        <li>»</li>
                          <li>
                            <a href="/learn/api-docs/">API Docs</a>
                         </li>
@@ -319,6 +322,7 @@
                                                    {{/each}}
                                                 </table>
                                                 {{/if}} {{#if returnParams}}
+                                                <div class="cReturnTableHeader"></div>
                                                 <table>
                                                    <tr>
                                                       <th class="cAPI-table-name"></th>
@@ -369,6 +373,7 @@
                                           {{/each}}
                                        </table>
                                        {{/if}} {{#if returnParams}}
+                                       <div class="cReturnTableHeader"></div>
                                        <table>
                                           <tr>
                                              <th class="cAPI-table-name"></th>
@@ -450,6 +455,7 @@
                                                    {{/each}}
                                                 </table>
                                                 {{/if}} {{#if returnParams}}
+                                                <div class="cReturnTableHeader"></div>
                                                 <table>
                                                    <tr>
                                                       <th class="cAPI-table-name"></th>
@@ -534,6 +540,7 @@
                                                    {{/each}}
                                                 </table>
                                                 {{/if}} {{#if returnParams}}
+                                                <div class="cReturnTableHeader"></div>
                                                 <table>
                                                    <tr>
                                                       <th class="cAPI-table-name"></th>
@@ -617,6 +624,7 @@
                                                    {{/each}}
                                                 </table>
                                                 {{/if}} {{#if returnParams}}
+                                                <div class="cReturnTableHeader"></div>
                                                 <table>
                                                    <tr>
                                                       <th class="cAPI-table-name"></th>
@@ -736,6 +744,7 @@
             $(".cBallerina-io-Home-Left-col").toggleClass('cOpen-col');
           });
     });
+    
       </script>
      <script type="text/javascript" src="/search/search.js">
      </script>
