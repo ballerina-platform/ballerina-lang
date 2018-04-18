@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.msf4j.internal.DataHolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -304,6 +305,17 @@ public class BallerinaDocGenerator {
             sj.add(pathItr.next().toString());
         }
         return sj.toString();
+    }
+
+    private static void storeBuiltInPackage () {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
+        options.put(CompilerOptionName.PRESERVE_WHITESPACE, "false");
+
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage bLangPackage = loadBuiltInPackage(context);
+        DataHolder
     }
 
     private static BLangPackage loadBuiltInPackage(CompilerContext context) {
