@@ -20,17 +20,21 @@ package org.wso2.transport.http.netty.message;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Util;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Default implementation of the message Listener.
  */
 public class DefaultListener implements Listener {
 
-    private static final int MAXIMUM_BYTE_SIZE = 2;
-    private int cumulativeByteQuantity = 0;
-    private ChannelHandlerContext ctx = null;
-    private boolean readComplete = false;
+    private static final int MAXIMUM_BYTE_SIZE = 2097152; //Maximum threshold of reading bytes(2MB)
+    private AtomicInteger cumulativeByteQuantity = new AtomicInteger(0);
+    private final ChannelHandlerContext ctx;
+    private boolean readCompleted = false;
 
     public DefaultListener(ChannelHandlerContext ctx) {
         this.ctx = ctx;
@@ -38,10 +42,11 @@ public class DefaultListener implements Listener {
 
     @Override
     public void onAdd(HttpContent httpContent) {
-        this.cumulativeByteQuantity += httpContent.content().readableBytes();
-        if (this.cumulativeByteQuantity < MAXIMUM_BYTE_SIZE) {
+        int count = this.cumulativeByteQuantity.addAndGet(httpContent.content().readableBytes());
+        System.out.println("onAdd count:" + count);
+        if (count < MAXIMUM_BYTE_SIZE) {
             if (Util.isLastHttpContent(httpContent)) {
-                readComplete = true;
+                readCompleted = true;
             } else {
                 this.ctx.channel().read();
             }
@@ -50,11 +55,10 @@ public class DefaultListener implements Listener {
 
     @Override
     public void onRemove(HttpContent httpContent) {
-        this.cumulativeByteQuantity -= httpContent.content().readableBytes();
-        if (this.cumulativeByteQuantity < MAXIMUM_BYTE_SIZE) {
-            if (!readComplete) {
-                this.ctx.channel().read();
-            }
+        int count = this.cumulativeByteQuantity.addAndGet(-(httpContent.content().readableBytes()));
+        System.out.println("onRemove count:" + count);
+        if (count < MAXIMUM_BYTE_SIZE && !readCompleted) {
+            this.ctx.channel().read();
         }
     }
 }

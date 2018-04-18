@@ -101,6 +101,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
         if (this.handlerExecutor != null) {
             this.handlerExecutor.executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
+        ctx.channel().read();
     }
 
     /**
@@ -166,6 +167,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
         } else if (msg instanceof PongWebSocketFrame) {
             notifyPongMessage((PongWebSocketFrame) msg);
         }
+        ctx.channel().read();
     }
 
     private void notifyTextMessage(TextWebSocketFrame textWebSocketFrame) throws ServerConnectorException {

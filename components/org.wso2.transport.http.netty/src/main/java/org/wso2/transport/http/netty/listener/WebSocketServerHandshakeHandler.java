@@ -64,8 +64,10 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
             String httpMethod = httpRequest.method().name();
             if (httpMethod.equalsIgnoreCase("GET") && isConnectionUpgrade(headers) &&
                     Constants.WEBSOCKET_UPGRADE.equalsIgnoreCase(headers.get(HttpHeaderNames.UPGRADE))) {
-                log.debug("Upgrading the connection from Http to WebSocket for " +
-                                  "channel : " + ctx.channel());
+                if (log.isDebugEnabled()) {
+                    log.debug("Upgrading the connection from Http to WebSocket for " +
+                                      "channel : " + ctx.channel());
+                }
                 ChannelPipeline pipeline = ctx.pipeline();
                 ChannelHandlerContext decoderCtx = pipeline.context(HttpRequestDecoder.class);
                 String aggregatorName = "aggregate";

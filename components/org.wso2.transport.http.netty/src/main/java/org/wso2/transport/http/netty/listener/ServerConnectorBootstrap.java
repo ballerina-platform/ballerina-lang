@@ -74,19 +74,6 @@ public class ServerConnectorBootstrap {
 
         return serverBootstrap
                 .bind(new InetSocketAddress(serverConnector.getHost(), serverConnector.getPort()));
-
-        // TODO: Fix this with HTTP2
-//            ListenerConfiguration listenerConfiguration = serverConnector.getListenerConfiguration();
-//            SslContext http2sslContext = null;
-//            // Create HTTP/2 ssl context during interface binding.
-//            if (listenerConfiguration.isHttp2() && listenerConfiguration.getSSLConfig() != null) {
-//                http2sslContext = new SSLHandlerFactory(listenerConfiguration.getSSLConfig())
-//                        .createHttp2TLSContext();
-//            }
-
-//            httpServerChannelInitializer.registerListenerConfig(listenerConfiguration, http2sslContext);
-//            httpServerChannelInitializer.setSslContext(http2sslContext);
-//            httpServerChannelInitializer.setServerConnectorFuture(serverConnector.getServerConnectorFuture());
     }
 
     private boolean unBindInterface(HTTPServerConnector serverConnector) throws InterruptedException {
@@ -121,14 +108,17 @@ public class ServerConnectorBootstrap {
         serverBootstrap.childOption(ChannelOption.TCP_NODELAY, serverBootstrapConfiguration.isTcpNoDelay());
         serverBootstrap.childOption(ChannelOption.SO_RCVBUF, serverBootstrapConfiguration.getReceiveBufferSize());
         serverBootstrap.childOption(ChannelOption.SO_SNDBUF, serverBootstrapConfiguration.getSendBufferSize());
-        serverBootstrap.childOption(ChannelOption.AUTO_READ, false);
 
-        log.debug("Netty Server Socket BACKLOG " + serverBootstrapConfiguration.getSoBackLog());
-        log.debug("Netty Server Socket TCP_NODELAY " + serverBootstrapConfiguration.isTcpNoDelay());
-        log.debug("Netty Server Socket CONNECT_TIMEOUT_MILLIS " + serverBootstrapConfiguration.getConnectTimeOut());
-        log.debug("Netty Server Socket SO_RCVBUF " + serverBootstrapConfiguration.getReceiveBufferSize());
-        log.debug("Netty Server Socket SO_SNDBUF " + serverBootstrapConfiguration.getSendBufferSize());
-        log.debug("Netty Server Socket AUTO_READ " + false);
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Netty Server Socket BACKLOG %d", serverBootstrapConfiguration.getSoBackLog()));
+            log.debug(String.format("Netty Server Socket TCP_NODELAY %s", serverBootstrapConfiguration.isTcpNoDelay()));
+            log.debug(String.format("Netty Server Socket CONNECT_TIMEOUT_MILLIS %d",
+                                    serverBootstrapConfiguration.getConnectTimeOut()));
+            log.debug(String.format("Netty Server Socket SO_RCVBUF %d",
+                                    serverBootstrapConfiguration.getReceiveBufferSize()));
+            log.debug(String.format("Netty Server Socket SO_SNDBUF %d",
+                                    serverBootstrapConfiguration.getSendBufferSize()));
+        }
     }
 
     public void addSecurity(SSLConfig sslConfig) {
