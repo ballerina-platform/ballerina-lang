@@ -3128,10 +3128,10 @@ public class CPU {
         // Check tuple casting
         if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
             return checkTupleCast(rhsValue, lhsType);
-        } 
-        
-        if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-            return checkFiniteTypeAssignable(rhsValue, lhsType);
+        }
+
+        if (lhsType.getTag() == TypeTags.SINGLETON_TAG || lhsType.getTag() == TypeTags.NULL_TAG) {
+            return checkSingletonAssignable(rhsValue, lhsType);
         }
 
         return false;
