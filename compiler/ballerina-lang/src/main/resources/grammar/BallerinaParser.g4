@@ -780,13 +780,7 @@ tableQuery
     :   FROM streamingInput joinStreamingInput?
         selectClause?
         orderByClause?
-    ;
-
-aggregationQuery
-    :   FROM streamingInput
-        selectClause?
-        orderByClause?
-
+        limitClause?
     ;
 
 foreverStatement
@@ -814,7 +808,15 @@ withinClause
     ;
 
 orderByClause
-    :   ORDER BY variableReferenceList
+    :   ORDER BY orderByVariable (COMMA orderByVariable)*
+    ;
+
+orderByVariable
+    :   variableReference orderByType?
+    ;
+
+limitClause
+    :   LIMIT DecimalIntegerLiteral
     ;
 
 selectClause
@@ -880,16 +882,12 @@ whereClause
     :   WHERE expression
     ;
 
-functionClause
-    :   FUNCTION functionInvocation
-    ;
-
 windowClause
     :   WINDOW functionInvocation
     ;
 
-outputEventType
-    : ALL EVENTS | EXPIRED EVENTS | CURRENT EVENTS
+orderByType
+    :   ASCENDING | DESCENDING
     ;
 
 joinType

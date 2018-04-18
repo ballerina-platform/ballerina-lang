@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimit;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
@@ -746,6 +747,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOrderBy orderBy) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangLimit limit) {
         /* ignore */
     }
 

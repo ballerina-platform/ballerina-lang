@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.langserver;
 
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 
 /**
  * Language Server Global Context Keys.
@@ -27,7 +27,5 @@ public class LSGlobalContextKeys {
     public static final LSContext.Key<WorkspaceDocumentManagerImpl> DOCUMENT_MANAGER_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<BallerinaLanguageServer> LANGUAGE_SERVER_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<CompilerContext> GLOBAL_COMPILATION_CONTEXT
             = new LSContext.Key<>();
 }

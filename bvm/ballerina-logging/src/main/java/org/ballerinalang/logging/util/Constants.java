@@ -25,15 +25,18 @@ package org.ballerinalang.logging.util;
  */
 public class Constants {
 
+    public static final String BALLERINA_USER_LOG_LEVEL = "b7a.log.level";
     public static final String LOG_LEVEL = ".loglevel";
 
-    public static final String HTTP_TRACE_LOG = "tracelog.http";
-    public static final String HTTP_ACCESS_LOG = "accesslog.http";
-    public static final String BALLERINA_USER_LOG_LEVEL = "b7a.log.level";
+    public static final String HTTP_TRACE_LOG = "http.tracelog";
+    public static final String HTTP_TRACE_LOG_ENABLED = "http.tracelog.enabled";
+    public static final String HTTP_TRACE_LOG_CONSOLE = "b7a.http.tracelog.console";
+    public static final String HTTP_TRACE_LOG_FILE = "b7a.http.tracelog.path";
+    public static final String HTTP_TRACE_LOG_HOST = "b7a.http.tracelog.host";
+    public static final String HTTP_TRACE_LOG_PORT = "b7a.http.tracelog.port";
 
-    public static final String LOG_TO = "logto";
-    public static final String LOG_TO_CONSOLE = "console";
-    public static final String LOG_TO_SOCKET = "socket";
-    public static final String LOG_PUBLISH_DEFAULT_HOST = "localhost";
-    public static final int LOG_PUBLISH_DEFAULT_PORT = 5010;
+    public static final String HTTP_ACCESS_LOG = "http.accesslog";
+    public static final String HTTP_ACCESS_LOG_ENABLED = "http.accesslog.enabled";
+    public static final String HTTP_ACCESS_LOG_CONSOLE = "b7a.http.accesslog.console";
+    public static final String HTTP_ACCESS_LOG_FILE = "b7a.http.accesslog.path";
 }

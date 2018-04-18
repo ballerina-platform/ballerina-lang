@@ -24,7 +24,9 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimit;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOutputRateLimit;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
@@ -370,6 +372,14 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangOrderBy orderBy) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangOrderByVariable orderByVariable) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangLimit limit) {
         throw new AssertionError();
     }
 

@@ -44,7 +44,7 @@ public type HttpBasicAuthnHandler object {
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if authentication is a success, else false"}
 public function HttpBasicAuthnHandler::handle (Request req) returns (boolean) {
-
+    
     // extract the header value
     var basicAuthHeader = extractBasicAuthHeaderValue(req);
     string basicAuthHeaderValue;

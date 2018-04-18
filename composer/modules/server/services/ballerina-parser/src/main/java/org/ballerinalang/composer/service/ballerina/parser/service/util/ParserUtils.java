@@ -33,9 +33,9 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Pa
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.RecordModel;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Struct;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.StructField;
-import org.ballerinalang.langserver.LSContextManager;
-import org.ballerinalang.langserver.LSPackageLoader;
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.compiler.LSContextManager;
+import org.ballerinalang.langserver.compiler.LSPackageLoader;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.EnumNode;

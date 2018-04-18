@@ -26,8 +26,11 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.TransactionStatus;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
@@ -267,6 +270,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     private SymbolEnv env;
     // TODO Remove this dependency from the code generator
     private SymbolTable symTable;
+    private SymbolResolver symResolver;
+    private Types types;
 
     private boolean buildCompiledPackage;
     private ProgramFile programFile;
@@ -312,6 +317,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     public CodeGenerator(CompilerContext context) {
         context.put(CODE_GENERATOR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
+        this.types = Types.getInstance(context);
     }
 
     public ProgramFile generateBALX(BLangPackage pkgNode) {
@@ -899,12 +906,15 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, refRegMapValue);
             }
         } else {
+            IntegerCPEntry exceptCPEntry = new IntegerCPEntry(mapKeyAccessExpr.except ? 1 : 0);
+            Operand except = getOperand(currentPkgInfo.addCPEntry(exceptCPEntry));
             int opcode = getRefToValueTypeCastOpcode(mapType.constraint);
             if (opcode == InstructionCodes.NOP) {
-                emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(mapKeyAccessExpr));
+                emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(mapKeyAccessExpr),
+                        except);
             } else {
                 RegIndex refRegMapValue = getRegIndex(symTable.anyType);
-                emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, refRegMapValue);
+                emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, refRegMapValue, except);
                 emit(opcode, refRegMapValue, calcAndGetExprRegIndex(mapKeyAccessExpr));
             }
         }
@@ -1722,12 +1732,41 @@ public class CodeGenerator extends BLangNodeVisitor {
             // at this point. If so, get the default value for that parameter from the function info.
             if (argExpr == null) {
                 DefaultValue defaultVal = defaultValAttrInfo.getDefaultValueInfo()[i];
-                argExpr = getDefaultValExpr(defaultVal);
+                BLangExpression defaultValExpr = getDefaultValExpr(defaultVal);
+                int paramPosition = iExpr.requiredArgs.size() + i +
+                        (((BInvokableSymbol) iExpr.symbol).receiverSymbol != null ? 1 : 0);
+                BType namedArgType = callableUnitInfo.paramTypes[paramPosition];
+                argExpr = createTypeConversionExpr(defaultValExpr, namedArgType);
             }
             operands[currentIndex++] = genNode(argExpr, this.env).regIndex;
         }
 
         return currentIndex;
+    }
+
+    private BLangExpression createTypeConversionExpr(BLangExpression expr, BType lhsType) {
+        BType rhsType = expr.type;
+        if (types.isSameType(rhsType, lhsType)) {
+            return expr;
+        }
+
+        types.setImplicitCastExpr(expr, rhsType, lhsType);
+        if (expr.impConversionExpr != null) {
+            return expr.impConversionExpr;
+        }
+
+        if (lhsType.isNullable() && rhsType.tag == TypeTags.NIL) {
+            return expr;
+        }
+
+        BConversionOperatorSymbol symbol = (BConversionOperatorSymbol)
+                this.symResolver.resolveConversionOperator(rhsType, lhsType);
+        BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+        conversionExpr.pos = expr.pos;
+        conversionExpr.expr = expr;
+        conversionExpr.type = lhsType;
+        conversionExpr.conversionSymbol = symbol;
+        return conversionExpr;
     }
 
     private BLangExpression getDefaultValExpr(DefaultValue defaultVal) {
@@ -1740,6 +1779,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 return getStringLiteral(defaultVal.stringValue);
             case TypeDescriptor.SIG_BOOLEAN:
                 return getBooleanLiteral(defaultVal.booleanValue);
+            case TypeDescriptor.SIG_NULL:
+                return getNullLiteral();
             default:
                 throw new IllegalStateException("Unsupported default value type");
         }
@@ -1774,6 +1815,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         literal.value = value;
         literal.typeTag = TypeTags.BOOLEAN;
         literal.type = symTable.booleanType;
+        return literal;
+    }
+
+    private BLangLiteral getNullLiteral() {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.typeTag = TypeTags.NIL;
+        literal.type = symTable.nilType;
         return literal;
     }
 
@@ -1814,6 +1862,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case TypeTags.BOOLEAN:
                 defaultValue.booleanValue = (Boolean) literalExpr.value;
+                break;
+            case TypeTags.NIL:
                 break;
             default:
                 defaultValue = null;
