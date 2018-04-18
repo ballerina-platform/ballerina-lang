@@ -158,9 +158,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.endpointSPIAnalyzer = EndpointSPIAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
-
-        BLangPackage rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
-        rootPkgNode.symbol = symTable.rootPkgSymbol;
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {

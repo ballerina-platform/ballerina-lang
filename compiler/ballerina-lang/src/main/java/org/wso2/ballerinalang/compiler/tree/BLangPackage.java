@@ -39,11 +39,12 @@ import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -79,8 +80,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public PackageRepository packageRepository;
 
     // TODO Revisit these instance variables
-    public Path loadedFilePath;
-    public boolean loadedFromProjectDir;
+    public BDiagnosticCollector diagCollector;
+
     public RepoHierarchy repos;
 
     public BLangPackage() {
@@ -103,6 +104,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.objAttachedFunctions = new ArrayList<>();
         this.topLevelNodes = new ArrayList<>();
         this.completedPhases = EnumSet.noneOf(CompilerPhase.class);
+        this.diagCollector = new BDiagnosticCollector();
     }
 
     @Override
@@ -280,5 +282,30 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.PACKAGE;
+    }
+
+    /**
+     * This class collect diagnostics.
+     *
+     * @since 0.970.0
+     */
+    public static class BDiagnosticCollector {
+        private int errorCount;
+        private List<BDiagnostic> diagnostics;
+
+        public BDiagnosticCollector() {
+            this.diagnostics = new ArrayList<>();
+        }
+
+        public void addDiagnostic(BDiagnostic diagnostic) {
+            this.diagnostics.add(diagnostic);
+            if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
+                this.errorCount++;
+            }
+        }
+
+        public boolean hasErrors() {
+            return this.errorCount > 0;
+        }
     }
 }

@@ -26,6 +26,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorListener;
@@ -42,7 +43,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
- * This represents the Ballerina source parser.
+ * This class is reponsible for parsing Ballerina source files.
  *
  * @since 0.94
  */
@@ -53,6 +54,7 @@ public class Parser {
 
     private CompilerContext context;
     private BLangDiagnosticLog dlog;
+    private PackageCache pkgCache;
 
     public static Parser getInstance(CompilerContext context) {
         Parser parser = context.get(PARSER_KEY);
@@ -70,13 +72,17 @@ public class Parser {
         CompilerOptions options = CompilerOptions.getInstance(context);
         this.preserveWhitespace = Boolean.parseBoolean(options.get(CompilerOptionName.PRESERVE_WHITESPACE));
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.pkgCache = PackageCache.getInstance(context);
     }
 
     public BLangPackage parse(PackageSource pkgSource) {
+        PackageID pkgId = pkgSource.getPackageId();
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
+        this.pkgCache.put(pkgId, pkgNode);
+
         pkgSource.getPackageSourceEntries()
-                 .forEach(e -> pkgNode.addCompilationUnit(generateCompilationUnit(e, pkgSource.getPackageId())));
-        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgSource.getPackageId(),
+                .forEach(e -> pkgNode.addCompilationUnit(generateCompilationUnit(e, pkgId)));
+        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgId,
                 pkgSource.getName()), 1, 1, 1, 1);
         pkgNode.repos = pkgSource.getRepoHierarchy();
         return pkgNode;
@@ -84,7 +90,6 @@ public class Parser {
 
     private CompilationUnitNode generateCompilationUnit(CompilerInput sourceEntry, PackageID packageID) {
         try {
-            int prevErrCount = dlog.errorCount;
             BDiagnosticSource diagnosticSrc = getDiagnosticSource(sourceEntry, packageID);
             String entryName = sourceEntry.getEntryName();
 
@@ -102,14 +107,9 @@ public class Parser {
             parser.setErrorHandler(getErrorStrategy(diagnosticSrc));
             parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc));
             parser.compilationUnit();
-
-//            if (dlog.errorCount > prevErrCount) {
-//                throw new BLangParserException("syntax errors in: " + entryName);
-//            }
-
             return compUnit;
         } catch (IOException e) {
-            throw new RuntimeException("Error in populating package model: " + e.getMessage(), e);
+            throw new RuntimeException("error reading package: " + e.getMessage(), e);
         }
     }
 
