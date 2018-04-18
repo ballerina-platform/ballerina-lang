@@ -53,7 +53,7 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
         io:println("remote registry failed for url :" + url);
     } else if (statusCode != "200") {
         json jsonResponse = check (httpResponse.getJsonPayload());
-        string message = (jsonResponse.message.toString() but {()=> "error occurred when pushing the package"});
+        string message = jsonResponse.message.toString();
         io:println(message);
     } else {
         io:println(msg);
