@@ -150,12 +150,6 @@ public function Listener::init (ServiceEndpointConfiguration config) {
     if (err != null) {
         throw err;
     }
-    // if filters are defined, call init on them
-    if (config.filters != null) {
-        foreach filter in config.filters {
-            filter.init();
-        }
-    }
 }
 
 //////////////////////////////////
