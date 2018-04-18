@@ -70,3 +70,21 @@ function testNestedMatchExpr(string|int|float|error|() a) returns string {
     });
     return x;
 }
+
+function testMatchExprMultipleTypes(string|int|float|error a) returns string|int {
+    string|int x = foo(a) but { int => "value1", 
+                            float => "value2", 
+                            error => 3,
+                            string => 4  
+                };
+    return x;
+}
+
+
+function testAssignabileTypesInPatterns(string|int|float|error a) returns json {
+    json j = a but { 
+                    json => "jsonStr1", 
+                    error => "jsonStr2"
+             };
+    return j;
+}
