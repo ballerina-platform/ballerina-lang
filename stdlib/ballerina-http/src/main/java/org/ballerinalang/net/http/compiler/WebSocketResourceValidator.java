@@ -73,7 +73,7 @@ public class WebSocketResourceValidator {
         List<BLangVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 2, 3, serviceName, resource, dlog);
         validateEndpointParameter(serviceName, resource, dlog, paramDetails);
-        if (!"string".equals(paramDetails.get(1).type.toString())) {
+        if (paramDetails.size() < 2 || !"string".equals(paramDetails.get(1).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
                                "Invalid resource signature for " + resource.getName().getValue() + " in service " +
                                        serviceName + ": The second parameter should be a string");
@@ -89,7 +89,7 @@ public class WebSocketResourceValidator {
         List<BLangVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 2, 3, serviceName, resource, dlog);
         validateEndpointParameter(serviceName, resource, dlog, paramDetails);
-        if (!"blob".equals(paramDetails.get(1).type.toString())) {
+        if (paramDetails.size() < 2 || !"blob".equals(paramDetails.get(1).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
                                "Invalid resource signature for " + resource.getName().getValue() + " in service " +
                                        serviceName + ": The second parameter should be a blob");
@@ -105,7 +105,7 @@ public class WebSocketResourceValidator {
         List<BLangVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource, dlog);
         validateEndpointParameter(serviceName, resource, dlog, paramDetails);
-        if (!"blob".equals(paramDetails.get(1).type.toString())) {
+        if (paramDetails.size() < 2 || !"blob".equals(paramDetails.get(1).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
                                "Invalid resource signature for " + resource.getName().getValue() + " in service " +
                                        serviceName + ": The second parameter should be a blob");
@@ -116,12 +116,12 @@ public class WebSocketResourceValidator {
         List<BLangVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 3, serviceName, resource, dlog);
         validateEndpointParameter(serviceName, resource, dlog, paramDetails);
-        if (!"int".equals(paramDetails.get(1).type.toString())) {
+        if (paramDetails.size() < 2 || !"int".equals(paramDetails.get(1).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
                                "Invalid resource signature for " + resource.getName().getValue() + " in service " +
                                        serviceName + ": The second parameter should be an int");
         }
-        if (!"string".equals(paramDetails.get(2).type.toString())) {
+        if (paramDetails.size() < 3 || !"string".equals(paramDetails.get(2).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
                                "Invalid resource signature for " + resource.getName().getValue() + " in service " +
                                        serviceName + ": The third parameter should be a string");
@@ -148,7 +148,8 @@ public class WebSocketResourceValidator {
 
     private static void validateEndpointParameter(String serviceName, BLangResource resource, DiagnosticLog dlog,
                                                   List<BLangVariable> paramDetails) {
-        if (!WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(paramDetails.get(0).type.toString())) {
+        if (paramDetails == null || paramDetails.size() == 0 || !WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(
+                paramDetails.get(0).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
                                "Invalid resource signature for " + resource.getName().getValue() + " in service " +
                                        serviceName + ": The first parameter should be a " +

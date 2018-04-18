@@ -45,7 +45,7 @@ public class SrcFile {
                                                   "    sayHello (endpoint caller, http:Request request) {\n" +
                                                   "\n" +
                                                   "        // Create object to carry data back to caller\n" +
-                                                  "        http:Response response = {};\n" +
+                                                  "        http:Response response = new;\n" +
                                                   "\n" +
                                                   "        // Objects and structs can have function calls\n" +
                                                   "        response.setStringPayload(\"Hello Ballerina!\\n\");\n" +
@@ -117,7 +117,7 @@ public class SrcFile {
                                                        "// After Suite Function is used to stop the service%n" +
                                                        "@test:AfterSuite%n" +
                                                        "function afterSuiteFunc () {%n" +
-                                                       "    io:println(\"Stop ehe service!\");%n" +
+                                                       "    io:println(\"Stop the service!\");%n" +
                                                        "    test:stopServices(\"%1$s\");%n" +
                                                        "}";
 

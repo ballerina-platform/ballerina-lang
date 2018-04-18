@@ -21,7 +21,7 @@ import _ from 'lodash';
 import { invokeTryIt, getTryItUrl } from 'api-client/api-client';
 import cn from 'classnames';
 import AceEditor from 'react-ace';
-import { Container, Grid, Form, Item, Button, Message, Divider, Segment, Input, Icon, Select } from 'semantic-ui-react';
+import { Container, Grid, Form, Item, Button, Message, Divider, Segment, Icon, Select } from 'semantic-ui-react';
 import copy from 'copy-to-clipboard';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -60,8 +60,9 @@ class HttpClient extends React.Component {
         this.state = {
             httpMethod: 'GET',
             httpMethods: this.getHttpMethods(),
-            baseUrl: 'localhost:9090',
-            appendUrl: this.compileURL(),
+            baseUrls: [],
+            baseUrl: '',
+            appendUrl: '',
             contentType: '',
             responseBody: '',
             responseCode: '',
@@ -91,6 +92,7 @@ class HttpClient extends React.Component {
         this.onRequestBodyChange = this.onRequestBodyChange.bind(this);
         this.onServiceSelected = this.onServiceSelected.bind(this);
         this.onResourceSelected = this.onResourceSelected.bind(this);
+        this.onChangeUrl = this.onChangeUrl.bind(this);
         this.headerKey = undefined;
     }
 
@@ -100,9 +102,9 @@ class HttpClient extends React.Component {
      */
     componentDidMount() {
         getTryItUrl()
-            .then((baseUrl) => {
+            .then((baseUrls) => {
                 this.setState({
-                    baseUrl,
+                    baseUrls: baseUrls || [],
                 });
             }).catch(() => {
             });
@@ -153,14 +155,20 @@ class HttpClient extends React.Component {
         }
     }
 
+    onChangeUrl(e, data) {
+        this.setState({
+            baseUrl: data.value,
+        });
+    }
+
     /**
      * Event handler when the url path is changed.
      * @param {Object} event The change event.
      * @memberof HttpClient
      */
-    onAppendUrlChange(event) {
+    onAppendUrlChange(event, data) {
         this.setState({
-            appendUrl: event.target.value,
+            appendUrl: data.value,
         });
     }
 
@@ -427,28 +435,34 @@ class HttpClient extends React.Component {
      * @returns {React.Element} The dropdown view.
      * @memberof HttpClient
      */
-    renderServicesDropdown() {
-        const serviceItems = this.props.serviceNodes.map((serviceNode) => {
-            return ({
-                key: serviceNode.getID(),
-                text: serviceNode.getName().getValue(),
-                value: serviceNode,
+    renderPathsDropdown() {
+        const urlItems = [];
+        this.props.serviceNodes.forEach((serviceNode) => {
+            serviceNode.getResources().forEach((resourceNode) => {
+                const url = resourceNode.compileURL();
+                const description = resourceNode.getName().getValue();
+                const dropdownItem = (<div>
+                    <div className='path'>{url}</div>
+                    <div className='description'>{description}</div>
+                </div>);
+                urlItems.push({
+                    text: dropdownItem,
+                    value: url,
+                });
             });
         });
 
-        const defaultValue = this.state.selectedService;
         return (
-            <Form.Field>
-                <Select
-                    search
-                    selection
-                    placeholder='Select Service'
-                    options={serviceItems}
-                    value={this.state.selectedService}
-                    onChange={this.onServiceSelected}
-                    defaultValue={defaultValue}
-                />
-            </Form.Field>
+            <Select
+                search
+                allowAdditions
+                selection
+                placeholder='Select path'
+                options={urlItems}
+                defaultValue={this.state.appendUrl}
+                onChange={this.onAppendUrlChange}
+                className='paths-dropdown'
+            />
         );
     }
 
@@ -469,8 +483,6 @@ class HttpClient extends React.Component {
             });
         }
 
-        const defaultValue = this.state.selectedResource;
-
         return (
             <Select
                 search
@@ -479,7 +491,6 @@ class HttpClient extends React.Component {
                 options={resourceItems}
                 value={this.state.selectedResource}
                 onChange={this.onResourceSelected}
-                defaultValue={defaultValue}
             />
         );
     }
@@ -495,46 +506,39 @@ class HttpClient extends React.Component {
             const sendOrCancelButton = this.renderSendOrCancelButton();
 
             // Getting service name views
-            const servicesDropdown = this.renderServicesDropdown();
-            const resourceDropdown = this.renderResourcesDropdown();
+            const pathsDropdown = this.renderPathsDropdown();
             return (
-                <Segment
-                    className='http-client-main-wrapper'
-                    inverted
+                <div
+                    className='http-client-main-wrapper inverted'
                 >
                     <Form
                         inverted
                         widths='equal'
                     >
                         <Form.Group inline>
-                            <Form.Field >
-                                <Select
-                                    search
-                                    selection
-                                    options={this.state.httpMethods}
-                                    onChange={this.onHttpMethodChanged}
-                                    defaultValue={this.state.httpMethod}
-                                />
-                            </Form.Field>
                             <Form.Field>
-                                <label htmlFor='service'>
-                                    <span>{httpBaseUrl}</span>
-                                    <span className='url-separator'> / </span>
-                                </label>
-                            </Form.Field>
-                            {servicesDropdown}
-                            <Form.Field >
-                                {resourceDropdown}
-                            </Form.Field>
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Field>
-                                <Form.Input type='text' action>
-                                    <Input
-                                        label={`${httpBaseUrl} `}
-                                        value={this.state.appendUrl}
-                                        onChange={this.onAppendUrlChange}
+                                <Form.Input type='text' fluid>
+                                    <Select
+                                        search
+                                        selection
+                                        options={this.state.httpMethods}
+                                        onChange={this.onHttpMethodChanged}
+                                        defaultValue={this.state.httpMethod}
+                                        className='select-method'
                                     />
+                                    <Select
+                                        search
+                                        selection
+                                        placeholder='Select Url'
+                                        options={this.state.baseUrls.map(
+                                            (url) => {
+                                                return { text: url, value: url };
+                                            })
+                                        }
+                                        onChange={this.onChangeUrl}
+                                        value={this.state.baseUrl}
+                                    />
+                                    {pathsDropdown}
                                     {sendOrCancelButton}
                                     <Button
                                         title='Copy URL'
@@ -549,7 +553,7 @@ class HttpClient extends React.Component {
 
                         </Form.Group>
                     </Form>
-                </Segment>);
+                </div>);
         } else {
             return (null);
         }

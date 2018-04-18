@@ -19,9 +19,9 @@ package org.ballerinalang.langserver.completion;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
 import org.ballerinalang.langserver.completion.util.FileUtils;
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManagerImpl;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
@@ -42,7 +42,6 @@ import java.util.List;
 /**
  * Completion Test Interface.
  */
-@Test(groups = "broken")
 public abstract class CompletionTest {
 
     private static final Logger LOGGER = Logger.getLogger(CompletionTest.class);

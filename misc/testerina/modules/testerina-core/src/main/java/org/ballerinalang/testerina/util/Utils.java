@@ -60,15 +60,21 @@ public class Utils {
      */
     public static void cleanUpDir(Path path) {
         try {
-            Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            if (Files.exists(path)) {
+                Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            }
         } catch (IOException e) {
-            // Do nothing
             errStream.println("Error occurred while deleting the dir : " + path.toString() + " with error : "
                               + e.getMessage());
         }
     }
 
-    private static void initDebugger(ProgramFile programFile, Debugger debugger) {
+    /**
+     * Initialize the debugger.
+     * @param programFile ballerina executable programFile
+     * @param debugger Debugger instance
+     */
+    public static void initDebugger(ProgramFile programFile, Debugger debugger) {
         programFile.setDebugger(debugger);
         if (debugger.isDebugEnabled()) {
             debugger.init();

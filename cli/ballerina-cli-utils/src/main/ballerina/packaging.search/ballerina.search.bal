@@ -29,7 +29,7 @@ function search (string url, string querySearched) {
         io:println("remote registry failed for url : " + url + "/" + querySearched);
     } else if (statusCode != "200") {
         jsonResponse = check (httpResponse.getJsonPayload());
-        string message = (jsonResponse.msg.toString() but {()=> "error occurred when searching for packages"});
+        string message = jsonResponse.msg.toString();
         io:println(message);
     } else {
         jsonResponse = check (httpResponse.getJsonPayload());
@@ -47,20 +47,20 @@ function search (string url, string querySearched) {
             int i = 0;
             while (i < artifactsLength) {
                 json jsonElement = artifacts[i];
-                string orgName = (jsonElement.orgName.toString() but {()=> ""});
-                string packageName = (jsonElement.packageName.toString() but {()=> ""});
+                string orgName = jsonElement.orgName.toString();
+                string packageName = jsonElement.packageName.toString();
                 printInCLI(orgName + "/" + packageName, 30);
                 
-                string summary = (jsonElement.summary.toString() but {()=> ""});
+                string summary = jsonElement.summary.toString();
                 printInCLI(summary, 40);
                 
-                string authors = (jsonElement.authors.toString() but {()=> ""});
+                string authors = jsonElement.authors.toString();
                 printInCLI(authors, 40);
 
                 json createTimeJson = <json>jsonElement.createdDate;
                 printInCLI(getDateCreated(createTimeJson), 20);
                 
-                string packageVersion = (jsonElement.packageVersion.toString() but {()=> ""});
+                string packageVersion = jsonElement.packageVersion.toString();
                 printInCLI(packageVersion, 15);               
                 i = i + 1;
                 io:println("");
@@ -88,12 +88,13 @@ function printInCLI(string element, int charactersAllowed) {
 }
 
 function getDateCreated(json jsonObj) returns string {
-    int timeInMillis = <int>(jsonObj.time but {()=>0});
+    string jsonTime = jsonObj.time.toString();
+    int timeInMillis = check <int> jsonTime;
     time:Time timeStruct = new(timeInMillis, {zoneId:"UTC",zoneOffset:0});
     string customTimeString = timeStruct.format("yyyy-MM-dd-E");
     return customTimeString;
 }
 
 function main (string... args) {
-     search(args[0], args[1]);
+    search(args[0], args[1]);
 }

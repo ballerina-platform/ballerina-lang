@@ -109,3 +109,31 @@ function testInvokeFuncWithAnyRestParam1() returns (any[]) {
     return functionAnyRestParam(a, j);
 }
 
+// ------------------- Test function signature with union types for default parameter
+
+function funcWithUnionTypedDefaultParam(string|int? s = "John") returns string|int? {
+    return s;
+}
+
+function testFuncWithUnionTypedDefaultParam() returns json {
+    return funcWithUnionTypedDefaultParam();
+}
+
+
+// ------------------- Test function signature with null as default parameter value
+
+function funcWithNilDefaultParamExpr_1(string? s = null) returns string? {
+    return s;
+}
+
+type Person {
+    int a;
+};
+
+function funcWithNilDefaultParamExpr_2(Person? p = ()) returns Person? {
+    return p;
+}
+
+function testFuncWithNilDefaultParamExpr() returns (any, any) {
+    return (funcWithNilDefaultParamExpr_1(), funcWithNilDefaultParamExpr_2());
+}

@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.compiler.LSContextManager;
+import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -42,9 +44,6 @@ public class LSAnnotationCache {
     private HashMap<PackageID, List<BLangAnnotation>> resourceAnnotations = new HashMap<>();
     private HashMap<PackageID, List<BLangAnnotation>> functionAnnotations = new HashMap<>();
     private static LSAnnotationCache lsAnnotationCache = null;
-    private static final String[] staticPkgNames = {"http", "swagger", "mime", "auth", "caching", "config", "sql",
-            "file", "internal", "io", "jwt", "log", "math", "os", "reflect", "runtime", "security.crypto", "task",
-            "time", "transactions", "user", "util", "builtin"};
     
     private LSAnnotationCache() {
     }
@@ -64,7 +63,7 @@ public class LSAnnotationCache {
 
     private static Map<String, BLangPackage> loadPackagesMap(CompilerContext tempCompilerContext) {
         Map<String, BLangPackage> staticPackages = new HashMap<>();
-        for (String staticPkgName : staticPkgNames) {
+        for (String staticPkgName : LSPackageLoader.getStaticPkgNames()) {
             PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
                     new org.wso2.ballerinalang.compiler.util.Name(staticPkgName),
                     new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));

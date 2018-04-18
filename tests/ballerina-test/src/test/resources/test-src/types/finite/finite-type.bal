@@ -98,3 +98,18 @@ function finiteAssignmentRefValueTypeCaseTwo() returns POrInt {
     POrInt pi = 4;
     return pi;
 }
+
+type PreparedResult "ss"|"sss"|"qqq";
+
+function testFiniteTypeWithMatch() returns PreparedResult {
+    match foo() {
+         PreparedResult x => return x;
+         () => return "qqq";
+         error => return "qqq";
+    }
+}
+
+function foo() returns PreparedResult | error | () {
+       PreparedResult x = "ss";
+       return x;
+}

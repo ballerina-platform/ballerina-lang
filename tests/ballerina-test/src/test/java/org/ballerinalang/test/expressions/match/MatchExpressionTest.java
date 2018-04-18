@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -60,7 +61,7 @@ public class MatchExpressionTest {
         Assert.assertEquals(results[0].stringValue(), "value4");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMatchExprWithMismatchingTypes() {
         BValue[] results = BRunUtil.invoke(compileResult, "testMatchExpr", new BValue[] { new BBoolean(true) });
         Assert.assertEquals(results[0].stringValue(), "value4");
@@ -156,11 +157,38 @@ public class MatchExpressionTest {
     }
 
     @Test
+    public void testAssignabileTypesInPatterns() {
+        BValue[] results =
+                BRunUtil.invoke(compileResult, "testAssignabileTypesInPatterns", new BValue[] { new BInteger(20) });
+        Assert.assertTrue(results[0] instanceof BJSON);
+        Assert.assertEquals(results[0].stringValue(), "jsonStr1");
+
+        results = BRunUtil.invoke(compileResult, "testAssignabileTypesInPatterns", new BValue[] { new BFloat(3.4) });
+        Assert.assertTrue(results[0] instanceof BJSON);
+        Assert.assertEquals(results[0].stringValue(), "jsonStr1");
+
+        results = BRunUtil.invoke(compileResult, "getError");
+        results = BRunUtil.invoke(compileResult, "testAssignabileTypesInPatterns", results);
+        Assert.assertTrue(results[0] instanceof BJSON);
+        Assert.assertEquals(results[0].stringValue(), "jsonStr2");
+
+        results =
+                BRunUtil.invoke(compileResult, "testAssignabileTypesInPatterns", new BValue[] { new BString("John") });
+        Assert.assertTrue(results[0] instanceof BJSON);
+        Assert.assertEquals(results[0].stringValue(), "jsonStr1");
+    }
+
+    @Test
     public void testMatchExprNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/expressions/match/match-expr-negative.bal");
-        // TODO: uncomment this once union type is fixed
-        // BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'string', found
-        // 'float|int|string'", 8, 23);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'string', found 'int'", 8, 36);
+        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'string', found 'float'", 9, 38);
         BAssertUtil.validateError(negativeResult, 2, "undefined symbol 's'", 21, 31);
+        BAssertUtil.validateError(negativeResult, 3, "A matching pattern cannot be guaranteed for types '[error]'", 27,
+                23);
+        BAssertUtil.validateError(negativeResult, 4, "pattern will not be matched", 29, 21);
+        BAssertUtil.validateError(negativeResult, 5,
+                "A matching pattern cannot be guaranteed for types '[float, error]'", 37, 18);
+        BAssertUtil.validateError(negativeResult, 6, "operator '+' not defined for 'json' and 'string'", 47, 31);
     }
 }
