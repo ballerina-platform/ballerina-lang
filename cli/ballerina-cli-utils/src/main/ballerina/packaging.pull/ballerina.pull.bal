@@ -40,7 +40,7 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
             res = callFileServer(locationHeader);
             if (res.statusCode != 200) {
                 json jsonResponse = check (res.getJsonPayload());
-                string message = (jsonResponse.message.toString() but {()=> "error occurred when pulling the package"});
+                string message = jsonResponse.message.toString();
                 io:println(message);
             } else {
                 string contentLengthHeader;

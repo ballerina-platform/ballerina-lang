@@ -27,6 +27,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.mime.util.Constants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BJSON;
@@ -40,7 +41,6 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
-import org.ballerinalang.net.http.serviceendpoint.FilterHolder;
 import org.ballerinalang.net.uri.URIUtil;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -49,7 +49,6 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -61,7 +60,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     private PrintStream console = System.out;
 
     public BallerinaWebSubConnectionListener(WebSubServicesRegistry webSubServicesRegistry,
-                                             HashSet<FilterHolder> filterHolders) {
+                                             Value[] filterHolders) {
         super(webSubServicesRegistry, filterHolders);
         this.webSubServicesRegistry = webSubServicesRegistry;
     }
