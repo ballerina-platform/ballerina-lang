@@ -28,7 +28,6 @@ import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.PackageDoc;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
-import org.ballerinalang.docgen.model.StaticCaption;
 import org.ballerinalang.model.types.TypeKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,12 +123,6 @@ public class BallerinaDocGenerator {
                 Collections.sort(packageNames);
 
                 List<Link> packageNameList = PackageName.convertList(packageNames);
-                if (packageNames.contains("builtin")) {
-                    StaticCaption primitivesLinkName = new StaticCaption(BallerinaDocConstants
-                            .PRIMITIVE_TYPES_PAGE_NAME);
-                    packageNameList.add(0, new Link(primitivesLinkName, BallerinaDocConstants
-                            .PRIMITIVE_TYPES_PAGE_HREF, false));
-                }
 
                 //Generate pages for the packages
                 String packageTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY,
