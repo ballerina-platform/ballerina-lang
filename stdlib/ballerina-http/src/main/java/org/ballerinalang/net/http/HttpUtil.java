@@ -102,10 +102,10 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_INDE
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_HOSTNAME;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_PORT;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_HOSTNAME;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_PORT;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 
