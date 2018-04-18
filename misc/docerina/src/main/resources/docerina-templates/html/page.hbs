@@ -251,8 +251,11 @@
                         <li>
                            <a href="/learn">Learn</a>
                         </li>
+                         <li>
+                           <a href="/learn/api-docs/">API Docs</a>
+                        </li>
                         <li>»</li>
-                        <li>{{name}}</li>
+                        <li>{{#if heading.isPackageName}} package {{/if}}</li>
                      </ul>
                   </div>
                </div>
@@ -726,6 +729,15 @@
       </div>
       <div id="iBallerinaFooter" class="row cBallerina-io-White-row">
       </div>
-      <script type="text/javascript" src="/search/search.js"/>
+      <script>
+   $(document).ready(function() {
+         $(".cSideBar-Button").click(function() {
+            $(".cSideBar-Button").toggleClass('cOpen');
+            $(".cBallerina-io-Home-Left-col").toggleClass('cOpen-col');
+          });
+    });
+      </script>
+     <script type="text/javascript" src="/search/search.js">
+     </script>
       </body>
       </html>
