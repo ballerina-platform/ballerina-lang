@@ -19,6 +19,9 @@
 package org.ballerinalang.docgen.docs.utils;
 
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -47,6 +50,19 @@ public class BallerinaDocUtils {
     private static final boolean debugEnabled = "true".equals(System.getProperty(
             BallerinaDocConstants.ENABLE_DEBUG_LOGS));
     private static final PrintStream out = System.out;
+
+    /**
+     * Convert a given md to a html.
+     *
+     * @param mdContent content
+     * @return html representation
+     */
+    public static String mdToHtml(String mdContent) {
+        Parser parser = Parser.builder().build();
+        Node document = parser.parse(mdContent);
+        HtmlRenderer renderer = HtmlRenderer.builder().build();
+        return renderer.render(document);
+    }
 
     public static void packageToZipFile(String sourceDirPath, String zipFilePath) throws IOException {
         Path p = Files.createFile(Paths.get(zipFilePath));
