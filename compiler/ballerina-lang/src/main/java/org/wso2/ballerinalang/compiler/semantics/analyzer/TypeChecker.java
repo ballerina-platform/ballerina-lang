@@ -483,9 +483,6 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.XML:
                 checkFunctionInvocationExpr(iExpr, varRefType);
                 break;
-            case TypeTags.SINGLETON:
-                checkFunctionInvocationExprForSingleton(iExpr, iExpr.expr.type);
-                break;
             case TypeTags.JSON:
                 checkFunctionInvocationExpr(iExpr, symTable.jsonType);
                 break;
@@ -938,7 +935,7 @@ public class TypeChecker extends BLangNodeVisitor {
             ((BLangXMLQName) indexExpr).isUsedInXML = true;
         }
 
-        if (types.resolveToSuperType(indexExpr.type) == symTable.stringType) {
+        if (types.isAssignable(indexExpr.type, symTable.stringType)) {
             actualType = symTable.stringType;
         }
 
@@ -1229,21 +1226,6 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
     }
 
-    private void checkFunctionInvocationExprForSingleton(BLangInvocation iExpr, BType bType) {
-        Name funcName = names.fromString(
-                Symbols.getAttachedFuncSymbolName(types.resolveToSuperType(bType).toString(), iExpr.name.value));
-        BPackageSymbol packageSymbol = (BPackageSymbol) types.resolveToSuperType(bType).tsymbol.owner;
-        BSymbol funcSymbol = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
-                funcName, SymTag.FUNCTION);
-        if (funcSymbol == symTable.notFoundSymbol) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
-            resultType = symTable.errType;
-            return;
-        }
-        iExpr.symbol = funcSymbol;
-        checkInvocationParamAndReturnType(iExpr);
-    }
-
     private boolean isIterableOperationInvocation(BLangInvocation iExpr) {
         final IterableKind iterableKind = IterableKind.getFromString(iExpr.name.value);
         switch (iExpr.expr.type.tag) {
@@ -1500,7 +1482,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return checkStructLiteralKeyExpr(key, type.constraint, recKind);
         }
 
-        if (types.resolveToSuperType(checkRecLiteralKeyExpr(key.expr, recKind)) != symTable.stringType) {
+        if (!types.isAssignable(checkRecLiteralKeyExpr(key.expr, recKind), symTable.stringType)) {
             return symTable.errType;
         }
 
@@ -1509,7 +1491,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkMapLiteralKeyExpr(BLangExpression keyExpr, BType recordType, RecordKind recKind) {
-        if (types.resolveToSuperType(checkRecLiteralKeyExpr(keyExpr, recKind)) != symTable.stringType) {
+        if (!types.isAssignable(checkRecLiteralKeyExpr(keyExpr, recKind), symTable.stringType)) {
             return symTable.errType;
         }
 
@@ -1847,14 +1829,14 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (varRefType.tag) {
             case TypeTags.STRUCT:
                 indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
-                if (types.resolveToSuperType(indexExprType) == symTable.stringType) {
+                if (types.isAssignable(indexExprType, symTable.stringType)) {
                     String fieldName = (String) ((BLangLiteral) indexExpr).value;
                     actualType = checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), varRefType);
                 }
                 break;
             case TypeTags.MAP:
                 indexExprType = checkExpr(indexExpr, this.env, symTable.stringType);
-                if (types.resolveToSuperType(indexExprType) == symTable.stringType) {
+                if (types.isAssignable(indexExprType, symTable.stringType)) {
                     actualType = ((BMapType) varRefType).getConstraint();
                 }
                 break;
@@ -1862,7 +1844,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 BType constraintType = ((BJSONType) varRefType).constraint;
                 if (constraintType.tag == TypeTags.STRUCT) {
                     indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
-                    if (types.resolveToSuperType(indexExprType) != symTable.stringType) {
+                    if (!types.isAssignable(indexExprType, symTable.stringType)) {
                         break;
                     }
                     String fieldName = (String) ((BLangLiteral) indexExpr).value;
@@ -1876,18 +1858,24 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 } else {
                     indexExprType = checkExpr(indexExpr, this.env, symTable.noType);
-                    if ((types.resolveToSuperType(indexExprType) != symTable.stringType) &&
-                            (types.resolveToSuperType(indexExprType) != symTable.intType)) {
+                    if ((!types.isAssignable(indexExprType, symTable.stringType)) &&
+                            (!types.isAssignable(indexExprType, symTable.intType))) {
                         dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType,
                                 indexExprType);
                         break;
+                    }
+                    if (types.isAssignable(indexExprType, symTable.stringType)) {
+                        types.setImplicitCastExpr(indexExpr, indexExprType, symTable.stringType);
+                    }
+                    if (types.isAssignable(indexExprType, symTable.intType)) {
+                        types.setImplicitCastExpr(indexExpr, indexExprType, symTable.intType);
                     }
                 }
                 actualType = symTable.jsonType;
                 break;
             case TypeTags.ARRAY:
                 indexExprType = checkExpr(indexExpr, this.env, symTable.intType);
-                if (types.resolveToSuperType(indexExprType) == symTable.intType) {
+                if (types.isAssignable(indexExprType, symTable.intType)) {
                     actualType = ((BArrayType) varRefType).getElementType();
                 }
                 break;

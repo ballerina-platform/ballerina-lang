@@ -224,7 +224,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     public BSymbol resolveImplicitConversionOp(BType sourceType,
                                                BType targetType) {
         BSymbol symbol = resolveOperator(Names.CONVERSION_OP,
-                Lists.of(resolveToSuperType(sourceType), resolveToSuperType(targetType)));
+                Lists.of(resolveToSuperType(sourceType), targetType));
         if (symbol == symTable.notFoundSymbol) {
             return symbol;
         }

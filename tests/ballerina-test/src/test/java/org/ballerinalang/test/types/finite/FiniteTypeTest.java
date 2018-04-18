@@ -18,12 +18,14 @@
 
 package org.ballerinalang.test.types.finite;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -276,6 +278,81 @@ public class FiniteTypeTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals((((BInteger) returns[0]).intValue()), 0);
+    }
+
+    @Test()
+    public void testSingletonUnionToValueType() {
+        BValue[] returns = BRunUtil.invoke(result, "testSingletonUnionToValueType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals((((BInteger) returns[0]).intValue()), 30);
+    }
+
+    @Test()
+    public void testSingletonUnionToValueTypeCaseTwo() {
+        BValue[] returns = BRunUtil.invoke(result, "testSingletonUnionToValueTypeCaseTwo");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "wso2");
+    }
+
+    @Test()
+    public void testSingletonUnionAsArrayIndex() {
+        BValue[] returns = BRunUtil.invoke(result, "testSingletonUnionAsArrayIndex");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals((((BInteger) returns[0]).intValue()), 100);
+    }
+
+    @Test()
+    public void testSingletonUnionAsMapIndex() {
+        BValue[] returns = BRunUtil.invoke(result, "testSingletonUnionAsMapIndex");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals((((BInteger) returns[0]).intValue()), 200);
+    }
+
+    @Test()
+    public void testSingletonUnionAsJsonIndex() {
+        BValue[] returns = BRunUtil.invoke(result, "testSingletonUnionAsJsonIndex");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(((BJSON) returns[0]).stringValue(), "michael");
+        Assert.assertTrue(returns[1] instanceof BJSON);
+        Assert.assertEquals(((BJSON) returns[1]).stringValue(), "jordan");
+    }
+
+
+    @Test()
+    public void testSingletonUnionAsJsonIndexAsInt() {
+        BValue[] returns = BRunUtil.invoke(result, "testSingletonUnionAsJsonIndexAsInt");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(((BJSON) returns[0]).stringValue(), "0");
+        Assert.assertTrue(returns[1] instanceof BJSON);
+        Assert.assertEquals(((BJSON) returns[1]).stringValue(), "1");
+    }
+
+    @Test(description = "Test doc negative cases.", enabled = true)
+    public void testFiniteTypeNegativeTestCases() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/types/finite/finite-type-negative.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 4);
+        BAssertUtil.validateError(compileResult, 0,
+                "incompatible types: expected 'int', found 'string|string|int'", 5, 13);
+        BAssertUtil.validateError(compileResult, 1,
+                "incompatible types: expected 'string', found 'string|string|int'", 6, 16);
+        BAssertUtil.validateError(compileResult, 2,
+                "incompatible types: expected 'string', found 'int|int|int'", 15, 16);
+        BAssertUtil.validateError(compileResult, 3,
+                "incompatible types: expected 'int', found 'string|string|string'", 24, 13);
     }
 }
 

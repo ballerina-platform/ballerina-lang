@@ -1603,7 +1603,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         boolean error = true;
         NodeKind retryKind = retryCountExpr.getKind();
         if (retryKind == NodeKind.LITERAL) {
-            if (types.resolveToSuperType(retryCountExpr.type).tag == TypeTags.INT) {
+            if (types.isAssignable(retryCountExpr.type, symTable.intType)) {
                 int retryCount = Integer.parseInt(((BLangLiteral) retryCountExpr).getValue().toString());
                 if (retryCount >= 0) {
                     error = false;
@@ -1611,7 +1611,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         } else if (retryKind == NodeKind.SIMPLE_VARIABLE_REF) {
             if (((BLangSimpleVarRef) retryCountExpr).symbol.flags == Flags.FINAL) {
-                if (types.resolveToSuperType(((BLangSimpleVarRef) retryCountExpr).symbol.type).tag == TypeTags.INT) {
+                if (types.isAssignable(((BLangSimpleVarRef) retryCountExpr).symbol.type, symTable.intType)) {
                     error = false;
                 }
             }

@@ -266,3 +266,51 @@ function testSingletonTypeWithMatchCaseTwo() returns int {
 function getUniqueTwo() returns UNIQUE_NUM | error | () {
      return ();
 }
+
+type FINITE_NUMBER_SET 10|20|30;
+
+function testSingletonUnionToValueType() returns int {
+    FINITE_NUMBER_SET p = 30;
+    int b = p;
+    return b;
+}
+
+type FINITE_STRING_SET "kevin"|"finite"|"wso2";
+
+function testSingletonUnionToValueTypeCaseTwo() returns string {
+    FINITE_STRING_SET p = "wso2";
+    string b = p;
+    return b;
+}
+
+function testSingletonUnionAsArrayIndex() returns int {
+    FINITE_NUMBER_SET p = 30;
+    int[] b = [];
+    b[p] = 100;
+    return b[p];
+}
+
+function testSingletonUnionAsMapIndex() returns any {
+    FINITE_STRING_SET p = "wso2";
+    map m;
+    m[p] = 200;
+    return  m[p];
+}
+
+type INDEX "name"|"lname";
+
+function testSingletonUnionAsJsonIndex () returns (json | json) {
+    INDEX i1 = "name";
+    INDEX i2 = "lname";
+    json emp = {name:"michael", lname:"jordan"};
+    return (emp[i1], emp[i2]);
+}
+
+type INDEX_INT 0|1;
+
+function testSingletonUnionAsJsonIndexAsInt () returns (json | json) {
+    INDEX_INT i1 = 0;
+    INDEX_INT i2 = 1;
+    json emp = [0,1];
+    return (emp[i1], emp[i2]);
+}

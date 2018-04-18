@@ -482,6 +482,10 @@ public class Types {
             symbol = symResolver.resolveImplicitConversionOp(actualType, symTable.anyType);
         }
 
+        if (actualType.tag == TypeTags.UNION && isValueType(expType)) {
+            symbol = Symbols.createUnboxValueTypeOpSymbol(symTable.anyType, expType);
+        }
+
         if (symbol == symTable.notFoundSymbol) {
             return;
         }
