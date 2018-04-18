@@ -418,4 +418,17 @@ public class FunctionSignatureTest {
         Assert.assertTrue(returns[5] instanceof BIntArray);
         Assert.assertEquals(returns[5].stringValue(), "[4, 5, 6]");
     }
+
+    @Test
+    public void testFuncWithUnionTypedDefaultParam() {
+        BValue[] returns = BRunUtil.invoke(result, "testFuncWithUnionTypedDefaultParam");
+        Assert.assertEquals(returns[0].stringValue(), "John");
+    }
+
+    @Test
+    public void testFuncWithNilDefaultParamExpr() {
+        BValue[] returns = BRunUtil.invoke(result, "testFuncWithNilDefaultParamExpr");
+        Assert.assertNull(returns[0]);
+        Assert.assertNull(returns[1]);
+    }
 }
