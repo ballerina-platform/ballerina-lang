@@ -1,0 +1,161 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+package ballerina.http;
+
+import ballerina/io;
+
+documentation {
+    FailoverClient endpoint provides an HTTP endpoint without the resiliency aspects of the the Client endpoint
+
+    F{{epName}} - Name of the endpoint
+    F{{failoverClientConfig}} - The configurations for the failover client endpoint
+}
+public type FailoverClient object {
+    public {
+        string epName;
+        FailoverClientEndpointConfiguration failoverClientConfig;
+    }
+    private {
+        Client httpEP;
+    }
+
+    public function init(FailoverClientEndpointConfiguration failoverClientConfig);
+
+    documentation {
+        The register() function is not implemented for the failover client endpoint.
+    }
+    public function register(typedesc serviceType) {
+
+    }
+
+    documentation {
+        The start() function is not implemented for the failover client endpoint.
+    }
+    public function start() {
+
+    }
+
+    documentation {
+        Returns the backing HTTP client used by the endpoint.
+    }
+    public function getClient() returns HttpClient {
+        return httpEP.httpClient;
+    }
+
+    documentation {
+        The stop() function is not implemented for the failover client endpoint.
+    }
+    public function stop() {
+    }
+};
+
+documentation {
+    The configurations related to the failover client endpoint.
+
+    F{{circuitBreaker}} - Circuit Breaker configuration
+    F{{timeoutMillis}} - The maximum time to wait (in milli seconds) for a response before closing the connection
+    F{{httpVersion}} - The HTTP version to be used to communicate with the endpoint
+    F{{forwarded}} - The choice of setting forwarded/x-forwarded header
+    F{{keepAlive}} - Specifies whether to keep the connection alive (or not) for multiple request/response pairs
+    F{{transferEncoding}} - The types of encoding applied to the request
+    F{{chunking}} - The chunking behaviour of the request
+    F{{followRedirects}} - Redirect related options
+    F{{retry}} - Retry related options
+    F{{proxy}} - Proxy related options
+    F{{connectionThrottling}} - The configurations for controlling the number of connections allowed concurrently
+    F{{cache}} - The configurations for controlling the caching behaviour
+    F{{acceptEncoding}} - Specifies the way of handling accept-encoding header
+    F{{auth}} - HTTP authentication releated configurations
+    F{{failover}} - Failover configurations
+}
+public type FailoverClientEndpointConfiguration {
+    CircuitBreakerConfig? circuitBreaker,
+    int timeoutMillis = 60000,
+    string httpVersion = "1.1",
+    string forwarded = "disable",
+    KeepAlive keepAlive = KEEPALIVE_AUTO,
+    TransferEncoding transferEncoding = "CHUNKING",
+    Chunking chunking = "AUTO",
+    FollowRedirects? followRedirects,
+    Retry? retry,
+    ProxyConfig? proxy,
+    ConnectionThrottling? connectionThrottling,
+    TargetService[] targets,
+    CacheConfig cache = {},
+    string acceptEncoding = "auto",
+    AuthConfig? auth,
+    FailoverConfig failover,
+};
+
+documentation {
+    The initialization function for the failover client endpoint.
+
+    P{{failoverClientConfig}} - The user provided configurations for the endpoint
+}
+public function FailoverClient::init(FailoverClientEndpointConfiguration failoverClientConfig) {
+
+    self.httpEP.httpClient = createFailOverClient(failoverClientConfig);
+    self.httpEP.config.circuitBreaker = failoverClientConfig.circuitBreaker;
+    self.httpEP.config.targets = failoverClientConfig.targets;
+    self.httpEP.config.timeoutMillis = failoverClientConfig.timeoutMillis;
+    self.httpEP.config.httpVersion = failoverClientConfig.httpVersion;
+    self.httpEP.config.forwarded = failoverClientConfig.forwarded;
+    self.httpEP.config.keepAlive = failoverClientConfig.keepAlive;
+    self.httpEP.config.transferEncoding = failoverClientConfig.transferEncoding;
+    self.httpEP.config.chunking = failoverClientConfig.chunking;
+    self.httpEP.config.followRedirects = failoverClientConfig.followRedirects;
+    self.httpEP.config.retry = failoverClientConfig.retry;
+    self.httpEP.config.proxy = failoverClientConfig.proxy;
+    self.httpEP.config.connectionThrottling = failoverClientConfig.connectionThrottling;
+}
+
+function createClientendpointConfigFromFailoverEPConfig (FailoverClientEndpointConfiguration foConfig)
+                                                                                        returns ClientEndpointConfig {
+    ClientEndpointConfig clientEPConfig = {
+        circuitBreaker:foConfig.circuitBreaker,
+        timeoutMillis: foConfig.timeoutMillis,
+        keepAlive: foConfig.keepAlive,
+        transferEncoding: foConfig.transferEncoding,
+        chunking: foConfig.chunking,
+        httpVersion: foConfig.httpVersion,
+        forwarded: foConfig.forwarded,
+        followRedirects: foConfig.followRedirects,
+        retry: foConfig.retry,
+        proxy: foConfig.proxy,
+        connectionThrottling: foConfig.connectionThrottling,
+        targets: foConfig.targets,
+        cache: foConfig.cache,
+        acceptEncoding:foConfig.acceptEncoding,
+        auth:foConfig.auth
+    };
+    return clientEPConfig;
+}
+
+
+function createFailOverClient(FailoverClientEndpointConfiguration failoverClientConfig) returns HttpClient {
+    ClientEndpointConfig config = createClientendpointConfigFromFailoverEPConfig(failoverClientConfig);
+    HttpClient[] clients = createHttpClientArray(config);
+
+    boolean[] failoverCodes = populateErrorCodeIndex(failoverClientConfig.failover.failoverCodes);
+    FailoverInferredConfig failoverInferredConfig = {
+                                                        failoverClientsArray : clients,
+                                                        failoverCodesIndex : failoverCodes,
+                                                        failoverInterval : failoverClientConfig.failover.interval
+                                                    };
+
+    return new Failover(config.targets[0].url, config, failoverInferredConfig);
+}
