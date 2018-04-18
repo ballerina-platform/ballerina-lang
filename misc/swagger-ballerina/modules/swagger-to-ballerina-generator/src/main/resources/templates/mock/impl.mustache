@@ -1,5 +1,5 @@
 import ballerina/http;
-{{#paths}}{{#value}}{{#get}}
+{{#paths}}{{#value}}{{#operations}}{{#value}}
 public function {{operationId}} (http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response {
     //stub code - fill as necessary
     http:Response resp = new;
@@ -8,67 +8,4 @@ public function {{operationId}} (http:Request req{{#parameters}}{{>pathParams}}{
 
 	return resp;
 }
-{{/get}}{{#post}}
-public function {{operationId}} (http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response {
-    //stub code - fill as necessary
-    http:Response resp = new;
-    string payload = "Sample {{operationId}} Response";
-    resp.setStringPayload(payload);
-
-	return resp;
-}
-{{/post}}{{#put}}
-public function {{operationId}} (http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response {
-    //stub code - fill as necessary
-    http:Response resp = new;
-    string payload = "Sample {{operationId}} Response";
-    resp.setStringPayload(payload);
-
-	return resp;
-}
-{{/put}}{{#delete}}
-public function {{operationId}} (http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response {
-    //stub code - fill as necessary
-    http:Response resp = new;
-    string payload = "Sample {{operationId}} Response";
-    resp.setStringPayload(payload);
-
-	return resp;
-}
-{{/delete}}{{#options}}
-public function {{operationId}} (http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response {
-    //stub code - fill as necessary
-    http:Response resp = new;
-    string payload = "Sample {{operationId}} Response";
-    resp.setStringPayload(payload);
-
-	return resp;
-}
-{{/options}}{{#head}}
-public function {{operationId}} (http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response {
-    //stub code - fill as necessary
-    http:Response resp = new;
-    string payload = "Sample {{operationId}} Response";
-    resp.setStringPayload(payload);
-
-	return resp;
-}
-{{/head}}{{#patch}}
-    public function {{operationId}} (http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response {
-        //stub code - fill as necessary
-        http:Response resp = new;
-        string payload = "Sample {{operationId}} Response";
-        resp.setStringPayload(payload);
-
-	return resp;
-    }
-{{/patch}}{{#trace}}
-public function {{operationId}} (http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response {
-    //stub code - fill as necessary
-    http:Response resp = new;
-    string payload = "Sample {{operationId}} Response";
-    resp.setStringPayload(payload);
-
-	return resp;
-}
-{{/trace}}{{/value}}{{/paths}}
+{{/value}}{{/operations}}{{/value}}{{/paths}}
