@@ -159,7 +159,7 @@ public class RedirectUtil {
      * @param location value of location header
      * @return a boolean indicating url state
      */
-    public static boolean isRelativePath(String location) {
+    static boolean isRelativePath(String location) {
         return !location.toLowerCase(Locale.ROOT).startsWith(Constants.HTTP_SCHEME + Constants.URL_AUTHORITY) &&
                !location.toLowerCase(Locale.ROOT).startsWith(Constants.HTTPS_SCHEME + Constants.URL_AUTHORITY);
     }
