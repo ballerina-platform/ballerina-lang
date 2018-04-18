@@ -23,11 +23,11 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.LSContext;
-import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.Arrays;

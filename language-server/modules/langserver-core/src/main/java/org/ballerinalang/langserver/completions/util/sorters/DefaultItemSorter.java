@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
-import org.ballerinalang.langserver.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.List;

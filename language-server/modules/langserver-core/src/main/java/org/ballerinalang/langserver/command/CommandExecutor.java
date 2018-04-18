@@ -16,14 +16,14 @@
 package org.ballerinalang.langserver.command;
 
 import com.google.gson.internal.LinkedTreeMap;
-import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.LSGlobalContext;
-import org.ballerinalang.langserver.LSServiceOperationContext;
-import org.ballerinalang.langserver.TextDocumentServiceUtil;
-import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -111,9 +111,9 @@ public class CommandExecutor {
             int totalLines = contentComponents.length;
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
-            BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
-                    context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class,
-                                                                                false).get(0);
+            BLangPackage bLangPackage = LSCompiler.getBLangPackage(context,
+                                                                   context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY),
+                                                                   false, LSCustomErrorStrategy.class, false).get(0);
             context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                     bLangPackage.symbol.getName().getValue());
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
@@ -177,7 +177,7 @@ public class CommandExecutor {
             }
         }
 
-        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
+        BLangPackage bLangPackage = LSCompiler.getBLangPackage(context,
                 context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false).get(0);
 
         CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentEditForNodeByPosition(topLevelNodeType,
@@ -214,8 +214,7 @@ public class CommandExecutor {
                 context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
             }
         }
-
-        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context, 
+        BLangPackage bLangPackage = LSCompiler.getBLangPackage(context,
                 context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class,
                                                                             false).get(0);
 
