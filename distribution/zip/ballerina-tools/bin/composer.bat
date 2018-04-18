@@ -138,7 +138,7 @@ rem ----------------- Execute The Requested Command ----------------------------
 cd %BALLERINA_HOME%
 
 FOR %%C in ("%BALLERINA_HOME%\resources\composer\services\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;".\resources\composer\services\%%~nC%%~xC"
-FOR %%D in ("%BALLERINA_HOME%\bre\lib\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\%%~nD%%~xD"
+set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\*"
 rem ---------- Add jars to classpath ----------------
 
 rem set BALLERINA_CLASSPATH=.\bin\bootstrap;%BALLERINA_CLASSPATH%

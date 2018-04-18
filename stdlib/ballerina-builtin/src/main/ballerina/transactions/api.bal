@@ -15,7 +15,6 @@
 // under the License.
 
 package ballerina.transactions;
-import ballerina/io;
 
 documentation {
     When a transaction block in Ballerina code begins, it will call this function to begin a transaction.
@@ -93,11 +92,11 @@ function endTransaction (string transactionId, int transactionBlockId) returns s
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is
     // an initiator or just a local participant
     if (initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
-        TwoPhaseCommitTransaction txn = initiatedTransactions[transactionId];
-        if (txn.state == TXN_STATE_ABORTED) {
-            return txn.abortInitiatorTransaction();
+        TwoPhaseCommitTransaction initiatedTxn = initiatedTransactions[transactionId];
+        if (initiatedTxn.state == TXN_STATE_ABORTED) {
+            return initiatedTxn.abortInitiatorTransaction();
         } else {
-            string|error ret = txn.twoPhaseCommit();
+            string|error ret = initiatedTxn.twoPhaseCommit();
             removeInitiatedTransaction(transactionId);
             return ret;
         }
