@@ -42,6 +42,9 @@ import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.observability.ObservabilityConstants;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +67,7 @@ import java.net.URL;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
@@ -476,6 +480,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                                                          .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
                                                          .getStructInfo(RESPONSE_CACHE_CONTROL));
         HttpUtil.populateInboundResponse(responseStruct, entity, mediaType, responseCacheControl, httpCarbonMessage);
+
+        ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context);
+        observerContext.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE,
+                String.valueOf(httpCarbonMessage.getProperty(HTTP_STATUS_CODE)));
         return responseStruct;
     }
 }

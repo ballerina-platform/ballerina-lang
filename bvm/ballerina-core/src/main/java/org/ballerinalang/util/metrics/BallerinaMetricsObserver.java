@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_ERROR;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 
 /**
  * Observe the runtime and collect measurements.
@@ -81,7 +82,9 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
         observerContext.addProperty(PROPERTY_START_TIME, System.nanoTime());
         try {
             String connectorName = observerContext.getConnectorName();
-            getInprogressGauge(connectorName, mainTags).increment();
+            Set<Tag> mainTagSet = new HashSet<>(mainTags.length);
+            Tags.tags(mainTagSet, mainTags);
+            getInprogressGauge(connectorName, mainTagSet).increment();
         } catch (RuntimeException e) {
             handleError(e);
         }
@@ -95,14 +98,21 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             Set<Tag> allTags = new HashSet<>(tags.size() + mainTags.length);
             Tags.tags(allTags, observerContext.getTags());
             Tags.tags(allTags, mainTags);
+            Set<Tag> mainTagSet = new HashSet<>(mainTags.length);
+            Tags.tags(mainTagSet, mainTags);
             // Connector name must be a part of the metric name to make sure that every metric is unique with
             // the combination of name and tags.
             String connectorName = observerContext.getConnectorName();
-            getInprogressGauge(connectorName, mainTags).decrement();
+            getInprogressGauge(connectorName, mainTagSet).decrement();
             metricRegistry.timer(new MetricId(connectorName + "_response_time", "Response Time",
                     allTags)).record(duration, TimeUnit.NANOSECONDS);
             metricRegistry.counter(new MetricId(connectorName + "_requests_total",
                     "Total number of requests", allTags)).increment();
+            // Check HTTP status code
+            String statusCode = tags.get(TAG_KEY_HTTP_STATUS_CODE);
+            if (statusCode != null) {
+                incrementHttpStatusCodeCounters(Integer.parseInt(statusCode), connectorName, mainTagSet);
+            }
             Boolean error = (Boolean) observerContext.getProperty(PROPERTY_ERROR);
             if (error != null && error) {
                 metricRegistry.counter(new MetricId(connectorName + "_failed_requests_total",
@@ -113,9 +123,30 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
         }
     }
 
-    private Gauge getInprogressGauge(String connectorName, String[] tags) {
-        return Gauge.builder(connectorName + "_inprogress_requests").description("Inprogress Requests")
-                .tags(tags).register();
+    private Gauge getInprogressGauge(String connectorName, Set<Tag> tags) {
+        return metricRegistry.gauge(new MetricId(connectorName + "_inprogress_requests",
+                "Inprogress Requests", tags));
+    }
+
+    private void incrementHttpStatusCodeCounters(int statusCode, String connectorName, Set<Tag> tags) {
+        if (statusCode >= 100 && statusCode < 200) {
+            metricRegistry.counter(new MetricId(connectorName + "_1XX_requests_total",
+                    "Total number of requests that resulted in HTTP 1xx informational responses", tags))
+                    .increment();
+        } else if (statusCode < 300) {
+            metricRegistry.counter(new MetricId(connectorName + "_2XX_requests_total",
+                    "Total number of requests that resulted in HTTP 2xx successful responses", tags))
+                    .increment();
+        } else if (statusCode < 400) {
+            metricRegistry.counter(new MetricId(connectorName + "_3XX_requests_total",
+                    "Total number of requests that resulted in HTTP 3xx redirections", tags)).increment();
+        } else if (statusCode < 500) {
+            metricRegistry.counter(new MetricId(connectorName + "_4XX_requests_total",
+                    "Total number of requests that resulted in HTTP 4xx client errors", tags)).increment();
+        } else if (statusCode < 600) {
+            metricRegistry.counter(new MetricId(connectorName + "_5XX_requests_total",
+                    "Total number of requests that resulted in HTTP 5xx server errors", tags)).increment();
+        }
     }
 
     private void handleError(RuntimeException e) {
