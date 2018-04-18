@@ -20,6 +20,7 @@ import io.swagger.models.Swagger;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.parser.converter.SwaggerConverter;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.ballerina.swagger.convertor.Constants;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -142,12 +143,10 @@ public class SwaggerConverterUtils {
      */
     public static void generateOAS3Definitions(Path servicePath, Path outPath, String serviceName) throws IOException {
         String balSource = readFromFile(servicePath);
-        Path file = servicePath.getFileName();
-        String fileName = file != null ? file.toString() : null;
-        String swaggerName = StringUtils.isNotBlank(serviceName) ? serviceName : fileName;
+        String swaggerName = getSwaggerFileName(servicePath, serviceName);
 
-        String swagger = generateOAS3Definitions(balSource, serviceName);
-        writeFile(outPath.resolve(swaggerName + SwaggerBallerinaConstants.YAML_EXTENSION), swagger);
+        String swaggerSource = generateOAS3Definitions(balSource, serviceName);
+        writeFile(outPath.resolve(swaggerName), swaggerSource);
     }
 
     /**
@@ -163,12 +162,10 @@ public class SwaggerConverterUtils {
     public static void generateSwaggerDefinitions(Path servicePath, Path outPath, String serviceName)
             throws IOException {
         String balSource = readFromFile(servicePath);
-        Path file = servicePath.getFileName();
-        String fileName = file != null ? file.toString() : null;
-        String swaggerName = StringUtils.isNotBlank(serviceName) ? serviceName : fileName;
+        String swaggerName = getSwaggerFileName(servicePath, serviceName);
 
-        String swagger = generateSwaggerDefinitions(balSource, serviceName);
-        writeFile(outPath.resolve(swaggerName + SwaggerBallerinaConstants.YAML_EXTENSION), swagger);
+        String swaggerSource = generateSwaggerDefinitions(balSource, serviceName);
+        writeFile(outPath.resolve(swaggerName), swaggerSource);
     }
 
     private static String readFromFile(Path servicePath) throws IOException {
@@ -188,6 +185,21 @@ public class SwaggerConverterUtils {
                 writer.close();
             }
         }
+    }
+
+    private static String getSwaggerFileName(Path servicePath, String serviceName) {
+        Path file = servicePath.getFileName();
+        String swaggerFile;
+
+        if (StringUtils.isNotBlank(serviceName)) {
+            swaggerFile = serviceName + SwaggerBallerinaConstants.SWAGGER_SUFFIX;
+        } else {
+            swaggerFile = file != null ?
+                    FilenameUtils.removeExtension(file.toString()) + SwaggerBallerinaConstants.SWAGGER_SUFFIX :
+                    null;
+        }
+
+        return swaggerFile + SwaggerBallerinaConstants.YAML_EXTENSION;
     }
 
     /**
