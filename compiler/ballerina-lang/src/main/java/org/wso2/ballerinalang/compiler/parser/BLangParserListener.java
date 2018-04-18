@@ -399,7 +399,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -414,7 +414,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -428,7 +428,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -444,7 +444,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -458,7 +458,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -475,7 +475,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -490,7 +490,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -516,7 +516,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -530,7 +530,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -546,7 +546,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -560,7 +560,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -574,7 +574,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -596,7 +596,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -739,7 +739,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -753,7 +753,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -1912,7 +1912,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * <p>The default implementation does nothing.</p>
      */
     @Override
@@ -2281,6 +2281,44 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endOrderByClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterLimitClause(BallerinaParser.LimitClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startLimitClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitLimitClause(BallerinaParser.LimitClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endLimitClauseNode(getCurrentPos(ctx), getWS(ctx), ctx.DecimalIntegerLiteral().getText());
+    }
+
+    @Override
+    public void enterOrderByVariable(BallerinaParser.OrderByVariableContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startOrderByVariableNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override public void exitOrderByVariable(BallerinaParser.OrderByVariableContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean isAscending = ctx.orderByType() != null && ctx.orderByType().ASCENDING() != null;
+        boolean isDescending = ctx.orderByType() != null && ctx.orderByType().DESCENDING() != null;
+
+        this.pkgBuilder.endOrderByVariableNode(getCurrentPos(ctx), getWS(ctx), isAscending, isDescending);
     }
 
     @Override
@@ -2672,8 +2710,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isSelectClauseAvailable = ctx.selectClause() != null;
         boolean isOrderByClauseAvailable = ctx.orderByClause() != null;
         boolean isJoinClauseAvailable = ctx.joinStreamingInput() != null;
+        boolean isLimitClauseAvailable = ctx.limitClause() != null;
         this.pkgBuilder.endTableQueryNode(isJoinClauseAvailable, isSelectClauseAvailable, isOrderByClauseAvailable,
-                getCurrentPos(ctx), getWS(ctx));
+                isLimitClauseAvailable, getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

@@ -19,33 +19,27 @@
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.clauses.OrderByNode;
-import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.clauses.LimitNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * @since 0.965.0
+ * @since 0.970.0
  *
- * Implementation of {@link OrderByNode}.
- * @see OrderByNode
+ * Implementation of {@link LimitNode}.
  */
-public class BLangOrderBy extends BLangNode implements OrderByNode {
+public class BLangLimit extends BLangNode implements LimitNode {
 
-    private List<OrderByVariableNode> varRefs = new ArrayList<>();
+    private String limitValue;
 
     @Override
-    public void addOrderByVariable(OrderByVariableNode varRef) {
-        varRefs.add(varRef);
+    public void setLimitValue(String value) {
+        this.limitValue = value;
     }
 
     @Override
-    public List<? extends OrderByVariableNode> getVariables() {
-        return varRefs;
+    public String getLimitValue() {
+        return this.limitValue;
     }
 
     @Override
@@ -55,6 +49,7 @@ public class BLangOrderBy extends BLangNode implements OrderByNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.ORDER_BY;
+        return NodeKind.LIMIT;
     }
+
 }

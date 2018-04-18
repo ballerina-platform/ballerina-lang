@@ -24,19 +24,19 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import java.util.List;
 
 /**
- * @since 0.965.0
+ * @since 0.970.0
  *
- * The interface with the APIs to implement the "order by" in ballerina streams/table SQLish syntax.
+ * The interface with the APIs to implement the "Limit" in ballerina streams/table SQLish syntax.
  * <pre> Grammar:
- *      ORDER BY variableReferenceList
+ *      LIMIT DecimalIntegerLiteral
  *
  * E.g
- *      order by age, rank;
+ *      limit 10
  * </pre>
  */
-public interface OrderByNode extends Node {
+public interface LimitNode extends Node {
 
-    void addOrderByVariable(OrderByVariableNode orderByVariableNode);
+    void setLimitValue(String value);
 
-    List<? extends OrderByVariableNode> getVariables();
+    String getLimitValue();
 }
