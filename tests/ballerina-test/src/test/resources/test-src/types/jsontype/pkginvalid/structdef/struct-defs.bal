@@ -1,7 +1,7 @@
 package structdef;
 
-public type Person {
+public struct Person {
     string name;
     int age;
     string address;
-};
+}
