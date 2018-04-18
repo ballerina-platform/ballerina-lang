@@ -18,28 +18,21 @@ package org.ballerinalang.langserver.common.utils;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.format.TextDocumentFormatUtil;
-import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.workspace.repository.NullSourceDirectory;
-import org.ballerinalang.model.Whitespace;
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
@@ -58,10 +51,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -75,13 +64,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Common utils to be reuse in language server implementation.
  */
 public class CommonUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(TextDocumentFormatUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
     private static final String OPEN_BRACKET_KEY_WORD = "(";
 
@@ -289,7 +279,7 @@ public class CommonUtil {
                                                 WorkspaceDocumentManager docManager) {
         // TODO: Need to support service and resources as well.
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "struct", "enum",
-                "transformer", "object");
+                                                      "transformer", "object");
         LSDocument document = new LSDocument(identifier.getUri());
         String fileContent = docManager.getFileContent(getPath(document));
         String[] splitedFileContent = fileContent.split("\\n|\\r\\n|\\r");
@@ -337,8 +327,9 @@ public class CommonUtil {
 
     /**
      * Get the Annotation completion Item.
-     * @param packageID                 Package Id
-     * @param annotation                BLang annotation to extract the completion Item
+     *
+     * @param packageID  Package Id
+     * @param annotation BLang annotation to extract the completion Item
      * @return {@link CompletionItem}   Completion item for the annotation
      */
     public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BLangAnnotation annotation) {
@@ -348,14 +339,15 @@ public class CommonUtil {
         annotationItem.setLabel(label);
         annotationItem.setInsertText(insertText);
         annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
-        
+
         return annotationItem;
     }
 
     /**
      * Get the annotation Insert text.
-     * @param packageID         Package ID
-     * @param annotation        Annotation to get the insert text
+     *
+     * @param packageID  Package ID
+     * @param annotation Annotation to get the insert text
      * @return {@link String}   Insert text
      */
     private static String getAnnotationInsertText(PackageID packageID, BLangAnnotation annotation) {
@@ -374,31 +366,33 @@ public class CommonUtil {
                 fieldEntries.add(defaultFieldEntry);
             });
         }
-        
+
         return annotationStart + String.join(",", fieldEntries)
                 + System.lineSeparator() + UtilSymbolKeys.CLOSE_BRACE_KEY;
     }
 
     /**
      * Get the completion Label for the annotation.
-     * @param packageID         Package ID
-     * @param annotation        BLang annotation
+     *
+     * @param packageID  Package ID
+     * @param annotation BLang annotation
      * @return {@link String}          Label string
      */
     private static String getAnnotationLabel(PackageID packageID, BLangAnnotation annotation) {
         String pkgComponent = UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY;
         if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
-            
+
             pkgComponent += packageID.getNameComps().get(packageID.getNameComps().size() - 1).getValue()
                     + UtilSymbolKeys.PKG_DELIMITER_KEYWORD;
         }
-        
+
         return pkgComponent + annotation.getName().getValue();
     }
 
     /**
      * Get the default value for the given BType.
-     * @param bType             BType to get the default value
+     *
+     * @param bType BType to get the default value
      * @return {@link String}   Default value as a String
      */
     public static String getDefaultValueForType(BType bType) {
@@ -441,7 +435,8 @@ public class CommonUtil {
 
     /**
      * Get the base indentation of a given node.
-     * @param token             Token to be evaluated
+     *
+     * @param token Token to be evaluated
      * @return {@link String}   Calculated base indentation
      */
     public static String getBaseIndentationFromNode(Token token) {
@@ -450,11 +445,11 @@ public class CommonUtil {
     }
 
 
-
     /**
      * Get the variable symbol info by the name.
-     * @param name      name of the variable
-     * @param symbols   list of symbol info
+     *
+     * @param name    name of the variable
+     * @param symbols list of symbol info
      * @return {@link SymbolInfo}   Symbol Info extracted
      */
     public static SymbolInfo getVariableByName(String name, List<SymbolInfo> symbols) {
@@ -466,12 +461,13 @@ public class CommonUtil {
 
     /**
      * Get the invocations and fields against an identifier (functions, struct fields and types including the enums).
-     * @param context     Text Document Service context (Completion Context)
-     * @param delimiterIndex        delimiter index (index of either . or :)
+     *
+     * @param context        Text Document Service context (Completion Context)
+     * @param delimiterIndex delimiter index (index of either . or :)
      * @return {@link ArrayList}    List of filtered symbol info
      */
     public static ArrayList<SymbolInfo> invocationsAndFieldsOnIdentifier(LSServiceOperationContext context,
-                                                                   int delimiterIndex) {
+                                                                         int delimiterIndex) {
         ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
         TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         List<SymbolInfo> symbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
@@ -694,9 +690,10 @@ public class CommonUtil {
 
     /**
      * Get the scope entries.
-     * @param bType             BType
-     * @param completionCtx     Completion context
-     * @return                  {@link Map} Scope entries map
+     *
+     * @param bType         BType
+     * @param completionCtx Completion context
+     * @return {@link Map} Scope entries map
      */
     private static Map<Name, Scope.ScopeEntry> getScopeEntries(BType bType, LSServiceOperationContext completionCtx) {
         HashMap<Name, Scope.ScopeEntry> returnMap = new HashMap<>();
