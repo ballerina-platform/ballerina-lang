@@ -1,26 +1,40 @@
 # Ballerina plugin for Visual Studio Code
 
-## How to install
+[Ballerina](http://ballerina.io) makes it easy to build resilient services that integration and orchestrate across distributed endpoints. This plugin adds language support for Ballerina to Visual Studio Code.
 
-Find the plugin in the visual studio [marketplace](https://marketplace.visualstudio.com/items?itemName=WSO2.Ballerina) and follow the instructions.
-
-### Configuring the Ballerina SDK path
-
-If you plan on using ballerina libraries other than the ones in the standard ballerina distribution you should set the `ballerina.sdk` setting to the path to the directory of extracted ballerina distribution.
-
-To get to the settings in vscode use <kbd>CTRL</kbd> + <kbd>,</kbd> in Windows and Linux and <kbd>⌘</kbd> + <kbd>,</kbd> in macOS. [More info](https://code.visualstudio.com/docs/getstarted/settings).
+## Quick start
+- Download and install ballerina platform from [ballerina.io](https://ballerina.io/downloads/).
+- Install VSCode plugin.
+    - **Option 1.** Install this extension from the VSCode [marketplace](https://marketplace.visualstudio.com/items?itemName=WSO2.Ballerina) (or by entering `ext install WSO2.Ballerina` at the command palette).
+    - **Option 2.** Download and install the VSCode plugin manually.
+        - Download `ballerina-vscode-plugin-VERSION.vsix` from [ballerina.io](https://ballerina.io/downloads/). When downloading make sure plugin version matches the platform version you have installed.
+        - Go to Install from VSIX... command in the Extensions View command drop-down, or the Extensions: Install from VSIX... command in the Command Palette, and select the .vsix file to install. [More info](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix)
+- Configure  `ballerina.sdk` path in settings. ( This step is mandatory for the Ballerina VSCode plugin features to work ) 
+To get to the settings in vscode use <kbd>CTRL</kbd> + <kbd>,</kbd> in Windows and Linux and <kbd>⌘</kbd> + <kbd>,</kbd> in macOS. [More info](https://code.visualstudio.com/docs/getstarted/settings)
 
 ![set sdk](https://github.com/ballerina-lang/ballerina/blob/master/tool-plugins/vscode/docs/set-sdk.gif?raw=true)
 
-## Usage
 
-### Editor features
+## Plugin Features
+
+### Language Support
 
 * Code completion : <kbd>CTRL</kbd> + <kbd>SPACE</kbd>
 * Go to definition 
     * Jump to source: <kbd>CTRL</kbd> + <kbd>Click</kbd>
     * Open to the side with <kbd>CTRL</kbd> + <kbd>ALT</kbd> + <kbd>Click</kbd>
 * Go to symbol : <kbd>CTRL</kbd> + <kbd>SHIFT</kbd> + <kbd>O</kbd>
+* Find All references
+* Hover Support
+* Signature Help
+* Rename
+
+### Diagram View
+
+Ballerina’s underlying language semantics were designed by modeling how independent parties communicate via structured interactions. Subsequently, every Ballerina program can be displayed as a sequence diagram of its flow with endpoints, including synchronous and asynchronous calls. 
+
+To view the sequence diagram of a ballerina file press the diagram icon in top right corner.
+
 
 ### Debugger
 
@@ -51,11 +65,6 @@ To launch the debugger, the path to the ballerina sdk needs to be configured. In
 
 If you want to help develop the ballerina vscode plugin or want to build from source and try out the latest features see [information for developers](https://github.com/ballerina-lang/ballerina/blob/master/tool-plugins/vscode/docs/developer-info.md).
 
-## About Ballerina
-
-ballerina is a general purpose, concurrent and strongly typed programming language with both textual and graphical syntaxes, optimized for integration.
-
-for more info: http://ballerinalang.org/
 
 ## License
 
@@ -63,4 +72,5 @@ Ballerina Visual Studio Code plugin source is available under the Apache 2.0 Lic
 
 ## Copyright
 
-Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+
