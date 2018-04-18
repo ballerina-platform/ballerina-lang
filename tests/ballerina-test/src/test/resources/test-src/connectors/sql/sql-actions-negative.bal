@@ -1,6 +1,20 @@
 import ballerina/sql;
 import ballerina/io;
 
+type ResultCustomers {
+    string FIRSTNAME,
+};
+
+type Person {
+    int id,
+    string name,
+};
+
+type ResultCustomers2 {
+    string FIRSTNAME,
+    string LASTNAME,
+};
+
 function testSelectData() returns (string) {
     endpoint sql:Client testDB {
         url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
@@ -152,4 +166,105 @@ function testInvalidArrayofQueryParameters() returns (string) {
         _ = testDB -> close();
     }
     return returnData;
+}
+
+function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() returns ((string, string)|error) {
+    endpoint sql:Client testDB {
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
+    };
+
+    var dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", [ResultCustomers]);
+
+    match dtsRet {
+        table[] dts => {
+            string firstName1;
+            string firstName2;
+
+            while (dts[0].hasNext()) {
+                ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
+                firstName1 = rs.FIRSTNAME;
+            }
+
+            while (dts[1].hasNext()) {
+                ResultCustomers rs = check <ResultCustomers>dts[1].getNext();
+                firstName2 = rs.FIRSTNAME;
+            }
+
+            _ = testDB -> close();
+            return (firstName1, firstName2);
+        }
+        error e => {
+            _ = testDB -> close();
+            return e;
+        }
+    }
+}
+
+function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() returns ((string, string)|error) {
+    endpoint sql:Client testDB {
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
+    };
+
+    var dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2, Person]);
+
+    match dtsRet {
+        table[] dts => {
+            string firstName1;
+            string firstName2;
+
+            while (dts[0].hasNext()) {
+                ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
+                firstName1 = rs.FIRSTNAME;
+            }
+
+            while (dts[1].hasNext()) {
+                ResultCustomers rs = check <ResultCustomers>dts[1].getNext();
+                firstName2 = rs.FIRSTNAME;
+            }
+
+            _ = testDB -> close();
+            return (firstName1, firstName2);
+        }
+        error e => {
+            _ = testDB -> close();
+            return e;
+        }
+    }
+}
+
+function testCallProcedureWithMultipleResultSetsAndNilConstraintCount() returns ((string, string)|error) {
+    endpoint sql:Client testDB {
+        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        username:"SA",
+        poolOptions:{maximumPoolSize:1}
+    };
+
+    var dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", ());
+
+    match dtsRet {
+        table[] dts => {
+            string firstName1;
+            string firstName2;
+
+            while (dts[0].hasNext()) {
+                ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
+                firstName1 = rs.FIRSTNAME;
+            }
+
+            while (dts[1].hasNext()) {
+                ResultCustomers rs = check <ResultCustomers>dts[1].getNext();
+                firstName2 = rs.FIRSTNAME;
+            }
+
+            return (firstName1, firstName2);
+        }
+        error e => {
+            _ = testDB -> close();
+            return e;
+        }
+    }
 }

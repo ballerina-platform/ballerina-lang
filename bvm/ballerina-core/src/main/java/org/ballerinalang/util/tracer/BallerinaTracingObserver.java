@@ -18,7 +18,6 @@
 package org.ballerinalang.util.tracer;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.ObservableContext;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.observability.BallerinaObserver;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -28,6 +27,7 @@ import java.util.Map;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_BSTRUCT_ERROR;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_ERROR_KIND_EXCEPTION;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_ERROR_KIND;
@@ -40,8 +40,8 @@ import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_MESSAGE;
 public class BallerinaTracingObserver implements BallerinaObserver {
 
     @Override
-    public void startServerObservation(ObserverContext observerContext, ObservableContext observableContext) {
-        BSpan span = new BSpan(observableContext, false);
+    public void startServerObservation(ObserverContext observerContext) {
+        BSpan span = new BSpan(observerContext, false);
         span.setConnectorName(observerContext.getServiceName());
         span.setActionName(observerContext.getResourceName());
         Map<String, String> httpHeaders = (Map<String, String>) observerContext.getProperty(PROPERTY_TRACE_PROPERTIES);
@@ -50,14 +50,14 @@ public class BallerinaTracingObserver implements BallerinaObserver {
                     .filter(c -> TraceConstants.TRACE_HEADER.equals(c.getKey()))
                     .forEach(e -> span.addProperty(e.getKey(), e.getValue()));
         }
-        TraceUtil.setBSpan(observableContext, span);
+        observerContext.addProperty(KEY_SPAN, span);
         span.startSpan();
     }
 
     @Override
-    public void startClientObservation(ObserverContext observerContext, ObservableContext observableContext) {
-        BSpan activeSpan = new BSpan(observableContext, true);
-        TraceUtil.setBSpan(observableContext, activeSpan);
+    public void startClientObservation(ObserverContext observerContext) {
+        BSpan activeSpan = new BSpan(observerContext, true);
+        observerContext.addProperty(KEY_SPAN, activeSpan);
         activeSpan.setConnectorName(observerContext.getConnectorName());
         activeSpan.setActionName(observerContext.getActionName());
         observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, activeSpan.getProperties());
@@ -65,17 +65,17 @@ public class BallerinaTracingObserver implements BallerinaObserver {
     }
 
     @Override
-    public void stopServerObservation(ObserverContext observerContext, ObservableContext observableContext) {
-        stopObservation(observerContext, observableContext);
+    public void stopServerObservation(ObserverContext observerContext) {
+        stopObservation(observerContext);
     }
 
     @Override
-    public void stopClientObservation(ObserverContext observerContext, ObservableContext observableContext) {
-        stopObservation(observerContext, observableContext);
+    public void stopClientObservation(ObserverContext observerContext) {
+        stopObservation(observerContext);
     }
 
-    public void stopObservation(ObserverContext observerContext, ObservableContext observableContext) {
-        BSpan span = TraceUtil.getBSpan(observableContext);
+    public void stopObservation(ObserverContext observerContext) {
+        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
         if (span != null) {
             BStruct error = (BStruct) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
             if (error != null) {
@@ -86,7 +86,7 @@ public class BallerinaTracingObserver implements BallerinaObserver {
                 span.logError(logProps);
             }
             span.addTags(observerContext.getTags());
-            TraceUtil.finishBSpan(span);
+            span.finishSpan();
         }
     }
 }

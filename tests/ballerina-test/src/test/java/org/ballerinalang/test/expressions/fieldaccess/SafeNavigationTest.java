@@ -46,35 +46,32 @@ public class SafeNavigationTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 15);
+        Assert.assertEquals(negativeResult.getErrorCount(), 13);
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'string?', found 'string|error'",
                 25, 19);
         BAssertUtil.validateError(negativeResult, 1,
                 "invalid operation: type 'Info|error' does not support field access", 34, 25);
         BAssertUtil.validateError(negativeResult, 2,
                 "incompatible types: expected 'string|error?', found 'other|error'", 34, 25);
-        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'string', found 'string?'", 40, 16);
-        BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'string[]', found 'string[]?'", 41,
-                21);
-        BAssertUtil.validateError(negativeResult, 5,
+        BAssertUtil.validateError(negativeResult, 3,
                 "invalid operation: type 'Person|error' does not support field access", 46, 5);
+        BAssertUtil.validateError(negativeResult, 4,
+                "invalid operation: type 'other|error' does not support field access", 46, 5);
+        BAssertUtil.validateError(negativeResult, 5,
+                "invalid operation: type 'other|error' does not support field access", 46, 5);
         BAssertUtil.validateError(negativeResult, 6,
-                "invalid operation: type 'other|error' does not support field access", 46, 5);
-        BAssertUtil.validateError(negativeResult, 7,
-                "invalid operation: type 'other|error' does not support field access", 46, 5);
-        BAssertUtil.validateError(negativeResult, 8,
                 "invalid operation: type 'Person[]|error' does not support indexing", 51, 12);
-        BAssertUtil.validateError(negativeResult, 9, "safe navigation operator not required for type 'error?'", 56,
+        BAssertUtil.validateError(negativeResult, 7, "safe navigation operator not required for type 'error?'", 56,
                 12);
-        BAssertUtil.validateError(negativeResult, 10, "incompatible types: expected 'string', found 'other|error?'",
+        BAssertUtil.validateError(negativeResult, 8, "incompatible types: expected 'string', found 'other|error?'",
                 56, 12);
-        BAssertUtil.validateError(negativeResult, 11, "safe navigation operator not required for type 'error'", 61,
+        BAssertUtil.validateError(negativeResult, 9, "safe navigation operator not required for type 'error'", 61,
                 12);
-        BAssertUtil.validateError(negativeResult, 12,
+        BAssertUtil.validateError(negativeResult, 10,
                 "invalid operation: type 'Person?' does not support field access", 69, 5);
-        BAssertUtil.validateError(negativeResult, 13, "invalid operation: type 'other?' does not support field access",
+        BAssertUtil.validateError(negativeResult, 11, "invalid operation: type 'other?' does not support field access",
                 69, 5);
-        BAssertUtil.validateError(negativeResult, 14, "invalid operation: type 'other?' does not support field access",
+        BAssertUtil.validateError(negativeResult, 12, "invalid operation: type 'other?' does not support field access",
                 69, 5);
     }
 

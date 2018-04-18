@@ -19,7 +19,6 @@
 package org.ballerinalang.util.observability;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.bre.bvm.ObservableContext;
 import org.ballerinalang.model.values.BStruct;
 
 /**
@@ -30,22 +29,21 @@ import org.ballerinalang.model.values.BStruct;
  */
 public class CallbackObserver implements CallableUnitCallback {
 
-    private ObservableContext observableContext;
+    private ObserverContext observerContext;
 
-    public CallbackObserver(ObservableContext observableContext) {
-        this.observableContext = observableContext;
+    public CallbackObserver(ObserverContext observerContext) {
+        this.observerContext = observerContext;
     }
 
     @Override
     public void notifySuccess() {
-        ObservabilityUtils.stopObservation(observableContext);
+        ObservabilityUtils.stopObservation(observerContext);
     }
 
     @Override
     public void notifyFailure(BStruct error) {
-        ObserverContext observerContext = ObservabilityUtils.getCurrentContext(observableContext);
         observerContext.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
         observerContext.addProperty(ObservabilityConstants.PROPERTY_BSTRUCT_ERROR, error);
-        ObservabilityUtils.stopObservation(observableContext);
+        ObservabilityUtils.stopObservation(observerContext);
     }
 }
