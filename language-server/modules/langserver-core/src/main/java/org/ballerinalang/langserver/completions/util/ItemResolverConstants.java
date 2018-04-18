@@ -43,6 +43,7 @@ public class ItemResolverConstants {
     public static final String FOREACH = "foreach";
     public static final String PUBLIC = "public";
     public static final String PRIVATE = "private";
+    public static final String MATCH = "match";
 
     public static final String FUNCTION = "function";
     public static final String MAIN_FUNCTION = "main function";
