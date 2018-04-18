@@ -142,7 +142,7 @@ function main (string... args) {
     var responsePayload = res.getJsonPayload();
     match responsePayload {
         json resultantJsonPayload => {
-            io:println("Response : " + (resultantJsonPayload.toString() but {() => ""}));
+            io:println("Response : " + resultantJsonPayload.toString());
         }
         http:PayloadError err => {
             io:println("Expected response not received");
@@ -166,7 +166,7 @@ function main (string... args) {
         var promisedPayload = promisedResponse.getJsonPayload();
         match promisedPayload {
             json promisedJsonPayload => {
-                io:println("Promised resource : " + (promisedJsonPayload.toString() but {() => ""}));
+                io:println("Promised resource : " + promisedJsonPayload.toString());
             }
             http:PayloadError err => {
                 io:println("Promised response not received");
