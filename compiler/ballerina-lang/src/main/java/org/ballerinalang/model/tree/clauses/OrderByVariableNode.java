@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
- * @since 0.965.0
+ * @since 0.970.0
  *
  * The interface which represents orderBy variable in streams/tables in SQLish syntax.
  *

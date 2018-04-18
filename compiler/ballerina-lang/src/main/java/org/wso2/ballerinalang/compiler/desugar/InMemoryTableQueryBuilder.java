@@ -40,7 +40,7 @@ import java.util.Stack;
 
 /**
  * @since 0.970.0
- * <p>
+ *
  * This class will generate the SQL query for stream/tables SQLish grammar for different classes.
  */
 
