@@ -55,6 +55,7 @@ import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParamDefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
@@ -1236,6 +1237,19 @@ public class ProgramFileReader {
                     paramDefaultValAttrInfo.addParamDefaultValueInfo(paramDefaultValue);
                 }
                 return paramDefaultValAttrInfo;
+            case TAINT_TABLE:
+                TaintTableAttributeInfo taintTableAttributeInfo = new TaintTableAttributeInfo(attribNameCPIndex);
+                taintTableAttributeInfo.rowCount = dataInStream.readShort();
+                taintTableAttributeInfo.columnCount = dataInStream.readShort();
+                for (int rowIndex = 0; rowIndex < taintTableAttributeInfo.rowCount; rowIndex++) {
+                    int paramIndex = dataInStream.readShort();
+                    List<Boolean> taintRecord = new ArrayList<>();
+                    for (int columnIndex = 0; columnIndex < taintTableAttributeInfo.columnCount; columnIndex++) {
+                        taintRecord.add(dataInStream.readBoolean());
+                    }
+                    taintTableAttributeInfo.taintTable.put(paramIndex, taintRecord);
+                }
+                return taintTableAttributeInfo;
             default:
                 throw new ProgramFileFormatException("unsupported attribute kind " + attribNameCPEntry.getValue());
         }

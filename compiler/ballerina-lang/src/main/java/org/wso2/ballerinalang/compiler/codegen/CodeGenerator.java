@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -197,6 +198,7 @@ import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
@@ -1466,6 +1468,39 @@ public class CodeGenerator extends BLangNodeVisitor {
                         worker.body, localVarAttributeInfo, invokableSymbolEnv, this.copyVarIndex(lvIndexCopy));
             }
         }
+
+        if (invokableNode.symbol.taintTable != null) {
+            int taintTableAttributeNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.TAINT_TABLE.value());
+            TaintTableAttributeInfo taintTableAttributeInfo = new TaintTableAttributeInfo(taintTableAttributeNameIndex);
+            visitTaintTable(invokableNode.symbol.taintTable, taintTableAttributeInfo);
+            callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.TAINT_TABLE, taintTableAttributeInfo);
+        }
+    }
+
+    private void visitTaintTable(Map<Integer, TaintRecord> taintTable,
+                                 TaintTableAttributeInfo taintTableAttributeInfo) {
+        int rowCount = 0;
+        for(Integer paramIndex : taintTable.keySet()) {
+            TaintRecord taintRecord = taintTable.get(paramIndex);
+            boolean added = addTaintTableEntry(taintTableAttributeInfo, paramIndex, taintRecord);
+            if (added) {
+                taintTableAttributeInfo.columnCount = taintRecord.retParamTaintedStatus.size();
+                rowCount++;
+            }
+        }
+        taintTableAttributeInfo.rowCount = rowCount;
+    }
+
+    private boolean addTaintTableEntry(TaintTableAttributeInfo taintTableAttributeInfo, int index,
+                                    TaintRecord taintRecord) {
+        // Add to attribute info only if the current record has tainted status of return, but not taint errors.
+        // It is not useful to preserve the propagated taint errors, since user will not be able to correct the compiled
+        // code and will not need to know internals of the already compiled code.
+        if (taintRecord.taintError == null || taintRecord.taintError.isEmpty()) {
+            taintTableAttributeInfo.taintTable.put(index, taintRecord.retParamTaintedStatus);
+            return true;
+        }
+        return false;
     }
 
     private void processWorker(WorkerInfo workerInfo, BLangBlockStmt body,

@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
@@ -46,6 +47,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Serialize Ballerina {@code PackageInfo} structure to a byte stream.
@@ -460,6 +462,18 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeShort(defaultValues.length);
                 for (DefaultValue defaultValue : defaultValues) {
                     writeDefaultValue(attrDataOutStream, defaultValue);
+                }
+                break;
+            case TAINT_TABLE:
+                TaintTableAttributeInfo taintTableAttributeInfo = (TaintTableAttributeInfo) attributeInfo;
+                attrDataOutStream.writeShort(taintTableAttributeInfo.rowCount);
+                attrDataOutStream.writeShort(taintTableAttributeInfo.columnCount);
+                for (Integer paramIndex : taintTableAttributeInfo.taintTable.keySet()) {
+                    attrDataOutStream.writeShort(paramIndex);
+                    List<Boolean> taintRecord = taintTableAttributeInfo.taintTable.get(paramIndex);
+                    for (Boolean taintStatus : taintRecord) {
+                        attrDataOutStream.writeBoolean(taintStatus);
+                    }
                 }
                 break;
         }
