@@ -33,9 +33,9 @@ public class WebSocketPassThroughTestConnectionManager {
             SESSION_MANAGER = new WebSocketPassThroughTestConnectionManager();
 
     // Map <serverSessionID, clientSession>
-    private final ConcurrentMap<String, WebSocketConnection> serverKeyConnectionMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, WebSocketConnection> serverToClientConnectionMap = new ConcurrentHashMap<>();
     // Map <clientSessionID, serverSession>
-    private final ConcurrentMap<String, WebSocketConnection> clientKeyConnectionMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, WebSocketConnection> clientToServerConnectionMap = new ConcurrentHashMap<>();
 
     private WebSocketPassThroughTestConnectionManager() {
     }
@@ -45,16 +45,16 @@ public class WebSocketPassThroughTestConnectionManager {
     }
 
     public void interRelateSessions(WebSocketConnection serverConnection, WebSocketConnection clientConnection) {
-        serverKeyConnectionMap.put(serverConnection.getId(), clientConnection);
-        clientKeyConnectionMap.put(clientConnection.getId(), serverConnection);
+        serverToClientConnectionMap.put(serverConnection.getId(), clientConnection);
+        clientToServerConnectionMap.put(clientConnection.getId(), serverConnection);
     }
 
     public WebSocketConnection getServerConnection(WebSocketConnection clientConnection) {
-        return clientKeyConnectionMap.get(clientConnection.getId());
+        return clientToServerConnectionMap.get(clientConnection.getId());
     }
 
     public WebSocketConnection getClientConnection(WebSocketConnection serverConnection) {
-        return serverKeyConnectionMap.get(serverConnection.getId());
+        return serverToClientConnectionMap.get(serverConnection.getId());
     }
 
 }

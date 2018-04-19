@@ -68,6 +68,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
                         }
                 );
                 sessionList.add(webSocketConnection.getSession());
+                webSocketConnection.startReadingFrames();
             }
 
             @Override

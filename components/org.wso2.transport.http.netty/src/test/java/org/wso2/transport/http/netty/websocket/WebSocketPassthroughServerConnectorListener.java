@@ -65,6 +65,7 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
                     public void onSuccess(WebSocketConnection serverWebSocketConnection) {
                         WebSocketPassThroughTestConnectionManager.getInstance().
                                 interRelateSessions(serverWebSocketConnection, clientWebSocketConnection);
+                        serverWebSocketConnection.readNextFrame();
                     }
 
                     @Override
@@ -85,15 +86,17 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
         WebSocketConnection serverConnection = WebSocketPassThroughTestConnectionManager.getInstance().
-                getServerConnection(textMessage.getWebSocketConnection());
+                getClientConnection(textMessage.getWebSocketConnection());
         serverConnection.getSession().getAsyncRemote().sendText(textMessage.getText());
+        serverConnection.readNextFrame();
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
         WebSocketConnection serverConnection = WebSocketPassThroughTestConnectionManager.getInstance().
-                getServerConnection(binaryMessage.getWebSocketConnection());
+                getClientConnection(binaryMessage.getWebSocketConnection());
         serverConnection.getSession().getAsyncRemote().sendBinary(binaryMessage.getByteBuffer());
+        serverConnection.readNextFrame();
     }
 
     @Override
