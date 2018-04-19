@@ -16,7 +16,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function
-    main([]);
+    main();
     test:assertEquals(10, outputs[0]);
     test:assertEquals("error: 'string' cannot be converted to 'int'", outputs[1]);
     test:assertEquals(5, outputs[2]);

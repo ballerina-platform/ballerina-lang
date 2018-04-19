@@ -16,7 +16,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function
-    main([]);
+    main();
 
     xml xml1 = xml `<Store id="AST">
                            <name>Anne</name>

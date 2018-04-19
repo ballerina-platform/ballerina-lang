@@ -17,5 +17,6 @@ public function mockPrint (any s) {
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals("John Gosling", outputs[0]);
+    string out1 = "Event received; status: single and total occurrences: 2";
+    test:assertEquals(out1, outputs[0]);
 }

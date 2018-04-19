@@ -16,7 +16,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function
-    main([]);
+    main();
 
     string out1 = "Value of PI : 3.141592653589793";
     string out2 = "Value of E  : 2.718281828459045";

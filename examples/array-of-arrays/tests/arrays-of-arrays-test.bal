@@ -15,7 +15,7 @@ public function mockPrint (any s) {
 
 @test:Config
 function testFunc() {
-    main([]);
+    main();
     test:assertEquals(3, outputs[0]);
     test:assertEquals(3, outputs[1]);
     test:assertEquals(10, outputs[2]);

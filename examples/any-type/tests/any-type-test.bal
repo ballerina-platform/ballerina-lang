@@ -16,7 +16,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Calling the main fuction with ampty args array
-    main([]);
+    main();
     test:assertEquals(5, outputs[0]);
     test:assertEquals(15, outputs[1]);
     int[] ia = [1, 3, 5, 6];

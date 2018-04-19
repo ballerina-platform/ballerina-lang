@@ -16,7 +16,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function
-    main([]);
+    main();
 
     string out1 = "Output: Hello world.!!!";
     test:assertEquals(out1, outputs[0]);
