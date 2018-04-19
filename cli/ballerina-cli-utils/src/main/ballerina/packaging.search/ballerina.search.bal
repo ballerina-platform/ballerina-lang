@@ -60,7 +60,7 @@ function search (string url, string querySearched) {
                     if (authorIndex == lengthof authorsArr - 1) {
                         authors = authors + authorsArr[authorIndex].toString();
                     } else {
-                        authors = authors + "," + authorsArr[authorIndex].toString();
+                        authors = authors + " , " + authorsArr[authorIndex].toString();
                     }
                 }
                 printInCLI(authors, 40);
