@@ -30,7 +30,7 @@ function testLocalTransacton() returns (int, int) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
 
     int returnVal = 0;
@@ -66,8 +66,8 @@ function testTransactonRollback() returns (int, int) {
     int returnVal = 0;
     int count;
 
-    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
-    var temp1 = testDB->mirror("CustomersTrx2", CustomersTrx2);
+    var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
+    var temp1 = testDB->getProxyTable("CustomersTrx2", CustomersTrx2);
 
     table dt0 = check temp0;
     table dt1 = check temp1;
@@ -107,7 +107,7 @@ function testTransactonAbort() returns (int, int) {
     int returnVal = -1;
     int count;
 
-    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
 
     transaction {
@@ -147,7 +147,7 @@ function testTransactonErrorThrow() returns (int, int, int) {
     int returnVal = 0;
     int catchValue = 0;
     int count;
-    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
 
     try {
@@ -187,7 +187,7 @@ function testTransactionErrorThrowAndCatch() returns (int, int, int) {
     int returnVal = 0;
     int catchValue = 0;
     int count;
-    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
 
     transaction {
@@ -227,7 +227,7 @@ function testTransactonCommitted() returns (int, int) {
 
     int returnVal = 1;
     int count;
-    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
 
     table dt0 = check temp0;
     transaction {
@@ -261,7 +261,7 @@ function testTwoTransactons() returns (int, int, int) {
     int returnVal1 = 1;
     int returnVal2 = 1;
     int count;
-    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
     transaction {
         CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:400, creditLimit:5000.75,
@@ -302,7 +302,7 @@ function testTransactonWithoutHandlers() returns (int) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
 
     transaction {
@@ -336,8 +336,8 @@ function testLocalTransactionFailed() returns (string, int) {
 
     string a = "beforetx";
     int count = -1;
-    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
-    var temp1 = testDB->mirror("CustomersTrx2", CustomersTrx2);
+    var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
+    var temp1 = testDB->getProxyTable("CustomersTrx2", CustomersTrx2);
 
     table dt0 = check temp0;
     table dt1 = check temp1;
@@ -381,8 +381,8 @@ function testLocalTransactonSuccessWithFailed() returns (string, int) {
     string a = "beforetx";
     int count = -1;
     int i = 0;
-    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
-    var temp1 = testDB->mirror("CustomersTrx2", CustomersTrx2);
+    var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
+    var temp1 = testDB->getProxyTable("CustomersTrx2", CustomersTrx2);
 
     table dt0 = check temp0;
     table dt1 = check temp1;
@@ -437,7 +437,7 @@ function testLocalTransactonFailedWithNextupdate() returns (int) {
 
     int i = 0;
 
-    var temp1 = testDB1->mirror("CustomersTrx2", CustomersTrx2);
+    var temp1 = testDB1->getProxyTable("CustomersTrx2", CustomersTrx2);
     table dt1 = check temp1;
     try {
         transaction {
@@ -476,7 +476,7 @@ function testNestedTwoLevelTransactonSuccess() returns (int, int) {
 
     int returnVal = 0;
     int count;
-    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
     transaction {
         CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:333, creditLimit:5000.75,
@@ -511,7 +511,7 @@ function testNestedThreeLevelTransactonSuccess() returns (int, int) {
 
     int returnVal = 0;
     int count;
-    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
     transaction {
         CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:444, creditLimit:5000.75,
@@ -550,8 +550,8 @@ function testNestedThreeLevelTransactonFailed() returns (int, int) {
 
     int returnVal = 0;
     int count;
-    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
-    var temp1 = testDB->mirror("CustomersTrx2", CustomersTrx2);
+    var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
+    var temp1 = testDB->getProxyTable("CustomersTrx2", CustomersTrx2);
 
     table dt0 = check temp0;
     table dt1 = check temp1;
@@ -599,8 +599,8 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, in
     int index = 0;
     string a = "start";
     int count;
-    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
-    var temp1 = testDB->mirror("CustomersTrx2", CustomersTrx2);
+    var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
+    var temp1 = testDB->getProxyTable("CustomersTrx2", CustomersTrx2);
 
     table dt0 = check temp0;
     table dt1 = check temp1;
@@ -679,14 +679,14 @@ function invokeWorkers(sql:Client testDBClient) {
 
 
     worker w1 {
-        var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+        var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
         table dt0 = check temp0;
         CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:834, creditLimit:5000.75, country:"USA"};
         var result1 = dt0.add(c1);
     }
 
     worker w2 {
-        var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+        var temp0 = testDB->getProxyTable("CustomersTrx", CustomersTrx);
         table dt0 = check temp0;
         runtime:sleepCurrentWorker(5000);
         CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:834, creditLimit:5000.75, country:"USA"};

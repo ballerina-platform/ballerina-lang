@@ -1092,7 +1092,7 @@ public class SQLDatasourceUtils {
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
 
         SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, "", database, host, port, username, password, name, dbOptions);
+        datasource.init(options, "", database, host, port, username, password, name, dbOptions, null);
 
         BStruct sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
@@ -1105,12 +1105,12 @@ public class SQLDatasourceUtils {
         String url = clientEndpointConfig.getStringField(Constants.EndpointConfig.URL);
         String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
+        Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
 
-        String dbType = url.split(":")[0].toUpperCase(Locale.getDefault());
         SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, url, dbType, "", 0, username, password, "", "");
+        datasource.init(options, url, "", "", 0, username, password, "", "", dbOptions);
 
         BStruct sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
@@ -1143,7 +1143,7 @@ public class SQLDatasourceUtils {
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
 
         SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, "", database, hostOrPath, port, username, password, name, dbOptions);
+        datasource.init(options, "", database, hostOrPath, port, username, password, name, dbOptions, null);
 
         BStruct sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);

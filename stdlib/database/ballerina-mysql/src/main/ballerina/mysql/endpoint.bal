@@ -13,16 +13,15 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.h2;
+package ballerina.mysql;
 
 import ballerina/sql;
 
 documentation {
-    The Client endpoint configuration for h2 databases.
+    The Client endpoint configuration for mysql databases.
 
-    F{{host}} - The host name of the database to connect (in case of server baased DB).
-    F{{path}} - The path of the database connection (in case of file baased DB).
-    F{{port}} - The port of the database to connect (in case of server baased DB).
+    F{{host}} - The host name of the database to connect.
+    F{{port}} - The port of the database to connect.
     F{{name}} - The name of the database to connect.
     F{{username}} - Username for the database connection.
     F{{password}} - Password for the database connection.
@@ -30,27 +29,25 @@ documentation {
     F{{dbOptions}} - DB specific properties.
 }
 public type ClientEndpointConfiguration {
-    string host = "",
-    string path = "",
+    string host,
     int port = 0,
-    string name = "",
-    string username = "",
-    string password = "",
+    string name,
+    string username,
+    string password,
     sql:PoolOptions poolOptions,
     map dbOptions,
 };
 
-
 documentation {
-    Represents an H2 client endpoint.
+    Represents an MySQL client endpoint.
 
     F{{config}} - The configurations associated with the SQL endpoint.
 }
 
 public type Client object {
-    public {
+    private {
         ClientEndpointConfiguration config;
-        sql:CallerActions h2Client;
+        sql:CallerActions mysqlClient;
     }
 
     documentation {
@@ -58,15 +55,15 @@ public type Client object {
 
         P{{config}} - he ClientEndpointConfiguration of the endpoint.
     }
-    public function init(ClientEndpointConfiguration config) {
-        self.h2Client = createClient(config);
+    function init(ClientEndpointConfiguration config) {
+        self.mysqlClient = createClient(config);
     }
 
     documentation {
         Returns the connector that the client code uses.
     }
-    public function getClient() returns sql:CallerActions {
-        return self.h2Client;
+    function getClient() returns sql:CallerActions {
+        return self.mysqlClient;
     }
 };
 

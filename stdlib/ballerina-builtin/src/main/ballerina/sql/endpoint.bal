@@ -22,7 +22,7 @@ documentation {
     F{{config}} - The configurations associated with the SQL endpoint.
 }
 public type Client object {
-    public {
+    private {
         ClientEndpointConfiguration config;
         CallerActions callerActions;
     }
@@ -32,14 +32,14 @@ public type Client object {
 
         P{{config}} - he ClientEndpointConfiguration of the endpoint.
     }
-    public function init(ClientEndpointConfiguration config) {
+    function init(ClientEndpointConfiguration config) {
         self.callerActions = createSQLClient(config);
     }
 
     documentation {
         Returns the connector that the client code uses.
     }
-    public function getClient() returns CallerActions {
+    function getClient() returns CallerActions {
         return self.callerActions;
     }
 };

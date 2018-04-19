@@ -84,12 +84,12 @@ public type CallerActions object {
                                                    Parameter... parameters) returns (int, string[])|error;
 
     documentation {
-        The mirror action implementation for SQL connector which returns a reflection of a database
+        The getProxyTable action implementation for SQL connector which returns a reflection of a database
         table that allows performing select/update operations over the actual database table.
 
-        P{{tableName}} - The name of the table to be mirrored.
+        P{{tableName}} - The name of the table to be retrieved.
         P{{recordType}} - The record type of the returned table.
 
     }
-    public native function mirror(@sensitive string tableName, typedesc recordType) returns @tainted table|error;
+    public native function getProxyTable(@sensitive string tableName, typedesc recordType) returns @tainted table|error;
 };

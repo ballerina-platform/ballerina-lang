@@ -29,8 +29,8 @@ function testXATransactionSuccess() returns (int, int) {
         poolOptions:{maximumPoolSize:1, isXA:true}
     };
 
-    var temp0 = testDB1->mirror("CustomersTrx", CustomersTrx);
-    var temp1 = testDB2->mirror("SalaryTrx", SalaryTrx);
+    var temp0 = testDB1->getProxyTable("CustomersTrx", CustomersTrx);
+    var temp1 = testDB2->getProxyTable("SalaryTrx", SalaryTrx);
 
     table dt0 = check temp0;
     table dt1 = check temp1;
@@ -79,8 +79,8 @@ function testXATransactionFailed1() returns (int, int) {
         poolOptions:{maximumPoolSize:1, isXA:true}
     };
 
-    var temp0 = testDB1->mirror("CustomersTrx", CustomersTrx);
-    var temp1 = testDB2->mirror("SalaryTrx", SalaryTrx);
+    var temp0 = testDB1->getProxyTable("CustomersTrx", CustomersTrx);
+    var temp1 = testDB2->getProxyTable("SalaryTrx", SalaryTrx);
 
     table dt0 = check temp0;
     table dt1 = check temp1;
@@ -133,8 +133,8 @@ function testXATransactionFailed2() returns (int, int) {
         poolOptions:{maximumPoolSize:1, isXA:true}
     };
 
-    var temp0 = testDB1->mirror("CustomersTrx", CustomersTrx);
-    var temp1 = testDB2->mirror("SalaryTrx", SalaryTrx);
+    var temp0 = testDB1->getProxyTable("CustomersTrx", CustomersTrx);
+    var temp1 = testDB2->getProxyTable("SalaryTrx", SalaryTrx);
 
     table dt0 = check temp0;
     table dt1 = check temp1;
@@ -190,8 +190,8 @@ function testXATransactionRetry() returns (int, int) {
     };
 
     int i = 0;
-    var temp0 = testDB1->mirror("CustomersTrx", CustomersTrx);
-    var temp1 = testDB2->mirror("SalaryTrx", SalaryTrx);
+    var temp0 = testDB1->getProxyTable("CustomersTrx", CustomersTrx);
+    var temp1 = testDB2->getProxyTable("SalaryTrx", SalaryTrx);
 
     table dt0 = check temp0;
     table dt1 = check temp1;

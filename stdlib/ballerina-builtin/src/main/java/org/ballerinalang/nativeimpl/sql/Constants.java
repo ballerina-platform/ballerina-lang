@@ -165,9 +165,6 @@ public final class Constants {
         public static final String MINIMUM_IDLE = "minimumIdle";
         public static final String MAX_LIFE_TIME = "maxLifetime";
         public static final String VALIDATION_TIMEOUT = "validationTimeout";
-
-        //Map
-        public static final String DATASOURCE_PROPERTIES = "datasourceProperties";
     }
 
     /**
@@ -195,7 +192,6 @@ public final class Constants {
     public static final String BUILTIN_PACKAGE_PATH = "ballerina.builtin";
     public static final String CALLER_ACTIONS = "CallerActions";
 
-    public static final String SQL_JDBC_PREFIX = "jdbc:";
     public static final String SQL_SERVER_DB_POSTFIX = "_SERVER";
     public static final String SQL_FILE_DB_POSTFIX = "_FILE";
     public static final String SQL_MEMORY_DB_POSTFIX = "_MEMORY";

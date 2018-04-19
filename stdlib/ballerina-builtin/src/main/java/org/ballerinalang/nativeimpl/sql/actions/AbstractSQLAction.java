@@ -283,7 +283,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         try {
             context.setReturnValues(constructTable(context, structType, datasource, tableName));
         } catch (SQLException e) {
-            throw new BallerinaException("Mirror table creation failed: " + e.getMessage(), e);
+            throw new BallerinaException("Proxy table creation failed: " + e.getMessage(), e);
         }
     }
 

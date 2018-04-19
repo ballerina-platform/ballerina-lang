@@ -48,47 +48,44 @@ type ResultDates {
 
 function testInsertTableData() returns (int) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var insertCountRet = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var insertCount = check testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                          values ('James', 'Clerk', 2, 5000.75, 'USA')");
-    int insertCount = check insertCountRet;
     _ = testDB->close();
     return insertCount;
 }
 
 function testCreateTable() returns (int) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var returnValueRet = testDB->update("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))");
-    int returnValue = check returnValueRet;
+    int returnValue = check testDB->update("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))");
     _ = testDB->close();
     return returnValue;
 }
 
 function testUpdateTableData() returns (int) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var updateCountRet = testDB->update("Update Customers set country = 'UK' where registrationID = 1");
+    var updateCount = check testDB->update("Update Customers set country = 'UK' where registrationID = 1");
     _ = testDB->close();
-    int updateCount = check updateCountRet;
     return updateCount;
 }
 
 function testGeneratedKeyOnInsert() returns (string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -116,7 +113,7 @@ function testGeneratedKeyOnInsert() returns (string) {
 
 function testGeneratedKeyWithColumn() returns (string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -146,13 +143,12 @@ function testGeneratedKeyWithColumn() returns (string) {
 
 function testSelectData() returns (string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ResultCustomers);
-    table dt = check dtRet;
+    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 1", ResultCustomers);
     string firstName;
 
     while (dt.hasNext()) {
@@ -165,14 +161,13 @@ function testSelectData() returns (string) {
 
 function testSelectIntFloatData() returns (int, int, float, float) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
+    table dt = check testDB->select("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
         where row_id = 1", ResultDataType);
-    table dt = check dtRet;
     int int_type;
     int long_type;
     float float_type;
@@ -190,14 +185,13 @@ function testSelectIntFloatData() returns (int, int, float, float) {
 
 function testCallProcedure() returns (string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
     _ = testDB->call("{call InsertPersonData(100,'James')}", ());
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 100", ResultCustomers);
-    table dt = check dtRet;
+    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 100", ResultCustomers);
     string firstName;
     while (dt.hasNext()) {
         ResultCustomers rs = check <ResultCustomers>dt.getNext();
@@ -209,13 +203,12 @@ function testCallProcedure() returns (string) {
 
 function testCallProcedureWithResultSet() returns (string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtsRet = testDB->call("{call SelectPersonData()}", [ResultCustomers]);
-    table[] dts = check dtsRet;
+    table[] dts = check testDB->call("{call SelectPersonData()}", [ResultCustomers]);
 
     string firstName;
     while (dts[0].hasNext()) {
@@ -228,13 +221,12 @@ function testCallProcedureWithResultSet() returns (string) {
 
 function testCallProcedureWithMultipleResultSets() returns (string, string, string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtsRet = testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2]);
-    table[] dts = check dtsRet;
+    table[] dts = check testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2]);
 
     string firstName1;
     string firstName2;
@@ -257,13 +249,12 @@ function testCallProcedureWithMultipleResultSets() returns (string, string, stri
 
 function testQueryParameters() returns (string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers, 1);
-    table dt = check dtRet;
+    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers, 1);
 
     string firstName;
 
@@ -277,14 +268,13 @@ function testQueryParameters() returns (string) {
 
 function testQueryParameters2() returns (string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers, (sql:
+    table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers, (sql:
         TYPE_INTEGER, 1));
-    table dt = check dtRet;
 
     string firstName;
 
@@ -298,7 +288,7 @@ function testQueryParameters2() returns (string) {
 
 function testInsertTableDataWithParameters() returns (int) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -310,25 +300,22 @@ function testInsertTableDataWithParameters() returns (int) {
     sql:Parameter para4 = (sql:TYPE_DOUBLE, 5000.75, sql:DIRECTION_IN);
     sql:Parameter para5 = (sql:TYPE_VARCHAR, "UK", sql:DIRECTION_IN);
 
-    var insertCountRet = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    int insertCount = check testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", para1, para2, para3, para4, para5);
-    int insertCount = check insertCountRet;
-
     _ = testDB->close();
     return insertCount;
 }
 
 function testInsertTableDataWithParameters2() returns (int) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
     string s1 = "Anne";
-    var insertCountRet = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    int insertCount = check testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", s1, "James", 3, 5000.75, "UK");
-    int insertCount = check insertCountRet;
 
     _ = testDB->close();
     return insertCount;
@@ -337,7 +324,7 @@ function testInsertTableDataWithParameters2() returns (int) {
 
 function testArrayofQueryParameters() returns (string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -350,10 +337,9 @@ function testArrayofQueryParameters() returns (string) {
     sql:Parameter para2 = (sql:TYPE_VARCHAR, stringDataArray);
     sql:Parameter para3 = (sql:TYPE_DOUBLE, doubleArray);
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where FirstName = ? or lastName = 'A' or
+    table dt = check testDB->select("SELECT  FirstName from Customers where FirstName = ? or lastName = 'A' or
         lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?)", ResultCustomers,
         para0, para1, para2, para3);
-    table dt = check dtRet;
 
     string firstName;
     while (dt.hasNext()) {
@@ -366,7 +352,7 @@ function testArrayofQueryParameters() returns (string) {
 
 function testBoolArrayofQueryParameters() returns (int) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -376,8 +362,7 @@ function testBoolArrayofQueryParameters() returns (int) {
     boolean accepted3 = true;
     boolean[] boolDataArray = [accepted1, accepted2, accepted3];
 
-    var dt1Ret = testDB->select("SELECT blob_type from DataTypeTable where row_id = 1", ResultBlob);
-    table dt1 = check dt1Ret;
+    table dt1 = check testDB->select("SELECT blob_type from DataTypeTable where row_id = 1", ResultBlob);
 
     blob blobData;
     while (dt1.hasNext()) {
@@ -390,9 +375,8 @@ function testBoolArrayofQueryParameters() returns (int) {
     sql:Parameter para1 = (sql:TYPE_BOOLEAN, boolDataArray);
     sql:Parameter para2 = (sql:TYPE_BLOB, blobDataArray);
 
-    var dtRet = testDB->select("SELECT  int_type from DataTypeTable where row_id = ? and boolean_type in(?) and
+    table dt = check testDB->select("SELECT  int_type from DataTypeTable where row_id = ? and boolean_type in(?) and
         blob_type in (?)", ResultIntType, para0, para1, para2);
-    table dt = check dtRet;
 
     int value;
     while (dt.hasNext()) {
@@ -405,7 +389,7 @@ function testBoolArrayofQueryParameters() returns (int) {
 
 function testArrayInParameters() returns (int, map, map, map, map, map, map) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -432,14 +416,12 @@ function testArrayInParameters() returns (int, map, map, map, map, map, map) {
     map boolean_arr;
     map float_arr;
 
-    var insertCountRet = testDB->update("INSERT INTO ArrayTypes (row_id, int_array, long_array,
+    insertCount = check testDB->update("INSERT INTO ArrayTypes (row_id, int_array, long_array,
         float_array, double_array, boolean_array, string_array) values (?,?,?,?,?,?,?)", para1, para2, para3, para4,
         para5, para6, para7);
-    insertCount = check insertCountRet;
 
-    var dtRet = testDB->select("SELECT int_array, long_array, double_array, boolean_array,
+    table dt = check testDB->select("SELECT int_array, long_array, double_array, boolean_array,
         string_array, float_array from ArrayTypes where row_id = 2", ResultArrayType);
-    table dt = check dtRet;
 
     while (dt.hasNext()) {
         ResultArrayType rs = check <ResultArrayType>dt.getNext();
@@ -456,7 +438,7 @@ function testArrayInParameters() returns (int, map, map, map, map, map, map) {
 
 function testOutParameters() returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -490,7 +472,7 @@ function testOutParameters() returns (any, any, any, any, any, any, any, any, an
 
 function testNullOutParameters() returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -522,7 +504,7 @@ function testNullOutParameters() returns (any, any, any, any, any, any, any, any
 
 function testINParameters() returns (int) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -543,19 +525,18 @@ function testINParameters() returns (int) {
     sql:Parameter paraBlob = (sql:TYPE_BLOB, "YmxvYiBkYXRh");
     sql:Parameter paraBinary = (sql:TYPE_BINARY, "d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu");
 
-    var insertCountRet = testDB->update("INSERT INTO DataTypeTable (row_id,int_type, long_type,
+    int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id,int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
             smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
-    int insertCount = check insertCountRet;
     _ = testDB->close();
     return insertCount;
 }
 
 function testNullINParameterValues() returns (int) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -576,19 +557,18 @@ function testNullINParameterValues() returns (int) {
     sql:Parameter paraBlob = (sql:TYPE_BLOB, ());
     sql:Parameter paraBinary = (sql:TYPE_BINARY, ());
 
-    var insertCountRet = testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
+    int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
             smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
-    int insertCount = check insertCountRet;
     _ = testDB->close();
     return insertCount;
 }
 
 function testINOutParameters() returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -621,7 +601,7 @@ function testINOutParameters() returns (any, any, any, any, any, any, any, any, 
 
 function testNullINOutParameters() returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -653,13 +633,12 @@ function testNullINOutParameters() returns (any, any, any, any, any, any, any, a
 
 function testEmptySQLType() returns (int) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var insertCountRet = testDB->update("Insert into Customers (firstName) values (?)", "Anne");
-    int insertCount = check insertCountRet;
+    int insertCount = check testDB->update("Insert into Customers (firstName) values (?)", "Anne");
 
     _ = testDB->close();
     return insertCount;
@@ -667,7 +646,7 @@ function testEmptySQLType() returns (int) {
 
 function testArrayOutParameters() returns (any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -686,7 +665,7 @@ function testArrayOutParameters() returns (any, any, any, any, any, any) {
 
 function testArrayInOutParameters() returns (any, any, any, any, any, any, any) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -708,7 +687,7 @@ function testArrayInOutParameters() returns (any, any, any, any, any, any, any) 
 
 function testBatchUpdate() returns (int[]) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -729,18 +708,15 @@ function testBatchUpdate() returns (int[]) {
     para5 = (sql:TYPE_VARCHAR, "Colombo");
     sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
 
-    int[] updateCount;
-    var updateCountRet = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    int[] updateCount = check testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
-    updateCount = check updateCountRet;
-
     _ = testDB->close();
     return updateCount;
 }
 
 function testBatchUpdateWithFailure() returns (int[], int) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -781,16 +757,12 @@ function testBatchUpdateWithFailure() returns (int[], int) {
     para5 = (sql:TYPE_VARCHAR, "Colombo");
     sql:Parameter[] parameters4 = [para0, para1, para2, para3, para4, para5];
 
-    int[] updateCount;
     int count;
 
-    var updateCountRet = testDB->batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,creditLimit,
+    int[] updateCount = check testDB->batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,creditLimit,
         country) values (?,?,?,?,?,?)", parameters1, parameters2, parameters3, parameters4);
-    updateCount = check updateCountRet;
-
-    var dtRet = testDB->select("SELECT count(*) as countval from Customers where customerId in (111,222,333)",
+    table dt = check testDB->select("SELECT count(*) as countval from Customers where customerId in (111,222,333)",
         ResultCount);
-    table dt = check dtRet;
 
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
@@ -803,15 +775,13 @@ function testBatchUpdateWithFailure() returns (int[], int) {
 
 function testBatchUpdateWithNullParam() returns (int[]) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    int[] updateCount;
-    var updateCountRet = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    int[] updateCount = check testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values ('Alex','Smith',20,3400.5,'Colombo')");
-    updateCount = check updateCountRet;
 
     _ = testDB->close();
     return updateCount;
@@ -819,13 +789,12 @@ function testBatchUpdateWithNullParam() returns (int[]) {
 
 function testDateTimeInParameters() returns (int[]) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    string stmt =
-    "Insert into DateTimeTypes(row_id,date_type,time_type,datetime_type,timestamp_type) values (?,?,?,?,?)";
+    string stmt = "Insert into DateTimeTypes(row_id,date_type,time_type,datetime_type,timestamp_type) values (?,?,?,?,?)";
     int[] returnValues = [];
     sql:Parameter para1 = (sql:TYPE_INTEGER, 100);
     sql:Parameter para2 = (sql:TYPE_DATE, "2017-01-30-08:01");
@@ -833,8 +802,7 @@ function testDateTimeInParameters() returns (int[]) {
     sql:Parameter para4 = (sql:TYPE_TIMESTAMP, "2017-01-30T13:27:01.999-08:00");
     sql:Parameter para5 = (sql:TYPE_DATETIME, "2017-01-30T13:27:01.999999Z");
 
-    var insertCount1Ret = testDB->update(stmt, para1, para2, para3, para4, para5);
-    int insertCount1 = check insertCount1Ret;
+    int insertCount1 = check testDB->update(stmt, para1, para2, para3, para4, para5);
 
     returnValues[0] = insertCount1;
 
@@ -844,8 +812,7 @@ function testDateTimeInParameters() returns (int[]) {
     para4 = (sql:TYPE_TIMESTAMP, "2017-01-30T13:27:01.999");
     para5 = (sql:TYPE_DATETIME, "-2017-01-30T13:27:01.999999-08:30");
 
-    var insertCount2Ret = testDB->update(stmt, para1, para2, para3, para4, para5);
-    int insertCount2 = check insertCount2Ret;
+    int insertCount2 = check testDB->update(stmt, para1, para2, para3, para4, para5);
 
     returnValues[1] = insertCount2;
 
@@ -856,8 +823,7 @@ function testDateTimeInParameters() returns (int[]) {
     para4 = (sql:TYPE_TIMESTAMP, timeNow);
     para5 = (sql:TYPE_DATETIME, timeNow);
 
-    var insertCount3Ret = testDB->update(stmt, para1, para2, para3, para4, para5);
-    int insertCount3 = check insertCount3Ret;
+    int insertCount3 = check testDB->update(stmt, para1, para2, para3, para4, para5);
 
     returnValues[2] = insertCount3;
 
@@ -867,7 +833,7 @@ function testDateTimeInParameters() returns (int[]) {
 
 function testDateTimeNullInValues() returns (string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -883,9 +849,8 @@ function testDateTimeNullInValues() returns (string) {
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
         para0, para1, para2, para3, para4);
 
-    var dtRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
+    table dt = check testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 33", ResultDates);
-    table dt = check dtRet;
 
     string data;
 
@@ -898,7 +863,7 @@ function testDateTimeNullInValues() returns (string) {
 
 function testDateTimeNullOutValues() returns (int) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -917,8 +882,7 @@ function testDateTimeNullOutValues() returns (int) {
     _ = testDB->call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", (),
         para1, para2, para3, para4, para5, para6, para7, para8, para9);
 
-    var dtRet = testDB->select("SELECT count(*) as countval from DateTimeTypes where row_id = 123", ResultCount);
-    table dt = check dtRet;
+    table dt = check testDB->select("SELECT count(*) as countval from DateTimeTypes where row_id = 123", ResultCount);
 
     int count;
     while (dt.hasNext()) {
@@ -931,7 +895,7 @@ function testDateTimeNullOutValues() returns (int) {
 
 function testDateTimeNullInOutValues() returns (any, any, any, any) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -949,7 +913,7 @@ function testDateTimeNullInOutValues() returns (any, any, any, any) {
 
 function testDateTimeOutParams(int time, int date, int timestamp) returns (int) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -970,8 +934,7 @@ function testDateTimeOutParams(int time, int date, int timestamp) returns (int) 
     _ = testDB->call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", (),
         para1, para2, para3, para4, para5, para6, para7, para8, para9);
 
-    var dtRet = testDB->select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", ResultCount);
-    table dt = check dtRet;
+    table dt = check testDB->select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", ResultCount);
 
     int count;
     while (dt.hasNext()) {
@@ -984,7 +947,7 @@ function testDateTimeOutParams(int time, int date, int timestamp) returns (int) 
 
 function testStructOutParameters() returns (any) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -997,7 +960,7 @@ function testStructOutParameters() returns (any) {
 
 function testComplexTypeRetrieval() returns (string, string, string, string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -1007,23 +970,19 @@ function testComplexTypeRetrieval() returns (string, string, string, string) {
     string s3;
     string s4;
 
-    var dtRet = testDB->select("SELECT * from DataTypeTable where row_id = 1", ());
-    table dt = check dtRet;
+    table dt = check testDB->select("SELECT * from DataTypeTable where row_id = 1", ());
     var x1 = check <xml>dt;
     s1 = io:sprintf("%l", [x1]);
 
-    dtRet = testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
-    dt = check dtRet;
+    dt = check testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
     var x2 = check <xml>dt;
     s2 = io:sprintf("%l", [x2]);
 
-    dtRet = testDB->select("SELECT * from DataTypeTable where row_id = 1", ());
-    dt = check dtRet;
+    dt = check testDB->select("SELECT * from DataTypeTable where row_id = 1", ());
     var j = check <json>dt;
     s3 = io:sprintf("%j", [j]);
 
-    dtRet = testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
-    dt = check dtRet;
+    dt = check testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
     j = check <json>dt;
     s4 = io:sprintf("%j", [j]);
 
@@ -1033,13 +992,12 @@ function testComplexTypeRetrieval() returns (string, string, string, string) {
 
 function testCloseConnectionPool() returns (int) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount);
-    table dt = check dtRet;
+    table dt = check testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount);
 
     int count;
     while (dt.hasNext()) {

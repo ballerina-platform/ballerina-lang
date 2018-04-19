@@ -27,11 +27,10 @@ documentation {
     F{{minimumIdle}} - Minimum number of idle connections that pool tries to maintain in the pool.
     F{{maxLifetime}} - Maximum lifetime of a connection in the pool.
     F{{validationTimeout}} - Maximum amount of time that a connection will be tested for aliveness.
-    F{{datasourceProperties}} - Data source specific properties which are used along with the dataSourceClassName.
 }
 public type PoolOptions {
-    string connectionInitSql = "",
-    string dataSourceClassName = "",
+    string connectionInitSql,
+    string dataSourceClassName,
     boolean autoCommit = true,
     boolean isXA = false,
     int maximumPoolSize = -1,
@@ -40,7 +39,6 @@ public type PoolOptions {
     int minimumIdle = -1,
     int maxLifetime = -1,
     int validationTimeout = -1,
-    map datasourceProperties,
 };
 
 documentation {
@@ -50,12 +48,14 @@ documentation {
     F{{username}} - Username for the database connection.
     F{{password}} - Password for the database connection.
     F{{poolOptions}} - Properties for the connection pool configuration.
+    F{{dbOptions}} - Data source specific properties which are used along with the dataSourceClassName.
 }
 public type ClientEndpointConfiguration {
-    string url = "",
-    string username = "",
-    string password = "",
+    string url,
+    string username,
+    string password,
     PoolOptions poolOptions,
+    map dbOptions,
 };
 
 documentation {

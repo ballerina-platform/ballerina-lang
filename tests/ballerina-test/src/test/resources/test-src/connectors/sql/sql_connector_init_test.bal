@@ -6,18 +6,15 @@ sql:PoolOptions properties = {maximumPoolSize:1,
     connectionInitSql:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS"};
 
 map propertiesMap = {"loginTimeout":109};
-sql:PoolOptions properties3 = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
-    datasourceProperties:propertiesMap};
+sql:PoolOptions properties3 = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource"};
 
 map propertiesMap2 = {"loginTimeout":109};
-sql:PoolOptions properties4 = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
-    datasourceProperties:propertiesMap2};
+sql:PoolOptions properties4 = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource"};
 
 sql:PoolOptions properties5 = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource"};
 
 map propertiesMap3 = {"url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT"};
-sql:PoolOptions properties6 = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
-    datasourceProperties:propertiesMap3};
+sql:PoolOptions properties6 = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource"};
 
 function testConnectionPoolProperties1() returns (json) {
     endpoint sql:Client testDB {
@@ -108,7 +105,8 @@ function testConnectorWithDataSourceClass() returns (json) {
     endpoint sql:Client testDB {
         url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username:"SA",
-        poolOptions:properties3
+        poolOptions:properties3,
+        dbOptions:propertiesMap
     };
 
     var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
@@ -124,7 +122,8 @@ function testConnectorWithDataSourceClassAndProps() returns (json) {
         url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username:"SA",
         password:"",
-        poolOptions:properties4
+        poolOptions:properties4,
+        dbOptions:propertiesMap2
     };
 
     var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
@@ -156,7 +155,8 @@ function testConnectorWithDataSourceClassURLPriority() returns (json) {
         url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username:"SA",
         password:"",
-        poolOptions:properties6
+        poolOptions:properties6,
+        dbOptions:propertiesMap3
     };
 
     var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());

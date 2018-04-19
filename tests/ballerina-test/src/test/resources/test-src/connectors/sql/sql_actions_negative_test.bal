@@ -17,7 +17,7 @@ type ResultCustomers2 {
 
 function testSelectData() returns (string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -43,7 +43,7 @@ function testSelectData() returns (string) {
 
 function testGeneratedKeyOnInsert() returns (string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -72,7 +72,7 @@ function testGeneratedKeyOnInsert() returns (string) {
 
 function testCallProcedure() returns (string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -96,7 +96,7 @@ function testCallProcedure() returns (string) {
 
 function testBatchUpdate() returns (string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -139,7 +139,7 @@ function testBatchUpdate() returns (string) {
 
 function testInvalidArrayofQueryParameters() returns (string) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -170,7 +170,7 @@ function testInvalidArrayofQueryParameters() returns (string) {
 
 function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() returns ((string, string)|error) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -204,7 +204,7 @@ function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() return
 
 function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() returns ((string, string)|error) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -238,7 +238,7 @@ function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() retur
 
 function testCallProcedureWithMultipleResultSetsAndNilConstraintCount() returns ((string, string)|error) {
     endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };

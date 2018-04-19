@@ -30,13 +30,13 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * {@code Mirror} mirrors a SQL database table to a ballerina table.
+ * {@code GetProxyTable} mirrors a SQL database table to a ballerina table.
  *
  * @since 0.970.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
-        functionName = "mirror",
+        functionName = "getProxyTable",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS),
         args = {
                 @Argument(name = "tableName", type = TypeKind.STRING),
@@ -47,7 +47,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
                 @ReturnType(type = TypeKind.STRUCT, structType = "error", structPackage = "ballerina.builtin")
         }
 )
-public class Mirror extends AbstractSQLAction {
+public class GetProxyTable extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {

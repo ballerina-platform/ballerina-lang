@@ -60,8 +60,8 @@ public class SQLDatasource implements BValue {
     public SQLDatasource() {}
 
     public boolean init(Struct options, String url, String dbType, String hostOrPath, int port, String username,
-            String password, String dbName, String dbOptions) {
-        buildDataSource(options, url, dbType, hostOrPath, dbName, port, username, password, dbOptions);
+            String password, String dbName, String dbOptions, Map dbOptionsMap) {
+        buildDataSource(options, url, dbType, hostOrPath, dbName, port, username, password, dbOptions, dbOptionsMap);
         connectorId = UUID.randomUUID().toString();
         xaConn = isXADataSource();
         try (Connection con = getSQLConnection()) {
@@ -104,25 +104,22 @@ public class SQLDatasource implements BValue {
         hikariDataSource.close();
     }
 
-    private void buildDataSource(Struct options, String url, String dbType, String hostOrPath, String dbName, int port,
-            String username, String password, String dbOptions) {
+    private void buildDataSource(Struct options, String jdbcurl, String dbType, String hostOrPath, String dbName, int port,
+            String username, String password, String dbOptions, Map dbOptionsMap) {
         try {
             HikariConfig config = new HikariConfig();
             //Set username password
             config.setUsername(username);
             config.setPassword(password);
             //Set URL
-            String jdbcurl;
-            if (url.isEmpty()) {
+            if (jdbcurl.isEmpty()) {
                 jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password, dbOptions);
-            } else {
-                jdbcurl = Constants.SQL_JDBC_PREFIX + url;
             }
 
             //Set optional properties
             if (options != null) {
                 boolean isXA = options.getBooleanField(Constants.Options.IS_XA);
-                BMap<String, BRefType> dataSourceConfigMap = populatePropertiesMap(options);
+                BMap<String, BRefType> dataSourceConfigMap = populatePropertiesMap(dbOptionsMap);
 
                 String dataSourceClassName = options.getStringField(Constants.Options.DATASOURCE_CLASSNAME);
                 if (!dataSourceClassName.isEmpty()) {
@@ -182,8 +179,10 @@ public class SQLDatasource implements BValue {
         }
     }
 
-    private BMap<String, BRefType> populatePropertiesMap(Struct options) {
-        Map<String, Value> dataSourceConfigMap = options.getMapField(Constants.Options.DATASOURCE_PROPERTIES);
+    private BMap<String, BRefType> populatePropertiesMap(Map<String, Value> dataSourceConfigMap) {
+        if (dataSourceConfigMap == null) {
+            return null;
+        }
         BMap<String, BRefType> mapProperties = null;
         if (dataSourceConfigMap.size() > 0) {
             mapProperties = new BMap<>();
