@@ -2226,8 +2226,8 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BConversionOperatorSymbol conversionSymbol;
-        if (types.isValueType(lhsType) && !(rhsType.tag == TypeTags.JSON)) {
-            conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(symTable.anyType, lhsType);
+        if (types.isValueType(lhsType)) {
+            conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(rhsType, lhsType);
         } else if (lhsType.tag == TypeTags.UNION || rhsType.tag == TypeTags.UNION) {
             conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errStructType,
                     false, true, InstructionCodes.NOP, null, null);
