@@ -220,7 +220,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private static final int ALL_UNTAINTED_TABLE_ENTRY_INDEX = -1;
 
-    private enum AnalyzerPhase {INITIAL_ANALYSIS, BLOCKED_NODE_ANALYSIS};
+    private enum AnalyzerPhase { INITIAL_ANALYSIS, BLOCKED_NODE_ANALYSIS };
     private AnalyzerPhase analyzerPhase;
 
     public static TaintAnalyzer getInstance(CompilerContext context) {
