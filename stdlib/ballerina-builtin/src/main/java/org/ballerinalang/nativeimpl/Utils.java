@@ -261,7 +261,7 @@ public class Utils {
             InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
             Base64ByteChannel decodedByteChannel = new Base64ByteChannel(encodedStream);
             byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context,
-                    IOConstants.IO_PACKAGE, STRUCT_TYPE);
+                    IOConstants.BALLERINA_BUILTIN, STRUCT_TYPE);
             byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
                     new Base64Wrapper(decodedByteChannel));
             context.setReturnValues(byteChannelStruct);
@@ -293,7 +293,7 @@ public class Utils {
                 InputStream decodedStream = new ByteArrayInputStream(decodedByteArray);
                 Base64ByteChannel decodedByteChannel = new Base64ByteChannel(decodedStream);
                 byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context,
-                        IOConstants.IO_PACKAGE, STRUCT_TYPE);
+                        IOConstants.BALLERINA_BUILTIN, STRUCT_TYPE);
                 byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME,
                         new Base64Wrapper(decodedByteChannel));
                 context.setReturnValues(byteChannelStruct);
