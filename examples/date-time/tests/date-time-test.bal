@@ -16,7 +16,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function
-    main([]);
+    main();
     test:assertEquals("Created Time: 2017-03-28T23:42:45.554-05:00", outputs[1]);
     test:assertEquals("Parsed Time: 2017-06-26T09:46:22.444-05:00", outputs[2]);
 

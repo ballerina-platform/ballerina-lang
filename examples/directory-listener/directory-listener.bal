@@ -1,8 +1,8 @@
 import ballerina/file;
 import ballerina/log;
 
-@Description {value:"In this particular scenario, the listener is listening to the directory specified by path and "}
-@Description {value:"will not trigger any events that happen to child directories as the recursive property set to false. "}
+@Description {value:"In this example, the listener monitors the directory specified in `path`. As the recursive property is set to false, "}
+@Description {value:"the listener does not monitor the child directories of the main directory that it listens to."}
 endpoint file:Listener inFolder {
     path:"/home/ballerina/fs-server-connector/observed-dir",
     recursive:false

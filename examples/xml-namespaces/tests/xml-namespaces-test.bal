@@ -16,7 +16,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function. 
-    main([]);
+    main();
     string op1 = "{http://ballerina.com/aa}foo";
     string op2 = "{http://ballerina.com/updated}foo";
 

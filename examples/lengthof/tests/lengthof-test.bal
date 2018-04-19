@@ -16,7 +16,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function
-    main([]);
+    main();
 
     string out1 = "Integer array size : 3";
     string out2 = "JSON array size : 2";

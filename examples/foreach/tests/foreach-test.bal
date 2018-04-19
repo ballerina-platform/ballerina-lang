@@ -18,7 +18,7 @@ public function mockPrint (any s) {
 }
 function testFunc() {
     // Invoking the main function
-    main([]);
+    main();
     test:assertEquals("Iterating over a string array", outputs[0]);
     test:assertEquals("fruit: apple", outputs[1]);
     test:assertEquals("fruit: banana", outputs[2]);
