@@ -28,8 +28,6 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -177,8 +175,8 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.programfile.InstructionFactory;
 import org.wso2.ballerinalang.programfile.LineNumberInfo;
 import org.wso2.ballerinalang.programfile.LocalVariableInfo;
-import org.wso2.ballerinalang.programfile.PackageFileWriter;
 import org.wso2.ballerinalang.programfile.PackageInfo;
+import org.wso2.ballerinalang.programfile.PackageInfoWriter;
 import org.wso2.ballerinalang.programfile.PackageVarInfo;
 import org.wso2.ballerinalang.programfile.ResourceInfo;
 import org.wso2.ballerinalang.programfile.ServiceInfo;
@@ -213,7 +211,6 @@ import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -278,8 +275,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     // TODO Remove this dependency from the code generator
     private final SymbolTable symTable;
     private final PackageCache packageCache;
-    private SymbolResolver symResolver;
-    private Types types;
 
     private PackageInfo currentPkgInfo;
     private PackageID currentPkgID;
@@ -322,16 +317,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         context.put(CODE_GENERATOR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
-        this.symResolver = SymbolResolver.getInstance(context);
-        this.types = Types.getInstance(context);
     }
 
     public ProgramFile generateBALX(BLangPackage pkgNode) {
         ProgramFile programFile = new ProgramFile();
 
         // TODO: Fix this. Added temporally for codegen. Load this from VM side.
-        programFile.packageInfoMap.put(this.symTable.builtInPackageSymbol.pkgID.bvmAlias(),
-                this.symTable.builtInPackageSymbol.packageFile.packageInfo);
+        programFile.packageFileMap.put(this.symTable.builtInPackageSymbol.pkgID.bvmAlias(),
+                this.symTable.builtInPackageSymbol.packageFile);
 
         // Add all the packages to the program file structure.
         addPackageInfo(pkgNode.symbol, programFile);
@@ -354,8 +347,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         prepareIndexes(this.pvIndexes);
         addVarCountAttrInfo(this.currentPkgInfo, this.currentPkgInfo, pvIndexes);
 
-        byte[] pkgBinaryContent = getPackageBinaryContent(pkgNode);
-        pkgNode.symbol.packageFile = new PackageFile(this.currentPkgInfo, pkgBinaryContent);
+        pkgNode.symbol.packageFile = new PackageFile(getPackageBinaryContent(pkgNode));
         setEntryPoints(pkgNode.symbol.packageFile, pkgNode);
         this.currentPkgInfo = null;
         return pkgNode;
@@ -3247,28 +3239,25 @@ public class CodeGenerator extends BLangNodeVisitor {
         BLangPackage pkgNode = this.packageCache.get(packageSymbol.pkgID);
         if (pkgNode == null) {
             // This is a package loaded from a BALO
-            if (!programFile.packageInfoMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
-                programFile.packageInfoMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile.packageInfo);
+            if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
+                programFile.packageFileMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile);
             }
             return;
         }
 
         pkgNode.imports.forEach(importPkdNode -> addPackageInfo(importPkdNode.symbol, programFile));
-        if (!programFile.packageInfoMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
-            programFile.packageInfoMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile.packageInfo);
+        if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
+            programFile.packageFileMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile);
         }
     }
 
     private byte[] getPackageBinaryContent(BLangPackage pkgNode) {
-        byte[] pkgBinaryContent;
-        try (ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream()) {
-            PackageFileWriter.writePackage(this.currentPkgInfo, byteArrayOS);
-            pkgBinaryContent = byteArrayOS.toByteArray();
+        try {
+            return PackageInfoWriter.getPackageBinary(this.currentPkgInfo);
         } catch (IOException e) {
             // This code will not be executed under normal condition
             throw new BLangCompilerException("failed to generate bytecode for package '" +
                     pkgNode.packageID + "': " + e.getMessage(), e);
         }
-        return pkgBinaryContent;
     }
 }

@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.programfile;
 
-
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.programfile.Instruction.Operand;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
@@ -61,7 +60,7 @@ public class PackageInfoWriter {
     private static final int NULL_VALUE_FIELD_SIZE_TAG = -1;
 
     public static void writeCP(DataOutputStream dataOutStream,
-                                ConstantPoolEntry[] constPool) throws IOException {
+                               ConstantPoolEntry[] constPool) throws IOException {
         dataOutStream.writeInt(constPool.length);
         for (ConstantPoolEntry cpEntry : constPool) {
             // Emitting the kind of the constant pool entry.
@@ -134,8 +133,29 @@ public class PackageInfoWriter {
         }
     }
 
-    public static void writePackageInfo(DataOutputStream dataOutStream,
-                                        PackageInfo packageInfo) throws IOException {
+    public static byte[] getPackageBinary(PackageInfo packageInfo) throws IOException {
+        try (ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream()) {
+            DataOutputStream dataOutStream = new DataOutputStream(byteArrayOS);
+            writePackageInfo(packageInfo, dataOutStream);
+            return byteArrayOS.toByteArray();
+        }
+    }
+
+    public static void writePackageInfo(PackageInfo packageInfo, DataOutputStream dataOutStream) throws IOException {
+        // Package level CP entries
+        writeCP(dataOutStream, packageInfo.getConstPoolEntries());
+
+        // Write package name and version number
+        dataOutStream.writeInt(packageInfo.nameCPIndex);
+        dataOutStream.writeInt(packageInfo.versionCPIndex);
+
+        // Write import package entries
+        dataOutStream.writeShort(packageInfo.importPkgInfoSet.size());
+        for (ImportPackageInfo importPkgInfo : packageInfo.importPkgInfoSet) {
+            dataOutStream.writeInt(importPkgInfo.nameCPIndex);
+            dataOutStream.writeInt(importPkgInfo.versionCPIndex);
+        }
+
         // Emit struct info entries
         StructInfo[] structTypeInfoEntries = packageInfo.getStructInfoEntries();
         dataOutStream.writeShort(structTypeInfoEntries.length);
@@ -173,7 +193,7 @@ public class PackageInfoWriter {
         // Emit Package level attributes
         writeAttributeInfoEntries(dataOutStream, packageInfo.getAttributeInfoEntries());
 
-        // Emit instructions 
+        // Emit instructions
         Instruction[] instructions = packageInfo.instructionList.toArray(new Instruction[0]);
         byte[] code = writeInstructions(instructions);
         dataOutStream.writeInt(code.length);

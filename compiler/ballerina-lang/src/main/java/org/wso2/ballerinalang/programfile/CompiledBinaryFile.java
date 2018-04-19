@@ -115,7 +115,7 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
         // TODO Finalize the version number;
         private short version = VERSION_NUMBER;
 
-        public Map<String, PackageInfo> packageInfoMap = new LinkedHashMap<>();
+        public Map<String, PackageFile> packageFileMap = new LinkedHashMap<>();
 
         public int entryPkgCPIndex;
 
@@ -130,10 +130,6 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
         public void setVersion(short version) {
             this.version = version;
         }
-
-        public PackageInfo[] getPackageInfoEntries() {
-            return packageInfoMap.values().toArray(new PackageInfo[0]);
-        }
     }
 
     /**
@@ -146,11 +142,9 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
         public static final int MAGIC_VALUE = 0xFFFFFFFF;
         public static final int LANG_VERSION = VERSION_NUMBER;
 
-        public PackageInfo packageInfo;
         public byte[] pkgBinaryContent;
 
-        public PackageFile(PackageInfo packageInfo, byte[] pkgBinaryContent) {
-            this.packageInfo = packageInfo;
+        public PackageFile(byte[] pkgBinaryContent) {
             this.pkgBinaryContent = pkgBinaryContent;
         }
     }

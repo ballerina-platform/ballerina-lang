@@ -368,6 +368,9 @@ public class ProgramFileReader {
         packageInfo.setProgramFile(programFile);
         programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
+        // Read import package entries
+        readImportPackageInfoEntries(dataInStream, packageInfo);
+
         // Read struct info entries
         readStructInfoEntries(dataInStream, packageInfo);
 
@@ -404,6 +407,16 @@ public class ProgramFileReader {
         readInstructions(dataInStream, packageInfo);
 
         packageInfo.complete();
+    }
+
+    private void readImportPackageInfoEntries(DataInputStream dataInStream,
+                                              PackageInfo packageInfo) throws IOException {
+        int impPkgCount = dataInStream.readShort();
+        for (int i = 0; i < impPkgCount; i++) {
+            // TODO populate import package info structure
+            dataInStream.readInt();
+            dataInStream.readInt();
+        }
     }
 
     private void readStructInfoEntries(DataInputStream dataInStream,
