@@ -82,6 +82,7 @@ public class BinaryFileWriter {
     }
 
     public void write(BLangPackage packageNode, String fileName) {
+        // TODO Reuse binary content in PackageFile when writing the program file..
         writeLibraryPackage(packageNode);
         writeExecutableBinary(packageNode, fileName);
     }
