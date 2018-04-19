@@ -263,7 +263,7 @@ public class TransactionResourceManager {
     private void invokeCommittedFunction (String transactionId, int transactionBlockId) {
         BFunctionPointer fp = committedFuncRegistry.get(transactionBlockId);
         if (fp != null) {
-            BValue[] args = { new BString(transactionId)};
+            BValue[] args = { new BString(transactionId + ":" + transactionBlockId)};
             BLangFunctions.invokeCallable(fp.value().getFunctionInfo(), args);
         }
     }
@@ -271,7 +271,7 @@ public class TransactionResourceManager {
     private void invokeAbortedFunction (String transactionId, int transactionBlockId) {
         BFunctionPointer fp = abortedFuncRegistry.get(transactionBlockId);
         if (fp != null) {
-            BValue[] args = { new BString(transactionId)};
+            BValue[] args = { new BString(transactionId + ":" + transactionBlockId)};
             BLangFunctions.invokeCallable(fp.value().getFunctionInfo(), args);
         }
     }

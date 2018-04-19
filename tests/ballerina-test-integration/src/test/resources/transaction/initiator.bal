@@ -277,8 +277,8 @@ type State object {
         return io:sprintf("abortedByInitiator=%b,abortedByLocalParticipant=%b,abortedFunctionCalled=%b," +
                             "committedFunctionCalled=%s,localParticipantCommittedFunctionCalled=%s," +
                             "localParticipantAbortedFunctionCalled=%s",
-                            [abortedByInitiator, abortedByLocalParticipant, abortedFunctionCalled,
+                            abortedByInitiator, abortedByLocalParticipant, abortedFunctionCalled,
                             committedFunctionCalled, localParticipantCommittedFunctionCalled,
-                            localParticipantAbortedFunctionCalled]);
+                            localParticipantAbortedFunctionCalled);
     }
 };
