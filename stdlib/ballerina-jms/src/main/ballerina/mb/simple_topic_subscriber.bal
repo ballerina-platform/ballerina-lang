@@ -26,7 +26,7 @@ public type SimpleTopicSubscriber object {
                 topicPattern:config.topicPattern
             }
         );
-        self.connector = new TopicSubscriberConnector(self.subscriber.getClient());
+        self.connector = new TopicSubscriberConnector(self.subscriber.getCallerActions());
     }
 
     public function register (typedesc serviceType) {
@@ -37,7 +37,7 @@ public type SimpleTopicSubscriber object {
         self.subscriber.start();
     }
 
-    public function getClient () returns (TopicSubscriberConnector) {
+    public function getCallerActions () returns (TopicSubscriberConnector) {
         match (self.connector) {
             TopicSubscriberConnector c => return c;
             () => {

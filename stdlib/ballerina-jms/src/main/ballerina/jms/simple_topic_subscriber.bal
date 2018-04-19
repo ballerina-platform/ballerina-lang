@@ -53,9 +53,9 @@ public type SimpleTopicSubscriber object {
     public function start () {
     }
 
-    public function getClient () returns (TopicSubscriberConnector) {
+    public function getCallerActions () returns (TopicSubscriberConnector) {
         match (subscriber) {
-            TopicSubscriber c => return c.getClient();
+            TopicSubscriber c => return c.getCallerActions();
             () => {
                 error e = {message: "Topic subscriber cannot be nil"};
                 throw e;

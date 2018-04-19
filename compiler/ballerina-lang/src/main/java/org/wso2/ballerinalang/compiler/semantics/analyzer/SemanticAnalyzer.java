@@ -410,8 +410,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         Set<BLangIdentifier> visitedAttributes = new HashSet<>();
         for (BLangDocumentationAttribute attribute : docNode.attributes) {
             if (attribute.docTag == DocTag.ENDPOINT) {
-                if (!this.env.enclObject.getFunctions().stream().anyMatch(bLangFunction -> "getClient".equals
-                        (bLangFunction.getName().toString()))) {
+                if (!this.env.enclObject.getFunctions().stream().anyMatch(bLangFunction ->
+                        Names.EP_SPI_GET_CALLER_ACTIONS.value.equals(bLangFunction.getName().toString()))) {
                     this.dlog.warning(attribute.pos, DiagnosticCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE,
                             attribute.docTag.getValue());
                 }
