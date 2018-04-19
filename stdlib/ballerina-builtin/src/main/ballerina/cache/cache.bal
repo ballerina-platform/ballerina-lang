@@ -16,6 +16,7 @@
 
 package ballerina.cache;
 
+import ballerina/system;
 import ballerina/task;
 import ballerina/time;
 import ballerina/util;
@@ -57,7 +58,7 @@ public type Cache object {
             error e = {message:"Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive)."};
             throw e;
         }
-        cacheMap[util:uuid()] = self;
+        cacheMap[system:uuid()] = self;
     }
 
     public function hasKey(string key) returns (boolean) {

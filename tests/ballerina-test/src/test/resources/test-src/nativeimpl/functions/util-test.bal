@@ -11,10 +11,6 @@ function testEncodeDecode (string content) returns (string | util:Base64EncodeEr
     }
 }
 
-function testRandomString () returns (string) {
-    return util:uuid();
-}
-
 function testBase64EncodeString (string contentToBeEncoded) returns (string | util:Base64EncodeError) {
     return util:base64EncodeString(contentToBeEncoded);
 }

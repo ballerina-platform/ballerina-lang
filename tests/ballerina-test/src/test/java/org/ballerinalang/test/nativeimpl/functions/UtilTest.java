@@ -69,13 +69,6 @@ public class UtilTest {
     }
 
     @Test
-    public void testRandomString() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testRandomString");
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                "Invalid return value");
-    }
-
-    @Test
     public void testBase64EncodeString() {
         String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
         BValue[] args = new BValue[]{new BString("Hello Ballerina")};

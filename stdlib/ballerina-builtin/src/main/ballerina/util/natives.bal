@@ -41,10 +41,6 @@ public type Base64DecodeError {
     error? cause,
 };
 
-@Description {value:"Returns a random UUID string"}
-@Return {value:"The random string"}
-public native function uuid () returns (string);
-
 @Description {value:"Encode a given input with Base64 encoding scheme."}
 @Param {value:"contentToBeEncoded: Content that needs to be encoded can be of type string, blob or io:ByteChannel"}
 @Param {value:"charset: Charset to be used. This is used only with the string input"}

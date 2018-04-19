@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.user;
+package org.ballerinalang.nativeimpl.system;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -23,19 +23,19 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.BuiltInUtils;
 
 /**
- * Native function ballerina.user:getCountry.
+ * Native function ballerina.system:getName.
  *
  * @since 0.94.1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "user",
-        functionName = "getCountry",
+        orgName = "ballerina", packageName = "system",
+        functionName = "getUsername",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetCountry extends BlockingNativeCallableUnit {
+public class GetUsername extends BlockingNativeCallableUnit {
 
-    private static final String PROPERTY_NAME = "user.country";
+    private static final String PROPERTY_NAME = "user.name";
 
     @Override
     public void execute(Context context) {

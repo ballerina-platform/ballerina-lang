@@ -18,9 +18,21 @@ package ballerina.system;
 
 @Description {value:"Returns the environment variable value associated with the provided name."}
 @Param {value:"name: Name of the environment variable"}
-@Return { value:"Environment variable value if it exists, otherwise an empty string"}
-public native function getEnv (@sensitive string name) returns (string);
+@Return {value:"Environment variable value if it exists, otherwise an empty string"}
+public native function getEnv(@sensitive string name) returns (string);
 
 @Description {value:"Returns the current working directory."}
 @Return {value:"Current working directory or an empty string if the current working directory cannot be determined"}
 public native function getCurrentDirectory() returns (string);
+
+@Description {value:"Returns the current user's name."}
+@Return {value:"Current user's name if it can be determined, an empty string otherwise"}
+public native function getUsername() returns (string);
+
+@Description {value:"Returns the current user's home directory path."}
+@Return {value:"Current user's home directory if it can be determined, an empty string otherwise"}
+public native function getUserHome() returns (string);
+
+@Description {value:"Returns a random UUID string"}
+@Return {value:"The random string"}
+public native function uuid() returns (string);
