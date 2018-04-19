@@ -142,7 +142,7 @@ public type Request object {
     @Description {value:"Sets the entity body of the request with the given file content"}
     @Param {value:"filePath: Path to the file that needs to be set to the payload"}
     @Param {value:"contentType: Content-Type of the given file"}
-    public function setFileAsPayload (file:Path filePath, string contentType);
+    public function setFileAsPayload (string filePath, string contentType);
 
     @Description {value:"Set a byte channel as the request payload"}
     @Param {value:"payload: The byte channel representation of the message payload"}
@@ -357,7 +357,7 @@ public function Request::setBodyParts (mime:Entity[] bodyParts, @sensitive strin
     self.setEntity(entity);
 }
 
-public function Request::setFileAsPayload (file:Path filePath, @sensitive string contentType) {
+public function Request::setFileAsPayload (string filePath, @sensitive string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setFileAsEntityBody(filePath);
