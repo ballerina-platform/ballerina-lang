@@ -45,7 +45,7 @@
             <name>WSO2 Snapshot Repository</name>
             <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
             <snapshots>
-                <enabled>true</enabled>
+                <enabled>false</enabled>
                 <updatePolicy>daily</updatePolicy>
             </snapshots>
             <releases>
@@ -53,15 +53,20 @@
             </releases>
         </repository>
     </repositories>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>plugin-vscode-server</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>plugin-vscode-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-composer-web</artifactId>
+            <classifier>ballerina-composer-library</classifier>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>
@@ -164,8 +169,8 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy</id>
-                        <phase>prepare-package</phase>
+                        <id>copy-server</id>
+                        <phase>initialize</phase>
                         <goals>
                             <goal>copy</goal>
                         </goals>
@@ -182,6 +187,49 @@
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-composer-library</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeGroupIds>org.ballerinalang</includeGroupIds>
+                            <includeClassifiers>ballerina-composer-library</includeClassifiers>
+                            <includeArtifactIds>ballerina-composer-web</includeArtifactIds>
+                            <outputDirectory>${project.build.directory}/temp</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <useSubDirectoryPerArtifact>false</useSubDirectoryPerArtifact>
+                            <stripVersion>true</stripVersion>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target name="copy resources">
+                                <mkdir dir="${project.basedir}/renderer/resources" />
+                                <copy todir="${project.basedir}/renderer/resources" overwrite="true" flatten="true">
+                                    <fileset dir="${project.build.directory}/temp">
+                                        <include name="**/*.js" />
+                                        <include name="**/*.css" />
+                                    </fileset>
+                                </copy>
+                            </target>
+                        </configuration>
+
                     </execution>
                 </executions>
             </plugin>
