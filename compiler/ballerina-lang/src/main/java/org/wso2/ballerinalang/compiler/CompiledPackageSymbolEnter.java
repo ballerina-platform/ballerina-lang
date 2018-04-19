@@ -187,11 +187,12 @@ public class CompiledPackageSymbolEnter {
         // define services
         defineSymbols(dataInStream, rethrow(this::defineService));
 
-        // Define package level variables
-        defineSymbols(dataInStream, rethrow(this::definePackageLevelVariables));
-
 
         // Resolve unresolved types..
+        resolveTypes();
+
+        // Define package level variables
+        defineSymbols(dataInStream, rethrow(this::definePackageLevelVariables));
 
         // Define resource entries
 
@@ -800,6 +801,13 @@ public class CompiledPackageSymbolEnter {
         Name stopFuncName = names.merge(names.fromString(pkgId.bvmAlias()), Names.STOP_FUNCTION_SUFFIX);
         BSymbol stopFuncSymbol = lookupMemberSymbol(pkgSymbol.scope, stopFuncName, SymTag.FUNCTION);
         pkgSymbol.stopFunctionSymbol = (BInvokableSymbol) stopFuncSymbol;
+    }
+
+    private void resolveTypes() {
+        for (UnresolvedType unresolvedType : this.env.unresolvedTypes) {
+            BType type = getBTypeFromDescriptor(unresolvedType.typeSig);
+            unresolvedType.completer.accept(type);
+        }
     }
 
     /**
