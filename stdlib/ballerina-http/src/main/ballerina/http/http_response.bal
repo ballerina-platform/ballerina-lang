@@ -159,7 +159,7 @@ public type Response object {
     @Param {value:"response: The response message"}
     @Param {value:"filePath: Path to the file that needs to be set to the payload"}
     @Param {value:"contentType: Content-Type of the file"}
-    public function setFileAsPayload (file:Path filePath, string contentType);
+    public function setFileAsPayload (string filePath, string contentType);
 
     @Description {value:"Sets a byte channel as the outbound response payload"}
     @Param {value:"response: The response message"}
@@ -345,7 +345,7 @@ public function Response::setBodyParts (mime:Entity[] bodyParts, @sensitive stri
     self.setEntity(entity);
 }
 
-public function Response::setFileAsPayload (file:Path filePath, @sensitive string contentType) {
+public function Response::setFileAsPayload (string filePath, @sensitive string contentType) {
     mime:MediaType mediaType = mime:getMediaType(contentType);
     mime:Entity entity = self.getEntityWithoutBody();
     entity.contentType = mediaType;
