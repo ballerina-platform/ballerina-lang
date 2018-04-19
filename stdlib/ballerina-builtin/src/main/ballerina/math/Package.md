@@ -44,11 +44,11 @@ Follow the steps given below to run the sample:
    ```
 2. Navigate to the directory where the `math.bal` file is saved via the terminal and run the file using the command given below.
 
-   `Ballerina run math.bal`
+   `ballerina run math.bal`
   
    The following output is given for each function that was used in the `math.bal` file.
 
-   ```ballerina
+   ```
      Value of Pi : 3.141592653589793
      Value of E  : 2.718281828459045
      Absolute value of -152.2544 : 152.2544
