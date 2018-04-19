@@ -26,7 +26,7 @@ import java.util.Properties;
         orgName = "ballerina", packageName = "runtime",
         functionName = "execBallerina",
         args = {@Argument(name = "command", type = TypeKind.STRING),
-                @Argument(name = "packageName", type = TypeKind.STRING)},
+                @Argument(name = "data", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
