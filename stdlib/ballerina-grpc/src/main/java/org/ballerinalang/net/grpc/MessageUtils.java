@@ -139,10 +139,10 @@ public class MessageUtils {
     
     /**
      * Returns error struct of input type
-     * Error type can be either ServerError or ClientError. This utility method is used inside Observer onError
+     * Error type is generic ballerina error type. This utility method is used inside Observer onError
      * method to construct error struct from message.
      *
-     * @param errorType this is either ServerError or ClientError.
+     * @param errorType this is ballerina generic error type.
      * @param error     this is StatusRuntimeException send by opposite party.
      * @return error struct.
      */
