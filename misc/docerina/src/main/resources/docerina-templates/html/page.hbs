@@ -215,7 +215,7 @@
                                        </div>
                                        <div class="construct-name">
                                           {{name}}
-                                          {{#if isConnector}} ({{#each parameters}}{{dataType}} {{name}}{{#unless
+                                          {{#if isConnector}} ({{#each fields}}{{dataType}} {{name}}{{#unless
                                           @last}} ,{{/unless}}{{/each}}) {{/if}}
                                        </div>
                                     </a>
@@ -493,19 +493,19 @@
                                        <p>
                                           <span class="fw-right gray xs-icon"></span>{{{description}}}
                                        </p>
-                                       {{/if}} {{#if parameters}}
+                                       {{/if}} {{#if fields}}
                                        <table>
                                           <tr>
                                              <th class="cAPI-table-name">Parameter Name</th>
                                              <th class="cAPI-table-type">Data Type</th>
-                                             <th class="cAPI-table-defult"></th>
+                                             <th class="cAPI-table-defult">Default Value</th>
                                              <th class="cAPI-table-desc">Description</th>
                                           </tr>
-                                          {{#each parameters}}
+                                          {{#each fields}}
                                           <tr>
                                              <td class="cAPI-table-name">{{name}}</td>
                                              <td class="cAPI-table-type">{{dataType}}</td>
-                                             <td class="cAPI-table-defult"></td>
+                                              <td class="cAPI-table-defult">{{defaultValue}}</td>
                                              <td class="cAPI-table-desc">{{{description}}}</td>
                                           </tr>
                                           {{/each}}
@@ -578,19 +578,19 @@
                                        <p>
                                           <span class="fw-right gray xs-icon"></span>{{{description}}}
                                        </p>
-                                       {{/if}} {{#if parameters}}
+                                       {{/if}} {{#if fields}}
                                        <table>
                                           <tr>
-                                             <th class="cAPI-table-name">Parameter Name</th>
+                                             <th class="cAPI-table-name">Field Name</th>
                                              <th class="cAPI-table-type">Data Type</th>
-                                             <th class="cAPI-table-defult"></th>
+                                             <th class="cAPI-table-defult">Default Value</th>
                                              <th class="cAPI-table-desc">Description</th>
                                           </tr>
-                                          {{#each parameters}}
+                                          {{#each fields}}
                                           <tr>
                                              <td class="cAPI-table-name">{{name}}</td>
                                              <td class="cAPI-table-type">{{dataType}}</td>
-                                             <td class="cAPI-table-defult"></td>
+                                             <td class="cAPI-table-defult">{{defaultValue}}</td>
                                              <td class="cAPI-table-desc">{{{description}}}</td>
                                           </tr>
                                           {{/each}}
