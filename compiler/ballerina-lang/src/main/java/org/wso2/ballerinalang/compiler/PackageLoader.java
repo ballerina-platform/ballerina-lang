@@ -49,7 +49,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.util.HomeRepoUtils;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -118,7 +118,7 @@ public class PackageLoader {
     }
 
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
-        Path balHomeDir = HomeRepoUtils.createAndGetHomeReposPath();
+        Path balHomeDir = RepoUtils.createAndGetHomeReposPath();
         Path projectHiddenDir = sourceRoot.resolve(".ballerina");
         RepoHierarchyBuilder.RepoNode[] systemArr = loadSystemRepos();
         Converter<Path> converter = sourceDirectory.getConverter();

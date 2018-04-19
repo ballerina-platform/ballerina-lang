@@ -6,19 +6,15 @@ import ballerina/time;
 
 function search (string url, string querySearched) {
     endpoint http:Client httpEndpoint {
-        targets: [
-        {
-            url: url,
-            secureSocket: {
-                trustStore: {
-                    filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                    password: "ballerina"
-                },
-                verifyHostname:false,
-                shareSession: true
-                }
-            }  
-        ]
+        url:url,
+        secureSocket:{
+            trustStore:{
+                filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password:"ballerina"
+            },
+            verifyHostname:false,
+            shareSession:true
+        }
     };
     http:Request req = new;
     var result = httpEndpoint -> get(untaint querySearched, req);
@@ -54,7 +50,15 @@ function search (string url, string querySearched) {
                 string summary = jsonElement.summary.toString();
                 printInCLI(summary, 40);
                 
-                string authors = jsonElement.authors.toString();
+                string authors;
+                json authorsArr = jsonElement.authors;
+                foreach authorIndex in [0..lengthof authorsArr - 1] {
+                    if (authorIndex == lengthof authorsArr - 1) {
+                        authors = authors + authorsArr[authorIndex].toString();
+                    } else {
+                        authors = authors + " , " + authorsArr[authorIndex].toString();
+                    }
+                }
                 printInCLI(authors, 40);
 
                 json createTimeJson = <json>jsonElement.createdDate;

@@ -113,13 +113,11 @@ public class TestCmd implements BLauncherCmd {
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         // Setting the source root so it can be accessed from anywhere
         System.setProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
-        Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
         try {
-            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, ballerinaConfPath);
+            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, null);
             ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
         } catch (IOException e) {
-            throw new RuntimeException("failed to read the specified configuration file: " + ballerinaConfPath
-                    .toString(), e);
+            throw new RuntimeException("failed to read the specified configuration file: " + configFilePath, e);
         }
 
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);

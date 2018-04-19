@@ -16,7 +16,7 @@
 
 package ballerina.auth;
 
-import ballerina/caching;
+import ballerina/cache;
 import ballerina/jwt;
 import ballerina/log;
 import ballerina/runtime;
@@ -30,7 +30,7 @@ public type JWTAuthProvider object {
         JWTAuthProviderConfig jwtAuthProviderConfig;
     }
     private {
-        caching:Cache authCache;
+        cache:Cache authCache;
     }
 
     new(jwtAuthProviderConfig) {
@@ -42,15 +42,15 @@ public type JWTAuthProvider object {
     @Return {value:"error: If error occured in authentication"}
     public function authenticate(string jwtToken) returns boolean|error {
         if (self.authCache.hasKey(jwtToken)) {
-                match self.authenticateFromCache(jwtToken) {
-                    jwt:Payload payload => {
-                        setAuthContext(payload, jwtToken);
-                        return true;
-                    }
-                    () => {
-                        return false;
-                    }
+            match self.authenticateFromCache(jwtToken) {
+                jwt:Payload payload => {
+                    setAuthContext(payload, jwtToken);
+                    return true;
                 }
+                () => {
+                    return false;
+                }
+            }
         }
 
         match jwt:validate(jwtToken, self.jwtAuthProviderConfig) {
