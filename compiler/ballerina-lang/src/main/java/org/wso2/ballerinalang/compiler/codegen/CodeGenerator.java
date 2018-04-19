@@ -1481,7 +1481,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private void visitTaintTable(Map<Integer, TaintRecord> taintTable,
                                  TaintTableAttributeInfo taintTableAttributeInfo) {
         int rowCount = 0;
-        for(Integer paramIndex : taintTable.keySet()) {
+        for (Integer paramIndex : taintTable.keySet()) {
             TaintRecord taintRecord = taintTable.get(paramIndex);
             boolean added = addTaintTableEntry(taintTableAttributeInfo, paramIndex, taintRecord);
             if (added) {
