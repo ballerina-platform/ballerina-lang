@@ -39,7 +39,7 @@ public type Client object {
     documentation {
         Returns the connector that the client code uses.
     }
-    public function getClient() returns CallerActions {
+    public function getCallerActions() returns CallerActions {
         return self.callerActions;
     }
 };

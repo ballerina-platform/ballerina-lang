@@ -37,13 +37,13 @@ public type Participant2pcClientEP object {
     public function init(Participant2pcClientConfig conf) {
         endpoint http:Client httpEP {targets:[{url:conf.participantURL}],
                                             timeoutMillis:conf.timeoutMillis,
-                                            retry:{count:conf.retryConfig.count,
+                                            retryConfig:{count:conf.retryConfig.count,
                                                       interval:conf.retryConfig.interval}};
         self.httpClient = httpEP;
         self.conf = conf;
     }
 
-    public function getClient() returns Participant2pcClient {
+    public function getCallerActions() returns Participant2pcClient {
         Participant2pcClient client = new;
         client.clientEP = self;
         return client;

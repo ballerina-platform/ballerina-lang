@@ -28,7 +28,7 @@ public type QueueSender object {
     public function start () {
     }
 
-    public function getClient () returns (QueueSenderConnector) {
+    public function getCallerActions () returns (QueueSenderConnector) {
         return self.connector;
     }
 

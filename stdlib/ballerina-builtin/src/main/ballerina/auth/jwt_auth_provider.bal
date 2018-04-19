@@ -16,7 +16,7 @@
 
 package ballerina.auth;
 
-import ballerina/caching;
+import ballerina/cache;
 import ballerina/config;
 import ballerina/jwt;
 import ballerina/log;
@@ -29,7 +29,7 @@ import ballerina/time;
 public type JWTAuthProvider object {
     public {
         JWTAuthProviderConfig jwtAuthProviderConfig;
-        caching:Cache authCache;
+        cache:Cache authCache;
     }
 
     new (jwtAuthProviderConfig) {

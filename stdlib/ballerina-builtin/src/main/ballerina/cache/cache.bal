@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.caching;
+package ballerina.cache;
 
 import ballerina/task;
 import ballerina/time;
@@ -142,7 +142,8 @@ public type Cache object {
         return entries.keys();
     }
 
-    @Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is full."}
+    @Description {value:"Returns the key of the Least Recently Used cache entry. This is used to remove cache entries
+    if the cache is full."}
     @Return {value:"numberOfKeysToEvict - number of keys to be evicted"}
     function getLRUCacheKeys(int numberOfKeysToEvict) returns (string[]) {
         // Create new arrays to hold keys to be removed and hold the corresponding timestamps.
@@ -154,7 +155,8 @@ public type Cache object {
         foreach key in keys {
             var entry = <CacheEntry>entries[key];
             match (entry) {
-                CacheEntry ce => checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, ce.lastAccessedTime);
+                CacheEntry ce => checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key,
+                    ce.lastAccessedTime);
                 error => next;
             }
             // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.

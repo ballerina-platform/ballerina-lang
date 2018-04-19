@@ -47,7 +47,7 @@ public type SecureListener object {
 
     @Description {value:"Returns the connector that client code uses"}
     @Return {value:"The connector that client code uses"}
-    public function getClient() returns (Connection);
+    public function getCallerActions() returns (Connection);
 
     @Description {value:"Stops the registered service"}
     public function stop();
@@ -212,8 +212,8 @@ public function SecureListener::start () {
 
 @Description {value:"Returns the connector that client code uses"}
 @Return {value:"The connector that client code uses"}
-public function SecureListener::getClient () returns (Connection) {
-    return self.httpListener.getClient();
+public function SecureListener::getCallerActions () returns (Connection) {
+    return self.httpListener.getCallerActions();
 }
 
 @Description {value:"Stops the registered service"}

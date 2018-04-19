@@ -26,7 +26,7 @@ public type SimpleQueueReceiver object {
                 queueName:config.queueName
             });
 
-        self.connector = new QueueReceiverConnector(self.receiver.getClient());
+        self.connector = new QueueReceiverConnector(self.receiver.getCallerActions());
     }
 
     public function register (typedesc serviceType) {
@@ -37,7 +37,7 @@ public type SimpleQueueReceiver object {
         self.receiver.start();
     }
 
-    public function getClient() returns QueueReceiverConnector {
+    public function getCallerActions() returns QueueReceiverConnector {
         match (self.connector) {
             QueueReceiverConnector c => return c;
             () => {

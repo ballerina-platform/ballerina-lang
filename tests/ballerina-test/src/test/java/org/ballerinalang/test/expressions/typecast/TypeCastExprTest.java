@@ -179,36 +179,35 @@ public class TypeCastExprTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testJSONToString() {
         BValue[] returns = BRunUtil.invoke(result, "testJsonToStringCast");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "hello");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testJSONObjectToStringCast() {
         BValue[] returns = BRunUtil.invoke(result, "testJSONObjectToStringCast");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[1]).getStringField(0),
-                            "'json-object' cannot be cast to 'string'");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
+                            "'json' cannot be cast to 'string'");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testJsonToInt() {
         BValue[] returns = BRunUtil.invoke(result, "testJsonToInt");
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testJsonToFloat() {
         BValue[] returns = BRunUtil.invoke(result, "testJsonToFloat");
         Assert.assertTrue(returns[0] instanceof BFloat);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 7.65);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testJsonToBoolean() {
         BValue[] returns = BRunUtil.invoke(result, "testJsonToBoolean");
         Assert.assertTrue(returns[0] instanceof BBoolean);
@@ -330,7 +329,7 @@ public class TypeCastExprTest {
         BAssertUtil.validateError(res, 0, "incompatible types: expected 'Person', found 'Student'", 24, 16);
     }
 
-    @Test(description = "Test casting a JSON integer to a string", enabled = false)
+    @Test(description = "Test casting a JSON integer to a string")
     public void testJsonIntToString() {
         BValue[] returns = BRunUtil.invoke(result, "testJsonIntToString");
         Assert.assertTrue(returns[0] instanceof BString);
@@ -340,7 +339,7 @@ public class TypeCastExprTest {
     @Test(description = "Test casting an incomatible JSON to integer",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: error, message: " +
-                    "'string' cannot be cast to 'int'.*", enabled = false)
+                    "'string' cannot be cast to 'int'.*")
     public void testIncompatibleJsonToInt() {
         BRunUtil.invoke(result, "testIncompatibleJsonToInt");
     }
@@ -348,7 +347,7 @@ public class TypeCastExprTest {
     @Test(description = "Test casting an incomatible JSON to float",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: error, message: " +
-                    "'string' cannot be cast to 'float'.*", enabled = false)
+                    "'string' cannot be cast to 'float'.*")
     public void testIncompatibleJsonToFloat() {
         BRunUtil.invoke(result, "testIncompatibleJsonToFloat");
     }
@@ -356,7 +355,7 @@ public class TypeCastExprTest {
     @Test(description = "Test casting an incomatible JSON to boolean",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: error, message: " +
-                    "'string' cannot be cast to 'boolean'.*", enabled = false)
+                    "'string' cannot be cast to 'boolean'.*")
     public void testIncompatibleJsonToBoolean() {
         BRunUtil.invoke(result, "testIncompatibleJsonToBoolean");
     }
@@ -364,7 +363,7 @@ public class TypeCastExprTest {
     @Test(description = "Test casting a boolean in JSON to int",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: error, message: 'boolean' " +
-                    "cannot be cast to 'int'.*", enabled = false)
+                    "cannot be cast to 'int'.*")
     public void testBooleanInJsonToInt() {
         BRunUtil.invoke(result, "testBooleanInJsonToInt");
     }
@@ -372,35 +371,35 @@ public class TypeCastExprTest {
     @Test(description = "Test casting an integer in JSON to float",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: error, message: 'int' " +
-                    "cannot be cast to 'float'.*", enabled = false)
+                    "cannot be cast to 'float'.*")
     public void testIntInJsonToFloat() {
         BRunUtil.invoke(result, "testIntInJsonToFloat");
     }
 
     @Test(description = "Test casting a null JSON to string",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
+            expectedExceptionsMessageRegExp = ".*'null' cannot be cast to 'string'.*")
     public void testNullJsonToString() {
         BRunUtil.invoke(result, "testNullJsonToString");
     }
 
     @Test(description = "Test casting a null JSON to int",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
+            expectedExceptionsMessageRegExp = ".*'null' cannot be cast to 'int'.*")
     public void testNullJsonToInt() {
         BRunUtil.invoke(result, "testNullJsonToInt");
     }
 
     @Test(description = "Test casting a null JSON to float",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
+            expectedExceptionsMessageRegExp = ".*'null' cannot be cast to 'float'.*")
     public void testNullJsonToFloat() {
         BRunUtil.invoke(result, "testNullJsonToFloat");
     }
 
     @Test(description = "Test casting a null JSON to boolean",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
+            expectedExceptionsMessageRegExp = ".*'null' cannot be cast to 'boolean'.*")
     public void testNullJsonToBoolean() {
         BRunUtil.invoke(result, "testNullJsonToBoolean");
     }
@@ -750,12 +749,12 @@ public class TypeCastExprTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
     }
 
-    @Test(enabled = false)
-    public void testErrorOnCasting() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorOnCasting");
-        Assert.assertNull(returns[0]);
-        Assert.assertNull(returns[1]);
-        Assert.assertNull(returns[2]);
-        Assert.assertNull(returns[3]);
+    @Test
+    public void testJSONValueCasting() {
+        BValue[] returns = BRunUtil.invoke(result, "testJSONValueCasting");
+        Assert.assertEquals(returns[0].stringValue(), "hello");
+        Assert.assertEquals(returns[1].stringValue(), "4");
+        Assert.assertEquals(returns[2].stringValue(), "4.2");
+        Assert.assertEquals(returns[3].stringValue(), "true");
     }
 }

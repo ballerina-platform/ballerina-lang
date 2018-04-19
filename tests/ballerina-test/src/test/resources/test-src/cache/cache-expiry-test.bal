@@ -1,6 +1,6 @@
-import ballerina/caching;
+import ballerina/cache;
 
-caching:Cache cache;
+cache:Cache cache;
 
 function initCache () {
     cache = new(expiryTimeMillis = 10000, capacity = 10, evictionFactor = 0.1);

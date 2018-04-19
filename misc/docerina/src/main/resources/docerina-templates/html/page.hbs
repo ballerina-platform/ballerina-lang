@@ -188,13 +188,7 @@
                               </ul>
                            </div>
                            {{else}}
-                           <a href="{{href}}.html">
-                           {{#if caption.isPackageName}} {{caption.prefix}}
-                           <span class="bold">{{caption.suffix}}</span>
-                           {{/if}} {{#if caption.isStaticCaption}}
-                           <span class="bold">{{caption.value}}</span>
-                           {{/if}}
-                           </a>
+                           <a href="{{href}}.html">{{#if caption.isPackageName}}{{caption.prefix}}<span class="bold">{{caption.suffix}}</span>{{/if}}{{#if caption.isStaticCaption}}<span class="bold">{{caption.value}}</span>{{/if}}</a>
                            {{/if}}
                         </li>
                      </ul>
@@ -213,8 +207,7 @@
                         <li>
                            <!--Package Name-->
                            {{#if active}} {{#if caption.isPackageName}}
-                           <a class="cPackageList">{{caption.prefix}}
-                           <span class="bold">{{caption.suffix}}</a>
+                           <a class="cPackageList">{{caption.prefix}}<span class="bold">{{caption.suffix}}</a>
                            {{/if}} {{#if caption.isStaticCaption}}
                            <a>
                            <span class="bold">{{caption.value}}</span>
