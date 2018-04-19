@@ -41,7 +41,7 @@ class LSPathConverter extends PathConverter {
     @Override
     public Stream<CompilerInput> finalize(Path path, PackageID id) {
         if (documentManager.isFileOpen(path) || !Files.isRegularFile(path)) {
-            return Stream.of(new LSInMemorySourceInput(path, id, documentManager));
+            return Stream.of(new LSInMemorySourceEntry(path, id, documentManager));
         } else {
             return Stream.of(new FileSystemSourceInput(path));
         }
