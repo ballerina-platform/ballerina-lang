@@ -5,7 +5,7 @@ import ballerina/log;
 public type QueueReceiver object {
 
     public {
-        QueueReceiverConnector connector;
+        QueueReceiverActions consumerActions;
         QueueReceiverEndpointConfiguration config;
     }
 
@@ -22,25 +22,25 @@ public type QueueReceiver object {
     }
 
     public function register(typedesc serviceType) {
-        self.registerListener(serviceType, connector);
+        self.registerListener(serviceType, consumerActions);
     }
 
-    native function registerListener(typedesc serviceType, QueueReceiverConnector connector);
+    native function registerListener(typedesc serviceType, QueueReceiverActions consumerActions);
 
     native function createQueueReceiver(Session session, string messageSelector);
 
     public function start() {
     }
 
-    public function getCallerActions () returns (QueueReceiverConnector) {
-        return connector;
+    public function getCallerActions() returns QueueReceiverActions {
+        return consumerActions;
     }
 
     public function stop() {
-        self.closeQueueReceiver(connector);
+        self.closeQueueReceiver(consumerActions);
     }
 
-    native function closeQueueReceiver(QueueReceiverConnector connector);
+    native function closeQueueReceiver(QueueReceiverActions consumerActions);
 };
 
 public type QueueReceiverEndpointConfiguration {
@@ -50,7 +50,7 @@ public type QueueReceiverEndpointConfiguration {
     string identifier;
 };
 
-public type QueueReceiverConnector object {
+public type QueueReceiverActions object {
     public native function acknowledge(Message message) returns error?;
 
     public native function receive(int timeoutInMilliSeconds = 0) returns Message|error|();

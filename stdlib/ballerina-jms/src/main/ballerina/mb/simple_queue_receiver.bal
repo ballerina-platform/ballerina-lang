@@ -11,7 +11,7 @@ public type SimpleQueueReceiver object {
 
     private {
         jms:SimpleQueueReceiver receiver;
-        QueueReceiverConnector? connector;
+        QueueReceiverActions? consumerActions;
     }
 
     public function init(SimpleQueueListenerEndpointConfiguration config) {
@@ -26,7 +26,7 @@ public type SimpleQueueReceiver object {
                 queueName:config.queueName
             });
 
-        self.connector = new QueueReceiverConnector(self.receiver.getCallerActions());
+        self.consumerActions = new QueueReceiverActions(self.receiver.getCallerActions());
     }
 
     public function register(typedesc serviceType) {
@@ -37,11 +37,11 @@ public type SimpleQueueReceiver object {
         self.receiver.start();
     }
 
-    public function getCallerActions() returns QueueReceiverConnector {
-        match (self.connector) {
-            QueueReceiverConnector c => return c;
+    public function getCallerActions() returns QueueReceiverActions {
+        match (self.consumerActions) {
+            QueueReceiverActions c => return c;
             () => {
-                error e = {message:"Queue receiver connector cannot be nil."};
+                error e = {message:"Queue receiver consumerActions cannot be nil."};
                 throw e;
             }
         }
@@ -74,10 +74,10 @@ public type SimpleQueueListenerEndpointConfiguration {
     string queueName,
 };
 
-public type QueueReceiverConnector object {
+public type QueueReceiverActions object {
 
     public {
-        jms:QueueReceiverConnector helper;
+        jms:QueueReceiverActions helper;
     }
 
     public new(helper) {}

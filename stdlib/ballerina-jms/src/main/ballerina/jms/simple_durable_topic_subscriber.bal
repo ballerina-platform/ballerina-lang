@@ -54,7 +54,7 @@ public type SimpleDurableTopicSubscriber object {
     public function start() {
     }
 
-    public function getCallerActions() returns DurableTopicSubscriberConnector {
+    public function getCallerActions() returns DurableTopicSubscriberActions {
         match (subscriber) {
             DurableTopicSubscriber c => return c.getCallerActions();
             () => {

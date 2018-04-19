@@ -4,12 +4,12 @@ import ballerina/log;
 
 public type TopicPublisher object {
     public {
-        TopicPublisherConnector connector;
+        TopicPublisherActions producerActions;
         TopicPublisherEndpointConfiguration config;
     }
 
     new () {
-        self.connector = new;
+        self.producerActions = new;
     }
 
     public function init(TopicPublisherEndpointConfiguration config) {
@@ -28,8 +28,8 @@ public type TopicPublisher object {
     public function start() {
     }
 
-    public function getCallerActions() returns TopicPublisherConnector {
-        return self.connector;
+    public function getCallerActions() returns TopicPublisherActions {
+        return self.producerActions;
     }
 
     public function stop() {
@@ -41,6 +41,6 @@ public type TopicPublisherEndpointConfiguration {
     string topicPattern;
 };
 
-public type TopicPublisherConnector object {
+public type TopicPublisherActions object {
     public native function send (Message m) returns error?;
 };

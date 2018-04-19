@@ -31,7 +31,7 @@ import javax.naming.Context;
  */
 public class Constants {
     // Common fields
-    public static final String B_OBJECT_FIELD_CONNECTOR = "connector";
+    public static final String B_OBJECT_FIELD_PRODUCER_ACTIONS = "producerActions";
     public static final String B_OBJECT_FIELD_CONFIG = "config";
 
     // Connection fields
@@ -43,19 +43,19 @@ public class Constants {
     // Queue Sender fields
     public static final String QUEUE_SENDER_FIELD_CONFIG = B_OBJECT_FIELD_CONFIG;
     public static final String QUEUE_SENDER_FIELD_QUEUE_NAME = "queueName";
-    public static final String QUEUE_SENDER_FIELD_CONNECTOR = B_OBJECT_FIELD_CONNECTOR;
+    public static final String QUEUE_SENDER_FIELD_PRODUCER_ACTIONS = B_OBJECT_FIELD_PRODUCER_ACTIONS;
 
     // Topic publisher fields
     public static final String TOPIC_PUBLISHER_FIELD_CONFIG = B_OBJECT_FIELD_CONFIG;
     public static final String TOPIC_PUBLISHER_FIELD_TOPIC_PATTERN = "topicPattern";
-    public static final String TOPIC_PUBLISHER_FIELD_CONNECTOR = B_OBJECT_FIELD_CONNECTOR;
+    public static final String TOPIC_PUBLISHER_FIELD_PRODUCER_ACTIONS = B_OBJECT_FIELD_PRODUCER_ACTIONS;
 
     // Consumer fields
     public static final String CONSUMER_CONFIG = "config";
     public static final String QUEUE_NAME = "queueName";
     public static final String TOPIC_PATTERN = "topicPattern";
     public static final String CONSUMER_IDENTIFIER = "identifier";
-    public static final String CONSUMER_CONNECTOR = "connector";
+    public static final String CONSUMER_ACTIONS = "consumerActions";
 
     // Native objects
     public static final String JMS_CONNECTION = "jms_connection_object";

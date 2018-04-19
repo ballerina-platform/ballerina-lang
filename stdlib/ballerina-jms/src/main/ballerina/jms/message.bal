@@ -23,7 +23,7 @@ public type Message object {
     documentation {Gets a JMS transport integer property from the message
         P{{key}} The integer property name
         returns The integer property value}
-    public native function getIntProperty(@sensitive string key) returns int|error;
+    public native function getIntProperty(@sensitive string key) returns @tainted int|error;
 
     documentation {Sets a JMS transport boolean property from the message
         P{{key}} The boolean property name
@@ -33,7 +33,7 @@ public type Message object {
     documentation {Gets a JMS transport boolean property from the message
         P{{key}} The boolean property name
         returns The boolean property value}
-    public native function getBooleanProperty(@sensitive string key) returns boolean|error;
+    public native function getBooleanProperty(@sensitive string key) returns @tainted boolean|error;
 
     documentation {Sets a JMS transport float property from the message
         P{{key}} The float property name
@@ -43,7 +43,7 @@ public type Message object {
     documentation {Gets a JMS transport float property from the message
         P{{key}} The float property name
         returns The float property value}
-    public native function getFloatProperty(@sensitive string key) returns float|error;
+    public native function getFloatProperty(@sensitive string key) returns @tainted float|error;
 
     documentation {Get JMS transport header MessageID from the message
         returns The header value}
@@ -51,7 +51,7 @@ public type Message object {
 
     documentation {Get JMS transport header Timestamp from the message
         returns The header value}
-    public native function getTimestamp() returns int|error;
+    public native function getTimestamp() returns @tainted int|error;
 
     documentation {Sets DeliveryMode JMS transport header to the message
         P{{mode}} The header value}
@@ -59,7 +59,7 @@ public type Message object {
 
     documentation {Get JMS transport header DeliveryMode from the message
         returns The header value" }
-    public native function getDeliveryMode() returns int|error;
+    public native function getDeliveryMode() returns @tainted int|error;
 
     documentation {Sets Expiration JMS transport header to the message
         P{{value}} The header value}
@@ -67,7 +67,7 @@ public type Message object {
 
     documentation {Get JMS transport header Expiration from the message
         returns int: The header value}
-    public native function getExpiration() returns int|error;
+    public native function getExpiration() returns @tainted int|error;
 
     documentation { Sets Type JMS transport header to the message
         P{{messageType}} The message type header value
@@ -92,11 +92,11 @@ public type Message object {
 
     documentation {Get JMS transport header Priority from the message
         returns The header value}
-    public native function getPriority() returns int|error;
+    public native function getPriority() returns @tainted int|error;
 
     documentation {Get JMS transport header Redelivered from the message
         returns The header value}
-    public native function getRedelivered() returns boolean|error;
+    public native function getRedelivered() returns @tainted boolean|error;
 
     documentation {Sets CorrelationID JMS transport header to the message
         P{{value}} The header value}
@@ -104,5 +104,5 @@ public type Message object {
 
     documentation {Get JMS transport header CorrelationID from the message
         returns The header value}
-    public native function getCorrelationID() returns string|()|error;
+    public native function getCorrelationID() returns @tainted string|()|error;
 };

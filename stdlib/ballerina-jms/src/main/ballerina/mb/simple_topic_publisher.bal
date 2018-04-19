@@ -9,7 +9,7 @@ public type SimpleTopicPublisher object {
 
     private {
         jms:SimpleTopicPublisher? publisher;
-        TopicPublisherConnector? publisherConnector;
+        TopicPublisherActions? producerActions;
     }
 
     public function init(SimpleTopicPublisherEndpointConfiguration config) {
@@ -22,7 +22,7 @@ public type SimpleTopicPublisher object {
         topicPattern: config.topicPattern
     };
     self.publisher = topicPublisher;
-    self.publisherConnector = new TopicPublisherConnector(topicPublisher);
+    self.producerActions = new TopicPublisherActions(topicPublisher);
     self.config = config;
 }
 
@@ -32,9 +32,9 @@ public type SimpleTopicPublisher object {
     public function start() {
     }
 
-    public function getCallerActions () returns (TopicPublisherConnector) {
-        match (self.publisherConnector) {
-            TopicPublisherConnector s => return s;
+    public function getCallerActions() returns TopicPublisherActions {
+        match (self.producerActions) {
+            TopicPublisherActions s => return s;
             () => {
                 error e = {message:"Topic publisher connector cannot be nil"};
                 throw e;
@@ -63,7 +63,7 @@ public type SimpleTopicPublisher object {
     }
 };
 
-public type TopicPublisherConnector object {
+public type TopicPublisherActions object {
     private {
         jms:SimpleTopicPublisher publisher;
     }

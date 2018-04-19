@@ -5,7 +5,7 @@ import ballerina/log;
 public type TopicSubscriber object {
 
     public {
-        TopicSubscriberConnector connector;
+        TopicSubscriberActions consumerActions;
         TopicSubscriberEndpointConfiguration config;
     }
 
@@ -21,25 +21,25 @@ public type TopicSubscriber object {
     }
 
     public function register(typedesc serviceType) {
-        self.registerListener(serviceType, connector);
+        self.registerListener(serviceType, consumerActions);
     }
 
-    native function registerListener(typedesc serviceType, TopicSubscriberConnector connector);
+    native function registerListener(typedesc serviceType, TopicSubscriberActions consumerActions);
 
     native function createSubscriber(Session session, string messageSelector);
 
     public function start() {
     }
 
-    public function getCallerActions() returns TopicSubscriberConnector {
-        return connector;
+    public function getCallerActions() returns TopicSubscriberActions {
+        return consumerActions;
     }
 
     public function stop() {
-        self.closeSubscriber(connector);
+        self.closeSubscriber(consumerActions);
     }
 
-    native function closeSubscriber(TopicSubscriberConnector connector);
+    native function closeSubscriber(TopicSubscriberActions consumerActions);
 };
 
 public type TopicSubscriberEndpointConfiguration {
@@ -49,7 +49,7 @@ public type TopicSubscriberEndpointConfiguration {
     string identifier;
 };
 
-public type TopicSubscriberConnector object {
+public type TopicSubscriberActions object {
     public native function acknowledge(Message message) returns error?;
 
     public native function receive(int timeoutInMilliSeconds = 0) returns Message|error|();

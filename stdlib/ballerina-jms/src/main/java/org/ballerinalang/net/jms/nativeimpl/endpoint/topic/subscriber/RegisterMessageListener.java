@@ -39,7 +39,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandl
         functionName = "registerListener",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "TopicSubscriber", structPackage = "ballerina.jms"),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC),
-                @Argument(name = "connector", type = TypeKind.STRUCT, structType = "TopicSubscriberConnector")
+                @Argument(name = "consumerActions", type = TypeKind.STRUCT, structType = "TopicSubscriberActions")
         },
         isPublic = true
 )

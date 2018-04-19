@@ -10,7 +10,7 @@ public type SimpleDurableTopicSubscriber object {
 
     private {
         jms:SimpleDurableTopicSubscriber subscriber;
-        DurableTopicSubscriberConnector? connector;
+        DurableTopicSubscriberActions? consumerActions;
     }
 
     public function init(SimpleDurableTopicSubscriberEndpointConfiguration config) {
@@ -24,7 +24,7 @@ public type SimpleDurableTopicSubscriber object {
                 messageSelector:config.messageSelector,
                 topicPattern:config.topicPattern
             });
-        self.connector = new DurableTopicSubscriberConnector(self.subscriber.getCallerActions());
+        self.consumerActions = new DurableTopicSubscriberActions(self.subscriber.getCallerActions());
     }
 
     public function register(typedesc serviceType) {
@@ -35,11 +35,11 @@ public type SimpleDurableTopicSubscriber object {
         self.subscriber.start();
     }
 
-    public function getCallerActions() returns DurableTopicSubscriberConnector {
-        match (self.connector) {
-            DurableTopicSubscriberConnector c => return c;
+    public function getCallerActions() returns DurableTopicSubscriberActions {
+        match (self.consumerActions) {
+            DurableTopicSubscriberActions c => return c;
             () => {
-                error e = {message:"Durable topic subscriber connector cannot be nil."};
+                error e = {message:"Durable topic subscriber consumerActions cannot be nil."};
                 throw e;
             }
         }
@@ -73,10 +73,10 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration {
     string topicPattern;
 };
 
-public type DurableTopicSubscriberConnector object {
+public type DurableTopicSubscriberActions object {
 
     public {
-        jms:DurableTopicSubscriberConnector helper;
+        jms:DurableTopicSubscriberActions helper;
     }
 
     public new(helper) {}

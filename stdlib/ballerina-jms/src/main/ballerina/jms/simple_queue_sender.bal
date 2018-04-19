@@ -43,7 +43,7 @@ public type SimpleQueueSender object {
     public function start() {
     }
 
-    public function getCallerActions() returns QueueSenderConnector {
+    public function getCallerActions() returns QueueSenderActions {
         match (sender) {
             QueueSender s => return s.getCallerActions();
             () => {

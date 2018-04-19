@@ -53,7 +53,7 @@ public type SimpleTopicSubscriber object {
     public function start() {
     }
 
-    public function getCallerActions() returns TopicSubscriberConnector {
+    public function getCallerActions() returns TopicSubscriberActions {
         match (subscriber) {
             TopicSubscriber c => return c.getCallerActions();
             () => {

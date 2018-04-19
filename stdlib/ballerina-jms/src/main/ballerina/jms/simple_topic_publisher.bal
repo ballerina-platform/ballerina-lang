@@ -43,7 +43,7 @@ public type SimpleTopicPublisher object {
     public function start() {
     }
 
-    public function getCallerActions() returns TopicPublisherConnector {
+    public function getCallerActions() returns TopicPublisherActions {
         match (publisher) {
             TopicPublisher s => return s.getCallerActions();
             () => {

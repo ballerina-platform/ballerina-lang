@@ -11,7 +11,7 @@ public type SimpleTopicSubscriber object {
 
     private {
         jms:SimpleTopicSubscriber subscriber;
-        TopicSubscriberConnector? connector;
+        TopicSubscriberActions? consumerActions;
     }
 
     public function init(SimpleTopicSubscriberEndpointConfiguration config) {
@@ -26,7 +26,7 @@ public type SimpleTopicSubscriber object {
                 topicPattern:config.topicPattern
             }
         );
-        self.connector = new TopicSubscriberConnector(self.subscriber.getCallerActions());
+        self.consumerActions = new TopicSubscriberActions(self.subscriber.getCallerActions());
     }
 
     public function register(typedesc serviceType) {
@@ -37,11 +37,11 @@ public type SimpleTopicSubscriber object {
         self.subscriber.start();
     }
 
-    public function getCallerActions () returns (TopicSubscriberConnector) {
-        match (self.connector) {
-            TopicSubscriberConnector c => return c;
+    public function getCallerActions() returns TopicSubscriberActions {
+        match (self.consumerActions) {
+            TopicSubscriberActions c => return c;
             () => {
-                error e = {message:"Topic subscriber connector cannot be nil."};
+                error e = {message:"Topic subscriber consumerActions cannot be nil."};
                 throw e;
             }
         }
@@ -74,10 +74,10 @@ public type SimpleTopicSubscriberEndpointConfiguration {
     string topicPattern,
 };
 
-public type TopicSubscriberConnector object {
+public type TopicSubscriberActions object {
 
     public {
-        jms:TopicSubscriberConnector helper;
+        jms:TopicSubscriberActions helper;
     }
 
     public new(helper) {}

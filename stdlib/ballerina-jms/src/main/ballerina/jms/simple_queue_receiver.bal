@@ -53,7 +53,7 @@ public type SimpleQueueReceiver object {
     public function start() {
     }
 
-    public function getCallerActions() returns QueueReceiverConnector {
+    public function getCallerActions() returns QueueReceiverActions {
         match (queueReceiver) {
             QueueReceiver c => return c.getCallerActions();
             () => {

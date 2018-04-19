@@ -9,7 +9,7 @@ public type Consumer object {
 
 public type ConsumerTemplate object {
     public {
-        ConsumerConnector connector;
+        ConsumerActions consumerActions;
         ConsumerEndpointConfiguration config;
     }
 
@@ -21,13 +21,13 @@ public type ConsumerTemplate object {
 
     public function stop() {}
 
-    public function getCallerActions() returns (ConsumerConnector) {
+    public function getCallerActions() returns ConsumerActions {
         return new;
     }
 
 };
 
-public type ConsumerConnector object {
+public type ConsumerActions object {
     public function acknowledge(Message message) returns error? {
         return;
     }

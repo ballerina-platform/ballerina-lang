@@ -9,7 +9,7 @@ public type SimpleQueueSender object {
 
     private {
         jms:SimpleQueueSender? sender;
-        QueueSenderConnector? senderConnector;
+        QueueSenderActions? producerActions;
     }
 
     public function init(SimpleQueueSenderEndpointConfiguration config) {
@@ -22,7 +22,7 @@ public type SimpleQueueSender object {
             queueName: config.queueName
         };
         self.sender = queueSender;
-        self.senderConnector = new QueueSenderConnector(queueSender);
+        self.producerActions = new QueueSenderActions(queueSender);
         self.config = config;
     }
 
@@ -32,9 +32,9 @@ public type SimpleQueueSender object {
     public function start() {
     }
 
-    public function getCallerActions() returns QueueSenderConnector {
-        match (self.senderConnector) {
-            QueueSenderConnector s => return s;
+    public function getCallerActions() returns QueueSenderActions {
+        match (self.producerActions) {
+            QueueSenderActions s => return s;
             () => {
                 error e = {message: "Queue sender connector cannot be nil"};
                 throw e;
@@ -63,7 +63,7 @@ public type SimpleQueueSender object {
     }
 };
 
-public type QueueSenderConnector object {
+public type QueueSenderActions object {
     private {
         jms:SimpleQueueSender sender;
     }
