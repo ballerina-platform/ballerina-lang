@@ -121,73 +121,37 @@ public type Request object {
     @Description {value:"Sets a JSON as the request payload"}
     @Param {value:"payload: The JSON payload to be set to the request"}
     @Param {value:"contentType: Represent the content-type to be used with the payload"}
-    public function setJsonPayload(json payload, string contentType = "application/json") {
-        mime:Entity entity = self.getEntityWithoutBody();
-        entity.setJson(payload);
-        entity.contentType = mime:getMediaType(contentType);
-        self.setEntity(entity);
-    }
+    public function setJsonPayload(json payload, string contentType = "application/json");
 
     @Description {value:"Sets an XML as the payload"}
     @Param {value:"payload: The XML payload object"}
     @Param {value:"contentType: Represent the content-type to be used with the payload"}
-    public function setXmlPayload(xml payload, string contentType = "application/xml") {
-        mime:Entity entity = self.getEntityWithoutBody();
-        entity.setXml(payload);
-        entity.contentType = mime:getMediaType(contentType);
-        self.setEntity(entity);
-    }
+    public function setXmlPayload(xml payload, string contentType = "application/xml");
 
     @Description {value:"Sets a string as the request payload"}
     @Param {value:"payload: The payload to be set to the request as a string"}
     @Param {value:"contentType: Represent the content-type to be used with the payload"}
-    public function setStringPayload(string payload, string contentType = "text/plain") {
-        mime:Entity entity = self.getEntityWithoutBody();
-        entity.setText(payload);
-        entity.contentType = mime:getMediaType(contentType);
-        self.setEntity(entity);
-    }
+    public function setStringPayload(string payload, string contentType = "text/plain");
 
     @Description {value:"Sets a blob as the request payload"}
     @Param {value:"payload: The blob representation of the message payload"}
     @Param {value:"contentType: Represent the content-type to be used with the payload"}
-    public function setBinaryPayload(blob payload, string contentType = "application/octec-stream") {
-        mime:Entity entity = self.getEntityWithoutBody();
-        entity.setBlob(payload);
-        entity.contentType = mime:getMediaType(contentType);
-        self.setEntity(entity);
-    }
+    public function setBinaryPayload(blob payload, string contentType = "application/octec-stream");
 
     @Description {value:"Set multiparts as the request payload"}
     @Param {value:"bodyParts: Represent body parts that needs to be set to the request"}
     @Param {value:"contentType: Content type of the top level message"}
-    public function setBodyParts (mime:Entity[] bodyParts, string contentType="multipart/form-data") {
-        mime:Entity entity = self.getEntityWithoutBody();
-        entity.contentType = mime:getMediaType(contentType);
-        entity.setBodyParts(bodyParts);
-        self.setEntity(entity);
-    }
+    public function setBodyParts (mime:Entity[] bodyParts, string contentType="multipart/form-data");
 
     @Description {value:"Sets the entity body of the request with the given file content"}
     @Param {value:"filePath: Path to the file that needs to be set to the payload"}
     @Param {value:"contentType: Content-Type of the given file"}
-    public function setFileAsPayload(file:Path filePath, string contentType = "application/octec-stream") {
-        mime:MediaType mediaType = mime:getMediaType(contentType);
-        mime:Entity entity = self.getEntityWithoutBody();
-        entity.setFileAsEntityBody(filePath);
-        entity.contentType = mediaType;
-        self.setEntity(entity);
-    }
+    public function setFileAsPayload (string filePath, string contentType, string contentType = "application/octec-stream");
 
     @Description {value:"Set a byte channel as the request payload"}
     @Param {value:"payload: The byte channel representation of the message payload"}
     @Param {value:"contentType: Represent the content-type to be used with the payload"}
-    public function setByteChannel(io:ByteChannel payload, string contentType = "application/octec-stream") {
-        mime:Entity entity = self.getEntityWithoutBody();
-        entity.setByteChannel(payload);
-        entity.contentType = mime:getMediaType(contentType);
-        self.setEntity(entity);
-    }
+    public function setByteChannel(io:ByteChannel payload, string contentType = "application/octec-stream");
 
     @Description {value:"Set the request payload"}
     @Param {value:"payload: Payload can be of type string, xml, json, blob or byte channel"}
@@ -359,55 +323,55 @@ public function Request::getBodyParts () returns (mime:Entity[] | mime:EntityErr
     }
 }
 
-//public function Request::setJsonPayload (json payload, string contentType="application/json") {
-//    mime:Entity entity = self.getEntityWithoutBody();
-//    entity.setJson(payload);
-//    entity.contentType = mime:getMediaType(contentType);
-//    self.setEntity(entity);
-//}
+public function Request::setJsonPayload (json payload, string contentType="application/json") {
+    mime:Entity entity = self.getEntityWithoutBody();
+    entity.setJson(payload);
+    entity.contentType = mime:getMediaType(contentType);
+    self.setEntity(entity);
+}
 
-//public function Request::setXmlPayload (xml payload, string contentType="application/xml") {
-//    mime:Entity entity = self.getEntityWithoutBody();
-//    entity.setXml(payload);
-//    entity.contentType = mime:getMediaType(contentType);
-//    self.setEntity(entity);
-//}
+public function Request::setXmlPayload (xml payload, string contentType="application/xml") {
+    mime:Entity entity = self.getEntityWithoutBody();
+    entity.setXml(payload);
+    entity.contentType = mime:getMediaType(contentType);
+    self.setEntity(entity);
+}
 
-//public function Request::setStringPayload (string payload, string contentType="text/plain") {
-//    mime:Entity entity = self.getEntityWithoutBody();
-//    entity.setText(payload);
-//    entity.contentType = mime:getMediaType(contentType);
-//    self.setEntity(entity);
-//}
+public function Request::setStringPayload (string payload, string contentType="text/plain") {
+    mime:Entity entity = self.getEntityWithoutBody();
+    entity.setText(payload);
+    entity.contentType = mime:getMediaType(contentType);
+    self.setEntity(entity);
+}
 
-//public function Request::setBinaryPayload (blob payload, string contentType="application/octec-stream") {
-//    mime:Entity entity = self.getEntityWithoutBody();
-//    entity.setBlob(payload);
-//    entity.contentType = mime:getMediaType(contentType);
-//    self.setEntity(entity);
-//}
+public function Request::setBinaryPayload (blob payload, string contentType="application/octec-stream") {
+    mime:Entity entity = self.getEntityWithoutBody();
+    entity.setBlob(payload);
+    entity.contentType = mime:getMediaType(contentType);
+    self.setEntity(entity);
+}
 
-//public function Request::setBodyParts (mime:Entity[] bodyParts, string contentType="multipart/form-data") {
-//    mime:Entity entity = self.getEntityWithoutBody();
-//    entity.contentType = mime:getMediaType(contentType);
-//    entity.setBodyParts(bodyParts);
-//    self.setEntity(entity);
-//}
+public function Request::setBodyParts (mime:Entity[] bodyParts, string contentType="multipart/form-data") {
+    mime:Entity entity = self.getEntityWithoutBody();
+    entity.contentType = mime:getMediaType(contentType);
+    entity.setBodyParts(bodyParts);
+    self.setEntity(entity);
+}
 
-//public function Request::setFileAsPayload (file:Path filePath, string contentType="application/octec-stream") {
-//    mime:MediaType mediaType = mime:getMediaType(contentType);
-//    mime:Entity entity = self.getEntityWithoutBody();
-//    entity.setFileAsEntityBody(filePath);
-//    entity.contentType = mediaType;
-//    self.setEntity(entity);
-//}
+public function Request::setFileAsPayload (string filePath, @sensitive string contentType="application/octec-stream") {
+    mime:MediaType mediaType = mime:getMediaType(contentType);
+    mime:Entity entity = self.getEntityWithoutBody();
+    entity.setFileAsEntityBody(filePath);
+    entity.contentType = mediaType;
+    self.setEntity(entity);
+}
 
-//public function Request::setByteChannel (io:ByteChannel payload, string contentType="application/octec-stream") {
-//    mime:Entity entity = self.getEntityWithoutBody();
-//    entity.setByteChannel(payload);
-//    entity.contentType = mime:getMediaType(contentType);
-//    self.setEntity(entity);
-//}
+public function Request::setByteChannel (io:ByteChannel payload, string contentType="application/octec-stream") {
+    mime:Entity entity = self.getEntityWithoutBody();
+    entity.setByteChannel(payload);
+    entity.contentType = mime:getMediaType(contentType);
+    self.setEntity(entity);
+}
 
 public function Request::setPayload ((string | xml | json | blob | io:ByteChannel | mime:Entity[]) payload) {
     mime:Entity entity = self.getEntityWithoutBody();

@@ -18,7 +18,7 @@ package org.ballerinalang.langserver;
 import org.ballerinalang.langserver.command.CommandExecutor;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -35,7 +35,7 @@ import java.util.concurrent.CompletableFuture;
  */
 class BallerinaWorkspaceService implements WorkspaceService {
     private BallerinaLanguageServer ballerinaLanguageServer;
-    private WorkspaceDocumentManagerImpl workspaceDocumentManager;
+    private WorkspaceDocumentManager workspaceDocumentManager;
     private LSGlobalContext lsGlobalContext;
 
     BallerinaWorkspaceService(LSGlobalContext globalContext) {

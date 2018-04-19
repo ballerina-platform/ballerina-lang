@@ -1,9 +1,7 @@
 import ballerina/http;
 
 endpoint http:Client clientEndpoint {
-    targets: [{
-        url: "https://postman-echo.com"
-    }]
+    url: "https://postman-echo.com"
 };
 
 function main (string... args) {
