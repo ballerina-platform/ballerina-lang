@@ -19,15 +19,13 @@
 package org.ballerinalang.nativeimpl.os;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,21 +37,23 @@ import java.util.concurrent.TimeUnit;
  * Native function ballerina.os:runCommand.
  */
 @BallerinaFunction(
-        packageName = "ballerina.os",
-        functionName = "runCommandNative",
-        args = {
-                @Argument(name = "command", type = TypeKind.STRING),
-                @Argument(name = "workspace", type = TypeKind.STRING),
-                @Argument(name = "timeout1", type = TypeKind.INT) },
-        returnType = { @ReturnType(type = TypeKind.STRUCT),
-                @ReturnType(type = TypeKind.STRUCT) },
-        isPublic = true
+    orgName = "ballerina", packageName = "os",
+    functionName = "runCommand",
+    args = {
+        @Argument(name = "command", type = TypeKind.STRING),
+        @Argument(name = "workspace", type = TypeKind.STRING),
+        @Argument(name = "timeoutValue", type = TypeKind.INT)
+    },
+    returnType = {
+        @ReturnType(type = TypeKind.STRUCT)
+    },
+    isPublic = true
 )
-public class ExecuteCommand extends BlockingNativeCallableUnit {
+public class RunCommand extends BlockingNativeCallableUnit {
 
     private static final String PACKAGE_NAME = "ballerina.os";
 
-    private static Logger logger = LoggerFactory.getLogger(ExecuteCommand.class);
+    private static Logger logger = LoggerFactory.getLogger(RunCommand.class);
 
     @Override public void execute(Context context) {
         String command = context.getStringArgument(0);
@@ -70,6 +70,10 @@ public class ExecuteCommand extends BlockingNativeCallableUnit {
             workspace = System.getProperty("user.dir");
         }
         File workingFile = new File(workspace);
+        if (!workingFile.exists()) {
+            String msg = "Workspace doesn't exist.";
+            context.setReturnValues(createError(context, msg));
+        }
 
         try {
             Process process = processBuilder.directory(workingFile)
@@ -83,38 +87,31 @@ public class ExecuteCommand extends BlockingNativeCallableUnit {
                     // The execution is successful
                     String msg = "The user specified timeout : " + timeout + " exceeded.";
                     process.destroyForcibly();
-                    context.setReturnValues(null, createGenericError(context, msg));
+                    context.setReturnValues(createError(context, msg));
                 } else if (process.exitValue() == 0) {
-                    context.setReturnValues(null, null);
+                    return;
                 } else if (process.exitValue() == 1) {
                     String msg = "The command didn't execute successfully.";
-                    context.setReturnValues(createCommandExecutionError(context, msg), null);
+                    context.setReturnValues(createError(context, msg));
                 }
             } else {
                 // Block the process till execution is completed
                 if (process.waitFor() == 0) {
-                    context.setReturnValues(null, null);
+                    return;
                 } else {
                     // There is a command execution error
                     String msg = "The command didn't execute successfully.";
-                    context.setReturnValues(createCommandExecutionError(context, msg), null);
+                    context.setReturnValues(createError(context, msg));
                 }
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException | InterruptedException | SecurityException e) {
             String msg = "Error occurred while executing the command : " + e.getMessage();
-            context.setReturnValues(createCommandExecutionError(context, msg), null);
+            logger.error(msg, e);
+            context.setReturnValues(createError(context, msg));
         }
     }
 
-    private BStruct createCommandExecutionError(Context context, String msg) {
-        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PACKAGE_NAME);
-        StructInfo executionError = filePkg.getStructInfo("CommandExecutionError");
-        return BLangVMStructs.createBStruct(executionError, msg);
-    }
-
-    private BStruct createGenericError(Context context, String msg) {
-        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PACKAGE_NAME);
-        StructInfo executionError = filePkg.getStructInfo("GenericError");
-        return BLangVMStructs.createBStruct(executionError, msg);
+    private BStruct createError(Context context, String msg) {
+        return BLangVMErrors.createError(context, msg);
     }
 }
