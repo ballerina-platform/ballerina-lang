@@ -69,7 +69,6 @@ public class Get extends AbstractHTTPAction {
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         HTTPCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
         outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_GET);
-        HttpUtil.checkAndObserveHttpRequest(context, outboundReqMsg);
         return outboundReqMsg;
     }
 }

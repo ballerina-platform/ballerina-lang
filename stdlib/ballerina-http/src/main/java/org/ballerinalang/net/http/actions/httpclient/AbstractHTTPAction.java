@@ -296,6 +296,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             boundaryString = HttpUtil.addBoundaryIfNotExist(outboundRequestMsg, contentType);
         }
 
+        HttpUtil.checkAndObserveHttpRequest(dataContext.context, outboundRequestMsg);
+
         final HttpMessageDataStreamer outboundMsgDataStreamer = getHttpMessageDataStreamer(outboundRequestMsg);
 
         final HTTPClientConnectorListener httpClientConnectorLister = ObservabilityUtils.isObservabilityEnabled() ?
