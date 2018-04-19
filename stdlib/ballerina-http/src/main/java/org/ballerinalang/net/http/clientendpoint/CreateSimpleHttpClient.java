@@ -109,6 +109,15 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
             long waitTime = connectionThrottling
                     .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME);
             senderConfiguration.getPoolConfiguration().setMaxWaitTime(waitTime);
+
+            long maxActiveStreamsPerConnection = connectionThrottling.
+                    getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_STREAMS_PER_CONNECTION);
+            if (!isInteger(maxActiveStreamsPerConnection)) {
+                throw new BallerinaConnectorException("invalid maxActiveStreamsPerConnection value: "
+                                                      + maxActiveStreamsPerConnection);
+            }
+            senderConfiguration.getPoolConfiguration().setHttp2MaxActiveStreamsPerConnection(
+                    maxActiveStreamsPerConnection == -1 ? Integer.MAX_VALUE : (int) maxActiveStreamsPerConnection);
         }
         HttpClientConnector httpClientConnector = httpConnectorFactory
                 .createHttpClientConnector(properties, senderConfiguration);
