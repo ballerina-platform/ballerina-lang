@@ -40,7 +40,7 @@ service websubSubscriber bind websubEP {
     //Resource accepting content delivery requests.
     onNotification (websub:NotificationRequest notification) {
         json notificationPayload = notification.payload;
-        string notificationString = notificationPayload.toString() but {() => ""};
+        string notificationString = notificationPayload.toString();
         log:printInfo("WebSub Notification Received: " + notificationString);
     }
 
