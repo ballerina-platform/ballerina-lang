@@ -75,6 +75,9 @@ DAY         : {inSiddhiTimeScaleQuery}? 'day' { inSiddhiTimeScaleQuery = false; 
 MONTH       : {inSiddhiTimeScaleQuery}? 'month' { inSiddhiTimeScaleQuery = false; } ;
 YEAR        : {inSiddhiTimeScaleQuery}? 'year' { inSiddhiTimeScaleQuery = false; } ;
 FOREVER     : 'forever' ;
+LIMIT       : 'limit' ;
+ASCENDING   : 'ascending' ;
+DESCENDING  : 'descending' ;
 
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;

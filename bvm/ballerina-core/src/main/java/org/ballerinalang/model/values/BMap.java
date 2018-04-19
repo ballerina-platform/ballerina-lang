@@ -62,6 +62,8 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     /**
      * Retrieve the value for the given key from map.
+     * A {@code BallerinaException} will be thrown if the key does not exists.
+     * 
      * @param key key used to get the value
      * @return value
      */
@@ -69,6 +71,25 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
         readLock.lock();
         try {
             if (!map.containsKey(key)) {
+                throw new BallerinaException("cannot find key '" + key + "'");
+            }
+            return map.get(key);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    /**
+     * Retrieve the value for the given key from map.
+     * 
+     * @param key key used to get the value
+     * @param except flag indicating whether to throw an exception if the key does not exists
+     * @return value
+     */
+    public V get(K key, boolean except) {
+        readLock.lock();
+        try {
+            if (!map.containsKey(key) && except) {
                 throw new BallerinaException("cannot find key '" + key + "'");
             }
             return map.get(key);

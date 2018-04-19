@@ -42,7 +42,6 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.DocumentationAttributeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
@@ -171,7 +170,9 @@ public class Generator {
 
         for (Link primitiveType : primitives) {
             String type = primitiveType.caption.value;
-            primitiveTypes.add(new PrimitiveTypeDoc(type, descriptions.getProperty(type), new ArrayList<>()));
+            String desc = descriptions.getProperty(type);
+            primitiveTypes.add(new PrimitiveTypeDoc(type, desc != null && !desc.isEmpty() ? BallerinaDocUtils
+                    .mdToHtml(desc) : desc, new ArrayList<>()));
         }
 
         // Check for functions in the package
@@ -189,8 +190,9 @@ public class Generator {
                         if (existingPrimitiveType.isPresent()) {
                             primitiveTypeDoc = existingPrimitiveType.get();
                         } else {
-                            primitiveTypeDoc = new PrimitiveTypeDoc(langType.toString(), descriptions.getProperty
-                                    (langType.toString()), new ArrayList<>());
+                            String desc = descriptions.getProperty(langType.toString());
+                            primitiveTypeDoc = new PrimitiveTypeDoc(langType.toString(), desc != null && !desc
+                                    .isEmpty() ? BallerinaDocUtils.mdToHtml(desc) : desc, new ArrayList<>());
                             primitiveTypes.add(primitiveTypeDoc);
                         }
 
@@ -211,7 +213,7 @@ public class Generator {
         }
 
         StaticCaption primitivesPageHeading = new StaticCaption(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME);
-        return new Page(primitivesPageHeading, primitiveTypes, links);
+        return new Page(null, primitivesPageHeading, primitiveTypes, links, primitives);
     }
 
     /**
@@ -373,22 +375,25 @@ public class Generator {
 
         // Iterate through the struct fields
         if (structNode.getFields().size() > 0) {
-            for (VariableNode p : structNode.getFields()) {
-                if (p.getFlags().contains(Flag.PUBLIC)) {
-                    BLangVariable param = (BLangVariable) p;
-                    String dataType = type(param);
-                    String desc = fieldAnnotation(structNode, param);
-                    String defaultValue = "";
-                    if (null != param.getInitialExpression()) {
-                        defaultValue = param.getInitialExpression().toString();
-                    }
-                    Field variable = new Field(param.getName().value, dataType, desc, defaultValue);
-                    fields.add(variable);
-                }
-            }
+            getFields(structNode, structNode.fields, fields);
         }
 
         return new StructDoc(structName, description(structNode), new ArrayList<>(), fields);
+    }
+
+    private static void getFields(BLangNode node, List<BLangVariable> allFields, List<Field> fields) {
+        for (BLangVariable param : allFields) {
+            if (param.getFlags().contains(Flag.PUBLIC)) {
+                String dataType = type(param);
+                String desc = fieldAnnotation(node, param);
+                String defaultValue = "";
+                if (null != param.getInitialExpression()) {
+                    defaultValue = param.getInitialExpression().toString();
+                }
+                Field variable = new Field(param.getName().value, dataType, desc, defaultValue);
+                fields.add(variable);
+            }
+        }
     }
 
     /**
@@ -399,19 +404,12 @@ public class Generator {
      */
     public static ConnectorDoc createDocForNode(BLangObject connectorNode) {
         String connectorName = connectorNode.getName().value;
-        List<Variable> parameters = new ArrayList<>();
+        List<Field> parameters = new ArrayList<>();
         List<Documentable> actions = new ArrayList<>();
 
         // Iterate through the connector parameters
         if (connectorNode.fields.size() > 0) {
-            for (BLangVariable param : connectorNode.fields) {
-                if (param.flagSet.contains(Flag.PUBLIC)) {
-                    String dataType = type(param);
-                    String desc = fieldAnnotation(connectorNode, param);
-                    Variable variable = new Variable(param.getName().value, dataType, desc);
-                    parameters.add(variable);
-                }
-            }
+            getFields(connectorNode, connectorNode.fields, parameters);
         }
 
         //Iterate through the actions of the connectors

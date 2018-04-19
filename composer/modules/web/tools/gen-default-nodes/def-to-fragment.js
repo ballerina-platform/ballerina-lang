@@ -108,7 +108,7 @@ export default {
     },
     createMainFunction: () => {
         return FragmentUtils.createTopLevelNodeFragment(`
-            function main(string[] args) {
+            function main(string... args) {
 
             }
         `);
