@@ -20,6 +20,10 @@ package ballerina.io;
 
 @final string FS_CSV = ",(?=([^\"]*\"[^\"]*\")*[^\"]*$)";
 
+@final string FS_COLON = ":";
+
+@final string FS_TAB = "\\t";
+
 @Description {value:"Ballerina DelimitedRecordChannel represents a channel which will allow to read/write text records"}
 public type CSVChannel object {
     public {
@@ -27,7 +31,13 @@ public type CSVChannel object {
     }
 
     new(CharacterChannel channel, Seperator fs = ",", boolean hasHeader = true) {
-        dc = new DelimitedTextRecordChannel(channel, FS_CSV, CSV_RECORD_SEPERATOR);
+        if (fs == TAB){
+            dc = new DelimitedTextRecordChannel(channel, fmt = "TDF");
+        } else if (fs == COLON){
+            dc = new DelimitedTextRecordChannel(channel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
+        } else {
+            dc = new DelimitedTextRecordChannel(channel, fmt = "CSV");
+        }
     }
 
     @Description {value:"Function to check whether next record is available or not"}

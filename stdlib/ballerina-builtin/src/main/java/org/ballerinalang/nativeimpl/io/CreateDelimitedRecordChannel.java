@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.nativeimpl.io.csv.Format;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -71,13 +72,13 @@ public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
      */
     private static final int FIELD_SEPARATOR_INDEX = 0;
     /**
-     * The package path of the byte channel.
+     * Represents the format of the record.
      */
-    private static final String RECORD_CHANNEL_PACKAGE = "ballerina.io";
+    private static final int FORMAT_INDEX = 2;
     /**
-     * The type of the byte channel.
+     * Default format type.
      */
-    private static final String STRUCT_TYPE = "DelimitedRecordChannel";
+    private static final String DEFAULT = "default";
 
     /**
      * {@inheritDoc}
@@ -89,13 +90,18 @@ public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
             BStruct characterChannelInfo = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
             String recordSeparator = context.getStringArgument(RECORD_SEPARATOR_INDEX);
             String fieldSeparator = context.getStringArgument(FIELD_SEPARATOR_INDEX);
+            String format = context.getStringArgument(FORMAT_INDEX);
             BStruct textRecordChannel = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
             //Will get the relevant byte channel and will create a character channel
             CharacterChannel characterChannel = (CharacterChannel) characterChannelInfo.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
-            DelimitedRecordChannel bCharacterChannel = new DelimitedRecordChannel(characterChannel, recordSeparator,
-                    fieldSeparator);
-            textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, bCharacterChannel);
+            DelimitedRecordChannel delimitedRecordChannel;
+            if (DEFAULT.equals(format)) {
+                delimitedRecordChannel = new DelimitedRecordChannel(characterChannel, recordSeparator, fieldSeparator);
+            } else {
+                delimitedRecordChannel = new DelimitedRecordChannel(characterChannel, Format.valueOf(format));
+            }
+            textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, delimitedRecordChannel);
         } catch (Throwable e) {
             String message =
                     "Error occurred while converting character channel to textRecord channel:" + e.getMessage();

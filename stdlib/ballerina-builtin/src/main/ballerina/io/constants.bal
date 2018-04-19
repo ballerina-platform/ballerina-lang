@@ -20,6 +20,8 @@ public type Mode "r"|"w"|"rw"|"a";
 
 public type Seperator ","|"\t"|":";
 
+public type Format "default"|"csv"|"tdf";
+
 @Description {value:"Describes default format to open CSV"}
 @final public Seperator COMMA = ",";
 

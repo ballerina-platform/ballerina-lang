@@ -24,11 +24,11 @@ public type DelimitedTextRecordChannel object {
         string fs;
     }
 
-    new(channel, fs, rs) {
-        init(channel, fs, rs);
+    new(channel, fs = "", rs = "", string fmt = "default") {
+        init(channel, fs, rs, fmt);
     }
 
-    native function init(CharacterChannel channel, string fs, string rs);
+    native function init(CharacterChannel channel, string fs, string rs, string fmt);
 
     @Description {value:"Function to check whether next record is available or not"}
     @Return {value:"True if the channel has more records; false otherwise"}

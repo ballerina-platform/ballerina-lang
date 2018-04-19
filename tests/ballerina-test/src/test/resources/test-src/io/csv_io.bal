@@ -1,22 +1,15 @@
 import ballerina/io;
 
-type Employee {
-    string id;
-    string name;
-    float salary;
-};
+io:CSVChannel? csvChannel;
 
-io:DelimitedTextRecordChannel? txtChannel;
-
-function initDelimitedRecordChannel(string filePath, io:Mode permission, string encoding, string recordSeperator,
-                                    string fieldSeperator) {
+function initCSVChannel(string filePath, io:Mode permission, string encoding, io:Seperator fieldSeperator) {
     io:ByteChannel byteChannel = io:openFile(filePath, permission);
     io:CharacterChannel charChannel = new io:CharacterChannel(byteChannel, encoding);
-    txtChannel = new io:DelimitedTextRecordChannel(charChannel, fs = fieldSeperator, rs = recordSeperator);
+    csvChannel = new io:CSVChannel(charChannel, fs = fieldSeperator);
 }
 
 function nextRecord() returns (string[]|error) {
-    var result = txtChannel.getNext();
+    var result = csvChannel.getNext();
     match result {
         string[] fields => {
             return fields;
@@ -32,14 +25,14 @@ function nextRecord() returns (string[]|error) {
 }
 
 function writeRecord(string[] fields) {
-    var result = txtChannel.write(fields);
+    var result = csvChannel.write(fields);
 }
 
 function close() {
-    var err = txtChannel.close();
+    var err = csvChannel.close();
 }
 
 
 function hasNextRecord() returns boolean? {
-    return txtChannel.hasNext();
+    return csvChannel.hasNext();
 }
