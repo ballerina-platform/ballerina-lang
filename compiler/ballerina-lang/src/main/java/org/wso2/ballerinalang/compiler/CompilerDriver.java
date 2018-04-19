@@ -162,8 +162,7 @@ public class CompilerDriver {
     }
 
     private BLangPackage taintAnalyze(BLangPackage pkgNode) {
-//        return this.taintAnalyzer.analyze(pkgNode);
-        return pkgNode;
+        return this.taintAnalyzer.analyze(pkgNode);
     }
 
     private BLangPackage annotationProcess(BLangPackage pkgNode) {
