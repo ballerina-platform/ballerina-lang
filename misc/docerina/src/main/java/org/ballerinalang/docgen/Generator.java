@@ -59,7 +59,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttrib
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
@@ -273,21 +272,21 @@ public class Generator {
         return new AnnotationDoc(annotationName, description(annotationNode), new ArrayList<>(), attributes);
     }
 
+    //TODO
     private static String extractLink(BLangType typeNode) {
         if (typeNode instanceof BLangUserDefinedType) {
             BLangUserDefinedType type = (BLangUserDefinedType) typeNode;
             return type.pkgAlias + ".html#" + type.typeName.getValue();
-        } else if (typeNode instanceof BLangUnionTypeNode) {
-            //TODO fix properly
-            BLangUnionTypeNode type = (BLangUnionTypeNode) typeNode;
-            return BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF + ".html#" + type.memberTypeNodes.stream()
-                    .findFirst().get().type.tsymbol.getName().value;
         } else if (typeNode instanceof BLangValueType) {
-            return BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF + ".html#" + typeNode.type.tsymbol.getName().value;
+            if (((BLangValueType) typeNode).type != null && ((BLangValueType) typeNode).type.tsymbol != null) {
+                return BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF + ".html#" + typeNode.type.tsymbol.getName()
+                        .value;
+            }
         } else {
             // TODO
             return "";
         }
+        return "";
     }
 
     /**
