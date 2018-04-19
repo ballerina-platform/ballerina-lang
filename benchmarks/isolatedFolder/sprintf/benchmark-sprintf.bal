@@ -1,4 +1,4 @@
-package ballerina;
+package sprintf;
 
 import ballerina/io;
 
@@ -9,3 +9,4 @@ public function benchmarkSprintfWithFloat() {
 public function benchmarkSprintfWithString() {
     string number = io:sprintf("%s is awesome!", ["Ballerina"]);
 }
+
