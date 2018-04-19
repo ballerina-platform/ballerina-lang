@@ -38,6 +38,7 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 
 import javax.websocket.Session;
@@ -102,14 +103,14 @@ public class Start extends BlockingNativeCallableUnit {
         }
 
         @Override
-        public void onSuccess(Session session) {
+        public void onSuccess(WebSocketConnection webSocketConnection) {
             //using only one service endpoint in the client as there can be only one connection.
             BStruct webSocketClientEndpoint = ((BStruct) context.getRefArgument(0));
             BStruct webSocketConnector = BLangConnectorSPIUtil.createObject(
                     wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                     PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
-            webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-            WebSocketUtil.populateEndpoint(session, webSocketClientEndpoint);
+            webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION, webSocketConnection);
+            WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClientEndpoint);
             WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
                                                                                          webSocketClientEndpoint);
             clientConnectorListener.setConnectionInfo(connectionInfo);

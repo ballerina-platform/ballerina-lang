@@ -127,17 +127,20 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     if (!webSocketInitMessage.isCancelled() && !webSocketInitMessage.isHandshakeStarted()) {
                         WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketInitMessage, null,
                                                       null);
+                        // TODO: Change this to readNextFrame
                     } else {
                         Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
+                        WebSocketOpenConnectionInfo connectionInfo = connectionManager.getConnectionInfo(webSocketInitMessage.getSessionID());
                         if (onOpenResource != null) {
                             List<ParamDetail> paramDetails =
                                     onOpenResource.getParamDetails();
                             BValue[] bValues = new BValue[paramDetails.size()];
-                            bValues[0] = connectionManager
-                                    .getConnectionInfo(webSocketInitMessage.getSessionID()).getWebSocketEndpoint();
+                            bValues[0] = connectionInfo.getWebSocketEndpoint();
                             //TODO handle BallerinaConnectorException
-                            Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null,
+                            Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(connectionInfo.getWebSocketConnection()), null, null,
                                             bValues);
+                        } else {
+                            connectionInfo.getWebSocketConnection().readNextFrame();
                         }
                     }
                 }

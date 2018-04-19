@@ -37,10 +37,10 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
 import java.util.List;
-import javax.websocket.Session;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 
@@ -86,7 +86,7 @@ public abstract class WebSocketUtil {
         HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000, headers);
         future.setHandshakeListener(new HandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
+            public void onSuccess(WebSocketConnection webSocketConnection) {
                 // TODO: Need to create new struct
                 BStruct webSocketEndpoint = BLangConnectorSPIUtil.createObject(
                         wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo()
@@ -96,11 +96,11 @@ public abstract class WebSocketUtil {
                                 .getProgramFile(), PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
 
                 webSocketEndpoint.setRefField(1, webSocketConnector);
-                populateEndpoint(session, webSocketEndpoint);
-                webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
+                populateEndpoint(webSocketConnection, webSocketEndpoint);
+                webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION, webSocketConnection);
                 WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,
                                                                                              webSocketEndpoint);
-                connectionManager.addConnection(session.getId(), connectionInfo);
+                connectionManager.addConnection(webSocketConnection.getId(), connectionInfo);
                 webSocketConnector.addNativeData(WebSocketConstants.WEBSOCKET_CONNECTION_MANAGER, connectionManager);
                 if (context != null && callback != null) {
                     context.setReturnValues(webSocketEndpoint);
@@ -112,7 +112,9 @@ public abstract class WebSocketUtil {
                         BValue[] bValues = new BValue[paramDetails.size()];
                         bValues[0] = webSocketEndpoint;
                         //TODO handle BallerinaConnectorException
-                        Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
+                        Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(webSocketConnection), null, null, bValues);
+                    } else {
+                        webSocketConnection.readNextFrame();
                     }
                 }
             }
@@ -134,11 +136,11 @@ public abstract class WebSocketUtil {
         });
     }
 
-    public static void populateEndpoint(Session session, BStruct webSocketEndpoint) {
-        webSocketEndpoint.setStringField(0, session.getId());
-        webSocketEndpoint.setStringField(1, session.getNegotiatedSubprotocol());
-        webSocketEndpoint.setBooleanField(0, session.isSecure() ? 1 : 0);
-        webSocketEndpoint.setBooleanField(1, session.isOpen() ? 1 : 0);
+    public static void populateEndpoint(WebSocketConnection webSocketConnection, BStruct webSocketEndpoint) {
+        webSocketEndpoint.setStringField(0, webSocketConnection.getId());
+        webSocketEndpoint.setStringField(1, webSocketConnection.getSession().getNegotiatedSubprotocol());
+        webSocketEndpoint.setBooleanField(0, webSocketConnection.getSession().isSecure() ? 1 : 0);
+        webSocketEndpoint.setBooleanField(1, webSocketConnection.getSession().isOpen() ? 1 : 0);
     }
 
     public static void getWebSocketError(Context context, CallableUnitCallback callback,

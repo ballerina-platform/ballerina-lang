@@ -26,6 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.nio.ByteBuffer;
 import javax.websocket.Session;
@@ -50,9 +51,10 @@ public class Pong extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         try {
             BStruct wsConnection = (BStruct) context.getRefArgument(0);
-            Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
+            WebSocketConnection webSocketConnection =
+                    (WebSocketConnection) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
             byte[] binaryData = context.getBlobArgument(0);
-            session.getAsyncRemote().sendPong(ByteBuffer.wrap(binaryData));
+            webSocketConnection.getSession().getAsyncRemote().sendPong(ByteBuffer.wrap(binaryData));
             context.setReturnValues();
         } catch (Throwable e) {
             context.setReturnValues(BLangConnectorSPIUtil.createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,

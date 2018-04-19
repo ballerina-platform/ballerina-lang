@@ -29,9 +29,9 @@ service <http:Service> proxy bind ep {
 
 service <http:WebSocketService> simpleProxy {
 
-    onOpen(endpoint ep) {
-        ep -> pushText("send") but {error e => io:println("server text error")};
-    }
+    //onOpen(endpoint ep) {
+    //    ep -> pushText("send") but {error e => io:println("server text error")};
+    //}
 
     onText (endpoint wsEp, string text) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);

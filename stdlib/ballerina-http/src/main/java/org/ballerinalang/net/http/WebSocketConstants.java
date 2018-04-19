@@ -48,7 +48,7 @@ public class WebSocketConstants {
 
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
 
-    public static final String NATIVE_DATA_WEBSOCKET_SESSION = "NATIVE_DATA_WEBSOCKET_SESSION";
+    public static final String NATIVE_DATA_WEBSOCKET_CONNECTION = "NATIVE_DATA_WEBSOCKET_CONNECTION";
     public static final String NATIVE_DATA_UPGRADE_HEADERS = "NATIVE_DATA_UPGRADE_HEADERS";
 
     public static final String NATIVE_DATA_QUERY_PARAMS = "NATIVE_DATA_QUERY_PARAMS";

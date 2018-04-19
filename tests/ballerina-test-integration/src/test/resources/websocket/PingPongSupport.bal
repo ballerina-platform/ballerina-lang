@@ -31,9 +31,9 @@ service <http:Service> pingpong bind ep {
 
 service <http:WebSocketService> simplePingProxy {
 
-    onOpen(endpoint wsEp) {
-        wsEp -> pushText("send") but {error e => io:println("server text error")};
-    }
+    //onOpen(endpoint wsEp) {
+    //    wsEp -> pushText("send") but {error e => io:println("server text error")};
+    //}
 
     onText (endpoint wsEp, string text) {
         endpoint http:WebSocketClient clientEp;

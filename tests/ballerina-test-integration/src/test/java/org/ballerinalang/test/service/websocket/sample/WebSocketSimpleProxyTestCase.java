@@ -56,7 +56,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
     @Test(priority = 1)
     public void testSendText() throws URISyntaxException, InterruptedException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
-        handshakeAndAck(client);
+        client.handshake();
         String textSent = "hi all";
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
@@ -69,7 +69,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
     @Test(priority = 2)
     public void testSendBinary() throws URISyntaxException, InterruptedException, IOException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
-        handshakeAndAck(client);
+        client.handshake();
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});

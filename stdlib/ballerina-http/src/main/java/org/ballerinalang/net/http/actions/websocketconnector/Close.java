@@ -27,6 +27,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConnectionManager;
 import org.ballerinalang.net.http.WebSocketConstants;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.io.IOException;
 import javax.websocket.CloseReason;
@@ -54,9 +55,10 @@ public class Close extends BlockingNativeCallableUnit {
         BStruct webSocketConnector = (BStruct) context.getRefArgument(0);
         int statusCode = (int) context.getIntArgument(0);
         String reason = context.getStringArgument(0);
-        Session session = (Session) webSocketConnector.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
+        WebSocketConnection webSocketConnection =
+                (WebSocketConnection) webSocketConnector.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION);
         try {
-            session.close(new CloseReason(() -> statusCode, reason));
+            webSocketConnection.getSession().close(new CloseReason(() -> statusCode, reason));
             context.setReturnValues();
         } catch (IOException e) {
             context.setReturnValues(BLangConnectorSPIUtil.createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
@@ -68,7 +70,7 @@ public class Close extends BlockingNativeCallableUnit {
                     (WebSocketConnectionManager) webSocketConnector
                             .getNativeData(WebSocketConstants.WEBSOCKET_CONNECTION_MANAGER);
             if (connectionManager != null) {
-                connectionManager.removeConnectionInfo(session.getId());
+                connectionManager.removeConnectionInfo(webSocketConnection.getId());
             }
         }
     }
