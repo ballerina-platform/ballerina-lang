@@ -74,13 +74,12 @@ public class PushUtils {
         String version = manifest.getVersion();
 
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
-        Path prjDirPath = Paths.get(".").toAbsolutePath().normalize();
 
-        if (!RepoUtils.hasProjectRepo(prjDirPath)) {
-            throw new BLangCompilerException("home directory cannot be taken as a project directory");
-        }
+        Path prjDirPath = Paths.get(".").toAbsolutePath().normalize().resolve(ProjectDirConstants
+                                                                                      .DOT_BALLERINA_DIR_NAME);
+
         // Get package path from project directory path
-        Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), ".ballerina", "repo", Names.ANON_ORG.getValue(),
+        Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), "repo", Names.ANON_ORG.getValue(),
                                             packageName, version, packageName + ".zip");
         if (Files.notExists(pkgPathFromPrjtDir)) {
             throw new BLangCompilerException("package does not exist");
