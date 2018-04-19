@@ -409,6 +409,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangDocumentation docNode) {
         Set<BLangIdentifier> visitedAttributes = new HashSet<>();
         for (BLangDocumentationAttribute attribute : docNode.attributes) {
+            if (attribute.docTag == DocTag.ENDPOINT) {
+                if (!this.env.enclObject.getFunctions().stream().anyMatch(bLangFunction -> "getClient".equals
+                        (bLangFunction.getName().toString()))) {
+                    this.dlog.warning(attribute.pos, DiagnosticCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE,
+                            attribute.docTag.getValue());
+                }
+                continue;
+            }
             if (attribute.docTag == DocTag.RETURN) {
                 attribute.type = this.env.enclInvokable.returnTypeNode.type;
                 // return params can't have names, hence can't validate
@@ -435,8 +443,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
             } else {
-                if (!(attributeSymbol.tag == SymTag.VARIABLE || attributeSymbol.tag == SymTag.ENDPOINT) || (
-                        (BVarSymbol) attributeSymbol).docTag != attribute.docTag) {
+                if (!(attributeSymbol.tag == SymTag.VARIABLE) || ((BVarSymbol) attributeSymbol).docTag != attribute
+                        .docTag) {
                     this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE, attribute
                             .documentationField, attribute.docTag.getValue());
                     continue;
