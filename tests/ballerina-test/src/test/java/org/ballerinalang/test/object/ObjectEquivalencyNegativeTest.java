@@ -23,12 +23,12 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for equivalency of user defined struct types with attached functions in ballerina.
+ * Test cases for equivalency of user defined object types with attached functions in ballerina.
  */
 public class ObjectEquivalencyNegativeTest {
 
-    @Test(description = "Test equivalence of structs that are in the same package")
-    public void testEquivalenceOfStructsInSamePackage() {
+    @Test(description = "Test equivalence of objects that are in the same package")
+    public void testEquivalenceOfObjectsInSamePackage() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-equivalency-01-negative.bal");
 
         BAssertUtil.validateError(compileResult, 0,
@@ -51,8 +51,8 @@ public class ObjectEquivalencyNegativeTest {
                 "incompatible types: expected 'person09', found 'person09|error'", 346, 18);
     }
 
-    @Test(description = "Test equivalence of structs that are in the same package from a third package")
-    public void testEquivalenceOfStructsInSamePackageFromDifferentPackage() {
+    @Test(description = "Test equivalence of objects that are in the same package from a third package")
+    public void testEquivalenceOfObjectsInSamePackageFromDifferentPackage() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-equivalency-02-negative.bal");
 
         BAssertUtil.validateError(compileResult, 0,
