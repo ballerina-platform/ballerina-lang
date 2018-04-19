@@ -148,19 +148,18 @@ type TwoPhaseCommitTransaction object {
     // The result of this function is whether we can commit or abort
     function prepareParticipants(string protocol) returns PrepareDecision {
         PrepareDecision prepareDecision = PREPARE_DECISION_COMMIT;
-        future<(PrepareResult,Participant)|()|error>[] results;
+        future<((PrepareResult | () | error), Participant) >[] results;
         foreach _, participant in self.participants {
             string participantId = participant.participantId;
-            future<(PrepareResult,Participant)|()|error> f = start participant.prepare(protocol);
+            future<((PrepareResult | () | error), Participant)> f = start participant.prepare(protocol);
             results[lengthof results] = f;
         }
         foreach f in results {
-            (PrepareResult,Participant)|()|error result = await f;
-            //((PrepareResult | () | error),Participant) result = await f;
+            ((PrepareResult | () | error), Participant) r = await f;
+            var (result, participant) = r;
+            string participantId = participant.participantId;
             match result {
-                (PrepareResult,Participant) res => {
-                    var (prepRes, participant) = res;
-                    string participantId = participant.participantId;
+                PrepareResult prepRes => {
                     if(prepRes == PREPARE_RESULT_PREPARED) {
                         // All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
                     } else if (prepRes == PREPARE_RESULT_COMMITTED) {
@@ -190,8 +189,9 @@ type TwoPhaseCommitTransaction object {
                 }
                 () => {}
                 error err => {
-                    //self.removeParticipant(participantId, "Could not remove prepare failed participant: " + participantId +
-                    //        " from transaction: " + transactionId);
+                    self.removeParticipant(participantId,
+                            "Could not remove prepare failed participant: " + participantId + " from transaction: " +
+                            self.transactionId);
                     prepareDecision = PREPARE_DECISION_ABORT;
                 }
             }
