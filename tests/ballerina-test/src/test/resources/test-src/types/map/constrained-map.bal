@@ -453,7 +453,7 @@ function testMapOfElementTypeRefArray () returns ((string, int)) {
 type PersonComplex {
      string name,
     int age,
-    PersonComplex parent,
+    PersonComplex? parent,
     json info,
     map<string> address,
     int[] marks,
@@ -491,7 +491,7 @@ function testJsonToStructConversionStructWithConstrainedMap () returns (string, 
 type PersonComplexTwo {
     string name,
     int age,
-    PersonComplexTwo parent,
+    PersonComplexTwo? parent,
     json info,
     map<int> address,
     int[] marks,
