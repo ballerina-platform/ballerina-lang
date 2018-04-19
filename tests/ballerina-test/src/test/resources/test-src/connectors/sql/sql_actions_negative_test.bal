@@ -23,7 +23,7 @@ function testSelectData() returns (string) {
     };
     string returnData;
     try {
-        var x = testDB -> select("SELECT Name from Customers where registrationID = 1", (), ());
+        var x = testDB->select("SELECT Name from Customers where registrationID = 1", (), ());
 
         match x {
             table dt => {
@@ -36,7 +36,7 @@ function testSelectData() returns (string) {
         }
 
     } finally {
-        _ = testDB -> close();
+        _ = testDB->close();
     }
     return returnData;
 }
@@ -52,7 +52,7 @@ function testGeneratedKeyOnInsert() returns (string) {
     try {
         string[] generatedID;
         int insertCount;
-        var x = testDB -> updateWithGeneratedKeys("insert into Customers (name,lastName,
+        var x = testDB->updateWithGeneratedKeys("insert into Customers (name,lastName,
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", ());
 
         match x {
@@ -65,7 +65,7 @@ function testGeneratedKeyOnInsert() returns (string) {
         }
 
     } finally {
-        _ = testDB -> close();
+        _ = testDB->close();
     }
     return id;
 }
@@ -78,7 +78,7 @@ function testCallProcedure() returns (string) {
     };
     string returnData;
     try {
-        var x = testDB -> call("{call InsertPersonDataInfo(100,'James')}", (), ());
+        var x = testDB->call("{call InsertPersonDataInfo(100,'James')}", (), ());
         match x {
             table[] dt => {
                 var j = check <json>dt[0];
@@ -89,7 +89,7 @@ function testCallProcedure() returns (string) {
             }
         }
     } finally {
-        _ = testDB -> close();
+        _ = testDB->close();
     }
     return returnData;
 }
@@ -120,7 +120,7 @@ function testBatchUpdate() returns (string) {
         para5 = (sql:TYPE_VARCHAR, "Colombo");
         sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
 
-        var x = testDB -> batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
+        var x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
         match x {
             int[] data => {
@@ -132,7 +132,7 @@ function testBatchUpdate() returns (string) {
             }
         }
     } finally {
-        _ = testDB -> close();
+        _ = testDB->close();
     }
     return returnVal;
 }
@@ -150,7 +150,7 @@ function testInvalidArrayofQueryParameters() returns (string) {
         xml x2 = xml `<book>The Lost World2</book>`;
         xml[] xmlDataArray = [x1, x2];
         sql:Parameter para0 = (sql:TYPE_INTEGER, xmlDataArray);
-        var x = testDB -> select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
+        var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
         match x {
             table dt => {
@@ -163,7 +163,7 @@ function testInvalidArrayofQueryParameters() returns (string) {
         }
 
     } finally {
-        _ = testDB -> close();
+        _ = testDB->close();
     }
     return returnData;
 }
@@ -175,7 +175,7 @@ function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() return
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", [ResultCustomers]);
+    var dtsRet = testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers]);
 
     match dtsRet {
         table[] dts => {
@@ -192,11 +192,11 @@ function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() return
                 firstName2 = rs.FIRSTNAME;
             }
 
-            _ = testDB -> close();
+            _ = testDB->close();
             return (firstName1, firstName2);
         }
         error e => {
-            _ = testDB -> close();
+            _ = testDB->close();
             return e;
         }
     }
@@ -209,7 +209,7 @@ function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() retur
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2, Person]);
+    var dtsRet = testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2, Person]);
 
     match dtsRet {
         table[] dts => {
@@ -226,11 +226,11 @@ function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() retur
                 firstName2 = rs.FIRSTNAME;
             }
 
-            _ = testDB -> close();
+            _ = testDB->close();
             return (firstName1, firstName2);
         }
         error e => {
-            _ = testDB -> close();
+            _ = testDB->close();
             return e;
         }
     }
@@ -243,7 +243,7 @@ function testCallProcedureWithMultipleResultSetsAndNilConstraintCount() returns 
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtsRet = testDB -> call("{call SelectPersonDataMultiple()}", ());
+    var dtsRet = testDB->call("{call SelectPersonDataMultiple()}", ());
 
     match dtsRet {
         table[] dts => {
@@ -263,7 +263,7 @@ function testCallProcedureWithMultipleResultSetsAndNilConstraintCount() returns 
             return (firstName1, firstName2);
         }
         error e => {
-            _ = testDB -> close();
+            _ = testDB->close();
             return e;
         }
     }

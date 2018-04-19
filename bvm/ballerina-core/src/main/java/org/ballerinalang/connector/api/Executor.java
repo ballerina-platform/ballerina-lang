@@ -39,9 +39,11 @@ public class Executor {
      * It will use Ballerina worker-pool for the execution and will return the
      * connector thread immediately.
      *
-     * @param resource   to be executed.
-     * @param properties to be passed to context.
-     * @param values     required for the resource.
+     * @param resource         to be executed.
+     * @param responseCallback to be executed when execution completes.
+     * @param properties       to be passed to context.
+     * @param observerContext  for the resource invocation.
+     * @param values           required for the resource.
      */
     public static void submit(Resource resource, CallableUnitCallback responseCallback, Map<String, Object> properties,
                               ObserverContext observerContext, BValue... values)
@@ -56,9 +58,12 @@ public class Executor {
      * It will use Ballerina worker-pool for the execution and will return the
      * connector thread immediately.
      *
-     * @param resource   to be executed.
-     * @param properties to be passed to context.
-     * @param values     required for the resource.
+     * @param resource         to be executed.
+     * @param responseCallback to be executed when execution completes.
+     * @param properties       to be passed to context.
+     * @param observerContext  for the resource invocation.
+     * @param context          of the resource execution.
+     * @param values           required for the resource.
      */
     public static void submit(Resource resource, CallableUnitCallback responseCallback, Map<String, Object> properties,
                               ObserverContext observerContext, WorkerExecutionContext context, BValue... values)

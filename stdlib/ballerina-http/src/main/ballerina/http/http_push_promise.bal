@@ -9,6 +9,9 @@ public type PushPromise object {
         string method;
     }
 
+    public new (path = "/", method = "GET") {
+    }
+
     @Description {value:"Check whether the requested header exists"}
     @Param {value:"headerName: The header name"}
     @Return {value:"Boolean representing the existence of a given header"}
