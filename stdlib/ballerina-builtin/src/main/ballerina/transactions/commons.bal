@@ -16,7 +16,7 @@
 
 package ballerina.transactions;
 
-import ballerina/caching;
+import ballerina/cache;
 import ballerina/log;
 import ballerina/http;
 import ballerina/task;
@@ -41,7 +41,7 @@ map<TwoPhaseCommitTransaction> participatedTransactions;
 documentation {
     This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 }
-caching:Cache httpClientCache = new;
+cache:Cache httpClientCache = new;
 
 @final boolean scheduleInit = scheduleTimer(1000, 60000);
 

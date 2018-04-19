@@ -43,9 +43,9 @@ public type SimpleQueueSender object {
     public function start () {
     }
 
-    public function getClient () returns (QueueSenderConnector) {
+    public function getCallerActions () returns (QueueSenderConnector) {
         match (sender) {
-            QueueSender s => return s.getClient();
+            QueueSender s => return s.getCallerActions();
             () => {
                 error e = {message: "Queue sender cannot be nil"};
                 throw e;

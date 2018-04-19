@@ -45,14 +45,14 @@ import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_ENDPOINT_TYPE;
 @BallerinaFunction(
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "getClient",
+        functionName = "getCallerActions",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_ENDPOINT_TYPE,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = CLIENT_RESPONDER, structPackage =
                 PROTOCOL_STRUCT_PACKAGE_GRPC)},
         isPublic = true
 )
-public class GetClient extends AbstractGrpcNativeFunction {
+public class GetCallerActions extends AbstractGrpcNativeFunction {
 
     @Override
     public void execute(Context context) {

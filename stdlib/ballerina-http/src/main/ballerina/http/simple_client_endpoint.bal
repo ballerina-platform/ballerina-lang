@@ -51,7 +51,7 @@ public type SimpleClient object {
     documentation {
         Returns the backing HTTP client used by the endpoint.
     }
-    public function getClient() returns HttpClient {
+    public function getCallerActions() returns HttpClient {
         return httpEP.httpClient;
     }
 

@@ -32,7 +32,7 @@ public type SimpleTopicPublisher object {
     public function start () {
     }
 
-    public function getClient () returns (TopicPublisherConnector) {
+    public function getCallerActions () returns (TopicPublisherConnector) {
         match (self.publisherConnector) {
             TopicPublisherConnector s => return s;
             () => {

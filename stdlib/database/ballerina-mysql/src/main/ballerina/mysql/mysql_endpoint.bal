@@ -62,7 +62,7 @@ public type Client object {
     documentation {
         Returns the connector that the client code uses.
     }
-    public function getClient() returns sql:CallerActions {
+    public function getCallerActions() returns sql:CallerActions {
         return self.mysqlClient;
     }
 };

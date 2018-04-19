@@ -181,7 +181,7 @@ public class TableIterationTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testSelect() {
         BValue[] returns = BRunUtil.invoke(result, "testSelect");
         Assert.assertNotNull(returns);
@@ -190,7 +190,7 @@ public class TableIterationTest {
                 "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testSelectCompatibleLambdaInput() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaInput");
         Assert.assertNotNull(returns);
@@ -199,7 +199,7 @@ public class TableIterationTest {
                 "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testSelectCompatibleLambdaOutput() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaOutput");
         Assert.assertNotNull(returns);
@@ -208,7 +208,7 @@ public class TableIterationTest {
                 "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testSelectCompatibleLambdaInputOutput() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectCompatibleLambdaInputOutput");
         Assert.assertNotNull(returns);

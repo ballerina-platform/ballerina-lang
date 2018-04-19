@@ -18,12 +18,14 @@
 
 package org.ballerinalang.docgen.docs.utils;
 
+import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,6 +41,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -62,6 +65,36 @@ public class BallerinaDocUtils {
         Node document = parser.parse(mdContent);
         HtmlRenderer renderer = HtmlRenderer.builder().build();
         return renderer.render(document);
+    }
+
+    /**
+     * Load primitiv types of Ballerina.
+     *
+     * @return @{@link Properties}
+     */
+    public static Properties loadPrimitivesDescriptions() {
+        Properties prop = new Properties();
+        InputStream input = null;
+
+        try {
+            String filename = "primitives-descriptions.properties";
+            input = Generator.class.getClassLoader().getResourceAsStream(filename);
+            if (input == null) {
+                return prop;
+            }
+            prop.load(input);
+        } catch (IOException e) {
+            //TODO
+            return prop;
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+        return prop;
     }
 
     public static void packageToZipFile(String sourceDirPath, String zipFilePath) throws IOException {

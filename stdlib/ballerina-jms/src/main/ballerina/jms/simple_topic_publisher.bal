@@ -43,9 +43,9 @@ public type SimpleTopicPublisher object {
     public function start () {
     }
 
-    public function getClient () returns (TopicPublisherConnector) {
+    public function getCallerActions () returns (TopicPublisherConnector) {
         match (publisher) {
-            TopicPublisher s => return s.getClient();
+            TopicPublisher s => return s.getCallerActions();
             () => {
                 error e = {message: "Topic publisher cannot be nil"};
                 throw e;
