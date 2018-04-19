@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.caching;
+package org.ballerinalang.test.cache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,17 +34,17 @@ import org.testng.annotations.Test;
 import java.util.Arrays;
 
 /**
- * Test class for caching package.
+ * Test class for cache package.
  */
-public class CachingTest {
+public class CacheTest {
 
     private CompileResult compileResult;
     private static final double DELTA = 0.0000000001;
-    private static final Log log = LogFactory.getLog(CachingTest.class);
+    private static final Log log = LogFactory.getLog(CacheTest.class);
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/caching/caching-test.bal");
+        compileResult = BCompileUtil.compile("test-src/cache/cache-test.bal");
         printDiagnostics(compileResult);
     }
 

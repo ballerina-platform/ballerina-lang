@@ -18,15 +18,15 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.FailNode;
+import org.ballerinalang.model.tree.statements.RetryNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * {@code BLangFail} represents a fail statement within a transaction in Ballerina.
+ * {@code BLangRetry} represents a retry statement within a transaction in Ballerina.
  *
  * @since 0.965.0
  */
-public class BLangFail extends BLangStatement implements FailNode {
+public class BLangRetry extends BLangStatement implements RetryNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
@@ -34,11 +34,11 @@ public class BLangFail extends BLangStatement implements FailNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.FAIL;
+        return NodeKind.RETRY;
     }
 
     @Override
     public String toString() {
-        return "Fail";
+        return "Retry";
     }
 }

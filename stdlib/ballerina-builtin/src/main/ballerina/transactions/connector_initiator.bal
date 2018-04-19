@@ -35,7 +35,7 @@ type InitiatorClientEP object {
     function init (InitiatorClientConfig conf) {
         endpoint http:Client httpEP {targets:[{url:conf.registerAtURL}],
                                             timeoutMillis:conf.timeoutMillis,
-                                            retry:{count:conf.retryConfig.count,
+                                            retryConfig:{count:conf.retryConfig.count,
                                                       interval:conf.retryConfig.interval}};
         self.httpClient = httpEP;
     }
