@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.compiler.workspace.repository;
 
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceEntry;
+import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
@@ -27,11 +27,11 @@ import java.nio.file.Path;
 /**
  * LSInMemorySourceEntry.
  */
-class LSInMemorySourceEntry extends FileSystemSourceEntry {
+class LSInMemorySourceEntry extends FileSystemSourceInput {
 
     private WorkspaceDocumentManager documentManager;
     LSInMemorySourceEntry(Path path, PackageID pkgId, WorkspaceDocumentManager documentManager) {
-        super(path, pkgId);
+        super(path);
         this.documentManager = documentManager;
     }
 

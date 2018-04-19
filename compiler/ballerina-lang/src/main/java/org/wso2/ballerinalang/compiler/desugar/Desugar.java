@@ -2003,10 +2003,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void reorderNamedArgs(BLangInvocation iExpr, BInvokableSymbol invokableSymbol) {
         Map<String, BLangExpression> namedArgs = new HashMap<>();
-        for (int i = 0; i < iExpr.namedArgs.size(); i++) {
-            BLangExpression argExpr = iExpr.namedArgs.get(i);
-            namedArgs.put(((NamedArgNode) argExpr).getName().value, argExpr);
-        }
+        iExpr.namedArgs.forEach(expr -> namedArgs.put(((NamedArgNode) expr).getName().value, expr));
 
         // Re-order the named arguments
         List<BLangExpression> args = new ArrayList<>();
