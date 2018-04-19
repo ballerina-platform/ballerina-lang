@@ -25,8 +25,7 @@ service<http:Service> infoService bind infoServiceEP {
             //Get the string value that is relevant to the key "name".
                 string nameString = check <string>jsonMsg["name"];
                 //Create XML payload and send back a response. 
-                string payload = "<name>" + nameString + "</name>";
-                xml name = check <xml>payload;
+                xml name = xml `<name>{{nameString}}</name>`;
                 res.setXmlPayload(name);
             }
             http:PayloadError payloadError => {

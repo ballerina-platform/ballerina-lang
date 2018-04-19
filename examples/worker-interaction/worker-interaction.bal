@@ -12,7 +12,7 @@ function main (string... args) {
         // Receive a message from worker `w2`. This message contains a `JSON` typed value.
         json j = {};
         j <- w2;
-        string jStr = j.toString() but {() => ""};
+        string jStr = j.toString();
         io:println("[w1 <- w2] j: " + jStr);
     }
 
@@ -26,7 +26,7 @@ function main (string... args) {
         io:println("[w2 <- w1] iw: " + iw + " kw: " + kw);
         // Send a message to the default worker.
         json jw = {"name":"Ballerina"};
-        string jwStr = jw.toString() but {() => ""};
+        string jwStr = jw.toString();
         io:println("[w2 -> w1] jw: " + jwStr);
         jw -> w1;
     }
