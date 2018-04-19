@@ -18,24 +18,22 @@
 package org.ballerinalang.logging;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.logging.exceptions.TraceLogConfigurationException;
-import org.ballerinalang.logging.formatters.HTTPTraceLogFormatter;
 import org.ballerinalang.logging.formatters.HttpAccessLogFormatter;
+import org.ballerinalang.logging.formatters.HttpTraceLogFormatter;
 import org.ballerinalang.logging.formatters.JsonLogFormatter;
 import org.ballerinalang.logging.util.BLogLevel;
-import org.ballerinalang.logging.util.Constants;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -45,10 +43,14 @@ import java.util.regex.Pattern;
 
 import static org.ballerinalang.logging.util.Constants.BALLERINA_USER_LOG_LEVEL;
 import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG;
+import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG_CONSOLE;
+import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG_FILE;
 import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG;
+import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG_CONSOLE;
+import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG_FILE;
+import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG_HOST;
+import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG_PORT;
 import static org.ballerinalang.logging.util.Constants.LOG_LEVEL;
-import static org.ballerinalang.logging.util.Constants.LOG_TO;
-import static org.ballerinalang.logging.util.Constants.LOG_TO_CONSOLE;
 
 /**
  * Java util logging manager for ballerina which overrides the readConfiguration method to replace placeholders
@@ -103,14 +105,10 @@ public class BLogManager extends LogManager {
         if (userLogLevel != null) {
             ballerinaUserLogLevel = BLogLevel.toBLogLevel(userLogLevel);
         }
-
-        // setup HTTP trace log level configuration
-        String traceLogLevel = configRegistry.getAsString(HTTP_TRACE_LOG, "level");
-        if (traceLogLevel != null) {
-            loggerLevels.put(HTTP_TRACE_LOG, BLogLevel.toBLogLevel(traceLogLevel));
-        }
-
         loggerLevels.put(BALLERINA_USER_LOG_LEVEL, ballerinaUserLogLevel);
+
+        setHttpTraceLogHandler();
+        setHttpAccessLogHandler();
     }
 
     public BLogLevel getPackageLogLevel(String pkg) {
@@ -118,84 +116,99 @@ public class BLogManager extends LogManager {
     }
 
     /**
-     * Sets the Http trace log handler.
-     *
-     * @throws IOException                    if there is I/O exception while creating a socket.
-     * @throws TraceLogConfigurationException if there is any misconfiguration found.
+     * Initializes the HTTP trace logger.
      */
-    public void setHttpTraceLogHandler() throws IOException, TraceLogConfigurationException {
+    public void setHttpTraceLogHandler() {
         if (httpTraceLogger == null) {
             // keep a reference to prevent this logger from being garbage collected
             httpTraceLogger = Logger.getLogger(HTTP_TRACE_LOG);
         }
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        String logTo = configRegistry.getAsString(HTTP_TRACE_LOG, LOG_TO);
+        PrintStream stdErr = System.err;
+        boolean tracelogsEnabled = false;
 
-        if (logTo == null) {
-            httpTraceLogger.addHandler(populateTraceHandlerConfiguration(LOG_TO_CONSOLE));
-        } else {
-            String[] logToStrings = logTo.split(",");
-            for (String logToString : logToStrings) {
-                String logToStringTrim = logToString.trim();
-                if (!logToStringTrim.isEmpty()) {
-                    httpTraceLogger.addHandler(populateTraceHandlerConfiguration(logToStringTrim));
-                }
+        String consoleLogEnabled = configRegistry.getAsString(HTTP_TRACE_LOG_CONSOLE);
+        if (Boolean.parseBoolean(consoleLogEnabled)) {
+            ConsoleHandler consoleHandler = new ConsoleHandler();
+            consoleHandler.setFormatter(new HttpTraceLogFormatter());
+            consoleHandler.setLevel(Level.FINEST);
+            httpTraceLogger.addHandler(consoleHandler);
+            tracelogsEnabled = true;
+        }
+
+        String logFilePath = configRegistry.getAsString(HTTP_TRACE_LOG_FILE);
+        if (logFilePath != null && !logFilePath.trim().isEmpty()) {
+            try {
+                FileHandler fileHandler = new FileHandler(logFilePath, true);
+                fileHandler.setFormatter(new HttpTraceLogFormatter());
+                fileHandler.setLevel(Level.FINEST);
+                httpTraceLogger.addHandler(fileHandler);
+                tracelogsEnabled = true;
+            } catch (IOException e) {
+                throw new RuntimeException("failed to setup HTTP trace log file: " + logFilePath, e);
             }
         }
-        httpTraceLogger.setLevel(Level.FINEST);
-    }
 
-    private Handler populateTraceHandlerConfiguration(String logToString)
-            throws IOException, TraceLogConfigurationException {
-        Handler handler = null;
-        if (logToString.equalsIgnoreCase(LOG_TO_CONSOLE)) {
-            handler = new ConsoleHandler();
-            handler.setFormatter(new HTTPTraceLogFormatter());
-        } else if (logToString.contains(Constants.LOG_TO_SOCKET)) {
-            String socketAddressString = logToString.substring(logToString.indexOf(";") + 1);
-            String host = socketAddressString.substring(0, socketAddressString.indexOf(":")).trim();
-            host = (!host.isEmpty()) ? host : Constants.LOG_PUBLISH_DEFAULT_HOST;
-            String portString = socketAddressString.substring(socketAddressString.indexOf(":") + 1).trim();
-            int port = (!portString.isEmpty()) ? Integer.parseInt(portString) : Constants.LOG_PUBLISH_DEFAULT_PORT;
-            handler = new SocketHandler(host, port);
-            handler.setFormatter(new JsonLogFormatter());
-        } else {
-            throw new TraceLogConfigurationException(
-                    logToString + " is unsupported logto value in Http trace logging configuration.");
+        String host = configRegistry.getAsString(HTTP_TRACE_LOG_HOST);
+        String port = configRegistry.getAsString(HTTP_TRACE_LOG_PORT);
+        if ((host != null && !host.trim().isEmpty()) && (port != null && !port.trim().isEmpty())) {
+            try {
+                SocketHandler socketHandler = new SocketHandler(host, Integer.parseInt(port));
+                socketHandler.setFormatter(new JsonLogFormatter());
+                socketHandler.setLevel(Level.FINEST);
+                httpTraceLogger.addHandler(socketHandler);
+                tracelogsEnabled = true;
+            } catch (IOException e) {
+                throw new RuntimeException("failed to connect to " + host + ":" + port, e);
+            }
         }
-        handler.setLevel(Level.FINEST);
-        return handler;
+
+        if (tracelogsEnabled) {
+            httpTraceLogger.setLevel(Level.FINEST);
+            System.setProperty("http.tracelog.enabled", "true");
+            stdErr.println("ballerina: HTTP trace log enabled");
+        }
     }
 
     /**
-     * Sets the Http access log
-     * @param arg the argument for access logging
-     * @throws IOException if there are IO problems opening the files.
+     * Initializes the HTTP access logger.
      */
-    public void setHttpAccessLogHandler(String arg) throws IOException {
-        Handler handler;
-        if (arg.equalsIgnoreCase("console")) {
-            handler = new ConsoleHandler();
-        } else {
-            handler = new FileHandler(arg, true);
-        }
-        handler.setFormatter(new HttpAccessLogFormatter());
-        handler.setLevel(Level.INFO);
-
+    public void setHttpAccessLogHandler() {
         if (httpAccessLogger == null) {
             // keep a reference to prevent this logger from being garbage collected
             httpAccessLogger = Logger.getLogger(HTTP_ACCESS_LOG);
         }
+        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+        PrintStream stdErr = System.err;
+        boolean accesslogsEnabled = false;
 
-        removeHandlers(httpAccessLogger);
-        httpAccessLogger.addHandler(handler);
-        httpAccessLogger.setLevel(Level.INFO);
-    }
+        String consoleLogEnabled = configRegistry.getAsString(HTTP_ACCESS_LOG_CONSOLE);
+        if (Boolean.parseBoolean(consoleLogEnabled)) {
+            ConsoleHandler consoleHandler = new ConsoleHandler();
+            consoleHandler.setFormatter(new HttpAccessLogFormatter());
+            consoleHandler.setLevel(Level.INFO);
+            httpAccessLogger.addHandler(consoleHandler);
+            httpAccessLogger.setLevel(Level.INFO);
+            accesslogsEnabled = true;
+        }
 
-    private static void removeHandlers(Logger logger) {
-        Handler[] handlers = logger.getHandlers();
-        for (Handler handler : handlers) {
-            logger.removeHandler(handler);
+        String filePath = configRegistry.getAsString(HTTP_ACCESS_LOG_FILE);
+        if (filePath != null && !filePath.trim().isEmpty()) {
+            try {
+                FileHandler fileHandler = new FileHandler(filePath, true);
+                fileHandler.setFormatter(new HttpAccessLogFormatter());
+                fileHandler.setLevel(Level.INFO);
+                httpAccessLogger.addHandler(fileHandler);
+                httpAccessLogger.setLevel(Level.INFO);
+                accesslogsEnabled = true;
+            } catch (IOException e) {
+                throw new RuntimeException("failed to setup HTTP access log file: " + filePath, e);
+            }
+        }
+
+        if (accesslogsEnabled) {
+            System.setProperty("http.accesslog.enabled", "true");
+            stdErr.println("ballerina: HTTP access log enabled");
         }
     }
 

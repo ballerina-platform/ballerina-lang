@@ -528,8 +528,18 @@
     "after {":"",
     "before public": " ",
     "after public":"",
+    "before public {": "",
+    "after public {": "",
+    "before public }":"",
+    "after public }":"",
     "before private": " ",
-    "after private": ""
+    "after private": "",
+    "before private {":"",
+    "after private {":"",
+    "before private }":"",
+    "after private }":"",
+    "before }":"",
+    "after }": ""
   },
   "RecordLiteralExpr": {
     "before {": "",

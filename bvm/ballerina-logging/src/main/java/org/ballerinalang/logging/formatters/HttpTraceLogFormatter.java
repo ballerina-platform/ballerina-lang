@@ -32,10 +32,10 @@ import java.util.logging.LogRecord;
  *
  * @since 0.93
  */
-public class HTTPTraceLogFormatter extends Formatter {
+public class HttpTraceLogFormatter extends Formatter {
 
     private static String format = BLogManager.getLogManager().getProperty(
-            HTTPTraceLogFormatter.class.getCanonicalName() + ".format");
+            HttpTraceLogFormatter.class.getCanonicalName() + ".format");
 
     @Override
     public String format(LogRecord record) {
