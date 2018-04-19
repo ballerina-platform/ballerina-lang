@@ -98,7 +98,8 @@ import java.util.concurrent.locks.Lock;
  */
 class BallerinaTextDocumentService implements TextDocumentService {
     // indicates the frequency to send diagnostics to server upon document did change
-    private static final int DIAG_PUSH_DEBOUNCE_DELAY = 500;
+    private static final int DIAG_PUSH_DEBOUNCE_DELAY = 200;
+    private static final int DIAG_COMPLETION_DELAY = 210;
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
@@ -117,6 +118,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>>
     completion(TextDocumentPositionParams position) {
+        try {
+            //TODO: Revisit this workaround
+            // Make a slight delay to avoid completion processed before onChange() triggered
+            Thread.sleep(DIAG_COMPLETION_DELAY);
+        } catch (InterruptedException e) {
+            //ignore
+        }
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
             List<CompletionItem> completions;
