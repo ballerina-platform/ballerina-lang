@@ -84,16 +84,16 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
-        Session clientSession = WebSocketPassThroughTestConnectionManager.getInstance().
-                getClientConnection(textMessage.getChannelSession());
-        clientSession.getAsyncRemote().sendText(textMessage.getText());
+        WebSocketConnection serverConnection = WebSocketPassThroughTestConnectionManager.getInstance().
+                getServerConnection(textMessage.getWebSocketConnection());
+        serverConnection.getSession().getAsyncRemote().sendText(textMessage.getText());
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
-        Session clientSession = WebSocketPassThroughTestConnectionManager.getInstance()
-                .getClientConnection(binaryMessage.getChannelSession());
-        clientSession.getAsyncRemote().sendBinary(binaryMessage.getByteBuffer());
+        WebSocketConnection serverConnection = WebSocketPassThroughTestConnectionManager.getInstance().
+                getServerConnection(binaryMessage.getWebSocketConnection());
+        serverConnection.getSession().getAsyncRemote().sendBinary(binaryMessage.getByteBuffer());
     }
 
     @Override
@@ -104,9 +104,9 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
         try {
-            Session clientSession = WebSocketPassThroughTestConnectionManager.getInstance()
-                    .getClientConnection(closeMessage.getChannelSession());
-            clientSession.close();
+            WebSocketConnection clientConnection = WebSocketPassThroughTestConnectionManager.getInstance()
+                    .getClientConnection(closeMessage.getWebSocketConnection());
+            clientConnection.getSession().close();
         } catch (IOException e) {
             logger.error("IO error when sending message: " + e.getMessage());
         }

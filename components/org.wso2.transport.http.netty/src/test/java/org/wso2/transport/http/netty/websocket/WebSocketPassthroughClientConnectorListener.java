@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
@@ -44,16 +45,16 @@ public class WebSocketPassthroughClientConnectorListener implements WebSocketCon
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
-        Session serverSession = WebSocketPassThroughTestConnectionManager.getInstance().
-                getServerConnection(textMessage.getChannelSession());
-        serverSession.getAsyncRemote().sendText(textMessage.getText());
+        WebSocketConnection serverConnection = WebSocketPassThroughTestConnectionManager.getInstance().
+                getServerConnection(textMessage.getWebSocketConnection());
+        serverConnection.getSession().getAsyncRemote().sendText(textMessage.getText());
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
-        Session serverSession = WebSocketPassThroughTestConnectionManager.getInstance().
-                getServerConnection(binaryMessage.getChannelSession());
-        serverSession.getAsyncRemote().sendBinary(binaryMessage.getByteBuffer());
+        WebSocketConnection serverConnection = WebSocketPassThroughTestConnectionManager.getInstance().
+                getServerConnection(binaryMessage.getWebSocketConnection());
+        serverConnection.getSession().getAsyncRemote().sendBinary(binaryMessage.getByteBuffer());
     }
 
     @Override
