@@ -49,7 +49,7 @@ public enum Snippet {
     WORKER("worker ${1:name} {\n\t${2}\n}"),
     XML_ATTRIBUTE_REFERENCE("\"${1}\"@[\"${2}\"]"),
     VAR_KEYWORD_SNIPPET("var "),
-    CREATE_KEYWORD_SNIPPET("create "),
+    CHECK_KEYWORD_SNIPPET("check "),
     OBJECT_SNIPPET("type ${1:ObjectName} object {\n\t${2}\n}"),
     RECORD_SNIPPET("type ${1:RecordName} {\n\t${2}\n};"),
     NEW_OBJECT_CONSTRUCTOR("new (${1:args}) {\n\t${2}\n}"),

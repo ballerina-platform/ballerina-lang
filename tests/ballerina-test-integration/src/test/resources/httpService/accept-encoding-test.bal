@@ -8,29 +8,17 @@ endpoint http:Listener passthroughEP {
 };
 
 endpoint http:Client acceptEncodingAutoEP {
-    targets: [
-                 {
-                     url: "http://localhost:9092/hello"
-                 }
-             ],
+    url: "http://localhost:9092/hello",
     acceptEncoding:"auto"
 };
 
 endpoint http:Client acceptEncodingEnableEP {
-    targets: [
-                 {
-                     url: "http://localhost:9092/hello"
-                 }
-             ],
+    url: "http://localhost:9092/hello",
     acceptEncoding:"enable"
 };
 
 endpoint http:Client acceptEncodingDisableEP {
-    targets: [
-                 {
-                     url: "http://localhost:9092/hello"
-                 }
-             ],
+    url: "http://localhost:9092/hello",
     acceptEncoding:"disable"
 };
 

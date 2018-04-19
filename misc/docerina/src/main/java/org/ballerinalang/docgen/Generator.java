@@ -44,6 +44,8 @@ import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.DocumentationAttributeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -60,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,8 +78,10 @@ public class Generator {
     /**
      * Generate the page when the bal package is passed.
      *
-     * @param balPackage The current package that is being viewed.
-     * @param packages   List of available packages.
+     * @param balPackage  The current package that is being viewed.
+     * @param packages    List of available packages.
+     * @param description package description
+     * @param primitives  list of primitives
      * @return A page model for the current package.
      */
     public static Page generatePage(BLangPackage balPackage, List<Link> packages, String description, List<Link>
@@ -161,6 +166,7 @@ public class Generator {
      *
      * @param balPackage The ballerina.builtin package.
      * @param packages   List of available packages.
+     * @param primitives list of primitives.
      * @return A page model for the primitive types.
      */
     public static Page generatePageForPrimitives(BLangPackage balPackage, List<Link> packages, List<Link> primitives) {
@@ -258,13 +264,36 @@ public class Generator {
                 for (BLangAnnotAttribute annotAttribute : annotationNode.getAttributes()) {
                     String dataType = getTypeName(annotAttribute.getTypeNode());
                     String desc = annotFieldAnnotation(annotationNode, annotAttribute);
-                    Variable variable = new Variable(annotAttribute.getName().value, dataType, desc);
+                    String href = extractLink(annotAttribute.getTypeNode());
+                    Variable variable = new Variable(annotAttribute.getName().value, dataType, desc, href);
                     attributes.add(variable);
                 }
             }
         }
 
         return new AnnotationDoc(annotationName, description(annotationNode), new ArrayList<>(), attributes);
+    }
+
+    //TODO
+    private static String extractLink(BLangType typeNode) {
+        if (typeNode instanceof BLangUserDefinedType) {
+            BLangUserDefinedType type = (BLangUserDefinedType) typeNode;
+            String pkg = type.pkgAlias.getValue();
+            BTypeSymbol tsymbol = ((BLangUserDefinedType) type).type.tsymbol;
+            if (tsymbol instanceof BStructSymbol) {
+                pkg = ((BStructSymbol) tsymbol).pkgID.getName().getValue();
+            }
+            return pkg + ".html#" + type.typeName.getValue();
+        } else if (typeNode instanceof BLangValueType) {
+            if (((BLangValueType) typeNode).type != null && ((BLangValueType) typeNode).type.tsymbol != null) {
+                return BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF + ".html#" + typeNode.type.tsymbol.getName()
+                        .value;
+            }
+        } else {
+            // TODO
+            return "";
+        }
+        return "";
     }
 
     /**
@@ -295,7 +324,8 @@ public class Generator {
             for (BLangVariable param : functionNode.getParameters()) {
                 String dataType = type(param);
                 String desc = paramAnnotation(functionNode, param);
-                Variable variable = new Variable(param.getName().value, dataType, desc);
+                String href = extractLink(param.getTypeNode());
+                Variable variable = new Variable(param.getName().value, dataType, desc, href);
                 parameters.add(variable);
             }
         }
@@ -306,7 +336,8 @@ public class Generator {
             String dataType = type(returnParam);
             if (!dataType.equals("null")) {
                 String desc = returnParamAnnotation(functionNode);
-                Variable variable = new Variable("", dataType, desc);
+                String href = extractLink(returnParam.getTypeNode());
+                Variable variable = new Variable("", dataType, desc, href);
                 returnParams.add(variable);
             }
 
@@ -340,7 +371,8 @@ public class Generator {
             for (BLangVariable param : actionNode.getParameters()) {
                 String dataType = type(param);
                 String desc = paramAnnotation(actionNode, param);
-                Variable variable = new Variable(param.getName().value, dataType, desc);
+                String href = extractLink(param.getTypeNode());
+                Variable variable = new Variable(param.getName().value, dataType, desc, href);
                 parameters.add(variable);
             }
         }
@@ -389,7 +421,8 @@ public class Generator {
                 if (null != param.getInitialExpression()) {
                     defaultValue = param.getInitialExpression().toString();
                 }
-                Field variable = new Field(param.getName().value, dataType, desc, defaultValue);
+                String href = extractLink(param.getTypeNode());
+                Field variable = new Field(param.getName().value, dataType, desc, defaultValue, href);
                 fields.add(variable);
             }
         }
