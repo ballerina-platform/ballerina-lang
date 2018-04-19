@@ -5,7 +5,7 @@ endpoint http:Listener passthroughEP {
 };
 
 endpoint http:Client nyseEP {
-    targets:[{url:"http://localhost:9090"}]
+    url:"http://localhost:9090"
 };
 
 @http:ServiceConfig {basePath:"/passthrough"}

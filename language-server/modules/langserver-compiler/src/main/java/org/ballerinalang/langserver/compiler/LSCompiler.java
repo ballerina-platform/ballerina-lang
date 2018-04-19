@@ -38,7 +38,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -338,7 +340,11 @@ public class LSCompiler {
      * @return {@link String} project root | null
      */
     public static String findProjectRoot(String parentDir) {
-        Path path = Paths.get(parentDir, ".ballerina");
+        Path path = Paths.get(parentDir);
+        if (!RepoUtils.hasProjectRepo(path)) {
+            return null;
+        }
+        path = path.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
         if (java.nio.file.Files.exists(path)) {
             return parentDir;
         }

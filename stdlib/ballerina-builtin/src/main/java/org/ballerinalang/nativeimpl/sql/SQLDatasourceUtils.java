@@ -1095,8 +1095,8 @@ public class SQLDatasourceUtils {
         datasource.init(options, "", database, host, port, username, password, name, dbOptions);
 
         BStruct sqlClient = BLangConnectorSPIUtil
-                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
-        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
+                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
+        sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
         return sqlClient;
     }
 
@@ -1113,8 +1113,8 @@ public class SQLDatasourceUtils {
         datasource.init(options, url, dbType, "", 0, username, password, "", "");
 
         BStruct sqlClient = BLangConnectorSPIUtil
-                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
-        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
+                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
+        sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
         return sqlClient;
     }
 
@@ -1146,8 +1146,8 @@ public class SQLDatasourceUtils {
         datasource.init(options, "", database, hostOrPath, port, username, password, name, dbOptions);
 
         BStruct sqlClient = BLangConnectorSPIUtil
-                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
-        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
+                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
+        sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
         return sqlClient;
     }
 

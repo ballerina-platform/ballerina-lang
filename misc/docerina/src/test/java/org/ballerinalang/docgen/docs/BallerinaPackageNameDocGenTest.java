@@ -36,7 +36,7 @@ public class BallerinaPackageNameDocGenTest {
     public void oneCommonPackagePrefixTest() {
         List<String> packageNames = new ArrayList<>();
         packageNames.add("ballerina.builtin");
-        packageNames.add("ballerina.caching");
+        packageNames.add("ballerina.cache");
         packageNames.add("ballerina.config");
         packageNames.add("ballerina.data.sql");
         packageNames.add("ballerina.file");
@@ -51,7 +51,7 @@ public class BallerinaPackageNameDocGenTest {
         }
         
         Assert.assertEquals(((PackageName) packageNameList.get(0).caption).suffix, "builtin", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(1).caption).suffix, "caching", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(1).caption).suffix, "cache", "Invalid suffix name.");
         Assert.assertEquals(((PackageName) packageNameList.get(2).caption).suffix, "config", "Invalid suffix name.");
         Assert.assertEquals(((PackageName) packageNameList.get(3).caption).suffix, "data.sql", "Invalid suffix name.");
         Assert.assertEquals(((PackageName) packageNameList.get(4).caption).suffix, "file", "Invalid suffix name.");

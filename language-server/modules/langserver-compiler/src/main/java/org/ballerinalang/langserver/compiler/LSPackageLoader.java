@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class LSPackageLoader {
 
-    private static final String[] STATIC_PKG_NAMES = {"http", "swagger", "mime", "auth", "caching", "config", "sql",
+    private static final String[] STATIC_PKG_NAMES = {"http", "swagger", "mime", "auth", "cache", "config", "sql",
             "file", "internal", "io", "jwt", "log", "math", "os", "reflect", "runtime", "security.crypto", "task",
             "time", "transactions", "user", "util", "builtin"};
 

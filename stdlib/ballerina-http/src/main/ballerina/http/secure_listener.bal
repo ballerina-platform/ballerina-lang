@@ -47,7 +47,7 @@ public type SecureListener object {
 
     @Description {value:"Returns the connector that client code uses"}
     @Return {value:"The connector that client code uses"}
-    public function getClient() returns (Connection);
+    public function getCallerActions() returns (Connection);
 
     @Description {value:"Stops the registered service"}
     public function stop();
@@ -80,16 +80,21 @@ public type SecureEndpointConfiguration {
 @Description {value:"Configuration for authentication providers"}
 @Field {value:"scheme: Authentication schem"}
 @Field {value:"id: Authention provider instance id"}
+@Field {value:"authProvider: Authentication schem implementation"}
+@Field {value:"issuer: Identifier of the token issuer"}
+@Field {value:"audience: Identifier of the token recipients"}
+@Field {value:"trustStore: Trustore configurations"}
+@Field {value:"certificateAlias: Token signed key alias"}
+@Field {value:"clockSkew: Time in seconds to mitigate clock skew"}
 public type AuthProvider {
     string scheme,
     string id,
     string authProvider,
-    string filePath,
     string issuer,
     string audience,
     TrustStore? trustStore,
     string certificateAlias,
-    int timeSkew,
+    int clockSkew,
 };
 
 public function SecureListener::init (SecureEndpointConfiguration config) {
@@ -174,6 +179,7 @@ function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler 
         jwtConfig.issuer = authProvider.issuer;
         jwtConfig.audience = authProvider.audience;
         jwtConfig.certificateAlias = authProvider.certificateAlias;
+        jwtConfig.clockSkew = authProvider.clockSkew;
         jwtConfig.trustStoreFilePath = authProvider.trustStore.filePath but {() => ""};
         jwtConfig.trustStorePassword = authProvider.trustStore.password but {() => ""};
         auth:JWTAuthProvider jwtAuthProvider = new (jwtConfig);
@@ -206,8 +212,8 @@ public function SecureListener::start () {
 
 @Description {value:"Returns the connector that client code uses"}
 @Return {value:"The connector that client code uses"}
-public function SecureListener::getClient () returns (Connection) {
-    return self.httpListener.getClient();
+public function SecureListener::getCallerActions () returns (Connection) {
+    return self.httpListener.getCallerActions();
 }
 
 @Description {value:"Stops the registered service"}
