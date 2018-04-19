@@ -425,6 +425,7 @@ public class CompiledPackageSymbolEnter {
         DataInputStream paramDataInStream = new DataInputStream(new ByteArrayInputStream(paramData));
         int requiredParamCount = paramDataInStream.readInt();
         int defaultableParamCount = paramDataInStream.readInt();
+        int restParamCount = paramDataInStream.readInt();
 
         // Get var names and create var symbols
         byte[] localVarData = attrDataMap.get(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
@@ -440,9 +441,16 @@ public class CompiledPackageSymbolEnter {
 
         for (int i = requiredParamCount; i < defaultableParamCount; i++) {
             String varName = getVarName(localVarDataInStream);
-            BVarSymbol varSymbol =
-                    new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
+            BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
+                    funcType.paramTypes.get(i), this.env.pkgSymbol);
             invokableSymbol.defaultableParams.add(varSymbol);
+        }
+
+        if (restParamCount == 1) {
+            String varName = getVarName(localVarDataInStream);
+            BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
+                    funcType.paramTypes.get(requiredParamCount + defaultableParamCount), this.env.pkgSymbol);
+            invokableSymbol.restParam = varSymbol;
         }
     }
 

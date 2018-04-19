@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -21,7 +21,7 @@ package org.wso2.ballerinalang.programfile.attributes;
  * {@code ParameterAttributeInfo} contains common metadata of parameters
  * of a Ballerina function/resource/action in the program file.
  *
- * @since 0.88
+ * @since 0.970.0
  */
 public class ParameterAttributeInfo implements AttributeInfo {
 
@@ -30,6 +30,7 @@ public class ParameterAttributeInfo implements AttributeInfo {
 
     public int requiredParamsCount;
     public int defaultableParamsCount;
+    public int restParamCount;
 
     public ParameterAttributeInfo(int attributeNameIndex) {
         this.attributeNameIndex = attributeNameIndex;

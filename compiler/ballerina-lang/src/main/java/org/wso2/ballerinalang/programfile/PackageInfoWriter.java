@@ -467,6 +467,7 @@ public class PackageInfoWriter {
                 ParameterAttributeInfo parameterAttributeInfo = (ParameterAttributeInfo) attributeInfo;
                 attrDataOutStream.writeInt(parameterAttributeInfo.requiredParamsCount);
                 attrDataOutStream.writeInt(parameterAttributeInfo.defaultableParamsCount);
+                attrDataOutStream.writeInt(parameterAttributeInfo.restParamCount);
                 break;
         }
 

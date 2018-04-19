@@ -1237,7 +1237,8 @@ public class ProgramFileReader {
                 }
                 return paramDefaultValAttrInfo;
             case PARAMETERS_ATTRIBUTE:
-                // Read and discard required param count and defaultable param count 
+                // Read and discard required param count, defaultable param and rest param count 
+                dataInStream.readInt();
                 dataInStream.readInt();
                 dataInStream.readInt();
                 return null;

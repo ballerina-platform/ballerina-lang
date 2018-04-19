@@ -3226,13 +3226,14 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void addParameterAttributeInfo(BLangInvokableNode invokableNode, CallableUnitInfo callableUnitInfo) {
-        // Add required params and defaultable params counts
+        // Add required params, defaultable params and rest params counts
         int paramAttrIndex =
                 addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.PARAMETERS_ATTRIBUTE.value());
         ParameterAttributeInfo paramAttrInfo =
                 new ParameterAttributeInfo(paramAttrIndex);
         paramAttrInfo.requiredParamsCount = invokableNode.requiredParams.size();
         paramAttrInfo.defaultableParamsCount = invokableNode.defaultableParams.size();
+        paramAttrInfo.restParamCount = invokableNode.restParam != null ? 1 : 0;
         callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.PARAMETERS_ATTRIBUTE, paramAttrInfo);
         
         // Add parameter default values
