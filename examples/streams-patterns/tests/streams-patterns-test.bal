@@ -17,6 +17,8 @@ public function mockPrint (any s) {
 function testFunc() {
     // Invoking the main function
     main();
-    string out1 = "Event received; status: single and total occurrences: 2";
+    string out1 = "alertRoomAction function invoked for Room:2 and the action :stop";
+    string out2 = "alertRoomAction function invoked for Room:2 and the action :stop";
     test:assertEquals(out1, outputs[0]);
+    test:assertEquals(out1, outputs[1]);
 }
