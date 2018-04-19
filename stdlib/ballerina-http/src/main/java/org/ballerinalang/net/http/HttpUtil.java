@@ -26,7 +26,6 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.ballerinalang.bre.Context;
@@ -1100,23 +1099,6 @@ public class HttpUtil {
         if (headers != null) {
             headers.forEach((key, value) -> msg.setHeader(key, String.valueOf(value)));
         }
-    }
-
-    public static int getHttpResponseCode(HTTPCarbonMessage msg) {
-        Integer statusCode = (Integer) msg.getProperty(HTTP_STATUS_CODE);
-        if (statusCode == null) {
-            // Try to get status code from Netty Response
-            try {
-                HttpResponse response = msg.getNettyHttpResponse();
-                if (response != null) {
-                    statusCode = response.status().code();
-                }
-            } catch (RuntimeException e) {
-                // Handle errors and give 0 as the status code
-                statusCode = 0;
-            }
-        }
-        return statusCode != null ? statusCode : 0;
     }
 
     private static void setChunkingHeader(Context context, HTTPCarbonMessage

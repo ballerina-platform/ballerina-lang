@@ -67,6 +67,7 @@ import java.net.URL;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
@@ -447,8 +448,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
     }
 
-    private class ObservableHttpClientConnectorListener extends HTTPClientConnectorListener
-            implements HttpClientConnectorListener {
+    /**
+     * Observe {@link HTTPClientConnectorListener} and add HTTP status code as a tag to {@link ObserverContext}.
+     */
+    private class ObservableHttpClientConnectorListener extends HTTPClientConnectorListener {
 
         private final Context context;
 
@@ -461,7 +464,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
             super.onMessage(httpCarbonMessage);
-            addHttpStatusCode(HttpUtil.getHttpResponseCode(httpCarbonMessage));
+            Integer statusCode = (Integer) httpCarbonMessage.getProperty(HTTP_STATUS_CODE);
+            addHttpStatusCode(statusCode != null ? statusCode : 0);
         }
 
         @Override
