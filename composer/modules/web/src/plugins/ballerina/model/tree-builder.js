@@ -137,8 +137,7 @@ class TreeBuilder {
             }
             if (node.packageName.length === 2
                 && node.packageName[0].value === 'transactions' && node.packageName[1].value === 'coordinator') {
-
-                node.isInternal = true
+                node.isInternal = true;
             }
         }
 
@@ -165,7 +164,7 @@ class TreeBuilder {
         // Mark the first argument ad a service endpoint.
         if (node.kind === 'Resource' && node.parameters[0]) {
             const endpointParam = node.parameters[0];
-            const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value
+            const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value;
             endpointParam.serviceEndpoint = true;
             endpointParam.name.setValue(endpointParam.name.getValue().replace('$', ''));
             endpointParam.name.valueWithBar = valueWithBar.replace('$', '');
@@ -197,9 +196,9 @@ class TreeBuilder {
         }
 
         if (node.kind === 'UnionTypeNode') {
-           if (node.ws && node.ws.length > 2) {
-               node.withParantheses = true;
-           }
+            if (node.ws && node.ws.length > 2) {
+                node.withParantheses = true;
+            }
         }
 
         if (node.kind === 'Function') {
@@ -207,7 +206,7 @@ class TreeBuilder {
                 node.hasReturns = true;
                 if (node.ws) {
                     for (let i = 0; i < node.ws.length; i++) {
-                        if (node.ws[i].text === ')' && node.ws[i+1].text !== 'returns') {
+                        if (node.ws[i].text === ')' && node.ws[i + 1].text !== 'returns') {
                             for (let j = 0; j < node.returnTypeNode.ws.length; j++) {
                                 if (node.returnTypeNode.ws[j].text === 'returns') {
                                     node.ws.splice((i + 1), 0, node.returnTypeNode.ws[j]);
@@ -219,30 +218,55 @@ class TreeBuilder {
                     }
                 }
             }
+
+            if (node.receiver && !node.receiver.ws) {
+                node.noVisibleReceiver = true;
+            }
         }
 
         if (node.kind === 'Object') {
             node.publicFields = [];
             node.privateFields = [];
             let fields = node.fields;
-            if (fields.length <= 0) {
-                node.noFieldsAvailable = true;
-            } else {
-                for (let i = fields.length; i--;) {
-                    if (fields[i].public) {
-                        node.publicFields.push(fields[i]);
-                    } else {
-                        node.privateFields.push(fields[i]);
-                    }
+            let privateFieldBlockVisible = false;
+            let publicFieldBlockVisible = false;
+
+            for (let i = 0; i < fields.length; i++) {
+                if (fields[i].public) {
+                    node.publicFields.push(fields[i]);
+                } else {
+                    node.privateFields.push(fields[i]);
                 }
             }
 
-            if (node.privateFields.length <= 0) {
+            for (let i = 0; i < node.ws.length; i++) {
+                if (node.ws[i].text === 'public' && node.ws[i + 1].text === '{') {
+                    publicFieldBlockVisible = true;
+                }
+
+                if (node.ws[i].text === 'private' && node.ws[i + 1].text === '{') {
+                    privateFieldBlockVisible = true;
+                }
+            }
+
+            if (node.privateFields.length <= 0 && !privateFieldBlockVisible) {
                 node.noPrivateFieldsAvailable = true;
             }
 
-            if (node.publicFields.length <= 0) {
+            if (node.publicFields.length <= 0 && !publicFieldBlockVisible) {
                 node.noPublicFieldAvailable = true;
+            }
+
+            if (fields.length <= 0 && node.noPrivateFieldsAvailable && node.noPublicFieldAvailable) {
+                node.noFieldsAvailable = true;
+            }
+
+            if (node.initFunction) {
+                if (!node.initFunction.ws) {
+                    node.initFunction.defaultConstructor = true;
+                } else {
+                    node.initFunction.isConstructor = true;
+                }
             }
         }
 
@@ -271,7 +295,7 @@ class TreeBuilder {
         }
 
         if (node.kind === "Documentation") {
-            for(let j = 0; j < node.attributes.length; j++) {
+            for (let j = 0; j < node.attributes.length; j++) {
                 let attribute = node.attributes[j];
                 if (attribute.ws) {
                     let wsLength = attribute.ws.length;
@@ -287,6 +311,13 @@ class TreeBuilder {
                         }
                     }
                 }
+            }
+        }
+
+        // Tag rest variable nodes
+        if (node.kind === 'Function' || node.kind === 'Resource') {
+            if (node.restParameters) {
+                node.restParameters.rest = true;
             }
         }
     }

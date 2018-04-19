@@ -184,7 +184,7 @@ public function processWebSubNotification(http:Request request, typedesc service
         log:printWarn("Ignoring " + X_HUB_SIGNATURE + " value since secret is not specified.");
         return;
     } else {
-        string strPayload = payload.toString() but { () => "" };
+        string strPayload = payload.toString();
         return validateSignature(xHubSignature, strPayload, secret);
     }
 }

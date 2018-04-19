@@ -30,6 +30,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
+import org.ballerinalang.testerina.util.Utils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -150,8 +151,7 @@ public class BTestRunner {
             // set the debugger
             ProgramFile programFile = compileResult.getProgFile();
             Debugger debugger = new Debugger(programFile);
-            programFile.setDebugger(debugger);
-
+            Utils.initDebugger(programFile, debugger);
             TesterinaRegistry.getInstance().addProgramFile(programFile);
 
             // process the compiled files
@@ -390,5 +390,4 @@ public class BTestRunner {
     }
 
 }
-
 

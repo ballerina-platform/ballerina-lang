@@ -16,13 +16,13 @@
 
 package org.ballerinalang.langserver.definition.util;
 
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.LSPackageCache;
-import org.ballerinalang.langserver.LSServiceOperationContext;
-import org.ballerinalang.langserver.common.LSDocument;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSPackageCache;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.definition.DefinitionTreeVisitor;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Location;

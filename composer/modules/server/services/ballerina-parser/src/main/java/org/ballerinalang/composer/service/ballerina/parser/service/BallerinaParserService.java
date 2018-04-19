@@ -32,15 +32,16 @@ import org.ballerinalang.composer.server.core.ServerConstants;
 import org.ballerinalang.composer.server.spi.ComposerService;
 import org.ballerinalang.composer.server.spi.ServiceInfo;
 import org.ballerinalang.composer.server.spi.ServiceType;
+import org.ballerinalang.composer.service.ballerina.parser.ComposerDocumentManagerImpl;
 import org.ballerinalang.composer.service.ballerina.parser.Constants;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BFile;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BLangSourceFragment;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ModelPackage;
 import org.ballerinalang.composer.service.ballerina.parser.service.util.BLangFragmentParser;
 import org.ballerinalang.composer.service.ballerina.parser.service.util.ParserUtils;
-import org.ballerinalang.langserver.TextDocumentServiceUtil;
-import org.ballerinalang.langserver.common.modal.BallerinaFile;
-import org.ballerinalang.langserver.common.utils.LSParserUtils;
+import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -80,7 +81,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static org.ballerinalang.langserver.common.utils.LSParserUtils.UNTITLED_BAL;
+import static org.ballerinalang.langserver.compiler.LSCompiler.UNTITLED_BAL;
 
 /**
  * Micro service for ballerina parser.
@@ -93,6 +94,7 @@ public class BallerinaParserService implements ComposerService {
     private static final String INVOCATION_TYPE = "invocationType";
     private static final String UNESCAPED_VALUE = "unescapedValue";
     private static final String PACKAGE_REGEX = "package\\s+([a-zA_Z_][\\.\\w]*);";
+    private static final Gson GSON = new Gson();
 
     @OPTIONS
     @Path("/built-in-packages")
@@ -415,19 +417,23 @@ public class BallerinaParserService implements ComposerService {
      * @param bFileRequest - Object which holds data about Ballerina content.
      * @return List of errors if any
      */
-    private JsonObject validateAndParse(BFile bFileRequest) throws InvocationTargetException, IllegalAccessException {
+    private JsonObject validateAndParse(BFile bFileRequest) throws InvocationTargetException,
+                                                                                IllegalAccessException {
         final String fileName = bFileRequest.getFileName();
         final String content = bFileRequest.getContent();
 
-        BallerinaFile bFile;
         String programDir = "";
+        java.nio.file.Path filePath;
         if (UNTITLED_BAL.equals(fileName)) {
-            bFile = LSParserUtils.compile(content, CompilerPhase.CODE_ANALYZE);
+            filePath = LSCompiler.createAndGetTempFile(UNTITLED_BAL);
         } else {
-            java.nio.file.Path filePath = Paths.get(bFileRequest.getFilePath(), bFileRequest.getFileName());
-            bFile = LSParserUtils.compile(content, filePath, CompilerPhase.CODE_ANALYZE);
-            programDir = (bFile.isBallerinaProject()) ? TextDocumentServiceUtil.getSourceRoot(filePath) : "";
+            filePath = Paths.get(bFileRequest.getFilePath(), bFileRequest.getFileName());
         }
+
+        WorkspaceDocumentManager documentManager = new ComposerDocumentManagerImpl(filePath);
+        BallerinaFile bFile = LSCompiler.compileContent(content, filePath, CompilerPhase.CODE_ANALYZE, documentManager,
+                                                        true);
+        programDir = (bFile.isBallerinaProject()) ? LSCompiler.getSourceRoot(filePath) : "";
 
         final BLangPackage model = bFile.getBLangPackage();
         final List<Diagnostic> diagnostics = bFile.getDiagnostics();
@@ -466,8 +472,7 @@ public class BallerinaParserService implements ComposerService {
         JsonObject result = new JsonObject();
         result.add("errors", errors);
 
-        Gson gson = new Gson();
-        JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
+        JsonElement diagnosticsJson = GSON.toJsonTree(diagnostics);
         result.add("diagnostics", diagnosticsJson);
 
         if (model != null && model.symbol != null && bFileRequest.needTree()) {
@@ -481,7 +486,7 @@ public class BallerinaParserService implements ComposerService {
         ParserUtils.loadPackageMap("Current Package", bFile.getBLangPackage(), modelPackage);
         Optional<ModelPackage> packageInfoJson = modelPackage.values().stream().findFirst();
         if (packageInfoJson.isPresent() && bFileRequest.needPackageInfo()) {
-            JsonElement packageInfo = gson.toJsonTree(packageInfoJson.get());
+            JsonElement packageInfo = GSON.toJsonTree(packageInfoJson.get());
             result.add("packageInfo", packageInfo);
         }
         result.addProperty("programDirPath", programDir);
