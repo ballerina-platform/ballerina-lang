@@ -136,7 +136,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -144,6 +143,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -1696,6 +1696,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         ParamDefaultValueAttributeInfo defaultValAttrInfo = (ParamDefaultValueAttributeInfo) callableUnitInfo
                 .getAttributeInfo(AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE);
 
+        BInvokableSymbol invokableSymbol = (BInvokableSymbol) iExpr.symbol;
         for (int i = 0; i < iExpr.namedArgs.size(); i++) {
             BLangExpression argExpr = iExpr.namedArgs.get(i);
             // If some named parameter is not passed when invoking the function, then it will be null
@@ -1703,10 +1704,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             if (argExpr == null) {
                 DefaultValue defaultVal = defaultValAttrInfo.getDefaultValueInfo()[i];
                 BLangExpression defaultValExpr = getDefaultValExpr(defaultVal);
-                int paramPosition = iExpr.requiredArgs.size() + i +
-                        (((BInvokableSymbol) iExpr.symbol).receiverSymbol != null ? 1 : 0);
-                BType namedArgType = callableUnitInfo.paramTypes[paramPosition];
-                argExpr = createTypeConversionExpr(defaultValExpr, namedArgType);
+                argExpr = createTypeConversionExpr(defaultValExpr, invokableSymbol.defaultableParams.get(i).type);
             }
             operands[currentIndex++] = genNode(argExpr, this.env).regIndex;
         }
@@ -2707,8 +2705,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.emit(InstructionCodes.HALT);
     }
 
-    public void visit(BLangFail failNode) {
-        generateFinallyInstructions(failNode, NodeKind.TRANSACTION);
+    public void visit(BLangRetry retryNode) {
+        generateFinallyInstructions(retryNode, NodeKind.TRANSACTION);
         this.emit(failInstructions.peek());
     }
 

@@ -103,7 +103,7 @@ public type HelloWorldClient object {
         self.stub = stub;
     }
 
-    public function getClient () returns (HelloWorldStub) {
+    public function getCallerActions () returns (HelloWorldStub) {
         return self.stub;
     }
 };

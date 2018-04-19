@@ -100,7 +100,7 @@ public type ChatClient object {
         stub.initStub(client);
         self.stub = stub;
     }
-    public function getClient () returns (ChatStub) {
+    public function getCallerActions () returns (ChatStub) {
         return self.stub;
     }
 };
