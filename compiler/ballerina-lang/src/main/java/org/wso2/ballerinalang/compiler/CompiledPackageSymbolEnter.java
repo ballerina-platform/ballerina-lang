@@ -24,6 +24,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -289,8 +291,9 @@ public class CompiledPackageSymbolEnter {
         String objectName = getUTF8CPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
 
-        BTypeSymbol objectSymbol = Symbols.createStructSymbol(flags, names.fromString(objectName),
+        BStructSymbol objectSymbol = (BStructSymbol) Symbols.createObjectSymbol(flags, names.fromString(objectName),
                 this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
+        objectSymbol.scope = new Scope(objectSymbol);
         BStructType objectType = new BStructType(objectSymbol);
         objectSymbol.type = objectType;
         this.env.pkgSymbol.scope.define(objectSymbol.name, objectSymbol);
@@ -301,6 +304,9 @@ public class CompiledPackageSymbolEnter {
 
         // Define attached functions.
         // TODO define attached functions..
+        // Define Object Fields
+        defineSymbols(dataInStream, rethrow(dataInputStream ->
+                defineObjectAttachedFunction(dataInStream)));
 
         // Read and ignore attributes
         readAttributes(dataInStream);
@@ -319,8 +325,8 @@ public class CompiledPackageSymbolEnter {
 
         // Read the default value attribute
         Map<AttributeInfo.Kind, byte[]> attrData = readAttributes(dataInStream);
-        byte[] defaultValueAttrData = attrData.get(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
-        varSymbol.defaultValue = getObjectFieldDefaultValue(defaultValueAttrData);
+//        byte[] defaultValueAttrData = attrData.get(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
+//        varSymbol.defaultValue = getObjectFieldDefaultValue(defaultValueAttrData);
 
         // The object field type cannot be resolved now. Hence add it to the unresolved type list.
         UnresolvedType unresolvedFieldType = new UnresolvedType(typeSig, type -> {
@@ -332,14 +338,48 @@ public class CompiledPackageSymbolEnter {
         this.env.unresolvedTypes.add(unresolvedFieldType);
     }
 
+    private void defineObjectAttachedFunction(DataInputStream dataInStream) throws IOException {
+        // Consider attached functions.. remove the first variable
+        getUTF8CPEntryValue(dataInStream);
+        getUTF8CPEntryValue(dataInStream);
+        dataInStream.readInt();
+    }
+
     private void defineFunction(DataInputStream dataInStream) throws IOException {
         // Consider attached functions.. remove the first variable
         String funcName = getUTF8CPEntryValue(dataInStream);
         String funcSig = getUTF8CPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
 
+        BInvokableType funcType = createInvokableType(funcSig);
+
+        BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
+                this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+
+        Scope scopeToDefine = this.env.pkgSymbol.scope;
+
         if (Symbols.isFlagOn(flags, Flags.ATTACHED)) {
             int attachedToTypeRefCPIndex = dataInStream.readInt();
+            TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) this.env.constantPool[attachedToTypeRefCPIndex];
+            UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) this.env.constantPool[typeRefCPEntry.typeSigCPIndex];
+            BType bType = getBTypeFromDescriptor(typeSigCPEntry.getValue());
+            if (bType.tag == TypeTags.STRUCT) {
+                invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(Symbols
+                                .getAttachedFuncSymbolName(bType.tsymbol.name.value, funcName)),
+                        this.env.pkgSymbol.pkgID, null, bType.tsymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+                List<BType> params = new ArrayList<>();
+                params.addAll(funcType.paramTypes);
+                //remove first parameter
+                params.remove(0);
+                funcType.paramTypes = params;
+                scopeToDefine = bType.tsymbol.scope;
+
+                if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)) {
+                    BAttachedFunction attachedFunc = new BAttachedFunction(invokableSymbol.name,
+                            invokableSymbol, funcType);
+                    ((BStructSymbol) bType.tsymbol).initializerFunc = attachedFunc;
+                }
+            }
         }
 
         // Read and ignore worker data
@@ -354,14 +394,13 @@ public class CompiledPackageSymbolEnter {
         Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
 
         // TODO create function symbol and define..
-        BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
-                this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
-        invokableSymbol.type = createInvokableType(funcSig);
+
+        invokableSymbol.type = funcType;
 
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, attrDataMap);
-        
-        this.env.pkgSymbol.scope.define(invokableSymbol.name, invokableSymbol);
+
+        scopeToDefine.define(invokableSymbol.name, invokableSymbol);
     }
 
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
@@ -433,24 +472,28 @@ public class CompiledPackageSymbolEnter {
         DataInputStream localVarDataInStream = new DataInputStream(new ByteArrayInputStream(localVarData));
         localVarDataInStream.readShort();
         BInvokableType funcType = (BInvokableType) invokableSymbol.type;
+        if (Symbols.isFlagOn(invokableSymbol.flags, Flags.ATTACHED)) {
+            //remove first variable name
+            getVarName(localVarDataInStream);
+        }
         for (int i = 0; i < requiredParamCount; i++) {
             String varName = getVarName(localVarDataInStream);
             BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
-                    funcType.paramTypes.get(i), this.env.pkgSymbol);
+                    funcType.paramTypes.get(i), invokableSymbol);
             invokableSymbol.params.add(varSymbol);
         }
 
         for (int i = requiredParamCount; i < defaultableParamCount; i++) {
             String varName = getVarName(localVarDataInStream);
             BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
-                    funcType.paramTypes.get(i), this.env.pkgSymbol);
+                    funcType.paramTypes.get(i), invokableSymbol);
             invokableSymbol.defaultableParams.add(varSymbol);
         }
 
         if (restParamCount == 1) {
             String varName = getVarName(localVarDataInStream);
             BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
-                    funcType.paramTypes.get(requiredParamCount + defaultableParamCount), this.env.pkgSymbol);
+                    funcType.paramTypes.get(requiredParamCount + defaultableParamCount), invokableSymbol);
             invokableSymbol.restParam = varSymbol;
         }
     }
@@ -594,7 +637,7 @@ public class CompiledPackageSymbolEnter {
                 if (colonIndex != -1) {
                     pkgPath = new String(Arrays.copyOfRange(chars, index, colonIndex));
                     name = new String(Arrays.copyOfRange(chars, colonIndex + 1, nameIndex));
-                    pkgSymbol = lookupImportPackageSymbol(names.fromString(pkgPath));
+                    pkgSymbol = lookupPackageSymbol(names.fromString(pkgPath));
                 } else {
                     name = new String(Arrays.copyOfRange(chars, index, nameIndex));
                     // Setting the current package;
@@ -620,7 +663,6 @@ public class CompiledPackageSymbolEnter {
                         typeStack.push(new BStreamType(TypeTags.STREAM, lookupUserDefinedType(pkgSymbol, name), null));
                     }
                 } else if (typeChar == 'G' || typeChar == 'T') {
-                    typeStack.push(lookupUserDefinedType(pkgSymbol, name));
                     typeStack.push(lookupUserDefinedType(pkgSymbol, name));
                 }
 
@@ -719,7 +761,7 @@ public class CompiledPackageSymbolEnter {
 
                 String pkgPath = parts[0];
                 String name = parts[1];
-                BPackageSymbol pkgSymbol = lookupImportPackageSymbol(names.fromString(pkgPath));
+                BPackageSymbol pkgSymbol = lookupPackageSymbol(names.fromString(pkgPath));
                 if (ch == 'J') {
                     return new BJSONType(TypeTags.JSON, lookupUserDefinedType(pkgSymbol, name), null);
                 } else if (ch == 'X') {
@@ -747,7 +789,14 @@ public class CompiledPackageSymbolEnter {
         }
     }
 
-    private BPackageSymbol lookupImportPackageSymbol(Name packageName) {
+    private BPackageSymbol lookupPackageSymbol(Name packageName) {
+        //TODO below is a temporary fix, this needs to be removed later.
+        if (packageName.equals(names.fromString(env.pkgSymbol.pkgID.orgName + "." + env.pkgSymbol.pkgID.name))) {
+            return env.pkgSymbol;
+        }
+//        if (packageName.equals(env.pkgSymbol.pkgID.name)) {
+//            return env.pkgSymbol;
+//        }
         BSymbol symbol = lookupMemberSymbol(this.env.pkgSymbol.scope, packageName, SymTag.PACKAGE);
         if (symbol == this.symTable.notFoundSymbol) {
             throw new BLangCompilerException("Unknown imported package: " + packageName);
