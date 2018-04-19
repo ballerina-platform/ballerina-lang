@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.util;
+package org.ballerinalang.nativeimpl.internal;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -31,12 +31,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.util:parseJson.
+ * Native function ballerina.internal:parseJson.
  *
  * @since 0.980.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "util",
+        orgName = "ballerina", packageName = "internal",
         functionName = "parseJson",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.JSON)},
