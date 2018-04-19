@@ -1,4 +1,4 @@
-# When the user creates a new file called test1.txt in observed-dir and delete it.
+# Create a new file called `test1.txt` in the directory called `observed-dir` and modify and delete it.
 $ ballerina run directory-listener.bal
 ballerina: initiating service(s) in 'directory-listener.bal'
 Create: /home/ballerina/fs-server-connector/observed-dir/test1.txt
