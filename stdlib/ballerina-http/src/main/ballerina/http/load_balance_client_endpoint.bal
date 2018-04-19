@@ -72,7 +72,7 @@ documentation {
     F{{transferEncoding}} - The types of encoding applied to the request
     F{{chunking}} - The chunking behaviour of the request
     F{{followRedirects}} - Redirect related options
-    F{{retry}} - Retry related options
+    F{{retryConfig}} - Retry related options
     F{{proxy}} - Proxy related options
     F{{connectionThrottling}} - The configurations for controlling the number of connections allowed concurrently
     F{{cache}} - The configurations for controlling the caching behaviour
@@ -89,7 +89,7 @@ public type LoadBalanceClientEndpointConfiguration {
     TransferEncoding transferEncoding = "CHUNKING",
     Chunking chunking = "AUTO",
     FollowRedirects? followRedirects,
-    Retry? retry,
+    RetryConfig? retryConfig,
     ProxyConfig? proxy,
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
@@ -114,13 +114,13 @@ public function LoadBalanceClient::init(LoadBalanceClientEndpointConfiguration l
     self.httpEP.config.transferEncoding = loadBalanceClientConfig.transferEncoding;
     self.httpEP.config.chunking = loadBalanceClientConfig.chunking;
     self.httpEP.config.followRedirects = loadBalanceClientConfig.followRedirects;
-    self.httpEP.config.retry = loadBalanceClientConfig.retry;
+    self.httpEP.config.retryConfig = loadBalanceClientConfig.retryConfig;
     self.httpEP.config.proxy = loadBalanceClientConfig.proxy;
     self.httpEP.config.connectionThrottling = loadBalanceClientConfig.connectionThrottling;
 }
 
-function createClientendpointConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,
-                                                           TargetService target) returns ClientEndpointConfig {
+function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,
+                                                     TargetService target) returns ClientEndpointConfig {
     ClientEndpointConfig clientEPConfig = {
         url:target.url,
         circuitBreaker:lbConfig.circuitBreaker,
@@ -131,7 +131,7 @@ function createClientendpointConfigFromLoalBalanceEPConfig(LoadBalanceClientEndp
         httpVersion:lbConfig.httpVersion,
         forwarded:lbConfig.forwarded,
         followRedirects:lbConfig.followRedirects,
-        retry:lbConfig.retry,
+        retryConfig:lbConfig.retryConfig,
         proxy:lbConfig.proxy,
         connectionThrottling:lbConfig.connectionThrottling,
         secureSocket:target.secureSocket,
@@ -143,7 +143,7 @@ function createClientendpointConfigFromLoalBalanceEPConfig(LoadBalanceClientEndp
 }
 
 function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig) returns HttpClient {
-    ClientEndpointConfig config = createClientendpointConfigFromLoalBalanceEPConfig(loadBalanceClientConfig,
+    ClientEndpointConfig config = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig,
                                                                             loadBalanceClientConfig.targets[0]);
     HttpClient[] lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
     return new LoadBalancer(loadBalanceClientConfig.targets[0].url,
@@ -171,7 +171,7 @@ function createLoadBalanceHttpClientArray (LoadBalanceClientEndpointConfiguratio
     }
 
     foreach target in loadBalanceClientConfig.targets {
-        ClientEndpointConfig epConfig = createClientendpointConfigFromLoalBalanceEPConfig(loadBalanceClientConfig, target);
+        ClientEndpointConfig epConfig = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig, target);
         uri = target.url;
         if (uri.hasSuffix("/")) {
             int lastIndex = uri.length() - 1;
@@ -180,9 +180,9 @@ function createLoadBalanceHttpClientArray (LoadBalanceClientEndpointConfiguratio
         if (!httpClientRequired) {
             httpClients[i] = createCircuitBreakerClient(uri, epConfig);
         } else {
-            var retryConfig = epConfig.retry;
-            match retryConfig {
-                Retry retry => {
+            var retryConfigVal = epConfig.retryConfig;
+            match retryConfigVal {
+                RetryConfig retryConfig => {
                     httpClients[i] = createRetryClient(uri, epConfig);
                 }
                 () => {

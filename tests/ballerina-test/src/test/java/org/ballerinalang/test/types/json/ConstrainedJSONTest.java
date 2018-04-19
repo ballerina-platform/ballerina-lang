@@ -79,7 +79,7 @@ public class ConstrainedJSONTest {
     }
 
     // disabled due to json to string conversion fails
-    @Test(description = "Test basic json struct constraint", enabled = false)
+    @Test(description = "Test basic json struct constraint")
     public void testStructConstraint() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonStructConstraint");
 
@@ -95,7 +95,6 @@ public class ConstrainedJSONTest {
         Assert.assertTrue((((BJSON) returns[2]).value()).isString());
         Assert.assertEquals(returns[2].stringValue(), "London");
 
-        // Todo - Fix incorrect return value issue
         Assert.assertTrue(returns[3] instanceof BString);
         Assert.assertEquals(returns[3].stringValue(), "John Doe");
 
@@ -123,14 +122,14 @@ public class ConstrainedJSONTest {
         Assert.assertEquals(returns[2].stringValue(), "London");
     }
 
-    @Test(description = "Test json imported struct constraint", enabled = false)
+    @Test(description = "Test json imported struct constraint")
     public void testStructConstraintInPkg() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/types/jsontype/pkg", "main");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 0);
     }
 
-    @Test(description = "Test invalid json imported struct constraint", enabled = false)
+    @Test(description = "Test invalid json imported struct constraint")
     public void testInvalidStructConstraintInPkg() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/types/jsontype/pkginvalid", "main");
         Assert.assertEquals(compileResult.getWarnCount(), 0);

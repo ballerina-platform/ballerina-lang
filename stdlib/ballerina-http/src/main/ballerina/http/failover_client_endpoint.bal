@@ -72,7 +72,7 @@ documentation {
     F{{transferEncoding}} - The types of encoding applied to the request
     F{{chunking}} - The chunking behaviour of the request
     F{{followRedirects}} - Redirect related options
-    F{{retry}} - Retry related options
+    F{{retryConfig}} - Retry related options
     F{{proxy}} - Proxy related options
     F{{connectionThrottling}} - The configurations for controlling the number of connections allowed concurrently
     F{{cache}} - The configurations for controlling the caching behaviour
@@ -90,7 +90,7 @@ public type FailoverClientEndpointConfiguration {
     TransferEncoding transferEncoding = "CHUNKING",
     Chunking chunking = "AUTO",
     FollowRedirects? followRedirects,
-    Retry? retry,
+    RetryConfig? retryConfig,
     ProxyConfig? proxy,
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
@@ -116,13 +116,13 @@ public function FailoverClient::init(FailoverClientEndpointConfiguration failove
     self.httpEP.config.transferEncoding = failoverClientConfig.transferEncoding;
     self.httpEP.config.chunking = failoverClientConfig.chunking;
     self.httpEP.config.followRedirects = failoverClientConfig.followRedirects;
-    self.httpEP.config.retry = failoverClientConfig.retry;
+    self.httpEP.config.retryConfig = failoverClientConfig.retryConfig;
     self.httpEP.config.proxy = failoverClientConfig.proxy;
     self.httpEP.config.connectionThrottling = failoverClientConfig.connectionThrottling;
 }
 
-function createClientendpointConfigFromFailoverEPConfig(FailoverClientEndpointConfiguration foConfig,
-                                                        TargetService target) returns ClientEndpointConfig {
+function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfiguration foConfig,
+                                                  TargetService target) returns ClientEndpointConfig {
     ClientEndpointConfig clientEPConfig = {
         url:target.url,
         circuitBreaker:foConfig.circuitBreaker,
@@ -133,7 +133,7 @@ function createClientendpointConfigFromFailoverEPConfig(FailoverClientEndpointCo
         httpVersion:foConfig.httpVersion,
         forwarded:foConfig.forwarded,
         followRedirects:foConfig.followRedirects,
-        retry:foConfig.retry,
+        retryConfig:foConfig.retryConfig,
         proxy:foConfig.proxy,
         connectionThrottling:foConfig.connectionThrottling,
         secureSocket:target.secureSocket,
@@ -146,7 +146,7 @@ function createClientendpointConfigFromFailoverEPConfig(FailoverClientEndpointCo
 
 
 function createFailOverClient(FailoverClientEndpointConfiguration failoverClientConfig) returns HttpClient {
-    ClientEndpointConfig config = createClientendpointConfigFromFailoverEPConfig(
+    ClientEndpointConfig config = createClientEPConfigFromFailoverEPConfig(
                                       failoverClientConfig,
                                       failoverClientConfig.targets[0]);
     HttpClient[] clients = createFailoverHttpClientArray(failoverClientConfig);
@@ -156,7 +156,7 @@ function createFailOverClient(FailoverClientEndpointConfiguration failoverClient
         failoverCodesIndex:failoverCodes,
         failoverInterval:failoverClientConfig.intervalMillis
     };
-    return newFailover(config.url, config, failoverInferredConfig);
+    return new Failover(config.url, config, failoverInferredConfig);
 }
 
 function createFailoverHttpClientArray (FailoverClientEndpointConfiguration failoverClientConfig) returns HttpClient[] {
@@ -179,7 +179,7 @@ function createFailoverHttpClientArray (FailoverClientEndpointConfiguration fail
     }
 
     foreach target in failoverClientConfig.targets {
-        ClientEndpointConfig epConfig = createClientendpointConfigFromFailoverEPConfig(failoverClientConfig, target);
+        ClientEndpointConfig epConfig = createClientEPConfigFromFailoverEPConfig(failoverClientConfig, target);
         uri = target.url;
         if (uri.hasSuffix("/")) {
             int lastIndex = uri.length() - 1;
@@ -188,9 +188,9 @@ function createFailoverHttpClientArray (FailoverClientEndpointConfiguration fail
         if (!httpClientRequired) {
             httpClients[i] = createCircuitBreakerClient(uri, epConfig);
         } else {
-            var retryConfig = epConfig.retry;
-            match retryConfig {
-                Retry retry => {
+            var retryConfigVal = epConfig.retryConfig;
+            match retryConfigVal {
+                RetryConfig retryConfig => {
                     httpClients[i] = createRetryClient(uri, epConfig);
                 }
                 () => {

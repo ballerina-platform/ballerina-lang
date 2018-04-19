@@ -28,7 +28,7 @@ import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.PackageDoc;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
-import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -60,6 +60,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.StringJoiner;
 
 /**
@@ -273,7 +274,7 @@ public class BallerinaDocGenerator {
         if (bLangPackage == null) {
             out.println(String.format("docerina: invalid Ballerina package: %s", packagePath));
         } else {
-            String packageName = bLangPackage.symbol.pkgID.name.value;
+            String packageName = packageNameToString(bLangPackage.symbol.pkgID);
             if (isFilteredPackage(packageName, packageFilter)) {
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     out.println("Package " + packageName + " excluded");
@@ -284,6 +285,10 @@ public class BallerinaDocGenerator {
             }
         }
         return dataHolder.getPackageMap();
+    }
+
+    private static String packageNameToString(PackageID pkgId) {
+        return pkgId.toString().split(":")[0];
     }
 
     private static boolean isFilteredPackage(String packageName, String packageFilter) {
@@ -320,12 +325,14 @@ public class BallerinaDocGenerator {
     }
 
     private static List<Link> primitives() {
-        List<Link> primitives = new ArrayList<>();
-        for (TypeKind type : TypeKind.values()) {
-            primitives.add(new Link(new Caption(type.toString().toLowerCase()), BallerinaDocConstants
-                    .PRIMITIVE_TYPES_PAGE_HREF.concat("" + ".html#" + type.toString().toLowerCase()), true));
+        Properties primitives = BallerinaDocUtils.loadPrimitivesDescriptions();
+        List<Link> primitiveLinks = new ArrayList<>();
+        for (Object primitive : primitives.keySet()) {
+            String type = (String) primitive;
+            primitiveLinks.add(new Link(new Caption(type), BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF.concat(""
+                    + ".html#" + type), true));
         }
-        return primitives;
+        return primitiveLinks;
     }
 
     private static String refinePackagePath(BLangPackage bLangPackage) {
