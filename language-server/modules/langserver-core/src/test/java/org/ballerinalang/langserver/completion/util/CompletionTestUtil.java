@@ -22,6 +22,7 @@ import com.google.gson.JsonArray;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -109,16 +110,17 @@ public class CompletionTestUtil {
      * @param documentManager Document manager instance
      * @param pos             {@link TextDocumentPositionParams} position params
      */
-    public static List<CompletionItem> getCompletions(WorkspaceDocumentManagerImpl documentManager,
+    public static List<CompletionItem> getCompletions(WorkspaceDocumentManager documentManager,
                                                       TextDocumentPositionParams pos) {
         List<CompletionItem> completions;
         LSServiceOperationContext completionContext = new LSServiceOperationContext();
         completionContext.put(DocumentServiceKeys.POSITION_KEY, pos);
         completionContext.put(DocumentServiceKeys.FILE_URI_KEY, pos.getTextDocument().getUri());
         BLangPackage bLangPackage = LSCompiler.getBLangPackage(completionContext, documentManager,
-                                   false, CompletionCustomErrorStrategy.class, false).get(0);
+                                                               false, CompletionCustomErrorStrategy.class, false).get(
+                0);
         completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                bLangPackage.symbol.getName().getValue());
+                              bLangPackage.symbol.getName().getValue());
         // Visit the package to resolve the symbols
         TreeVisitor treeVisitor = new TreeVisitor(completionContext);
         bLangPackage.accept(treeVisitor);
@@ -140,7 +142,7 @@ public class CompletionTestUtil {
      *
      * @param uri        File Uri
      * @param balContent File Content
-     * @return {@link WorkspaceDocumentManagerImpl}
+     * @return {@link WorkspaceDocumentManager}
      */
     public static WorkspaceDocumentManagerImpl prepareDocumentManager(String uri, String balContent) {
         Path openedPath;

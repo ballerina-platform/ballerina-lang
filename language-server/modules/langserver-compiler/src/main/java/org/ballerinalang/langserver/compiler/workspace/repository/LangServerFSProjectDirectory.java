@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.compiler.workspace.repository;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
 
@@ -27,10 +28,31 @@ import java.nio.file.Path;
  * Lang Server File System Project Directory.
  */
 public class LangServerFSProjectDirectory extends FileSystemProjectDirectory {
+    private static final CompilerContext.Key<LangServerFSProjectDirectory> LS_PROJECT_DIRECTORY =
+            new CompilerContext.Key<>();
+
     private Path projectDirPath;
     private WorkspaceDocumentManager documentManager;
-    public LangServerFSProjectDirectory(Path projectDirPath, WorkspaceDocumentManager documentManager) {
+
+    public static LangServerFSProjectDirectory getInstance(CompilerContext context, Path projectDirPath,
+                                                           WorkspaceDocumentManager documentManager) {
+        LangServerFSProjectDirectory lsFSProjectDirectory = context.get(LS_PROJECT_DIRECTORY);
+        if (lsFSProjectDirectory == null) {
+            synchronized (LangServerFSProjectDirectory.class) {
+                lsFSProjectDirectory = context.get(LS_PROJECT_DIRECTORY);
+                if (lsFSProjectDirectory == null) {
+                    lsFSProjectDirectory = new LangServerFSProjectDirectory(context, projectDirPath, documentManager);
+                }
+            }
+        }
+        lsFSProjectDirectory.documentManager = documentManager;
+        return lsFSProjectDirectory;
+    }
+
+    private LangServerFSProjectDirectory(CompilerContext context, Path projectDirPath,
+                                         WorkspaceDocumentManager documentManager) {
         super(projectDirPath);
+        context.put(LS_PROJECT_DIRECTORY, this);
         this.projectDirPath = projectDirPath;
         this.documentManager = documentManager;
     }
