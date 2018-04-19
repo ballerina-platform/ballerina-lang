@@ -1137,7 +1137,9 @@ public class ProgramFileReader {
         int attributesCount = dataInStream.readShort();
         for (int k = 0; k < attributesCount; k++) {
             AttributeInfo attributeInfo = getAttributeInfo(dataInStream, constantPool);
-            attributeInfoPool.addAttributeInfo(attributeInfo.getKind(), attributeInfo);
+            if (attributeInfo != null) {
+                attributeInfoPool.addAttributeInfo(attributeInfo.getKind(), attributeInfo);
+            }
         }
     }
 
@@ -1236,6 +1238,12 @@ public class ProgramFileReader {
                     paramDefaultValAttrInfo.addParamDefaultValueInfo(paramDefaultValue);
                 }
                 return paramDefaultValAttrInfo;
+            case PARAMETERS_ATTRIBUTE:
+                // Read and discard required param count, defaultable param and rest param count 
+                dataInStream.readInt();
+                dataInStream.readInt();
+                dataInStream.readInt();
+                return null;
             default:
                 throw new ProgramFileFormatException("unsupported attribute kind " + attribNameCPEntry.getValue());
         }

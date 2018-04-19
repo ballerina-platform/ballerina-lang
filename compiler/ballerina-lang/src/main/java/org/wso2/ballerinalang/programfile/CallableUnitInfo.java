@@ -44,6 +44,9 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     public int signatureCPIndex;
 
+    public int requiredParamsCount;
+    public int defaultableParamsCount;
+
     protected Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
     // Key - data channel name

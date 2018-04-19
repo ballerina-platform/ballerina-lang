@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.AttributeInfo.Kind;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -349,13 +350,17 @@ public class CompiledPackageSymbolEnter {
             // TODO throw an error
         }
 
-        // Read and ignore attributes
-        readAttributes(dataInStream);
+        // Read attributes
+        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
 
         // TODO create function symbol and define..
         BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
                 this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
         invokableSymbol.type = createInvokableType(funcSig);
+
+        // set parameter symbols to the function symbol
+        setParamSymbols(invokableSymbol, attrDataMap);
+        
         this.env.pkgSymbol.scope.define(invokableSymbol.name, invokableSymbol);
     }
 
@@ -399,6 +404,69 @@ public class CompiledPackageSymbolEnter {
             attrDataMap.put(attrKind, attrData);
         }
         return attrDataMap;
+    }
+
+    /**
+     * Set parameter symbols to the invokable symbol.
+     * 
+     * @param invokableSymbol Invokable symbol
+     * @param attrDataMap Attribute data map
+     * @throws IOException
+     */
+    private void setParamSymbols(BInvokableSymbol invokableSymbol, Map<AttributeInfo.Kind, byte[]> attrDataMap)
+            throws IOException {
+
+        if (!attrDataMap.containsKey(AttributeInfo.Kind.PARAMETERS_ATTRIBUTE) ||
+                !attrDataMap.containsKey(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE)) {
+            return;
+        }
+
+        // Get parameter counts
+        byte[] paramData = attrDataMap.get(AttributeInfo.Kind.PARAMETERS_ATTRIBUTE);
+        DataInputStream paramDataInStream = new DataInputStream(new ByteArrayInputStream(paramData));
+        int requiredParamCount = paramDataInStream.readInt();
+        int defaultableParamCount = paramDataInStream.readInt();
+        int restParamCount = paramDataInStream.readInt();
+
+        // Get var names and create var symbols
+        byte[] localVarData = attrDataMap.get(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+        DataInputStream localVarDataInStream = new DataInputStream(new ByteArrayInputStream(localVarData));
+        localVarDataInStream.readShort();
+        BInvokableType funcType = (BInvokableType) invokableSymbol.type;
+        for (int i = 0; i < requiredParamCount; i++) {
+            String varName = getVarName(localVarDataInStream);
+            BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
+                    funcType.paramTypes.get(i), this.env.pkgSymbol);
+            invokableSymbol.params.add(varSymbol);
+        }
+
+        for (int i = requiredParamCount; i < defaultableParamCount; i++) {
+            String varName = getVarName(localVarDataInStream);
+            BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
+                    funcType.paramTypes.get(i), this.env.pkgSymbol);
+            invokableSymbol.defaultableParams.add(varSymbol);
+        }
+
+        if (restParamCount == 1) {
+            String varName = getVarName(localVarDataInStream);
+            BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
+                    funcType.paramTypes.get(requiredParamCount + defaultableParamCount), this.env.pkgSymbol);
+            invokableSymbol.restParam = varSymbol;
+        }
+    }
+
+    private String getVarName(DataInputStream dataInStream) throws IOException {
+        String varName = getUTF8CPEntryValue(dataInStream);
+        // read variable index
+        dataInStream.readInt();
+        getUTF8CPEntryValue(dataInStream);
+
+        int attchmntIndexesLength = dataInStream.readShort();
+        for (int i = 0; i < attchmntIndexesLength; i++) {
+            dataInStream.readInt();
+        }
+
+        return varName;
     }
 
     private Object getObjectFieldDefaultValue(byte[] defaultValueAttrData) throws IOException {
