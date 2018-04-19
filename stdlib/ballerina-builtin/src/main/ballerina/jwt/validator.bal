@@ -24,7 +24,7 @@ import ballerina/util;
 public type JWTValidatorConfig {
     string issuer,
     string audience,
-    int timeSkew,
+    int clockSkew,
     string certificateAlias,
     string trustStoreFilePath,
     string trustStorePassword,
@@ -181,7 +181,7 @@ function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload j
         error err = {message:"Invalid audience"};
         return err;
     }
-    if (!validateExpirationTime(jwtPayload)) {
+    if (!validateExpirationTime(jwtPayload, config)) {
         error err = {message:"JWT token is expired"};
         return err;
     }
@@ -223,8 +223,13 @@ function validateAudience (Payload jwtPayload, JWTValidatorConfig config) return
     return false;
 }
 
-function validateExpirationTime (Payload jwtPayload) returns (boolean) {
-    return jwtPayload.exp > time:currentTime().time;
+function validateExpirationTime (Payload jwtPayload, JWTValidatorConfig config) returns (boolean) {
+    //Convert current time which is in milliseconds to seconds.
+    int expTime = jwtPayload.exp;
+    if(config.clockSkew > 0){
+        expTime = expTime + config.clockSkew;
+    }
+    return expTime > time:currentTime().time/1000;
 }
 
 function validateNotBeforeTime (Payload jwtPayload) returns (boolean) {

@@ -44,7 +44,7 @@ public type JWTAuthProvider object {
 public type JWTAuthProviderConfig {
     string issuer,
     string audience,
-    int timeSkew,
+    int clockSkew,
     string certificateAlias,
     string trustStoreFilePath,
     string trustStorePassword,

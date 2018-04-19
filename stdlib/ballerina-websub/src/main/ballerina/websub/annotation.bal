@@ -32,6 +32,7 @@ specified."}
 @Field {value:"secret: The secret to be used for authenticated content distribution."}
 @Field {value:"callback: The callback to use when registering, if unspecified host:port/path will be used."}
 @Field {value:"auth: The auth configuration to use when subscribing at the hub."}
+@Field {value:"secureSocket: The secure socket configuration to use when subscribing at the hub."}
 public type SubscriberServiceConfiguration {
     Listener[] endpoints,
     string path,
@@ -43,6 +44,7 @@ public type SubscriberServiceConfiguration {
     string secret,
     string callback,
     http:AuthConfig? auth,
+    http:SecureSocket? secureSocket,
 };
 
 @Description {value:"WebebSubSubscriber Configuration for service"}

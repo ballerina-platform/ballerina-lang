@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
 
 /**
@@ -126,14 +127,13 @@ public class GrpcServicesBuilder {
                     .getInputType();
             Descriptors.Descriptor responseDescriptor = serviceDescriptor.findMethodByName(methodDescriptor.getName())
                     .getOutputType();
-            MessageRegistry.getInstance().addMessageDescriptor(requestDescriptor.getName(), requestDescriptor);
-            for (Descriptors.Descriptor nestedType : requestDescriptor.getNestedTypes()) {
-                MessageRegistry.getInstance().addMessageDescriptor(nestedType.getName(), nestedType);
-            }
-            MessageRegistry.getInstance().addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
-            for (Descriptors.Descriptor nestedType : responseDescriptor.getNestedTypes()) {
-                MessageRegistry.getInstance().addMessageDescriptor(nestedType.getName(), nestedType);
-            }
+            MessageRegistry messageRegistry = MessageRegistry.getInstance();
+            // update request message descriptors.
+            messageRegistry.addMessageDescriptor(requestDescriptor.getName(), requestDescriptor);
+            setNestedMessages(requestDescriptor, messageRegistry);
+            // update response message descriptors.
+            messageRegistry.addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
+            setNestedMessages(responseDescriptor, messageRegistry);
 
             MethodDescriptor.Marshaller<Message> reqMarshaller = ProtoUtils.marshaller(Message.newBuilder
                     (requestDescriptor.getName()).build());

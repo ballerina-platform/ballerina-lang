@@ -49,7 +49,7 @@ service<grpc:Listener> HelloWorld bind ep {
 
     testInputStructOutputStruct (endpoint client, StockRequest req) {
         io:println("Getting stock details for symbol: " + req.name);
-        StockQuote res = {symbol: "IBM", name: "International Business Machines", last: 149.52, low: 150.70, high:
+        StockQuote res = {symbol: "WSO2", name: "WSO2.com", last: 149.52, low: 150.70, high:
         149.18};
         io:println(res);
         grpc:ConnectorError err = client -> send(res);
@@ -65,7 +65,6 @@ service<grpc:Listener> HelloWorld bind ep {
         io:println("Last: " + req.last);
         io:println("Low: " + req.low);
         io:println("High: " + req.high);
-        _ = client -> complete();
     }
 
     testNoInputOutputStruct(endpoint client) {
@@ -84,8 +83,8 @@ service<grpc:Listener> HelloWorld bind ep {
     testNoInputOutputArray(endpoint client) {
         string[] names = ["WSO2", "Google"];
         io:println(names);
-
-        grpc:ConnectorError err = client -> send(names);
+        StockNames stockNames = {names: names};
+        grpc:ConnectorError err = client -> send(stockNames);
         if (err != ()) {
             io:println("Error at helloWorld : " + err.message);
         }
