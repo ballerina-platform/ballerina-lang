@@ -21,7 +21,7 @@ public type ConsumerTemplate object {
 
     public function stop() {}
 
-    public function getClient() returns (ConsumerConnector) {
+    public function getCallerActions() returns (ConsumerConnector) {
         return new;
     }
 

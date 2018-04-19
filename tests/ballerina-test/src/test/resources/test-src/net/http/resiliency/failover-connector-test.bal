@@ -32,7 +32,7 @@ function testSuccessScenario () returns (http:Response | http:HttpConnectorError
     };
 
     http:Response clientResponse = new;
-    http:Failover foClient = check <http:Failover>backendClientEP.getClient();
+    http:Failover foClient = check <http:Failover>backendClientEP.getCallerActions();
     MockClient mockClient1 = new;
     MockClient mockClient2 = new;
     http:HttpClient[] httpClients = [<http:HttpClient> mockClient1, <http:HttpClient> mockClient2];
@@ -65,7 +65,7 @@ function testFailureScenario () returns (http:Response | http:HttpConnectorError
     };
 
     http:HttpConnectorError err = {};
-    http:Failover foClient = check <http:Failover>backendClientEP.getClient();
+    http:Failover foClient = check <http:Failover>backendClientEP.getCallerActions();
     MockClient mockClient1 = new;
     MockClient mockClient2 = new;
     http:HttpClient[] httpClients = [<http:HttpClient> mockClient1, <http:HttpClient> mockClient2];
