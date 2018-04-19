@@ -62,7 +62,7 @@ type InitiatorClient object {
         RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId,
                                         participantProtocols:participantProtocols};
 
-        json reqPayload = regRequestToJson(regReq);
+        json reqPayload = check <json>regReq;
         http:Request req = new;
         req.setJsonPayload(reqPayload);
         var result = httpClient -> post("", req);
@@ -73,6 +73,6 @@ type InitiatorClient object {
             return err;
         }
         json resPayload = check res.getJsonPayload();
-        return jsonToRegResponse(resPayload);
+        return <RegistrationResponse>resPayload;
     }
 };

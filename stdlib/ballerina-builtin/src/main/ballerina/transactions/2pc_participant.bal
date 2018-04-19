@@ -23,7 +23,7 @@ documentation {
 
     F{{name}} - protocol name
 }
-public type Protocol {
+type Protocol {
     @readonly string name;
 };
 
@@ -32,7 +32,7 @@ documentation {
 
     F{{name}} - protocol name
 }
-public type LocalProtocol {
+type LocalProtocol {
     @readonly string name;
 };
 
