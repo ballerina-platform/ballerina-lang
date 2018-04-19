@@ -1,52 +1,48 @@
 // This is server implementation for bidirectional streaming scenario
 import ballerina/io;
 import ballerina/grpc;
-import ballerina/log;
 
 // Server endpoint configuration
-endpoint grpc:Service ep {
+endpoint grpc:Listener ep {
     host:"localhost",
     port:9090
 };
 
-@grpc:serviceConfig {rpcEndpoint:"chat",
+@grpc:serviceConfig {name:"chat",
     clientStreaming:true,
-    serverStreaming:true,
-    generateClientConnector:false}
-service<grpc:Listener> Chat bind ep {
-    map<grpc:Service> consMap;
+    serverStreaming:true}
+service<grpc:Service> Chat bind ep {
+    map<grpc:Listener> consMap;
 
-    onOpen (endpoint client) {
-        var connID = client -> getID();
-        consMap[<string> connID] = client;
+    onOpen(endpoint caller) {
+        var connID = caller.id;
+        consMap[<string>connID] = caller;
     }
 
-    onMessage (endpoint client, ChatMessage chatMsg) {
-        endpoint grpc:Service con;
+    onMessage(endpoint caller, ChatMessage chatMsg) {
+        endpoint grpc:Listener con;
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
         io:println(msg);
         string[] conKeys = consMap.keys();
         int len = lengthof conKeys;
         int i = 0;
         while (i < len) {
-            con = <grpc:Service>consMap[conKeys[i]];
-            grpc:ConnectorError err = con -> send(msg);
-            if (err != ()) {
-                io:println("Error at onMessage : " + err.message);
-            }
+            con = <grpc:Listener>consMap[conKeys[i]];
+            error? err = caller->send(msg);
+            io:println(err.message but { () => "" });
             i = i + 1;
         }
     }
 
-    onError (endpoint client, grpc:ServerError err) {
+    onError(endpoint caller, error err) {
         if (err != ()) {
             io:println("Something unexpected happens at server : " + err.message);
         }
     }
 
-    onComplete (endpoint client) {
-        endpoint grpc:Service con;
-        var connID = client -> getID();
+    onComplete(endpoint caller) {
+        endpoint grpc:Listener con;
+        var connID = caller.id;
         string msg = string `{{connID}} left the chat`;
         io:println(msg);
         var v = consMap.remove(<string>connID);
@@ -54,11 +50,9 @@ service<grpc:Listener> Chat bind ep {
         int len = lengthof conKeys;
         int i = 0;
         while (i < len) {
-            con = <grpc:Service>consMap[conKeys[i]];
-            grpc:ConnectorError err = con -> send(msg);
-            if (err != ()) {
-                io:println("Error at onComplete send message : " + err.message);
-            }
+            con = <grpc:Listener>consMap[conKeys[i]];
+            error? err = con->send(msg);
+            io:println(err.message but { () => "" });
             i = i + 1;
         }
     }
