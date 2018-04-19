@@ -35,10 +35,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.SQL_CLIENT),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS),
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "error",
-                            structPackage = "ballerina.builtin")
+                @ReturnType(type = TypeKind.STRUCT, structType = "error", structPackage = "ballerina.builtin")
         }
 )
 public class Close extends AbstractSQLAction {
@@ -47,7 +46,7 @@ public class Close extends AbstractSQLAction {
     public void execute(Context context) {
         try {
             BStruct bConnector = (BStruct) context.getRefArgument(0);
-            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
+            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);
             closeConnections(datasource);
             context.setReturnValues(null);
         } catch (Throwable e) {

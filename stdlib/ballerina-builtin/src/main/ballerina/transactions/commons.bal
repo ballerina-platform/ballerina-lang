@@ -157,16 +157,6 @@ function respondToBadRequest (http:Listener conn, string msg) {
     }
 }
 
-function createNewTransaction (string coordinationType, int transactionBlockId) returns TwoPhaseCommitTransaction {
-    if (coordinationType == TWO_PHASE_COMMIT) {
-        TwoPhaseCommitTransaction twopcTxn = new (util:uuid(), transactionBlockId, coordinationType = coordinationType);
-        return twopcTxn;
-    } else {
-        error e = {message:"Unknown coordination type: " + coordinationType};
-        throw e;
-    }
-}
-
 function getCoordinatorProtocolAt (string protocolName, int transactionBlockId) returns string {
     //TODO: protocolName is unused for the moment
     return "http://" + coordinatorHost + ":" + coordinatorPort + initiator2pcCoordinatorBasePath + "/" +
@@ -179,7 +169,10 @@ function getParticipantProtocolAt (string protocolName, int transactionBlockId) 
            transactionBlockId;
 }
 
-// The initiator will create a new transaction context by calling this function
+documentation {
+    The initiator will create a new transaction context by calling this function. At this point, a transaction object
+    corresponding to the coordinationType will also be created and stored as an initiated transaction.
+}
 function createTransactionContext (string coordinationType,
                                    int transactionBlockId) returns TransactionContext|error {
     if (!isValidCoordinationType(coordinationType)) {
@@ -188,7 +181,7 @@ function createTransactionContext (string coordinationType,
         error err = {message:msg};
         return err;
     } else {
-        TwoPhaseCommitTransaction txn = createNewTransaction(coordinationType, transactionBlockId);
+        TwoPhaseCommitTransaction txn = new (util:uuid(), transactionBlockId, coordinationType = coordinationType);
         string txnId = txn.transactionId;
         txn.isInitiated = true;
         initiatedTransactions[txnId] = txn;
@@ -203,9 +196,14 @@ function createTransactionContext (string coordinationType,
     }
 }
 
-function registerParticipantWithLocalInitiator (string transactionId,
-                                                int transactionBlockId,
-                                                string registerAtURL) returns TransactionContext|error {
+documentation {
+    Register a local participant, which corresponds to a nested transaction of the initiated transaction, with the
+    initiator. Such participants and the initiator don't have to communicate over the network, so we are special casing
+    such participants.
+}
+function registerLocalParticipantWithInitiator(string transactionId,
+                                               int transactionBlockId,
+                                               string registerAtURL) returns TransactionContext|error {
     string participantId = getParticipantId(transactionBlockId);
     //TODO: Protocol name should be passed down from the transaction statement
     LocalProtocol participantProtocol = {name:PROTOCOL_DURABLE};
@@ -257,7 +255,7 @@ function removeInitiatedTransaction (string transactionId) {
     }
 }
 
-function getInitiatorClientEP (string registerAtURL) returns InitiatorClientEP {
+function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
     if (httpClientCache.hasKey(registerAtURL)) {
         InitiatorClientEP initiatorEP = check <InitiatorClientEP>httpClientCache.get(registerAtURL);
         return initiatorEP;
@@ -271,7 +269,7 @@ function getInitiatorClientEP (string registerAtURL) returns InitiatorClientEP {
     }
 }
 
-function getParticipant2pcClientEP (string participantURL) returns Participant2pcClientEP {
+function getParticipant2pcClient(string participantURL) returns Participant2pcClientEP {
     if (httpClientCache.hasKey(participantURL)) {
         Participant2pcClientEP participantEP = check <Participant2pcClientEP>httpClientCache.get(participantURL);
         return participantEP;
@@ -297,7 +295,7 @@ public function registerParticipantWithRemoteInitiator (string transactionId,
                                                         string registerAtURL,
                                                         RemoteProtocol[] participantProtocols) returns TransactionContext|error {
     endpoint InitiatorClientEP initiatorEP;
-    initiatorEP = getInitiatorClientEP(registerAtURL);
+    initiatorEP = getInitiatorClient(registerAtURL);
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
 
     // Register with the coordinator only if the participant has not already done so
