@@ -1,7 +1,7 @@
 package org.ballerinalang.test.packaging;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageSourceEntry;
+import org.ballerinalang.repository.CompilerInput;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -11,7 +11,7 @@ import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
-import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceEntry;
+import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
 import org.wso2.ballerinalang.compiler.packaging.converters.StringConverter;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -117,8 +117,8 @@ public class RepoHierarchyTest {
             public Converter getConverterInstance() {
                 return new StringConverter() {
                     @Override
-                    public Stream<PackageSourceEntry> finalize(String s, PackageID id) {
-                        return Stream.of(new FileSystemSourceEntry(tempFile, id));
+                    public Stream<CompilerInput> finalize(String s, PackageID id) {
+                        return Stream.of(new FileSystemSourceInput(tempFile));
                     }
                 };
             }

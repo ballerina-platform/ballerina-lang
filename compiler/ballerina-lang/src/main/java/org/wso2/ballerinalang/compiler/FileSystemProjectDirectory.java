@@ -18,21 +18,32 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.repository.CompiledPackage;
+import org.ballerinalang.repository.CompilerOutputEntry;
+import org.wso2.ballerinalang.compiler.util.FileUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.repository.CompilerOutputEntry.Kind;
+import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
 
 /**
  * File system based project directory implementation.
@@ -131,7 +142,23 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     }
 
     @Override
-    public void saveCompiledPackage(InputStream source, String fileName) {
+    public void saveCompiledPackage(CompiledPackage compiledPackage,
+                                    Path dirPath,
+                                    String fileName) throws IOException {
+
+        // Creates the package directory if it doesn't exits
+        Files.createDirectories(dirPath);
+        Path compiledPkgPath = dirPath.resolve(fileName);
+        FileUtils.deleteFile(compiledPkgPath);
+
+        Map<String, String> fsEnv = new HashMap<String, String>() {{
+            put("create", "true");
+        }};
+        URI compiledPkgURI = URI.create("jar:file:" + compiledPkgPath.toUri().getPath());
+        try (FileSystem fs = FileSystems.newFileSystem(compiledPkgURI, fsEnv)) {
+            compiledPackage.getAllEntries()
+                    .forEach(rethrow(entry -> addCompilerOutputEntry(fs, entry)));
+        }
     }
 
     // private methods
@@ -151,5 +178,30 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
         }
 
         return targetPath;
+    }
+
+    private void addCompilerOutputEntry(FileSystem fs, CompilerOutputEntry outputEntry) throws IOException {
+        String rootDirName = getTopLevelDirNameInPackage(outputEntry.getEntryKind(), fs);
+        Path rootDirPath = fs.getPath(rootDirName);
+        Path destPath = rootDirPath.resolve(outputEntry.getEntryName());
+
+        Path parent = destPath.getParent();
+        if (Files.notExists(parent)) {
+            Files.createDirectories(parent);
+        }
+
+        Files.copy(outputEntry.getInputStream(), destPath, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private String getTopLevelDirNameInPackage(Kind kind, FileSystem fs) {
+        switch (kind) {
+            case SRC:
+            case OBJ:
+                return kind.getValue();
+            case ROOT:
+                return fs.getSeparator();
+
+        }
+        return null;
     }
 }

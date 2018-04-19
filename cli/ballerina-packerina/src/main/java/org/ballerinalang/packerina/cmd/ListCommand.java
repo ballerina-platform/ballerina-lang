@@ -23,7 +23,7 @@ import com.beust.jcommander.Parameters;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.packerina.BuilderUtils;
+import org.ballerinalang.packerina.ListUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.PrintStream;
@@ -37,7 +37,7 @@ import java.util.List;
  *
  * @since 0.970
  */
-@Parameters(commandNames = "list", commandDescription = "lists dependencies of packages")
+@Parameters(commandNames = "list", commandDescription = "list dependencies of packages")
 public class ListCommand implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
     private static PrintStream outStream = System.err;
@@ -60,22 +60,23 @@ public class ListCommand implements BLauncherCmd {
             return;
         }
 
-        if (argList == null || argList.size() == 0) {
-            throw LauncherUtils.createUsageException("no package given");
-        }
-
-        if (argList.size() > 1) {
+        if (argList != null && argList.size() > 1) {
             throw LauncherUtils.createUsageException("too many arguments");
         }
 
         // Get source root path.
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
 
-        if (Files.exists(sourceRootPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME))) {
-            Path packagePath = Paths.get(argList.get(0));
-            BuilderUtils.compileAndWrite(sourceRootPath, packagePath, null, false, false, true, true);
+        if (argList == null || argList.size() == 0) {
+            // ballerina list
+            ListUtils.list(sourceRootPath);
         } else {
-            throw new BLangCompilerException("Current directory is not a project");
+            if (Files.exists(sourceRootPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME))) {
+                String pkgName = argList.get(0);
+                ListUtils.list(sourceRootPath, pkgName);
+            } else {
+                throw new BLangCompilerException("Current directory is not a project");
+            }
         }
         Runtime.getRuntime().exit(0);
     }

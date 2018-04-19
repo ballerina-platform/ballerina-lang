@@ -19,12 +19,10 @@ package org.wso2.ballerinalang.programfile;
 
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
-import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 /**
  * Dump Ballerina {@code PackageFile} model (BALO) to a file.
@@ -33,31 +31,33 @@ import java.nio.file.Path;
  */
 public class PackageFileWriter {
 
-    public static void writePackage(PackageFile packageFile, Path packageFilePath) throws IOException {
-        BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(packageFilePath));
-        writePackage(packageFile, bos);
+    public static byte[] writePackage(PackageInfo packageInfo) throws IOException {
+        ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
+        writePackage(packageInfo, byteArrayOS);
+        return byteArrayOS.toByteArray();
     }
 
-    public static void writePackage(PackageFile packageFile, OutputStream programOutStream) throws IOException {
+    public static void writePackage(PackageInfo packageInfo, OutputStream programOutStream) throws IOException {
         DataOutputStream dataOutStream = null;
         try {
             dataOutStream = new DataOutputStream(programOutStream);
-
             dataOutStream.writeInt(PackageFile.MAGIC_VALUE);
-            dataOutStream.writeShort(packageFile.langVersion);
+            dataOutStream.writeShort(PackageFile.LANG_VERSION);
 
-            PackageInfoWriter.writeCP(dataOutStream, packageFile.getConstPoolEntries());
-            PackageInfo packageInfo = packageFile.packageInfo;
+            PackageInfoWriter.writeCP(dataOutStream, packageInfo.getConstPoolEntries());
             dataOutStream.writeInt(packageInfo.nameCPIndex);
+            dataOutStream.writeInt(packageInfo.versionCPIndex);
 
             // Emit package dependencies
+            // TODO Move this to the packageInfoWriter class.. This should be part of the packageInfo
             dataOutStream.writeShort(packageInfo.importPkgInfoSet.size());
             for (ImportPackageInfo importPkgInfo : packageInfo.importPkgInfoSet) {
                 dataOutStream.writeInt(importPkgInfo.nameCPIndex);
+                dataOutStream.writeInt(importPkgInfo.versionCPIndex);
             }
 
+            // Write the package info structure
             PackageInfoWriter.writePackageInfo(dataOutStream, packageInfo);
-            PackageInfoWriter.writeAttributeInfoEntries(dataOutStream, packageFile.getAttributeInfoEntries());
 
             dataOutStream.flush();
             dataOutStream.close();
@@ -66,6 +66,5 @@ public class PackageFileWriter {
                 dataOutStream.close();
             }
         }
-
     }
 }

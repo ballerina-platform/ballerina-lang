@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.repository;
 
+import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
+
 /**
  * This represents a package file, which is the artifact being loaded from a {@link PackageRepository}.
  * 
@@ -42,15 +45,21 @@ public interface PackageEntity {
         }
     }
 
+    /**
+     * Returns the package identifier package source belongs to.
+     *
+     * @return the package ID
+     */
+    PackageID getPackageId();
+
     Kind getKind();
 
     String getName();
-    
+
     /**
-     * Returns the {@link PackageRepository} where this package was loaded from.
-     * 
-     * @return the package repository
+     * Repo structure used to load this and should be used for any import resolution.
+     * @return Repo structure used to load this.
      */
-    PackageRepository getPackageRepository();
-    
+    RepoHierarchy getRepoHierarchy();
+
 }

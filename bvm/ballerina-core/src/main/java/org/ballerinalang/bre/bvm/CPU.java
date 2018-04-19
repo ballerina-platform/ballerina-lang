@@ -1065,6 +1065,7 @@ public class CPU {
         int i;
         int j;
         int k;
+        int pkgIndex;
         int lvIndex; // Index of the local variable
         int fieldIndex;
 
@@ -1228,36 +1229,43 @@ public class CPU {
                 }
                 break;
             case InstructionCodes.IGLOAD:
-                // Global variable index
-                i = operands[0];
+                // package index
+                pkgIndex = operands[0];
+                // package level variable index
+                i = operands[1];
                 // Stack registry index
-                j = operands[1];
-                sf.longRegs[j] = ctx.programFile.getGlobalMemoryBlock().getIntField(i);
+                j = operands[2];
+                sf.longRegs[j] = ctx.programFile.globalMemArea.getIntField(pkgIndex, i);
                 break;
             case InstructionCodes.FGLOAD:
-                i = operands[0];
-                j = operands[1];
-                sf.doubleRegs[j] = ctx.programFile.getGlobalMemoryBlock().getFloatField(i);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                sf.doubleRegs[j] = ctx.programFile.globalMemArea.getFloatField(pkgIndex, i);
                 break;
             case InstructionCodes.SGLOAD:
-                i = operands[0];
-                j = operands[1];
-                sf.stringRegs[j] = ctx.programFile.getGlobalMemoryBlock().getStringField(i);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                sf.stringRegs[j] = ctx.programFile.globalMemArea.getStringField(pkgIndex, i);
                 break;
             case InstructionCodes.BGLOAD:
-                i = operands[0];
-                j = operands[1];
-                sf.intRegs[j] = ctx.programFile.getGlobalMemoryBlock().getBooleanField(i);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                sf.intRegs[j] = ctx.programFile.globalMemArea.getBooleanField(pkgIndex, i);
                 break;
             case InstructionCodes.LGLOAD:
-                i = operands[0];
-                j = operands[1];
-                sf.byteRegs[j] = ctx.programFile.getGlobalMemoryBlock().getBlobField(i);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                sf.byteRegs[j] = ctx.programFile.globalMemArea.getBlobField(pkgIndex, i);
                 break;
             case InstructionCodes.RGLOAD:
-                i = operands[0];
-                j = operands[1];
-                sf.refRegs[j] = ctx.programFile.getGlobalMemoryBlock().getRefField(i);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                sf.refRegs[j] = ctx.programFile.globalMemArea.getRefField(pkgIndex, i);
                 break;
 
             case InstructionCodes.IFIELDLOAD:
@@ -1370,6 +1378,7 @@ public class CPU {
         int i;
         int j;
         int k;
+        int pkgIndex;
         int fieldIndex;
 
         BIntArray bIntArray;
@@ -1502,36 +1511,42 @@ public class CPU {
                 }
                 break;
             case InstructionCodes.IGSTORE:
+                pkgIndex = operands[0];
                 // Stack reg index
-                i = operands[0];
+                i = operands[1];
                 // Global var index
-                j = operands[1];
-                ctx.programFile.getGlobalMemoryBlock().setIntField(j, sf.longRegs[i]);
+                j = operands[2];
+                ctx.programFile.globalMemArea.setIntField(pkgIndex, j, sf.longRegs[i]);
                 break;
             case InstructionCodes.FGSTORE:
-                i = operands[0];
-                j = operands[1];
-                ctx.programFile.getGlobalMemoryBlock().setFloatField(j, sf.doubleRegs[i]);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                ctx.programFile.globalMemArea.setFloatField(pkgIndex, j, sf.doubleRegs[i]);
                 break;
             case InstructionCodes.SGSTORE:
-                i = operands[0];
-                j = operands[1];
-                ctx.programFile.getGlobalMemoryBlock().setStringField(j, sf.stringRegs[i]);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                ctx.programFile.globalMemArea.setStringField(pkgIndex, j, sf.stringRegs[i]);
                 break;
             case InstructionCodes.BGSTORE:
-                i = operands[0];
-                j = operands[1];
-                ctx.programFile.getGlobalMemoryBlock().setBooleanField(j, sf.intRegs[i]);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                ctx.programFile.globalMemArea.setBooleanField(pkgIndex, j, sf.intRegs[i]);
                 break;
             case InstructionCodes.LGSTORE:
-                i = operands[0];
-                j = operands[1];
-                ctx.programFile.getGlobalMemoryBlock().setBlobField(j, sf.byteRegs[i]);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                ctx.programFile.globalMemArea.setBlobField(pkgIndex, j, sf.byteRegs[i]);
                 break;
             case InstructionCodes.RGSTORE:
-                i = operands[0];
-                j = operands[1];
-                ctx.programFile.getGlobalMemoryBlock().setRefField(j, sf.refRegs[i]);
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                ctx.programFile.globalMemArea.setRefField(pkgIndex, j, sf.refRegs[i]);
                 break;
 
             case InstructionCodes.IFIELDSTORE:

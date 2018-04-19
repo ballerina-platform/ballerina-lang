@@ -1,7 +1,7 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.PackageSourceEntry;
+import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
@@ -62,7 +62,7 @@ public class URIConverter implements Converter<URI> {
 
     }
 
-    public Stream<PackageSourceEntry> finalize(URI u, PackageID packageID) {
+    public Stream<CompilerInput> finalize(URI u, PackageID packageID) {
         String orgName = packageID.getOrgName().getValue();
         String pkgName = packageID.getName().getValue();
         Path destDirPath = HomeRepoUtils.createAndGetHomeReposPath().resolve(Paths.get("repo", orgName, pkgName));
