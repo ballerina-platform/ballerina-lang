@@ -1137,7 +1137,9 @@ public class ProgramFileReader {
         int attributesCount = dataInStream.readShort();
         for (int k = 0; k < attributesCount; k++) {
             AttributeInfo attributeInfo = getAttributeInfo(dataInStream, constantPool);
-            attributeInfoPool.addAttributeInfo(attributeInfo.getKind(), attributeInfo);
+            if (attributeInfo != null) {
+                attributeInfoPool.addAttributeInfo(attributeInfo.getKind(), attributeInfo);
+            }
         }
     }
 
