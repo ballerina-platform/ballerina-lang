@@ -46,11 +46,11 @@ public class H2ClientActionsTest {
 
     private CompileResult result;
     private static final String DB_NAME = "TestDBH2";
-    public static final String DB_DIRECTORY_H2 = "./target/H2Client/";
+    private static final String DB_DIRECTORY_H2 = "./target/H2Client/";
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/connectors/h2/h2-client-actions-test.bal");
+        result = BCompileUtil.compile("test-src/connectors/h2/h2_actions_test.bal");
         SQLDBUtils.deleteFiles(new File(DB_DIRECTORY_H2), DB_NAME);
         SQLDBUtils.initH2Database(DB_DIRECTORY_H2, DB_NAME, "datafiles/sql/H2ConnectorTableCreate.sql");
     }

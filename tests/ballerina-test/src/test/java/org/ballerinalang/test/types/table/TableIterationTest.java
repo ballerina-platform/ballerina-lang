@@ -43,8 +43,8 @@ public class TableIterationTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/table/table-iteration.bal");
-        resultNegative = BCompileUtil.compile("test-src/types/table/table-iteration-negative.bal");
+        result = BCompileUtil.compile("test-src/types/table/table_iteration.bal");
+        resultNegative = BCompileUtil.compile("test-src/types/table/table_iteration_negative.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/TableIterationTestData.sql");
     }
