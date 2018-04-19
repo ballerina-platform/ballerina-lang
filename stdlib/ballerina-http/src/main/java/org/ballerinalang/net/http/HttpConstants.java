@@ -324,6 +324,8 @@ public class HttpConstants {
     public static final String CONNECTION_THROTTLING_STRUCT_REFERENCE = "connectionThrottling";
     public static final String CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS = "maxActiveConnections";
     public static final String CONNECTION_THROTTLING_WAIT_TIME = "waitTime";
+    public static final String CONNECTION_THROTTLING_MAX_ACTIVE_STREAMS_PER_CONNECTION =
+            "maxActiveStreamsPerConnection";
 
     //FollowRedirect Indexes
     public static final String FOLLOW_REDIRECT_STRUCT_REFERENCE = "followRedirects";
@@ -341,6 +343,7 @@ public class HttpConstants {
     // Filter related
     public static final String ENDPOINT_CONFIG_FILTERS = "filters";
     public static final String FILTERS = "FILTERS";
+    public static final String HTTP_REQUEST_FILTER_FUNCTION_NAME = "filterRequest";
 
     // Retry Config
     public static final String CLIENT_EP_RETRY = "retry";

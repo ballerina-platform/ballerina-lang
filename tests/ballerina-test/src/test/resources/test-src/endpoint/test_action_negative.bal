@@ -3,7 +3,7 @@ type DummyEndpoint object {
     public function init ({} conf) {
     }
 
-    public function getClient () returns (DummyClient) {
+    public function getCallerActions () returns (DummyClient) {
         return new;
     }
 };

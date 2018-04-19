@@ -151,6 +151,7 @@ public enum DiagnosticCode {
     INVALID_FUNCTION_INVOCATION("invalid.function.invocation"),
     INVALID_FUNCTION_INVOCATION_WITH_NAME("invalid.function.invocation.with.name"),
     DUPLICATE_NAMED_ARGS("duplicate.named.args"),
+    INVALID_DEFAULT_PARAM_VALUE("invalid.default.param.value"),
 
     DUPLICATED_ERROR_CATCH("duplicated.error.catch"),
 
@@ -186,6 +187,7 @@ public enum DiagnosticCode {
     CANNOT_GET_ALL_FIELDS("cannot.get.all.fields"),
 
     NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),
+    INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE("invalid.use.of.endpoint.documentation.attribute"),
     DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute"),
     UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("undefined.documentation.public.function"),
     USAGE_OF_DEPRECATED_FUNCTION("usage.of.deprecated.function"),

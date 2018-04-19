@@ -30,7 +30,7 @@ service<http:Service> CustomerMgtService bind serviceEndpoint {
 }
 
 endpoint http:Client productsService {
-    targets:[{url: "http://localhost:9090"}]
+    url: "http://localhost:9090"
 };
 
 @http:ServiceConfig {

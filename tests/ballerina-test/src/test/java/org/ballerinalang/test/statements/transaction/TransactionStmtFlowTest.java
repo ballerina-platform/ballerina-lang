@@ -37,8 +37,8 @@ public class TransactionStmtFlowTest {
 
     @BeforeClass
     public void setup() {
-        programFile = BCompileUtil.compile("test-src/statements/transaction/transaction-stmt.bal");
-        resultNegative = BCompileUtil.compile("test-src/statements/transaction/transaction-stmt-negative.bal");
+        programFile = BCompileUtil.compile("test-src/statements/transaction/transaction_stmt.bal");
+        resultNegative = BCompileUtil.compile("test-src/statements/transaction/transaction_stmt_negative.bal");
     }
 
     @Test
@@ -352,7 +352,7 @@ public class TransactionStmtFlowTest {
 
     @Test(description = "Test transaction statement with errors")
     public void testRetryNegativeCases() {
-        CompileResult res = BCompileUtil.compile("test-src/statements/transaction/transaction-retry-negative.bal");
+        CompileResult res = BCompileUtil.compile("test-src/statements/transaction/transaction_retry_negative.bal");
         Assert.assertEquals(res.getErrorCount(), 4);
         BAssertUtil.validateError(res, 0, "invalid transaction retry count", 3, 32);
         BAssertUtil.validateError(res, 1, "invalid transaction retry count", 16, 32);

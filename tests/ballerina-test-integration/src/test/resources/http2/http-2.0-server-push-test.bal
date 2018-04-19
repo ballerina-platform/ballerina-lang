@@ -6,11 +6,7 @@ endpoint http:Listener frontendEP {
 };
 
 endpoint http:Client backendClientEP {
-    targets: [
-        {
-            url: "http://localhost:7090"
-        }
-    ],
+    url: "http://localhost:7090",
     // HTTP version is set to 2.0.
     httpVersion:"2.0"
 };
@@ -37,6 +33,7 @@ service<http:Service> frontendHttpService bind frontendEP {
                 json errMsg = {"error":"error occurred while submitting a request"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = client -> respond(errorResponse);
+                done;
             }
             http:HttpFuture resultantFuture => {
                 httpFuture = resultantFuture;
@@ -61,6 +58,7 @@ service<http:Service> frontendHttpService bind frontendEP {
                     json errMsg = {"error":"error occurred while fetching a push promise"};
                     errorResponse.setJsonPayload(errMsg);
                     _ = client -> respond(errorResponse);
+                    done;
                 }
             }
 
@@ -76,6 +74,7 @@ service<http:Service> frontendHttpService bind frontendEP {
             json errMsg = {"error":"expected number of promises not received"};
             errorResponse.setJsonPayload(errMsg);
             _ = client -> respond(errorResponse);
+            done;
         }
         io:println("Number of promises received : " + promiseCount);
 
@@ -92,6 +91,7 @@ service<http:Service> frontendHttpService bind frontendEP {
                 json errMsg = {"error":"error occurred while fetching response"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = client -> respond(errorResponse);
+                done;
             }
         }
 
@@ -106,15 +106,17 @@ service<http:Service> frontendHttpService bind frontendEP {
                 json errMsg = {"error":"expected response message not received"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = client -> respond(errorResponse);
+                done;
             }
         }
         // Check whether correct response received
-        string responseStringPayload = responseJsonPayload.toString() but {() => ""};
+        string responseStringPayload = responseJsonPayload.toString();
         if (!(responseStringPayload.contains("main"))) {
             http:Response errorResponse = new;
             json errMsg = {"error":"expected response message not received"};
             errorResponse.setJsonPayload(errMsg);
             _ = client -> respond(errorResponse);
+            done;
         }
         io:println("Response : " + responseStringPayload);
 
@@ -132,6 +134,7 @@ service<http:Service> frontendHttpService bind frontendEP {
                     json errMsg = {"error":"error occurred while fetching promised response"};
                     errorResponse.setJsonPayload(errMsg);
                     _ = client -> respond(errorResponse);
+                    done;
                 }
             }
 
@@ -146,17 +149,19 @@ service<http:Service> frontendHttpService bind frontendEP {
                     json errMsg = {"error":"expected promised response not received"};
                     errorResponse.setJsonPayload(errMsg);
                     _ = client -> respond(errorResponse);
+                    done;
                 }
             }
 
             // check whether expected
             string expectedVal = promise.path.subString(1, 10);
-            string promisedStringPayload = promisedJsonPayload.toString() but {() => ""};
+            string promisedStringPayload = promisedJsonPayload.toString();
             if (!(promisedStringPayload.contains(expectedVal))) {
                 http:Response errorResponse = new;
                 json errMsg = {"error":"expected promised response not received"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = client -> respond(errorResponse);
+                done;
             }
             io:println("Promised resource : " + promisedStringPayload);
         }
@@ -188,20 +193,16 @@ service<http:Service> backendHttp2Service bind backendEP {
     io:println("Request received");
 
     // Send a Push Promise
-    http:PushPromise promise1 = new;
-    promise1.path = "/resource1";
-    promise1.method = "POST";
+    http:PushPromise promise1 = new (path = "/resource1", method = "POST");
     _ = client -> promise(promise1);
 
     // Send another Push Promise
-    http:PushPromise promise2 = new;
-    promise2.path = "/resource2";
-    promise2.method = "POST";
+    http:PushPromise promise2 = new (path = "/resource2", method = "POST");
     _ = client -> promise(promise2);
 
     // Send one more Push Promise
-    http:PushPromise promise3 = new;
-    promise3.path = "/resource3";
+    http:PushPromise promise3 = new;   // create with default params
+    promise3.path = "/resource3";      // set parameters
     promise3.method = "POST";
     _ = client -> promise(promise3);
 

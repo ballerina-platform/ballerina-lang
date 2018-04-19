@@ -23,7 +23,7 @@ documentation {
 
     F{{name}} - protocol name
 }
-public type Protocol {
+type Protocol {
     @readonly string name;
 };
 
@@ -31,11 +31,9 @@ documentation {
     This represents the protocol associated with the coordination type.
 
     F{{name}} - protocol name
-    F{{transactionBlockId}} - ID of the transaction block corresponding to this local participant
 }
-public type LocalProtocol {
+type LocalProtocol {
     @readonly string name;
-    @readonly int transactionBlockId;
 };
 
 documentation {
@@ -55,13 +53,9 @@ type Participant object {
         string participantId;
     }
 
-    function prepare(string protocol) returns PrepareResult | () | error   {
+    function prepare(string protocol) returns ((PrepareResult | error)?, Participant);
 
-    }
-
-    function notify(string action, string? protocolName) returns NotifyResult | error {
-
-    }
+    function notify(string action, string? protocolName) returns (NotifyResult | error)?;
 };
 
 type RemoteParticipant object {
@@ -73,18 +67,17 @@ type RemoteParticipant object {
 
     new(participantId, transactionId, participantProtocols){}
 
-    function prepare(string protocol) returns PrepareResult | () | error  {
-        boolean successful = true;
+    function prepare(string protocol) returns ((PrepareResult | error)?, Participant)  {
         foreach remoteProto in participantProtocols {
             if(remoteProto.name == protocol) {
                 // We are assuming a participant will have only one instance of a protocol
-                return self.prepareMe(remoteProto.url);
+                return (self.prepareMe(remoteProto.url), self);
             }
         }
-        return (); // No matching protocol
+        return ((), self); // No matching protocol
     }
 
-    function notify(string action, string? protocolName) returns NotifyResult | error {
+    function notify(string action, string? protocolName) returns (NotifyResult | error)? {
         match protocolName {
             string proto => {
                 foreach remoteProtocol in participantProtocols {
@@ -107,11 +100,12 @@ type RemoteParticipant object {
                 return notifyResult;
             }
         }
+        return (); // No matching protocol
     }
 
     function prepareMe(string protocolUrl) returns PrepareResult|error {
         endpoint Participant2pcClientEP participantEP;
-        participantEP = getParticipant2pcClientEP(protocolUrl);
+        participantEP = getParticipant2pcClient(protocolUrl);
 
         // Let's set this to true and change it to false only if a participant aborted or an error occurred while trying
         // to prepare a participant
@@ -151,7 +145,7 @@ type RemoteParticipant object {
         endpoint Participant2pcClientEP participantEP;
 
         log:printInfo("Notify(" + action + ") remote participant: " + protocolUrl);
-        participantEP = getParticipant2pcClientEP(protocolUrl);
+        participantEP = getParticipant2pcClient(protocolUrl);
         var result = participantEP -> notify(self.transactionId, action);
         match result {
             error err => {
@@ -182,15 +176,14 @@ type LocalParticipant object {
 
     new(participantId, participatedTxn, participantProtocols){}
 
-    function prepare(string protocol) returns PrepareResult|()|error  {
-        boolean successful = true;
+    function prepare(string protocol) returns ((PrepareResult | error)?, Participant) {
         foreach localProto in participantProtocols {
             if(localProto.name == protocol) {
                 log:printInfo("Preparing local participant: " + self.participantId);
-                return prepareMe(participatedTxn.transactionId, participatedTxn.transactionBlockId);
+                return (prepareMe(participatedTxn.transactionId, participatedTxn.transactionBlockId), self);
             }
         }
-        return ();
+        return ((), self);
     }
 
     function prepareMe (string transactionId, int transactionBlockId) returns PrepareResult|error  {
@@ -217,18 +210,15 @@ type LocalParticipant object {
                 return PREPARE_RESULT_ABORTED;
             }
         }
-
-        error err = {message: "Local participant:" + participantId + " outcome invalid"};
-        throw err;
     }
 
-    function notify(string action, string? protocolName) returns NotifyResult | error {
+    function notify(string action, string? protocolName) returns (NotifyResult | error)? {
         match protocolName {
             string proto => {
                 foreach localProto in participantProtocols {
                     if(proto == localProto.name) {
                         log:printInfo("Notify(" + action + ") local participant: " + self.participantId);
-                        return notifyMe(action, localProto.transactionBlockId);
+                        return notifyMe(action, participatedTxn.transactionBlockId);
                     }
                 }
             }
@@ -236,7 +226,7 @@ type LocalParticipant object {
                 NotifyResult|error notifyResult =
                                 (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
                 foreach localProto in participantProtocols {
-                    var result = self.notifyMe(action, localProto.transactionBlockId);
+                    var result = self.notifyMe(action, participatedTxn.transactionBlockId);
                     match result {
                         error err => notifyResult = err;
                         NotifyResult notifyRes => {} // Nothing to do since we have set the notifyResult already
@@ -244,7 +234,8 @@ type LocalParticipant object {
                 }
                 return notifyResult;
             }
-        }    
+        }
+        return (); // No matching protocol
     }
 
     function notifyMe(string action, int participatedTxnBlockId) returns NotifyResult | error {

@@ -130,12 +130,12 @@ public class SystemTest {
         }
     }
 
-    @Test(enabled = false)
+    @Test
     public void testConnectorPrintAndPrintln() throws IOException {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            final String expected = "\n";
+            final String expected = "{}\n{}";
 
             BRunUtil.invoke(compileResult, printFuncName + "Connector");
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
@@ -153,6 +153,64 @@ public class SystemTest {
             final String expected = "\n";
 
             BRunUtil.invoke(compileResult, printFuncName + "FunctionPointer");
+            Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
+        } finally {
+            outContent.close();
+            System.setOut(original);
+        }
+    }
+
+    @Test
+    public void testPrintVarargs() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        try {
+            System.setOut(new PrintStream(outContent));
+            final String s1 = "Hello World...!!!";
+            final String s2 = "A Greeting from Ballerina...!!!";
+            final String s3 = "Adios";
+            final String expected = s1 + s2 + s3;
+
+            BValueType[] args = {new BString(s1), new BString(s2), new BString(s3)};
+            BRunUtil.invoke(compileResult, "testPrintVarargs", args);
+            Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
+        } finally {
+            outContent.close();
+            System.setOut(original);
+        }
+    }
+
+    @Test
+    public void testPrintMixVarargs() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        try {
+            System.setOut(new PrintStream(outContent));
+            final String s1 = "Hello World...!!!";
+            final long l1 = 123456789L;
+            final double d1 = 123456789.123456789;
+            final boolean b1 = true;
+            final String expected = s1 + l1 + d1 + b1;
+
+            BValueType[] args = {new BString(s1), new BInteger(l1), new BFloat(d1), new BBoolean(b1)};
+            BRunUtil.invoke(compileResult, "testPrintMixVarargs", args);
+            Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
+        } finally {
+            outContent.close();
+            System.setOut(original);
+        }
+    }
+
+    @Test
+    public void testPrintlnVarargs() throws IOException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        try {
+            System.setOut(new PrintStream(outContent));
+            final String s1 = "Hello World...!!!";
+            final String s2 = "A Greeting from Ballerina...!!!";
+            final String s3 = "Adios";
+            final String expected = s1 + s2 + s3 + "\n";
+
+            BValueType[] args = {new BString(s1), new BString(s2), new BString(s3)};
+            BRunUtil.invoke(compileResult, "testPrintlnVarargs", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -306,6 +364,14 @@ public class SystemTest {
         BValue[] args = {new BString("%B"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].stringValue(), "11000000111001");
+    }
+
+    @Test
+    public void testSprintfMix() {
+        BValue[] args = {new BString("the %s jumped over the %s, %d times"),
+                         new BString("cow"), new BString("moon"), new BInteger(2)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSprintfMix", args);
+        Assert.assertEquals(returns[0].stringValue(), "the cow jumped over the moon, 2 times");
     }
 
 //    @Test(expectedExceptions = BallerinaException.class)

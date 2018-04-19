@@ -40,6 +40,7 @@ import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSys
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemServerConnector;
 import org.wso2.transport.localfilesystem.server.connector.contractimpl.LocalFileSystemConnectorFactoryImpl;
 import org.wso2.transport.localfilesystem.server.exception.LocalFileSystemServerConnectorException;
+import org.wso2.transport.localfilesystem.server.util.Constants;
 
 import java.util.HashMap;
 import java.util.List;
@@ -95,10 +96,10 @@ public class Register extends BlockingNativeCallableUnit {
                 .getBooleanField(DirectoryListenerConstants.ANNOTATION_DIRECTORY_RECURSIVE);
         Map<String, String> paramMap = new HashMap<>(3);
         if (path != null && !path.isEmpty()) {
-            paramMap.put(DirectoryListenerConstants.ANNOTATION_DIR_URI, path);
+            paramMap.put(Constants.TRANSPORT_FILE_FILE_URI, path);
         }
-        paramMap.put(DirectoryListenerConstants.ANNOTATION_EVENTS, events);
-        paramMap.put(DirectoryListenerConstants.ANNOTATION_DIRECTORY_RECURSIVE, String.valueOf(recursive));
+        paramMap.put(Constants.DIRECTORY_WATCH_EVENTS, events);
+        paramMap.put(Constants.DIRECTORY_WATCH_RECURSIVE, String.valueOf(recursive));
         return paramMap;
     }
 

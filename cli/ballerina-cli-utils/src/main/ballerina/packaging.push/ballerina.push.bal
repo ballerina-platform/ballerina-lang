@@ -8,19 +8,15 @@ import ballerina/http;
 function pushPackage (string accessToken, string mdFileContent, string summary, string homePageURL, string repositoryURL,
     string apiDocURL, string authors, string keywords, string license, string url, string dirPath, string msg) {
     endpoint http:Client httpEndpoint {
-        targets: [
-        {
-            url: url,
-            secureSocket: {
-                trustStore: {
-                    filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                    password: "ballerina"
-                },
-                verifyHostname:false,
-                shareSession: true
-            }
+        url:url,
+        secureSocket:{
+            trustStore:{
+                filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password:"ballerina"
+            },
+            verifyHostname:false,
+            shareSession:true
         }
-        ]
     };
 
     mime:Entity mdFileContentBodyPart = addStringBodyParts("description", mdFileContent);
@@ -53,7 +49,7 @@ function pushPackage (string accessToken, string mdFileContent, string summary, 
         io:println("remote registry failed for url :" + url);
     } else if (statusCode != "200") {
         json jsonResponse = check (httpResponse.getJsonPayload());
-        string message = (jsonResponse.message.toString() but {()=> "error occurred when pushing the package"});
+        string message = jsonResponse.message.toString();
         io:println(message);
     } else {
         io:println(msg);

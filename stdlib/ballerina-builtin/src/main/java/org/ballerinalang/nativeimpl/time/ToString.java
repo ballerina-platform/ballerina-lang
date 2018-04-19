@@ -21,9 +21,11 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.nativeimpl.Utils.STRUCT_TYPE_TIME;
 
 /**
  * Convert a Time to ISO 8601 formatted string.
@@ -32,9 +34,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "Time.toString",
-        args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.time")},
+        functionName = "toString",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina.time"),
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )

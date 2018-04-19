@@ -86,12 +86,15 @@ public class JWTAuthenHandlerTest {
     private CompileResult compileResult;
     private String resourceRoot;
     private String jwtToken;
+    private String trustStorePath;
     private static final String BALLERINA_CONF = "ballerina.conf";
     private static final String KEY_STORE = "ballerinaKeystore.p12";
     private static final String TRUST_SORE = "ballerinaTruststore.p12";
 
     @BeforeClass
     public void setup() throws Exception {
+        trustStorePath = getClass().getClassLoader().getResource(
+                "datafiles/security/keyStore/ballerinaTruststore.p12").getPath();
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         Path ballerinaConfPath = Paths
@@ -135,9 +138,9 @@ public class JWTAuthenHandlerTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    //TODO Enable this test after config api get the capability to set new properties.
+    @Test(description = "Test case for JWT auth interceptor authentication success")
     public void testHandleHttpJwtAuth() {
-        BValue[] inputBValues = {new BString(jwtToken)};
+        BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpJwtAuth", inputBValues);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());

@@ -153,7 +153,7 @@ public class IdentifierLiteralTest {
         Assert.assertEquals(actualString, "sample test");
     }
 
-    @Test(description = "Test connector name with identifier literal", enabled = false)
+    @Test(description = "Test connector name with identifier literal")
     public void testConnectorWithIdentifierLiteral() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectorNameWithIL");
 

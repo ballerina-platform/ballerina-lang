@@ -33,14 +33,14 @@ type InitiatorClientEP object {
     }
 
     function init (InitiatorClientConfig conf) {
-        endpoint http:Client httpEP {targets:[{url:conf.registerAtURL}],
+        endpoint http:Client httpEP {url:conf.registerAtURL,
                                             timeoutMillis:conf.timeoutMillis,
-                                            retry:{count:conf.retryConfig.count,
+                                            retryConfig:{count:conf.retryConfig.count,
                                                       interval:conf.retryConfig.interval}};
         self.httpClient = httpEP;
     }
 
-    function getClient () returns InitiatorClient {
+    function getCallerActions () returns InitiatorClient {
         InitiatorClient client = new;
         client.clientEP = self;
         return client;
@@ -62,7 +62,7 @@ type InitiatorClient object {
         RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId,
                                         participantProtocols:participantProtocols};
 
-        json reqPayload = regRequestToJson(regReq);
+        json reqPayload = check <json>regReq;
         http:Request req = new;
         req.setJsonPayload(reqPayload);
         var result = httpClient -> post("", req);
@@ -73,6 +73,6 @@ type InitiatorClient object {
             return err;
         }
         json resPayload = check res.getJsonPayload();
-        return jsonToRegResponse(resPayload);
+        return <RegistrationResponse>resPayload;
     }
 };
