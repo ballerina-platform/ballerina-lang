@@ -183,7 +183,7 @@ public type HttpCachingClient object {
 @Description {value:"Creates an HTTP client capable of caching HTTP responses."}
 public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig) returns HttpClient {
     HttpCachingClient httpCachingClient = new (url, config, cacheConfig);
-    log:printDebug("Created HTTP caching client: " + io:sprintf("%r",[httpCachingClient]));
+    log:printDebug("Created HTTP caching client: " + io:sprintf("%r", httpCachingClient));
     return httpCachingClient;
 }
 
@@ -333,7 +333,7 @@ function getCachedResponse (HttpCache cache, HttpClient httpClient, Request req,
             // validating with the origin server.
             if (!(req.cacheControl.noCache ?: true) && !(cachedResponse.cacheControl.noCache ?: true) && !req.hasHeader(PRAGMA)) {
                 setAgeHeader(cachedResponse);
-                log:printDebug("Serving a cached fresh response without validating with the origin server: " + io:sprintf("%r", [cachedResponse]));
+                log:printDebug("Serving a cached fresh response without validating with the origin server: " + io:sprintf("%r", cachedResponse));
                 return cachedResponse;
             } else {
                 log:printDebug("Serving a cached fresh response after validating with the origin server");

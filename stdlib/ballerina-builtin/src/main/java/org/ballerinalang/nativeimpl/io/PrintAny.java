@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.io;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -33,18 +34,22 @@ import java.io.PrintStream;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "print",
-        args = {@Argument(name = "a", type = TypeKind.ANY)},
+        args = {@Argument(name = "a", type = TypeKind.ARRAY, elementType = TypeKind.ANY)},
         isPublic = true
 )
 public class PrintAny extends BlockingNativeCallableUnit {
 
-
     public void execute(Context ctx) {
         // Had to write "System . out . println" (ignore spaces) in another way to deceive the Check style plugin.
         PrintStream out = System.out;
-        BValue result = ctx.getNullableRefArgument(0);
+        BRefValueArray result = (BRefValueArray) ctx.getRefArgument(0);
         if (result != null) {
-            out.print(result.stringValue());
+            for (int i = 0; i < result.size(); i++) {
+                final BValue bValue = result.getBValue(i);
+                if (bValue != null) {
+                    out.print(bValue.stringValue());
+                }
+            }
         } else {
             out.print((Object) null);
         }
