@@ -970,9 +970,6 @@ public class Desugar extends BLangNodeVisitor {
             expr = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.STREAM) {
             expr = new BLangStreamLiteral(recordLiteral.type, recordLiteral.name);
-//        } else if (recordLiteral.type.tag == TypeTags.TABLE) {
-//            //expr = new BLangTableLiteral(recordLiteral.type, recordLiteral.name);
-//        }
         } else {
             expr = new BLangJSONLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         }
