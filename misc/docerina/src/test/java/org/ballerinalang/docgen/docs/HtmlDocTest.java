@@ -30,8 +30,8 @@ import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.StructDoc;
-import org.ballerinalang.langserver.common.modal.BallerinaFile;
-import org.ballerinalang.langserver.common.utils.LSParserUtils;
+import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -57,7 +57,7 @@ public class HtmlDocTest {
         packages.add(new Link(new PackageName("x.y.z", ""), "", false));
 
         BLangPackage bLangPackage = createPackage("package x.y;");
-        Page page = Generator.generatePage(bLangPackage, packages, null);
+        Page page = Generator.generatePage(bLangPackage, packages, null, null);
 
         Assert.assertEquals(page.links.size() , 3);
         Assert.assertFalse(page.links.get(0).active);
@@ -229,7 +229,7 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc2.returnParams.get(0).dataType, "string | error", "Invalid return type");
         Assert.assertEquals(functionDoc2.returnParams.get(0).description, "<p>returns the string or an error</p>\n");
     }
-    
+
     @Test(description = "Enums in a package should be shown in the constructs", enabled = false)
     public void testEnums() throws Exception {
         BLangPackage bLangPackage = createPackage("package x.y; " +
@@ -575,7 +575,7 @@ public class HtmlDocTest {
      * @return BLangPackage
      */
     private BLangPackage createPackage(String source) {
-        BallerinaFile ballerinaFile = LSParserUtils.compile(source, CompilerPhase.DEFINE);
+        BallerinaFile ballerinaFile = LSCompiler.compileContent(source, CompilerPhase.DEFINE);
         if (!ballerinaFile.getDiagnostics().isEmpty()) {
             ballerinaFile.getDiagnostics().stream().forEach(System.err::println);
             throw new IllegalStateException("Compilation errors detected.");
@@ -591,6 +591,6 @@ public class HtmlDocTest {
     private Page generatePage(BLangPackage balPackage) {
         List<Link> packages = new ArrayList<>();
         packages.add(new Link(new PackageName((balPackage.symbol).pkgID.name.value, ""), "", false));
-        return Generator.generatePage(balPackage, packages, null);
+        return Generator.generatePage(balPackage, packages, null, null);
     }
 }

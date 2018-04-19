@@ -163,6 +163,9 @@ public class Hub {
         }
         HubSubscriber subscriberToUnregister = new HubSubscriber("", topic, callback, null);
         if (!subscribers.contains(subscriberToUnregister)) {
+            if (callback.endsWith("/")) {
+                unregisterSubscription(topic, callback.substring(0, callback.length() - 1));
+            }
             return;
         } else {
             for (HubSubscriber subscriber:subscribers) {
