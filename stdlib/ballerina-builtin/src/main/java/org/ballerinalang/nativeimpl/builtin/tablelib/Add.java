@@ -42,13 +42,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class Add extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        try {
-            BTable table = (BTable) context.getRefArgument(0);
-            BStruct data = (BStruct) context.getRefArgument(1);
-            table.performAddOperation(data, context);
-        } catch (ClassCastException e){
-            e.getStackTrace();
-        }
-
+        BTable table = (BTable) context.getRefArgument(0);
+        BStruct data = (BStruct) context.getRefArgument(1);
+        table.performAddOperation(data, context);
     }
 }
