@@ -55,7 +55,7 @@ public class TableTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/table/table-type.bal");
+        result = BCompileUtil.compile("test-src/types/table/table_type.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/DataTableDataFile.sql");
     }

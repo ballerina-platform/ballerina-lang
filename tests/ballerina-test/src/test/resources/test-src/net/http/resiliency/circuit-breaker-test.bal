@@ -26,6 +26,7 @@ import ballerina/runtime;
 function testTypicalScenario () returns (http:Response[] , http:HttpConnectorError[]) {
 
     endpoint http:Client backendClientEP {
+        url: "http://localhost:8080",
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis:10000,
@@ -35,18 +36,13 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
             resetTimeMillis:1000,
             statusCodes:[400, 404, 500, 502]
         },
-        targets:[
-            {
-                url: "http://localhost:8080"
-            }
-        ],
         timeoutMillis:2000
     };
 
     http:Response[] responses = [];
     http:HttpConnectorError[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getClient();
+    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
     MockClient mockClient = new;
     cbClient.httpClient = <http:HttpClient> mockClient;
 
@@ -74,6 +70,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
 function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorError[]) {
     
     endpoint http:Client backendClientEP {
+        url: "http://localhost:8080",
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis:10000,
@@ -83,18 +80,13 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
             resetTimeMillis:1000,
             statusCodes:[400, 404, 500, 502]
         },
-        targets:[
-            {
-                url: "http://localhost:8080"
-            }
-        ],
         timeoutMillis:2000
     };
 
     http:Response[] responses = [];
     http:HttpConnectorError[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getClient();
+    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
     MockClient mockClient = new;
     cbClient.httpClient = <http:HttpClient> mockClient;
 
@@ -122,6 +114,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
 function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnectorError[]) {
     
     endpoint http:Client backendClientEP {
+        url: "http://localhost:8080",
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis:10000,
@@ -131,18 +124,13 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
             resetTimeMillis:1000,
             statusCodes:[400, 404, 500, 502]
         },
-        targets:[
-            {
-                url: "http://localhost:8080"
-            }
-        ],
         timeoutMillis:2000
     };
 
     http:Response[] responses = [];
     http:HttpConnectorError[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getClient();
+    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
     MockClient mockClient = new;
     cbClient.httpClient = <http:HttpClient> mockClient;
 

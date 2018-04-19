@@ -25,8 +25,7 @@ service<http:Service> test bind mockEP {
         mime:Entity bodyPart2 = new;
         mime:MediaType textXml = mime:getMediaType(mime:TEXT_XML);
         bodyPart2.contentType = textXml;
-        file:Path fileHandler = new("src/test/resources/datafiles/mime/file.xml");
-        bodyPart2.setFileAsEntityBody(fileHandler);
+        bodyPart2.setFileAsEntityBody("src/test/resources/datafiles/mime/file.xml");
 
         //Create a text body part.
         mime:Entity bodyPart3 = new;
@@ -38,8 +37,7 @@ service<http:Service> test bind mockEP {
         mime:Entity bodyPart4 = new;
         mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
         bodyPart4.contentType = contentTypeOfFilePart;
-        file:Path textFile = new("src/test/resources/datafiles/mime/test.tmp");
-        bodyPart4.setFileAsEntityBody(textFile);
+        bodyPart4.setFileAsEntityBody("src/test/resources/datafiles/mime/test.tmp");
 
         //Create an array to hold all the body parts.
         mime:Entity[] bodyParts = [bodyPart1, bodyPart2, bodyPart3, bodyPart4];

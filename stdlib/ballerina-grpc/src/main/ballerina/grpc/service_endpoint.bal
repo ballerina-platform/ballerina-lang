@@ -61,7 +61,7 @@ public type Service object {
     documentation {
         Returns the client connection that servicestub code uses
     }
-    public native function getClient () returns (ClientResponder);
+    public native function getCallerActions () returns (ClientResponder);
 };
 
 documentation {

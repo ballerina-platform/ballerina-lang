@@ -36,7 +36,7 @@ public type JWTValidatorConfig {
 @Return {value:"boolean: If JWT token is valied true , else false"}
 @Return {value:"Payload: If JWT token is valied return the JWT payload"}
 @Return {value:"error: If token validation fails"}
-public function validate (string jwtToken, JWTValidatorConfig config) returns (boolean, Payload)|error {
+public function validate (string jwtToken, JWTValidatorConfig config) returns Payload|error {
     string[] encodedJWTComponents;
     match getJWTComponents(jwtToken) {
         string[] encodedJWT => encodedJWTComponents = encodedJWT;
@@ -54,7 +54,14 @@ public function validate (string jwtToken, JWTValidatorConfig config) returns (b
 
     match validateJWT(encodedJWTComponents, header, payload, config) {
         error e => return e;
-        boolean isValid => return isValid ? (true, payload) : (false, ());
+        boolean isValid => {
+            if (isValid){
+                return payload;
+            } else {
+                error err = {message:"Invalid JWT token"};
+                return err;
+            }
+        }
     }
 }
 

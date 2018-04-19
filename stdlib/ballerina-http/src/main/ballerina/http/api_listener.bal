@@ -32,7 +32,7 @@ public type APIListener object {
     public function init (SecureEndpointConfiguration config);
     public function register (typedesc serviceType);
     public function start ();
-    public function getClient () returns (Connection);
+    public function getCallerActions () returns (Connection);
     public function stop ();
 };
 
@@ -48,8 +48,8 @@ public function APIListener::start () {
     self.secureListener.start();
 }
 
-public function APIListener::getClient () returns (Connection) {
-    return self.secureListener.getClient();
+public function APIListener::getCallerActions () returns (Connection) {
+    return self.secureListener.getCallerActions();
 }
 
 public function APIListener::stop () {
