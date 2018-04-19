@@ -2094,7 +2094,7 @@ public class CPU {
                     /* if the value is a JSON and target is a (boxed) value type, then even though
                      * they should be assignable, we can't use the same ref value, but rather, the BJSON
                      * should be converted to the respective boxed value types */
-                    if (bRefTypeValue instanceof BJSON && isValueType(typeRefCPEntry.getType())) {
+                    if (bRefTypeValue instanceof BJSON && BTypes.isValueType(typeRefCPEntry.getType())) {
                         sf.refRegs[j] = ((BJSON) bRefTypeValue).getPrimitiveBoxedValue();
                     } else {
                         sf.refRegs[j] = bRefTypeValue;
@@ -3981,15 +3981,6 @@ public class CPU {
         }
 
         return false;
-    }
-    
-    private static boolean isValueType(BType type) {
-        int tag = type.getTag();
-        return tag == TypeTags.INT_TAG ||
-                tag == TypeTags.FLOAT_TAG ||
-                tag == TypeTags.STRING_TAG ||
-                tag == TypeTags.BOOLEAN_TAG ||
-                tag == TypeTags.BLOB_TAG;
     }
     
 }
