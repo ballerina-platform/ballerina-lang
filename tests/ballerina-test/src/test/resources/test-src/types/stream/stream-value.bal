@@ -1,6 +1,8 @@
 import ballerina/log;
 import ballerina/time;
 
+stream<Employee> globalEmployeeStream;
+
 type Employee {
     int id,
     string name,
@@ -20,11 +22,6 @@ function testInvalidObjectPublishingToStream () {
     s1.publish(j1);
 }
 
-function testSubscriptionFunctionWithNonObjectParameter () {
-    stream<Employee> s1;
-    s1.subscribe(printInteger);
-}
-
 function testSubscriptionFunctionWithIncorrectObjectParameter () {
     stream<Employee> s1;
     s1.subscribe(printJobDescription);
@@ -34,7 +31,20 @@ Employee globalEmployee;
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 
-function testStreamPublishingAndSubscription () returns (Employee, Employee, Employee) {
+function testGlobalStream () returns (Employee, Employee, Employee) {
+    Employee origEmployee = globalEmployee;
+    globalEmployeeStream.subscribe(assignGlobalEmployee);
+    Employee publishedEmployee = { id:5678, name:"Maryam" };
+    globalEmployeeStream.publish(publishedEmployee);
+    int startTime = time:currentTime().time;
+    while (globalEmployee.id == 0 && time:currentTime().time - startTime < 1000) {
+        //allow for value update
+    }
+    Employee newEmployee = globalEmployee;
+    return (origEmployee, publishedEmployee, newEmployee);
+}
+
+function testStreamPublishingAndSubscriptionForObject () returns (Employee, Employee, Employee) {
     Employee origEmployee = globalEmployee;
     stream<Employee> s1;
     s1.subscribe(assignGlobalEmployee);
@@ -48,7 +58,7 @@ function testStreamPublishingAndSubscription () returns (Employee, Employee, Emp
     return (origEmployee, publishedEmployee, newEmployee);
 }
 
-function testStreamPublishingAndSubscriptionForMultipleEvents () returns (Employee[], Employee[]) {
+function testStreamPublishingAndSubscriptionForMultipleObjectEvents () returns (Employee[], Employee[]) {
     stream<Employee> s1;
     s1.subscribe(addToGlobalEmployeeArray);
     Employee e1 = { id:1234, name:"Maryam" };
@@ -63,10 +73,6 @@ function testStreamPublishingAndSubscriptionForMultipleEvents () returns (Employ
         //allow for value update
     }
     return (publishedEmployees, globalEmployeeArray);
-}
-
-function printInteger (int i) {
-    log:printInfo(<string>i);
 }
 
 function printJobDescription (Job j) {
