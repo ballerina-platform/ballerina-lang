@@ -347,7 +347,7 @@ public class Debugger {
 
         localVarAttrInfo.getLocalVariables().forEach(l -> {
             VariableDTO variableDTO = new VariableDTO(l.getVariableName(), "Local");
-            switch (l.getVariableType().getTag()) {
+            switch (l.getVariableType().getSuperType().getTag()) {
                 case TypeTags.INT_TAG:
                     variableDTO.setBValue(new BInteger(ctx.workerLocal.longRegs[l.getVariableIndex()]));
                     break;

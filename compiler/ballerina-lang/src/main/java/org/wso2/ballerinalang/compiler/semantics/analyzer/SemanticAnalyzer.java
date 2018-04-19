@@ -84,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSingleton;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -351,6 +352,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
 
         typeDefinition.docAttachments.forEach(doc -> analyzeDef(doc, typeDefEnv));
+    }
+
+    public void visit(BLangSingleton singleton) {
+        /* ignore */
     }
 
 
@@ -1639,7 +1644,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         boolean error = true;
         NodeKind retryKind = retryCountExpr.getKind();
         if (retryKind == NodeKind.LITERAL) {
-            if (retryCountExpr.type.tag == TypeTags.INT) {
+            if (types.isAssignable(retryCountExpr.type, symTable.intType)) {
                 int retryCount = Integer.parseInt(((BLangLiteral) retryCountExpr).getValue().toString());
                 if (retryCount >= 0) {
                     error = false;
@@ -1647,7 +1652,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         } else if (retryKind == NodeKind.SIMPLE_VARIABLE_REF) {
             if (((BLangSimpleVarRef) retryCountExpr).symbol.flags == Flags.FINAL) {
-                if (((BLangSimpleVarRef) retryCountExpr).symbol.type.tag == TypeTags.INT) {
+                if (types.isAssignable(((BLangSimpleVarRef) retryCountExpr).symbol.type, symTable.intType)) {
                     error = false;
                 }
             }

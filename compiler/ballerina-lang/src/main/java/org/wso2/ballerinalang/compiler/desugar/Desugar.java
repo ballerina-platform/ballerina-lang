@@ -935,6 +935,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral literalExpr) {
+        //literalExpr.type = this.symTable.getTypeFromTag(literalExpr.typeTag);
         result = literalExpr;
     }
 
@@ -1169,7 +1170,7 @@ public class Desugar extends BLangNodeVisitor {
             iExpr.expr = rewriteExpr(iExpr.expr);
         }
 
-        switch (iExpr.expr.type.tag) {
+        switch (types.resolveToSuperType(iExpr.expr.type).tag) {
             case TypeTags.BOOLEAN:
             case TypeTags.STRING:
             case TypeTags.INT:
@@ -1226,31 +1227,34 @@ public class Desugar extends BLangNodeVisitor {
         result = binaryExpr;
 
         // Check lhs and rhs type compatibility
-        if (binaryExpr.lhsExpr.type.tag == binaryExpr.rhsExpr.type.tag) {
+        if (types.resolveToSuperType(binaryExpr.lhsExpr.type).tag ==
+                types.resolveToSuperType(binaryExpr.rhsExpr.type).tag) {
             return;
         }
 
-        if (binaryExpr.lhsExpr.type.tag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
+        if (types.resolveToSuperType(binaryExpr.lhsExpr.type).tag == TypeTags.STRING
+                && binaryExpr.opKind == OperatorKind.ADD) {
             binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
-                    binaryExpr.rhsExpr.type, binaryExpr.lhsExpr.type);
+                    binaryExpr.rhsExpr.type, types.resolveToSuperType(binaryExpr.lhsExpr.type));
             return;
         }
 
-        if (binaryExpr.rhsExpr.type.tag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
+        if (types.resolveToSuperType(binaryExpr.rhsExpr.type).tag == TypeTags.STRING
+                && binaryExpr.opKind == OperatorKind.ADD) {
             binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
-                    binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+                    binaryExpr.lhsExpr.type, types.resolveToSuperType(binaryExpr.rhsExpr.type));
             return;
         }
 
-        if (binaryExpr.lhsExpr.type.tag == TypeTags.FLOAT) {
+        if (types.resolveToSuperType(binaryExpr.lhsExpr.type).tag == TypeTags.FLOAT) {
             binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
-                    binaryExpr.rhsExpr.type, binaryExpr.lhsExpr.type);
+                    binaryExpr.rhsExpr.type, types.resolveToSuperType(binaryExpr.lhsExpr.type));
             return;
         }
 
-        if (binaryExpr.rhsExpr.type.tag == TypeTags.FLOAT) {
+        if (types.resolveToSuperType(binaryExpr.rhsExpr.type).tag == TypeTags.FLOAT) {
             binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
-                    binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+                    binaryExpr.lhsExpr.type, types.resolveToSuperType(binaryExpr.rhsExpr.type));
         }
     }
 
@@ -2208,7 +2212,8 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression addConversionExprIfRequired(BLangExpression expr, BType lhsType) {
         BType rhsType = expr.type;
-        if (types.isSameType(rhsType, lhsType)) {
+        if (types.isSameType(types.resolveToSuperType(rhsType),
+                types.resolveToSuperType(lhsType))) {
             return expr;
         }
 
@@ -2316,6 +2321,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.BOOLEAN:
             case TypeTags.STRING:
             case TypeTags.BLOB:
+            case TypeTags.SINGLETON:
                 // Int, float, boolean, string, blob types will get default values from VM side.
                 break;
             case TypeTags.XML:

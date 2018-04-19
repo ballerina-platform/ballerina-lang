@@ -32,6 +32,7 @@ import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.SingletonNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TransformerNode;
@@ -65,6 +66,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangStruct> structs;
     public List<BLangObject> objects;
     public List<BLangTypeDefinition> typeDefinitions;
+    public List<BLangSingleton> singletons;
     public List<BLangEnum> enums;
     public List<BLangAnnotation> annotations;
     public List<BLangRecord> records;
@@ -99,6 +101,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.enums = new ArrayList<>();
         this.annotations = new ArrayList<>();
         this.transformers = new ArrayList<>();
+        this.singletons = new ArrayList<>();
 
         this.objAttachedFunctions = new ArrayList<>();
         this.topLevelNodes = new ArrayList<>();
@@ -163,6 +166,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public List<BLangTypeDefinition> getTypeDefinitions() {
         return typeDefinitions;
+    }
+
+    @Override
+    public List<BLangSingleton> getSingletons() {
+        return singletons;
     }
 
     @Override
@@ -265,6 +273,12 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addTypeDefinition(TypeDefinition typeDefinition) {
         this.typeDefinitions.add((BLangTypeDefinition) typeDefinition);
         this.topLevelNodes.add(typeDefinition);
+    }
+
+    @Override
+    public void addSingleton(SingletonNode singletonNode) {
+        this.singletons.add((BLangSingleton) singletonNode);
+        this.topLevelNodes.add(singletonNode);
     }
 
     @Override

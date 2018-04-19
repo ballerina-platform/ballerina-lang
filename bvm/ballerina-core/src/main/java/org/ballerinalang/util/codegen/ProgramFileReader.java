@@ -19,11 +19,11 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BServiceType;
+import org.ballerinalang.model.types.BSingletonType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTableType;
@@ -352,8 +352,8 @@ public class ProgramFileReader {
         // Read struct info entries
         readStructInfoEntries(dataInStream, packageInfo);
 
-        // Read type definition info entries
-        readTypeDefinitionInfoEntries(dataInStream, packageInfo);
+        // Read Singleton info entries
+        readSingletonInfoEntries(dataInStream, packageInfo);
 
         // Read service info entries
         readServiceInfoEntries(dataInStream, packageInfo);
@@ -380,8 +380,6 @@ public class ProgramFileReader {
 
         // Resolve unresolved CP entries.
         resolveCPEntries();
-
-        resolveTypeDefinitionEntries(packageInfo);
 
         // Read attribute info entries
         readAttributeInfoEntries(dataInStream, packageInfo, packageInfo);
@@ -471,49 +469,31 @@ public class ProgramFileReader {
         }
     }
 
-    private void readTypeDefinitionInfoEntries(DataInputStream dataInStream,
-                                               PackageInfo packageInfo) throws IOException {
-        int typeDefCount = dataInStream.readShort();
-        for (int i = 0; i < typeDefCount; i++) {
+    private void readSingletonInfoEntries(DataInputStream dataInStream,
+                                          PackageInfo packageInfo) throws IOException {
+        int singletonDefCount = dataInStream.readShort();
+        for (int i = 0; i < singletonDefCount; i++) {
 
-            int typeDefNameCPIndex = dataInStream.readInt();
+            int singletonDefNameCPIndex = dataInStream.readInt();
             int flags = dataInStream.readInt();
-            UTF8CPEntry typeDefNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeDefNameCPIndex);
-            String typeDefName = typeDefNameUTF8Entry.getValue();
-            TypeDefinitionInfo typeDefinitionInfo = new TypeDefinitionInfo(packageInfo.getPkgNameCPIndex(),
+            UTF8CPEntry typeDefNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(singletonDefNameCPIndex);
+            String singletonDefName = typeDefNameUTF8Entry.getValue();
+            SingletonInfo singletonInfo = new SingletonInfo(packageInfo.getPkgNameCPIndex(),
                     packageInfo.getPkgPath(),
-                    typeDefNameCPIndex, typeDefName, flags);
-            packageInfo.addTypeDefinitionInfo(typeDefName, typeDefinitionInfo);
+                    singletonDefNameCPIndex, singletonDefName, flags);
+            packageInfo.addSingletonInfo(singletonDefName, singletonInfo);
 
-            BFiniteType finiteType = new BFiniteType(typeDefName, packageInfo.getPkgPath());
-            typeDefinitionInfo.setType(finiteType);
-
-            int memberTypeCount = dataInStream.readShort();
-            for (int j = 0; j < memberTypeCount; j++) {
-                int memberTypeCPIndex = dataInStream.readInt();
-                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(memberTypeCPIndex);
-                finiteType.memberCPEntries.add(typeRefCPEntry);
+            int defaultValueCount = dataInStream.readShort();
+            if (defaultValueCount == 1) {
+                BValue value = getSingletonValueSpace(dataInStream, packageInfo);
+                singletonInfo.setType(new BSingletonType(value.getType(), value));
+            } else {
+                singletonInfo.setType(BTypes.typeNull);
             }
 
-            int valueSpaceCount = dataInStream.readShort();
-            for (int k = 0; k < valueSpaceCount; k++) {
-                finiteType.valueSpace.add(getDefaultValueToBValue(getDefaultValue(dataInStream, packageInfo)));
-            }
-
-            readAttributeInfoEntries(dataInStream, packageInfo, typeDefinitionInfo);
+            readAttributeInfoEntries(dataInStream, packageInfo, singletonInfo);
         }
 
-    }
-
-    private void resolveTypeDefinitionEntries(PackageInfo packageInfo) {
-        TypeDefinitionInfo[] typeDefinitionInfos = packageInfo.getTypeDefinitionInfoEntries();
-        for (TypeDefinitionInfo typeDefInfo : typeDefinitionInfos) {
-            BFiniteType finiteType = typeDefInfo.getType();
-            finiteType.memberCPEntries.forEach(typeRefCPEntry -> {
-                finiteType.memberTypes.add(typeRefCPEntry.getType());
-            });
-            finiteType.memberCPEntries.clear();
-        }
     }
 
     private void readServiceInfoEntries(DataInputStream dataInStream,
@@ -830,8 +810,8 @@ public class ProgramFileReader {
             case 'T':
             case 'E':
             case 'D':
-            case 'G':
             case 'H':
+            case 'K':
             case 'Z':
                 char typeChar = chars[index];
                 // TODO Improve this logic
@@ -876,8 +856,8 @@ public class ProgramFileReader {
                     } else {
                         typeStack.push(new BStreamType(packageInfoOfType.getStructInfo(name).getType()));
                     }
-                } else if (typeChar == 'G') {
-                    typeStack.push(packageInfoOfType.getTypeDefinitionInfo(name).getType());
+                } else if (typeChar == 'K') {
+                    typeStack.push(packageInfoOfType.getSingletonInfo(name).getType());
                 } else {
                     // This is a struct type
                     typeStack.push(packageInfoOfType.getStructInfo(name).getType());
@@ -967,7 +947,7 @@ public class ProgramFileReader {
             case 'E':
             case 'H':
             case 'Z':
-            case 'G':
+            case 'K':
             case 'D':
                 String typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
@@ -993,8 +973,8 @@ public class ProgramFileReader {
                     return new BTableType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'H') {
                     return new BStreamType(packageInfoOfType.getStructInfo(name).getType());
-                } else if (ch == 'G') {
-                    return packageInfoOfType.getTypeDefinitionInfo(name).getType();
+                } else if (ch == 'K') {
+                    return packageInfoOfType.getSingletonInfo(name).getType();
                 } else {
                     return packageInfoOfType.getStructInfo(name).getType();
                 }
@@ -1755,36 +1735,40 @@ public class ProgramFileReader {
         return defaultValue;
     }
 
-    private BValue getDefaultValueToBValue(DefaultValue defaultValue)
+    private BValue getSingletonValueSpace(DataInputStream dataInStream, ConstantPool constantPool)
             throws IOException {
-        String typeDesc = defaultValue.getTypeDesc();
         BValue value;
+        int typeDescCPIndex = dataInStream.readInt();
+        UTF8CPEntry typeDescCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeDescCPIndex);
+        String typeDesc = typeDescCPEntry.getValue();
 
+        int valueCPIndex;
         switch (typeDesc) {
             case TypeSignature.SIG_BOOLEAN:
-                boolean boolValue = defaultValue.getBooleanValue();
+                boolean boolValue = dataInStream.readBoolean();
                 value = new BBoolean(boolValue);
                 break;
             case TypeSignature.SIG_INT:
-                long intValue = defaultValue.getIntValue();
-                value = new BInteger(intValue);
+                valueCPIndex = dataInStream.readInt();
+                IntegerCPEntry integerCPEntry = (IntegerCPEntry) constantPool.getCPEntry(valueCPIndex);
+                value = new BInteger(integerCPEntry.getValue());
                 break;
             case TypeSignature.SIG_FLOAT:
-                double floatValue = defaultValue.getFloatValue();
-                value = new BFloat(floatValue);
+                valueCPIndex = dataInStream.readInt();
+                FloatCPEntry floatCPEntry = (FloatCPEntry) constantPool.getCPEntry(valueCPIndex);
+                value = new BFloat(floatCPEntry.getValue());
                 break;
             case TypeSignature.SIG_STRING:
-                String stringValue = defaultValue.getStringValue();
-                value = new BString(stringValue);
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry stringCPEntry = (UTF8CPEntry) constantPool.getCPEntry(valueCPIndex);
+                value = new BString(stringCPEntry.getValue());
                 break;
             case TypeSignature.SIG_NULL:
                 value = null;
                 break;
             default:
-                throw new ProgramFileFormatException("unknown default value type " + typeDesc);
-
+                throw new ProgramFileFormatException("unknown singleton value type " + typeDesc);
         }
-
         return value;
     }
 

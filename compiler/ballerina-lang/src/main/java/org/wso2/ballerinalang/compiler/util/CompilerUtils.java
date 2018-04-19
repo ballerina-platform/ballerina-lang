@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 public class CompilerUtils {
 
     private static final String DISTRIBUTED_TRANSACTIONS = "distributed.transactions";
-    
+
     private static final String MAIN_FUNCTION_NAME = "main";
 
     public static boolean isDistributedTransactionsEnabled() {
@@ -41,7 +41,7 @@ public class CompilerUtils {
         }
         return distributedTransactionEnabled;
     }
-    
+
     public static boolean isMainFunction(BLangFunction funcNode) {
         if (!MAIN_FUNCTION_NAME.equals(funcNode.name.value)) {
             return false;
@@ -62,5 +62,5 @@ public class CompilerUtils {
         }
         return false;
     }
-    
+
 }

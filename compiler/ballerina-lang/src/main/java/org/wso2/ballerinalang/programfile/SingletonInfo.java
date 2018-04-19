@@ -18,22 +18,21 @@
 
 package org.wso2.ballerinalang.programfile;
 
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
- * Represent serializable unit of defined type Definition item.
+ * Represent serializable unit Singleton Value.
  */
-public class TypeDefinitionInfo extends StructureTypeInfo {
+public class SingletonInfo extends StructureTypeInfo {
 
-    public BFiniteType finiteType;
-    public List<Integer> typeDescCPIndexes = new ArrayList<>();
-    public List<ValueSpaceItemInfo> valueSpaceItemInfos = new ArrayList<>();
+    public ValueSpaceInfo valueSpace;
+    public BType singletonType;
 
-    public TypeDefinitionInfo(int pkgNameCPIndex, int nameCPIndex, int flags) {
+    public SingletonInfo(int pkgNameCPIndex,
+                         int nameCPIndex,
+                         int flags) {
         super(pkgNameCPIndex, nameCPIndex, flags);
     }
 
@@ -44,8 +43,8 @@ public class TypeDefinitionInfo extends StructureTypeInfo {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof TypeDefinitionInfo && pkgNameCPIndex == (((TypeDefinitionInfo) obj).pkgNameCPIndex)
-                && nameCPIndex == (((TypeDefinitionInfo) obj).nameCPIndex);
+        return obj instanceof SingletonInfo && pkgNameCPIndex == (((SingletonInfo) obj).pkgNameCPIndex)
+                && nameCPIndex == (((SingletonInfo) obj).nameCPIndex);
     }
 }
 

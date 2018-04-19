@@ -46,5 +46,6 @@ public class SymTag {
     public static final int OBJECT = 1 << 20 | TYPE | VARIABLE_NAME | STRUCT;
     public static final int RECORD = 1 << 21 | TYPE | VARIABLE_NAME | STRUCT;
     public static final int TYPE_DEF = 1 << 22 | TYPE | VARIABLE_NAME;
+    public static final int SINGLETON = 1 << 23 | TYPE | VARIABLE_NAME;
 
 }

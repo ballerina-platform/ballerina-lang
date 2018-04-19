@@ -2,7 +2,6 @@ package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.annotations.Argument;
@@ -35,10 +34,10 @@ public class ParseTo extends AbstractTimeFunction {
     @Override
     public void execute(Context context) {
         String dateString = context.getStringArgument(0);
-        BString pattern = (BString) context.getNullableRefArgument(0);
+        String pattern = context.getStringArgument(1);
 
         TemporalAccessor parsedDateTime;
-        switch (pattern.stringValue()) {
+        switch (pattern) {
             case "RFC_1123":
                 parsedDateTime = DateTimeFormatter.RFC_1123_DATE_TIME.parse(dateString);
                 break;
@@ -56,7 +55,7 @@ public class ParseTo extends AbstractTimeFunction {
         } catch (DateTimeException e) {
             if (epochTime < 0) {
                 throw new BallerinaException(
-                        "failed to parse \"" + dateString + "\" to the " + pattern.stringValue() + " format");
+                        "failed to parse \"" + dateString + "\" to the " + pattern + " format");
             }
             zoneId = ZoneId.systemDefault().toString();
         }

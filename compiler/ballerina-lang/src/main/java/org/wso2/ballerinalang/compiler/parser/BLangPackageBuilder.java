@@ -104,6 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSingleton;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -202,6 +203,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangSingletonTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -399,6 +401,34 @@ public class BLangPackageBuilder {
         typeNode.typeKind = (TreeUtils.stringToTypeKind(typeName.replaceAll("\\s+", "")));
 
         addType(typeNode);
+    }
+
+    public void addSingletonType(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangLiteral langLiteral = (BLangLiteral) exprNodeStack.pop();
+        BLangType typeNode = createSingletonTypeNode(pos, ws, langLiteral);
+        addType(typeNode);
+    }
+
+    private BLangType createSingletonTypeNode(DiagnosticPos pos, Set<Whitespace> ws, BLangLiteral literal) {
+        // Create Anonymous Singleton Node
+        String genName = anonymousModelHelper.getNextAnonymousSingletonKey(pos.src.pkgID);
+        IdentifierNode anonSingletonGenName = createIdentifier(genName);
+        BLangSingleton singletonNode = (BLangSingleton) TreeBuilder.createSingletonNode();
+        singletonNode.name = (BLangIdentifier) anonSingletonGenName;
+        singletonNode.addFlag(Flag.PUBLIC);
+        this.compUnit.addTopLevelNode(singletonNode);
+
+
+        // Create Singleton Type Node
+        BLangSingletonTypeNode typeNode = (BLangSingletonTypeNode) TreeBuilder.createSingletonTypeNode();
+        typeNode.addWS(ws);
+        typeNode.pos = pos;
+        typeNode.literal = literal;
+        typeNode.name = (BLangIdentifier) anonSingletonGenName;
+        typeNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        singletonNode.valueSpace = typeNode.literal;
+        return typeNode;
     }
 
     public void addUnionType(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -955,6 +985,7 @@ public class BLangPackageBuilder {
         litExpr.pos = pos;
         litExpr.typeTag = typeTag;
         litExpr.value = value;
+        litExpr.singletonType = createSingletonTypeNode(pos, ws, litExpr);
         addExpressionNode(litExpr);
     }
 
@@ -1500,43 +1531,22 @@ public class BLangPackageBuilder {
         return objectNode;
     }
 
-    void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicStruct) {
+    void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicConstruct) {
         //TODO only adding object type for now
         if (!this.objectStack.isEmpty()) {
-            endObjectDef(pos, ws, identifier, publicStruct);
+            endObjectDef(pos, ws, identifier, publicConstruct);
         } else if (!this.recordStack.isEmpty()) {
-            endRecordDef(pos, ws, identifier, publicStruct);
+            endRecordDef(pos, ws, identifier, publicConstruct);
         } else {
             BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
             typeDefinition.setName(this.createIdentifier(identifier));
 
-            if (publicStruct) {
+            if (publicConstruct) {
                 typeDefinition.flagSet.add(Flag.PUBLIC);
             }
 
-            BLangUnionTypeNode members = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
-            while (!typeNodeStack.isEmpty()) {
-                BLangType memberType = (BLangType) typeNodeStack.pop();
-                if (memberType.getKind() == NodeKind.UNION_TYPE_NODE) {
-                    members.memberTypeNodes.addAll(((BLangUnionTypeNode) memberType).memberTypeNodes);
-                } else {
-                    members.memberTypeNodes.add(memberType);
-                }
-            }
+            typeDefinition.typeNode = (BLangType) typeNodeStack.pop();
 
-            if (members.memberTypeNodes.isEmpty()) {
-                typeDefinition.typeNode = null;
-            } else if (members.memberTypeNodes.size() == 1) {
-                BLangType[] memberArray = new BLangType[1];
-                members.memberTypeNodes.toArray(memberArray);
-                typeDefinition.typeNode = memberArray[0];
-            } else {
-                typeDefinition.typeNode = members;
-            }
-
-            while (!exprNodeStack.isEmpty()) {
-                typeDefinition.valueSpace.add((BLangExpression) exprNodeStack.pop());
-            }
 
             typeDefinition.pos = pos;
             typeDefinition.addWS(ws);
@@ -2088,6 +2098,7 @@ public class BLangPackageBuilder {
             nilLiteral.pos = pos;
             nilLiteral.value = Names.NIL_VALUE;
             nilLiteral.typeTag = TypeTags.NIL;
+            nilLiteral.singletonType = createSingletonTypeNode(pos, ws, nilLiteral);
             retStmt.expr = nilLiteral;
         }
         addStmtToCurrentBlock(retStmt);

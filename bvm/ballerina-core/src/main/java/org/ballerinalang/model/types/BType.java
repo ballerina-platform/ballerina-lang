@@ -55,6 +55,10 @@ public abstract class BType implements BLangSymbol {
      */
     public abstract <V extends BValue> V getZeroValue();
 
+    public BType getSuperType() {
+        return this;
+    }
+
     /**
      * Get the empty initialized value of this type. For reference types, this is the value of a variable,
      * when initialized with the empty initializer.

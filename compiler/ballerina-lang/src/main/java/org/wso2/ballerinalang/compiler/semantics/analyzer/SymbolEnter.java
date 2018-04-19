@@ -52,9 +52,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSingletonType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSingleton;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -110,7 +111,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -215,6 +215,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
+
+        // Define Singleton type definitions.
+        pkgNode.singletons.forEach(singleton -> defineNode(singleton, pkgEnv));
 
         // Define type definitions.
         pkgNode.typeDefinitions.forEach(typeDefinition -> defineNode(typeDefinition, pkgEnv));
@@ -415,22 +418,30 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(typeDefinition.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         typeDefinition.symbol = typeDefSymbol;
 
-        HashSet<BType> memberTypes = new HashSet<>();
-        HashSet<BLangExpression> resultSet = new HashSet<>();
 
-        for (BLangExpression literal : typeDefinition.valueSpace) {
-            BType literalType = symTable.getTypeFromTag(((BLangLiteral) literal).typeTag);
-            ((BLangLiteral) literal).type = literalType;
-            resultSet.add(literal);
-        }
+        typeDefinition.symbol.type = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
 
-        if (typeDefinition.typeNode != null) {
-            BType definedType = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
-            memberTypes.add(definedType);
-        }
 
-        typeDefinition.symbol.type = new BFiniteType((BTypeSymbol) typeDefSymbol, memberTypes, resultSet);
         defineSymbol(typeDefinition.pos, typeDefSymbol);
+    }
+
+    @Override
+    public void visit(BLangSingleton singleton) {
+        BSymbol singletonDefSymbol = Symbols.createSingletonTypeSymbol(Flags.asMask(singleton.flagSet),
+                names.fromIdNode(singleton.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        singleton.symbol = singletonDefSymbol;
+
+
+        BLangLiteral valueSpace = (BLangLiteral) singleton.valueSpace;
+        if (this.symTable.getTypeFromTag(valueSpace.typeTag) == this.symTable.nilType) {
+            singleton.symbol.type = this.symTable.nilType;
+
+        } else {
+            singleton.symbol.type = new BSingletonType((BTypeSymbol) singleton.symbol, valueSpace,
+                    this.symTable.getTypeFromTag(valueSpace.typeTag));
+        }
+        valueSpace.type = singleton.symbol.type;
+        defineSymbol(singleton.pos, singletonDefSymbol);
     }
 
     @Override
@@ -903,6 +914,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case TYPE_DEFINITION:
                 pkgNode.typeDefinitions.add((BLangTypeDefinition) node);
+                break;
+            case SINGLETON:
+                pkgNode.singletons.add((BLangSingleton) node);
                 break;
             case CONNECTOR:
                 pkgNode.connectors.add((BLangConnector) node);

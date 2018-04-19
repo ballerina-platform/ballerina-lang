@@ -19,10 +19,10 @@ package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BSingletonType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
@@ -110,7 +110,6 @@ import org.ballerinalang.util.transactions.TransactionUtils;
 
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -768,7 +767,7 @@ public class CPU {
         int refIndex = expandRefRegs(sf, fp);
 
         for (BClosure closure : closureVars) {
-            switch (closure.getType().getTag()) {
+            switch (closure.getType().getSuperType().getTag()) {
                 case TypeTags.INT_TAG: {
                     sf.longRegs[longIndex] = ((BInteger) closure.value()).intValue();
                     newArgRegs[argRegIndex++] = longIndex++;
@@ -1796,7 +1795,11 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
+                if (sf.refRegs[i] == null) {
+                    sf.intRegs[k] = sf.refRegs[j] == null ? 1 : 0;
+                } else {
+                    sf.intRegs[k] = sf.refRegs[i].equals(sf.refRegs[j]) ? 1 : 0;
+                }
                 break;
             case InstructionCodes.TEQ:
                 i = operands[0];
@@ -1836,7 +1839,11 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.refRegs[i] != sf.refRegs[j] ? 1 : 0;
+                if (sf.refRegs[i] == null) {
+                    sf.intRegs[k] = (sf.refRegs[j] != null) ? 1 : 0;
+                } else {
+                    sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
+                }
                 break;
             case InstructionCodes.TNE:
                 i = operands[0];
@@ -2521,7 +2528,7 @@ public class CPU {
         for (int i = 0; i < varRegs.length && lockAcquired; i++) {
             BType paramType = types[i];
             int regIndex = varRegs[i];
-            switch (paramType.getTag()) {
+            switch (paramType.getSuperType().getTag()) {
                 case TypeTags.INT_TAG:
                     lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockIntField(ctx, regIndex);
                     break;
@@ -2548,7 +2555,7 @@ public class CPU {
         for (int i = varRegs.length - 1; i > -1; i--) {
             BType paramType = types[i];
             int regIndex = varRegs[i];
-            switch (paramType.getTag()) {
+            switch (paramType.getSuperType().getTag()) {
                 case TypeTags.INT_TAG:
                     ctx.programFile.getGlobalMemoryBlock().unlockIntField(regIndex);
                     break;
@@ -2867,7 +2874,7 @@ public class CPU {
     @SuppressWarnings("rawtypes")
     private static BRefType extractValue(WorkerData data, BType type, int reg) {
         BRefType result;
-        switch (type.getTag()) {
+        switch (type.getSuperType().getTag()) {
             case TypeTags.INT_TAG:
                 result = new BInteger(data.longRegs[reg]);
                 break;
@@ -2911,7 +2918,7 @@ public class CPU {
     @SuppressWarnings("rawtypes")
     public static void copyArgValueForWorkerReceive(WorkerData currentSF, int regIndex, BType paramType,
                                                      BRefType passedInValue) {
-        switch (paramType.getTag()) {
+        switch (paramType.getSuperType().getTag()) {
             case TypeTags.INT_TAG:
                 currentSF.longRegs[regIndex] = ((BInteger) passedInValue).intValue();
                 break;
@@ -2954,7 +2961,7 @@ public class CPU {
         for (int i = 0; i < argRegs.length; i++) {
             BType paramType = paramTypes[i];
             int argReg = argRegs[i];
-            switch (paramType.getTag()) {
+            switch (paramType.getSuperType().getTag()) {
                 case TypeTags.INT_TAG:
                     calleeSF.longRegs[++longRegIndex] = callerSF.longRegs[argReg];
                     break;
@@ -3047,37 +3054,27 @@ public class CPU {
             return checkTupleCast(rhsValue, lhsType);
         }
 
-        if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-            return checkFiniteTypeAssignable(rhsValue, lhsType);
+        if (lhsType.getTag() == TypeTags.SINGLETON_TAG) {
+            return checkSingletonAssignable(rhsValue, lhsType);
         }
-
+        
         return false;
     }
 
-    private static boolean checkFiniteTypeAssignable(BValue bRefTypeValue, BType lhsType) {
-        BFiniteType fType = (BFiniteType) lhsType;
-        if (bRefTypeValue == null) {
-            if (fType.memberTypes.contains(BTypes.typeNull)) {
-                return true;
-            }
+    private static boolean checkSingletonAssignable(BValue rhsValue, BType lhsType) {
+        if (rhsValue == null) {
+            return false;
         } else {
-            BType valueType = bRefTypeValue.getType();
-            if (fType.memberTypes.contains(valueType)) {
-                return true;
-            }
-            Iterator<BValue> valueSpaceItr = fType.valueSpace.iterator();
-            while (valueSpaceItr.hasNext()) {
-                BValue valueSpaceItem = valueSpaceItr.next();
-                if (valueSpaceItem.getType().getTag() == bRefTypeValue.getType().getTag()) {
-                    if (valueSpaceItem.equals(bRefTypeValue)) {
-                        return true;
-                    }
+            BSingletonType singletonType = (BSingletonType) lhsType;
+            if (rhsValue.getType().getTag() == singletonType.getSuperType().getTag()) {
+                if (rhsValue.equals(singletonType.valueSpace)) {
+                    return true;
                 }
             }
         }
         return false;
     }
-    
+
     private static boolean checkUnionCast(BValue rhsValue, BType lhsType) {
         BUnionType unionType = (BUnionType) lhsType;
         for (BType memberType : unionType.getMemberTypes()) {
@@ -3129,10 +3126,10 @@ public class CPU {
         // Check tuple casting
         if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
             return checkTupleCast(rhsValue, lhsType);
-        } 
-        
-        if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-            return checkFiniteTypeAssignable(rhsValue, lhsType);
+        }
+
+        if (lhsType.getTag() == TypeTags.SINGLETON_TAG) {
+            return checkSingletonAssignable(rhsValue, lhsType);
         }
 
         return false;
@@ -3878,7 +3875,7 @@ public class CPU {
         int j = operands[2];
 
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-        int typeTag = typeRefCPEntry.getType().getTag();
+        int typeTag = typeRefCPEntry.getType().getSuperType().getTag();
         if (typeTag == TypeTags.STRING_TAG) {
             String value = sf.stringRegs[i];
             if (value == null) {

@@ -65,7 +65,7 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private Map<String, TransformerInfo> transformerInfoMap = new LinkedHashMap<>();
 
-    public Map<String, TypeDefinitionInfo> typeDefInfoMap = new HashMap<>();
+    public Map<String, SingletonInfo> singletonInfoMap = new LinkedHashMap<>();
 
     // cache values.
     ProgramFile programFile;
@@ -156,19 +156,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return structInfoMap.values().toArray(new StructInfo[0]);
     }
 
-    public void addTypeDefinitionInfo(String typeDefinitionName, TypeDefinitionInfo typeDefinitionInfo) {
-        typeDefInfoMap.put(typeDefinitionName, typeDefinitionInfo);
-        structureTypeInfoMap.put(typeDefinitionName, typeDefinitionInfo);
-    }
-
-    public TypeDefinitionInfo[] getTypeDefinitionInfoEntries() {
-        return typeDefInfoMap.values().toArray(new TypeDefinitionInfo[0]);
-    }
-
-    public TypeDefinitionInfo getTypeDefinitionInfo(String typeDefName) {
-        return typeDefInfoMap.get(typeDefName);
-    }
-
     public ServiceInfo[] getServiceInfoEntries() {
         return serviceInfoMap.values().toArray(new ServiceInfo[0]);
     }
@@ -176,6 +163,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     public ServiceInfo getServiceInfo(String serviceName) {
         return serviceInfoMap.get(serviceName);
     }
+
+
 
     public void addServiceInfo(String serviceName, ServiceInfo serviceInfo) {
         serviceInfo.setPackageInfo(this);
@@ -197,6 +186,19 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public TransformerInfo getTransformerInfo(String transformerName) {
         return transformerInfoMap.get(transformerName);
+    }
+
+    public void addSingletonInfo(String singletonDefName, SingletonInfo singletonDefInfo) {
+        singletonInfoMap.put(singletonDefName, singletonDefInfo);
+        structureTypeInfoMap.put(singletonDefName, singletonDefInfo);
+    }
+
+    public SingletonInfo[] getSingletonInfoEntries() {
+        return singletonInfoMap.values().toArray(new SingletonInfo[0]);
+    }
+
+    public SingletonInfo getSingletonInfo(String singletonName) {
+        return singletonInfoMap.get(singletonName);
     }
 
     public int addInstruction(Instruction instruction) {

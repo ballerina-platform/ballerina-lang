@@ -73,7 +73,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
         WorkerDataIndex index = new WorkerDataIndex();
         index.retRegs = new int[retTypes.length];
         for (int i = 0; i < retTypes.length; i++) {
-            BType retType = retTypes[i];
+            BType retType = retTypes[i].getSuperType();
             switch (retType.getTag()) {
             case TypeTags.INT_TAG:
                 index.retRegs[i] = index.longRegCount++;

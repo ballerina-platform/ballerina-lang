@@ -45,6 +45,7 @@ public class TypeConstants {
     public static final String NULL_TNAME = "null";
     public static final String VOID_TNAME = "void";
     public static final String XML_ATTRIBUTES_TNAME = "xml-attributes";
+    public static final String SINGLETON_TNAME = "singleton";
 
     public static final String INT_TSIG = "I";
     public static final String FLOAT_TSIG = "F";

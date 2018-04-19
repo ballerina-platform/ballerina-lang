@@ -19,28 +19,28 @@
 package org.ballerinalang.util.codegen;
 
 
-import org.ballerinalang.model.types.BFiniteType;
+import org.ballerinalang.model.types.BType;
 
 import java.util.Objects;
 
 /**
- * Represent serializable unit of defined type Definition item.
+ * Represent serializable unit of Singleton value.
  */
-public class TypeDefinitionInfo extends StructureTypeInfo {
-    private BFiniteType finiteType;
+public class SingletonInfo extends StructureTypeInfo {
+    private BType singletonType;
 
 
-    public TypeDefinitionInfo(int pkgPathCPIndex, String packagePath,
-                              int nameCPIndex, String name, int flags) {
+    public SingletonInfo(int pkgPathCPIndex, String packagePath,
+                         int nameCPIndex, String name, int flags) {
         super(pkgPathCPIndex, packagePath, nameCPIndex, name, flags);
     }
 
-    public BFiniteType getType() {
-        return finiteType;
+    public BType getType() {
+        return singletonType;
     }
 
-    public void setType(BFiniteType finiteType) {
-        this.finiteType = finiteType;
+    public void setType(BType singletonType) {
+        this.singletonType = singletonType;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class TypeDefinitionInfo extends StructureTypeInfo {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof TypeDefinitionInfo && pkgPathCPIndex == (((TypeDefinitionInfo) obj).pkgPathCPIndex)
-                && nameCPIndex == (((TypeDefinitionInfo) obj).nameCPIndex);
+        return obj instanceof SingletonInfo && pkgPathCPIndex == (((SingletonInfo) obj).pkgPathCPIndex)
+                && nameCPIndex == (((SingletonInfo) obj).nameCPIndex);
     }
 }

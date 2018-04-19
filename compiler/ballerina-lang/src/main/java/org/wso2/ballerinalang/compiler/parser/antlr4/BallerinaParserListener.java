@@ -388,26 +388,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitEndpointInitlization(BallerinaParser.EndpointInitlizationContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#finiteType}.
-	 * @param ctx the parse tree
-	 */
-	void enterFiniteType(BallerinaParser.FiniteTypeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#finiteType}.
-	 * @param ctx the parse tree
-	 */
-	void exitFiniteType(BallerinaParser.FiniteTypeContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#finiteTypeUnit}.
-	 * @param ctx the parse tree
-	 */
-	void enterFiniteTypeUnit(BallerinaParser.FiniteTypeUnitContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#finiteTypeUnit}.
-	 * @param ctx the parse tree
-	 */
-	void exitFiniteTypeUnit(BallerinaParser.FiniteTypeUnitContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code tupleTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
@@ -479,6 +459,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code singletonTypeLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterSingletonTypeLabel(BallerinaParser.SingletonTypeLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code singletonTypeLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitSingletonTypeLabel(BallerinaParser.SingletonTypeLabelContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code objectTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.

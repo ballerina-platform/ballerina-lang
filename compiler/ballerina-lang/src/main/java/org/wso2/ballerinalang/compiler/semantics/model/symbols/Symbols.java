@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSingletonType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -87,6 +88,16 @@ public class Symbols {
                                                          BSymbol owner) {
         BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE_DEF, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.TYPE_DEF;
+        return typeSymbol;
+    }
+
+    public static BTypeSymbol createSingletonTypeSymbol(int flags,
+                                                        Name name,
+                                                        PackageID pkgID,
+                                                        BType type,
+                                                        BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SINGLETON, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.SINGLETON;
         return typeSymbol;
     }
 
@@ -227,7 +238,7 @@ public class Symbols {
 
     public static BConversionOperatorSymbol createUnboxValueTypeOpSymbol(BType sourceType, BType targetType) {
         int opcode;
-        switch (targetType.tag) {
+        switch (resolveToSuperType(targetType).tag) {
             case TypeTags.INT:
                 opcode = InstructionCodes.ANY2I;
                 break;
@@ -251,6 +262,13 @@ public class Symbols {
                 null, false, true, opcode);
         symbol.kind = SymbolKind.CONVERSION_OPERATOR;
         return symbol;
+    }
+
+    private static BType resolveToSuperType(BType bType) {
+        if (bType instanceof BSingletonType) {
+            return ((BSingletonType) bType).superSetType;
+        }
+        return bType;
     }
 
     public static BTransformerSymbol createTransformerSymbol(int flags,

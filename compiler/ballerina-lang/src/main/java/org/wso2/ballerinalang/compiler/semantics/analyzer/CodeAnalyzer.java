@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSingleton;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -248,12 +249,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         //TODO
     }
 
+    public void visit(BLangSingleton singleton) {
+        //TODO
+    }
+
     private void validateMainFunction(BLangFunction funcNode) {
         if (MAIN_FUNC_NAME.equals(funcNode.name.value) && Symbols.isPublic(funcNode.symbol)) {
             this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_CANNOT_BE_PUBLIC);
         }
     }
-    
+
     @Override
     public void visit(BLangFunction funcNode) {
         this.returnWithintransactionCheckStack.push(true);

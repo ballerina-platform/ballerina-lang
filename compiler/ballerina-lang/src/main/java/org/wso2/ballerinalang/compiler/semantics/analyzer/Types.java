@@ -34,11 +34,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSingletonType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
@@ -176,7 +176,7 @@ public class Types {
     }
 
     public boolean isValueType(BType type) {
-        return type.tag < TypeTags.TYPEDESC;
+        return type.tag < TypeTags.TYPEDESC || type.tag == TypeTags.SINGLETON;
     }
 
     public boolean isBrandedType(BType type) {
@@ -263,23 +263,13 @@ public class Types {
             return checkStructEquivalency(source, target);
         }
 
-        if (target.tag == TypeTags.FINITE) {
-            return isFiniteTypeAssignable(source, target);
+        if (source.tag == TypeTags.SINGLETON) {
+            BSingletonType singletonType = (BSingletonType) source;
+            return isAssignable(singletonType.superSetType, target);
         }
 
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
-    }
-
-    public boolean isFiniteTypeAssignable(BType source, BType target) {
-        BFiniteType finiteType = (BFiniteType) target;
-
-        boolean foundMemberType = finiteType.memberTypes
-                .stream()
-                .map(memberType -> isAssignable(source, memberType))
-                .anyMatch(foundType -> foundType);
-
-        return foundMemberType;
     }
 
     public boolean isArrayTypesAssignable(BType source, BType target) {
@@ -490,6 +480,10 @@ public class Types {
         BSymbol symbol = symResolver.resolveImplicitConversionOp(actualType, expType);
         if (expType.tag == TypeTags.UNION && isValueType(actualType)) {
             symbol = symResolver.resolveImplicitConversionOp(actualType, symTable.anyType);
+        }
+
+        if (actualType.tag == TypeTags.UNION && isValueType(expType)) {
+            symbol = Symbols.createUnboxValueTypeOpSymbol(symTable.anyType, expType);
         }
 
         if (symbol == symTable.notFoundSymbol) {
@@ -908,6 +902,11 @@ public class Types {
         public BSymbol visit(BFutureType t, BType s) {
             return null;
         }
+
+        @Override
+        public BSymbol visit(BSingletonType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
     };
 
     private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
@@ -990,7 +989,7 @@ public class Types {
                 if (t.getTupleTypes().get(i) == symTable.noType) {
                     continue;
                 }
-                if (!isSameType(source.getTupleTypes().get(i), t.tupleTypes.get(i))) {
+                if (!isAssignable(source.getTupleTypes().get(i), t.tupleTypes.get(i))) {
                     return false;
                 }
             }
@@ -1049,6 +1048,22 @@ public class Types {
         public Boolean visit(BErrorType t, BType s) {
             return true;
         }
+
+        @Override
+        public Boolean visit(BSingletonType t, BType s) {
+            if (s.tag == TypeTags.SINGLETON) {
+                BSingletonType sT = (BSingletonType) s;
+                if (sT.valueSpace.value == null) {
+                    return t.valueSpace.value == null;
+                } else {
+                    return sT.valueSpace.value.equals(t.valueSpace.value);
+                }
+            } else if (s.tag == TypeTags.NIL) {
+                return t.superSetType == s;
+            }
+            return false;
+        }
+
     };
 
     private boolean checkEquivalencyOfTwoPrivateStructs(BStructType lhsType, BStructType rhsType) {
@@ -1244,7 +1259,7 @@ public class Types {
             return true;
         }
 
-        if (type.tag == TypeTags.INVOKABLE || type.tag == TypeTags.FINITE || type.tag == TypeTags.TYPEDESC) {
+        if (type.tag == TypeTags.INVOKABLE || type.tag == TypeTags.TYPEDESC) {
             return false;
         }
 
@@ -1257,4 +1272,50 @@ public class Types {
         }
         return true;
     }
+
+    public boolean isIntersectionExist(BType lhsType,
+                                       BType rhsType) {
+        Set<BType> lhsTypes = new HashSet<>();
+        Set<BType> rhsTypes = new HashSet<>();
+
+        lhsTypes.addAll(getMemberTypesRecursive(lhsType));
+        rhsTypes.addAll(getMemberTypesRecursive(rhsType));
+
+        if (lhsTypes.contains(symTable.anyType) ||
+                rhsTypes.contains(symTable.anyType)) {
+            return true;
+        }
+
+        boolean matchFound = lhsTypes
+                .stream()
+                .map(s -> rhsTypes
+                        .stream()
+                        .anyMatch(t -> isSameType(s, t)))
+                .anyMatch(found -> found);
+        return matchFound;
+    }
+
+    public BType resolveToSuperType(BType bType) {
+        if (bType.tag == TypeTags.SINGLETON) {
+            return ((BSingletonType) bType).superSetType;
+        }
+        return bType;
+    }
+
+    private Set<BType> getMemberTypesRecursive(BType bType) {
+        Set<BType> memberTypes = new HashSet<>();
+        if (bType.tag == TypeTags.SINGLETON) {
+            memberTypes.add(resolveToSuperType(bType));
+            memberTypes.add(bType);
+        } else if (bType.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) bType;
+            unionType.getMemberTypes().forEach(member -> {
+                memberTypes.addAll(getMemberTypesRecursive(member));
+            });
+        } else {
+            memberTypes.add(bType);
+        }
+        return memberTypes;
+    }
+
 }

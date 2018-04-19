@@ -15,19 +15,24 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-
-import java.util.Set;
+package org.wso2.ballerinalang.programfile;
 
 /**
- * {@code FiniteType} represents the finite type interface.
- *
+ * Represent serializable unit Singleton value space.
  */
-public interface FiniteType extends ReferenceType {
+public class ValueSpaceInfo {
+    public int typeDescCPIndex;
+    public String desc;
 
-    Set<? extends Type> getMemberTypes();
+    public int valueCPIndex = -1;
+    public long intValue;
+    public double floatValue;
+    public String stringValue;
+    public boolean booleanValue;
 
-    Set<? extends ExpressionNode> getValueSpace();
+    public ValueSpaceInfo(int typeDescCPIndex, String desc) {
+        this.typeDescCPIndex = typeDescCPIndex;
+        this.desc = desc;
+    }
 }

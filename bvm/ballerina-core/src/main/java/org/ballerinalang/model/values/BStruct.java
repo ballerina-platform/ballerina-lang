@@ -97,16 +97,16 @@ public final class BStruct implements BRefType, LockableStructureType {
         for (StructField field : structType.getStructFields()) {
             String fieldName = field.getFieldName();
             Object fieldVal;
-            BType fieldType = field.getFieldType();
-            if (fieldType == BTypes.typeString) {
+            BType fieldType = field.getFieldType().getSuperType();
+            if (fieldType.getTag() == BTypes.typeString.getTag()) {
                 fieldVal = "\"" + stringFields[stringIndex++] + "\"";
-            } else if (fieldType == BTypes.typeInt) {
+            } else if (fieldType.getTag() == BTypes.typeInt.getTag()) {
                 fieldVal = longFields[longIndex++];
-            } else if (fieldType == BTypes.typeFloat) {
+            } else if (fieldType.getTag() == BTypes.typeFloat.getTag()) {
                 fieldVal = doubleFields[doubleIndex++];
-            } else if (fieldType == BTypes.typeBoolean) {
+            } else if (fieldType.getTag() == BTypes.typeBoolean.getTag()) {
                 fieldVal = intFields[intIndex++] == 1;
-            } else if (fieldType == BTypes.typeBlob) {
+            } else if (fieldType.getTag() == BTypes.typeBlob.getTag()) {
                 byte[] blob = byteFields[byteIndex++];
                 fieldVal = blob == null ? null : new String(blob, StandardCharsets.UTF_8);
             } else {

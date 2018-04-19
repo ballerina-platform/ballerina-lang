@@ -30,9 +30,9 @@ public class FormatTo extends AbstractTimeFunction {
     @Override
     public void execute(Context context) {
         BStruct timeStruct = ((BStruct) context.getRefArgument(0));
-        BString pattern = (BString) context.getNullableRefArgument(1);
+        String pattern = context.getStringArgument(0);
 
-        switch (pattern.stringValue()) {
+        switch (pattern) {
             case "RFC_1123":
                 ZonedDateTime zonedDateTime = getZonedDateTime(timeStruct);
                 String formattedDateTime = zonedDateTime.format(DateTimeFormatter.RFC_1123_DATE_TIME);

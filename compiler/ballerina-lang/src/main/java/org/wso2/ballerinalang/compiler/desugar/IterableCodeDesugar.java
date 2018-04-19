@@ -401,7 +401,7 @@ public class IterableCodeDesugar {
         final DiagnosticPos pos = blockStmt.pos;
         final BLangVariableDef defStmt = ASTBuilderUtil.createVariableDefStmt(pos, blockStmt);
         defStmt.var = ctx.resultVar;
-        switch (ctx.resultType.tag) {
+        switch (types.resolveToSuperType(ctx.resultType).tag) {
             case TypeTags.ARRAY:
                 final BLangArrayLiteral arrayInit = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
                 arrayInit.pos = pos;
@@ -666,7 +666,7 @@ public class IterableCodeDesugar {
         if (ctx.resultVar.symbol.type.tag <= TypeTags.FLOAT) {
             final BLangAssignment assign = ASTBuilderUtil.createAssignmentStmt(pos, ifNode.body);
             assign.varRef = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
-            switch (ctx.resultVar.symbol.type.tag) {
+            switch (types.resolveToSuperType(ctx.resultVar.symbol.type).tag) {
                 case TypeTags.INT:
                     assign.expr = ASTBuilderUtil.createLiteral(pos, symTable.intType, 0L);
                     break;

@@ -134,6 +134,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangSingletonTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -197,6 +198,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangTypeDefinition typeDefinition) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangSingleton singleton) {
         throw new AssertionError();
     }
 
@@ -644,6 +649,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangTupleTypeNode tupleTypeNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangSingletonTypeNode singletonType) {
         throw new AssertionError();
     }
 

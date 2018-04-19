@@ -15,19 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+package org.ballerinalang.model.tree;
 
-package org.wso2.ballerinalang.programfile;
+
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
- * Represent serializable unit of Finite Type value space item.
+ * Singleton Node Top level Node.
  */
-public class ValueSpaceItemInfo {
+public interface SingletonNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
 
-    //TODO Generalize this properly across struct/annotation etc.
-    public DefaultValue value;
+    IdentifierNode getName();
 
-    public ValueSpaceItemInfo(DefaultValue value) {
-        this.value = value;
-    }
+    void setName(IdentifierNode name);
+
+    void setValueSpace(ExpressionNode value);
+
+    ExpressionNode getValueSpace();
+
 }
-
