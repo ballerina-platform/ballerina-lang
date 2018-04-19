@@ -28,7 +28,7 @@ function testSelectData() returns (string) {
         match x {
             table dt => {
                 var j = check <json>dt;
-                returnData = io:sprintf("%j", [j]);
+                returnData = io:sprintf("%j", j);
             }
             error err1 => {
                 returnData = err1.message;
@@ -82,7 +82,7 @@ function testCallProcedure() returns (string) {
         match x {
             table[] dt => {
                 var j = check <json>dt[0];
-                returnData = io:sprintf("%j", [j]);
+                returnData = io:sprintf("%j", j);
             }
             error err1 => {
                 returnData = err1.message;
@@ -155,7 +155,7 @@ function testInvalidArrayofQueryParameters() returns (string) {
         match x {
             table dt => {
                 var j = check <json>dt;
-                returnData = io:sprintf("%j", [j]);
+                returnData = io:sprintf("%j", j);
             }
             error err1 => {
                 returnData = err1.message;
