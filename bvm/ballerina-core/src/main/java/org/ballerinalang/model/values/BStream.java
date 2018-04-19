@@ -24,10 +24,12 @@ import io.ballerina.messaging.broker.core.Message;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.buffer.UnpooledHeapByteBuf;
 import org.ballerinalang.broker.BrokerUtils;
+import org.ballerinalang.model.types.BIndexedType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -58,8 +60,13 @@ public class BStream implements BRefType<Object> {
             throw new BallerinaException("a stream cannot be declared without a constraint");
         }
         this.constraintType = ((BStreamType) type).getConstrainedType();
-        this.topicName = TOPIC_NAME_PREFIX + ((BStreamType) type).getConstrainedType().getName().toUpperCase() + "_"
-                + name;
+        if (constraintType.getName() != null) {
+            this.topicName = TOPIC_NAME_PREFIX + constraintType.getName().toUpperCase() + "_" + name;
+        } else if (constraintType instanceof BIndexedType) {
+            this.topicName = TOPIC_NAME_PREFIX + ((BIndexedType) constraintType).getElementType() + "_" + name;
+        } else {
+            this.topicName = TOPIC_NAME_PREFIX + name; //TODO: check for improvement
+        }
         this.streamId = name;
     }
 
@@ -97,7 +104,8 @@ public class BStream implements BRefType<Object> {
      * @param data the data to publish to the stream
      */
     public void publish(BValue data) {
-        if (data.getType() != this.constraintType) {
+        if (!data.getType().equals(this.constraintType) && !(constraintType instanceof BUnionType
+                                        && ((BUnionType) constraintType).getMemberTypes().contains(data.getType()))) {
             throw new BallerinaException("incompatible types: value of type:" + data.getType().getName()
                     + " cannot be added to a stream of type:" + this.constraintType.getName());
         }
