@@ -54,7 +54,15 @@ function search (string url, string querySearched) {
                 string summary = jsonElement.summary.toString();
                 printInCLI(summary, 40);
                 
-                string authors = jsonElement.authors.toString();
+                string authors;
+                json authorsArr = jsonElement.authors;
+                foreach authorIndex in [0..lengthof authorsArr - 1] {
+                    if (authorIndex == lengthof authorsArr - 1) {
+                        authors = authors + authorsArr[authorIndex].toString();
+                    } else {
+                        authors = authors + "," + authorsArr[authorIndex].toString();
+                    }
+                }
                 printInCLI(authors, 40);
 
                 json createTimeJson = <json>jsonElement.createdDate;
