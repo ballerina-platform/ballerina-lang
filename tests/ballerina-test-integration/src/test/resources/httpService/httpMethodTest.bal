@@ -5,11 +5,7 @@ endpoint http:Listener serviceEndpoint {
 };
 
 endpoint http:Client endPoint {
-    targets: [
-        {
-            url: "http://localhost:9090"
-        }
-    ]
+    url: "http://localhost:9090"
 };
 
 @http:ServiceConfig {

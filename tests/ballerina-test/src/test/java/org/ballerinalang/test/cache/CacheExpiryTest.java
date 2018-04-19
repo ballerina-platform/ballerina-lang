@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.ballerinalang.test.caching;
+package org.ballerinalang.test.cache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,7 +41,7 @@ public class CacheExpiryTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compileAndSetup("test-src/caching/cache-expiry-test.bal");
+        compileResult = BCompileUtil.compileAndSetup("test-src/cache/cache-expiry-test.bal");
         printDiagnostics(compileResult);
     }
 
