@@ -24,10 +24,9 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.BuilderUtils;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -71,7 +70,7 @@ public class ListCommand implements BLauncherCmd {
         // Get source root path.
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
 
-        if (Files.exists(sourceRootPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME))) {
+        if (RepoUtils.hasProjectRepo(sourceRootPath)) {
             Path packagePath = Paths.get(argList.get(0));
             BuilderUtils.compileAndWrite(sourceRootPath, packagePath, null, false, false, true, true);
         } else {
