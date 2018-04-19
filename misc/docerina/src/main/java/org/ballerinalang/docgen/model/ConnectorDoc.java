@@ -26,16 +26,16 @@ import java.util.List;
 public class ConnectorDoc extends Documentable {
     public final boolean isConnector;
     public final boolean isObject;
-    public final List<Variable> parameters;
+    public final List<Field> fields;
 
     /**
      * Constructor.
      * @param name connector name.
      * @param description description.
      * @param children connector actions.
-     * @param parameters parameters of the connector.
+     * @param fields fields of the connector.
      */
-    public ConnectorDoc(String name, String description, List<Documentable> children, List<Variable> parameters,
+    public ConnectorDoc(String name, String description, List<Documentable> children, List<Field> fields,
                         boolean isConnector) {
         super(name, "fw-connector", description, children);
         if (!isConnector) {
@@ -46,7 +46,7 @@ public class ConnectorDoc extends Documentable {
                 doc.icon = "fw-action";
             }
         }
-        this.parameters = parameters;
+        this.fields = fields;
         this.isConnector = isConnector;
         this.isObject = !isConnector;
     }

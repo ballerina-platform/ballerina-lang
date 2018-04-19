@@ -17,37 +17,17 @@ package ballerina.mysql;
 
 import ballerina/sql;
 
-@Description {value:"Represents an MySQL client endpoint"}
-@Field {value:"epName: The name of the endpoint"}
-@Field {value:"config: The configurations associated with the endpoint"}
-public type Client object {
-    public {
-        string epName;
-        ClientEndpointConfiguration config;
-        sql:SQLClient mysqlClient;
-    }
+documentation {
+    The Client endpoint configuration for mysql databases.
 
-    @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
-    public function init(ClientEndpointConfiguration config);
-
-    public function register(typedesc serviceType) {
-    }
-
-    public function start() {
-    }
-
-    @Description {value:"Returns the connector that client code uses"}
-    @Return {value:"The connector that client code uses"}
-    public function getClient() returns sql:SQLClient {
-        return self.mysqlClient;
-    }
-
-    @Description {value:"Stops the registered service"}
-    @Return {value:"Error occured during registration"}
-    public function stop() {
-    }
-};
-
+    F{{host}} - The host name of the database to connect.
+    F{{port}} - The port of the database to connect.
+    F{{name}} - The name of the database to connect.
+    F{{username}} - Username for the database connection.
+    F{{password}} - Password for the database connection.
+    F{{poolOptions}} - Properties for the connection pool configuration.
+    F{{dbOptions}} - DB specific properties.
+}
 public type ClientEndpointConfiguration {
     string host = "",
     int port = 0,
@@ -55,11 +35,36 @@ public type ClientEndpointConfiguration {
     string username = "",
     string password = "",
     sql:PoolOptions poolOptions,
-    map | () dbOptions,
+    map dbOptions,
 };
 
-public native function createClient(ClientEndpointConfiguration config) returns sql:SQLClient;
+documentation {
+    Represents an MySQL client endpoint.
 
-public function Client::init(ClientEndpointConfiguration config) {
-    self.mysqlClient = createClient(config);
+    F{{config}} - The configurations associated with the SQL endpoint.
 }
+
+public type Client object {
+    public {
+        ClientEndpointConfiguration config;
+        sql:CallerActions mysqlClient;
+    }
+
+    documentation {
+        Gets called when the endpoint is being initialized during the package initialization.
+
+        P{{config}} - he ClientEndpointConfiguration of the endpoint.
+    }
+    public function init(ClientEndpointConfiguration config) {
+        self.mysqlClient = createClient(config);
+    }
+
+    documentation {
+        Returns the connector that the client code uses.
+    }
+    public function getClient() returns sql:CallerActions {
+        return self.mysqlClient;
+    }
+};
+
+native function createClient(ClientEndpointConfiguration config) returns sql:CallerActions;

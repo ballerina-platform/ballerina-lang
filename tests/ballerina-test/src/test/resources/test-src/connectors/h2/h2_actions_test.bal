@@ -16,11 +16,10 @@ function testSelect() returns (int[]) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
 
-    var val = testDB -> select("select * from Customers where customerId=1 OR customerId=2", Customer);
+    var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer);
 
     int[] customerIds;
     match (val) {
@@ -43,15 +42,14 @@ function testUpdate() returns (int) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
 
-    var insertCountRet = testDB -> update("insert into Customers (customerId, name, creditLimit, country)
+    var insertCountRet = testDB->update("insert into Customers (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')");
 
     int insertCount = check insertCountRet;
-    _ = testDB -> close();
+    _ = testDB->close();
     return insertCount;
 }
 
@@ -61,11 +59,10 @@ function testCall() returns (string) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
 
-    var dtsRet = testDB -> call("{call JAVAFUNC('select * from Customers where customerId=1')}", [Customer]);
+    var dtsRet = testDB->call("{call JAVAFUNC('select * from Customers where customerId=1')}", [Customer]);
     table[] dts = check dtsRet;
 
     string name;
@@ -73,7 +70,7 @@ function testCall() returns (string) {
         Customer rs = check <Customer>dts[0].getNext();
         name = rs.name;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return name;
 }
 
@@ -83,13 +80,12 @@ function testGeneratedKeyOnInsert() returns (string) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
 
     string returnVal;
 
-    var x = testDB -> updateWithGeneratedKeys("insert into Customers (name,
+    var x = testDB->updateWithGeneratedKeys("insert into Customers (name,
             creditLimit,country) values ('Sam', 1200, 'USA')", ());
 
     match x {
@@ -104,7 +100,7 @@ function testGeneratedKeyOnInsert() returns (string) {
         }
     }
 
-    _ = testDB -> close();
+    _ = testDB->close();
     return returnVal;
 }
 
@@ -114,8 +110,7 @@ function testBatchUpdate() returns (int[]) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
 
     int[] updateCount;
@@ -135,7 +130,7 @@ function testBatchUpdate() returns (int[]) {
         sql:Parameter para8 = (sql:TYPE_VARCHAR, "UK");
         sql:Parameter[] parameters2 = [para5, para6, para7, para8];
 
-        var x = testDB -> batchUpdate("Insert into Customers values (?,?,?,?)", parameters1, parameters2);
+        var x = testDB->batchUpdate("Insert into Customers values (?,?,?,?)", parameters1, parameters2);
         match x {
             int[] data => {
                 return data;
@@ -145,7 +140,7 @@ function testBatchUpdate() returns (int[]) {
             }
         }
     } finally {
-        _ = testDB -> close();
+        _ = testDB->close();
     }
     return [];
 }
@@ -156,12 +151,11 @@ function testAddToMirrorTable() returns (Customer[]) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
 
     try {
-        var temp = testDB -> mirror("Customers", Customer);
+        var temp = testDB->mirror("Customers", Customer);
         match (temp) {
             table dt => {
                 Customer c1 = {customerId:40, name:"Manuri", creditLimit:1000, country:"Sri Lanka"};
@@ -172,14 +166,15 @@ function testAddToMirrorTable() returns (Customer[]) {
             }
             error e => return [];
         }
-        var temp2 = testDB -> select("SELECT  * from Customers where customerId=40 OR customerId=41", Customer);
+        var temp2 = testDB->select("SELECT  * from Customers where customerId=40 OR customerId=41", Customer);
         match (temp2) {
             table dt2 => {
                 Customer[] customerArray;
                 int i = 0;
                 while (dt2.hasNext()) {
                     var rs = check <Customer>dt2.getNext();
-                    Customer c = {customerId:rs.customerId, name:rs.name, creditLimit:rs.creditLimit, country:rs.country};
+                    Customer c = {customerId:rs.customerId, name:rs.name, creditLimit:rs.creditLimit, country:rs.country
+                    };
                     customerArray[i] = c;
                     i++;
                 }
@@ -188,7 +183,7 @@ function testAddToMirrorTable() returns (Customer[]) {
             error e => return [];
         }
     } finally {
-        _ = testDB -> close();
+        _ = testDB->close();
     }
     return [];
 }
@@ -198,25 +193,24 @@ function testUpdateInMemory() returns (int, string) {
         name:"TestDB2H2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
 
-    _ = testDB -> update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300),
+    _ = testDB->update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300),
     creditLimit DOUBLE, country  VARCHAR(300), PRIMARY KEY (customerId))");
 
-    var insertCountRet = testDB -> update("insert into Customers2 (customerId, name, creditLimit, country)
+    var insertCountRet = testDB->update("insert into Customers2 (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')");
     int insertCount = check insertCountRet;
     io:println(insertCount);
 
-    var x = testDB -> select("SELECT  * from Customers2", Customer);
+    var x = testDB->select("SELECT  * from Customers2", Customer);
     table t = check x;
 
     json j = check <json>t;
     string s = j.toString();
 
-    _ = testDB -> close();
+    _ = testDB->close();
     return (insertCount, j.toString());
 }
 
@@ -226,8 +220,7 @@ function testInitWithNilDbOptions() returns (int[]) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
     return selectFunction(testDB);
 }
@@ -261,7 +254,7 @@ function testInitWithInvalidDbOptions() returns (int[]) {
 function selectFunction(h2:Client testDBClient) returns (int[]) {
     endpoint h2:Client testDB = testDBClient;
     try {
-        var val = testDB -> select("select * from Customers where customerId=1 OR customerId=2", Customer);
+        var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer);
 
         int[] customerIds;
         match (val) {
@@ -277,7 +270,7 @@ function selectFunction(h2:Client testDBClient) returns (int[]) {
             error err => return [];
         }
     } finally {
-        _ = testDB -> close();
+        _ = testDB->close();
     }
     return [];
 }

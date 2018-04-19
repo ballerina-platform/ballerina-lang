@@ -409,6 +409,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangDocumentation docNode) {
         Set<BLangIdentifier> visitedAttributes = new HashSet<>();
         for (BLangDocumentationAttribute attribute : docNode.attributes) {
+            if (attribute.docTag == DocTag.ENDPOINT) {
+                if (!this.env.enclObject.getFunctions().stream().anyMatch(bLangFunction -> "getClient".equals
+                        (bLangFunction.getName().toString()))) {
+                    this.dlog.warning(attribute.pos, DiagnosticCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE,
+                            attribute.docTag.getValue());
+                }
+                continue;
+            }
             if (attribute.docTag == DocTag.RETURN) {
                 attribute.type = this.env.enclInvokable.returnTypeNode.type;
                 // return params can't have names, hence can't validate
