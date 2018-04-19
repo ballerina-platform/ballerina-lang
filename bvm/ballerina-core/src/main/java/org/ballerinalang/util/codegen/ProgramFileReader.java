@@ -1471,7 +1471,6 @@ public class ProgramFileReader {
                 case InstructionCodes.BFIELDSTORE:
                 case InstructionCodes.LFIELDSTORE:
                 case InstructionCodes.RFIELDSTORE:
-                case InstructionCodes.MAPLOAD:
                 case InstructionCodes.MAPSTORE:
                 case InstructionCodes.JSONLOAD:
                 case InstructionCodes.JSONSTORE:
@@ -1537,6 +1536,7 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWQNAME:
                 case InstructionCodes.NEWXMLELEMENT:
                 case InstructionCodes.TR_BEGIN:
+                case InstructionCodes.MAPLOAD:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1752,35 +1752,33 @@ public class ProgramFileReader {
 
     private DefaultValue getDefaultValue(DataInputStream dataInStream, ConstantPool constantPool)
             throws IOException {
-        DefaultValue defaultValue;
         int typeDescCPIndex = dataInStream.readInt();
         UTF8CPEntry typeDescCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeDescCPIndex);
         String typeDesc = typeDescCPEntry.getValue();
+        DefaultValue defaultValue = new DefaultValue(typeDescCPIndex, typeDesc);
 
         int valueCPIndex;
         switch (typeDesc) {
             case TypeSignature.SIG_BOOLEAN:
                 boolean boolValue = dataInStream.readBoolean();
-                defaultValue = new DefaultValue(typeDescCPIndex, typeDesc);
                 defaultValue.setBooleanValue(boolValue);
                 break;
             case TypeSignature.SIG_INT:
                 valueCPIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) constantPool.getCPEntry(valueCPIndex);
-                defaultValue = new DefaultValue(typeDescCPIndex, typeDesc);
                 defaultValue.setIntValue(integerCPEntry.getValue());
                 break;
             case TypeSignature.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) constantPool.getCPEntry(valueCPIndex);
-                defaultValue = new DefaultValue(typeDescCPIndex, typeDesc);
                 defaultValue.setFloatValue(floatCPEntry.getValue());
                 break;
             case TypeSignature.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) constantPool.getCPEntry(valueCPIndex);
-                defaultValue = new DefaultValue(typeDescCPIndex, typeDesc);
                 defaultValue.setStringValue(stringCPEntry.getValue());
+                break;
+            case TypeSignature.SIG_NULL:
                 break;
             default:
                 throw new ProgramFileFormatException("unknown default value type " + typeDesc);
@@ -1809,6 +1807,9 @@ public class ProgramFileReader {
             case TypeSignature.SIG_STRING:
                 String stringValue = defaultValue.getStringValue();
                 value = new BString(stringValue);
+                break;
+            case TypeSignature.SIG_NULL:
+                value = null;
                 break;
             default:
                 throw new ProgramFileFormatException("unknown default value type " + typeDesc);

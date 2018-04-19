@@ -68,6 +68,9 @@
             <class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingHeaderTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>
         </classes>
     </test>
 

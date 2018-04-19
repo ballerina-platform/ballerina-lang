@@ -224,7 +224,7 @@ public class PackageLoader {
         }
 
         BLangPackage packageNode = parse(pkgId, (PackageSource) pkgEntity);
-        if (dlog.errorCount > 0) {
+        if (packageNode.diagCollector.hasErrors()) {
             return packageNode;
         }
 

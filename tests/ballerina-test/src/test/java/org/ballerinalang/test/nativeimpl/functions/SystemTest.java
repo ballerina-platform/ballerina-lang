@@ -130,12 +130,12 @@ public class SystemTest {
         }
     }
 
-    @Test(enabled = false)
+    @Test
     public void testConnectorPrintAndPrintln() throws IOException {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            final String expected = "\n";
+            final String expected = "{}\n{}";
 
             BRunUtil.invoke(compileResult, printFuncName + "Connector");
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);

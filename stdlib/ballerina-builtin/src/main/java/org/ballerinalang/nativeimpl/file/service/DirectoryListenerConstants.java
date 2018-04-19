@@ -26,10 +26,8 @@ import org.wso2.transport.localfilesystem.server.util.Constants;
 public class DirectoryListenerConstants {
 
     //Annotation
-    public static final String ANNOTATION_DIR_URI = "dirURI";
     public static final String ANNOTATION_PATH = "path";
-    public static final String ANNOTATION_EVENTS = "events";
-    public static final String ANNOTATION_DIRECTORY_RECURSIVE = "recursive";
+    public static final String ANNOTATION_DIRECTORY_RECURSIVE = Constants.DIRECTORY_WATCH_RECURSIVE;
 
     public static final String FILE_SYSTEM_EVENT = "FileEvent";
     public static final String FS_SERVER_CONNECTOR = "serverConnector";

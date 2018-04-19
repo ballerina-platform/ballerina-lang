@@ -23,9 +23,10 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.jwt.crypto.JWSVerifier;
 import org.ballerinalang.nativeimpl.jwt.crypto.RSAVerifier;
-import org.ballerinalang.nativeimpl.security.KeyStore;
+import org.ballerinalang.nativeimpl.jwt.crypto.TrustStoreHolder;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,7 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.security.interfaces.RSAPublicKey;
 
 /**
- * Native function ballerinalang.jwt.signature:verify.
+ * Native function ballerinalang.jwt:verifySignature.
  *
  * @since 0.964.0
  */
@@ -44,7 +45,8 @@ import java.security.interfaces.RSAPublicKey;
                 @Argument(name = "data", type = TypeKind.STRING),
                 @Argument(name = "signature", type = TypeKind.STRING),
                 @Argument(name = "algorithm", type = TypeKind.STRING),
-                @Argument(name = "keyAlias", type = TypeKind.STRING)
+                @Argument(name = "trustStore", type = TypeKind.STRUCT, structType = "TrustStoreHolder",
+                        structPackage = "ballerina.jwt")
         },
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
@@ -56,13 +58,14 @@ public class VerifySignature extends BlockingNativeCallableUnit {
         String data = context.getStringArgument(0);
         String signature = context.getStringArgument(1);
         String algorithm = context.getStringArgument(2);
-        String keyAlias = context.getStringArgument(3);
-        Boolean validSignature = null;
+        BStruct trustStore = (BStruct) context.getRefArgument(0);
+        char[] trustStorePassword = trustStore.getStringField(2).toCharArray();
         RSAPublicKey publicKey;
         try {
-            publicKey = (RSAPublicKey) KeyStore.getKeyStore().getTrustedPublicKey(keyAlias);
+            publicKey = (RSAPublicKey) TrustStoreHolder.getInstance().getTrustedPublicKey(trustStore.getStringField
+                    (0), trustStore.getStringField(1), trustStorePassword);
             JWSVerifier verifier = new RSAVerifier(publicKey);
-            validSignature = verifier.verify(data, signature, algorithm);
+            Boolean validSignature = verifier.verify(data, signature, algorithm);
             context.setReturnValues(new BBoolean(validSignature));
         } catch (Exception e) {
             context.setReturnValues(new BBoolean(false), BLangVMErrors.createError(context, 0, e.getMessage()));

@@ -40,6 +40,7 @@ public class WebSubSubscriberConstants {
     public static final String ANN_WEBSUB_ATTR_SECRET = "secret";
     public static final String ANN_WEBSUB_ATTR_CALLBACK = "callback";
     public static final String ANN_WEBSUB_ATTR_AUTH_CONFIG = "auth";
+    public static final String ANN_WEBSUB_ATTR_SECURE_SOCKET_CONFIG = "secureSocket";
 
     public static final String TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
     public static final String TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
