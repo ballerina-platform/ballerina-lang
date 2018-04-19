@@ -16,7 +16,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function
-    main([]);
+    main();
     test:assertEquals("{\"name\":\"Jon\",\"age\":25,\"city\":\"Colombo\"}", <string>outputs[0]);
     test:assertEquals("{\"name\":\"Jon\",\"age\":25,\"city\":\"Colombo\"}", <string>outputs[1]);
 }

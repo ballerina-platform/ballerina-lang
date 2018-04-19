@@ -21,7 +21,7 @@ endpoint jms:QueueReceiver queueReceiver {
 function main(string... args) {
     // Wait for the message to be received by the JMS provider. If the message is not received within 5
     // seconds, it times out.
-    var result = queueReceiver -> receive(timeoutInMilliSeconds = 5000);
+    var result = queueReceiver->receive(timeoutInMilliSeconds = 5000);
 
     match result {
         jms:Message msg => {

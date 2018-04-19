@@ -13,5 +13,5 @@ function main (string... args) {
     // Create a Text message.
     jms:Message m = check topicPublisher.createTextMessage("Test Text");
     // Send the Ballerina message to the JMS provider.
-    var _ = topicPublisher -> send(m);
+    var _ = topicPublisher->send(m);
 }

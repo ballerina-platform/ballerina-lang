@@ -25,7 +25,7 @@ function main (string... args) {
     // This is an example for multiple iterable operations.
     json j = {name:"apple", colors:["red", "green"], price:5};
     j.map((json j) => string {
-                    string s = j.toString() but {() => ""};
+                    string s = j.toString();
                     io:println("- map operation's value :" + s);
                     return s;
                 })

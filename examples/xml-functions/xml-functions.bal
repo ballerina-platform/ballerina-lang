@@ -7,8 +7,10 @@ function main (string... args) {
     xml content = someText + bookName + bookComment;
 
     // Other than the XML literal syntax, XML can be parsed using a string. The string should be a valid XML.
-    string xmlString = "<book/>";
-    xml book = <xml> xmlString;
+    //TODO implement string to xml support or following code segment should be removed.
+    //string xmlString = "<book/>";
+    //xml book = <xml> xmlString;
+    xml book = xml `<book/>`;
 
     // Get the type of the XML element.
     io:println(bookComment.getItemType());

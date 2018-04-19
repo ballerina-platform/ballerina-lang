@@ -16,7 +16,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function
-    main([]);
+    main();
     xml xml1 = xml `<ns0:book xmlns:ns0="http://ballerina.com/aa" ns0:status="available" count="5"></ns0:book>`;
     string op1 = "available";
     string op2 = "available";

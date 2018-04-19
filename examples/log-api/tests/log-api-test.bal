@@ -53,7 +53,7 @@ public function mockPrintWarn (string s) {
 @test:Config
 function testFunc() {
     // Invoking the main function
-    main([]);
+    main();
     test:assertEquals(printWarn, "warn log");
     test:assertEquals(printInfo, "info log");
     test:assertEquals(printError, "error log");

@@ -27,7 +27,7 @@ function setConfigValues() {
 }
 function testFunc() {
     // Invoking the main function
-    main([]);
+    main();
     test:assertEquals("john has RW access", outputs[0]);
     test:assertEquals("peter has R access", outputs[1]);
     test:assertEquals("Before changing sum.limit in code: 5", outputs[2]);

@@ -17,7 +17,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function.
-    main([]);
+    main();
 
     string jt1 = "{\"fname\":\"John\",\"lname\":\"Stallone\",\"age\":30}";
     string jt2 = "John";
