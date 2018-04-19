@@ -33,7 +33,7 @@ function main (string... args) {
         io:println("Error at lotsOfGreetings : " + connErr.message);
     }
     //this will hold forever since this is chat application
-    runtime:sleepCurrentWorker(6000);
+    runtime:sleep(6000);
     _ = ep -> complete();
 }
 

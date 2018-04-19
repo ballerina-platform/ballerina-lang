@@ -24,17 +24,17 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.runtime:sleepCurrentThread.
+ * Native function ballerina.runtime:sleep.
  *
  * @since 0.94.1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "runtime",
-        functionName = "sleepCurrentWorker",
+        functionName = "sleep",
         args = {@Argument(name = "millis", type = TypeKind.INT)},
         isPublic = true
 )
-public class SleepCurrentWorker implements NativeCallableUnit {
+public class Sleep implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
@@ -46,5 +46,4 @@ public class SleepCurrentWorker implements NativeCallableUnit {
     public boolean isBlocking() {
         return false;
     }
-    
 }

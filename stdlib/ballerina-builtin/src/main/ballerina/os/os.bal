@@ -20,3 +20,7 @@ package ballerina.os;
 @Param {value:"name: Name of the environment variable"}
 @Return { value:"Environment variable value if it exists, otherwise an empty string"}
 public native function getEnv (@sensitive string name) returns (string);
+
+@Description {value:"Returns the current working directory."}
+@Return {value:"Current working directory or an empty string if the current working directory cannot be determined"}
+public native function getCurrentDirectory() returns (string);

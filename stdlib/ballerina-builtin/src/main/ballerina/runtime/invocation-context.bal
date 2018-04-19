@@ -16,13 +16,13 @@
 
 package ballerina.runtime;
 
-@Description { value:"Represents the InvocationContext"}
+@Description {value:"Represents the InvocationContext"}
 public type InvocationContext {
     string invocationId;
     AuthenticationContext authenticationContext;
 };
 
-@Description { value:"Represents the AuthenticationContext, populated with authenticated user information"}
+@Description {value:"Represents the AuthenticationContext, populated with authenticated user information"}
 public type AuthenticationContext {
     string userId;
     string username;
@@ -35,4 +35,4 @@ public type AuthenticationContext {
 
 @Description {value:"Creates a InvocationContext instance"}
 @Return {value:"InvocationContext instance"}
-public native function getInvocationContext () returns (InvocationContext);
+public native function getInvocationContext() returns (InvocationContext);
