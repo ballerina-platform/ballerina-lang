@@ -70,7 +70,8 @@ public type CallerActions object {
         P{{sqlQuery}} - SQL statement to execute.
         P{{keyColumns}} - Names of auto generated columns for which the auto generated key values are returned.
 
-    } //Returns Updated row count during the query exectuion, Array of auto generated key values during the query execution
+    }
+    //Returns Updated row count during the query exectuion, Array of auto generated key values during the query execution
     public native function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
                                                    Parameter... parameters) returns (int, string[])|error;
 
