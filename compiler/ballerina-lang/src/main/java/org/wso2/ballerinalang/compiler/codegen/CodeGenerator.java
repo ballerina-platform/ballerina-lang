@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
@@ -1706,111 +1705,15 @@ public class CodeGenerator extends BLangNodeVisitor {
             return currentIndex;
         }
 
-        BInvokableSymbol invokableSymbol = (BInvokableSymbol) iExpr.symbol;
         if (iExpr.symbol.kind != SymbolKind.FUNCTION) {
             throw new IllegalStateException("Unsupported callable unit");
         }
 
-        for (int i = 0; i < iExpr.namedArgs.size(); i++) {
-            BLangExpression argExpr = iExpr.namedArgs.get(i);
-            // If some named parameter is not passed when invoking the function, then it will be null
-            // at this point. If so, get the default value for that parameter from the function info.
-            if (argExpr == null) {
-//<<<<<<< HEAD
-                BVarSymbol varSymbol = invokableSymbol.getDefaultableParameters().get(i);
-                argExpr = getDefaultValExpr(varSymbol.type, varSymbol.defaultValue);
-//=======
-//                DefaultValue defaultVal = defaultValAttrInfo.getDefaultValueInfo()[i];
-//                BLangExpression defaultValExpr = getDefaultValExpr(defaultVal);
-//                int paramPosition = iExpr.requiredArgs.size() + i +
-//                        (((BInvokableSymbol) iExpr.symbol).receiverSymbol != null ? 1 : 0);
-//                BType namedArgType = callableUnitInfo.paramTypes[paramPosition];
-//                argExpr = createTypeConversionExpr(defaultValExpr, namedArgType);
-//>>>>>>> 5974a5f3204efc60694965eceaea62d6a53f1d85
-            }
+        for (BLangExpression argExpr : iExpr.namedArgs) {
             operands[currentIndex++] = genNode(argExpr, this.env).regIndex;
         }
 
         return currentIndex;
-    }
-
-    private BLangExpression getDefaultValExpr(BType type, Object value) {
-        switch (type.tag) {
-            case TypeTags.INT:
-                return getIntLiteral((Long) value);
-            case TypeTags.FLOAT:
-                return getFloatLiteral((Double) value);
-            case TypeTags.STRING:
-                return getStringLiteral((String) value);
-            case TypeTags.BOOLEAN:
-                return getBooleanLiteral((Boolean) value);
-            default:
-                throw new IllegalStateException("Unsupported default value type");
-        }
-    }
-
-    private BLangExpression createTypeConversionExpr(BLangExpression expr, BType lhsType) {
-        BType rhsType = expr.type;
-        if (types.isSameType(rhsType, lhsType)) {
-            return expr;
-        }
-
-        types.setImplicitCastExpr(expr, rhsType, lhsType);
-        if (expr.impConversionExpr != null) {
-            return expr.impConversionExpr;
-        }
-
-        if (lhsType.isNullable() && rhsType.tag == TypeTags.NIL) {
-            return expr;
-        }
-
-        BConversionOperatorSymbol symbol = (BConversionOperatorSymbol)
-                this.symResolver.resolveConversionOperator(rhsType, lhsType);
-        BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
-        conversionExpr.pos = expr.pos;
-        conversionExpr.expr = expr;
-        conversionExpr.type = lhsType;
-        conversionExpr.conversionSymbol = symbol;
-        return conversionExpr;
-    }
-
-    private BLangLiteral getStringLiteral(String value) {
-        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        literal.value = value;
-        literal.typeTag = TypeTags.STRING;
-        literal.type = symTable.stringType;
-        return literal;
-    }
-
-    private BLangLiteral getIntLiteral(long value) {
-        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        literal.value = value;
-        literal.typeTag = TypeTags.INT;
-        literal.type = symTable.intType;
-        return literal;
-    }
-
-    private BLangLiteral getFloatLiteral(double value) {
-        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        literal.value = value;
-        literal.typeTag = TypeTags.FLOAT;
-        literal.type = symTable.floatType;
-        return literal;
-    }
-
-    private BLangLiteral getBooleanLiteral(boolean value) {
-        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        literal.value = value;
-        literal.typeTag = TypeTags.BOOLEAN;
-        literal.type = symTable.booleanType;
-        return literal;
-    }
-
-    private BLangLiteral getNullLiteral() {
-        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        literal.typeTag = TypeTags.NIL;
-        literal.type = symTable.nilType;
-        return literal;
     }
 
     private void addVariableCountAttributeInfo(ConstantPool constantPool,

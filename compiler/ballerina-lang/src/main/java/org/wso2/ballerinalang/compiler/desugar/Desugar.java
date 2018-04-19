@@ -2001,14 +2001,25 @@ public class Desugar extends BLangNodeVisitor {
         iExpr.restArgs.add(arrayLiteral);
     }
 
-    private void reorderNamedArgs(BLangInvocation iExpr, BInvokableSymbol invocableSymbol) {
+    private void reorderNamedArgs(BLangInvocation iExpr, BInvokableSymbol invokableSymbol) {
         Map<String, BLangExpression> namedArgs = new HashMap<>();
         iExpr.namedArgs.forEach(expr -> namedArgs.put(((NamedArgNode) expr).getName().value, expr));
 
         // Re-order the named arguments
         List<BLangExpression> args = new ArrayList<>();
-        for (BVarSymbol param : invocableSymbol.defaultableParams) {
-            args.add(namedArgs.get(param.field ? param.originalName.value : param.name.value));
+        for (BVarSymbol param : invokableSymbol.defaultableParams) {
+            String paramName = param.field ? param.originalName.value : param.name.value;
+
+            // If some named parameter is not passed when invoking the function, get the 
+            // default value for that parameter from the parameter symbol.
+            BLangExpression expr;
+            if (namedArgs.containsKey(paramName)) {
+                expr = namedArgs.get(paramName);
+            } else {
+                expr = getDefaultValueLiteral(param.defaultValue);
+                expr = addConversionExprIfRequired(expr, param.type);
+            }
+            args.add(expr);
         }
         iExpr.namedArgs = args;
     }
@@ -2833,4 +2844,60 @@ public class Desugar extends BLangNodeVisitor {
                 throw new IllegalStateException();
         }
     }
+
+    private BLangExpression getDefaultValueLiteral(Object value) {
+        if (value == null) {
+            return getNullLiteral();
+        } else if (value instanceof Long) {
+            return getIntLiteral((Long) value);
+        } else if (value instanceof Double) {
+            return getFloatLiteral((Double) value);
+        } else if (value instanceof String) {
+            return getStringLiteral((String) value);
+        } else if (value instanceof Boolean) {
+            return getBooleanLiteral((Boolean) value);
+        } else {
+            throw new IllegalStateException("Unsupported default value type");
+        }
+    }
+
+    private BLangLiteral getStringLiteral(String value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.typeTag = TypeTags.STRING;
+        literal.type = symTable.stringType;
+        return literal;
+    }
+
+    private BLangLiteral getIntLiteral(long value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.typeTag = TypeTags.INT;
+        literal.type = symTable.intType;
+        return literal;
+    }
+
+    private BLangLiteral getFloatLiteral(double value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.typeTag = TypeTags.FLOAT;
+        literal.type = symTable.floatType;
+        return literal;
+    }
+
+    private BLangLiteral getBooleanLiteral(boolean value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.typeTag = TypeTags.BOOLEAN;
+        literal.type = symTable.booleanType;
+        return literal;
+    }
+
+    private BLangLiteral getNullLiteral() {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.typeTag = TypeTags.NIL;
+        literal.type = symTable.nilType;
+        return literal;
+    }
+
 }
