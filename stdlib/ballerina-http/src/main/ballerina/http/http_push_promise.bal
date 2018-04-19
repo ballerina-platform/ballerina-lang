@@ -12,7 +12,7 @@ public type PushPromise object {
     public new (path = "/", method = "GET") {
     }
 
-    @Description {value:"Check whether the requested header exists"}
+    @Description {value:"Checks whether the requested header exists"}
     @Param {value:"headerName: The header name"}
     @Return {value:"Boolean representing the existence of a given header"}
     public native function hasHeader (string headerName) returns (boolean);
@@ -44,7 +44,7 @@ public type PushPromise object {
     @Description {value:"Removes all transport headers from the Push Promise"}
     public native function removeAllHeaders ();
 
-    @Description {value:"Get all transport header names from the Push Promise."}
+    @Description {value:"Gets all transport header names from the Push Promise."}
     public native function getHeaderNames () returns (string[]);
 };
 
