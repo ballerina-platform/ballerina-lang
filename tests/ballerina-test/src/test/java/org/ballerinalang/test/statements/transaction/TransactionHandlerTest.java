@@ -35,7 +35,7 @@ public class TransactionHandlerTest {
 
     @BeforeClass
     public void setup() {
-        programFile = BCompileUtil.compile("test-src/statements/transaction/transaction-handler-test.bal");
+        programFile = BCompileUtil.compile("test-src/statements/transaction/transaction_handler_test.bal");
     }
 
     @Test
@@ -162,7 +162,7 @@ public class TransactionHandlerTest {
 
     @Test(description = "Test transaction handler function with invalid argument")
     public void testInvalidHandlers() {
-        CompileResult res = BCompileUtil.compile("test-src/statements/transaction/transaction-handler-negative.bal");
+        CompileResult res = BCompileUtil.compile("test-src/statements/transaction/transaction_handler_negative.bal");
         Assert.assertEquals(res.getErrorCount(), 10);
         BAssertUtil.validateError(res, 0,
                 "transaction handler function required single string parameter which is transaction id", 4, 50);

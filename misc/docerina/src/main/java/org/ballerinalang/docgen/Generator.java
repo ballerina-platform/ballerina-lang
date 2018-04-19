@@ -42,7 +42,6 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.DocumentationAttributeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
@@ -62,8 +61,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -78,14 +75,17 @@ public class Generator {
     /**
      * Generate the page when the bal package is passed.
      *
-     * @param balPackage The current package that is being viewed.
-     * @param packages   List of available packages.
+     * @param balPackage  The current package that is being viewed.
+     * @param packages    List of available packages.
+     * @param description package description
+     * @param primitives  list of primitives
      * @return A page model for the current package.
      */
     public static Page generatePage(BLangPackage balPackage, List<Link> packages, String description, List<Link>
             primitives) {
         ArrayList<Documentable> documentables = new ArrayList<>();
-        String currentPackageName = (balPackage.symbol).pkgID.name.value;
+        //TODO till orgName gets fixed
+        String currentPackageName = "ballerina/" + (balPackage.symbol).pkgID.name.value;
 
         // Check for records in the package
         if (balPackage.getRecords().size() > 0) {
@@ -163,11 +163,12 @@ public class Generator {
      *
      * @param balPackage The ballerina.builtin package.
      * @param packages   List of available packages.
+     * @param primitives list of primitives.
      * @return A page model for the primitive types.
      */
     public static Page generatePageForPrimitives(BLangPackage balPackage, List<Link> packages, List<Link> primitives) {
         ArrayList<Documentable> primitiveTypes = new ArrayList<>();
-        Properties descriptions = loadPrimitivesDescriptions();
+        Properties descriptions = BallerinaDocUtils.loadPrimitivesDescriptions();
 
         for (Link primitiveType : primitives) {
             String type = primitiveType.caption.value;
@@ -376,22 +377,25 @@ public class Generator {
 
         // Iterate through the struct fields
         if (structNode.getFields().size() > 0) {
-            for (VariableNode p : structNode.getFields()) {
-                if (p.getFlags().contains(Flag.PUBLIC)) {
-                    BLangVariable param = (BLangVariable) p;
-                    String dataType = type(param);
-                    String desc = fieldAnnotation(structNode, param);
-                    String defaultValue = "";
-                    if (null != param.getInitialExpression()) {
-                        defaultValue = param.getInitialExpression().toString();
-                    }
-                    Field variable = new Field(param.getName().value, dataType, desc, defaultValue);
-                    fields.add(variable);
-                }
-            }
+            getFields(structNode, structNode.fields, fields);
         }
 
         return new StructDoc(structName, description(structNode), new ArrayList<>(), fields);
+    }
+
+    private static void getFields(BLangNode node, List<BLangVariable> allFields, List<Field> fields) {
+        for (BLangVariable param : allFields) {
+            if (param.getFlags().contains(Flag.PUBLIC)) {
+                String dataType = type(param);
+                String desc = fieldAnnotation(node, param);
+                String defaultValue = "";
+                if (null != param.getInitialExpression()) {
+                    defaultValue = param.getInitialExpression().toString();
+                }
+                Field variable = new Field(param.getName().value, dataType, desc, defaultValue);
+                fields.add(variable);
+            }
+        }
     }
 
     /**
@@ -402,19 +406,12 @@ public class Generator {
      */
     public static ConnectorDoc createDocForNode(BLangObject connectorNode) {
         String connectorName = connectorNode.getName().value;
-        List<Variable> parameters = new ArrayList<>();
+        List<Field> parameters = new ArrayList<>();
         List<Documentable> actions = new ArrayList<>();
 
         // Iterate through the connector parameters
         if (connectorNode.fields.size() > 0) {
-            for (BLangVariable param : connectorNode.fields) {
-                if (param.flagSet.contains(Flag.PUBLIC)) {
-                    String dataType = type(param);
-                    String desc = fieldAnnotation(connectorNode, param);
-                    Variable variable = new Variable(param.getName().value, dataType, desc);
-                    parameters.add(variable);
-                }
-            }
+            getFields(connectorNode, connectorNode.fields, parameters);
         }
 
         //Iterate through the actions of the connectors
@@ -686,32 +683,7 @@ public class Generator {
         return "";
     }
 
-    private static Properties loadPrimitivesDescriptions() {
-        Properties prop = new Properties();
-        InputStream input = null;
-
-        try {
-            String filename = "primitives-descriptions.properties";
-            input = Generator.class.getClassLoader().getResourceAsStream(filename);
-            if (input == null) {
-                return prop;
-            }
-            prop.load(input);
-        } catch (IOException e) {
-            //TODO
-            return prop;
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException ignore) {
-                }
-            }
-        }
-        return prop;
-    }
-
-        /**
+    /**
      * Get the anonymous struct string.
      *
      * @param type struct type.

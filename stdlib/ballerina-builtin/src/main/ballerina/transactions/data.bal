@@ -16,51 +16,6 @@
 
 package ballerina.transactions;
 
-type TransactionState "active" | "prepared" | "committed" | "aborted";
-@final TransactionState TXN_STATE_ACTIVE = "active";
-@final TransactionState TXN_STATE_PREPARED = "prepared";
-@final TransactionState TXN_STATE_COMMITTED = "committed";
-@final TransactionState TXN_STATE_ABORTED = "aborted";
-
-@final string TRANSACTION_CONTEXT_VERSION = "1.0";
-
-@final public string COMMAND_PREPARE = "prepare";
-@final public string COMMAND_COMMIT = "commit";
-@final public string COMMAND_ABORT = "abort";
-
-@final string PREPARE_RESULT_PREPARED_STR = "prepared";
-@final string PREPARE_RESULT_ABORTED_STR = "aborted";
-@final string PREPARE_RESULT_COMMITTED_STR = "committed";
-@final string PREPARE_RESULT_READ_ONLY_STR = "read-only";
-@final string PREPARE_RESULT_FAILED_STR = "failed";
-
-type PrepareResult "prepared" | "aborted" | "committed" | "read-only";
-@final PrepareResult PREPARE_RESULT_PREPARED = "prepared";
-@final PrepareResult PREPARE_RESULT_ABORTED = "aborted";
-@final PrepareResult PREPARE_RESULT_COMMITTED = "committed";
-@final PrepareResult PREPARE_RESULT_READ_ONLY = "read-only";
-
-type NotifyResult "committed" | "aborted";
-@final NotifyResult NOTIFY_RESULT_COMMITTED = "committed";
-@final NotifyResult NOTIFY_RESULT_ABORTED = "aborted";
-
-@final string NOTIFY_RESULT_NOT_PREPARED_STR = "not-prepared";
-@final string NOTIFY_RESULT_FAILED_EOT_STR = "failed-eot";
-
-@final string NOTIFY_RESULT_COMMITTED_STR = "committed";
-@final string NOTIFY_RESULT_ABORTED_STR = "aborted";
-
-type PrepareDecision "commit" | "abort";
-@final PrepareDecision PREPARE_DECISION_COMMIT = "commit";
-@final PrepareDecision PREPARE_DECISION_ABORT = "abort";
-
-@final string OUTCOME_COMMITTED = "committed";
-@final string OUTCOME_ABORTED = "aborted";
-@final string OUTCOME_MIXED = "mixed";
-@final string OUTCOME_HAZARD = "hazard";
-
-@final string TRANSACTION_UNKNOWN = "Transaction-Unknown";
-
 public type TransactionContext {
     @readonly string contextVersion = "1.0";
     @readonly string transactionId;

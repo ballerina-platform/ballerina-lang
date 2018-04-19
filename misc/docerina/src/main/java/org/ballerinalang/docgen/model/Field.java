@@ -23,13 +23,14 @@ package org.ballerinalang.docgen.model;
  */
 public class Field extends Variable {
     public final String defaultValue;
-    
+
     /**
      * Constructor.
      *
-     * @param name        variable name.
-     * @param dataType    data type of the variable.
-     * @param description description of the variable.
+     * @param name         variable name.
+     * @param dataType     data type of the variable.
+     * @param description  description of the variable.
+     * @param defaultValue default value of this field.
      */
     public Field(String name, String dataType, String description, String defaultValue) {
         super(name, dataType, description);

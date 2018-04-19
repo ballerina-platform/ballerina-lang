@@ -32,7 +32,7 @@ public type SimpleQueueSender object {
     public function start () {
     }
 
-    public function getClient () returns (QueueSenderConnector) {
+    public function getCallerActions () returns (QueueSenderConnector) {
         match (self.senderConnector) {
             QueueSenderConnector s => return s;
             () => {
