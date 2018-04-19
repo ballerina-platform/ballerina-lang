@@ -46,18 +46,19 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT;
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_CONNECTION;
-import static org.ballerinalang.net.grpc.GrpcConstants.CONNECTOR_ERROR;
-import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_MESSAGE_DEFINITION;
-import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB_REF_INDEX;
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT;
+import static org.ballerinalang.net.grpc.MessageConstants.GRPC_CLIENT;
+import static org.ballerinalang.net.grpc.MessageConstants.METHOD_DESCRIPTORS;
+import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_MESSAGE_DEFINITION;
+import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX;
 import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
 
 /**
@@ -79,15 +80,14 @@ import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
         returnType = {
                 @ReturnType(type = TypeKind.STRUCT, structType = CLIENT,
                         structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-                @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
-                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
+                @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN),
         },
         isPublic = true
 )
 public class StreamingExecute extends AbstractExecute {
     private static final Logger LOG = LoggerFactory.getLogger(StreamingExecute.class);
     private static final int MESSAGE_HEADER_REF_INDEX = 2;
-    
+
     @Override
     public void execute(Context context) {
         BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
@@ -103,14 +103,14 @@ public class StreamingExecute extends AbstractExecute {
                     "is not initialized properly");
             return;
         }
-        
+
         String methodName = context.getStringArgument(0);
         if (methodName == null) {
             notifyErrorReply(context, "Error while processing the request. RPC endpoint doesn't " +
                     "set properly");
             return;
         }
-        
+
         Map<String, MethodDescriptor<Message, Message>> methodDescriptors = (Map<String, MethodDescriptor<Message,
                 Message>>) serviceStub.getNativeData(METHOD_DESCRIPTORS);
         if (methodDescriptors == null) {
@@ -118,21 +118,21 @@ public class StreamingExecute extends AbstractExecute {
                     "doesn't set properly");
             return;
         }
-        
+
         com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = MessageRegistry.getInstance()
                 .getMethodDescriptor(methodName);
         if (methodDescriptor == null) {
             notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
             return;
         }
-        
+
         // Update request headers when request headers exists in the context.
         BRefValueArray headerValues = (BRefValueArray) context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
         MessageHeaders headers = getMessageHeaders(headerValues);
-        
+
         if (connectionStub instanceof GrpcNonBlockingStub) {
             GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
-            
+
             // Attach header read/write listener to the service stub.
             AtomicReference<Metadata> headerCapture = new AtomicReference<>();
             AtomicReference<Metadata> trailerCapture = new AtomicReference<>();
@@ -140,7 +140,7 @@ public class StreamingExecute extends AbstractExecute {
                 grpcNonBlockingStub = MetadataUtils.attachHeaders(grpcNonBlockingStub, headers.getMessageMetadata());
             }
             grpcNonBlockingStub = MetadataUtils.captureMetadata(grpcNonBlockingStub, headerCapture, trailerCapture);
-            
+
             BTypeDescValue serviceType = (BTypeDescValue) context.getRefArgument(1);
             Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), getTypeField
                     (serviceType));
@@ -160,12 +160,12 @@ public class StreamingExecute extends AbstractExecute {
                             methodType.name() + " not supported");
                     return;
                 }
-                BStruct connStruct = createStruct(context, CLIENT_CONNECTION);
+                BStruct connStruct = createStruct(context, GRPC_CLIENT);
                 connStruct.addNativeData(REQUEST_SENDER, requestSender);
                 connStruct.addNativeData(REQUEST_MESSAGE_DEFINITION, methodDescriptor
                         .getInputType());
                 BStruct clientEndpoint = (BStruct) serviceStub.getNativeData(CLIENT_END_POINT);
-                clientEndpoint.addNativeData(CLIENT_CONNECTION, connStruct);
+                clientEndpoint.addNativeData(GRPC_CLIENT, connStruct);
                 context.setReturnValues(clientEndpoint);
             } catch (RuntimeException | GrpcClientException e) {
                 notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());

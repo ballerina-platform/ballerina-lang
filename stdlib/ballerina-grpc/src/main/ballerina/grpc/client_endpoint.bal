@@ -17,25 +17,15 @@ package ballerina.grpc;
 
 documentation {
     Represents the gRPC client endpoint
-
-    F{{config}} - gRPC client endpoint configuration.
 }
 public type Client object {
-    public {
-        ClientEndpointConfig config;
-    }
 
     documentation {
         Gets called when the endpoint is being initialize during package init time
 
         P{{config}} - The ClientEndpointConfig of the endpoint.
     }
-    public function init (ClientEndpointConfig config) {
-        self.config = config;
-        self.initEndpoint();
-    }
-
-    public native function initEndpoint();
+    public native function init(ClientEndpointConfig config);
 
     documentation {
         Gets called every time a service attaches itself to this endpoint - also happens at package
@@ -43,12 +33,12 @@ public type Client object {
 
         P{{serviceType}} - The type of the service to be registered.
     }
-    public native function register (typedesc serviceType);
+    public native function register(typedesc serviceType);
 
     documentation {
         Starts the registered service
     }
-    public native function start ();
+    public native function start();
 
     documentation {
         Stops the registered service
@@ -58,7 +48,7 @@ public type Client object {
     documentation {
         Returns the client connection that servicestub code uses
     }
-    public native function getCallerActions() returns (ClientConnection);
+    public native function getCallerActions() returns (GrpcClient);
 };
 
 documentation {

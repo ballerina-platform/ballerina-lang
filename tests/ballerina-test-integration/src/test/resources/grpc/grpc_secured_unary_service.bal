@@ -16,7 +16,7 @@
 import ballerina/io;
 import ballerina/grpc;
 
-endpoint grpc:Service ep {
+endpoint grpc:Listener ep {
     host:"localhost",
     port:8085,
     secureSocket: {
@@ -36,16 +36,13 @@ endpoint grpc:Service ep {
                       sslVerifyClient:"require"
                   }
 };
-@grpc:serviceConfig {generateClientConnector: false}
-service<grpc:Listener> HelloWorld bind ep {
-    hello (endpoint client, string name) {
+@grpc:serviceConfig
+service HelloWorld bind ep {
+    hello(endpoint caller, string name) {
         io:println("name: " + name);
         string message = "Hello " + name;
-        grpc:ConnectorError err = client -> send(message);
-        io:println("Server send response : " + message);
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller->send(message);
+        io:println(err.message but { () => ("Server send response : " + message) });
+        _ = caller->complete();
     }
 }
