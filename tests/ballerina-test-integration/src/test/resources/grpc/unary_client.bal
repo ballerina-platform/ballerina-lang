@@ -133,7 +133,7 @@ public type HelloWorldBlockingClient object {
         self.stub = stub;
     }
 
-    public function getClient () returns (HelloWorldBlockingStub) {
+    public function getCallerActions () returns (HelloWorldBlockingStub) {
         return self.stub;
     }
 };
@@ -156,7 +156,7 @@ public type HelloWorldClient object {
         self.stub = stub;
     }
 
-    public function getClient () returns (HelloWorldStub) {
+    public function getCallerActions () returns (HelloWorldStub) {
         return self.stub;
     }
 };

@@ -77,11 +77,11 @@ public class InvalidSyntaxParserTest {
      * Test mismatched input. i.e. {@link org.antlr.v4.runtime.InputMismatchException}
      */
 
-    @Test(enabled = false)
+    @Test
     public void testServiceWithoutResourceParams() {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-params-negative.bal");
-        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting '('", 6, 18);
-        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', '|', Identifier}", 8, 15);
+        BAssertUtil.validateError(result, 0, "missing token '(' before '{'", 9, 11);
+        BAssertUtil.validateError(result, 1, "extraneous input 'return'", 11, 9);
     }
 
     @Test

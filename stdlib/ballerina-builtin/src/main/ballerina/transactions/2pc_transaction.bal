@@ -38,7 +38,7 @@ type TwoPhaseCommitTransaction object {
 
     // This function will be called by the initiator
     function twoPhaseCommit() returns string|error {
-        log:printInfo(io:sprintf("Running 2-phase commit for transaction: %s:%d", [self.transactionId, self.transactionBlockId]));
+        log:printInfo(io:sprintf("Running 2-phase commit for transaction: %s:%d", self.transactionId, self.transactionBlockId));
         string|error ret = "";
 
         // Prepare local resource managers
@@ -125,7 +125,7 @@ type TwoPhaseCommitTransaction object {
         When an abort statement is executed, this function gets called. The transaction in concern will be marked for
         abortion.
     }
-    function markForAbortion() returns string|error {
+    function markForAbortion() returns error? {
         if (self.isInitiated) {
             self.state = TXN_STATE_ABORTED;
             log:printInfo("Marked initiated transaction for abortion");
@@ -142,31 +142,42 @@ type TwoPhaseCommitTransaction object {
                 return err;
             }
         }
-        return ""; //TODO: check what will happen if nothing is returned
+        return ();
     }
 
     // The result of this function is whether we can commit or abort
     function prepareParticipants(string protocol) returns PrepareDecision {
         PrepareDecision prepareDecision = PREPARE_DECISION_COMMIT;
-        boolean successful = true;
+        future<((PrepareResult | () | error), Participant) >[] results;
         foreach _, participant in self.participants {
             string participantId = participant.participantId;
-            PrepareResult|()|error result = participant.prepare(protocol);
+            future<((PrepareResult | () | error), Participant)> f = start participant.prepare(protocol);
+            results[lengthof results] = f;
+        }
+        foreach f in results {
+            ((PrepareResult | () | error), Participant) r = await f;
+            var (result, participant) = r;
+            string participantId = participant.participantId;
             match result {
                 PrepareResult prepRes => {
-                    if(prepRes == PREPARE_RESULT_PREPARED) {// All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
+                    if(prepRes == PREPARE_RESULT_PREPARED) {
+                        // All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
                     } else if (prepRes == PREPARE_RESULT_COMMITTED) {
                         // If one or more participants returns "committed" and the overall prepare fails, we have to
                         // report a mixed-outcome to the initiator
                         self.possibleMixedOutcome = true;
-                        // Don't send notify to this participant because it is has already committed. We can forget about this participant.
-                        self.removeParticipant(participantId, "Could not remove committed participant: " + participantId +
-                                " from transaction: " + self.transactionId);
+                        // Don't send notify to this participant because it is has already committed.
+                        // We can forget about this participant.
+                        self.removeParticipant(participantId,
+                                "Could not remove committed participant: " + participantId + " from transaction: " +
+                                self.transactionId);
                         // All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
                     } else if (prepRes == PREPARE_RESULT_READ_ONLY) {
-                        // Don't send notify to this participant because it is read-only. We can forget about this participant.
-                        self.removeParticipant(participantId, "Could not remove read-only participant: " + participantId +
-                                " from transaction: " + self.transactionId);
+                        // Don't send notify to this participant because it is read-only.
+                        // We can forget about this participant.
+                        self.removeParticipant(participantId,
+                                "Could not remove read-only participant: " + participantId + " from transaction: " +
+                                self.transactionId);
                         // All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
                     } else if (prepRes == PREPARE_RESULT_ABORTED) {
                         // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
@@ -178,8 +189,9 @@ type TwoPhaseCommitTransaction object {
                 }
                 () => {}
                 error err => {
-                    self.removeParticipant(participantId, "Could not remove prepare failed participant: " + participantId +
-                            " from transaction: " + transactionId);
+                    self.removeParticipant(participantId,
+                            "Could not remove prepare failed participant: " + participantId + " from transaction: " +
+                            self.transactionId);
                     prepareDecision = PREPARE_DECISION_ABORT;
                 }
             }
@@ -189,8 +201,14 @@ type TwoPhaseCommitTransaction object {
 
     function notifyParticipants(string action, string? protocolName) returns NotifyResult | error {
         NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
+        future<NotifyResult|()|error>[] results;
         foreach _, participant in self.participants {
-            var result = participant.notify(action, protocolName);
+            future<NotifyResult|()|error> f = start participant.notify(action, protocolName);
+            results[lengthof results] = f;
+
+        }
+        foreach f in results {
+            NotifyResult|()|error result = await f;
             match result {
                 NotifyResult|() => {}
                 error err => notifyResult = err;
@@ -201,7 +219,7 @@ type TwoPhaseCommitTransaction object {
 
     // This function will be called by the initiator
     function abortInitiatorTransaction() returns string|error {
-        log:printInfo(io:sprintf("Aborting initiated transaction: %s:%d", [self.transactionId, self.transactionBlockId]));
+        log:printInfo(io:sprintf("Aborting initiated transaction: %s:%d", self.transactionId, self.transactionBlockId));
         string|error ret = "";
         // return response to the initiator. ( Aborted | Mixed )
         var result = self.notifyParticipants(COMMAND_ABORT, ());

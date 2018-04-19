@@ -55,7 +55,7 @@ public type Listener object {
     documentation {
         Returns the client connection that servicestub code uses
     }
-    public native function getClient() returns (CallerAction);
+    public native function getCallerActions() returns (CallerAction);
 };
 
 documentation {
@@ -89,7 +89,6 @@ documentation {
     F{{cacheSize}} - Maximum size of the cache
     F{{cacheValidityPeriod}} - Time duration of cache validity period
 }
-// align with http impl
 public type SslConfiguration {
     string trustStoreFile;
     string trustStorePassword;

@@ -39,7 +39,7 @@ public type HttpSecureClient object {
     }
 
     public new(serviceUri, config) {
-        self.httpClient = createHttpClient(serviceUri, config);
+        self.httpClient = createSimpleHttpClient(serviceUri, config);
     }
 
     @Description {value:"The POST action implementation of the HTTP Connector."}
@@ -230,7 +230,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
             return httpSecureClient;
         }
         () => {
-            HttpClient httpClient = createHttpClient(url, config);
+            HttpClient httpClient = createSimpleHttpClient(url, config);
             return httpClient;
         }
     }

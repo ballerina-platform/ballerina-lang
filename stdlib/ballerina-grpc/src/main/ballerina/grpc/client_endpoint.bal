@@ -48,7 +48,7 @@ public type Client object {
     documentation {
         Returns the client connection that servicestub code uses
     }
-    public native function getClient() returns (GrpcClient);
+    public native function getCallerActions() returns (GrpcClient);
 };
 
 documentation {

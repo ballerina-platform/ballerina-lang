@@ -38,14 +38,14 @@ import java.util.Base64;
 public class RSASigner implements JWSSigner {
 
     /**
-     * The private RSA key. Represented by generic private key interface
+     * The private RSA key.
      */
     private final PrivateKey privateKey;
 
     /**
-     * Creates a new RSA Signature-Scheme-with-Appendix (RSASSA) signer.
+     * Creates a new RSA signer.
      *
-     * @param privateKey The private RSA key. Its algorithm must be "RSA".
+     * @param privateKey The private RSA key, algorithm must be "RSA".
      *                   Must not be {@code null}.
      */
     public RSASigner(final PrivateKey privateKey) {

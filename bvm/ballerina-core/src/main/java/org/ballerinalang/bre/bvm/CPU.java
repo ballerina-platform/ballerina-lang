@@ -1343,7 +1343,9 @@ public class CPU {
                     break;
                 }
 
-                sf.refRegs[k] = bMap.get(sf.stringRegs[j]);
+                IntegerCPEntry exceptCPEntry = (IntegerCPEntry) ctx.constPool[operands[3]];
+                boolean except = exceptCPEntry.getValue() == 1;
+                sf.refRegs[k] = bMap.get(sf.stringRegs[j], except);
                 break;
 
             case InstructionCodes.JSONLOAD:
@@ -1615,15 +1617,7 @@ public class CPU {
                 }
 
                 BMapType mapType = (BMapType) bMap.getType();
-                if (sf.refRegs[k] == null) {
-                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
-                } else if (mapType.getConstrainedType() == BTypes.typeAny ||
-                        mapType.getConstrainedType().equals(sf.refRegs[k].getType())) {
-                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
-                } else if (sf.refRegs[k].getType().getTag() == TypeTags.STRUCT_TAG
-                        && mapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG
-                        && checkStructEquivalency((BStructType) sf.refRegs[k].getType(),
-                        (BStructType) mapType.getConstrainedType())) {
+                if (isValidMapInsertion(mapType, sf.refRegs[k])) {
                     bMap.put(sf.stringRegs[j], sf.refRegs[k]);
                 } else {
                     ctx.setError(BLangVMErrors.createError(ctx,
@@ -2097,7 +2091,14 @@ public class CPU {
                 bRefTypeValue = sf.refRegs[i];
 
                 if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
-                    sf.refRegs[j] = sf.refRegs[i];
+                    /* if the value is a JSON and target is a (boxed) value type, then even though
+                     * they should be assignable, we can't use the same ref value, but rather, the BJSON
+                     * should be converted to the respective boxed value types */
+                    if (bRefTypeValue instanceof BJSON && BTypes.isValueType(typeRefCPEntry.getType())) {
+                        sf.refRegs[j] = ((BJSON) bRefTypeValue).getPrimitiveBoxedValue();
+                    } else {
+                        sf.refRegs[j] = bRefTypeValue;
+                    }
                 } else {
                     handleTypeCastError(ctx, sf, j, bRefTypeValue != null ? bRefTypeValue.getType() : BTypes.typeNull,
                             typeRefCPEntry.getType());
@@ -3136,6 +3137,10 @@ public class CPU {
         if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
             return checkTupleCast(rhsValue, lhsType);
         } 
+        
+        if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return checkFiniteTypeAssignable(rhsValue, lhsType);
+        }
 
         return false;
     }
@@ -3541,6 +3546,8 @@ public class CPU {
                 return json.isLong();
             case TypeTags.FLOAT_TAG:
                 return json.isDouble();
+            case TypeTags.BOOLEAN_TAG:
+                return json.isBoolean();
             case TypeTags.ARRAY_TAG:
                 if (!json.isArray()) {
                     return false;
@@ -3949,4 +3956,31 @@ public class CPU {
 
     }
 
+    private static boolean isValidMapInsertion(BMapType mapType, BValue value) {
+        if (value == null) {
+            return true;
+        }
+
+        BType constraintType = mapType.getConstrainedType();
+        if (constraintType == BTypes.typeAny || constraintType.equals(value.getType())) {
+            return true;
+        }
+       
+        if (value.getType().getTag() == TypeTags.STRUCT_TAG && constraintType.getTag() == TypeTags.STRUCT_TAG &&
+                checkStructEquivalency((BStructType) value.getType(), (BStructType) constraintType)) {
+            return true;
+        }
+
+        // TODO: check for subsets
+        if (constraintType.getTag() == TypeTags.UNION_TAG) {
+            BUnionType unionType = (BUnionType) constraintType;
+            if (unionType.getMemberTypes().contains(BTypes.typeAny)) {
+                return true;
+            }
+            return unionType.getMemberTypes().contains(value.getType());
+        }
+
+        return false;
+    }
+    
 }

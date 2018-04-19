@@ -11,7 +11,7 @@ public type SimpleTopicSubscriber object {
 
     private {
         jms:SimpleTopicSubscriber subscriber;
-        TopicSubscriberConnector? connector;
+        TopicSubscriberActions? consumerActions;
     }
 
     public function init(SimpleTopicSubscriberEndpointConfiguration config) {
@@ -26,36 +26,36 @@ public type SimpleTopicSubscriber object {
                 topicPattern:config.topicPattern
             }
         );
-        self.connector = new TopicSubscriberConnector(self.subscriber.getClient());
+        self.consumerActions = new TopicSubscriberActions(self.subscriber.getCallerActions());
     }
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
         self.subscriber.register(serviceType);
     }
 
-    public function start () {
+    public function start() {
         self.subscriber.start();
     }
 
-    public function getClient () returns (TopicSubscriberConnector) {
-        match (self.connector) {
-            TopicSubscriberConnector c => return c;
+    public function getCallerActions() returns TopicSubscriberActions {
+        match (self.consumerActions) {
+            TopicSubscriberActions c => return c;
             () => {
-                error e = {message:"Topic subscriber connector cannot be nil."};
+                error e = {message:"Topic subscriber consumerActions cannot be nil."};
                 throw e;
             }
         }
     }
 
-    public function stop () {
+    public function stop() {
         self.subscriber.stop();
     }
 
-    public function createTextMessage(string message) returns (Message | Error) {
+    public function createTextMessage(string message) returns Message|error {
         var result = self.subscriber.createTextMessage(message);
         match (result) {
             jms:Message m => return new Message(m);
-            Error e => return e;
+            error e => return e;
         }
     }
 };
@@ -74,26 +74,24 @@ public type SimpleTopicSubscriberEndpointConfiguration {
     string topicPattern,
 };
 
-public type TopicSubscriberConnector object {
+public type TopicSubscriberActions object {
 
     public {
-        jms:TopicSubscriberConnector helper;
+        jms:TopicSubscriberActions helper;
     }
 
     public new(helper) {}
 
-    public function acknowledge (Message message) returns Error|() {
+    public function acknowledge(Message message) returns error? {
         return self.helper.acknowledge(message.getJMSMessage());
     }
 
-    public function receive (int timeoutInMilliSeconds = 0) returns Message|Error|() {
+    public function receive(int timeoutInMilliSeconds = 0) returns Message|error|() {
         var result = self.helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
         match (result) {
             jms:Message m => return new Message(m);
-            jms:Error e => return e;
+            error e => return e;
             () => return ();
         }
     }
 };
-
-

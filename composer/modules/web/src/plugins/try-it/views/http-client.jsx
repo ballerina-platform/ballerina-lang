@@ -440,8 +440,13 @@ class HttpClient extends React.Component {
         this.props.serviceNodes.forEach((serviceNode) => {
             serviceNode.getResources().forEach((resourceNode) => {
                 const url = resourceNode.compileURL();
+                const description = resourceNode.getName().getValue();
+                const dropdownItem = (<div>
+                    <div className='path'>{url}</div>
+                    <div className='description'>{description}</div>
+                </div>);
                 urlItems.push({
-                    text: url,
+                    text: dropdownItem,
                     value: url,
                 });
             });
@@ -450,11 +455,13 @@ class HttpClient extends React.Component {
         return (
             <Select
                 search
+                allowAdditions
                 selection
                 placeholder='Select path'
                 options={urlItems}
-                value={this.state.appendUrl}
+                defaultValue={this.state.appendUrl}
                 onChange={this.onAppendUrlChange}
+                className='paths-dropdown'
             />
         );
     }
@@ -476,8 +483,6 @@ class HttpClient extends React.Component {
             });
         }
 
-        const defaultValue = this.state.selectedResource;
-
         return (
             <Select
                 search
@@ -486,7 +491,6 @@ class HttpClient extends React.Component {
                 options={resourceItems}
                 value={this.state.selectedResource}
                 onChange={this.onResourceSelected}
-                defaultValue={defaultValue}
             />
         );
     }
@@ -504,9 +508,8 @@ class HttpClient extends React.Component {
             // Getting service name views
             const pathsDropdown = this.renderPathsDropdown();
             return (
-                <Segment
-                    className='http-client-main-wrapper'
-                    inverted
+                <div
+                    className='http-client-main-wrapper inverted'
                 >
                     <Form
                         inverted
@@ -514,13 +517,14 @@ class HttpClient extends React.Component {
                     >
                         <Form.Group inline>
                             <Form.Field>
-                                <Form.Input type='text' action>
+                                <Form.Input type='text' fluid>
                                     <Select
                                         search
                                         selection
                                         options={this.state.httpMethods}
                                         onChange={this.onHttpMethodChanged}
                                         defaultValue={this.state.httpMethod}
+                                        className='select-method'
                                     />
                                     <Select
                                         search
@@ -532,7 +536,7 @@ class HttpClient extends React.Component {
                                             })
                                         }
                                         onChange={this.onChangeUrl}
-                                        defaultValue={this.state.baseUrl}
+                                        value={this.state.baseUrl}
                                     />
                                     {pathsDropdown}
                                     {sendOrCancelButton}
@@ -549,7 +553,7 @@ class HttpClient extends React.Component {
 
                         </Form.Group>
                     </Form>
-                </Segment>);
+                </div>);
         } else {
             return (null);
         }
