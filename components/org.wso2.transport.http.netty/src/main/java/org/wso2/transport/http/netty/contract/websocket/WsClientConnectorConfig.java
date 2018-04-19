@@ -32,6 +32,7 @@ public class WsClientConnectorConfig {
     private final String remoteAddress;
     private List<String> subProtocols;
     private int idleTimeoutInSeconds = -1;
+    private boolean autoRead = true;
     private final Map<String, String> headers = new HashMap<>();
 
     public WsClientConnectorConfig(String remoteAddress) {
@@ -39,10 +40,11 @@ public class WsClientConnectorConfig {
     }
 
     public WsClientConnectorConfig(String remoteAddress, List<String> subProtocols,
-                                   int idleTimeoutInSeconds) {
+                                   int idleTimeoutInSeconds, boolean autoRead) {
         this.remoteAddress = remoteAddress;
         this.subProtocols = subProtocols;
         this.idleTimeoutInSeconds = idleTimeoutInSeconds;
+        this.autoRead = autoRead;
     }
 
     /**
@@ -87,6 +89,14 @@ public class WsClientConnectorConfig {
             return;
         }
         this.subProtocols = subProtocols;
+    }
+
+    public boolean isAutoRead() {
+        return autoRead;
+    }
+
+    public void setAutoRead(boolean autoRead) {
+        this.autoRead = autoRead;
     }
 
     /**

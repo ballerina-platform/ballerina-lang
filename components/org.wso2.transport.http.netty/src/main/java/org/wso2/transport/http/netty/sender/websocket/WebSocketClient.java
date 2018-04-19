@@ -20,6 +20,7 @@
 package org.wso2.transport.http.netty.sender.websocket;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
@@ -66,6 +67,8 @@ public class WebSocketClient {
     private final Map<String, String> headers;
     private final WebSocketConnectorListener connectorListener;
     private final EventLoopGroup wsClientEventLoopGroup;
+    private final boolean autoRead;
+    private Channel channel = null;
 
     /**
      * @param url url of the remote endpoint.
@@ -75,13 +78,15 @@ public class WebSocketClient {
      * @param connectorListener connector listener to notify incoming messages.
      */
     public WebSocketClient(String url, String subProtocols, int idleTimeout, EventLoopGroup wsClientEventLoopGroup,
-                           Map<String, String> headers, WebSocketConnectorListener connectorListener) {
+                           Map<String, String> headers, WebSocketConnectorListener connectorListener,
+                           boolean autoRead) {
         this.url = url;
         this.subProtocols = subProtocols;
         this.idleTimeout = idleTimeout;
         this.headers = headers;
         this.connectorListener = connectorListener;
         this.wsClientEventLoopGroup = wsClientEventLoopGroup;
+        this.autoRead = autoRead;
     }
 
     /**
@@ -136,11 +141,12 @@ public class WebSocketClient {
                         }
                     });
 
-            clientBootstrap.connect(uri.getHost(), port).sync();
+            channel = clientBootstrap.connect(uri.getHost(), port).sync().channel();
             ChannelFuture future = webSocketTargetHandler
                     .handshakeFuture().addListener((ChannelFutureListener) clientHandshakeFuture -> {
                 Throwable cause = clientHandshakeFuture.cause();
                 if (clientHandshakeFuture.isSuccess() && cause == null) {
+                    channel.config().setAutoRead(autoRead);
                     DefaultWebSocketConnection webSocketConnection = webSocketTargetHandler.getWebSocketConnection();
                     String actualSubProtocol = websocketHandshaker.actualSubprotocol();
                     webSocketTargetHandler.setActualSubProtocol(actualSubProtocol);

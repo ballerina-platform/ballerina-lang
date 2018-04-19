@@ -83,7 +83,7 @@
 
             <class name="org.wso2.transport.http.netty.websocket.WebSocketServerTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.WebSocketClientTestCase"/>
-            <!--<class name="org.wso2.transport.http.netty.websocket.WebSocketPassThroughTestCase"/>-->
+            <class name="org.wso2.transport.http.netty.websocket.WebSocketPassThroughTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.WebSocketMessagePropertiesTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.HttpToWebSocketProtocolSwitchTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.HttpToWebSocketProtocolSwitchMultiThreadTestCase"/>

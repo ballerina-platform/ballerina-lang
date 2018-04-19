@@ -39,8 +39,10 @@ import org.wso2.transport.http.netty.util.server.websocket.WebSocketRemoteServer
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
 
@@ -286,6 +288,45 @@ public class WebSocketClientTestCase {
             }
         });
         latchFail.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+    }
+
+    @Test(priority = 7, description = "Test the behavior of client connector when auto read is false.")
+    public void autoReadFalseTest() throws Throwable {
+        CountDownLatch latch = new CountDownLatch(1);
+        String textSent = "testText";
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener(latch);
+        configuration = new WsClientConnectorConfig(url);
+        configuration.setAutoRead(false);
+        clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
+        HandshakeFuture handshakeFuture = handshake(connectorListener);
+        AtomicReference<WebSocketConnection> wsConnection = new AtomicReference<>();
+        handshakeFuture.setHandshakeListener(new HandshakeListener() {
+            @Override
+            public void onSuccess(WebSocketConnection webSocketConnection) {
+                webSocketConnection.getSession().getAsyncRemote().sendText(textSent);
+                wsConnection.set(webSocketConnection);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                log.error(t.getMessage());
+                Assert.assertTrue(false, t.getMessage());
+            }
+        });
+
+        latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        String textReceived = null;
+        try {
+            textReceived = connectorListener.getReceivedTextToClient();
+            Assert.assertTrue(false, "Expected exception");
+        } catch (NoSuchElementException ex) {
+            Assert.assertTrue(true, "Expected exception thrown");
+        }
+        Assert.assertEquals(textReceived, null);
+        wsConnection.get().readNextFrame();
+        Thread.sleep(3000);
+        textReceived = connectorListener.getReceivedTextToClient();
+        Assert.assertEquals(textReceived, textSent);
     }
 
     @AfterClass

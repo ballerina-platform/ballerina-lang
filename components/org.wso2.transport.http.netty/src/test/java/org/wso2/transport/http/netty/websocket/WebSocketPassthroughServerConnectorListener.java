@@ -54,6 +54,7 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
         String remoteUrl = String.format("ws://%s:%d/%s", "localhost",
                                          TestUtil.REMOTE_WS_SERVER_PORT, "websocket");
         WsClientConnectorConfig configuration = new WsClientConnectorConfig(remoteUrl);
+        configuration.setAutoRead(false);
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);
         WebSocketConnectorListener clientConnectorListener = new WebSocketPassthroughClientConnectorListener();
         clientConnector.connect(clientConnectorListener).setHandshakeListener(new HandshakeListener() {
@@ -66,6 +67,7 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
                         WebSocketPassThroughTestConnectionManager.getInstance().
                                 interRelateSessions(serverWebSocketConnection, clientWebSocketConnection);
                         serverWebSocketConnection.readNextFrame();
+                        clientWebSocketConnection.readNextFrame();
                     }
 
                     @Override
