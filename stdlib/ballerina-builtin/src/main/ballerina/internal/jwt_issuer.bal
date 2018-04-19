@@ -56,7 +56,7 @@ function createHeader (JwtHeader header) returns (string) {
     headerJson[TYP] = "JWT";
     headerJson = addMapToJson(headerJson, header.customClaims);
     string headerValInString = headerJson.toString();
-    string encodedPayload = check util:base64EncodeString(headerValInString);
+    string encodedPayload = check headerValInString.base64Encode();
     return encodedPayload;
 }
 
@@ -76,7 +76,7 @@ function createPayload (JwtPayload payload) returns (string|error) {
     payloadJson[AUD] = convertStringArrayToJson(payload.aud);
     payloadJson = addMapToJson(payloadJson, payload.customClaims);
     string payloadInString = payloadJson.toString();
-    return util:base64EncodeString(payloadInString);
+    return payloadInString.base64Encode();
 }
 
 function addMapToJson (json inJson, map mapToConvert) returns (json) {

@@ -56,6 +56,18 @@ public type ByteChannel object {
     @Description {value:"Function to close a byte channel"}
     @Return {value:"Returns if there's any error while performaing I/O operation"}
     public native function close () returns (IOError | ());
+
+    @Description {value:"Encode a given ByteChannel with Base64 encoding scheme."}
+    @Param {value:"valueToBeEncoded: Content that needs to be encoded"}
+    @Return {value:"Return an encoded ByteChannel"}
+    @Return {value:"error will get return, in case of errors"}
+    public native function base64Encode() returns ByteChannel|error;
+
+    @Description {value:"Decode a given ByteChannel with Base64 encoding scheme."}
+    @Param {value:"valueToBeDecoded: Content that needs to be decoded"}
+    @Return {value:"Return a decoded ByteChannel"}
+    @Return {value:"error will get return, in case of errors"}
+    public native function base64Decode() returns ByteChannel|error;
 };
 
 @Description {value:"Ballerina CharacterChannel represents a channel which will allow to read/write characters"}

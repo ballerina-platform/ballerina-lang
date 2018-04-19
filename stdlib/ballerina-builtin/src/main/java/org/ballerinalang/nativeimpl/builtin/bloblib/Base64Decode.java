@@ -14,36 +14,33 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.nativeimpl.util;
+package org.ballerinalang.nativeimpl.builtin.bloblib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.util:base64Decode.
+ * Native function ballerina.model.blob:base64Decode.
  *
- * @since 0.8.0
+ * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "util",
-        functionName = "base64Decode",
-        args = {@Argument(name = "contentToBeDecoded", type = TypeKind.UNION), @Argument(name = "charset",
-                type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
+        orgName = "ballerina", packageName = "builtin",
+        functionName = "blob.base64Decode",
+        args = {@Argument(name = "b", type = TypeKind.BLOB)},
+        returnType = {@ReturnType(type = TypeKind.BLOB)},
         isPublic = true
 )
 public class Base64Decode extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BValue result = context.getRefArgument(0);
-        String charset = context.getStringArgument(0);
-        Utils.decode(context, result, charset, false);
+        byte[] b = context.getBlobArgument(0);
+        Utils.decodeBlob(context, b, false);
     }
 }

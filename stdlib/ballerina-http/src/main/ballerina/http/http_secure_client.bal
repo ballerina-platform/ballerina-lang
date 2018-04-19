@@ -244,11 +244,12 @@ function prepareRequest(Request req, ClientEndpointConfig config) returns (()|Ht
     if (scheme == BASIC_SCHEME){
         string username = config.auth.username but { () => EMPTY_STRING };
         string password = config.auth.password but { () => EMPTY_STRING };
-        var encodedStringVar = util:base64EncodeString(username + ":" + password);
+        string str = username + ":" + password;
+        var encodedStringVar = str.base64Encode();
         string encodedString;
         match encodedStringVar {
             string token => encodedString = token;
-            util:Base64EncodeError err => {
+            error err => {
                 HttpConnectorError httpConnectorError = {};
                 httpConnectorError.message = "Failed to encode the username or password with base64";
                 return httpConnectorError;
@@ -298,9 +299,9 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     string requestParams = "refresh_token=" + refreshToken + "&grant_type=refresh_token&client_secret=" + clientSecret + "&client_id=" + clientId;
     string base64ClientIdSecret;
     string clientIdSecret = clientId + ":" + clientSecret;
-    match (util:base64EncodeString(clientIdSecret)){
+    match (clientIdSecret.base64Encode()){
         string encodeString => base64ClientIdSecret = encodeString;
-        util:Base64EncodeError err => {
+        error err => {
             HttpConnectorError httpConnectorError = {};
             httpConnectorError.message = err.message;
             return httpConnectorError;

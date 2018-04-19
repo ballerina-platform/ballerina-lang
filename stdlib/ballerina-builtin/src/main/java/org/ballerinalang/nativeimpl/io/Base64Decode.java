@@ -14,39 +14,34 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.nativeimpl.util;
+package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.nio.charset.Charset;
-import java.util.Base64;
-
-import javax.xml.bind.DatatypeConverter;
-
 /**
- * Native function ballerina.util:base16ToBase64Encode.
+ * Native function ballerina.io:base64Decode.
  *
- * @since 0.95.2
+ * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "util",
-        functionName = "base16ToBase64Encode",
-        args = {@Argument(name = "baseString", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true)
-public class Base16ToBase64Encode extends BlockingNativeCallableUnit {
+        orgName = "ballerina", packageName = "io",
+        functionName = "base64Decode",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io")},
+        isPublic = true
+)
+public class Base64Decode extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String value = context.getStringArgument(0);
-        byte[] base16DecodedValue = DatatypeConverter.parseHexBinary(value);
-        byte[] base64EncodedValue = Base64.getEncoder().encode(base16DecodedValue);
-        context.setReturnValues(new BString(new String(base64EncodedValue, Charset.defaultCharset())));
+        BStruct channel = (BStruct) context.getRefArgument(0);
+        Utils.decodeByteChannel(context, channel, false);
     }
 }

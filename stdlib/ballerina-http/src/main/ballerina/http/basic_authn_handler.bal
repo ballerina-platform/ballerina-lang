@@ -106,7 +106,7 @@ function extractBasicAuthCredentials (string authHeader) returns (string, string
     // extract user credentials from basic auth header
     string decodedBasicAuthHeader;
     try {
-        decodedBasicAuthHeader = check util:base64DecodeString(authHeader.subString(5, authHeader.length()).trim());
+        decodedBasicAuthHeader = check authHeader.subString(5, authHeader.length()).trim().base64Decode();
     } catch (error err) {
         return err;
     }
