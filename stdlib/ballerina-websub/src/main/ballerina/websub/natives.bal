@@ -18,73 +18,110 @@ package ballerina.websub;
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Subscriber Natives ////////////////////
 ///////////////////////////////////////////////////////////////////
-@Description {value:"Function to retrieve annotations specified for the WebSub Subscriber Service"}
-@Return {value:"SubscriberServiceConfiguration representing the annotation"}
-native function retrieveAnnotations () returns (SubscriberServiceConfiguration);
+documentation {
+    Function to retrieve annotations specified for the WebSub Subscriber Service.
+    
+    R{{}} - `SubscriberServiceConfiguration` representing the annotation.
+}
+native function retrieveAnnotations () returns SubscriberServiceConfiguration;
 
-@Description {value:"Function to retrieve annotations specified for the WebSub Subscriber Service"}
-@Return {value:"WebSubSubscriberServiceConfiguration representing the annotation"}
-native function retrieveSecret (typedesc serviceType) returns (string);
+documentation {
+    Function to retrieve annotations specified for the WebSub Subscriber Service.
+
+    P{{serviceType}} - the typedesc for the service.
+    R{{}} - `string` The secret specified in the the annotation.
+}
+native function retrieveSecret (typedesc serviceType) returns string;
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Hub Natives ///////////////////////////
 ///////////////////////////////////////////////////////////////////
-@Description {value:"Starts up the internal Ballerina Hub"}
-@Return {value:"The URL of the Hub service"}
+documentation {
+    Starts up the internal Ballerina Hub.
+    
+    R{{}} - `string` The URL of the Hub service.
+}
 native function startUpHubService () returns (string);
 
-@Description {value:"Stop the Ballerina Hub, if started"}
-@Param {value:"The URL of the Hub service"}
-@Return {value:"True if the Ballerina Hub had been started up and was stopped now, false if the Hub had not been started
-                up"}
+documentation {
+    Stop the Ballerina Hub, if started.
+    
+    P{{hubUrl}} - The URL of the Hub service.
+    R{{}} - `boolean` True if the Ballerina Hub had been started up and was stopped now, false if the Hub had not been
+            started up.
+}
 native function stopHubService (string hubUrl) returns (boolean);
 
 //TODO: move the following functions to the net.websub.hub package and make private once packaging issue is sorted
-@Description {value:"Adds a new subscription for the specified topic in the Ballerina Hub"}
-@Param {value:"subscriptionDetails: The details of the subscription including WebSub specifics"}
+documentation {
+    Adds a new subscription for the specified topic in the Ballerina Hub.
+
+    P{{subscriptionDetails}} - The details of the subscription including WebSub specifics.
+}
 public native function addSubscription (SubscriptionDetails subscriptionDetails);
 
-@Description {value:"Publishes an update against the topic in the Ballerina Hub"}
-@Param {value:"topic: The topic for which the update should happen"}
-@Param {value:"payload: The update payload"}
-@Return {value:"Error Message if an error occurred with publishing"}
+documentation {
+    Publishes an update against the topic in the Ballerina Hub.
+
+    P{{topic}} - The topic for which the update should happen.
+    P{{payload}} - The update payload.
+    R{{}} - `string` Error Message if an error occurred with publishing.
+}
 public native function publishToInternalHub (string topic, json payload) returns (string);
 
-@Description {value:"Removes a subscription added for the specified topic in the Ballerina Hub"}
-@Param {value:"topic: The topic for which the subscription was added"}
-@Param {value:"callback: The callback registered for this subscription"}
+documentation {
+    Removes a subscription added for the specified topic in the Ballerina Hub.
+
+    P{{topic}} - The topic for which the subscription was added.
+    P{{callback}} - The callback registered for this subscription.
+}
 public native function removeSubscription (string topic, string callback);
 
-@Description {value:"Registers a topic in the Ballerina Hub"}
-@Param {value:"topic: The topic to register"}
-@Param {value:"secret: The secret to use to identify the registration"}
-@Param {value:"loadingOnStartUp: Whether registration is being called on loading from the database at start up"}
-@Return {value:"Error Message if an error occurred with registration"}
+documentation {
+    Registers a topic in the Ballerina Hub.
+
+    P{{topic}} - The topic to register.
+    P{{secret}} - The secret to use to identify the registration.
+    P{{loadingOnStartUp}} - Whether registration is being called on loading from the database at start up.
+    R{{}} - `string` Error Message if an error occurred with registration.
+}
 public native function registerTopicAtHub (string topic, string secret, boolean loadingOnStartUp = false) returns
 (string);
 
-@Description {value:"Unregisters a topic in the Ballerina Hub"}
-@Param {value:"topic: The topic to unregister"}
-@Param {value:"secret: The secret specified at registration"}
-@Return {value:"Error Message if an error occurred with unregistration"}
+documentation {
+    Unregisters a topic in the Ballerina Hub.
+
+    P{{topic}} - The topic to unregister.
+    P{{secret}} - The secret specified at registration.
+    R{{}} - `string` Error Message if an error occurred with unregistration.
+}
 public native function unregisterTopicAtHub (string topic, string secret) returns (string);
 
-@Description {value:"Retrieves whether a topic is registered with the Ballerina Hub"}
-@Param {value:"topic: The topic to check"}
-@Return {value:"True if the topic has been registered by a publisher, false if not"}
+documentation {
+    Retrieves whether a topic is registered with the Ballerina Hub.
+
+    P{{topic}} - The topic to check.
+    R{{}} - `boolean` True if the topic has been registered by a publisher, false if not.
+}
 public native function isTopicRegistered (string topic) returns (boolean);
 
-@Description {value:"Retrieves secret for a topic registered with the Ballerina Hub"}
-@Param {value:"topic: The topic for which the publisher's secret needs to be retrieved"}
-@Return {value:"The secret specified at registration"}
+documentation {
+    Retrieves secret for a topic registered with the Ballerina Hub.
+
+    P{{topic}} - The topic for which the publisher's secret needs to be retrieved.
+    R{{}} - `string` The secret specified at registration.
+}
 public native function retrievePublisherSecret (string topic) returns (string);
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Publisher Natives /////////////////////
 ///////////////////////////////////////////////////////////////////
-@Description {value:"Publishes an update against the topic in the Ballerina Hub"}
-@Param {value:"hubUrl: The URL of the Ballerina WebSub Hub as included in the WebSubHub struct"}
-@Param {value:"topic: The topic for which the update should happen"}
-@Param {value:"payload: The update payload"}
-@Return {value:"String indicating the error, if an error occurred"}
+documentation {
+    Publishes an update against the topic in the Ballerina Hub.
+
+    P{{hubUrl}} - The URL of the Ballerina WebSub Hub as included in the WebSubHub struct.
+    P{{topic}} - The topic for which the update should happen.
+    P{{payload}} - The update payload.
+    R{{}} - `string` String indicating the error, if an error occurred.
+}
 native function validateAndPublishToInternalHub (string hubUrl, string topic, json payload) returns (string);
