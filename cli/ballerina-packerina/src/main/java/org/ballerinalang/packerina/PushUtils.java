@@ -118,19 +118,31 @@ public class PushUtils {
             if (!installToRepo.equals("home")) {
                 throw new BLangCompilerException("Unknown repository provided to push the package");
             }
-            Path balHomeDir = RepoUtils.createAndGetHomeReposPath();
-            Path targetDirectoryPath = Paths.get(balHomeDir.toString(), "repo", orgName, packageName, version,
-                                                 packageName + ".zip");
-            if (Files.exists(targetDirectoryPath)) {
-                throw new BLangCompilerException("Ballerina package exists in the home repository");
-            } else {
-                try {
-                    Files.createDirectories(targetDirectoryPath);
-                    Files.copy(pkgPathFromPrjtDir, targetDirectoryPath, StandardCopyOption.REPLACE_EXISTING);
-                    outStream.println(orgName + "/" + packageName + ":" + version + " [project repo -> home repo]");
-                } catch (IOException e) {
-                    throw new BLangCompilerException("Error occurred when creating directories in the home repository");
-                }
+            installToHomeRepo(packageID, pkgPathFromPrjtDir);
+        }
+    }
+
+    /**
+     * Install the package artifact to the home repository.
+     *
+     * @param packageID          packageID of the package
+     * @param pkgPathFromPrjtDir package path from the project directory
+     */
+    private static void installToHomeRepo(PackageID packageID, Path pkgPathFromPrjtDir) {
+        Path balHomeDir = RepoUtils.createAndGetHomeReposPath();
+        Path targetDirectoryPath = Paths.get(balHomeDir.toString(), "repo", packageID.orgName.getValue(),
+                                             packageID.name.getValue(), packageID.version.getValue(),
+                                             packageID.name.getValue() + ".zip");
+        if (Files.exists(targetDirectoryPath)) {
+            throw new BLangCompilerException("Ballerina package exists in the home repository");
+        } else {
+            try {
+                Files.createDirectories(targetDirectoryPath);
+                Files.copy(pkgPathFromPrjtDir, targetDirectoryPath, StandardCopyOption.REPLACE_EXISTING);
+                outStream.println(packageID.orgName.getValue() + "/" + packageID.name.getValue() + ":" +
+                                          packageID.version.getValue() + " [project repo -> home repo]");
+            } catch (IOException e) {
+                throw new BLangCompilerException("Error occurred when creating directories in the home repository");
             }
         }
     }
