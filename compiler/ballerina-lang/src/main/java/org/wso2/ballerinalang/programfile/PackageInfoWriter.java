@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.ParameterAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
@@ -461,6 +462,11 @@ public class PackageInfoWriter {
                 for (DefaultValue defaultValue : defaultValues) {
                     writeDefaultValue(attrDataOutStream, defaultValue);
                 }
+                break;
+            case PARAMETERS_ATTRIBUTE:
+                ParameterAttributeInfo parameterAttributeInfo = (ParameterAttributeInfo) attributeInfo;
+                attrDataOutStream.writeInt(parameterAttributeInfo.requiredParamsCount);
+                attrDataOutStream.writeInt(parameterAttributeInfo.defaultableParamsCount);
                 break;
         }
 

@@ -40,7 +40,8 @@ public interface AttributeInfo {
         VARIABLE_TYPE_COUNT_ATTRIBUTE("VariableTypeCount"),
         ERROR_TABLE("ErrorTable"),
         LINE_NUMBER_TABLE_ATTRIBUTE("LineNumberTable"),
-        DEFAULT_VALUE_ATTRIBUTE("DefaultValue");
+        DEFAULT_VALUE_ATTRIBUTE("DefaultValue"),
+        PARAMETERS_ATTRIBUTE("Parameters");
 
         private String value;
 

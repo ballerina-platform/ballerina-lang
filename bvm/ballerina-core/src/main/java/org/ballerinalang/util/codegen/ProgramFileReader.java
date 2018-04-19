@@ -1236,6 +1236,11 @@ public class ProgramFileReader {
                     paramDefaultValAttrInfo.addParamDefaultValueInfo(paramDefaultValue);
                 }
                 return paramDefaultValAttrInfo;
+            case PARAMETERS_ATTRIBUTE:
+                // Read and discard required param count and defaultable param count 
+                dataInStream.readInt();
+                dataInStream.readInt();
+                return null;
             default:
                 throw new ProgramFileFormatException("unsupported attribute kind " + attribNameCPEntry.getValue());
         }
