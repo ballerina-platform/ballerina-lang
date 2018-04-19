@@ -69,8 +69,7 @@ function stringValueOf(string s) returns (string) {
 }
 
 function xmlValueOf(xml x) returns (string) {
-    any[] value = [x];
-    return io:sprintf("%s", value);
+    return io:sprintf("%s", x);
 }
 
 function jsonValueOf(json j) returns (string?) {

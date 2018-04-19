@@ -182,7 +182,7 @@ type State object {
     function toString() returns string {
         return io:sprintf("abortedFunctionCalled=%b,committedFunctionCalled=%s," +
                             "localParticipantCommittedFunctionCalled=%s,localParticipantAbortedFunctionCalled=%s",
-                            [abortedFunctionCalled, committedFunctionCalled,
-                                localParticipantCommittedFunctionCalled, localParticipantAbortedFunctionCalled]);
+                            abortedFunctionCalled, committedFunctionCalled,
+                                localParticipantCommittedFunctionCalled, localParticipantAbortedFunctionCalled);
     }
 };
