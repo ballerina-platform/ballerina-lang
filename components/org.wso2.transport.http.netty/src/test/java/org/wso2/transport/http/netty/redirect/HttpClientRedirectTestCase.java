@@ -45,6 +45,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.sender.RedirectHandler;
+import org.wso2.transport.http.netty.sender.RedirectUtil;
 import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
@@ -310,8 +311,8 @@ public class HttpClientRedirectTestCase {
     public void relativePathStartsWithSlash() {
         RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, this.connectionManager);
         try {
-            Method method = RedirectHandler.class
-                    .getDeclaredMethod("getResolvedURI", String.class, HTTPCarbonMessage.class);
+            Method method = RedirectUtil.class
+                    .getDeclaredMethod("getResolvedRedirectURI", String.class, HTTPCarbonMessage.class);
             method.setAccessible(true);
             String redirectUrl = (String) method
                     .invoke(redirectHandler, "/redirect1", createHttpRequest(
@@ -334,8 +335,8 @@ public class HttpClientRedirectTestCase {
     public void relativePathEndsWithSlash() {
         RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, this.connectionManager);
         try {
-            Method method = RedirectHandler.class
-                    .getDeclaredMethod("getResolvedURI", String.class, HTTPCarbonMessage.class);
+            Method method = RedirectUtil.class
+                    .getDeclaredMethod("getResolvedRedirectURI", String.class, HTTPCarbonMessage.class);
             method.setAccessible(true);
             String redirectUrl = (String) method
                     .invoke(redirectHandler, "redirect1/", createHttpRequest(
@@ -358,8 +359,8 @@ public class HttpClientRedirectTestCase {
     public void justRelativePathName() {
         RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, this.connectionManager);
         try {
-            Method method = RedirectHandler.class
-                    .getDeclaredMethod("getResolvedURI", String.class, HTTPCarbonMessage.class);
+            Method method = RedirectUtil.class
+                    .getDeclaredMethod("getResolvedRedirectURI", String.class, HTTPCarbonMessage.class);
             method.setAccessible(true);
             String redirectUrl = (String) method
                     .invoke(redirectHandler, "redirect1", createHttpRequest(
@@ -382,8 +383,8 @@ public class HttpClientRedirectTestCase {
     public void requestPathEndsWithSlash() {
         RedirectHandler redirectHandler = new RedirectHandler(null, false, 0, this.connectionManager);
         try {
-            Method method = RedirectHandler.class
-                    .getDeclaredMethod("getResolvedURI", String.class, HTTPCarbonMessage.class);
+            Method method = RedirectUtil.class
+                    .getDeclaredMethod("getResolvedRedirectURI", String.class, HTTPCarbonMessage.class);
             method.setAccessible(true);
             String redirectUrl = (String) method
                     .invoke(redirectHandler, "/redirect1", createHttpRequest(
@@ -404,8 +405,8 @@ public class HttpClientRedirectTestCase {
         RedirectHandler redirectHandler = new RedirectHandler(null, false, 0,
                 this.connectionManager);
         try {
-            Method method = RedirectHandler.class
-                    .getDeclaredMethod("getResolvedURI", String.class, HTTPCarbonMessage.class);
+            Method method = RedirectUtil.class
+                    .getDeclaredMethod("getResolvedRedirectURI", String.class, HTTPCarbonMessage.class);
             method.setAccessible(true);
             String redirectUrl = (String) method
                     .invoke(redirectHandler, "https://localhost:8888/test?key=value&tt=kk",
@@ -426,8 +427,8 @@ public class HttpClientRedirectTestCase {
         RedirectHandler redirectHandler = new RedirectHandler(null, false, 0,
                 this.connectionManager);
         try {
-            Method method = RedirectHandler.class
-                    .getDeclaredMethod("getResolvedURI", String.class, HTTPCarbonMessage.class);
+            Method method = RedirectUtil.class
+                    .getDeclaredMethod("getResolvedRedirectURI", String.class, HTTPCarbonMessage.class);
             method.setAccessible(true);
             String redirectUrl = (String) method
                     .invoke(redirectHandler, "/test?key=value&tt=kk", createHttpRequest(
@@ -448,8 +449,8 @@ public class HttpClientRedirectTestCase {
         RedirectHandler redirectHandler = new RedirectHandler(null, false, 0,
                 this.connectionManager);
         try {
-            Method method = RedirectHandler.class
-                    .getDeclaredMethod("getResolvedURI", String.class, HTTPCarbonMessage.class);
+            Method method = RedirectUtil.class
+                    .getDeclaredMethod("getResolvedRedirectURI", String.class, HTTPCarbonMessage.class);
             method.setAccessible(true);
             String redirectUrl = (String) method
                     .invoke(redirectHandler, "/test", createHttpRequest(

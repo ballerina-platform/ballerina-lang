@@ -17,6 +17,7 @@ package org.wso2.transport.http.netty.common;
 
 import io.netty.util.AttributeKey;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpClientConnector;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 
@@ -247,6 +248,8 @@ public final class Constants {
     public static final AttributeKey<TargetChannel> TARGET_CHANNEL_REFERENCE = AttributeKey
             .valueOf
                     ("TARGET_CHANNEL_REFERENCE");
+    public static final AttributeKey<DefaultHttpClientConnector> CLIENT_CONNECTOR =
+            AttributeKey.valueOf("CLIENT_CONNECTOR");
 
     public static final String UTF8 = "UTF-8";
     public static final String URL_AUTHORITY = "://";

@@ -38,8 +38,8 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
+import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
 import org.wso2.transport.http.netty.util.client.http2.MessageSender;
-import org.wso2.transport.http.netty.util.client.http2.RequestGenerator;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
@@ -80,7 +80,7 @@ public class Http2ServerConnectorBasicTestCase {
     @Test
     public void testHttp2Post() {
         String testValue = "Test Http2 Message";
-        HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.POST, testValue);
+        HTTPCarbonMessage httpCarbonMessage = MessageGenerator.generateRequest(HttpMethod.POST, testValue);
         HTTPCarbonMessage response = new MessageSender(httpClientConnector).sendMessage(httpCarbonMessage);
         assertNotNull(response, "Expected response not received");
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());

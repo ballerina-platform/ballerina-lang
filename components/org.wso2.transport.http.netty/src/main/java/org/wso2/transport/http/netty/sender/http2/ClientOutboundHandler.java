@@ -185,11 +185,13 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                 final ByteBuf content = msg.content();
                 endStream = isLastContent && trailers.isEmpty();
                 release = false;
+                for (Http2DataEventListener dataEventListener : http2ClientChannel.getDataEventListeners()) {
+                    if (!dataEventListener.onDataWrite(ctx, streamId, content, endStream)) {
+                        return;
+                    }
+                }
                 encoder.writeData(ctx, streamId, content, 0, endStream, ctx.newPromise());
                 encoder.flowController().writePendingBytes();
-                for (Http2DataEventListener dataEventListener : http2ClientChannel.getDataEventListeners()) {
-                    dataEventListener.onDataWrite(streamId, ctx, endStream);
-                }
                 ctx.flush();
                 if (!trailers.isEmpty()) {
                     // Write trailing headers.
@@ -209,7 +211,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
             int streamId = getNextStreamId();
             http2ClientChannel.putInFlightMessage(streamId, outboundMsgHolder);
             http2ClientChannel.getDataEventListeners().
-                    forEach(dataEventListener -> dataEventListener.onStreamInit(streamId, ctx));
+                    forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, streamId));
             return streamId;
         }
 
@@ -227,11 +229,15 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                     HttpConversionUtil.ExtensionHeaderNames.STREAM_DEPENDENCY_ID.text(), 0);
             short weight = headers.getShort(HttpConversionUtil.ExtensionHeaderNames.STREAM_WEIGHT.text(),
                                             Http2CodecUtil.DEFAULT_PRIORITY_WEIGHT);
+            for (Http2DataEventListener dataEventListener : http2ClientChannel.getDataEventListeners()) {
+                if (!dataEventListener.onHeadersWrite(ctx, streamId, http2Headers, endStream)) {
+                    return;
+                }
+            }
             encoder.writeHeaders(
                     ctx, streamId, http2Headers, dependencyId, weight, false, 0, endStream, ctx.newPromise());
             encoder.flowController().writePendingBytes();
-            http2ClientChannel.getDataEventListeners().
-                    forEach(dataEventListener -> dataEventListener.onDataWrite(streamId, ctx, endStream));
+
             ctx.flush();
             if (endStream) {
                 outboundMsgHolder.setRequestWritten(true);

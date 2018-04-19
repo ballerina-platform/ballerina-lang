@@ -28,12 +28,12 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.http2.listeners.Http2RedirectListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -45,17 +45,18 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
 /**
- * This contains test case for handling requests send by a client with a prior knowledge of server support HTTP/2.
- * That means communication happens over HTTP/2 without a connection upgrade from HTTP/1.x.
+ * This contains test cases for HTTP2 redirection.
  */
-public class Http2WithPriorKnowledgeTestCase {
+public class Http2RedirectionTestCase {
 
-    private static Logger log = LoggerFactory.getLogger(Http2WithPriorKnowledgeTestCase.class);
+    private static Logger log = LoggerFactory.getLogger(Http2RedirectionTestCase.class);
 
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
     private SenderConfiguration senderConfiguration;
     private HttpWsConnectorFactory connectorFactory;
+
+    private final String expectedResponse = "Expected-Response";
 
     @BeforeClass
     public void setup() throws InterruptedException {
@@ -67,32 +68,32 @@ public class Http2WithPriorKnowledgeTestCase {
         serverConnector = connectorFactory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = serverConnector.start();
-        future.setHttpConnectorListener(new EchoMessageListener());
+        future.setHttpConnectorListener(new Http2RedirectListener(2, expectedResponse));
         future.sync();
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         senderConfiguration =
                 HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
-        senderConfiguration.setForceHttp2(true);       // Force to use HTTP/2 without an upgrade
+        senderConfiguration.setFollowRedirect(true);
+        senderConfiguration.setMaxRedirectCount(5);
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
 
     @Test
-    public void testHttp2WithPriorKnowledge() {
-        String testValue = "Test Message";
-        HTTPCarbonMessage httpCarbonMessage = MessageGenerator.generateRequest(HttpMethod.POST, testValue);
+    public void testHttp2Redirection() {
+        HTTPCarbonMessage httpCarbonMessage = MessageGenerator.generateRequest(HttpMethod.GET, null);
         HTTPCarbonMessage response = new MessageSender(httpClientConnector).sendMessage(httpCarbonMessage);
         assertNotNull(response, "Expected response not received");
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
-        assertEquals(result, testValue, "Expected response not received");
+        assertEquals(result, expectedResponse, "Expected response not received, but received" + result);
     }
 
     @AfterClass
     public void cleanUp() {
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_1_1));
-        senderConfiguration.setForceHttp2(false);
+        senderConfiguration.setFollowRedirect(false);
         httpClientConnector.close();
         serverConnector.stop();
         try {

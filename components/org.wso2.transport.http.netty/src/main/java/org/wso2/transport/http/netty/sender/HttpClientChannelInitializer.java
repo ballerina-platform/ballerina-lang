@@ -251,7 +251,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     private void configureHttp2Pipeline(ChannelPipeline pipeline) {
         pipeline.addLast(Constants.CONNECTION_HANDLER, http2ConnectionHandler);
         pipeline.addLast(Constants.OUTBOUND_HANDLER, clientOutboundHandler);
-        addCommonHandlers(pipeline);
+        pipeline.addLast(Constants.DECOMPRESSOR_HANDLER, new HttpContentDecompressor());
     }
 
     /**
@@ -315,6 +315,24 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
      */
     public Http2Connection getConnection() {
         return connection;
+    }
+
+    /**
+     * Checks whether redirection is enabled.
+     *
+     * @return whether redirection is enabled
+     */
+    public boolean isFollowRedirect() {
+        return followRedirect;
+    }
+
+    /**
+     * Gets the maximum number of allowed redirection on same request.
+     *
+     * @return  maximum number of redirection
+     */
+    public int getMaxRedirectCount() {
+        return maxRedirectCount;
     }
 
     public KeepAliveConfig getKeepAliveConfig() {

@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.sender.http2;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.DecoderResult;
@@ -25,6 +26,7 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2Error;
+import io.netty.handler.codec.http2.Http2Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -54,7 +56,7 @@ public class TimeoutHandler  implements Http2DataEventListener {
     }
 
     @Override
-    public void onStreamInit(int streamId, ChannelHandlerContext ctx) {
+    public boolean onStreamInit(ChannelHandlerContext ctx, int streamId) {
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         if (outboundMsgHolder == null) {
             outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
@@ -64,10 +66,63 @@ public class TimeoutHandler  implements Http2DataEventListener {
             timerTasks.put(streamId,
                            schedule(ctx, new IdleTimeoutTask(ctx, streamId), idleTimeNanos, TimeUnit.NANOSECONDS));
         }
+        return true;
     }
 
     @Override
-    public void onDataRead(int streamId, ChannelHandlerContext ctx, boolean endOfStream) {
+    public boolean onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream) {
+        updateLastReadTime(streamId, endOfStream);
+        return true;
+    }
+
+    @Override
+    public boolean onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, boolean endOfStream) {
+        updateLastReadTime(streamId, endOfStream);
+        return true;
+    }
+
+    @Override
+    public boolean onPushPromiseRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers,
+                                     boolean endOfStream) {
+        updateLastReadTime(streamId, endOfStream);
+        return true;
+    }
+
+    @Override
+    public boolean onHeadersWrite(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream) {
+        updateLastWriteTime(streamId);
+        return true;
+    }
+
+    @Override
+    public boolean onDataWrite(ChannelHandlerContext ctx, int streamId, ByteBuf data, boolean endOfStream) {
+        updateLastWriteTime(streamId);
+        return true;
+    }
+
+    @Override
+    public boolean onStreamReset(int streamId) {
+        onStreamClose(streamId);
+        return true;
+    }
+
+    @Override
+    public boolean onStreamClose(int streamId) {
+        ScheduledFuture timerTask = timerTasks.get(streamId);
+        if (timerTask != null) {
+            timerTask.cancel(false);
+            timerTasks.remove(streamId);
+        }
+        return true;
+    }
+
+    @Override
+    public void destroy() {
+        timerTasks.forEach((streamId, task) -> task.cancel(false));
+        timerTasks.clear();
+    }
+
+    private void updateLastReadTime(int streamId, boolean endOfStream) {
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         if (outboundMsgHolder == null) {
             outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
@@ -80,30 +135,9 @@ public class TimeoutHandler  implements Http2DataEventListener {
         }
     }
 
-    @Override
-    public void onDataWrite(int streamId, ChannelHandlerContext ctx, boolean endOfStream) {
+    private void updateLastWriteTime(int streamId) {
         OutboundMsgHolder msgHolder = http2ClientChannel.getInFlightMessage(streamId);
         msgHolder.setLastReadWriteTime(ticksInNanos());
-    }
-
-    @Override
-    public void onStreamReset(int streamId) {
-        onStreamClose(streamId);
-    }
-
-    @Override
-    public void onStreamClose(int streamId) {
-        ScheduledFuture timerTask = timerTasks.get(streamId);
-        if (timerTask != null) {
-            timerTask.cancel(false);
-            timerTasks.remove(streamId);
-        }
-    }
-
-    @Override
-    public void destroy() {
-        timerTasks.forEach((streamId, task) -> task.cancel(false));
-        timerTasks.clear();
     }
 
     private class IdleTimeoutTask implements Runnable {
