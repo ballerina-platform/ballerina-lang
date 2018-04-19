@@ -6,19 +6,15 @@ import ballerina/time;
 
 function search (string url, string querySearched) {
     endpoint http:Client httpEndpoint {
-        targets: [
-        {
-            url: url,
-            secureSocket: {
-                trustStore: {
-                    filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                    password: "ballerina"
-                },
-                verifyHostname:false,
-                shareSession: true
-                }
-            }  
-        ]
+        url:url,
+        secureSocket:{
+            trustStore:{
+                filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password:"ballerina"
+            },
+            verifyHostname:false,
+            shareSession:true
+        }
     };
     http:Request req = new;
     var result = httpEndpoint -> get(untaint querySearched, req);
