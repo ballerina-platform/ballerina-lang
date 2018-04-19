@@ -82,6 +82,8 @@ public class HtmlDocTest {
         FunctionDoc functionDoc = (FunctionDoc) page.constructs.get(0);
         Assert.assertEquals(functionDoc.parameters.get(0).toString(), "string name", "Invalid parameter string value");
         Assert.assertEquals(functionDoc.returnParams.get(0).toString(), "string", "Invalid return type");
+        Assert.assertEquals(functionDoc.returnParams.get(0).href, "primitive-types.html#string", "Invalid link " +
+                "to return type");
     }
 
     @Test(description = "Connectors in a package should be shown in the constructs")

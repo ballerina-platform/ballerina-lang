@@ -31,9 +31,10 @@ public class Field extends Variable {
      * @param dataType     data type of the variable.
      * @param description  description of the variable.
      * @param defaultValue default value of this field.
+     * @param href         link of the data type.
      */
-    public Field(String name, String dataType, String description, String defaultValue) {
-        super(name, dataType, description);
+    public Field(String name, String dataType, String description, String defaultValue, String href) {
+        super(name, dataType, description, href);
         this.defaultValue = defaultValue;
     }
 }
