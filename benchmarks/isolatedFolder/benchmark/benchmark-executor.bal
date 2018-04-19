@@ -19,6 +19,8 @@ function main(string... args) {
 function executeBenchmark(function () f, string functionName, int warmupIterations,
                             int benchmarkIterations, string resultsFileName) {
 
+    io:println("Executing function " + functionName + " ...");
+
     int i = 0;
     while (i < warmupIterations) {
         i = i + 1;
@@ -47,6 +49,7 @@ function executeBenchmark(function () f, string functionName, int warmupIteratio
 
     float tps = (1000000000.0 / avgLatency);
     resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f", [tps]), 0);
+    var result = channel.close();
 }
 
 public function untaintedReturn(string input) returns @untainted string {

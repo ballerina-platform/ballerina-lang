@@ -45,7 +45,7 @@ function prepare(int warmupIterations, int benchmarkIterations, string resultsFi
     io:ByteChannel channel = io:openFile(resultsFileLocation, "W");
     io:CharacterChannel charChannel = check io:createCharacterChannel(channel, "UTF-8");
     int resultWrite = check charChannel.writeCharacters("Function_Name,Total Time (ms),Average Latency (ns),Throughput (operations/second) ", 0);
-
+    var result = channel.close();
 }
 
 public function untaintedReturn(string input) returns @untainted string {

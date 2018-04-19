@@ -1,5 +1,6 @@
 import sprintf;
 import types;
+import benchmarkio;
 import ballerina/io;
 
 map<function()> functions;
@@ -76,5 +77,21 @@ function addFunctions() {
 
     functions["benchmarkSprintfWithFloat"] = sprintf:benchmarkSprintfWithFloat;
     functions["benchmarkSprintfWithString"] = sprintf:benchmarkSprintfWithString;
+
+    functions["benchmarkinitFileChannelReadMode"] = benchmarkio:benchmarkinitFileChannelReadMode;
+    functions["benchmarkinitFileChannelWriteMode"] = benchmarkio:benchmarkinitFileChannelWriteMode;
+    functions["benchmarkinitFileChannelAppendMode"] = benchmarkio:benchmarkinitFileChannelAppendMode;
+    functions["benchmarkreadBytes"] = benchmarkio:benchmarkreadBytes;
+    functions["benchmarkwriteBytes"] = benchmarkio:benchmarkwriteBytes;
+    functions["benchmarkinitCharacterChannelReadMode"] = benchmarkio:benchmarkinitCharacterChannelReadMode;
+    functions["benchmarkinitCharacterChannelWriteMode"] = benchmarkio:benchmarkinitCharacterChannelWriteMode;
+    functions["benchmarkinitCharacterChannelAppendMode"] = benchmarkio:benchmarkinitCharacterChannelAppendMode;
+    functions["benchmarkWriteCharecters"] = benchmarkio:benchmarkWriteCharecters;
+    functions["benchmarkReadCharecters"] = benchmarkio:benchmarkReadCharecters;
+    functions["benchmarkReadJson"] = benchmarkio:benchmarkReadJson;
+    functions["benchmarkWriteJson"] = benchmarkio:benchmarkWriteJson;
+    functions["benchmarkReadXML"] = benchmarkio:benchmarkReadXML;
+    functions["benchmarkWriteXML"] = benchmarkio:benchmarkWriteXML;
+
 }
 
