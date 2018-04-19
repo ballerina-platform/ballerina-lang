@@ -156,23 +156,29 @@ type TwoPhaseCommitTransaction object {
         }
         foreach f in results {
             (PrepareResult,Participant)|()|error result = await f;
+            //((PrepareResult | () | error),Participant) result = await f;
             match result {
                 (PrepareResult,Participant) res => {
                     var (prepRes, participant) = res;
                     string participantId = participant.participantId;
-                    if(prepRes == PREPARE_RESULT_PREPARED) {// All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
+                    if(prepRes == PREPARE_RESULT_PREPARED) {
+                        // All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
                     } else if (prepRes == PREPARE_RESULT_COMMITTED) {
                         // If one or more participants returns "committed" and the overall prepare fails, we have to
                         // report a mixed-outcome to the initiator
                         self.possibleMixedOutcome = true;
-                        // Don't send notify to this participant because it is has already committed. We can forget about this participant.
-                        self.removeParticipant(participantId, "Could not remove committed participant: " + participantId +
-                                " from transaction: " + self.transactionId);
+                        // Don't send notify to this participant because it is has already committed.
+                        // We can forget about this participant.
+                        self.removeParticipant(participantId,
+                                "Could not remove committed participant: " + participantId + " from transaction: " +
+                                self.transactionId);
                         // All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
                     } else if (prepRes == PREPARE_RESULT_READ_ONLY) {
-                        // Don't send notify to this participant because it is read-only. We can forget about this participant.
-                        self.removeParticipant(participantId, "Could not remove read-only participant: " + participantId +
-                                " from transaction: " + self.transactionId);
+                        // Don't send notify to this participant because it is read-only.
+                        // We can forget about this participant.
+                        self.removeParticipant(participantId,
+                                "Could not remove read-only participant: " + participantId + " from transaction: " +
+                                self.transactionId);
                         // All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
                     } else if (prepRes == PREPARE_RESULT_ABORTED) {
                         // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
