@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -458,6 +459,14 @@ public class ASTBuilderUtil {
         recordLiteralNode.pos = pos;
         recordLiteralNode.type = type;
         return recordLiteralNode;
+    }
+
+    static BLangTableLiteral createEmptyTableLiteral(DiagnosticPos pos, BType type, BType configType) {
+        final BLangTableLiteral tableLiteralNode = (BLangTableLiteral) TreeBuilder.createTableLiteralNode();
+        tableLiteralNode.pos = pos;
+        tableLiteralNode.type = type;
+        tableLiteralNode.configurationExpr = ASTBuilderUtil.createEmptyRecordLiteral(pos, configType);
+        return tableLiteralNode;
     }
 
     static BLangIdentifier createIdentifier(DiagnosticPos pos, String value) {
