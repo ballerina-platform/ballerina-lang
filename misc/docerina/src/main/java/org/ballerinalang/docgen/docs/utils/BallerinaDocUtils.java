@@ -68,9 +68,9 @@ public class BallerinaDocUtils {
     }
 
     /**
-     * Load primitiv types of Ballerina.
+     * Load primitive types of Ballerina.
      *
-     * @return @{@link Properties}
+     * @return @{@link Properties} primitive types and their corresponding descriptions.
      */
     public static Properties loadPrimitivesDescriptions() {
         Properties prop = new Properties();
