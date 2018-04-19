@@ -32,6 +32,7 @@ import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.StructDoc;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -577,7 +578,8 @@ public class HtmlDocTest {
      * @return BLangPackage
      */
     private BLangPackage createPackage(String source) {
-        BallerinaFile ballerinaFile = LSCompiler.compileContent(source, CompilerPhase.DEFINE);
+        LSCompiler lsCompiler = new LSCompiler(WorkspaceDocumentManagerImpl.getInstance());
+        BallerinaFile ballerinaFile = lsCompiler.compileContent(source, CompilerPhase.DEFINE);
         if (!ballerinaFile.getDiagnostics().isEmpty()) {
             ballerinaFile.getDiagnostics().stream().forEach(System.err::println);
             throw new IllegalStateException("Compilation errors detected.");
