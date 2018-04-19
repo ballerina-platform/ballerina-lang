@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.jwt.signature;
+package org.ballerinalang.nativeimpl.internal.jwt.signature;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -24,9 +24,9 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.jwt.crypto.JWSSigner;
-import org.ballerinalang.nativeimpl.jwt.crypto.KeyStoreHolder;
-import org.ballerinalang.nativeimpl.jwt.crypto.RSASigner;
+import org.ballerinalang.nativeimpl.internal.jwt.crypto.JWSSigner;
+import org.ballerinalang.nativeimpl.internal.jwt.crypto.KeyStoreHolder;
+import org.ballerinalang.nativeimpl.internal.jwt.crypto.RSASigner;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -39,13 +39,13 @@ import java.security.PrivateKey;
  * @since 0.964.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jwt",
+        orgName = "ballerina", packageName = "internal",
         functionName = "sign",
         args = {
                 @Argument(name = "data", type = TypeKind.STRING),
                 @Argument(name = "algorithm", type = TypeKind.STRING),
                 @Argument(name = "keyStore", type = TypeKind.STRUCT, structType = "KeyStore",
-                        structPackage = "ballerina.jwt")
+                        structPackage = "ballerina.internal")
         },
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
