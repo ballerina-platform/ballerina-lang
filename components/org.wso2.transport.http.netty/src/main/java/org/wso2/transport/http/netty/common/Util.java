@@ -544,6 +544,7 @@ public class Util {
         ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(null);
         ctx.channel().attr(Constants.ORIGINAL_REQUEST).set(null);
         ctx.channel().attr(Constants.REDIRECT_COUNT).set(null);
+        ctx.channel().attr(Constants.RESOLVED_REQUESTED_URI_ATTR).set(null);
         ctx.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME).set(null);
         ctx.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).set(null);
     }

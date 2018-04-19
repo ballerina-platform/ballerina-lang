@@ -75,6 +75,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     private ChannelHandlerContext originalChannelContext;
     private boolean isIdleHandlerOfTargetChannelRemoved = false;
     private ConnectionManager connectionManager;
+    private String resolvedRequestedURI;
 
     public RedirectHandler(SSLEngine sslEngine, boolean httpTraceLogEnabled, int maxRedirectCount,
                            ConnectionManager connectionManager) {
@@ -378,7 +379,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             LOG.debug("Pass along received response headers to client. Channel id : " + ctx.channel().id());
         }
         HttpResponseFuture responseFuture = ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
-        responseFuture.notifyHttpListener(setUpCarbonResponseMessage(msg));
+        responseFuture.notifyHttpListener(setUpCarbonResponseMessage(msg, ctx));
     }
 
     /**
@@ -422,6 +423,9 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         }
         currentRedirectCount = redirectCount;
         ctx.channel().attr(Constants.REDIRECT_COUNT).set(redirectCount);
+        String resolvedUri = redirectState.get(HttpHeaderNames.LOCATION.toString());
+        resolvedRequestedURI = resolvedUri;
+        ctx.channel().attr(Constants.RESOLVED_REQUESTED_URI_ATTR).set(resolvedUri);
         if (LOG.isDebugEnabled()) {
             LOG.debug("Current redirect count." + currentRedirectCount + " and channel id is : " + ctx.channel().id());
         }
@@ -578,11 +582,13 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * @param msg Http message
      * @return HTTPCarbonMessage
      */
-    private HTTPCarbonMessage setUpCarbonResponseMessage(Object msg) {
+    private HTTPCarbonMessage setUpCarbonResponseMessage(Object msg, ChannelHandlerContext ctx) {
         targetRespMsg = new HTTPCarbonMessage((HttpMessage) msg);
         targetRespMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
         HttpResponse httpResponse = (HttpResponse) msg;
         targetRespMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
+        targetRespMsg.setProperty(Constants.RESOLVED_REQUESTED_URI,
+                ctx.channel().attr(Constants.RESOLVED_REQUESTED_URI_ATTR).get());
         return targetRespMsg;
     }
 
@@ -688,6 +694,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
         future.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(responseFuture);
         future.channel().attr(Constants.ORIGINAL_REQUEST).set(httpCarbonRequest);
         future.channel().attr(Constants.REDIRECT_COUNT).set(currentRedirectCount);
+        future.channel().attr(Constants.RESOLVED_REQUESTED_URI_ATTR).set(resolvedRequestedURI);
         future.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME).set(channelStartTime);
         future.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).set(timeoutOfOriginalRequest);
         TargetChannel targetChannel = channelHandlerContext.channel().attr(Constants.TARGET_CHANNEL_REFERENCE).get();
