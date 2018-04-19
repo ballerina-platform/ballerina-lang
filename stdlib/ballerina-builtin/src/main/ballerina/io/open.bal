@@ -30,7 +30,7 @@ public native function openFile(@sensitive string path, @sensitive Mode accessMo
 @Return {value:"Returns an IOError if unable to open the socket connection"}
 public native function openSocket(@sensitive string host,
                                   @sensitive int port,
-                                  SocketProperties options) returns @tainted (Socket|error);
+                                  SocketProperties options) returns @tainted Socket|error;
 
 
 @Description {value:"Open a secure socket connection with a remote server"}
@@ -41,7 +41,7 @@ public native function openSocket(@sensitive string host,
 @Return {value:"Returns an IOError if unable to open the socket connection"}
 public native function openSecureSocket(@sensitive string host,
                                         @sensitive int port,
-                                        SocketProperties options) returns @tainted (Socket|error);
+                                        SocketProperties options) returns @tainted Socket|error;
 
 
 @Description {value:"Function to create CSV channel to read CSV input"}
@@ -53,7 +53,7 @@ public native function openSecureSocket(@sensitive string host,
 public function openCsvFile(@sensitive string path,
                             @sensitive Mode mode = "r",
                             @sensitive Seperator fieldSeperator = ",",
-                            @sensitive string charset = "UTF-8") returns @tainted (CSVChannel|error) {
+                            @sensitive string charset = "UTF-8") returns @tainted CSVChannel|error {
     ByteChannel channel = openFile(path, mode);
     CharacterChannel charChannel = new(channel, charset);
     return new CSVChannel(charChannel, fs = fieldSeperator);
