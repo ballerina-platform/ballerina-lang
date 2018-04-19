@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttrib
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
@@ -261,13 +262,28 @@ public class Generator {
                 for (BLangAnnotAttribute annotAttribute : annotationNode.getAttributes()) {
                     String dataType = getTypeName(annotAttribute.getTypeNode());
                     String desc = annotFieldAnnotation(annotationNode, annotAttribute);
-                    Variable variable = new Variable(annotAttribute.getName().value, dataType, desc);
+                    String href = extractLink(annotAttribute.getTypeNode());
+                    Variable variable = new Variable(annotAttribute.getName().value, dataType, desc, href);
                     attributes.add(variable);
                 }
             }
         }
 
         return new AnnotationDoc(annotationName, description(annotationNode), new ArrayList<>(), attributes);
+    }
+
+    private static String extractLink(BLangType typeNode) {
+        if (typeNode instanceof BLangUserDefinedType) {
+            BLangUserDefinedType type = (BLangUserDefinedType) typeNode;
+            return type.pkgAlias + ".html#" + type.typeName.getValue();
+        } else if (typeNode instanceof BLangUnionTypeNode) {
+            //TODO fix properly
+            BLangUnionTypeNode type = (BLangUnionTypeNode) typeNode;
+            return BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF + ".html#" + type.memberTypeNodes.stream()
+                    .findFirst().get().type.tsymbol.getName().value;
+        } else {
+            return BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF + ".html#" + typeNode.type.tsymbol.getName().value;
+        }
     }
 
     /**
@@ -298,7 +314,8 @@ public class Generator {
             for (BLangVariable param : functionNode.getParameters()) {
                 String dataType = type(param);
                 String desc = paramAnnotation(functionNode, param);
-                Variable variable = new Variable(param.getName().value, dataType, desc);
+                String href = extractLink(param.getTypeNode());
+                Variable variable = new Variable(param.getName().value, dataType, desc, href);
                 parameters.add(variable);
             }
         }
@@ -309,7 +326,8 @@ public class Generator {
             String dataType = type(returnParam);
             if (!dataType.equals("null")) {
                 String desc = returnParamAnnotation(functionNode);
-                Variable variable = new Variable("", dataType, desc);
+                String href = extractLink(returnParam.getTypeNode());
+                Variable variable = new Variable("", dataType, desc, href);
                 returnParams.add(variable);
             }
 
@@ -343,7 +361,8 @@ public class Generator {
             for (BLangVariable param : actionNode.getParameters()) {
                 String dataType = type(param);
                 String desc = paramAnnotation(actionNode, param);
-                Variable variable = new Variable(param.getName().value, dataType, desc);
+                String href = extractLink(param.getTypeNode());
+                Variable variable = new Variable(param.getName().value, dataType, desc, href);
                 parameters.add(variable);
             }
         }
@@ -392,7 +411,8 @@ public class Generator {
                 if (null != param.getInitialExpression()) {
                     defaultValue = param.getInitialExpression().toString();
                 }
-                Field variable = new Field(param.getName().value, dataType, desc, defaultValue);
+                String href = extractLink(param.getTypeNode());
+                Field variable = new Field(param.getName().value, dataType, desc, defaultValue, href);
                 fields.add(variable);
             }
         }
