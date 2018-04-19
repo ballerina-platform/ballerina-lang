@@ -132,13 +132,14 @@ public type HttpSecureClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function get(string path, Request req) returns (Response|HttpConnectorError) {
-        var details = prepareRequest(req, config);
+    public function get(string path, Request? req = ()) returns (Response|HttpConnectorError) {
+        Request request = req ?: new;
+        var details = prepareRequest(request, config);
         match details {
             () => {}
             HttpConnectorError err => return err;
         }
-        return httpClient.get(path, req);
+        return httpClient.get(path, req = request);
     }
 
     @Description {value:"OPTIONS action implementation of the HTTP Connector"}

@@ -33,7 +33,7 @@ public type HttpOperation "FORWARD" | "GET" | "POST" | "DELETE" | "OPTIONS" | "P
 public function invokeEndpoint (string path, Request outRequest,
                                 HttpOperation requestAction, HttpClient httpClient) returns Response|HttpConnectorError {
     if (HTTP_GET == requestAction) {
-        return httpClient.get(path, outRequest);
+        return httpClient.get(path, req = outRequest);
     } else if (HTTP_POST == requestAction) {
         return httpClient.post(path, outRequest);
     } else if (HTTP_OPTIONS == requestAction) {

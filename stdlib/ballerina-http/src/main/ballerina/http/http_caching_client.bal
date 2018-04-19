@@ -128,7 +128,7 @@ public type HttpCachingClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function get (string path, Request req) returns (Response|HttpConnectorError);
+    public function get (string path, Request? req = ()) returns (Response|HttpConnectorError);
 
     @Description {value:"Responses returned for OPTIONS requests are not cacheable. Therefore, the requests are simply directed to the origin server. Responses received for OPTIONS requests invalidate the cached responses for the same resource."}
     @Param {value:"path: Request path"}
@@ -261,9 +261,10 @@ public function HttpCachingClient::delete (string path, Request req) returns (Re
     }
 }
 
-public function HttpCachingClient::get (string path, Request req) returns (Response|HttpConnectorError) {
-    setRequestCacheControlHeader(req);
-    return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared);
+public function HttpCachingClient::get (string path, Request? req = ()) returns (Response|HttpConnectorError) {
+    Request request = req ?: new;
+    setRequestCacheControlHeader(request);
+    return getCachedResponse(self.cache, self.httpClient, request, GET, path, self.cacheConfig.isShared);
 }
 
 public function HttpCachingClient::options (string path, Request req) returns (Response|HttpConnectorError) {
@@ -583,7 +584,7 @@ function sendValidationRequest (HttpClient httpClient, string path, Response cac
 
     // TODO: handle cases where neither of the above 2 headers are present
 
-    match httpClient.get(path, validationRequest) {
+    match httpClient.get(path, req = validationRequest) {
         Response validationResponse => return validationResponse;
 
         HttpConnectorError err => return err;
@@ -593,7 +594,7 @@ function sendValidationRequest (HttpClient httpClient, string path, Response cac
 function sendNewRequest(HttpClient httpClient, Request request, string path, string httpMethod)
                                                                             returns (Response|HttpConnectorError) {
     if (httpMethod == GET) {
-        return httpClient.get(path, request);
+        return httpClient.get(path, req = request);
     } else if (httpMethod == HEAD) {
         return httpClient.head(path, request);
     } else {

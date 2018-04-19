@@ -64,7 +64,9 @@ import java.net.URL;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
@@ -88,7 +90,12 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         // Extract Argument values
         BStruct bConnector = (BStruct) context.getRefArgument(0);
         String path = context.getStringArgument(0);
-        BStruct requestStruct  = ((BStruct) context.getRefArgument(1));
+
+        BStruct requestStruct = ((BStruct) context.getNullableRefArgument(1));
+        if (requestStruct == null) {
+            requestStruct = BLangConnectorSPIUtil.createBStruct(context, HTTP_PACKAGE_PATH, REQUEST);
+        }
+
         HTTPCarbonMessage requestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
 
@@ -371,7 +378,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     }
 
     private void serializeDataSource(Context context, OutputStream messageOutputStream) throws IOException {
-        BStruct requestStruct = ((BStruct) context.getRefArgument(1));
+        BStruct requestStruct = ((BStruct) context.getNullableRefArgument(1));
+        if (requestStruct == null) {
+            return;
+        }
+
         BStruct entityStruct = MimeUtil.extractEntity(requestStruct);
         if (entityStruct != null) {
             MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
