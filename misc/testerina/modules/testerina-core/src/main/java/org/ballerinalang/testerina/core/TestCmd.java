@@ -41,6 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
 
+import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
+
 /**
  * Test command for ballerina launcher.
  */
@@ -71,6 +73,9 @@ public class TestCmd implements BLauncherCmd {
     @Parameter(names = {"--config", "-c"}, description = "path to the testerina configuration file")
     private String configFilePath;
 
+    @Parameter(names = "--debug", description = "remote debug testerina programs")
+    private String debugPort;
+
     // Testerina Flags
     @Parameter(names = {"--list-groups", "-lg"}, description = "list the groups available in the tests")
     private boolean listGroups;
@@ -97,19 +102,22 @@ public class TestCmd implements BLauncherCmd {
             throw LauncherUtils
                     .createUsageException("Cannot specify both --groups and --disable-groups flags at the same time");
         }
+
+        // Enable remote debugging
+        if (null != debugPort) {
+            System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
+        }
         // Setting the vm options
         VMOptions.getInstance().addOptions(vmOptions);
 
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         // Setting the source root so it can be accessed from anywhere
         System.setProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
-        Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
         try {
-            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, ballerinaConfPath);
+            ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, null);
             ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
         } catch (IOException e) {
-            throw new RuntimeException("failed to read the specified configuration file: " + ballerinaConfPath
-                    .toString(), e);
+            throw new RuntimeException("failed to read the specified configuration file: " + configFilePath, e);
         }
 
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);

@@ -16,7 +16,7 @@
 
 package ballerina.auth;
 
-import ballerina/caching;
+import ballerina/cache;
 import ballerina/config;
 import ballerina/jwt;
 import ballerina/log;
@@ -29,13 +29,10 @@ import ballerina/time;
 public type JWTAuthProvider object {
     public {
         JWTAuthProviderConfig jwtAuthProviderConfig;
-        caching:Cache authCache;
+        cache:Cache authCache;
     }
 
     new (jwtAuthProviderConfig) {
-        config:setConfig("trustStore.location", jwtAuthProviderConfig.trustStoreFilePath );
-        config:setConfig("trustStore.type","pkcs12");
-        config:setConfig("trustStore.trustStorePassword",jwtAuthProviderConfig.trustStorePassword);
     }
     public function authenticate (string jwtToken) returns (boolean|error);
     function authenticateFromCache (string jwtToken)
@@ -47,8 +44,8 @@ public type JWTAuthProvider object {
 public type JWTAuthProviderConfig {
     string issuer,
     string audience,
+    int clockSkew,
     string certificateAlias,
-    int timeSkew,
     string trustStoreFilePath,
     string trustStorePassword,
 };
@@ -59,7 +56,7 @@ public type JWTAuthProviderConfig {
 @final string USERNAME = "name";
 @final string AUTH_TYPE_JWT = "jwt";
 
-public type CachedJWTAuthContext {
+type CachedJWTAuthContext {
     jwt:Payload jwtPayload,
     int expiryTime;
 };
@@ -131,32 +128,36 @@ function JWTAuthProvider::addToAuthenticationCache (string jwtToken, int exp, jw
 function setAuthContext (jwt:Payload jwtPayload, string jwtToken) {
     runtime:AuthenticationContext authContext = runtime:getInvocationContext().authenticationContext;
     authContext.userId = jwtPayload.sub;
-    match jwtPayload.customClaims[SCOPES] {
-        string scopeString => {
-            authContext.scopes = scopeString.split(" ");
-            _ = jwtPayload.customClaims.remove(SCOPES);
+    // By default set sub as username.
+    authContext. username = jwtPayload.sub;
+    if (jwtPayload.customClaims.hasKey(SCOPES)) {
+        match jwtPayload.customClaims[SCOPES] {
+            string scopeString => {
+                authContext.scopes = scopeString.split(" ");
+                _ = jwtPayload.customClaims.remove(SCOPES);
+            }
+            any => {}
         }
-        any => {}
     }
 
-    match jwtPayload.customClaims[GROUPS] {
-        string[] userGroups => {
-            authContext.groups = userGroups;
-            _ = jwtPayload.customClaims.remove(GROUPS);
+    if (jwtPayload.customClaims.hasKey(GROUPS)) {
+        match jwtPayload.customClaims[GROUPS] {
+            string[] userGroups => {
+                authContext.groups = userGroups;
+                _ = jwtPayload.customClaims.remove(GROUPS);
+            }
+            any => {}
         }
-        any => {}
     }
 
-    match jwtPayload.customClaims[USERNAME] {
-        string name => {
-            authContext.username = name;
-            _ = jwtPayload.customClaims.remove(USERNAME);
+    if(jwtPayload.customClaims.hasKey(USERNAME)) {
+        match jwtPayload.customClaims[USERNAME] {
+            string name => {
+                authContext.username = name;
+                _ = jwtPayload.customClaims.remove(USERNAME);
+            }
+            any => {}
         }
-        () => {
-            // By default set sub as username.
-            authContext.username = jwtPayload.sub;
-        }
-        any => {}
     }
 
     authContext.authType = AUTH_TYPE_JWT;

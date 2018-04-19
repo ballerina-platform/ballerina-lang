@@ -104,7 +104,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -114,6 +113,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -263,6 +263,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.visitInvocable(funcNode, funcEnv);
         this.returnWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
+
+        funcNode.defaultableParams.forEach(param -> {
+            if (param.getVariable().expr.getKind() != NodeKind.LITERAL) {
+                this.dlog.error(param.getVariable().expr.pos, DiagnosticCode.INVALID_DEFAULT_PARAM_VALUE,
+                        param.getVariable().name);
+            }
+        });
     }
 
     private void visitInvocable(BLangInvokableNode invNode, SymbolEnv invokableEnv) {
@@ -394,9 +401,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFail failNode) {
+    public void visit(BLangRetry retryNode) {
         if (this.transactionCount == 0) {
-            this.dlog.error(failNode.pos, DiagnosticCode.FAIL_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
+            this.dlog.error(retryNode.pos, DiagnosticCode.FAIL_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
         this.lastStatement = true;

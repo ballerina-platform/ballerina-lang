@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.net.grpc.builder.BallerinaFileBuilder;
 import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
@@ -346,11 +347,16 @@ public class ServiceProtoUtils {
         for (Object variable : variableNodes)  {
             if (variable instanceof BLangNode) {
                 BType tempType = ((BLangNode) variable).type;
+                if (tempType.getKind().equals(TypeKind.ARRAY)) {
+                    requestType = tempType;
+                    break;
+                }
                 if ("ballerina.grpc:Service".equals(tempType.tsymbol.toString()) || "ballerina.grpc:Headers"
                         .equals(tempType.tsymbol.toString())) {
                     continue;
                 }
                 requestType = tempType;
+                break;
             } else {
                 throw new GrpcServerException("Request Message type is not supported, should be lang variable.");
             }

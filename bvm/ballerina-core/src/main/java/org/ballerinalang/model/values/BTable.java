@@ -44,6 +44,8 @@ public class BTable implements BRefType<Object>, BCollection {
     private TableProvider tableProvider;
     private String tableName;
     protected BStructType constraintType;
+    private BStringArray primaryKeys;
+    private BStringArray indices;
     private boolean isInMemoryTable;
 
     public BTable() {
@@ -100,6 +102,8 @@ public class BTable implements BRefType<Object>, BCollection {
         this.tableProvider = TableProvider.getInstance();
         this.tableName = tableProvider.createTable(((BTableType) type).getConstrainedType(), primaryKeys, indexColumns);
         this.constraintType = (BStructType) ((BTableType) type).getConstrainedType();
+        this.primaryKeys = primaryKeys;
+        this.indices = indexColumns;
         this.isInMemoryTable = true;
         //Insert initial data
         if (data != null) {
@@ -117,15 +121,30 @@ public class BTable implements BRefType<Object>, BCollection {
         if (!this.isInMemoryTable) {
             return "";
         }
+        String constraint = constraintType != null ? "<" + constraintType.toString() + ">" : "";
+        StringBuilder tableWrapper = new StringBuilder("table" + constraint + " ");
+        StringJoiner tableContent = new StringJoiner(", ", "{", "}");
+        tableContent.add(createStringValueEntry("index", indices));
+        tableContent.add(createStringValueEntry("primaryKey", primaryKeys));
+        tableContent.add(createStringValueDataEntry());
+        tableWrapper.append(tableContent.toString());
+
+        return tableWrapper.toString();
+    }
+
+    private String createStringValueEntry(String key, BStringArray contents) {
+        return key + ": " + contents.stringValue();
+    }
+
+    private String createStringValueDataEntry() {
         StringBuilder sb = new StringBuilder();
-        sb.append("{data: ");
+        sb.append("data: ");
         StringJoiner sj = new StringJoiner(", ", "[", "]");
         while (hasNext(false)) {
             BStruct struct = getNext();
             sj.add(struct.stringValue());
         }
         sb.append(sj.toString());
-        sb.append("}");
         return sb.toString();
     }
 

@@ -37,15 +37,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
         functionName = "mirror",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.SQL_CLIENT),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS),
         args = {
                 @Argument(name = "tableName", type = TypeKind.STRING),
                 @Argument(name = "recordType", type = TypeKind.STRING)
         },
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),
-                @ReturnType(type = TypeKind.STRUCT, structType = "error",
-                            structPackage = "ballerina.builtin")
+                @ReturnType(type = TypeKind.STRUCT, structType = "error", structPackage = "ballerina.builtin")
         }
 )
 public class Mirror extends AbstractSQLAction {
@@ -55,7 +54,7 @@ public class Mirror extends AbstractSQLAction {
         BStruct bConnector = (BStruct) context.getRefArgument(0);
         String tableName = context.getStringArgument(0);
         BStructType structType = getStructType(context, 1);
-        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
+        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);
 
         createMirroredTable(context, datasource, tableName, structType);
     }

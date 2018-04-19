@@ -115,7 +115,6 @@ public class UserDefinedMessage extends Message {
                 nestedEnumList.add(enumMessage);
             } else if (messageDefinition instanceof UserDefinedMessage) {
                 UserDefinedMessage message = (UserDefinedMessage) messageDefinition;
-                messageDescriptorBuilder.addNestedType(message.getDescriptorProto());
                 nestedMsgList.add(message);
             }
         }

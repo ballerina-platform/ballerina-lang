@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.signature;
 
-import org.ballerinalang.langserver.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.eclipse.lsp4j.Position;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;

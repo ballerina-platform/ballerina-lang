@@ -23,7 +23,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +33,10 @@ import javax.jms.JMSException;
  * Adapter class use used to bridge the connector native codes and Ballerina API.
  */
 public class BallerinaAdapter {
+
+    private static final String ERROR_RECORD_PACKAGE = "ballerina.builtin";
+
+    private static final String ERROR_RECORD_NAME = "error";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaAdapter.class);
 
@@ -68,9 +71,7 @@ public class BallerinaAdapter {
     }
 
     private static BStruct createErrorRecord(Context context, String errorMsg, JMSException e) {
-        BStruct errorStruct = BLangConnectorSPIUtil.createBStruct(context,
-                                                                  Constants.BALLERINA_PACKAGE_JMS,
-                                                                  Constants.ERROR_STRUCT);
+        BStruct errorStruct = BLangConnectorSPIUtil.createBStruct(context, ERROR_RECORD_PACKAGE, ERROR_RECORD_NAME);
         errorStruct.setStringField(0, errorMsg + " " + e.getMessage());
         return errorStruct;
     }

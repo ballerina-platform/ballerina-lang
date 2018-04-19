@@ -302,7 +302,7 @@ public function Response::setETag(json|xml|string|blob payload) {
 
 public function Response::setLastModified() {
     time:Time currentT = time:currentTime();
-    string lastModified = currentT.formatTo(time:TIME_FORMAT_RFC_1123);
+    string lastModified = currentT.format(time:TIME_FORMAT_RFC_1123);
     self.setHeader(LAST_MODIFIED, lastModified);
 }
 

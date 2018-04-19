@@ -20,12 +20,12 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.DocumentServiceKeys;
-import org.ballerinalang.langserver.LSContextManager;
-import org.ballerinalang.langserver.LSPackageCache;
-import org.ballerinalang.langserver.LSServiceOperationContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSContextManager;
+import org.ballerinalang.langserver.compiler.LSPackageCache;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * Completion Item Resolver for the Package name context.
