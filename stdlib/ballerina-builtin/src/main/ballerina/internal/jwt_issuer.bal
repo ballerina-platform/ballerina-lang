@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.jwt;
+package ballerina.internal;
 
 import ballerina/util;
 import ballerina/io;
@@ -28,12 +28,12 @@ public type JWTIssuerConfig {
 };
 
 @Description {value:"Issue a JWT token"}
-@Param {value:"header: Header object"}
-@Param {value:"payload: Payload object"}
+@Param {value:"header: JwtHeader object"}
+@Param {value:"payload: JwtPayload object"}
 @Param {value:"config: JWTIssuerConfig object"}
 @Return {value:"string: JWT token string"}
 @Return {value:"error: If token validation fails "}
-public function issue (Header header, Payload payload, JWTIssuerConfig config) returns (string|error) {
+public function issue (JwtHeader header, JwtPayload payload, JWTIssuerConfig config) returns (string|error) {
     string jwtHeader = createHeader(header);
     string jwtPayload = "";
     match createPayload(payload) {
@@ -50,7 +50,7 @@ public function issue (Header header, Payload payload, JWTIssuerConfig config) r
     return (jwtAssertion + "." + signature);
 }
 
-function createHeader (Header header) returns (string) {
+function createHeader (JwtHeader header) returns (string) {
     json headerJson = {};
     headerJson[ALG] = header.alg;
     headerJson[TYP] = "JWT";
@@ -60,7 +60,7 @@ function createHeader (Header header) returns (string) {
     return encodedPayload;
 }
 
-function createPayload (Payload payload) returns (string|error) {
+function createPayload (JwtPayload payload) returns (string|error) {
     json payloadJson = {};
     if (!validateMandatoryFields(payload)) {
         error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty."};

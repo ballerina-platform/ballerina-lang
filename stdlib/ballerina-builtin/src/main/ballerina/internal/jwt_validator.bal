@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.jwt;
+package ballerina.internal;
 
 import ballerina/log;
 import ballerina/time;
@@ -34,20 +34,20 @@ public type JWTValidatorConfig {
 @Param {value:"jwtToken: JWT token that need to validate"}
 @Param {value:"config: JWTValidatorConfig object"}
 @Return {value:"boolean: If JWT token is valied true , else false"}
-@Return {value:"Payload: If JWT token is valied return the JWT payload"}
+@Return {value:"JwtPayload: If JWT token is valied return the JWT payload"}
 @Return {value:"error: If token validation fails"}
-public function validate (string jwtToken, JWTValidatorConfig config) returns Payload|error {
+public function validate (string jwtToken, JWTValidatorConfig config) returns JwtPayload|error {
     string[] encodedJWTComponents;
     match getJWTComponents(jwtToken) {
         string[] encodedJWT => encodedJWTComponents = encodedJWT;
         error e => return e;
     }
 
-    Header header = {};
-    Payload payload = {};
+    JwtHeader header = {};
+    JwtPayload payload = {};
     match parseJWT(encodedJWTComponents) {
         error e => return e;
-        (Header, Payload) result => {
+        (JwtHeader, JwtPayload) result => {
             (header, payload) = result;
         }
     }
@@ -75,7 +75,7 @@ function getJWTComponents (string jwtToken) returns (string[])|error {
     return jwtComponents;
 }
 
-function parseJWT (string[] encodedJWTComponents) returns ((Header, Payload)|error) {
+function parseJWT (string[] encodedJWTComponents) returns ((JwtHeader, JwtPayload)|error) {
     json headerJson = {};
     json payloadJson = {};
     match getDecodedJWTComponents(encodedJWTComponents) {
@@ -85,8 +85,8 @@ function parseJWT (string[] encodedJWTComponents) returns ((Header, Payload)|err
         }
     }
 
-    Header jwtHeader = parseHeader(headerJson);
-    Payload jwtPayload = parsePayload(payloadJson);
+    JwtHeader jwtHeader = parseHeader(headerJson);
+    JwtPayload jwtPayload = parsePayload(payloadJson);
     return (jwtHeader, jwtPayload);
 }
 
@@ -107,8 +107,8 @@ function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json,
     return (jwtHeaderJson, jwtPayloadJson);
 }
 
-function parseHeader (json jwtHeaderJson) returns (Header) {
-    Header jwtHeader = {};
+function parseHeader (json jwtHeaderJson) returns (JwtHeader) {
+    JwtHeader jwtHeader = {};
     map customClaims;
     
     string [] keys = jwtHeaderJson.getKeys();
@@ -135,8 +135,8 @@ function parseHeader (json jwtHeaderJson) returns (Header) {
     return jwtHeader;
 }
 
-function parsePayload (json jwtPayloadJson) returns (Payload) {
-    Payload jwtPayload = {};
+function parsePayload (json jwtPayloadJson) returns (JwtPayload) {
+    JwtPayload jwtPayload = {};
     map customClaims;
     string [] keys = jwtPayloadJson.getKeys();
     foreach key in keys {
@@ -170,7 +170,7 @@ function parsePayload (json jwtPayloadJson) returns (Payload) {
     return jwtPayload;
 }
 
-function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload jwtPayload, JWTValidatorConfig config) returns (boolean|error) {
+function validateJWT (string[] encodedJWTComponents, JwtHeader jwtHeader, JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean|error) {
     if (!validateMandatoryFields(jwtPayload)) {
         error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty in the given JSON Web Token."};
         return err;
@@ -200,14 +200,14 @@ function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload j
     return true;
 }
 
-function validateMandatoryFields (Payload jwtPayload) returns (boolean) {
+function validateMandatoryFields (JwtPayload jwtPayload) returns (boolean) {
     if (jwtPayload.iss == "" || jwtPayload.sub == "" || jwtPayload.exp == 0 || lengthof jwtPayload.aud == 0) {
         return false;
     }
     return true;
 }
 
-function validateSignature (string[] encodedJWTComponents, Header jwtHeader, JWTValidatorConfig config) returns (boolean) {
+function validateSignature (string[] encodedJWTComponents, JwtHeader jwtHeader, JWTValidatorConfig config) returns (boolean) {
     string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
     string signPart = encodedJWTComponents[2];
     TrustStore trustStore = {};
@@ -217,11 +217,11 @@ function validateSignature (string[] encodedJWTComponents, Header jwtHeader, JWT
     return verifySignature(assertion, signPart, jwtHeader.alg, trustStore);
 }
 
-function validateIssuer (Payload jwtPayload, JWTValidatorConfig config) returns (boolean) {
+function validateIssuer (JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {
     return jwtPayload.iss == config.issuer;
 }
 
-function validateAudience (Payload jwtPayload, JWTValidatorConfig config) returns (boolean) {
+function validateAudience (JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {
     foreach audience in jwtPayload.aud {
         if (audience == config.audience) {
             return true;
@@ -230,7 +230,7 @@ function validateAudience (Payload jwtPayload, JWTValidatorConfig config) return
     return false;
 }
 
-function validateExpirationTime (Payload jwtPayload, JWTValidatorConfig config) returns (boolean) {
+function validateExpirationTime (JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {
     //Convert current time which is in milliseconds to seconds.
     int expTime = jwtPayload.exp;
     if(config.clockSkew > 0){
@@ -239,7 +239,7 @@ function validateExpirationTime (Payload jwtPayload, JWTValidatorConfig config) 
     return expTime > time:currentTime().time/1000;
 }
 
-function validateNotBeforeTime (Payload jwtPayload) returns (boolean) {
+function validateNotBeforeTime (JwtPayload jwtPayload) returns (boolean) {
     return time:currentTime().time > jwtPayload.nbf;
 }
 

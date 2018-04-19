@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.jwt;
+package ballerina.internal;
 
 //JOSH header parameters
 @final string ALG = "alg";
@@ -32,7 +32,7 @@ package ballerina.jwt;
 @final string IAT = "iat";
 
 @Description {value:"Represents a JWT header"}
-public type Header {
+public type JwtHeader {
     string alg;
     string typ;
     string cty;
@@ -41,7 +41,7 @@ public type Header {
 };
 
 @Description {value:"Represents a JWT payload"}
-public type Payload {
+public type JwtPayload {
     string iss;
     string sub;
     string[] aud;
