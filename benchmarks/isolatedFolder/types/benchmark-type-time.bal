@@ -1,70 +1,70 @@
-package ballerina;
+package types;
 
 import ballerina/time;
 
-function benchmarkCurrentTimeFunction() {
+public function benchmarkCurrentTimeFunction() {
     time:Time time = time:currentTime();
     int timeValue = time.time;
     string zoneId = time.zone.zoneId;
     int zoneoffset = time.zone.zoneOffset;
 }
 
-function benchmarkCreateTimeWithZoneIDFunction() {
+public function benchmarkCreateTimeWithZoneIDFunction() {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
-    time:Time time = new (1498488382000, zoneValue);
+    time:Time time = new(1498488382000, zoneValue);
     int timeValue = time.time;
     string zoneId = time.zone.zoneId;
     int zoneoffset = time.zone.zoneOffset;
 }
 
-function benchmarkCreateTimeWithOffsetFunction() {
+public function benchmarkCreateTimeWithOffsetFunction() {
     time:Timezone zoneValue = {zoneId:"-05:00"};
-    time:Time time = new (1498488382000, zoneValue);
+    time:Time time = new(1498488382000, zoneValue);
     int timeValue = time.time;
     string zoneId = time.zone.zoneId;
     int zoneoffset = time.zone.zoneOffset;
 }
 
-function benchmarkCreateTimeWithNoZoneFunction() {
+public function benchmarkCreateTimeWithNoZoneFunction() {
     time:Timezone zoneValue = {zoneId:""};
-    time:Time time = new (1498488382000, zoneValue);
+    time:Time time = new(1498488382000, zoneValue);
     int timeValue = time.time;
     string zoneId = time.zone.zoneId;
     int zoneoffset = time.zone.zoneOffset;
 }
 
-function benchmarkCreateDateTimeFunction() {
+public function benchmarkCreateDateTimeFunction() {
     time:Time time = time:createTime(2017, 3, 28, 23, 42, 45, 554, "America/Panama");
 }
 
-function benchmarkParseTimeFunction() {
+public function benchmarkParseTimeFunction() {
     time:Time time = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     int timeValue = time.time;
     string zoneId = time.zone.zoneId;
     int zoneoffset = time.zone.zoneOffset;
 }
 
-function benchmarkToStringWithCreateTimeFunction() {
+public function benchmarkToStringWithCreateTimeFunction() {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
-    time:Time time = new (1498488382000, zoneValue);
+    time:Time time = new(1498488382000, zoneValue);
     string timeString = time.toString();
 }
 
-function benchmarkFormatTimeFunction() {
+public function benchmarkFormatTimeFunction() {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
-    time:Time time = new (1498488382444, zoneValue);
+    time:Time time = new(1498488382444, zoneValue);
     string timeString = time.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 }
 
-function benchmarkFormatTimeToRFC1123function() {
+public function benchmarkFormatTimeToRFC1123function() {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
-    time:Time time = new (1498488382444, zoneValue);
+    time:Time time = new(1498488382444, zoneValue);
     string timeString = time.formatTo(time:TIME_FORMAT_RFC_1123);
 }
 
-function benchmarkTimeGetFunctions() {
+public function benchmarkTimeGetFunctions() {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
-    time:Time time = new (1456876583555, zoneValue);
+    time:Time time = new(1456876583555, zoneValue);
     int year = time.year();
     int month = time.month();
     int day = time.day();
@@ -75,65 +75,65 @@ function benchmarkTimeGetFunctions() {
     string weekday = time.weekday();
 }
 
-function benchmarkGetDateFunction() {
+public function benchmarkGetDateFunction() {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
-    time:Time time = new (1456876583555, zoneValue);
+    time:Time time = new(1456876583555, zoneValue);
     int year; int month; int day;
     (year, month, day) = time.getDate();
 }
 
-function benchmarkGetTimeFunction() {
+public function benchmarkGetTimeFunction() {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
-    time:Time time = new (1456876583555, zoneValue);
+    time:Time time = new(1456876583555, zoneValue);
     int hour; int minute; int second; int milliSecond;
     (hour, minute, second, milliSecond) = time.getTime();
 }
 
-function benchmarkAddDurationFunction() {
+public function benchmarkAddDurationFunction() {
     time:Time time = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     time = time.addDuration(1, 1, 1, 1, 1, 1, 1);
     string timeString = time.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 }
 
-function benchmarkSubtractDurationFunction() {
+public function benchmarkSubtractDurationFunction() {
     time:Time time = time:parse("2016-03-01T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     time = time.subtractDuration(1, 1, 1, 1, 1, 1, 1);
     string timeString = time.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 }
 
-function benchmarkToTimezoneFunction() {
+public function benchmarkToTimezoneFunction() {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
-    time:Time time = new (1456876583555, zoneValue);
+    time:Time time = new(1456876583555, zoneValue);
     string timeStrBefore = time.toString();
     time = time.toTimezone("Asia/Colombo");
     string timeStrAfter = time.toString();
 }
 
-function benchmarkToTimezoneFunctionWithDateTime() {
+public function benchmarkToTimezoneFunctionWithDateTime() {
     time:Time time = time:parse("2016-03-01T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     time = time.toTimezone("Asia/Colombo");
     string timeString = time.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 }
 
-function benchmarkManualTimeCreateFunction() {
+public function benchmarkManualTimeCreateFunction() {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
-    time:Time time = new (1498488382000, zoneValue);
+    time:Time time = new(1498488382000, zoneValue);
     string timeString = time.toString();
 }
 
-function benchmarkManualTimeCreateFunctionWithNoZone() {
+public function benchmarkManualTimeCreateFunctionWithNoZone() {
     time:Timezone zoneValue = {zoneId:""};
-    time:Time time = new (1498488382555, zoneValue);
+    time:Time time = new(1498488382555, zoneValue);
     int year = time.year();
 }
 
-function benchmarkManualTimeCreateFunctionWithEmptyZone() {
+public function benchmarkManualTimeCreateFunctionWithEmptyZone() {
     time:Timezone zoneValue = {zoneId:""};
-    time:Time time = new (1498488382555, zoneValue);
+    time:Time time = new(1498488382555, zoneValue);
     int yesr = time.year();
 }
 
-function benchmarkParseTimeFunctionWithDifferentFormats() {
+public function benchmarkParseTimeFunctionWithDifferentFormats() {
     time:Time time = time:parse("2017", "yyyy");
     int year = time.year();
     time = time:parse("03", "MM");
@@ -157,3 +157,4 @@ function benchmarkParseTimeFunctionWithDifferentFormats() {
     time = time:parse("2014/05/29-23:44:59.544", "yyyy/MM/dd-HH:mm:ss.SSS");
     string datetimeStr = time.format("yyyy-MM-dd-HH:mm:ss.SSS");
 }
+
