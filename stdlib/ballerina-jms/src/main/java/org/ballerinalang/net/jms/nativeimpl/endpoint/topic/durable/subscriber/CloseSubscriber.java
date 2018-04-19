@@ -39,9 +39,9 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler
                              structType = "DurableTopicSubscriber",
                              structPackage = "ballerina.jms"),
         args = {
-                @Argument(name = "connector",
+                @Argument(name = "consumerActions",
                           type = TypeKind.STRUCT,
-                          structType = "DurableTopicSubscriberConnector")
+                          structType = "DurableTopicSubscriberActions")
         },
         isPublic = true
 )
