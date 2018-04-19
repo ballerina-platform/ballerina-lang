@@ -74,7 +74,7 @@ public type TargetService {
 @Field {value:"httpVersion: The HTTP version understood by the client"}
 @Field {value:"forwarded: The choice of setting forwarded/x-forwarded header"}
 @Field {value:"followRedirects: Redirect related options"}
-@Field {value:"retry: Retry related options"}
+@Field {value:"retryConfig: Retry related options"}
 @Field {value:"proxy: Proxy server related options"}
 @Field {value:"connectionThrottling: Configurations for connection throttling"}
 @Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
@@ -92,7 +92,7 @@ public type ClientEndpointConfig {
     string httpVersion = "1.1",
     string forwarded = "disable",
     FollowRedirects? followRedirects,
-    Retry? retry,
+    RetryConfig? retryConfig,
     ProxyConfig? proxy,
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
@@ -104,12 +104,12 @@ public type ClientEndpointConfig {
 
 public native function createHttpClient(string uri, ClientEndpointConfig config) returns HttpClient;
 
-@Description { value:"Retry struct represents retry related options for HTTP client invocation" }
+@Description { value:"RetryConfig struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
 @Field {value:"interval: Retry interval in milliseconds"}
 @Field {value:"backOffFactor: Multiplier of the retry interval to exponentailly increase retry interval"}
 @Field {value:"maxWaitInterval: Maximum time of the retry interval in milliseconds"}
-public type Retry {
+public type RetryConfig {
     int count,
     int interval,
     float backOffFactor,
@@ -238,9 +238,9 @@ public function Client::init(ClientEndpointConfig config) {
                     }
                 }
                 if (httpClientRequired) {
-                    var retryConfig = config.retry;
-                    match retryConfig {
-                        Retry retry => {
+                    var retryConfigVal = config.retryConfig;
+                    match retryConfigVal {
+                        RetryConfig retryConfig => {
                             self.httpClient = createRetryClient(url, config);
                         }
                         () => {
@@ -266,9 +266,9 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfig configurat
             validateCircuitBreakerConfiguration(cb);
             boolean [] statusCodes = populateErrorCodeIndex(cb.statusCodes);
             HttpClient cbHttpClient = new;
-            var retryConfig = configuration.retry;
-            match retryConfig {
-                Retry retry => {
+            var retryConfigVal = configuration.retryConfig;
+            match retryConfigVal {
+                RetryConfig retryConfig => {
                     cbHttpClient = createRetryClient(uri, configuration);
                 }
                 () => {
@@ -327,13 +327,13 @@ public function createFailOverClient(ClientEndpointConfig config, FailoverConfig
 }
 
 function createRetryClient (string url, ClientEndpointConfig configuration) returns HttpClient {
-    var retryConfig = configuration.retry;
-    match retryConfig {
-        Retry retry => {
+    var retryConfigVal = configuration.retryConfig;
+    match retryConfigVal {
+        RetryConfig retryConfig => {
             if (configuration.cache.enabled) {
-                return new RetryClient(url, configuration, retry, createHttpCachingClient(url, configuration, configuration.cache));
+                return new RetryClient(url, configuration, retryConfig, createHttpCachingClient(url, configuration, configuration.cache));
             } else{
-                return new RetryClient(url, configuration, retry, createHttpSecureClient(url, configuration));
+                return new RetryClient(url, configuration, retryConfig, createHttpSecureClient(url, configuration));
             }
         }
         () => {

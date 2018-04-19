@@ -1,4 +1,4 @@
-// Generated from /home/anupama/Anupama/Workspace/WSO2_SRC/BallerinaLang/Release_Work/FinalRelease/TransactionOptions/ballerina/compiler/ballerina-lang/src/main/resources/grammar/BallerinaLexer.g4 by ANTLR 4.5.3
+// Generated from BallerinaLexer.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
