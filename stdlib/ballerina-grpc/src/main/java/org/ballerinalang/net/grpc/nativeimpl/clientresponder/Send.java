@@ -29,19 +29,19 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER;
-import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
-import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.RESPONSE_MESSAGE_REF_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_RESPONDER;
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_RESPONDER_REF_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.RESPONSE_MESSAGE_REF_INDEX;
 import static org.ballerinalang.net.grpc.MessageUtils.getContextHeader;
 
 /**
@@ -75,14 +75,14 @@ public class Send extends BlockingNativeCallableUnit {
         BValue responseValue = context.getRefArgument(RESPONSE_MESSAGE_REF_INDEX);
         BRefValueArray headerValues = (BRefValueArray) context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
         StreamObserver<Message> responseObserver = MessageUtils.getResponseObserver(clientEndpoint);
-        Descriptors.Descriptor outputType = (Descriptors.Descriptor) clientEndpoint.getNativeData(MessageConstants
+        Descriptors.Descriptor outputType = (Descriptors.Descriptor) clientEndpoint.getNativeData(GrpcConstants
                 .RESPONSE_MESSAGE_DEFINITION);
         io.grpc.Context msgContext = getContextHeader(headerValues);
-
+        
         if (responseObserver == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                     .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
-                    "response sender does not exist"))));
+                            "response sender does not exist"))));
         } else {
             io.grpc.Context previous = msgContext != null ? msgContext.attach() : null;
             try {

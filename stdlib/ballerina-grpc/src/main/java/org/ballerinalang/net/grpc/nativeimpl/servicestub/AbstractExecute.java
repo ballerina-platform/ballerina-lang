@@ -31,8 +31,8 @@ import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
-import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 /**
  * {@code AbstractExecute} is the Execute action implementation of the gRPC Connector.

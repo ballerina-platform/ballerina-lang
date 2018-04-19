@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 
 /**
@@ -120,7 +120,7 @@ public class MessageUtils {
     public static StreamObserver<Message> getResponseObserver(BRefType refType) {
         Object observerObject = null;
         if (refType instanceof BStruct) {
-            observerObject = ((BStruct) refType).getNativeData(MessageConstants.RESPONSE_OBSERVER);
+            observerObject = ((BStruct) refType).getNativeData(GrpcConstants.RESPONSE_OBSERVER);
         }
         if (observerObject instanceof StreamObserver) {
             return ((StreamObserver<Message>) observerObject);
@@ -131,7 +131,7 @@ public class MessageUtils {
     public static BStruct getConnectorError(Context context, Throwable throwable) {
         PackageInfo grpcPackageInfo = context.getProgramFile()
                 .getPackageInfo(PROTOCOL_STRUCT_PACKAGE_GRPC);
-        StructInfo errorStructInfo = grpcPackageInfo.getStructInfo(MessageConstants.CONNECTOR_ERROR);
+        StructInfo errorStructInfo = grpcPackageInfo.getStructInfo(GrpcConstants.CONNECTOR_ERROR);
         return getConnectorError(errorStructInfo.getType(), throwable);
     }
     
@@ -197,7 +197,7 @@ public class MessageUtils {
         if (fieldType == null) {
             return ServiceProtoConstants.INVALID_WIRE_TYPE;
         }
-        Integer wireType = MessageConstants.WIRE_TYPE_MAP.get(fieldType.toProto());
+        Integer wireType = GrpcConstants.WIRE_TYPE_MAP.get(fieldType.toProto());
         if (wireType != null) {
             return wireType;
         } else {

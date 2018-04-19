@@ -69,50 +69,36 @@ documentation {
 
     F{{host}} - The server hostname.
     F{{port}} - The server port.
-    F{{ssl}} - The SSL configurations for the client endpoint.
+    F{{secureSocket}} - The SSL configurations for the client endpoint.
 }
 public type ServiceEndpointConfiguration {
-    string host;
-    int port;
-    SslConfiguration ssl;
+    string host,
+    int port,
+    ServiceSecureSocket? secureSocket,
 };
 
-documentation {
-    SslConfiguration struct represents SSL/TLS options to be used for client invocation
-
-    F{{trustStoreFile}} - File path to trust store file.
-    F{{trustStorePassword}} - Trust store password.
-    F{{keyStoreFile}} - File path to key store file.
-    F{{keyStorePassword}} - Key store password.
-    F{{sslEnabledProtocols}} - SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2.
-    F{{ciphers}} - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-    TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
-    F{{sslProtocol}} - SSL Protocol to be used. eg: TLS1.2
-    F{{validateCertEnabled}} - The status of validateCertEnabled
-    F{{sslVerifyClient}} - SSL Verify client
-    F{{certPassword}} - certificate password
-    F{{tlsStoreType}} - TLS store type
-    F{{cacheSize}} - Maximum size of the cache
-    F{{cacheValidityPeriod}} - Time duration of cache validity period
-}
-public type SslConfiguration {
-    string trustStoreFile;
-    string trustStorePassword;
-    string keyStoreFile;
-    string keyStorePassword;
-    string sslEnabledProtocols;
-    string ciphers;
-    string sslProtocol;
-    boolean validateCertEnabled;
-    string sslVerifyClient;
-    string certPassword;
-    string tlsStoreType;
-    int cacheSize;
-    int cacheValidityPeriod;
+@Description {value:"SecureSocket struct represents SSL/TLS options to be used for HTTP service"}
+@Field {value:"trustStore: TrustStore related options"}
+@Field {value:"keyStore: KeyStore related options"}
+@Field {value:"protocols: SSL/TLS protocol related options"}
+@Field {value:"certValidation: Certificate validation against CRL or OCSP related options"}
+@Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
+@Field {value:"sslVerifyClient: The type of client certificate verification"}
+@Field {value:"shareSession: Enable/disable new ssl session creation"}
+@Field {value:"ocspStapling: Enable/disable ocsp stapling"}
+public type ServiceSecureSocket {
+TrustStore? trustStore,
+KeyStore? keyStore,
+Protocols? protocol,
+ValidateCert? certValidation,
+string[] ciphers,
+string sslVerifyClient,
+boolean shareSession = true,
+ServiceOcspStapling? ocspStapling,
 };
 
 public type Listener object {
-    function getEndpoint() returns (Service) {
-        return new;
-    }
+       function getEndpoint() returns (Service) {
+                                                return new;
+       }
 };

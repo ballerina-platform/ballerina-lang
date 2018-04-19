@@ -32,14 +32,14 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER;
-import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
-import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.RESPONSE_MESSAGE_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageConstants.SERVER_ERROR;
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_RESPONDER;
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_RESPONDER_REF_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.RESPONSE_MESSAGE_REF_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVER_ERROR;
 import static org.ballerinalang.net.grpc.MessageUtils.getContextHeader;
 
 /**
@@ -67,14 +67,14 @@ import static org.ballerinalang.net.grpc.MessageUtils.getContextHeader;
 public class ErrorResponse extends BlockingNativeCallableUnit {
     private static final Logger LOG = LoggerFactory.getLogger(ErrorResponse.class);
     private static final int MESSAGE_HEADER_REF_INDEX = 1;
-
+    
     @Override
     public void execute(Context context) {
         BStruct endpointClient = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
         BRefValueArray headerValues = (BRefValueArray) context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
         BValue responseValue = context.getRefArgument(RESPONSE_MESSAGE_REF_INDEX);
         io.grpc.Context msgContext = getContextHeader(headerValues);
-
+        
         if (responseValue instanceof BStruct) {
             BStruct responseStruct = (BStruct) responseValue;
             int statusCode = Integer.parseInt(String.valueOf(responseStruct.getIntField(0)));

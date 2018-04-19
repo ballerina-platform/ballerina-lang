@@ -64,47 +64,41 @@ public type Client object {
 documentation {
     Represents the gRPC client endpoint configuration
 
-    F{{host}} - The server hostname.
-    F{{port}} - The server port.
-    F{{ssl}} - The SSL configurations for the client endpoint.
+    F{{targets}} - The SSL configurations for the client endpoint.
 }
-
 public type ClientEndpointConfig {
-    string host;
-    int port;
-    SSL ssl;
+    TargetService[] targets,
 };
 
 documentation {
-    SSL struct represents SSL/TLS options to be used for client invocation
+    Represents the gRPC client endpoint configuration
 
-    F{{trustStoreFile}} - File path to trust store file.
-    F{{trustStorePassword}} - Trust store password.
-    F{{keyStoreFile}} - File path to key store file.
-    F{{keyStorePassword}} - Key store password.
-    F{{sslEnabledProtocols}} - SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2.
-    F{{ciphers}} - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-    TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
-    F{{sslProtocol}} - SSL Protocol to be used. eg: TLS1.2
-    F{{validateCertEnabled}} - The status of validateCertEnabled
-    F{{cacheSize}} - Maximum size of the cache
-    F{{cacheValidityPeriod}} - Time duration of cache validity period
-    F{{hostNameVerificationEnabled}} - Enable/disable host name verification
+    F{{host}} - The server hostname.
+    F{{port}} - The server port.
+    F{{secureSocket}} - The SSL configurations for the client endpoint.
 }
+public type TargetService {
+    string host,
+    int port,
+    SecureSocket? secureSocket,
+};
 
-public type SSL {
-    string trustStoreFile;
-    string trustStorePassword;
-    string keyStoreFile;
-    string keyStorePassword;
-    string sslEnabledProtocols;
-    string sslVerifyClient;
-    string ciphers;
-    string certPassword;
-    string tlsStoreType;
-    string sslProtocol;
-    boolean validateCertEnabled;
-    int cacheSize;
-    int cacheValidityPeriod;
-    boolean hostNameVerificationEnabled;
+@Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP client invocation" }
+@Field {value: "trustStore: TrustStore related options"}
+@Field {value: "keyStore: KeyStore related options"}
+@Field {value: "protocols: SSL/TLS protocol related options"}
+@Field {value: "certValidation: Certificate validation against CRL or OCSP related options"}
+@Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
+@Field {value:"verifyHostname: Enable/disable host name verification"}
+@Field {value:"shareSession: Enable/disable new ssl session creation"}
+@Field {value:"ocspStapling: Enable/disable ocsp stapling"}
+public type SecureSocket {
+TrustStore? trustStore,
+KeyStore? keyStore,
+Protocols? protocol,
+ValidateCert? certValidation,
+string[] ciphers,
+boolean verifyHostname = true,
+boolean shareSession = true,
+boolean ocspStapling,
 };
