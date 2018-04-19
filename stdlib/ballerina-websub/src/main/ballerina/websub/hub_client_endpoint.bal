@@ -38,7 +38,7 @@ public type Client object {
     @Param {value:"ep: The endpoint to be initialized"}
     @Param {value:"config: The configuration for the endpoint"}
     public function init (HubClientEndpointConfiguration config) {
-        endpoint http:Client httpClientEndpoint {targets:[{url:config.url, secureSocket:config.secureSocket}],
+        endpoint http:Client httpClientEndpoint {url:config.url, secureSocket:config.secureSocket,
                                                     auth:config.auth};
         self.httpClientEndpoint = httpClientEndpoint;
         self.config = config;

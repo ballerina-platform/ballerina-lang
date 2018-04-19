@@ -18,11 +18,7 @@ endpoint http:Client acceptEncodingEnableEP {
 };
 
 endpoint http:Client acceptEncodingDisableEP {
-    targets: [
-                 {
-                     url: "http://localhost:9092/hello"
-                 }
-             ],
+    url: "http://localhost:9092/hello",
     acceptEncoding:"disable"
 };
 
