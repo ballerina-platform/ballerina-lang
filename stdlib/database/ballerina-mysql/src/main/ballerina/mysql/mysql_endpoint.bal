@@ -35,7 +35,7 @@ public type ClientEndpointConfiguration {
     string username = "",
     string password = "",
     sql:PoolOptions poolOptions,
-    map? dbOptions,
+    map dbOptions,
 };
 
 documentation {

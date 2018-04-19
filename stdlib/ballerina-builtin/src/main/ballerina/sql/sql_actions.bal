@@ -26,6 +26,8 @@ public type CallerActions object {
 
         P{{sqlQuery}} - SQL statement to execute.
         P{{recordType}} - Array of record types of the returned tables if there is any.
+        R{{}} -  `table[]` if there are tables returned by the call action and else nill,
+                `error` will be returned if there is any error.
     } //Returns array of tables if there are any.
     public native function call(@sensitive string sqlQuery, typedesc[]? recordType, Parameter... parameters)
         returns @tainted table[]|error;
@@ -35,12 +37,14 @@ public type CallerActions object {
 
         P{{sqlQuery}} - SQL query to execute.
         P{{recordType}} - Type of the returned table.
+        R{{}} - `table` table returned by the sql query statement else `error` will be returned if there is any error.
     }
     public native function select(@sensitive string sqlQuery, typedesc? recordType, Parameter... parameters)
         returns @tainted table|error;
 
     documentation {
         The close action implementation for SQL connector to shutdown the connection pool.
+        R{{}} - `error` will be returned if there is any error.
     }
     public native function close() returns (error?);
 
@@ -49,8 +53,9 @@ public type CallerActions object {
         The update action implementation for SQL connector to update data and schema of the database.
 
         P{{sqlQuery}} - SQL statement to execute.
+        R{{}} - `int` number of rows updated by the statement and else `error` will be returned if there is any error.
 
-    } //Returns updated row count
+    }
     public native function update(@sensitive string sqlQuery, Parameter... parameters) returns int|error;
 
 
@@ -58,8 +63,9 @@ public type CallerActions object {
         The batchUpdate action implementation for SQL connector to batch data insert.
 
         P{{sqlQuery}} - SQL statement to execute.
-
-    } //Returns Array of update counts
+        R{{}} - `int[]` An array of updated row count by each of statements in batch and
+                else `error` will be returned if there is any error.
+    }
     public native function batchUpdate(@sensitive string sqlQuery, Parameter[]... parameters) returns int[]|error;
 
 
@@ -69,9 +75,11 @@ public type CallerActions object {
 
         P{{sqlQuery}} - SQL statement to execute.
         P{{keyColumns}} - Names of auto generated columns for which the auto generated key values are returned.
+        R{{}} - A `Tuple` will be returned and would represent updated row count during the query exectuion,
+            aray of auto generated key values during the query execution, in order.
+            Else `error` will be returned if there is any error.
 
     }
-    //Returns Updated row count during the query exectuion, Array of auto generated key values during the query execution
     public native function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
                                                    Parameter... parameters) returns (int, string[])|error;
 

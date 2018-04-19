@@ -16,8 +16,7 @@ function testSelect() returns (int[]) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
 
     var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer);
@@ -43,8 +42,7 @@ function testUpdate() returns (int) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
 
     var insertCountRet = testDB->update("insert into Customers (customerId, name, creditLimit, country)
@@ -61,8 +59,7 @@ function testCall() returns (string) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
 
     var dtsRet = testDB->call("{call JAVAFUNC('select * from Customers where customerId=1')}", [Customer]);
@@ -83,8 +80,7 @@ function testGeneratedKeyOnInsert() returns (string) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
 
     string returnVal;
@@ -114,8 +110,7 @@ function testBatchUpdate() returns (int[]) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
 
     int[] updateCount;
@@ -156,8 +151,7 @@ function testAddToMirrorTable() returns (Customer[]) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
 
     try {
@@ -199,8 +193,7 @@ function testUpdateInMemory() returns (int, string) {
         name:"TestDB2H2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
 
     _ = testDB->update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300),
@@ -227,8 +220,7 @@ function testInitWithNilDbOptions() returns (int[]) {
         name:"TestDBH2",
         username:"SA",
         password:"",
-        poolOptions:{maximumPoolSize:1},
-        dbOptions:()
+        poolOptions:{maximumPoolSize:1}
     };
     return selectFunction(testDB);
 }
