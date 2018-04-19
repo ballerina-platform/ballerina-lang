@@ -69,7 +69,12 @@ public class Utils {
         }
     }
 
-    private static void initDebugger(ProgramFile programFile, Debugger debugger) {
+    /**
+     * Initialize the debugger.
+     * @param programFile ballerina executable programFile
+     * @param debugger Debugger instance
+     */
+    public static void initDebugger(ProgramFile programFile, Debugger debugger) {
         programFile.setDebugger(debugger);
         if (debugger.isDebugEnabled()) {
             debugger.init();

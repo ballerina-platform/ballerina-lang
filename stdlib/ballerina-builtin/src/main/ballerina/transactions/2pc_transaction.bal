@@ -125,7 +125,7 @@ type TwoPhaseCommitTransaction object {
         When an abort statement is executed, this function gets called. The transaction in concern will be marked for
         abortion.
     }
-    function markForAbortion() returns string|error {
+    function markForAbortion() returns error? {
         if (self.isInitiated) {
             self.state = TXN_STATE_ABORTED;
             log:printInfo("Marked initiated transaction for abortion");
@@ -142,18 +142,24 @@ type TwoPhaseCommitTransaction object {
                 return err;
             }
         }
-        return ""; //TODO: check what will happen if nothing is returned
+        return ();
     }
 
     // The result of this function is whether we can commit or abort
     function prepareParticipants(string protocol) returns PrepareDecision {
         PrepareDecision prepareDecision = PREPARE_DECISION_COMMIT;
-        boolean successful = true;
+        future<(PrepareResult,Participant)|()|error>[] results;
         foreach _, participant in self.participants {
             string participantId = participant.participantId;
-            PrepareResult|()|error result = participant.prepare(protocol);
+            future<(PrepareResult,Participant)|()|error> f = start participant.prepare(protocol);
+            results[lengthof results] = f;
+        }
+        foreach f in results {
+            (PrepareResult,Participant)|()|error result = await f;
             match result {
-                PrepareResult prepRes => {
+                (PrepareResult,Participant) res => {
+                    var (prepRes, participant) = res;
+                    string participantId = participant.participantId;
                     if(prepRes == PREPARE_RESULT_PREPARED) {// All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
                     } else if (prepRes == PREPARE_RESULT_COMMITTED) {
                         // If one or more participants returns "committed" and the overall prepare fails, we have to
@@ -178,8 +184,8 @@ type TwoPhaseCommitTransaction object {
                 }
                 () => {}
                 error err => {
-                    self.removeParticipant(participantId, "Could not remove prepare failed participant: " + participantId +
-                            " from transaction: " + transactionId);
+                    //self.removeParticipant(participantId, "Could not remove prepare failed participant: " + participantId +
+                    //        " from transaction: " + transactionId);
                     prepareDecision = PREPARE_DECISION_ABORT;
                 }
             }
@@ -189,8 +195,14 @@ type TwoPhaseCommitTransaction object {
 
     function notifyParticipants(string action, string? protocolName) returns NotifyResult | error {
         NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
+        future<NotifyResult|()|error>[] results;
         foreach _, participant in self.participants {
-            var result = participant.notify(action, protocolName);
+            future<NotifyResult|()|error> f = start participant.notify(action, protocolName);
+            results[lengthof results] = f;
+
+        }
+        foreach f in results {
+            NotifyResult|()|error result = await f;
             match result {
                 NotifyResult|() => {}
                 error err => notifyResult = err;
