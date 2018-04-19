@@ -27,7 +27,7 @@ public type IOError {
 @Description {value: "Reference to the file location" }
 public type Path object{
     private {
-        string link;
+      string link;
     }
 
     new (link){
