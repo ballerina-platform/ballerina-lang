@@ -47,6 +47,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
+import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
@@ -146,7 +147,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             handlerExecutor.executeAtSourceRequestReceiving(sourceReqCmsg);
         }
 
-        sourceReqCmsg = new HttpCarbonRequest((HttpRequest) httpMessage, ctx);
+        sourceReqCmsg = new HttpCarbonRequest((HttpRequest) httpMessage, new DefaultListener(ctx));
         sourceReqCmsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
 
         HttpRequest httpRequest = (HttpRequest) httpMessage;

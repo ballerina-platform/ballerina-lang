@@ -18,7 +18,6 @@
 
 package org.wso2.transport.http.netty.message;
 
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
@@ -35,8 +34,8 @@ public class HttpCarbonRequest extends HTTPCarbonMessage {
         this.httpRequest = (HttpRequest) this.httpMessage;
     }
 
-    public HttpCarbonRequest(HttpRequest httpRequest, ChannelHandlerContext ctx) {
-        super(httpRequest, new DefaultListener(ctx));
+    public HttpCarbonRequest(HttpRequest httpRequest, Listener listener) {
+        super(httpRequest, listener);
         this.httpRequest = (HttpRequest) this.httpMessage;
     }
 

@@ -20,9 +20,10 @@ package org.wso2.transport.http.netty.message;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
-import org.wso2.transport.http.netty.common.Util;
 
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
 
 /**
  * Default implementation of the message Listener.
@@ -31,7 +32,7 @@ public class DefaultListener implements Listener {
 
     private static final int MAXIMUM_BYTE_SIZE = 2097152; //Maximum threshold of reading bytes(2MB)
     private AtomicInteger cumulativeByteQuantity = new AtomicInteger(0);
-    private final ChannelHandlerContext ctx;
+    private ChannelHandlerContext ctx;
     private boolean readCompleted = false;
     private boolean first = true;
 
@@ -42,13 +43,15 @@ public class DefaultListener implements Listener {
     @Override
     public void onAdd(HttpContent httpContent) {
         if (first) {
-            ctx.channel().config().setAutoRead(false);
+            this.ctx.channel().config().setAutoRead(false);
             first = false;
         }
         int count = this.cumulativeByteQuantity.addAndGet(httpContent.content().readableBytes());
-        if (count < MAXIMUM_BYTE_SIZE) {
-            if (Util.isLastHttpContent(httpContent)) {
+        if (count < MAXIMUM_BYTE_SIZE && !readCompleted) {
+            if (isLastHttpContent(httpContent)) {
                 readCompleted = true;
+                this.ctx.channel().config().setAutoRead(true);
+                this.ctx = null;
             } else {
                 this.ctx.channel().read();
             }

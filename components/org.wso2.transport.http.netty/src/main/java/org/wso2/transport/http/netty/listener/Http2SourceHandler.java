@@ -44,6 +44,7 @@ import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
@@ -220,7 +221,7 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
      * @return the CarbonRequest Message created from given HttpRequest
      */
     private HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest) {
-        HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest, ctx);
+        HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest, new DefaultListener(ctx));
         sourceReqCMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
         sourceReqCMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
         HttpVersion protocolVersion = httpRequest.protocolVersion();
