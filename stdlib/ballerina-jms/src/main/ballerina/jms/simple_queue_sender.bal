@@ -37,13 +37,13 @@ public type SimpleQueueSender object {
         self.sender = queueSender;
     }
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
     }
 
-    public function start () {
+    public function start() {
     }
 
-    public function getCallerActions () returns (QueueSenderConnector) {
+    public function getCallerActions() returns QueueSenderConnector {
         match (sender) {
             QueueSender s => return s.getCallerActions();
             () => {
@@ -53,10 +53,10 @@ public type SimpleQueueSender object {
         }
     }
 
-    public function stop () {
+    public function stop() {
     }
 
-    public function createTextMessage(string message) returns (Message | Error) {
+    public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {

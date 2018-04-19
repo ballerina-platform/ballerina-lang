@@ -21,22 +21,22 @@ public type QueueReceiver object {
 
     }
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
         self.registerListener(serviceType, connector);
     }
 
     native function registerListener(typedesc serviceType, QueueReceiverConnector connector);
 
-    native function createQueueReceiver (Session session, string messageSelector);
+    native function createQueueReceiver(Session session, string messageSelector);
 
-    public function start () {
+    public function start() {
     }
 
     public function getCallerActions () returns (QueueReceiverConnector) {
         return connector;
     }
 
-    public function stop () {
+    public function stop() {
         self.closeQueueReceiver(connector);
     }
 
@@ -51,7 +51,7 @@ public type QueueReceiverEndpointConfiguration {
 };
 
 public type QueueReceiverConnector object {
-    public native function acknowledge (Message message) returns (Error | ());
+    public native function acknowledge(Message message) returns error?;
 
-    public native function receive (int timeoutInMilliSeconds = 0) returns (Message | Error | () );
+    public native function receive(int timeoutInMilliSeconds = 0) returns Message|error|();
 };

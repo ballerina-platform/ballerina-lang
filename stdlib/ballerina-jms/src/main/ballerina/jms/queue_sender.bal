@@ -9,7 +9,7 @@ public type QueueSender object {
     }
 
     new () {
-        self.connector = new ();
+        self.connector = new;
     }
 
     public function init(QueueSenderEndpointConfiguration config) {
@@ -22,17 +22,17 @@ public type QueueSender object {
 
     public native function initQueueSender(Session session);
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
     }
 
-    public function start () {
+    public function start() {
     }
 
-    public function getCallerActions () returns (QueueSenderConnector) {
+    public function getCallerActions() returns QueueSenderConnector {
         return self.connector;
     }
 
-    public function stop () {
+    public function stop() {
     }
 };
 
@@ -42,7 +42,5 @@ public type QueueSenderEndpointConfiguration {
 };
 
 public type QueueSenderConnector object {
-    public native function send (Message m) returns (Error | ());
+    public native function send(Message m) returns error?;
 };
-
-

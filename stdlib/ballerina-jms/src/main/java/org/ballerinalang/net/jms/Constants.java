@@ -56,7 +56,6 @@ public class Constants {
     public static final String TOPIC_PATTERN = "topicPattern";
     public static final String CONSUMER_IDENTIFIER = "identifier";
     public static final String CONSUMER_CONNECTOR = "connector";
-    public static final String QUEUE_CONSUMER_ENDPOINT = "QueueConsumer";
 
     // Native objects
     public static final String JMS_CONNECTION = "jms_connection_object";
@@ -103,7 +102,6 @@ public class Constants {
 
     public static final String MB_ICF_NAME = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory";
     public static final String MB_CF_NAME_PREFIX = "connectionfactory.";
-    public static final String ERROR_STRUCT = "Error";
 
     private static Map<String, String> mappingParameters;
 

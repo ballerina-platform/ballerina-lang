@@ -2,7 +2,7 @@ package ballerina.jms;
 
 public type Consumer object {
     public function getEndpoint() returns ConsumerTemplate {
-        ConsumerTemplate ct = new ();
+        ConsumerTemplate ct = new;
         return ct;
     }
 };
@@ -28,8 +28,8 @@ public type ConsumerTemplate object {
 };
 
 public type ConsumerConnector object {
-    public function acknowledge (Message message) returns (Error | ()) {
-        return ();
+    public function acknowledge(Message message) returns error? {
+        return;
     }
 };
 

@@ -27,15 +27,15 @@ public type SimpleDurableTopicSubscriber object {
         self.connector = new DurableTopicSubscriberConnector(self.subscriber.getCallerActions());
     }
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
         self.subscriber.register(serviceType);
     }
 
-    public function start () {
+    public function start() {
         self.subscriber.start();
     }
 
-    public function getCallerActions () returns (DurableTopicSubscriberConnector) {
+    public function getCallerActions() returns DurableTopicSubscriberConnector {
         match (self.connector) {
             DurableTopicSubscriberConnector c => return c;
             () => {
@@ -45,15 +45,15 @@ public type SimpleDurableTopicSubscriber object {
         }
     }
 
-    public function stop () {
+    public function stop() {
         self.subscriber.stop();
     }
 
-    public function createTextMessage(string message) returns (Message|Error) {
+    public function createTextMessage(string message) returns Message|error {
         var result = self.subscriber.createTextMessage(message);
         match (result) {
             jms:Message m => return new Message(m);
-            Error e => return e;
+            error e => return e;
         }
     }
 };
@@ -81,15 +81,15 @@ public type DurableTopicSubscriberConnector object {
 
     public new(helper) {}
 
-    public function acknowledge (Message message) returns Error|() {
+    public function acknowledge(Message message) returns error? {
         return self.helper.acknowledge(message.getJMSMessage());
     }
 
-    public function receive (int timeoutInMilliSeconds = 0) returns Message|Error|() {
+    public function receive(int timeoutInMilliSeconds = 0) returns Message|error|() {
         var result = self.helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
         match (result) {
             jms:Message m => return new Message(m);
-            jms:Error e => return e;
+            error e => return e;
             () => return ();
         }
     }

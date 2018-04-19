@@ -28,14 +28,14 @@ public type DurableTopicSubscriber object {
 
     native function createSubscriber (Session session, string messageSelector);
 
-    public function start () {
+    public function start() {
     }
 
     public function getCallerActions () returns (DurableTopicSubscriberConnector) {
         return connector;
     }
 
-    public function stop () {
+    public function stop() {
         self.closeSubscriber(connector);
     }
 
@@ -51,7 +51,7 @@ public type DurableTopicSubscriberEndpointConfiguration {
 };
 
 public type DurableTopicSubscriberConnector object {
-    public native function acknowledge (Message message) returns (Error | ());
+    public native function acknowledge (Message message) returns error?;
 
-    public native function receive (int timeoutInMilliSeconds = 0) returns (Message | Error | ());
+    public native function receive (int timeoutInMilliSeconds = 0) returns Message|error|();
 };

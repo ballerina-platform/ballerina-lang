@@ -38,7 +38,7 @@ public type SimpleQueueReceiver object {
         self.queueReceiver = receiver;
     }
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
         match (queueReceiver) {
             QueueReceiver c => {
                 c.register(serviceType);
@@ -50,10 +50,10 @@ public type SimpleQueueReceiver object {
         }
     }
 
-    public function start () {
+    public function start() {
     }
 
-    public function getCallerActions () returns (QueueReceiverConnector) {
+    public function getCallerActions() returns QueueReceiverConnector {
         match (queueReceiver) {
             QueueReceiver c => return c.getCallerActions();
             () => {
@@ -63,10 +63,10 @@ public type SimpleQueueReceiver object {
         }
     }
 
-    public function stop () {
+    public function stop() {
     }
 
-    public function createTextMessage(string message) returns (Message | Error) {
+    public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
@@ -87,4 +87,3 @@ public type SimpleQueueReceiverEndpointConfiguration {
     map properties;
     string queueName;
 };
-

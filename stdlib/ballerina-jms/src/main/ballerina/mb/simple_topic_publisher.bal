@@ -26,10 +26,10 @@ public type SimpleTopicPublisher object {
     self.config = config;
 }
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
     }
 
-    public function start () {
+    public function start() {
     }
 
     public function getCallerActions () returns (TopicPublisherConnector) {
@@ -42,16 +42,16 @@ public type SimpleTopicPublisher object {
         }
     }
 
-    public function stop () {
+    public function stop() {
     }
 
-    public function createTextMessage(string message) returns (Message|Error) {
+    public function createTextMessage(string message) returns Message|error {
         match (self.publisher) {
             jms:SimpleTopicPublisher s => {
                 var result = s.createTextMessage(message);
                 match (result) {
                     jms:Message m => return new Message(m);
-                    jms:Error e => return e;
+                    error e => return e;
                 }
             }
             () => {
@@ -70,7 +70,7 @@ public type TopicPublisherConnector object {
 
     new (publisher) {}
 
-    public function send (Message m) returns (Error | ()) {
+    public function send (Message m) returns error? {
         endpoint jms:SimpleTopicPublisher publisherEP = self.publisher;
         var result = publisherEP->send(m.getJMSMessage());
         return result;
@@ -88,4 +88,3 @@ public type SimpleTopicPublisherEndpointConfiguration {
     map properties,
     string topicPattern,
 };
-

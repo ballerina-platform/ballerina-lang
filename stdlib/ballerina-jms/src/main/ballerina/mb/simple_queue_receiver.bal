@@ -29,11 +29,11 @@ public type SimpleQueueReceiver object {
         self.connector = new QueueReceiverConnector(self.receiver.getCallerActions());
     }
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
         self.receiver.register(serviceType);
     }
 
-    public function start () {
+    public function start() {
         self.receiver.start();
     }
 
@@ -47,15 +47,15 @@ public type SimpleQueueReceiver object {
         }
     }
 
-    public function stop () {
+    public function stop() {
         receiver.stop();
     }
 
-    public function createTextMessage(string message) returns (Message|Error) {
+    public function createTextMessage(string message) returns Message|error {
         var result = self.receiver.createTextMessage(message);
         match (result) {
             jms:Message m => return new Message(m);
-            Error e => return e;
+            error e => return e;
         }
     }
 };
@@ -82,17 +82,16 @@ public type QueueReceiverConnector object {
 
     public new(helper) {}
 
-    public function acknowledge (Message message) returns Error|() {
+    public function acknowledge(Message message) returns error? {
         return helper.acknowledge(message.getJMSMessage());
     }
 
-    public function receive (int timeoutInMilliSeconds = 0) returns Message|Error|() {
+    public function receive(int timeoutInMilliSeconds = 0) returns Message|error|() {
         var result = helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
         match (result) {
             jms:Message m => return new Message(m);
-            jms:Error e => return e;
+            error e => return e;
             () => return ();
         }
     }
 };
-
