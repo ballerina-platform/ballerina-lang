@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -281,8 +282,11 @@ public class Generator {
             BLangUnionTypeNode type = (BLangUnionTypeNode) typeNode;
             return BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF + ".html#" + type.memberTypeNodes.stream()
                     .findFirst().get().type.tsymbol.getName().value;
-        } else {
+        } else if (typeNode instanceof BLangValueType) {
             return BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF + ".html#" + typeNode.type.tsymbol.getName().value;
+        } else {
+            // TODO
+            return "";
         }
     }
 
