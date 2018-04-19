@@ -438,4 +438,28 @@ public class FunctionSignatureTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 110);
     }
+
+    @Test(description = "Test object function with defaultableParam")
+    public void defaultValueForObjectFunctionParam() {
+        BValue[] returns = BRunUtil.invoke(result, "testDefaultableParamInnerFunc");
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
+        Assert.assertEquals(returns[1].stringValue(), "hello world");
+    }
+
+    @Test(description = "Test object outer function with defaultable param")
+    public void defaultValueForObjectOuterFunctionParam() {
+        BValue[] returns = BRunUtil.invoke(result, "testDefaultableParamOuterFunc");
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BString.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+        Assert.assertEquals(returns[1].stringValue(), "hello world");
+    }
 }

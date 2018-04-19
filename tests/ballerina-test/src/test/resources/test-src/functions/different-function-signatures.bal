@@ -126,12 +126,12 @@ function funcWithNilDefaultParamExpr_1(string? s = null) returns string? {
     return s;
 }
 
-type Person {
+type Student {
     int a;
 };
 
-function funcWithNilDefaultParamExpr_2(Person? p = ()) returns Person? {
-    return p;
+function funcWithNilDefaultParamExpr_2(Student? s = ()) returns Student? {
+    return s;
 }
 
 function testFuncWithNilDefaultParamExpr() returns (any, any) {
@@ -158,4 +158,35 @@ public type Employee object {
 function testAttachedFunction() returns (int, int) {
     Employee emp = new;
     return (emp.getSalary("Alex"), emp.getSalary("Alex", bonus = 10));
+}
+
+
+function testDefaultableParamInnerFunc () returns (int, string) {
+    Person p = new;
+    return p.test1(age = 50);
+}
+
+function testDefaultableParamOuterFunc () returns (int, string) {
+    Person p = new;
+    return p.test2(age = 40);
+}
+
+type Person object {
+    public {
+        int age,
+    }
+
+    function test1(int age = 77, string name = "inner default") returns (int, string);
+
+    function test2(int age = 89, string name = "hello") returns (int, string) {
+        string val = name + " world";
+        int intVal = age + 10;
+        return (intVal, val);
+    }
+};
+
+function Person::test1(int age = 77, string name = "hello") returns (int, string) {
+    string val = name + " world";
+    int intVal = age + 10;
+    return (intVal, val);
 }
