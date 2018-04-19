@@ -431,4 +431,11 @@ public class FunctionSignatureTest {
         Assert.assertNull(returns[0]);
         Assert.assertNull(returns[1]);
     }
+
+    @Test
+    public void testAttachedFunction() {
+        BValue[] returns = BRunUtil.invoke(result, "testAttachedFunction");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 110);
+    }
 }

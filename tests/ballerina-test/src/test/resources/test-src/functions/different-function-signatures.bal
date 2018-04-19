@@ -137,3 +137,25 @@ function funcWithNilDefaultParamExpr_2(Person? p = ()) returns Person? {
 function testFuncWithNilDefaultParamExpr() returns (any, any) {
     return (funcWithNilDefaultParamExpr_1(), funcWithNilDefaultParamExpr_2());
 }
+
+// ------------------- Test function signature for attached functions ------------------
+
+public type Employee object {
+
+    public {
+        string name;
+        int salary;
+    }
+
+    new (name = "supun", salary = 100) {
+    }
+
+    public function getSalary (string name, int bonus = 0) returns int {
+        return salary + bonus;
+    }
+};
+
+function testAttachedFunction() returns (int, int) {
+    Employee emp = new;
+    return (emp.getSalary("Alex"), emp.getSalary("Alex", bonus = 10));
+}
