@@ -1696,6 +1696,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         ParamDefaultValueAttributeInfo defaultValAttrInfo = (ParamDefaultValueAttributeInfo) callableUnitInfo
                 .getAttributeInfo(AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE);
 
+        BInvokableSymbol invokableSymbol = (BInvokableSymbol) iExpr.symbol;
         for (int i = 0; i < iExpr.namedArgs.size(); i++) {
             BLangExpression argExpr = iExpr.namedArgs.get(i);
             // If some named parameter is not passed when invoking the function, then it will be null
@@ -1703,10 +1704,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             if (argExpr == null) {
                 DefaultValue defaultVal = defaultValAttrInfo.getDefaultValueInfo()[i];
                 BLangExpression defaultValExpr = getDefaultValExpr(defaultVal);
-                int paramPosition = iExpr.requiredArgs.size() + i +
-                        (((BInvokableSymbol) iExpr.symbol).receiverSymbol != null ? 1 : 0);
-                BType namedArgType = callableUnitInfo.paramTypes[paramPosition];
-                argExpr = createTypeConversionExpr(defaultValExpr, namedArgType);
+                argExpr = createTypeConversionExpr(defaultValExpr, invokableSymbol.defaultableParams.get(i).type);
             }
             operands[currentIndex++] = genNode(argExpr, this.env).regIndex;
         }
