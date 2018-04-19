@@ -103,6 +103,12 @@
                     <exclude>ballerina/**</exclude>
                 </excludes>
             </resource>
+
+            <!-- copy built-in ballerina sources to the jar -->
+            <resource>
+                <directory>${generated.ballerina.source.directory}</directory>
+                <targetPath>META-INF/ballerina</targetPath>
+            </resource>
     	</resources>
         <plugins>
             <!-- For ballerina annotation processing -->
