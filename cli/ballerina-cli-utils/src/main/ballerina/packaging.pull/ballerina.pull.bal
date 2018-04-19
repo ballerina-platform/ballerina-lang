@@ -40,7 +40,7 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
             res = callFileServer(locationHeader);
             if (res.statusCode != 200) {
                 json jsonResponse = check (res.getJsonPayload());
-                string message = (jsonResponse.message.toString() but {()=> "error occurred when pulling the package"});
+                string message = jsonResponse.message.toString();
                 io:println(message);
             } else {
                 string contentLengthHeader;
@@ -67,11 +67,16 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
 
                         // Create the version directory
                         destDirPath = destDirPath + fileSeparator + pkgVersion;
-                        if (!createDirectories(destDirPath)) {
-                            return;
-                        }
+                        
                         string archiveFileName = pkgName + ".zip";
                         string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
+
+                        if (!createDirectories(destDirPath)) {
+                            file:Path pkgArchivePath = new(destArchivePath);
+                            if (file:exists(pkgArchivePath)){  
+                                return;                              
+                            }        
+                        }
 
                         io:ByteChannel destDirChannel = getFileChannel(destArchivePath, "w");
                         string toAndFrom = " [central.ballerina.io -> home repo]";

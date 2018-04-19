@@ -16,7 +16,7 @@ public class StringConverter implements Converter<String> {
     }
 
     @Override
-    public Stream<String> expand(String s) {
+    public Stream<String> latest(String s) {
         return Stream.of(s + "/*");
     }
 

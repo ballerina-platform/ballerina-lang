@@ -32,7 +32,7 @@ public interface JWSSigner {
      *                  BASE64URL(UTF8(JOSE header)) || '.' || BASE64URL(JWS payload)
      * @param algorithm JWS algorithm used to secure the JWS.
      *                  This is the 'alg' header parameter.
-     * @return The resulting signature part (third part) of the JWS object.
+     * @return The signature part of the JWS object.
      * @throws JWSException If the JWS algorithm is not supported or if
      *                      signing failed for some other internal reason.
      */

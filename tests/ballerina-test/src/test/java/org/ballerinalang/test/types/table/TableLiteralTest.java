@@ -53,8 +53,8 @@ public class TableLiteralTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/table/table-literal.bal");
-        resultHelper = BCompileUtil.compile("test-src/types/table/table-test-helper.bal");
+        result = BCompileUtil.compile("test-src/types/table/table_literal.bal");
+        resultHelper = BCompileUtil.compile("test-src/types/table/table_test_helper.bal");
     }
 
     @Test(enabled = false) //Issue #5106

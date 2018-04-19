@@ -21,17 +21,14 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -81,15 +78,6 @@ public class HTTPServicesRegistry {
      * @param service requested serviceInfo to be registered.
      */
     public void registerService(Service service) {
-        String accessLogConfig = HttpConnectionManager.getInstance().getHttpAccessLoggerConfig();
-        if (accessLogConfig != null) {
-            try {
-                ((BLogManager) BLogManager.getLogManager()).setHttpAccessLogHandler(accessLogConfig);
-            } catch (IOException e) {
-                throw new BallerinaConnectorException("Invalid file path: " + accessLogConfig, e);
-            }
-        }
-
         List<HttpService> httpServices = HttpService.buildHttpService(service);
 
         for (HttpService httpService : httpServices) {

@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
@@ -93,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
@@ -407,6 +409,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangDocumentation docNode) {
         Set<BLangIdentifier> visitedAttributes = new HashSet<>();
         for (BLangDocumentationAttribute attribute : docNode.attributes) {
+            if (attribute.docTag == DocTag.ENDPOINT) {
+                if (!this.env.enclObject.getFunctions().stream().anyMatch(bLangFunction -> "getClient".equals
+                        (bLangFunction.getName().toString()))) {
+                    this.dlog.warning(attribute.pos, DiagnosticCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE,
+                            attribute.docTag.getValue());
+                }
+                continue;
+            }
             if (attribute.docTag == DocTag.RETURN) {
                 attribute.type = this.env.enclInvokable.returnTypeNode.type;
                 // return params can't have names, hence can't validate
@@ -1324,6 +1334,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangStreamingInput streamingInput) {
         BLangExpression streamRef = (BLangExpression) streamingInput.getStreamReference();
         typeChecker.checkExpr(streamRef, env);
@@ -1344,11 +1355,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangWindow windowClause) {
         ExpressionNode expressionNode = windowClause.getFunctionInvocation();
         ((BLangExpression) expressionNode).accept(this);
     }
 
+    @Override
     public void visit(BLangInvocation invocationExpr) {
         VariableReferenceNode variableReferenceNode = invocationExpr.getExpression();
         if (variableReferenceNode != null) {
@@ -1356,11 +1369,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangWhere whereClause) {
         ExpressionNode expressionNode = whereClause.getExpression();
         ((BLangExpression) expressionNode).accept(this);
     }
 
+    @Override
     public void visit(BLangBinaryExpr binaryExpr) {
         ExpressionNode leftExpression = binaryExpr.getLeftExpression();
         ((BLangExpression) leftExpression).accept(this);
@@ -1369,6 +1384,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         ((BLangExpression) rightExpression).accept(this);
     }
 
+    @Override
     public void visit(BLangSelectClause selectClause) {
         GroupByNode groupByNode = selectClause.getGroupBy();
         if (groupByNode != null) {
@@ -1388,6 +1404,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangGroupBy groupBy) {
         List<? extends ExpressionNode> variableExpressionList = groupBy.getVariables();
         for (ExpressionNode expressionNode : variableExpressionList) {
@@ -1395,6 +1412,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangHaving having) {
         ExpressionNode expressionNode = having.getExpression();
         if (expressionNode != null) {
@@ -1402,17 +1420,34 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangOrderBy orderBy) {
+        List<? extends OrderByVariableNode> orderByVariableList = orderBy.getVariables();
+        for (OrderByVariableNode orderByVariableNode : orderByVariableList) {
+            ((BLangOrderByVariable) orderByVariableNode).accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangOrderByVariable orderByVariable) {
+        BLangExpression expression = (BLangExpression) orderByVariable.getVariableReference();
+        expression.accept(this);
+    }
+
+    @Override
     public void visit(BLangSelectExpression selectExpression) {
         ExpressionNode expressionNode = selectExpression.getExpression();
         ((BLangExpression) expressionNode).accept(this);
     }
 
+    @Override
     public void visit(BLangStreamAction streamAction) {
         BLangLambdaFunction function = (BLangLambdaFunction) streamAction.getInvokableBody();
         typeChecker.checkExpr(function, env);
         validateStreamingActionFunctionParameters(streamAction);
     }
 
+    @Override
     public void visit(BLangJoinStreamingInput joinStreamingInput) {
         StreamingInput streamingInput = joinStreamingInput.getStreamingInput();
         if (streamingInput != null) {
@@ -1425,6 +1460,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
     public void visit(BLangSetAssignment setAssignmentClause) {
         ExpressionNode expressionNode = setAssignmentClause.getExpressionNode();
         ((BLangExpression) expressionNode).accept(this);
@@ -1433,6 +1469,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         ((BLangExpression) variableReference).accept(this);
     }
 
+    @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         VariableReferenceNode variableReferenceNode = fieldAccessExpr.getExpression();
         ((BLangVariableReference) variableReferenceNode).accept(this);
@@ -1443,10 +1480,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // ignore
     }
 
+    @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         // ignore
     }
 
+    @Override
     public void visit(BLangLiteral literalExpr) {
         //ignore
     }
@@ -1456,10 +1495,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         //ignore
     }
 
+    @Override
     public void visit(BLangTableLiteral tableLiteral) {
         /* ignore */
     }
 
+    @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         /* ignore */
     }

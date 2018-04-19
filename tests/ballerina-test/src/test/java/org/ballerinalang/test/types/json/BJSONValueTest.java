@@ -486,9 +486,9 @@ public class BJSONValueTest {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error:.*NullReferenceException.*")
+    @Test
     public void testAddToNull() {
-        BRunUtil.invoke(compileResult, "testAddToNull");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddToNull");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"Supun\",\"address\":{\"country\":\"SriLanka\"}}");
     }
 }

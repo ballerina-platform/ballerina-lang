@@ -572,3 +572,55 @@ type SomeOtherStruct object {
 
 type AnotherAnyStruct object {
 };
+
+type Foo "a" | "b" | "c";
+
+type Person object {
+    private {
+        string name;
+    }
+    new(name){}
+
+    function getPerson() returns Person {
+        error err = {message: "Unsupported operation"};
+        throw err;
+    }
+};
+
+type Employee object {
+    private {
+        string name;
+        string id;
+    }
+
+    new(name,id){}
+
+    function getPerson() returns Person {
+        return self;
+    }
+};
+
+function testTupleMatchWithObjectEquivalency() returns string {
+  future<(Foo, Person) | () | error> f = start getPerson();
+    ((Foo, Person) | () | error) res = await f;
+
+    int[] i = [1, 2, 3];
+
+    foreach y in i {
+        match res {
+            (Foo, Person) x => {
+                return "SUCCESS";
+            }
+            () => { return "ERROR"; }
+            error err => {
+                return "ERROR";
+            }
+        }
+    }
+}
+
+function getPerson() returns (Foo, Person) | () | error {
+    Foo f = "b";
+    Employee p = new("foo","20");
+    return (f,p);
+}

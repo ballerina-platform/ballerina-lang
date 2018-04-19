@@ -24,8 +24,10 @@ import ballerina/util;
 public type JWTValidatorConfig {
     string issuer,
     string audience,
+    int clockSkew,
     string certificateAlias,
-    int timeSkew,
+    string trustStoreFilePath,
+    string trustStorePassword,
 };
 
 @Description {value:"Validity given JWT token"}
@@ -179,7 +181,7 @@ function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload j
         error err = {message:"Invalid audience"};
         return err;
     }
-    if (!validateExpirationTime(jwtPayload)) {
+    if (!validateExpirationTime(jwtPayload, config)) {
         error err = {message:"JWT token is expired"};
         return err;
     }
@@ -201,7 +203,11 @@ function validateMandatoryFields (Payload jwtPayload) returns (boolean) {
 function validateSignature (string[] encodedJWTComponents, Header jwtHeader, JWTValidatorConfig config) returns (boolean) {
     string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
     string signPart = encodedJWTComponents[2];
-    return verifySignature(assertion, signPart, jwtHeader.alg, config.certificateAlias);
+    TrustStore trustStore = {};
+    trustStore.certificateAlias = config.certificateAlias;
+    trustStore.trustStoreFilePath = config.trustStoreFilePath;
+    trustStore.trustStorePassword = config.trustStorePassword;
+    return verifySignature(assertion, signPart, jwtHeader.alg, trustStore);
 }
 
 function validateIssuer (Payload jwtPayload, JWTValidatorConfig config) returns (boolean) {
@@ -217,8 +223,13 @@ function validateAudience (Payload jwtPayload, JWTValidatorConfig config) return
     return false;
 }
 
-function validateExpirationTime (Payload jwtPayload) returns (boolean) {
-    return jwtPayload.exp > time:currentTime().time;
+function validateExpirationTime (Payload jwtPayload, JWTValidatorConfig config) returns (boolean) {
+    //Convert current time which is in milliseconds to seconds.
+    int expTime = jwtPayload.exp;
+    if(config.clockSkew > 0){
+        expTime = expTime + config.clockSkew;
+    }
+    return expTime > time:currentTime().time/1000;
 }
 
 function validateNotBeforeTime (Payload jwtPayload) returns (boolean) {

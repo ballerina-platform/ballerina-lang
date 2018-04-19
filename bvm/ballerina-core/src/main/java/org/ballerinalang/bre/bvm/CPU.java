@@ -19,6 +19,7 @@ package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
@@ -109,6 +110,7 @@ import org.ballerinalang.util.transactions.TransactionUtils;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -1341,7 +1343,9 @@ public class CPU {
                     break;
                 }
 
-                sf.refRegs[k] = bMap.get(sf.stringRegs[j]);
+                IntegerCPEntry exceptCPEntry = (IntegerCPEntry) ctx.constPool[operands[3]];
+                boolean except = exceptCPEntry.getValue() == 1;
+                sf.refRegs[k] = bMap.get(sf.stringRegs[j], except);
                 break;
 
             case InstructionCodes.JSONLOAD:
@@ -1613,15 +1617,7 @@ public class CPU {
                 }
 
                 BMapType mapType = (BMapType) bMap.getType();
-                if (sf.refRegs[k] == null) {
-                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
-                } else if (mapType.getConstrainedType() == BTypes.typeAny ||
-                        mapType.getConstrainedType().equals(sf.refRegs[k].getType())) {
-                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
-                } else if (sf.refRegs[k].getType().getTag() == TypeTags.STRUCT_TAG
-                        && mapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG
-                        && checkStructEquivalency((BStructType) sf.refRegs[k].getType(),
-                        (BStructType) mapType.getConstrainedType())) {
+                if (isValidMapInsertion(mapType, sf.refRegs[k])) {
                     bMap.put(sf.stringRegs[j], sf.refRegs[k]);
                 } else {
                     ctx.setError(BLangVMErrors.createError(ctx,
@@ -3050,7 +3046,35 @@ public class CPU {
         if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
             return checkTupleCast(rhsValue, lhsType);
         }
-        
+
+        if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return checkFiniteTypeAssignable(rhsValue, lhsType);
+        }
+
+        return false;
+    }
+
+    private static boolean checkFiniteTypeAssignable(BValue bRefTypeValue, BType lhsType) {
+        BFiniteType fType = (BFiniteType) lhsType;
+        if (bRefTypeValue == null) {
+            if (fType.memberTypes.contains(BTypes.typeNull)) {
+                return true;
+            }
+        } else {
+            BType valueType = bRefTypeValue.getType();
+            if (fType.memberTypes.contains(valueType)) {
+                return true;
+            }
+            Iterator<BValue> valueSpaceItr = fType.valueSpace.iterator();
+            while (valueSpaceItr.hasNext()) {
+                BValue valueSpaceItem = valueSpaceItr.next();
+                if (valueSpaceItem.getType().getTag() == bRefTypeValue.getType().getTag()) {
+                    if (valueSpaceItem.equals(bRefTypeValue)) {
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
     
@@ -3106,6 +3130,10 @@ public class CPU {
         if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
             return checkTupleCast(rhsValue, lhsType);
         } 
+        
+        if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return checkFiniteTypeAssignable(rhsValue, lhsType);
+        }
 
         return false;
     }
@@ -3919,4 +3947,30 @@ public class CPU {
 
     }
 
+    private static boolean isValidMapInsertion(BMapType mapType, BValue value) {
+        if (value == null) {
+            return true;
+        }
+
+        BType constraintType = mapType.getConstrainedType();
+        if (constraintType == BTypes.typeAny || constraintType.equals(value.getType())) {
+            return true;
+        }
+       
+        if (value.getType().getTag() == TypeTags.STRUCT_TAG && constraintType.getTag() == TypeTags.STRUCT_TAG &&
+                checkStructEquivalency((BStructType) value.getType(), (BStructType) constraintType)) {
+            return true;
+        }
+
+        // TODO: check for subsets
+        if (constraintType.getTag() == TypeTags.UNION_TAG) {
+            BUnionType unionType = (BUnionType) constraintType;
+            if (unionType.getMemberTypes().contains(BTypes.typeAny)) {
+                return true;
+            }
+            return unionType.getMemberTypes().contains(value.getType());
+        }
+
+        return false;
+    }
 }

@@ -91,8 +91,6 @@ public class TesterinaFunction {
      */
     public BValue[] invoke(BValue[] args) {
         WorkerExecutionContext ctx = new WorkerExecutionContext(programFile);
-        Debugger debugger = new Debugger(programFile);
-        initDebugger(programFile, debugger);
         return BLangFunctions.invokeCallable(bFunction, ctx, args);
     }
 

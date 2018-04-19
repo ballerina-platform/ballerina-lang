@@ -102,10 +102,10 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_INDE
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_HOST;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_PORT;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_HOSTNAME;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_PORT;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 
@@ -354,8 +354,7 @@ public class HttpUtil {
         Object carbonStatusCode = requestMessage.getProperty(HTTP_STATUS_CODE);
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = ex.getMessage();
-        log.error(errorMsg);
-        ErrorHandlerUtils.printError(ex);
+        log.error(errorMsg, ex);
         sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
@@ -1080,8 +1079,8 @@ public class HttpUtil {
         Map<String, String> tags = new HashMap<>();
         tags.put(TAG_KEY_HTTP_METHOD, String.valueOf(msg.getProperty(HttpConstants.HTTP_METHOD)));
         tags.put(TAG_KEY_HTTP_URL, String.valueOf(msg.getProperty(HttpConstants.TO)));
-        tags.put(TAG_KEY_HTTP_HOST, String.valueOf(msg.getProperty(PROPERTY_HTTP_HOST)));
-        tags.put(TAG_KEY_HTTP_PORT, String.valueOf(msg.getProperty(PROPERTY_HTTP_PORT)));
+        tags.put(TAG_KEY_PEER_HOSTNAME, String.valueOf(msg.getProperty(PROPERTY_HTTP_HOST)));
+        tags.put(TAG_KEY_PEER_PORT, String.valueOf(msg.getProperty(PROPERTY_HTTP_PORT)));
         return tags;
     }
 

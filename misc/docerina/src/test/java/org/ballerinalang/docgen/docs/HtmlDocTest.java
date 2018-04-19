@@ -29,10 +29,9 @@ import org.ballerinalang.docgen.model.GlobalVariableDoc;
 import org.ballerinalang.docgen.model.Link;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
-import org.ballerinalang.docgen.model.StaticCaption;
 import org.ballerinalang.docgen.model.StructDoc;
-import org.ballerinalang.langserver.common.modal.BallerinaFile;
-import org.ballerinalang.langserver.common.utils.LSParserUtils;
+import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -58,7 +57,7 @@ public class HtmlDocTest {
         packages.add(new Link(new PackageName("x.y.z", ""), "", false));
 
         BLangPackage bLangPackage = createPackage("package x.y;");
-        Page page = Generator.generatePage(bLangPackage, packages, null);
+        Page page = Generator.generatePage(bLangPackage, packages, null, null);
 
         Assert.assertEquals(page.links.size() , 3);
         Assert.assertFalse(page.links.get(0).active);
@@ -84,25 +83,62 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc.parameters.get(0).toString(), "string name", "Invalid parameter string value");
         Assert.assertEquals(functionDoc.returnParams.get(0).toString(), "string", "Invalid return type");
     }
-    
+
     @Test(description = "Connectors in a package should be shown in the constructs")
     public void testConnectors() throws Exception {
-        BLangPackage bLangPackage = createPackage("package x.y; " + "@Connector\n@Description {value:\"GitHub client"
-                + " " + "connector\"}\n" + "public type TestConnector object {\n" + "    public {\n" + "        " +
-                "string url;" + "\n" + "  " + "      string path;\n" + "    }\n" + "\n" + "    @Description {value: " +
+        BLangPackage bLangPackage = createPackage("package x.y; " + "\n@Description {value:\"GitHub client" + " " +
+                "connector\"}\n" + "public type TestConnector object {\n" + "    public {\n" + "        " + "string " +
+                "url;" + "\n" + "  " + "      string path;\n" + "    }\n" + "\n" + "    @Description {value: " +
                 "\"Test Connector action " + "testAction.\"}\n" + "    @Return {value:\"whether successful or " +
-                "not\"}\n" + "    public function " + "testAction() returns boolean;\n" + "\n" + "    @Description " +
-                "{value: \"Test Connector action testSend" + ".\"}\n" + "    @Param {value: \"ep: endpoint url\"}\n"
-                + "    @Return {value:\"whether successful or" + " not\"}\n" + "    public function testSend(string " +
-                "ep) returns boolean;\n" + "};");
+                "not\"}\n" + "    public function " + "testAction() returns boolean;\n" + "\n" + "    @Description "
+                + "{value: \"Test Connector action testSend" + ".\"}\n" + "    @Param {value: \"ep: endpoint " +
+                "url\"}\n" + "    @Return {value:\"whether successful or" + " not\"}\n" + "    public function " +
+                "testSend(string " + "ep) returns boolean;\n" + "};");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "TestConnector");
+        Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
+        Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
+        ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
+        Assert.assertEquals(connectorDoc.fields.size(), 2);
+        Assert.assertEquals(connectorDoc.fields.get(0).toString(), "string url");
+        Assert.assertEquals(connectorDoc.children.size(), 2);
+        Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
+        FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
+        Assert.assertEquals(functionDoc1.name, "testAction", "Invalid function name testAction");
+        Assert.assertEquals(functionDoc1.icon, "fw-function", "testAction function is not detected as an action");
+        Assert.assertEquals(functionDoc1.parameters.size(), 0);
+        Assert.assertEquals(functionDoc1.returnParams.get(0).toString(), "boolean", "Invalid return type");
+        Assert.assertEquals(functionDoc1.returnParams.get(0).description, "whether successful or not");
+
+        FunctionDoc functionDoc2 = (FunctionDoc) connectorDoc.children.get(1);
+        Assert.assertEquals(functionDoc2.name, "testSend", "Invalid function name testSend");
+        Assert.assertEquals(functionDoc2.icon, "fw-function", "testSend function is not detected as an action");
+        Assert.assertEquals(functionDoc2.parameters.size(), 1);
+        Assert.assertEquals(functionDoc2.parameters.get(0).description, "endpoint url");
+        Assert.assertEquals(functionDoc2.returnParams.get(0).toString(), "boolean", "Invalid return type");
+        Assert.assertEquals(functionDoc2.returnParams.get(0).description, "whether successful or not");
+    }
+
+    @Test(description = "Connectors in a package should be shown in the constructs with new docerina syntax")
+    public void testConnectorsWithNewSyntax() throws Exception {
+        BLangPackage bLangPackage = createPackage("documentation {Test Connector\n" + "E{{}}\n F{{url}} url for " +
+                "endpoint\n" +
+                "F{{path}} path for endpoint\n" + "}\n" + "public type TestConnector object {\n" + "    public {\n" +
+                "        string url;\n" + "        string path;\n" + "    }\n" + "\n" + "    documentation {Test " +
+                "Connector action testAction R{{}} whether successful or not}\n" + "    public function " +
+                "testAction() returns boolean;\n" + "\n" + "    documentation {Test Connector action testSend P{{ep}}" +
+                " endpoint url R{{}} whether successful or not}\n" + "    public function testSend(string ep) " +
+                "returns boolean;\n" + "};");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 1);
+        Assert.assertEquals(page.constructs.get(0).name, "TestConnector");
+        Assert.assertEquals(page.constructs.get(0).description, "<p>Test Connector</p>\n");
         Assert.assertEquals(page.constructs.get(0).icon, "fw-connector");
         Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
         ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
-        Assert.assertEquals(connectorDoc.parameters.size(), 2);
-        Assert.assertEquals(connectorDoc.parameters.get(0).toString(), "string url");
+        Assert.assertEquals(connectorDoc.fields.size(), 2);
+        Assert.assertEquals(connectorDoc.fields.get(0).toString(), "string url");
         Assert.assertEquals(connectorDoc.children.size(), 2);
         Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
         FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
@@ -110,35 +146,35 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc1.icon, "fw-action", "testAction function is not detected as an action");
         Assert.assertEquals(functionDoc1.parameters.size(), 0);
         Assert.assertEquals(functionDoc1.returnParams.get(0).toString(), "boolean", "Invalid return type");
-        Assert.assertEquals(functionDoc1.returnParams.get(0).description, "whether successful or not");
+        Assert.assertEquals(functionDoc1.returnParams.get(0).description, "<p>whether successful or not</p>\n");
 
         FunctionDoc functionDoc2 = (FunctionDoc) connectorDoc.children.get(1);
         Assert.assertEquals(functionDoc2.name, "testSend", "Invalid function name testSend");
         Assert.assertEquals(functionDoc2.icon, "fw-action", "testSend function is not detected as an action");
         Assert.assertEquals(functionDoc2.parameters.size(), 1);
-        Assert.assertEquals(functionDoc2.parameters.get(0).description, "endpoint url");
+        Assert.assertEquals(functionDoc2.parameters.get(0).description, "<p>endpoint url</p>\n");
         Assert.assertEquals(functionDoc2.returnParams.get(0).toString(), "boolean", "Invalid return type");
-        Assert.assertEquals(functionDoc2.returnParams.get(0).description, "whether successful or not");
+        Assert.assertEquals(functionDoc2.returnParams.get(0).description, "<p>whether successful or not</p>\n");
     }
 
     @Test(description = "Objects in a package should be shown in the constructs")
     public void testObjects() throws Exception {
         BLangPackage bLangPackage = createPackage("package x.y; " + "@Description {value:\"Object Test\"}\n" +
-                "public " + "type Test object {\n" + "    public {\n" + "        " + "string url;" + "\n" + "  " + " " +
-                "" + "     string path;\n" + "    }\n" + "\n" + "    @Description {value: " + "\"Test Object function" +
-                " " + "test1.\"}\n" + "    @Return {value:\"whether successful or " + "not\"}\n" + "    public " +
+                "public type Test object {\n public {\n" + "        " + "string url;" + "\nstring path;\n" + "    }\n" +
+                " private { string abc; }\n " + "\n" + "    @Description {value: " + "\"Test Object function" + " " +
+                "test1.\"}\n" + "    @Return {value:\"whether successful or " + "not\"}\n" + "    public " +
                 "function " + "test1() returns boolean;\n" + "\n" + "    @Description " + "{value: \"Test Object " +
                 "function test2" + ".\"}\n" + "    @Param {value: \"ep: endpoint url\"}\n" + "    @Return " +
                 "{value:\"whether successful " + "or" + " not\"}\n" + "    public function test2(string " + "ep) " +
-                "returns boolean;\n" + "};");
+                "returns boolean;\n" + "};\n type Test2 object {};");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "Test");
         Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
         Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
         ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
-        Assert.assertEquals(connectorDoc.parameters.size(), 2);
-        Assert.assertEquals(connectorDoc.parameters.get(0).toString(), "string url");
+        Assert.assertEquals(connectorDoc.fields.size(), 2);
+        Assert.assertEquals(connectorDoc.fields.get(0).toString(), "string url");
         Assert.assertEquals(connectorDoc.children.size(), 2);
         Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
         FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
@@ -156,7 +192,44 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc2.returnParams.get(0).toString(), "boolean", "Invalid return type");
         Assert.assertEquals(functionDoc2.returnParams.get(0).description, "whether successful or not");
     }
-    
+
+    @Test(description = "Objects in a package should be shown in the constructs with new docerina syntax")
+    public void testObjectsWithNewSyntax() throws Exception {
+        BLangPackage bLangPackage = createPackage("package x.y;\n" + "documentation {Object Test\n" + "F{{url}} " +
+                "endpoint url\n" + "F{{path}} a valid path\n" + "}\n" + "public type Test object {\n" + "    public " +
+                "{\n" + "        string url;\n" + "        string path;\n" + "    }\n" + "    private {\n" + "       " +
+                " string idx;\n" + "    }\n" + "    documentation {test1 function\n" + "    P{{x}} an integer\n" + " " +
+                "   R{{}} is success?\n" + "    }\n" + "    public function test1(int x) returns boolean;\n" + "\n" +
+                "    documentation {test1 function\n" + "    R{{}} returns the string or an error\n" + "    }\n" + " " +
+                "   public function test2() returns string|error;\n" + "\n" + "    function test3();\n" + "};\n");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 1);
+        Assert.assertEquals(page.constructs.get(0).name, "Test");
+        Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
+        Assert.assertEquals(page.constructs.get(0).description, "<p>Object Test</p>\n");
+        Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
+        ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
+        Assert.assertEquals(connectorDoc.fields.size(), 2);
+        Assert.assertEquals(connectorDoc.fields.get(0).description, "<p>endpoint url</p>\n");
+        Assert.assertEquals(connectorDoc.fields.get(1).description, "<p>a valid path</p>\n");
+        Assert.assertEquals(connectorDoc.children.size(), 2);
+        Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
+        FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
+        Assert.assertEquals(functionDoc1.name, "test1", "Invalid function name. Should be test1");
+        Assert.assertEquals(functionDoc1.icon, "fw-function", "test1 function is not detected as a function");
+        Assert.assertEquals(functionDoc1.parameters.size(), 1);
+        Assert.assertEquals(functionDoc1.parameters.get(0).description, "<p>an integer</p>\n");
+        Assert.assertEquals(functionDoc1.returnParams.get(0).toString(), "boolean", "Invalid return type");
+        Assert.assertEquals(functionDoc1.returnParams.get(0).description, "<p>is success?</p>\n");
+
+        FunctionDoc functionDoc2 = (FunctionDoc) connectorDoc.children.get(1);
+        Assert.assertEquals(functionDoc2.name, "test2", "Invalid function name test2");
+        Assert.assertEquals(functionDoc2.parameters.size(), 0);
+        Assert.assertEquals(functionDoc2.icon, "fw-function", "test2 function is not detected as a function");
+        Assert.assertEquals(functionDoc2.returnParams.get(0).dataType, "string | error", "Invalid return type");
+        Assert.assertEquals(functionDoc2.returnParams.get(0).description, "<p>returns the string or an error</p>\n");
+    }
+
     @Test(description = "Enums in a package should be shown in the constructs", enabled = false)
     public void testEnums() throws Exception {
         BLangPackage bLangPackage = createPackage("package x.y; " +
@@ -266,6 +339,31 @@ public class HtmlDocTest {
 
     }
 
+    @Test(description = "Function properties should be available via construct for new docerina syntax")
+    public void testFunctionsPropertiesExtractedWithNewSyntax() throws Exception {
+        BLangPackage bLangPackage = createPackage("package x.y;\n" + "documentation {This function would say hello\n"
+                + "P{{message}} The message sent\n" + "P{{idx}} an index\n" + "R{{}} int representation of the " +
+                "message\n" + "}\n" + "public function sayHello(string message, int idx) returns (int){}");
+
+        FunctionDoc functionDoc = Generator.createDocForNode(bLangPackage.getFunctions().get(0));
+        Assert.assertEquals(functionDoc.name, "sayHello", "Function name should be extracted");
+        Assert.assertEquals(functionDoc.description, "<p>This function would say hello</p>\n", "Description of the " +
+                "function should be extracted");
+        Assert.assertEquals(functionDoc.parameters.get(0).name, "message", "Parameter name should be extracted");
+        Assert.assertEquals(functionDoc.parameters.get(0).dataType, "string", "Parameter type should be extracted");
+        Assert.assertEquals(functionDoc.parameters.get(0).description, "<p>The message sent</p>\n", "Description of " +
+                "the parameter should be extracted");
+        Assert.assertEquals(functionDoc.parameters.get(1).name, "idx", "Parameter name should be extracted");
+        Assert.assertEquals(functionDoc.parameters.get(1).dataType, "int", "Parameter type should be extracted");
+        Assert.assertEquals(functionDoc.parameters.get(1).description, "<p>an index</p>\n", "Description of" +
+                " the parameter should be extracted");
+        Assert.assertEquals(functionDoc.returnParams.get(0).dataType, "int", "Return parameter type " + "should be " +
+                "extracted");
+        Assert.assertEquals(functionDoc.returnParams.get(0).description, "<p>int representation of the message</p>\n",
+                "Description of the return parameter should be extracted");
+
+    }
+
     @Test(description = "Connector properties should be available via construct", enabled = false)
     public void testConnectorPropertiesExtracted() throws Exception {
         BLangPackage bLangPackage = createPackage("package x.y; " +
@@ -284,9 +382,9 @@ public class HtmlDocTest {
         Assert.assertEquals(connectorDoc.name, "HttpClient", "Connector name should be extracted");
         Assert.assertEquals(connectorDoc.description, "Http client connector for outbound HTTP requests",
                 "Description of the connector should be extracted");
-        Assert.assertEquals(connectorDoc.parameters.get(0).name, "serviceUri", "Parameter name should be extracted");
-        Assert.assertEquals(connectorDoc.parameters.get(0).dataType, "string", "Parameter type should be extracted");
-        Assert.assertEquals(connectorDoc.parameters.get(0).description, "Url of the service",
+        Assert.assertEquals(connectorDoc.fields.get(0).name, "serviceUri", "Parameter name should be extracted");
+        Assert.assertEquals(connectorDoc.fields.get(0).dataType, "string", "Parameter type should be extracted");
+        Assert.assertEquals(connectorDoc.fields.get(0).description, "Url of the service",
                 "Description of the parameter type should be extracted");
 
         // For actions inside the connector
@@ -356,6 +454,18 @@ public class HtmlDocTest {
                 "global variable should be extracted");
     }
 
+    @Test(description = "Global variables should be available via construct with new docerina syntax")
+    public void testGlobalVariablePropertiesExtractedWithNewSyntax() throws Exception {
+        BLangPackage bLangPackage = createPackage("package x.y;\n" + "documentation {The Read Append access mode}\n"
+                + "@final\n" + "public string RA = \"RA\";");
+
+        GlobalVariableDoc globalVariableDoc = Generator.createDocForNode(bLangPackage.getGlobalVariables().get(0));
+        Assert.assertEquals(globalVariableDoc.name, "RA", "Global variable name should be extracted");
+        Assert.assertEquals(globalVariableDoc.dataType, "string", "Global variable type should be extracted");
+        Assert.assertEquals(globalVariableDoc.description, "<p>The Read Append access mode</p>\n", "Description of " +
+                "the global variable should be extracted");
+    }
+
     @Test(description = "Annotation properties should be available via construct", enabled = false)
     public void testAnnotationPropertiesExtracted() throws Exception {
         BLangPackage bLangPackage = createPackage("package x.y; " +
@@ -400,20 +510,20 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.size(), 0);
     }
     
-    @Test(description = "Testing primitive constructs.")
-    public void testPrimitiveConstructsWithFunctions() {
-        BLangPackage bLangPackage = createPackage("package ballerina.builtin;" +
-                                                  "public native function <blob b> data (string encoding) returns" +
-                                                  "(string);" +
-                                                  "public native function <blob b> sample () returns (string);");
-        List<Link> packages = new ArrayList<>();
-        packages.add(new Link(new PackageName((bLangPackage.symbol).pkgID.name.value, ""), "", false));
-        packages.add(new Link(new StaticCaption(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME),
-                BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF, false));
-        Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packages);
-        Assert.assertEquals(primitivesPage.constructs.size(), 1);
-        Assert.assertEquals(primitivesPage.constructs.get(0).children.size(), 2);
-    }
+//    @Test(description = "Testing primitive constructs.")
+//    public void testPrimitiveConstructsWithFunctions() {
+//        BLangPackage bLangPackage = createPackage("package ballerina.builtin;" +
+//                                                  "public native function <blob b> data (string encoding) returns" +
+//                                                  "(string);" +
+//                                                  "public native function <blob b> sample () returns (string);");
+//        List<Link> packages = new ArrayList<>();
+//        packages.add(new Link(new PackageName((bLangPackage.symbol).pkgID.name.value, ""), "", false));
+//        packages.add(new Link(new StaticCaption(BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_NAME),
+//                BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF, false));
+//        Page primitivesPage = Generator.generatePageForPrimitives(bLangPackage, packages);
+//        Assert.assertEquals(primitivesPage.constructs.size(), 1);
+//        Assert.assertEquals(primitivesPage.constructs.get(0).children.size(), 2);
+//    }
     
     @Test(description = "Tests whether default values are collected.", enabled = false)
     public void testStructDefaultValues() {
@@ -465,7 +575,11 @@ public class HtmlDocTest {
      * @return BLangPackage
      */
     private BLangPackage createPackage(String source) {
-        BallerinaFile ballerinaFile = LSParserUtils.compile(source, CompilerPhase.DEFINE);
+        BallerinaFile ballerinaFile = LSCompiler.compileContent(source, CompilerPhase.DEFINE);
+        if (!ballerinaFile.getDiagnostics().isEmpty()) {
+            ballerinaFile.getDiagnostics().stream().forEach(System.err::println);
+            throw new IllegalStateException("Compilation errors detected.");
+        }
         return ballerinaFile.getBLangPackage();
     }
 
@@ -477,6 +591,6 @@ public class HtmlDocTest {
     private Page generatePage(BLangPackage balPackage) {
         List<Link> packages = new ArrayList<>();
         packages.add(new Link(new PackageName((balPackage.symbol).pkgID.name.value, ""), "", false));
-        return Generator.generatePage(balPackage, packages, null);
+        return Generator.generatePage(balPackage, packages, null, null);
     }
 }

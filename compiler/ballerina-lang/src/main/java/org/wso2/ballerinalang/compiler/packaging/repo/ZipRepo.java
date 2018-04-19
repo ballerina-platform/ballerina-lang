@@ -7,6 +7,7 @@ import org.wso2.ballerinalang.compiler.packaging.converters.ZipConverter;
 
 import java.nio.file.Path;
 
+import static org.wso2.ballerinalang.compiler.packaging.Patten.LATEST_VERSION_DIR;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.WILDCARD_SOURCE;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
@@ -26,8 +27,13 @@ public class ZipRepo implements Repo<Path> {
         String orgName = pkg.getOrgName().getValue();
         String pkgName = pkg.getName().getValue();
         String version = pkg.getPackageVersion().getValue();
-        return new Patten(path("repo", orgName, pkgName, version),
-                path(pkgName + ".zip"), path("src"), WILDCARD_SOURCE);
+        if (version.isEmpty()) {
+            return new Patten(path("repo", orgName, pkgName), LATEST_VERSION_DIR,
+                              path(pkgName + ".zip"), path("src"), WILDCARD_SOURCE);
+        } else {
+            return new Patten(path("repo", orgName, pkgName, version),
+                              path(pkgName + ".zip"), path("src"), WILDCARD_SOURCE);
+        }
     }
 
     @Override

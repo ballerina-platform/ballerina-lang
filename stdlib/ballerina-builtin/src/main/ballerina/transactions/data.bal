@@ -15,28 +15,6 @@
 // under the License.
 
 package ballerina.transactions;
-import ballerina/io;
-
-type TransactionState "active" | "prepared" | "committed" | "aborted";
-@final TransactionState TXN_STATE_ACTIVE = "active";
-@final TransactionState TXN_STATE_PREPARED = "prepared";
-@final TransactionState TXN_STATE_COMMITTED = "committed";
-@final TransactionState TXN_STATE_ABORTED = "aborted";
-
-@final string TRANSACTION_CONTEXT_VERSION = "1.0";
-
-@final public string COMMAND_PREPARE = "prepare";
-@final public string COMMAND_COMMIT = "commit";
-@final public string COMMAND_ABORT = "abort";
-
-@final public string OUTCOME_PREPARED = "prepared";
-@final public string OUTCOME_NOT_PREPARED = "Not-Prepared";
-@final public string OUTCOME_MIXED = "mixed";
-@final public string OUTCOME_ABORTED = "aborted";
-@final public string OUTCOME_COMMITTED = "committed";
-@final public string OUTCOME_HAZARD = "Hazard-Outcome";
-@final public string OUTCOME_FAILED_EOT = "Failed-EOT";
-@final public string OUTCOME_READ_ONLY = "read-only";
 
 public type TransactionContext {
     @readonly string contextVersion = "1.0";
@@ -44,55 +22,6 @@ public type TransactionContext {
     @readonly int transactionBlockId;
     @readonly string coordinationType;
     @readonly string registerAtURL;
-};
-
-type Participant {
-    string participantId;
-};
-
-type LocalParticipant {
-    string participantId;
-    LocalProtocol[] participantProtocols;
-};
-
-type RemoteParticipant {
-    string participantId;
-    RemoteProtocol[] participantProtocols;
-};
-
-documentation {
-    This represents the protocol associated with the coordination type.
-
-    F{{name}} - protocol name
-}
-public type Protocol {
-    @readonly string name;
-};
-
-documentation {
-    This represents the protocol associated with the coordination type.
-
-    F{{name}} - protocol name
-    F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
-}
-public type LocalProtocol {
-    @readonly string name;
-    @readonly int transactionBlockId;
-    @readonly (function (string transactionId,
-                            int transactionBlockId,
-                            string protocolAction) returns boolean) protocolFn;
-};
-
-documentation {
-    This represents the protocol associated with the coordination type.
-
-    F{{name}} - protocol name
-    F{{url}}  - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
-                the `protocolFn` will be called
-}
-public type RemoteProtocol {
-    @readonly string name;
-    @readonly string url;
 };
 
 public type RegistrationRequest {
