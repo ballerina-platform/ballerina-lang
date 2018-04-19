@@ -67,7 +67,6 @@ import java.net.URL;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
@@ -298,7 +297,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         final HttpMessageDataStreamer outboundMsgDataStreamer = getHttpMessageDataStreamer(outboundRequestMsg);
 
-        final HTTPClientConnectorListener httpClientConnectorLister =
+        final HTTPClientConnectorListener httpClientConnectorLister = ObservabilityUtils.isObservabilityEnabled() ?
+                new ObservableHttpClientConnectorListener(dataContext, outboundMsgDataStreamer) :
                 new HTTPClientConnectorListener(dataContext, outboundMsgDataStreamer);
         final OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
@@ -447,6 +447,38 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
     }
 
+    private class ObservableHttpClientConnectorListener extends HTTPClientConnectorListener
+            implements HttpClientConnectorListener {
+
+        private final Context context;
+
+        private ObservableHttpClientConnectorListener(DataContext dataContext,
+                                                      HttpMessageDataStreamer outboundMsgDataStreamer) {
+            super(dataContext, outboundMsgDataStreamer);
+            this.context = dataContext.context;
+        }
+
+        @Override
+        public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
+            super.onMessage(httpCarbonMessage);
+            addHttpStatusCode(HttpUtil.getHttpResponseCode(httpCarbonMessage));
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            super.onError(throwable);
+            if (throwable instanceof ClientConnectorException) {
+                ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
+                addHttpStatusCode(clientConnectorException.getHttpStatusCode());
+            }
+        }
+
+        private void addHttpStatusCode(int statusCode) {
+            ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
+            observerContext.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE, String.valueOf(statusCode));
+        }
+    }
+
     /**
      * Creates a ballerina struct.
      *
@@ -481,9 +513,6 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                                                          .getStructInfo(RESPONSE_CACHE_CONTROL));
         HttpUtil.populateInboundResponse(responseStruct, entity, mediaType, responseCacheControl, httpCarbonMessage);
 
-        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
-        observerContext.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE,
-                String.valueOf(httpCarbonMessage.getProperty(HTTP_STATUS_CODE)));
         return responseStruct;
     }
 }

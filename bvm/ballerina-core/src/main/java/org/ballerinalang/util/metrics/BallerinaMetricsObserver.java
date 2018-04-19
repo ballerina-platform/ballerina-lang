@@ -79,29 +79,31 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
 
     private void startObservation(ObserverContext observerContext, String[] mainTags) {
         observerContext.addProperty(PROPERTY_START_TIME, System.nanoTime());
+        String connectorName = observerContext.getConnectorName();
+        Set<Tag> mainTagSet = new HashSet<>(mainTags.length);
         try {
-            String connectorName = observerContext.getConnectorName();
-            Set<Tag> mainTagSet = new HashSet<>(mainTags.length);
+            // Tags are validated (both key and value should not be null)
             Tags.tags(mainTagSet, mainTags);
             getInprogressGauge(connectorName, mainTagSet).increment();
         } catch (RuntimeException e) {
-            handleError(e);
+            handleError(connectorName, mainTagSet, e);
         }
     }
 
     private void stopObservation(ObserverContext observerContext, String[] mainTags) {
+        // Connector name must be a part of the metric name to make sure that every metric is unique with
+        // the combination of name and tags.
+        String connectorName = observerContext.getConnectorName();
+        Map<String, String> tags = observerContext.getTags();
+        Set<Tag> allTags = new HashSet<>(tags.size() + mainTags.length);
         try {
-            Long startTime = (Long) observerContext.getProperty(PROPERTY_START_TIME);
-            long duration = System.nanoTime() - startTime;
-            Map<String, String> tags = observerContext.getTags();
-            Set<Tag> allTags = new HashSet<>(tags.size() + mainTags.length);
+            // Tags are validated (both key and value should not be null)
             Tags.tags(allTags, observerContext.getTags());
             Tags.tags(allTags, mainTags);
             Set<Tag> mainTagSet = new HashSet<>(mainTags.length);
             Tags.tags(mainTagSet, mainTags);
-            // Connector name must be a part of the metric name to make sure that every metric is unique with
-            // the combination of name and tags.
-            String connectorName = observerContext.getConnectorName();
+            Long startTime = (Long) observerContext.getProperty(PROPERTY_START_TIME);
+            long duration = System.nanoTime() - startTime;
             getInprogressGauge(connectorName, mainTagSet).decrement();
             metricRegistry.timer(new MetricId(connectorName + "_response_time", "Response Time",
                     allTags)).record(duration, TimeUnit.NANOSECONDS);
@@ -110,7 +112,10 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             // Check HTTP status code
             String statusCode = tags.get(TAG_KEY_HTTP_STATUS_CODE);
             if (statusCode != null) {
-                incrementHttpStatusCodeCounters(Integer.parseInt(statusCode), connectorName, mainTagSet);
+                int httpStatusCode = Integer.parseInt(statusCode);
+                if (httpStatusCode > 0) {
+                    incrementHttpStatusCodeCounters(httpStatusCode, connectorName, mainTagSet);
+                }
             }
             Boolean error = (Boolean) observerContext.getProperty(PROPERTY_ERROR);
             if (error != null && error) {
@@ -118,7 +123,7 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
                         "Total number of failed requests", allTags)).increment();
             }
         } catch (RuntimeException e) {
-            handleError(e);
+            handleError(connectorName, allTags, e);
         }
     }
 
@@ -148,8 +153,9 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
         }
     }
 
-    private void handleError(RuntimeException e) {
+    private void handleError(String connectorName, Set<Tag> tags, RuntimeException e) {
         // Metric Provider may throw exceptions if there is a mismatch in tags.
-        consoleError.println("ballerina: error collecting metrics: " + e.getMessage());
+        consoleError.println("ballerina: error collecting metrics for " + connectorName + " with tags " + tags +
+                ": " + e.getMessage());
     }
 }

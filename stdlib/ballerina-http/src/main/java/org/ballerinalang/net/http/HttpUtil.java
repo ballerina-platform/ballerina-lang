@@ -26,6 +26,7 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.ballerinalang.bre.Context;
@@ -105,6 +106,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.PROPER
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_HOST;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_PORT;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
@@ -1082,6 +1084,12 @@ public class HttpUtil {
         tags.put(TAG_KEY_HTTP_URL, String.valueOf(msg.getProperty(HttpConstants.TO)));
         tags.put(TAG_KEY_HTTP_HOST, String.valueOf(msg.getProperty(PROPERTY_HTTP_HOST)));
         tags.put(TAG_KEY_HTTP_PORT, String.valueOf(msg.getProperty(PROPERTY_HTTP_PORT)));
+        // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
+        // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
+        // some value to HTTP Status Code to make sure that tags will not change depending on various
+        // circumstances.
+        // HTTP Status code must be a number.
+        tags.put(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
         return tags;
     }
 
@@ -1089,6 +1097,23 @@ public class HttpUtil {
         if (headers != null) {
             headers.forEach((key, value) -> msg.setHeader(key, String.valueOf(value)));
         }
+    }
+
+    public static int getHttpResponseCode(HTTPCarbonMessage msg) {
+        Integer statusCode = (Integer) msg.getProperty(HTTP_STATUS_CODE);
+        if (statusCode == null) {
+            // Try to get status code from Netty Response
+            try {
+                HttpResponse response = msg.getNettyHttpResponse();
+                if (response != null) {
+                    statusCode = response.status().code();
+                }
+            } catch (RuntimeException e) {
+                // Handle errors and give 0 as the status code
+                statusCode = 0;
+            }
+        }
+        return statusCode != null ? statusCode : 0;
     }
 
     private static void setChunkingHeader(Context context, HTTPCarbonMessage
