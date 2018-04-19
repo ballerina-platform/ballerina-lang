@@ -9,19 +9,15 @@ import ballerina/http;
 
 function pullPackage (string url, string dirPath, string pkgPath, string fileSeparator) {
     endpoint http:Client httpEndpoint {
-        targets: [
-        {
-            url: url,
-            secureSocket: {
-                trustStore: {
-                    filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                    password: "ballerina"
-                },
-                verifyHostname:false,
-                shareSession: true
-             }
+        url:url,
+        secureSocket:{
+            trustStore:{
+                filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password:"ballerina"
+            },
+            verifyHostname:false,
+            shareSession:true
         }
-        ]
     };
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;

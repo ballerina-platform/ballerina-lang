@@ -35,7 +35,7 @@ public type Participant2pcClientEP object {
     }
 
     public function init(Participant2pcClientConfig conf) {
-        endpoint http:Client httpEP {targets:[{url:conf.participantURL}],
+        endpoint http:Client httpEP {url:conf.participantURL,
                                             timeoutMillis:conf.timeoutMillis,
                                             retry:{count:conf.retryConfig.count,
                                                       interval:conf.retryConfig.interval}};

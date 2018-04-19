@@ -16,10 +16,8 @@
 
 package ballerina.http;
 
-import ballerina/io;
-
 documentation {
-    FailoverClient endpoint provides an HTTP endpoint without the resiliency aspects of the the Client endpoint
+    FailoverClient endpoint provides failover support over multiple HTTP clients.
 
     F{{epName}} - Name of the endpoint
     F{{failoverClientConfig}} - The configurations for the failover client endpoint
@@ -80,7 +78,8 @@ documentation {
     F{{cache}} - The configurations for controlling the caching behaviour
     F{{acceptEncoding}} - Specifies the way of handling accept-encoding header
     F{{auth}} - HTTP authentication releated configurations
-    F{{failover}} - Failover configurations
+    F{{failoverCodes}} - Array of http response status codes which required failover the requests
+    F{{intervalMillis}} - Failover delay interval in milliseconds
 }
 public type FailoverClientEndpointConfiguration {
     CircuitBreakerConfig? circuitBreaker,
@@ -98,7 +97,8 @@ public type FailoverClientEndpointConfiguration {
     CacheConfig cache = {},
     string acceptEncoding = "auto",
     AuthConfig? auth,
-    FailoverConfig failover,
+    int[] failoverCodes = [501, 502, 503],
+    int intervalMillis,
 };
 
 documentation {
@@ -107,10 +107,8 @@ documentation {
     P{{failoverClientConfig}} - The user provided configurations for the endpoint
 }
 public function FailoverClient::init(FailoverClientEndpointConfiguration failoverClientConfig) {
-
     self.httpEP.httpClient = createFailOverClient(failoverClientConfig);
     self.httpEP.config.circuitBreaker = failoverClientConfig.circuitBreaker;
-    self.httpEP.config.targets = failoverClientConfig.targets;
     self.httpEP.config.timeoutMillis = failoverClientConfig.timeoutMillis;
     self.httpEP.config.httpVersion = failoverClientConfig.httpVersion;
     self.httpEP.config.forwarded = failoverClientConfig.forwarded;
@@ -123,22 +121,23 @@ public function FailoverClient::init(FailoverClientEndpointConfiguration failove
     self.httpEP.config.connectionThrottling = failoverClientConfig.connectionThrottling;
 }
 
-function createClientendpointConfigFromFailoverEPConfig (FailoverClientEndpointConfiguration foConfig)
-                                                                                        returns ClientEndpointConfig {
+function createClientendpointConfigFromFailoverEPConfig(FailoverClientEndpointConfiguration foConfig,
+                                                        TargetService target) returns ClientEndpointConfig {
     ClientEndpointConfig clientEPConfig = {
+        url:target.url,
         circuitBreaker:foConfig.circuitBreaker,
-        timeoutMillis: foConfig.timeoutMillis,
-        keepAlive: foConfig.keepAlive,
-        transferEncoding: foConfig.transferEncoding,
-        chunking: foConfig.chunking,
-        httpVersion: foConfig.httpVersion,
-        forwarded: foConfig.forwarded,
-        followRedirects: foConfig.followRedirects,
-        retry: foConfig.retry,
-        proxy: foConfig.proxy,
-        connectionThrottling: foConfig.connectionThrottling,
-        targets: foConfig.targets,
-        cache: foConfig.cache,
+        timeoutMillis:foConfig.timeoutMillis,
+        keepAlive:foConfig.keepAlive,
+        transferEncoding:foConfig.transferEncoding,
+        chunking:foConfig.chunking,
+        httpVersion:foConfig.httpVersion,
+        forwarded:foConfig.forwarded,
+        followRedirects:foConfig.followRedirects,
+        retry:foConfig.retry,
+        proxy:foConfig.proxy,
+        connectionThrottling:foConfig.connectionThrottling,
+        secureSocket:target.secureSocket,
+        cache:foConfig.cache,
         acceptEncoding:foConfig.acceptEncoding,
         auth:foConfig.auth
     };
@@ -147,15 +146,64 @@ function createClientendpointConfigFromFailoverEPConfig (FailoverClientEndpointC
 
 
 function createFailOverClient(FailoverClientEndpointConfiguration failoverClientConfig) returns HttpClient {
-    ClientEndpointConfig config = createClientendpointConfigFromFailoverEPConfig(failoverClientConfig);
-    HttpClient[] clients = createHttpClientArray(config);
-
-    boolean[] failoverCodes = populateErrorCodeIndex(failoverClientConfig.failover.failoverCodes);
+    ClientEndpointConfig config = createClientendpointConfigFromFailoverEPConfig(
+                                      failoverClientConfig,
+                                      failoverClientConfig.targets[0]);
+    HttpClient[] clients = createFailoverHttpClientArray(failoverClientConfig);
+    boolean[] failoverCodes = populateErrorCodeIndex(failoverClientConfig.failoverCodes);
     FailoverInferredConfig failoverInferredConfig = {
-                                                        failoverClientsArray : clients,
-                                                        failoverCodesIndex : failoverCodes,
-                                                        failoverInterval : failoverClientConfig.failover.interval
-                                                    };
+        failoverClientsArray:clients,
+        failoverCodesIndex:failoverCodes,
+        failoverInterval:failoverClientConfig.intervalMillis
+    };
+    return newFailover(config.url, config, failoverInferredConfig);
+}
 
-    return new Failover(config.targets[0].url, config, failoverInferredConfig);
+function createFailoverHttpClientArray (FailoverClientEndpointConfiguration failoverClientConfig) returns HttpClient[] {
+    HttpClient[] httpClients = [];
+    int i = 0;
+    boolean httpClientRequired = false;
+    string uri = failoverClientConfig.targets[0].url;
+    var cbConfig = failoverClientConfig.circuitBreaker;
+    match cbConfig {
+        CircuitBreakerConfig cb => {
+            if (uri.hasSuffix("/")) {
+                int lastIndex = uri.length() - 1;
+                uri = uri.subString(0, lastIndex);
+            }
+            httpClientRequired = false;
+        }
+        () => {
+            httpClientRequired = true;
+        }
+    }
+
+    foreach target in failoverClientConfig.targets {
+        ClientEndpointConfig epConfig = createClientendpointConfigFromFailoverEPConfig(failoverClientConfig, target);
+        uri = target.url;
+        if (uri.hasSuffix("/")) {
+            int lastIndex = uri.length() - 1;
+            uri = uri.subString(0, lastIndex);
+        }
+        if (!httpClientRequired) {
+            httpClients[i] = createCircuitBreakerClient(uri, epConfig);
+        } else {
+            var retryConfig = epConfig.retry;
+            match retryConfig {
+                Retry retry => {
+                    httpClients[i] = createRetryClient(uri, epConfig);
+                }
+                () => {
+                    if (epConfig.cache.enabled) {
+                        httpClients[i] = createHttpCachingClient(uri, epConfig, epConfig.cache);
+                    } else {
+                        httpClients[i] = createHttpSecureClient(uri, epConfig);
+                    }
+                }
+            }
+        }
+        httpClients[i].config = epConfig;
+        i = i + 1;
+    }
+    return httpClients;
 }

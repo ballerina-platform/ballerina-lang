@@ -22,7 +22,7 @@ endpoint http:Listener participant1EP {
 };
 
 endpoint http:Client participant2EP {
-    targets:[{url: "http://localhost:8890"}]
+    url: "http://localhost:8890"
 };
 
 State state = new();

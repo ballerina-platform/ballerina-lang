@@ -19,13 +19,6 @@ package ballerina.http;
 @Description {value:"Stands for the round robin algorithm for load balancing."}
 @final public string ROUND_ROBIN = "round-robin";
 
-@Description {value:"Represents LoadBalancer client configuration."}
-@Field {value:"algorithm: The algorithm to be used for load balancing. The HTTP package provides
-                            'roundRobin()' by default."}
-public type LoadBalanceConfig {
-    string algorithm = ROUND_ROBIN;
-};
-
 @Description {value:"Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient."}
 public type LoadBalancer object {
    public {

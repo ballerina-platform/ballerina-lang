@@ -82,6 +82,7 @@ public type TargetService {
 @Field {value:"acceptEncoding: Specifies the way of handling accept-encoding header."}
 @Field {value:"auth: HTTP authentication releated configurations."}
 public type ClientEndpointConfig {
+    string url,
     CircuitBreakerConfig? circuitBreaker,
     int timeoutMillis = 60000,
     KeepAlive keepAlive = KEEPALIVE_AUTO,
@@ -93,13 +94,15 @@ public type ClientEndpointConfig {
     Retry? retry,
     ProxyConfig? proxy,
     ConnectionThrottling? connectionThrottling,
-    TargetService[] targets,
+    SecureSocket? secureSocket,
     CacheConfig cache,
     string acceptEncoding = "auto",
     AuthConfig? auth,
 };
 
 public native function createHttpClient(string uri, ClientEndpointConfig config) returns HttpClient;
+
+public native function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns HttpClient;
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
@@ -191,7 +194,7 @@ public type AuthConfig {
 
 public function Client::init(ClientEndpointConfig config) {
     boolean httpClientRequired = false;
-    string url = config.targets[0].url;
+    string url = config.url;
     if (url.hasSuffix("/")) {
         int lastIndex = url.length() - 1;
         url = url.subString(0, lastIndex);
