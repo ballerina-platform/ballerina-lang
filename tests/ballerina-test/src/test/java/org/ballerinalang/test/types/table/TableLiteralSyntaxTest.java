@@ -35,7 +35,7 @@ public class TableLiteralSyntaxTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/table/table-literal-syntax.bal");
+        result = BCompileUtil.compile("test-src/types/table/table_literal_syntax.bal");
     }
 
     @Test

@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.transactions;
-
 import ballerina/config;
 
 @final string basePath = "/balcoordinator";
@@ -27,6 +25,31 @@ import ballerina/config;
 
 @final string coordinatorHost = config:getAsString("b7a.transactions.coordinator.host", default = getHostAddress());
 @final int coordinatorPort = config:getAsInt("b7a.transactions.coordinator.port", default = getAvailablePort());
+
+@final string TRANSACTION_CONTEXT_VERSION = "1.0";
+
+@final public string COMMAND_PREPARE = "prepare";
+@final public string COMMAND_COMMIT = "commit";
+@final public string COMMAND_ABORT = "abort";
+
+@final string PREPARE_RESULT_PREPARED_STR = "prepared";
+@final string PREPARE_RESULT_ABORTED_STR = "aborted";
+@final string PREPARE_RESULT_COMMITTED_STR = "committed";
+@final string PREPARE_RESULT_READ_ONLY_STR = "read-only";
+@final string PREPARE_RESULT_FAILED_STR = "failed";
+
+@final string NOTIFY_RESULT_NOT_PREPARED_STR = "not-prepared";
+@final string NOTIFY_RESULT_FAILED_EOT_STR = "failed-eot";
+
+@final string NOTIFY_RESULT_COMMITTED_STR = "committed";
+@final string NOTIFY_RESULT_ABORTED_STR = "aborted";
+
+@final string OUTCOME_COMMITTED = "committed";
+@final string OUTCOME_ABORTED = "aborted";
+@final string OUTCOME_MIXED = "mixed";
+@final string OUTCOME_HAZARD = "hazard";
+
+@final string TRANSACTION_UNKNOWN = "Transaction-Unknown";
 
 endpoint http:Listener coordinatorListener {
     host:coordinatorHost,
