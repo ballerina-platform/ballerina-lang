@@ -114,9 +114,9 @@ function createHttpClientArray (ClientEndpointConfig config) returns HttpClient[
         if (!httpClientRequired) {
             httpClients[i] = createCircuitBreakerClient(uri, config);
         } else {
-            var retryConfig = config.retry;
-            match retryConfig {
-                Retry retry => {
+            var retryConfigVal = config.retryConfig;
+            match retryConfigVal {
+                RetryConfig retryConfig => {
                     httpClients[i] = createRetryClient(uri, config);
                 }
                 () => {

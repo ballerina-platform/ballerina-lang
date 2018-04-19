@@ -346,10 +346,10 @@ public class SymbolTable {
         defineConversionOperator(anyType, tableType, false, InstructionCodes.ANY2DT);
         defineConversionOperator(anyType, streamType, false, InstructionCodes.ANY2STM);
 
-        defineConversionOperator(jsonType, intType, false, InstructionCodes.JSON2I);
-        defineConversionOperator(jsonType, floatType, false, InstructionCodes.JSON2F);
-        defineConversionOperator(jsonType, stringType, false, InstructionCodes.JSON2S);
-        defineConversionOperator(jsonType, booleanType, false, InstructionCodes.JSON2B);
+        defineConversionOperator(jsonType, intType, false, InstructionCodes.CHECKCAST);
+        defineConversionOperator(jsonType, floatType, false, InstructionCodes.CHECKCAST);
+        defineConversionOperator(jsonType, stringType, false, InstructionCodes.CHECKCAST);
+        defineConversionOperator(jsonType, booleanType, false, InstructionCodes.CHECKCAST);
 
         // Define conversion operators
         defineConversionOperator(anyType, stringType, true, InstructionCodes.ANY2SCONV);

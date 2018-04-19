@@ -107,6 +107,22 @@
       <div class="row cBallerina-io-Gray-row">
          <div class="container">
             <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 cBallerina-io-Home-Left-col">
+                 <div class="cBlallerina-io-docs-right-nav-container">
+                  <div class="cLectColStyle cLeftColTop">
+                      <div class="cBallerina-io-docs-Title cBallerina-io-x">BALLERINA X</div>
+                        <div class="cCollaps-Menu-first">
+                            {{#each primitives}}
+                                <ul class="">
+                                    <li>
+                                        <a href="{{href}}">
+                                            <span class="bold">{{caption.value}}</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            {{/each}}
+                        </div>
+                  </div>
+                </div>
                 <div class="cBlallerina-io-docs-right-nav-container">
                   <div class="cLectColStyle cLeftColTop">
                       <div class="cBallerina-io-docs-Title cBallerina-io-primitive-types">PRIMITIVE TYPES</div>
@@ -172,13 +188,7 @@
                               </ul>
                            </div>
                            {{else}}
-                           <a href="{{href}}.html">
-                           {{#if caption.isPackageName}} {{caption.prefix}}
-                           <span class="bold">{{caption.suffix}}</span>
-                           {{/if}} {{#if caption.isStaticCaption}}
-                           <span class="bold">{{caption.value}}</span>
-                           {{/if}}
-                           </a>
+                           <a href="{{href}}.html">{{#if caption.isPackageName}}{{caption.prefix}}<span class="bold">{{caption.suffix}}</span>{{/if}}{{#if caption.isStaticCaption}}<span class="bold">{{caption.value}}</span>{{/if}}</a>
                            {{/if}}
                         </li>
                      </ul>
@@ -197,8 +207,7 @@
                         <li>
                            <!--Package Name-->
                            {{#if active}} {{#if caption.isPackageName}}
-                           <a class="cPackageList">{{caption.prefix}}
-                           <span class="bold">{{caption.suffix}}</a>
+                           <a class="cPackageList">{{caption.prefix}}<span class="bold">{{caption.suffix}}</a>
                            {{/if}} {{#if caption.isStaticCaption}}
                            <a>
                            <span class="bold">{{caption.value}}</span>

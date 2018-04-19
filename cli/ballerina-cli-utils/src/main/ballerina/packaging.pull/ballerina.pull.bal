@@ -67,11 +67,16 @@ function pullPackage (string url, string dirPath, string pkgPath, string fileSep
 
                         // Create the version directory
                         destDirPath = destDirPath + fileSeparator + pkgVersion;
-                        if (!createDirectories(destDirPath)) {
-                            return;
-                        }
+                        
                         string archiveFileName = pkgName + ".zip";
                         string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
+
+                        if (!createDirectories(destDirPath)) {
+                            file:Path pkgArchivePath = new(destArchivePath);
+                            if (file:exists(pkgArchivePath)){  
+                                return;                              
+                            }        
+                        }
 
                         io:ByteChannel destDirChannel = getFileChannel(destArchivePath, "w");
                         string toAndFrom = " [central.ballerina.io -> home repo]";
