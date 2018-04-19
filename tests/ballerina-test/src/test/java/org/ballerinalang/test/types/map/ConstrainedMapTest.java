@@ -48,9 +48,9 @@ public class ConstrainedMapTest {
         negativeResult = BCompileUtil.compile("test-src/types/map/constrained-map-negative.bal");
     }
 
-    @Test(description = "Test Map constrained with type negative semantic validations.", enabled = false)
+    @Test(description = "Test Map constrained with type negative semantic validations.")
     public void testConstrainedMapNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 10);
+        Assert.assertEquals(negativeResult.getErrorCount(), 9);
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'map<int>', found 'map'", 3, 12);
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'int', found 'string'", 7, 44);
         BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'string', found 'int'", 13, 23);
@@ -61,30 +61,30 @@ public class ConstrainedMapTest {
                 35, 31);
         BAssertUtil.validateError(negativeResult, 5, "incompatible types: expected 'map<Person>', found 'map'",
                 45, 31);
-        BAssertUtil.validateError(negativeResult, 6, "incompatible types: 'map<Employee>' cannot be cast " +
+        BAssertUtil.validateError(negativeResult, 6, "incompatible types: 'map<Employee>' cannot be converted " +
                         "to 'map<Person>'",
-                52, 18);
-        BAssertUtil.validateError(negativeResult, 7, "incompatible types: 'any' cannot be cast to 'map<Employee>'",
-                60, 17);
-        BAssertUtil.validateError(negativeResult, 8, "incompatible types: 'Student' cannot be convert to 'map<int>'",
-                72, 12);
-        BAssertUtil.validateError(negativeResult, 9, "incompatible types: 'map<Person>' " +
-                        "cannot be cast to 'map<Student>'",
-                79, 18);
+                52, 16);
+        BAssertUtil.validateError(negativeResult, 7, "incompatible types: 'any' cannot be converted to 'map<Employee>'",
+                60, 15);
+//        BAssertUtil.validateError(negativeResult, 8, "incompatible types: 'Student' cannot be converted to " +
+//                "'map<int>'", 72, 12);
+        BAssertUtil.validateError(negativeResult, 8, "incompatible types: 'map<Person>' " +
+                        "cannot be converted to 'map<Student>'",
+                79, 16);
     }
 
-    @Test(description = "Test Map constrained with value type value retrieval positive case.", enabled = false)
+    @Test(description = "Test Map constrained with value type value retrieval positive case.")
     public void testConstrainedMapValueTypePositive() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypePositive");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "kevin");
     }
 
-    @Test(description = "Test Map constrained with value type value retrieval negative case.", enabled = false)
+    @Test(description = "Test Map constrained with value type value retrieval negative case.",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: error, message: cannot find key 'names'.*")
     public void testConstrainedMapValueTypeNegative() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeNegative");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), null);
+        BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeNegative");
     }
 
     @Test(description = "Test Map constrained with value type index based value retrieval positive case.")
@@ -139,8 +139,7 @@ public class ConstrainedMapTest {
         Assert.assertEquals(returns[1].stringValue(), "ratnasekera");
     }
 
-    //This should be enabled once json cast related indexing issues are fixed
-    @Test(description = "Test Map constrained with constrained Json.", enabled = false)
+    @Test(description = "Test Map constrained with constrained Json.")
     public void testConstrainedMapConstrainedWithConstrainedJson() {
         BValue[] returns = BRunUtil.invoke(compileResult,
                 "testConstrainedMapConstrainedWithConstrainedJson");
