@@ -28,7 +28,6 @@ import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 
@@ -74,9 +73,6 @@ public class BallerinaDocCmd implements BLauncherCmd {
     @DynamicParameter(names = "-e", description = "Ballerina environment parameters")
     private Map<String, String> runtimeParams = new HashMap<>();
 
-    @DynamicParameter(names = "-B", description = "Ballerina VM options")
-    private Map<String, String> vmOptions = new HashMap<>();
-
     @Parameter(names = {"--config", "-c"}, description = "path to the docerina configuration file")
     private String configFilePath;
 
@@ -112,9 +108,6 @@ public class BallerinaDocCmd implements BLauncherCmd {
             System.setProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, templatesDir);
         }
 
-        // Setting the vm options
-        VMOptions.getInstance().addOptions(vmOptions);
-        
         try {
             ConfigRegistry.getInstance().initRegistry(runtimeParams, configFilePath, null);
         } catch (IOException e) {
