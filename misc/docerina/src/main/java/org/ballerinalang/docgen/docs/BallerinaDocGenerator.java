@@ -80,6 +80,7 @@ public class BallerinaDocGenerator {
     /**
      * API to generate Ballerina API documentation.
      *
+     * @param sourceRoot    project root
      * @param output        path to the output directory where the API documentation will be written to.
      * @param packageFilter comma separated list of package names to be filtered from the documentation.
      * @param isNative      whether the given packages are native or not.
@@ -192,6 +193,7 @@ public class BallerinaDocGenerator {
      * @param sourceRoot  points to the folder relative to which package path is given
      * @param packagePath should point either to a ballerina file or a folder with ballerina files.
      * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
+     * @throws IOException on error.
      */
     protected static Map<String, PackageDoc> generatePackageDocsFromBallerina(String sourceRoot, String packagePath)
             throws IOException {
@@ -205,6 +207,7 @@ public class BallerinaDocGenerator {
      * @param packagePath   should point either to a ballerina file or a folder with ballerina files.
      * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
      * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
+     * @throws IOException on error.
      */
     protected static Map<String, PackageDoc> generatePackageDocsFromBallerina(String sourceRoot, String packagePath,
                                                                                 String packageFilter)
@@ -218,7 +221,9 @@ public class BallerinaDocGenerator {
      * @param sourceRoot    points to the folder relative to which package path is given
      * @param packagePath   should point either to a ballerina file or a folder with ballerina files.
      * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
+     * @param isNative      whether this is a native package or not.
      * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
+     * @throws IOException on error.
      */
     protected static Map<String, PackageDoc> generatePackageDocsFromBallerina(
             String sourceRoot, String packagePath, String packageFilter, boolean isNative) throws IOException {
@@ -233,6 +238,7 @@ public class BallerinaDocGenerator {
      * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
      * @param isNative      whether the given packages are native or not.
      * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
+     * @throws IOException on error.
      */
     protected static Map<String, PackageDoc> generatePackageDocsFromBallerina(
         String sourceRoot, Path packagePath, String packageFilter, boolean isNative) throws IOException {

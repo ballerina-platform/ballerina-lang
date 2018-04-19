@@ -75,8 +75,10 @@ public class Generator {
     /**
      * Generate the page when the bal package is passed.
      *
-     * @param balPackage The current package that is being viewed.
-     * @param packages   List of available packages.
+     * @param balPackage  The current package that is being viewed.
+     * @param packages    List of available packages.
+     * @param description package description
+     * @param primitives  list of primitives
      * @return A page model for the current package.
      */
     public static Page generatePage(BLangPackage balPackage, List<Link> packages, String description, List<Link>
@@ -161,6 +163,7 @@ public class Generator {
      *
      * @param balPackage The ballerina.builtin package.
      * @param packages   List of available packages.
+     * @param primitives list of primitives.
      * @return A page model for the primitive types.
      */
     public static Page generatePageForPrimitives(BLangPackage balPackage, List<Link> packages, List<Link> primitives) {
