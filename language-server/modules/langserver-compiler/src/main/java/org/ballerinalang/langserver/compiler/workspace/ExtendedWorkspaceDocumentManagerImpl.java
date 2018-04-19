@@ -21,8 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
-import java.util.concurrent.locks.Lock;
 
 /**
  * This class provides an abstraction layer for a given filePath. All other changes are reflected to the underline
@@ -101,26 +99,20 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
      * Enables explicit mode. When explicit mode is enabled; changes for the temp file will not be reflected to the
      * WorkspaceDocument Manager and kept in an abstraction layer. Changes for the other files will be served as usual.
      * @param tempFile temp file path
-     * @return optional lock
      */
-    public Optional<Lock> lockWriteAndEnableExplicitMode(Path tempFile) {
+    public void enableExplicitMode(Path tempFile) {
         if (tempDocument == null) {
             tempDocument = new WorkspaceDocument(tempFile, "");
         } else {
             tempDocument.setPath(tempFile);
         }
-        Lock lock = tempDocument.getLock();
-        lock.lock();
         this.explicitMode = true;
-        return Optional.of(lock);
     }
 
     /**
      * Disables explicit mode. When explicit mode is disabled; All changes for the files will be served as usual.
-     * @param lock
      */
-    public void unlockWriteAndDisableExplicitMode(Lock lock) {
+    public void disableExplicitMode() {
         this.explicitMode = false;
-        lock.unlock();
     }
 }
