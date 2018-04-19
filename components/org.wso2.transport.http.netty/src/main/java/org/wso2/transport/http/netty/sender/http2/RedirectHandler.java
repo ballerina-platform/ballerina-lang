@@ -132,7 +132,7 @@ public class RedirectHandler implements Http2DataEventListener {
             String redirectionMethod = getRedirectionRequestMethod(statusCode, originalRequest);
             String redirectionURL = RedirectUtil.getResolvedRedirectURI(location, originalRequest);
             HTTPCarbonMessage request =
-                    RedirectUtil.createRedirectCarbonRequest(redirectionURL, redirectionMethod, userAgent);
+                    RedirectUtil.createRedirectCarbonRequest(redirectionURL, redirectionMethod, userAgent, ctx);
             outboundMsgHolder.clearRedirectionState();
             http2ClientChannel.removeInFlightMessage(streamId);
             outboundMsgHolder.updateRequest(request);

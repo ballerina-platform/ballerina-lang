@@ -283,7 +283,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
                 HTTPCarbonMessage httpCarbonRequest = RedirectUtil.createRedirectCarbonRequest(
                         redirectState.get(HttpHeaderNames.LOCATION.toString()),
                         redirectState.get(Constants.HTTP_METHOD),
-                        redirectState.get(HttpHeaderNames.USER_AGENT.toString()));
+                        redirectState.get(HttpHeaderNames.USER_AGENT.toString()), ctx);
                 HttpRequest httpRequest = Util.createHttpRequest(httpCarbonRequest);
 
                 if (isCrossDoamin) {
@@ -379,7 +379,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
             LOG.debug("Pass along received response headers to client. Channel id : " + ctx.channel().id());
         }
         HttpResponseFuture responseFuture = ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).get();
-        responseFuture.notifyHttpListener(setUpCarbonResponseMessage(msg));
+        responseFuture.notifyHttpListener(setUpCarbonResponseMessage(msg, ctx));
     }
 
     /**
@@ -529,10 +529,11 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
      * Create response message that needs to be sent to the client.
      *
      * @param msg Http message
+     * @param ctx Channel handler context
      * @return HTTPCarbonMessage
      */
-    private HTTPCarbonMessage setUpCarbonResponseMessage(Object msg) {
-        targetRespMsg = new HTTPCarbonMessage((HttpMessage) msg);
+    private HTTPCarbonMessage setUpCarbonResponseMessage(Object msg, ChannelHandlerContext ctx) {
+        targetRespMsg = Util.createHTTPCarbonMessage((HttpMessage) msg, ctx);
         targetRespMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
         HttpResponse httpResponse = (HttpResponse) msg;
         targetRespMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());

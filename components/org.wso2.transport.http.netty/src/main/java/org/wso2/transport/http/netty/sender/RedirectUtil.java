@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.sender;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
@@ -25,6 +26,7 @@ import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
@@ -47,7 +49,7 @@ public class RedirectUtil {
      * @throws MalformedURLException if url is malformed
      */
     public static HTTPCarbonMessage createRedirectCarbonRequest(String redirectionUrl, String redirectionMethod,
-                                                                String userAgent)
+                                                                String userAgent, ChannelHandlerContext ctx)
             throws MalformedURLException {
         if (log.isDebugEnabled()) {
             log.debug("Create redirect request with http method  : " + redirectionMethod);
@@ -56,7 +58,7 @@ public class RedirectUtil {
 
         HttpMethod httpMethod = new HttpMethod(redirectionMethod);
         HTTPCarbonMessage httpCarbonRequest = new HTTPCarbonMessage(
-                new DefaultHttpRequest(HttpVersion.HTTP_1_1, httpMethod, ""));
+                new DefaultHttpRequest(HttpVersion.HTTP_1_1, httpMethod, ""), new DefaultListener(ctx));
         httpCarbonRequest.setProperty(Constants.HTTP_PORT,
                                       locationUrl.getPort() != -1 ? locationUrl.getPort() :
                                       getDefaultPort(locationUrl.getProtocol()));

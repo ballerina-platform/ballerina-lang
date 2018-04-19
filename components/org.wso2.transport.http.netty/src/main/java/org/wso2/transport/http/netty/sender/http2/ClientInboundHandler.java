@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
+import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
@@ -228,7 +229,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
                     notifyHttpListener(new Exception("Error while setting http headers", e));
         }
         // Create HTTP Carbon Response
-        HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse);
+        HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse, new DefaultListener(ctx));
 
         // Setting properties of the HTTP Carbon Response
         responseCarbonMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));

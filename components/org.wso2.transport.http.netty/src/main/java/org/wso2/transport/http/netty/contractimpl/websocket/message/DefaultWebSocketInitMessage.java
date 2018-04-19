@@ -156,6 +156,7 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
                 pipeline.addLast(Constants.WEBSOCKET_SOURCE_HANDLER, webSocketSourceHandler);
                 pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
                 setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
+                pipeline.fireChannelActive();
                 handshakeFuture.notifySuccess(webSocketSourceHandler.getChannelSession());
             });
             handshakeStarted = true;
