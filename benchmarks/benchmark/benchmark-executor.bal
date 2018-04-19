@@ -80,13 +80,13 @@ function executeBenchmarks(functionRecord[] functionArray, int warmupIterations,
 
         float totalTime = (endTime - startTime);
         float totalTimeMilli = (totalTime / 1000000.0);
-        resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f,", [totalTimeMilli]), 0);
+        resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f,", totalTimeMilli), 0);
 
         float avgLatency = (<float>totalTime / <float>benchmarkIterations);
-        resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f,", [avgLatency]), 0);
+        resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f,", avgLatency), 0);
 
         float tps = (1000000000.0 / avgLatency);
-        resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f", [tps]), 0);
+        resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f", tps), 0);
     }
 
 }

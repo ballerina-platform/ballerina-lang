@@ -20,19 +20,16 @@ int counter = 0;
 
 function testSuccessScenario () returns (http:Response | http:HttpConnectorError) {
 
-    endpoint http:Client backendClientEP {
-    lbMode: {
+    endpoint http:FailoverClient backendClientEP {
         failoverCodes : [400, 404, 502],
-        interval : 0
-    },
-    targets: [
-             {url: "http://invalidEP"},
-             {url: "http://localhost:8080"}],
-    timeoutMillis:5000
+        targets: [
+                 {url: "http://invalidEP"},
+                 {url: "http://localhost:8080"}],
+        timeoutMillis:5000
     };
 
     http:Response clientResponse = new;
-    http:Failover foClient = check <http:Failover>backendClientEP.getClient();
+    http:Failover foClient = check <http:Failover>backendClientEP.getCallerActions();
     MockClient mockClient1 = new;
     MockClient mockClient2 = new;
     http:HttpClient[] httpClients = [<http:HttpClient> mockClient1, <http:HttpClient> mockClient2];
@@ -53,19 +50,16 @@ function testSuccessScenario () returns (http:Response | http:HttpConnectorError
 }
 
 function testFailureScenario () returns (http:Response | http:HttpConnectorError) {
-    endpoint http:Client backendClientEP {
-    lbMode: {
+    endpoint http:FailoverClient backendClientEP {
         failoverCodes : [400, 404, 502],
-        interval : 0
-    },
-    targets: [
-             {url: "http://invalidEP"},
-             {url: "http://localhost:50000000"}],
-    timeoutMillis:5000
+        targets: [
+                 {url: "http://invalidEP"},
+                 {url: "http://localhost:50000000"}],
+        timeoutMillis:5000
     };
 
     http:HttpConnectorError err = {};
-    http:Failover foClient = check <http:Failover>backendClientEP.getClient();
+    http:Failover foClient = check <http:Failover>backendClientEP.getCallerActions();
     MockClient mockClient1 = new;
     MockClient mockClient2 = new;
     http:HttpClient[] httpClients = [<http:HttpClient> mockClient1, <http:HttpClient> mockClient2];

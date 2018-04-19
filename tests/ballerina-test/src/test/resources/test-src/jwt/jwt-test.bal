@@ -12,7 +12,7 @@ function testIssueJwt (string keyStorePath) returns (string)|error {
     payload.iss = "wso2";
     payload.jti = "100078234ba23";
     payload.aud = ["ballerina", "ballerinaSamples"];
-    payload.exp = time:currentTime().time + 600000;
+    payload.exp = time:currentTime().time/1000 + 600;
 
     jwt:JWTIssuerConfig config = {};
     config.keyAlias = "ballerina";
@@ -25,22 +25,19 @@ function testIssueJwt (string keyStorePath) returns (string)|error {
     }
 }
 
-function testValidateJwt (string jwtToken, string trustStorePath) returns (boolean)|error {
+function testValidateJwt (string jwtToken, string trustStorePath) returns boolean|error {
     io:println(jwtToken);
     jwt:JWTValidatorConfig config = {};
     config.issuer = "wso2";
     config.certificateAlias = "ballerina";
     config.audience = "ballerinaSamples";
-    config.timeSkew = 100;
+    config.clockSkew = 60;
     config.trustStoreFilePath = trustStorePath;
     config.trustStorePassword = "ballerina";
 
     var value = jwt:validate(jwtToken, config);
     match value {
-        (boolean, jwt:Payload) result => {
-        var (isValid, payload) = result;
-            return isValid;
-        }
+        jwt:Payload result => return true;
         error err => return err;
     }
 }

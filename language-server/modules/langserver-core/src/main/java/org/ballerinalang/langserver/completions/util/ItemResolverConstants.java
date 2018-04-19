@@ -81,7 +81,7 @@ public class ItemResolverConstants {
     
     // Keyword constants
     public static final String VAR_KEYWORD = "var";
-    public static final String CREATE_KEYWORD = "create";
+    public static final String CHECK_KEYWORD = "check";
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";
     

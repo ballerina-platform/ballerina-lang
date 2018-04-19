@@ -32,7 +32,7 @@ import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.util.HomeRepoUtils;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,6 +74,7 @@ public class PushUtils {
         String version = manifest.getVersion();
 
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
+
         Path prjDirPath = Paths.get(".").toAbsolutePath().normalize().resolve(ProjectDirConstants
                                                                                       .DOT_BALLERINA_DIR_NAME);
 
@@ -117,19 +118,31 @@ public class PushUtils {
             if (!installToRepo.equals("home")) {
                 throw new BLangCompilerException("Unknown repository provided to push the package");
             }
-            Path balHomeDir = HomeRepoUtils.createAndGetHomeReposPath();
-            Path targetDirectoryPath = Paths.get(balHomeDir.toString(), "repo", orgName, packageName, version,
-                                                 packageName + ".zip");
-            if (Files.exists(targetDirectoryPath)) {
-                throw new BLangCompilerException("Ballerina package exists in the home repository");
-            } else {
-                try {
-                    Files.createDirectories(targetDirectoryPath);
-                    Files.copy(pkgPathFromPrjtDir, targetDirectoryPath, StandardCopyOption.REPLACE_EXISTING);
-                    outStream.println(orgName + "/" + packageName + ":" + version + " [project repo -> home repo]");
-                } catch (IOException e) {
-                    throw new BLangCompilerException("Error occurred when creating directories in the home repository");
-                }
+            installToHomeRepo(packageID, pkgPathFromPrjtDir);
+        }
+    }
+
+    /**
+     * Install the package artifact to the home repository.
+     *
+     * @param packageID          packageID of the package
+     * @param pkgPathFromPrjtDir package path from the project directory
+     */
+    private static void installToHomeRepo(PackageID packageID, Path pkgPathFromPrjtDir) {
+        Path balHomeDir = RepoUtils.createAndGetHomeReposPath();
+        Path targetDirectoryPath = Paths.get(balHomeDir.toString(), "repo", packageID.orgName.getValue(),
+                                             packageID.name.getValue(), packageID.version.getValue(),
+                                             packageID.name.getValue() + ".zip");
+        if (Files.exists(targetDirectoryPath)) {
+            throw new BLangCompilerException("Ballerina package exists in the home repository");
+        } else {
+            try {
+                Files.createDirectories(targetDirectoryPath);
+                Files.copy(pkgPathFromPrjtDir, targetDirectoryPath, StandardCopyOption.REPLACE_EXISTING);
+                outStream.println(packageID.orgName.getValue() + "/" + packageID.name.getValue() + ":" +
+                                          packageID.version.getValue() + " [project repo -> home repo]");
+            } catch (IOException e) {
+                throw new BLangCompilerException("Error occurred when creating directories in the home repository");
             }
         }
     }
@@ -175,8 +188,8 @@ public class PushUtils {
      * @return settings object
      */
     private static Settings readSettings() {
-        String tomlFilePath = HomeRepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME)
-                                           .toString();
+        String tomlFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME)
+                                       .toString();
         try {
             return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
         } catch (IOException e) {

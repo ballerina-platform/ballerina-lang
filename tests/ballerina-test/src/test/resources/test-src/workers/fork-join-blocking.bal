@@ -4,7 +4,7 @@ import ballerina/runtime;
 int i = 0;
 
 function testForkJoin() returns (int, int) {
-    endpoint http:SimpleClient c {
+    endpoint http:Client c {
         url:"http://example.com"
     };
     fork {
