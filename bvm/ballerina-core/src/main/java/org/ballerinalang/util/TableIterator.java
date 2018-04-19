@@ -92,6 +92,10 @@ public class TableIterator implements DataIterator {
         }
     }
 
+    public void reset() {
+        throw new UnsupportedOperationException();
+    }
+
     @Override
     public String getString(int columnIndex) {
         try {

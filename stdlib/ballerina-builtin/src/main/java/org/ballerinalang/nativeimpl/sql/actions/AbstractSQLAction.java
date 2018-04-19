@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.nativeimpl.sql.actions;
 
+import com.sun.rowset.CachedRowSetImpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.ColumnDefinition;
@@ -76,6 +77,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import javax.sql.RowSetMetaData;
+import javax.sql.rowset.CachedRowSet;
 
 /**
  * {@code AbstractSQLAction} is the base class for all SQL Action.
@@ -94,7 +97,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     protected void executeQuery(Context context, SQLDatasource datasource, String query, BRefValueArray parameters,
-            BStructType structType) {
+            BStructType structType, boolean loadSQLTableToMemory) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -107,8 +110,16 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             createProcessedStatement(conn, stmt, generatedParams);
             rs = stmt.executeQuery();
             TableResourceManager rm  = new TableResourceManager(conn, stmt);
-            rm.addResultSet(rs);
-            context.setReturnValues(constructTable(rm, context, rs, structType));
+            List<ColumnDefinition> columnDefinitions = SQLDatasourceUtils.getColumnDefinitions(rs);
+            if (loadSQLTableToMemory) {
+                CachedRowSet cachedRowSet = new CachedRowSetImpl();
+                cachedRowSet.populate(rs);
+                rs = cachedRowSet;
+                rm.gracefullyReleaseResources(context.isInTransaction());
+            } else {
+                rm.addResultSet(rs);
+            }
+            context.setReturnValues(constructTable(rm, context, rs, structType, loadSQLTableToMemory, columnDefinitions));
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
@@ -880,11 +891,17 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return resultSets;
     }
 
+    private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructType structType,
+            boolean loadSQLTableToMemory, List<ColumnDefinition> columnDefinitions)
+            throws SQLException {
+        return new BTable(new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType,
+                Utils.getTimeStructInfo(context), Utils.getTimeZoneStructInfo(context)), loadSQLTableToMemory);
+    }
+
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructType structType)
             throws SQLException {
         List<ColumnDefinition> columnDefinitions = SQLDatasourceUtils.getColumnDefinitions(rs);
-        return new BTable(new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType,
-                Utils.getTimeStructInfo(context), Utils.getTimeZoneStructInfo(context)));
+        return constructTable(rm, context, rs, structType, false, columnDefinitions);
     }
 
     private BMirrorTable constructTable(Context context, BStructType structType, SQLDatasource dataSource,

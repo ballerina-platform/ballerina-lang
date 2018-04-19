@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.sql.actions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.sql.Constants;
@@ -65,6 +66,7 @@ public class Select extends AbstractSQLAction {
 
             String query = context.getStringArgument(0);
             BStructType structType = getStructType(context, 1);
+            boolean loadSQLTableToMemory = context.getBooleanArgument(0);
 
             BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(2);
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
@@ -73,7 +75,7 @@ public class Select extends AbstractSQLAction {
             observerContext.addTag(TAG_KEY_DB_STATEMENT, query);
             observerContext.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
 
-            executeQuery(context, datasource, query, parameters, structType);
+            executeQuery(context, datasource, query, parameters, structType, loadSQLTableToMemory);
         } catch (Throwable e) {
             context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
             SQLDatasourceUtils.handleErrorOnTransaction(context);

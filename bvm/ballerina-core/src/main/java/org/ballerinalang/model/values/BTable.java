@@ -45,6 +45,8 @@ public class BTable implements BRefType<Object>, BCollection {
     private String tableName;
     protected BStructType constraintType;
     private boolean isInMemoryTable;
+    // This attribute is relevant only for tables created through SQL connector select action
+    private boolean loadSQLTableToMemory;
 
     public BTable() {
         this.iterator = null;
@@ -56,7 +58,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.isInMemoryTable = false;
     }
 
-    public BTable(DataIterator dataIterator) {
+    public BTable(DataIterator dataIterator, boolean loadSQLTableToMemory) {
         this.iterator = dataIterator;
         this.nextPrefetched = false;
         this.hasNextVal = false;
@@ -64,6 +66,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.tableName = null;
         this.constraintType = null;
         this.isInMemoryTable = false;
+        this.loadSQLTableToMemory = loadSQLTableToMemory;
     }
 
     public BTable(String tableName, BStructType constraintType) {
@@ -144,7 +147,12 @@ public class BTable implements BRefType<Object>, BCollection {
             nextPrefetched = true;
         }
         if (!hasNextVal) {
-            close(isInTransaction);
+            if (loadSQLTableToMemory) {
+                iterator.reset();
+                resetIterationHelperAttributes();
+            } else {
+                close(isInTransaction);
+            }
         }
         return hasNextVal;
     }
