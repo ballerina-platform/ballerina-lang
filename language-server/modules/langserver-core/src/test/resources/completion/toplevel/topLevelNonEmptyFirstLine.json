@@ -23,7 +23,7 @@
       "label":"main function",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"function main (string[] args) {\n\t${1}\n}",
+      "insertText":"function main (string... args) {\n\t${1}\n}",
       "insertTextFormat":"Snippet"
     },
     {

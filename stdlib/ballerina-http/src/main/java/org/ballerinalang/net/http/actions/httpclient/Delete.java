@@ -32,8 +32,6 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.util.Map;
-
 /**
  * {@code Delete} is the DELETE action implementation of the HTTP Connector.
  */
@@ -74,9 +72,8 @@ public class Delete extends AbstractHTTPAction {
         HTTPCarbonMessage cMsg = super.createOutboundRequestMsg(context);
         cMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_DELETE);
 
-        ObserverContext observerContext = ObservabilityUtils.getCurrentContext(context);
-        Map<String, String> traceContext = ObservabilityUtils.getTraceProperties();
-        HttpUtil.injectHeaders(cMsg, traceContext);
+        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
+        HttpUtil.injectHeaders(cMsg, ObservabilityUtils.getContextProperties(observerContext));
         observerContext.addTags(HttpUtil.extractTags(cMsg));
 
         return cMsg;

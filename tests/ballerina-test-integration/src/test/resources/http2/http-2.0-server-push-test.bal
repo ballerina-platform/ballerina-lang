@@ -109,7 +109,7 @@ service<http:Service> frontendHttpService bind frontendEP {
             }
         }
         // Check whether correct response received
-        string responseStringPayload = responseJsonPayload.toString() but {() => ""};
+        string responseStringPayload = responseJsonPayload.toString();
         if (!(responseStringPayload.contains("main"))) {
             http:Response errorResponse = new;
             json errMsg = {"error":"expected response message not received"};
@@ -151,7 +151,7 @@ service<http:Service> frontendHttpService bind frontendEP {
 
             // check whether expected
             string expectedVal = promise.path.subString(1, 10);
-            string promisedStringPayload = promisedJsonPayload.toString() but {() => ""};
+            string promisedStringPayload = promisedJsonPayload.toString();
             if (!(promisedStringPayload.contains(expectedVal))) {
                 http:Response errorResponse = new;
                 json errMsg = {"error":"expected promised response not received"};

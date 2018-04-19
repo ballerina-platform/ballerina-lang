@@ -18,9 +18,7 @@
 package org.ballerinalang.docgen.model;
 
 
-import org.commonmark.node.Node;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
+import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
@@ -48,11 +46,7 @@ public class PackageDoc {
     private String getDescription(Path descriptionPath) throws IOException {
         if (descriptionPath != null) {
             String mdContent = new String(Files.readAllBytes(descriptionPath), "UTF-8");
-            Parser parser = Parser.builder().build();
-            Node document = parser.parse(mdContent);
-            HtmlRenderer renderer = HtmlRenderer.builder().build();
-            String html = renderer.render(document);
-            return html;
+            return BallerinaDocUtils.mdToHtml(mdContent);
         }
         return null;
     }

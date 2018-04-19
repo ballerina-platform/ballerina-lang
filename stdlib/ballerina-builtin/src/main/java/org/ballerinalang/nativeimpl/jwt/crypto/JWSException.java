@@ -38,7 +38,7 @@ public class JWSException extends Exception {
      * Constructs a new JWSException with the specified message.
      *
      * @param message Error message
-     * @param cause   The cause of the parser failure
+     * @param cause   The cause of the failure
      */
     public JWSException(String message, Throwable cause) {
         super(message, cause);
