@@ -39,15 +39,15 @@ The sample given below writes new content to a file.
 The file write operation can be completed using the `openFile()` and `write()`functions that are exposed by the `ballerina/io` package. The `openFile()` function creates a streaming channel to a local file. Channels provide read or write access to different resources. The permission to perform operations on the file are defined using accessMode.
 
 ```ballerina
-function testWriteFile(string pathValue,string accessMode,blob content){
-file:Path filePath = new(pathValue);
-//Get the absolute file path.
-string absolutePath = filePath.toAbsolutePath().getPathValue();
-// Open the file that is denoted by the absolute path. 
-io:ByteChannel channel =io:openFile(absolutePath,accessMode);
-//Write the content to the file.
-var result = channel.write(content,0);
-var closeResult = channel.close()
+function testWriteFile(string pathValue, string accessMode, blob content) {
+    file:Path filePath = new(pathValue);
+    //Get the absolute file path.
+    string absolutePath = filePath.toAbsolutePath().getPathValue();
+    // Open the file that is denoted by the absolute path.
+    io:ByteChannel channel = io:openFile(absolutePath, accessMode);
+    //Write the content to the file.
+    var result = channel.write(content, 0);
+    var closeResult = channel.close();
 }
 ```
 
@@ -74,11 +74,11 @@ file:Path filePath = new(filePathValue);
 // Checks if the file path exists.
 var isExists = file:exists(directoryPath);
 //If the path does not exist, creates a new directory in the given path.
-if(!isExists) {
+if (!isExists) {
     var result = file:createDirectory(directoryPath);
 }
-// Checks if the path represents a directory or file. 
-If(file:isDirectory(directoryPath)) {
+// Checks if the path represents a directory or file.
+if (file:isDirectory(directoryPath)) {
     var createFileResult = file:createFile(filePath);
 }
 ```

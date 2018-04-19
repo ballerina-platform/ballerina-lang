@@ -100,8 +100,8 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
         Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
         ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
-        Assert.assertEquals(connectorDoc.parameters.size(), 2);
-        Assert.assertEquals(connectorDoc.parameters.get(0).toString(), "string url");
+        Assert.assertEquals(connectorDoc.fields.size(), 2);
+        Assert.assertEquals(connectorDoc.fields.get(0).toString(), "string url");
         Assert.assertEquals(connectorDoc.children.size(), 2);
         Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
         FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
@@ -137,8 +137,8 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.get(0).icon, "fw-connector");
         Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
         ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
-        Assert.assertEquals(connectorDoc.parameters.size(), 2);
-        Assert.assertEquals(connectorDoc.parameters.get(0).toString(), "string url");
+        Assert.assertEquals(connectorDoc.fields.size(), 2);
+        Assert.assertEquals(connectorDoc.fields.get(0).toString(), "string url");
         Assert.assertEquals(connectorDoc.children.size(), 2);
         Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
         FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
@@ -173,8 +173,8 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
         Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
         ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
-        Assert.assertEquals(connectorDoc.parameters.size(), 2);
-        Assert.assertEquals(connectorDoc.parameters.get(0).toString(), "string url");
+        Assert.assertEquals(connectorDoc.fields.size(), 2);
+        Assert.assertEquals(connectorDoc.fields.get(0).toString(), "string url");
         Assert.assertEquals(connectorDoc.children.size(), 2);
         Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
         FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
@@ -209,9 +209,9 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.get(0).description, "<p>Object Test</p>\n");
         Assert.assertTrue(page.constructs.get(0) instanceof ConnectorDoc, "Invalid documentable type");
         ConnectorDoc connectorDoc = (ConnectorDoc) page.constructs.get(0);
-        Assert.assertEquals(connectorDoc.parameters.size(), 2);
-        Assert.assertEquals(connectorDoc.parameters.get(0).description, "<p>endpoint url</p>\n");
-        Assert.assertEquals(connectorDoc.parameters.get(1).description, "<p>a valid path</p>\n");
+        Assert.assertEquals(connectorDoc.fields.size(), 2);
+        Assert.assertEquals(connectorDoc.fields.get(0).description, "<p>endpoint url</p>\n");
+        Assert.assertEquals(connectorDoc.fields.get(1).description, "<p>a valid path</p>\n");
         Assert.assertEquals(connectorDoc.children.size(), 2);
         Assert.assertTrue(connectorDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
         FunctionDoc functionDoc1 = (FunctionDoc) connectorDoc.children.get(0);
@@ -382,9 +382,9 @@ public class HtmlDocTest {
         Assert.assertEquals(connectorDoc.name, "HttpClient", "Connector name should be extracted");
         Assert.assertEquals(connectorDoc.description, "Http client connector for outbound HTTP requests",
                 "Description of the connector should be extracted");
-        Assert.assertEquals(connectorDoc.parameters.get(0).name, "serviceUri", "Parameter name should be extracted");
-        Assert.assertEquals(connectorDoc.parameters.get(0).dataType, "string", "Parameter type should be extracted");
-        Assert.assertEquals(connectorDoc.parameters.get(0).description, "Url of the service",
+        Assert.assertEquals(connectorDoc.fields.get(0).name, "serviceUri", "Parameter name should be extracted");
+        Assert.assertEquals(connectorDoc.fields.get(0).dataType, "string", "Parameter type should be extracted");
+        Assert.assertEquals(connectorDoc.fields.get(0).description, "Url of the service",
                 "Description of the parameter type should be extracted");
 
         // For actions inside the connector
