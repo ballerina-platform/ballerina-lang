@@ -516,7 +516,6 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                                                          .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
                                                          .getStructInfo(RESPONSE_CACHE_CONTROL));
         HttpUtil.populateInboundResponse(responseStruct, entity, mediaType, responseCacheControl, httpCarbonMessage);
-
         return responseStruct;
     }
 }
