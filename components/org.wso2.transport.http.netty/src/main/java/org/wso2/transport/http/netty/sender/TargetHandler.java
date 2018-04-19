@@ -224,8 +224,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         http2ClientChannel.setUpgradedToHttp2(true);
 
         // Remove Http specific handlers
-        safelyRemoveHandlers(targetChannel.getChannel().pipeline(),
-                                  Constants.IDLE_STATE_HANDLER, Constants.HTTP_TRACE_LOG_HANDLER);
+        safelyRemoveHandlers(targetChannel.getChannel().pipeline(), Constants.REDIRECT_HANDLER,
+                             Constants.IDLE_STATE_HANDLER, Constants.HTTP_TRACE_LOG_HANDLER);
         http2ClientChannel.addDataEventListener(
                 Constants.IDLE_STATE_HANDLER,
                 new TimeoutHandler(http2ClientChannel.getSocketIdleTimeout(), http2ClientChannel));
@@ -233,7 +233,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         http2ClientChannel.getInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID).setRequestWritten(true);
         http2ClientChannel.getDataEventListeners().
                 forEach(dataEventListener ->
-                                dataEventListener.onStreamInit(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID, ctx));
+                                dataEventListener.onStreamInit(ctx, Http2CodecUtil.HTTP_UPGRADE_STREAM_ID));
         handoverChannelToHttp2ConnectionManager();
     }
 

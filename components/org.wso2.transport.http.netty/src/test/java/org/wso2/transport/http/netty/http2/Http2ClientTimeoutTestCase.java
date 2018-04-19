@@ -41,7 +41,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
-import org.wso2.transport.http.netty.util.client.http2.RequestGenerator;
+import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -87,7 +87,7 @@ public class Http2ClientTimeoutTestCase {
 
     @Test
     public void testHttp2ClientTimeout() {
-        HTTPCarbonMessage request = RequestGenerator.generateRequest(HttpMethod.POST, "test");
+        HTTPCarbonMessage request = MessageGenerator.generateRequest(HttpMethod.POST, "test");
         try {
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);
