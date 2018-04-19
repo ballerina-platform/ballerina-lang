@@ -31,7 +31,7 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
         }
     }
     {{/blockingFunctions}}{{#nonBlockingFunctions}}
-    function {{operationId}} ({{inputDataType}} req, typedesc listener, grpc:Headers... headers) returns (error?) {
+    function {{operationId}} ({{inputDataType}}{{&space}}{{inputAttributeName}}{{inputComma}}{{&space}}typedesc listener, grpc:Headers... headers) returns (error?) {
         var err1 = self.serviceStub.nonBlockingExecute("{{methodId}}", req, listener, ...headers);
         if (err1 != ()) {
             error e = {message:err1.message};

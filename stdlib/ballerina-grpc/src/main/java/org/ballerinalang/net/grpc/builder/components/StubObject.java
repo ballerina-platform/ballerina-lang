@@ -45,13 +45,13 @@ public class StubObject {
     public void addBlockingFunction(String operationId, String inputDataType, String outputDataType, String methodId) {
         BlockingFunction blockingFunctionsObj = new BlockingFunction
                 ("Blocking", connectorId, operationId, inputDataType, outputDataType, methodId);
-        if(EMPTY_DATATYPE_NAME.equals(inputDataType)) {
+        if (EMPTY_DATATYPE_NAME.equals(inputDataType)) {
             blockingFunctionsObj.setInputComma(null);
             blockingFunctionsObj.setInputAttributeName(null);
             blockingFunctionsObj.setInputDataType(null);
             blockingFunctionsObj.initEmptyStruct();
         }
-        if(EMPTY_DATATYPE_NAME.equals(outputDataType)) {
+        if (EMPTY_DATATYPE_NAME.equals(outputDataType)) {
             blockingFunctionsObj.setOutputComma(null);
             blockingFunctionsObj.setOutputDataType(null);
             blockingFunctionsObj.ignoreCast();
@@ -62,6 +62,11 @@ public class StubObject {
     public void addNonBlockingFunction(String operationId, String inputDataType, String methodId) {
         NonBlockingFunction nonBlockingFunctionsObj = new NonBlockingFunction(
                 null, connectorId, operationId, inputDataType, methodId);
+        if (EMPTY_DATATYPE_NAME.equals(inputDataType)) {
+            nonBlockingFunctionsObj.setInputComma(null);
+            nonBlockingFunctionsObj.setInputAttributeName(null);
+            nonBlockingFunctionsObj.setInputDataType(null);
+        }
         nonBlockingFunctions.add(nonBlockingFunctionsObj);
     }
     

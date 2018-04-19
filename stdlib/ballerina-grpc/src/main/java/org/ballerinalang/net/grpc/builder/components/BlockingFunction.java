@@ -114,7 +114,7 @@ public class BlockingFunction {
     
     public void setInputComma(String inputComma) {
         this.inputComma = inputComma;
-        if(inputComma == null){
+        if (inputComma == null) {
             this.space = null;
         }
     }
@@ -135,7 +135,7 @@ public class BlockingFunction {
         this.outputComma = outputComma;
     }
     
-    public  void initEmptyStruct(){
+    public void initEmptyStruct() {
         this.initEmptyStub = INIT_EMPTY_STUB;
     }
     
@@ -143,7 +143,7 @@ public class BlockingFunction {
         return initEmptyStub;
     }
     
-    public  void ignoreCast(){
+    public void ignoreCast() {
         this.castSymbolClose = null;
         this.castSymbolOpen = null;
         this.resultOut = null;
