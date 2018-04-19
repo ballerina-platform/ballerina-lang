@@ -78,4 +78,19 @@ public class TableSqlQueryTest {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
+
+    @Test(groups = "TableQueryTest", description = "Do a simple select all with limit")
+    public void testSimpleSelectAllWithLimit() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectAllWithLimit", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
+
+    @Test(groups = "TableQueryTest", description = "Do a simple join with the select and where along with group by " +
+                                                   "with limit")
+    public void testSelectWithJoinAndWhereWithGroupByWithLimit() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testSelectWithJoinAndWhereWithGroupByWithLimit", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
 }
