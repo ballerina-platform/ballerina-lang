@@ -151,6 +151,7 @@ public enum DiagnosticCode {
     INVALID_FUNCTION_INVOCATION("invalid.function.invocation"),
     INVALID_FUNCTION_INVOCATION_WITH_NAME("invalid.function.invocation.with.name"),
     DUPLICATE_NAMED_ARGS("duplicate.named.args"),
+    INVALID_DEFAULT_PARAM_VALUE("invalid.default.param.value"),
 
     DUPLICATED_ERROR_CATCH("duplicated.error.catch"),
 

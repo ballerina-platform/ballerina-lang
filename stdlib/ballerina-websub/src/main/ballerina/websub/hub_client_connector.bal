@@ -65,9 +65,17 @@ public type HubClientConnector object {
     @Param {value:"payload: The update payload"}
     @Param {value:"secret: The secret used when registering the topic"}
     @Param {value:"signatureMethod: The signature method to use to generate a secret"}
+    @Param {value:"headers: The headers to include in the request"}
     @Return {value:"WebSubError if an error occurred with the update"}
     public function publishUpdate (string topic, json payload, string secret = "", string signatureMethod = "sha256",
-                                                                    json... headers) returns (WebSubError | ());
+                                                                            json... headers) returns (WebSubError | ());
+
+    @Description {value:"Function to notify a remote WebSub Hub that an update is available to fetch, for hubs that
+    require publishing to happen as such"}
+    @Param {value:"topic: The topic for which the update occurred"}
+    @Param {value:"headers: The headers to include in the request"}
+    @Return {value:"WebSubError if an error occurred with the notification"}
+    public function notifyUpdate (string topic, json... notificationHeaders) returns (WebSubError | ());
 
 };
 
@@ -137,7 +145,7 @@ public function HubClientConnector::publishUpdate (string topic, json payload,
     request.setJsonPayload(payload);
 
     if (secret != "") {
-        string stringPayload = payload.toString() but { () => "" };
+        string stringPayload = payload.toString();
         string publisherSignature = signatureMethod + "=";
         string generatedSignature = "";
         if (SHA1.equalsIgnoreCase(signatureMethod)) {
@@ -152,8 +160,8 @@ public function HubClientConnector::publishUpdate (string topic, json payload,
     }
 
     foreach headerJson in headers {
-        string strHeaderKey = headerJson.headerKey.toString() but { () => "" };
-        string strHeaderValue = headerJson.headerValue.toString() but { () => "" };
+        string strHeaderKey = headerJson.headerKey.toString();
+        string strHeaderValue = headerJson.headerValue.toString();
         request.setHeader(strHeaderKey, strHeaderValue);
     }
 
@@ -164,6 +172,27 @@ public function HubClientConnector::publishUpdate (string topic, json payload,
                       message:"Notification failed for topic [" + topic + "]", cause:httpConnectorError };
                                                             return webSubError;
             }
+    }
+}
+
+public function HubClientConnector::notifyUpdate (string topic, json... notificationHeaders) returns (WebSubError | ()) {
+    endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
+    http:Request request = new;
+    string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
+
+    foreach headerJson in notificationHeaders {
+        string strHeaderKey = headerJson.headerKey.toString();
+        string strHeaderValue = headerJson.headerValue.toString();
+        request.setHeader(strHeaderKey, strHeaderValue);
+    }
+
+    var response = httpClientEndpoint -> post(untaint("?" + queryParams), request);
+    match (response) {
+        http:Response => return;
+        http:HttpConnectorError httpConnectorError => { WebSubError webSubError = {
+            message:"Update availability notification failed for topic [" + topic + "]", cause:httpConnectorError };
+                                                        return webSubError;
+        }
     }
 }
 

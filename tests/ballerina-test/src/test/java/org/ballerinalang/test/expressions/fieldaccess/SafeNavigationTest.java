@@ -21,6 +21,8 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -151,13 +153,6 @@ public class SafeNavigationTest {
         Assert.assertEquals(returns[0], null);
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: cannot find key 'foo'.*")
-    public void testSafeNavigatingNilMap() {
-        BValue[] returns = BRunUtil.invoke(result, "testSafeNavigatingNilMap");
-        Assert.assertEquals(returns[0], null);
-    }
-
     @Test
     public void testSafeNavigatingWithFuncInovc_1() {
         BValue[] returns = BRunUtil.invoke(result, "testSafeNavigatingWithFuncInovc_1");
@@ -209,20 +204,30 @@ public class SafeNavigationTest {
     @Test
     public void testSafeNavigateOnJSONArrayOfArray() {
         BValue[] returns = BRunUtil.invoke(result, "testSafeNavigateOnJSONArrayOfArray");
-        Assert.assertEquals(returns[0].toString(), "Bob");
+        Assert.assertEquals(returns[0].stringValue(), "Bob");
+    }
+
+    @Test
+    public void testJSONNilLiftingOnLHS_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testJSONNilLiftingOnLHS_1");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"info\":{\"address1\":{\"city\":\"Colombo\"}}}");
+
+        Assert.assertTrue(returns[1] instanceof BJSON);
+        Assert.assertEquals(returns[1].stringValue(), "{\"info\":{\"address2\":{\"city\":\"Kandy\"}}}");
+
+        Assert.assertTrue(returns[2] instanceof BJSON);
+        Assert.assertEquals(returns[2].stringValue(), "{\"info\":{\"address3\":{\"city\":\"Galle\"}}}");
+
+        Assert.assertTrue(returns[3] instanceof BJSON);
+        Assert.assertEquals(returns[3].stringValue(), "{\"info\":{\"address4\":{\"city\":\"Jaffna\"}}}");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
-    public void testNilLiftingOnLHS_1() {
-        BValue[] returns = BRunUtil.invoke(result, "testNilLiftingOnLHS_1");
-        Assert.assertEquals(returns[0].toString(), "{\"info\":{\"address\":{\"city\":\"Colombo\"}}}");
-    }
-
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
-    public void testNilLiftingOnLHS_2() {
-        BRunUtil.invoke(result, "testNilLiftingOnLHS_2");
+            expectedExceptionsMessageRegExp = "error: error, message: failed to get element from json: array index " +
+                    "out of range: index: 2, size: 0.*")
+    public void testJSONNilLiftingOnLHS_2() {
+        BRunUtil.invoke(result, "testJSONNilLiftingOnLHS_2");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
@@ -236,6 +241,13 @@ public class SafeNavigationTest {
             expectedExceptionsMessageRegExp = "error: error, message: cannot find key 'a'.*")
     public void testNonExistingMapKeyWithFieldAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testNonExistingMapKeyWithFieldAccess");
-        Assert.assertEquals(returns[0].toString(), "Bob");
+        Assert.assertEquals(returns[0].stringValue(), "Bob");
+    }
+
+    @Test
+    public void testMapNilLiftingOnLHS_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testMapNilLiftingOnLHS_1");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John\"}");
     }
 }
