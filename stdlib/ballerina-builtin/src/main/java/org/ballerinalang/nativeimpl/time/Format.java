@@ -27,7 +27,7 @@ import static org.ballerinalang.nativeimpl.Utils.STRUCT_TYPE_TIME;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class FormatTo extends AbstractTimeFunction {
+public class Format extends AbstractTimeFunction {
 
     @Override
     public void execute(Context context) {

@@ -30,7 +30,7 @@ import java.time.temporal.TemporalAccessor;
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time", structPackage = "ballerina.time")},
         isPublic = true
 )
-public class ParseTo extends AbstractTimeFunction {
+public class Parse extends AbstractTimeFunction {
 
     @Override
     public void execute(Context context) {
