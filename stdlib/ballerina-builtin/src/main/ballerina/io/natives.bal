@@ -99,7 +99,7 @@ public type CharacterChannel object {
 public type DelimitedRecordChannel object {
     @Description {value:"Function to check whether next record is available or not"}
     @Return {value:"True if the channel has more records; false otherwise"}
-    public native function hasNextTextRecord () returns (boolean);
+    public native function hasNextTextRecord () returns boolean;
 
     @Description {value:"Function to read text records"}
     @Return {value:"Fields listed in the record"}

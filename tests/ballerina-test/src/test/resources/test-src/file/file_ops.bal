@@ -2,12 +2,6 @@ import ballerina/io;
 import ballerina/file;
 import ballerina/time;
 
-function testAbsolutePath(string pathValue) returns (string){
-    file:Path filePath = new(pathValue);
-    file:Path absolutePath = filePath.toAbsolutePath();
-    return absolutePath.getPathValue();
-}
-
 function testPathExistance(string pathValue) returns (boolean){
     file:Path filePath = new(pathValue);
     return file:exists(filePath);
@@ -57,11 +51,6 @@ function testCreateFile(string pathValue) returns (string){
    return pathValues[0];
 }
 
-function testGetFileName(string pathValue) returns (string){
-    file:Path path = new (pathValue);
-    return path.getName();
-}
-
 function testGetModifiedTime(string pathValue) returns (string){
     file:Path path = new(pathValue);
     time:Time modifiedTime =check file:getModifiedTime(path);
@@ -70,7 +59,7 @@ function testGetModifiedTime(string pathValue) returns (string){
 
 function testWriteFile(string pathValue,string accessMode,blob content) returns (blob|io:IOError){
    file:Path filePath = new(pathValue);
-   string absolutePath = filePath.toAbsolutePath().getPathValue();
+   string absolutePath = filePath.getPathValue();
    io:ByteChannel channel =io:openFile(absolutePath,accessMode);
    var result = channel.write(content,0);
    var closeResult = channel.close();

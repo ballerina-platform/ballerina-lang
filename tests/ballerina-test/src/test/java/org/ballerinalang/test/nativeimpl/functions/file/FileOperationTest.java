@@ -90,20 +90,6 @@ public class FileOperationTest {
         return pathValue;
     }
 
-    @Test(description = "Test 'toAbsolutePath' function in ballerina.file package")
-    public void testFileAbsolutePath() throws URISyntaxException {
-        String resourceToRead = "datafiles/io/text/utf8file.txt";
-        BString absolutePathReturned;
-
-        //Will initialize the channel
-        String absoluteFilePath = getAbsoluteFilePath(resourceToRead);
-        BValue[] args = {new BString(absoluteFilePath)};
-        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testAbsolutePath", args);
-        absolutePathReturned = (BString) returns[0];
-
-        Assert.assertEquals(absolutePathReturned.stringValue(), absoluteFilePath);
-    }
-
     @Test(description = "Test 'exists' function in ballerina.file package")
     public void testFileExistence() throws URISyntaxException {
         String resourceToRead = "datafiles/io/text/utf8file.txt";
@@ -171,16 +157,11 @@ public class FileOperationTest {
         final String fileName = "test.txt";
         final String emptyString = "";
         String path = currentDirectoryPath + "/parent/child1/" + fileName;
-        BString result;
-        //Will initialize the channel
+
         BValue[] args = {new BString(path)};
-        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetFileName", args);
-        result = (BString) returns[0];
 
-        Assert.assertTrue(fileName.equals(result.stringValue()));
-
-        returns = BRunUtil.invoke(fileOperationProgramFile, "testGetModifiedTime", args);
-        result = (BString) returns[0];
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetModifiedTime", args);
+        BString result = (BString) returns[0];
 
         Assert.assertFalse(emptyString.equals(result.stringValue()));
     }

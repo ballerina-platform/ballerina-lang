@@ -21,6 +21,7 @@ package org.ballerinalang.nativeimpl.file;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.file.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
@@ -39,7 +40,8 @@ import java.nio.file.Paths;
         functionName = "Path.init",
         args = {
                 @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path", structPackage = "ballerina.file"),
-                @Argument(name = "link", type = TypeKind.STRING)
+                @Argument(name = "link", type = TypeKind.STRING),
+                @Argument(name = "sLinks", type = TypeKind.ARRAY)
         },
         isPublic = true
 )
@@ -47,17 +49,23 @@ public class Init extends BlockingNativeCallableUnit {
     /**
      * Retrieves the path from the given location.
      *
-     * @param path the values of the path.
+     * @param path     the values of the path.
+     * @param subPaths the list of sub paths
      * @return reference to the path location.
      */
-    private Path getPath(String path) {
-        return Paths.get(path);
+    private Path getPath(String path, String... subPaths) {
+        return Paths.get(path, subPaths);
     }
 
     @Override
     public void execute(Context context) {
         String basePath = context.getStringArgument(0);
         BStruct path = (BStruct) context.getRefArgument(0);
-        path.addNativeData(Constants.PATH_DEFINITION_NAME, getPath(basePath));
+        BStringArray subPaths = (BStringArray) context.getRefArgument(1);
+        if (subPaths.size() > 0) {
+            path.addNativeData(Constants.PATH_DEFINITION_NAME, getPath(basePath, subPaths.getStringArray()));
+        } else {
+            path.addNativeData(Constants.PATH_DEFINITION_NAME, getPath(basePath));
+        }
     }
 }

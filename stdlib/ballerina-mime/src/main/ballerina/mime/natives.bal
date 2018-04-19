@@ -213,7 +213,7 @@ public type Entity object {
 };
 
 public function Entity::setFileAsEntityBody (@sensitive file:Path fileHandler) {
-    string path = fileHandler.toAbsolutePath().getPathValue();
+    string path = fileHandler.getPathValue();
     io:ByteChannel channel = io:openFile(path, READ_PERMISSION);
     self.setByteChannel(channel);
 }
