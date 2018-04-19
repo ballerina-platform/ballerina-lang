@@ -46,7 +46,8 @@ public class ResourceExecutor {
      * @param resource         to be executed.
      * @param responseCallback to notify.
      * @param properties       to be passed to context.
-     * @param observerContext  to be passed to context.
+     * @param observerContext  observer context.
+     * @param context          worker execution context.
      * @param bValues          for parameters.
      */
     public static void execute(Resource resource, CallableUnitCallback responseCallback,
