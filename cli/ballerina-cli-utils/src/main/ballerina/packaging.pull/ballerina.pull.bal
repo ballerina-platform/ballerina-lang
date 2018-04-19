@@ -200,19 +200,15 @@ function createDirectories(string directoryPath) returns (boolean) {
 
 function callFileServer(string url) returns http:Response {
     endpoint http:Client httpEndpoint {
-        targets: [
-        {
-            url: url,
-            secureSocket: {
-                trustStore: {
-                    filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                    password: "ballerina"
-                },
-                verifyHostname:false,
-                shareSession: true
-             }
+        url:url,
+        secureSocket:{
+            trustStore:{
+                filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password:"ballerina"
+            },
+            verifyHostname:false,
+            shareSession:true
         }
-        ]
     };
     http:Request req = new;
     var result = httpEndpoint -> get("", req);

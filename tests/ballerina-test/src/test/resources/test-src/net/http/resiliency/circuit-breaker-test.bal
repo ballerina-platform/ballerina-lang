@@ -42,7 +42,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
     http:Response[] responses = [];
     http:HttpConnectorError[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getClient();
+    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
     MockClient mockClient = new;
     cbClient.httpClient = <http:HttpClient> mockClient;
 
@@ -86,7 +86,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
     http:Response[] responses = [];
     http:HttpConnectorError[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getClient();
+    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
     MockClient mockClient = new;
     cbClient.httpClient = <http:HttpClient> mockClient;
 
@@ -130,7 +130,7 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
     http:Response[] responses = [];
     http:HttpConnectorError[] errs = [];
     int counter = 0;
-    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getClient();
+    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
     MockClient mockClient = new;
     cbClient.httpClient = <http:HttpClient> mockClient;
 

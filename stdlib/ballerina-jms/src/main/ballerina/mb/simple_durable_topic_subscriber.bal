@@ -24,7 +24,7 @@ public type SimpleDurableTopicSubscriber object {
                 messageSelector:config.messageSelector,
                 topicPattern:config.topicPattern
             });
-        self.connector = new DurableTopicSubscriberConnector(self.subscriber.getClient());
+        self.connector = new DurableTopicSubscriberConnector(self.subscriber.getCallerActions());
     }
 
     public function register (typedesc serviceType) {
@@ -35,7 +35,7 @@ public type SimpleDurableTopicSubscriber object {
         self.subscriber.start();
     }
 
-    public function getClient () returns (DurableTopicSubscriberConnector) {
+    public function getCallerActions () returns (DurableTopicSubscriberConnector) {
         match (self.connector) {
             DurableTopicSubscriberConnector c => return c;
             () => {

@@ -54,9 +54,9 @@ public type SimpleDurableTopicSubscriber object {
     public function start () {
     }
 
-    public function getClient () returns (DurableTopicSubscriberConnector) {
+    public function getCallerActions () returns (DurableTopicSubscriberConnector) {
         match (subscriber) {
-            DurableTopicSubscriber c => return c.getClient();
+            DurableTopicSubscriber c => return c.getCallerActions();
             () => {
                 error e = {message: "Topic subscriber cannot be nil"};
                 throw e;

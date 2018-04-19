@@ -50,7 +50,7 @@ public type FailoverClient object {
     documentation {
         Returns the backing HTTP client used by the endpoint.
     }
-    public function getClient() returns HttpClient {
+    public function getCallerActions() returns HttpClient {
         return httpEP.httpClient;
     }
 
@@ -97,7 +97,7 @@ public type FailoverClientEndpointConfiguration {
     CacheConfig cache = {},
     string acceptEncoding = "auto",
     AuthConfig? auth,
-    int[] failoverCodes = [501, 502, 503],
+    int[] failoverCodes = [501, 502, 503, 504],
     int intervalMillis,
 };
 

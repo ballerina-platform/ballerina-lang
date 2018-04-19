@@ -50,7 +50,7 @@ public type LoadBalanceClient object {
     documentation {
         Returns the backing HTTP client used by the load balance client endpoint.
     }
-    public function getClient() returns HttpClient {
+    public function getCallerActions() returns HttpClient {
         return httpEP.httpClient;
     }
 

@@ -15,8 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
-package org.ballerinalang.net.http.serviceendpoint;
+package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -26,26 +25,33 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_CONNECTION;
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+
 /**
- * Get the ID of the connection.
+ * Get the client connection instance binds to the client endpoint.
  *
- * @since 0.966
+ * @since 1.0.0
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
-        functionName = "getClient",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
-                             structPackage = "ballerina.http"),
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        orgName = ORG_NAME,
+        packageName = PROTOCOL_PACKAGE_GRPC,
+        functionName = "getCallerActions",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_ENDPOINT_TYPE,
+                             structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
+        returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
         isPublic = true
 )
-public class GetClient extends BlockingNativeCallableUnit {
+public class GetCallerActions extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct endpoint = (BStruct) context.getRefArgument(0);
-        BStruct connection = (BStruct) endpoint.getRefField(0);
-        context.setReturnValues(connection);
+        BStruct clientEndpoint = (BStruct) context.getRefArgument(0);
+        BStruct clientConnection = (BStruct) clientEndpoint.getNativeData(CLIENT_CONNECTION);
+        context.setReturnValues(clientConnection);
     }
 }

@@ -45,7 +45,7 @@ public type Client object {
 
     @Description { value:"Returns the connector that client code uses"}
     @Return { value:"The connector that client code uses" }
-    public function getClient() returns HttpClient {
+    public function getCallerActions() returns HttpClient {
         return self.httpClient;
     }
 

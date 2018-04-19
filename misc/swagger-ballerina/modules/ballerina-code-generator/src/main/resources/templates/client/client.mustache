@@ -18,7 +18,7 @@ public type {{name}}ClientEp object {
     }
 
     public function init({{name}}ClientConfig config);
-    public function getClient() returns ({{name}}Client);
+    public function getCallerActions() returns ({{name}}Client);
 };
 
 public function {{name}}ClientEp::init({{name}}ClientConfig config) {
@@ -30,7 +30,7 @@ public function {{name}}ClientEp::init({{name}}ClientConfig config) {
     self.config = config;
 }
 
-public function {{name}}ClientEp::getClient() returns ({{name}}Client) {
+public function {{name}}ClientEp::getCallerActions() returns ({{name}}Client) {
     return new {{name}}Client(self);
 }
 

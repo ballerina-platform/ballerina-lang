@@ -40,7 +40,7 @@ type InitiatorClientEP object {
         self.httpClient = httpEP;
     }
 
-    function getClient () returns InitiatorClient {
+    function getCallerActions () returns InitiatorClient {
         InitiatorClient client = new;
         client.clientEP = self;
         return client;

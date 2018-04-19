@@ -56,7 +56,7 @@ time:Time time = new (1498488382444, zoneValue);
 string time1 = time.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); //E.g., “2017-06-26T09:46:22.444-0500”.
 
 //Format a time to a string of the RFC-1123 format.
-string time2 = time.formatTo(time:TIME_FORMAT_RFC_1123); // E.g., "Mon, 26 Jun 2017 09:46:22 -0500”
+string time2 = time.format(time:TIME_FORMAT_RFC_1123); // E.g., "Mon, 26 Jun 2017 09:46:22 -0500”
 
 // Convert a time object to a string value.
 string time3 = time.toString(); //”2017-06-26T09:46:22.444-05:00”
@@ -69,7 +69,7 @@ string time3 = time.toString(); //”2017-06-26T09:46:22.444-05:00”
 time:Time time1 = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ"); // The ‘Z’ stands for the time zone.
 
 // Parse a time string of the RFC-1123 format.
-time:Time time2 = time:parseTo("Wed, 28 Mar 2018 11:56:23 +0530", time:TIME_FORMAT_RFC_1123);
+time:Time time2 = time:parse("Wed, 28 Mar 2018 11:56:23 +0530", time:TIME_FORMAT_RFC_1123);
 ```
 
 ### Setting time durations

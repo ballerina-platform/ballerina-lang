@@ -31,7 +31,7 @@ public type TopicSubscriber object {
     public function start () {
     }
 
-    public function getClient () returns (TopicSubscriberConnector) {
+    public function getCallerActions () returns (TopicSubscriberConnector) {
         return connector;
     }
 
