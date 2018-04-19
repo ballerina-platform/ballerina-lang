@@ -180,7 +180,7 @@ function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler 
         jwtConfig.audience = authProvider.audience;
         jwtConfig.certificateAlias = authProvider.certificateAlias;
         jwtConfig.clockSkew = authProvider.clockSkew;
-        jwtConfig.trustStoreFilePath = authProvider.trustStore.filePath but {() => ""};
+        jwtConfig.trustStoreFilePath = authProvider.trustStore.path but {() => ""};
         jwtConfig.trustStorePassword = authProvider.trustStore.password but {() => ""};
         auth:JWTAuthProvider jwtAuthProvider = new (jwtConfig);
         HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);

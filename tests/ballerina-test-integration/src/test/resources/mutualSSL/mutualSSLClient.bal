@@ -7,11 +7,11 @@ endpoint http:Client clientEP {
         url: "https://localhost:9095",
         secureSocket: {
             keyStore: {
-                filePath: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
                 password: "ballerina"
             },
             trustStore: {
-                filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password: "ballerina"
             },
             protocol: {

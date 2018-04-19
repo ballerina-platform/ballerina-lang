@@ -17,18 +17,18 @@ public type TransferEncoding "CHUNKING";
 @final public TransferEncoding TRANSFERENCODE_CHUNKING = "CHUNKING";
 
 @Description { value:"TrustStore record represents trust store related options to be used for HTTP client/service invocation"}
-@Field {value:"filePath: File path to trust store file"}
+@Field {value:"path: File path to trust store file"}
 @Field {value:"password: Trust store password"}
 public type TrustStore {
-    string filePath,
+    string path,
     string password,
 };
 
 @Description { value:"KeyStore record represents key store related options to be used for HTTP client/service invocation"}
-@Field {value:"filePath: File path to key store file"}
+@Field {value:"path: File path to key store file"}
 @Field {value:"password: Key store password"}
 public type KeyStore {
-    string filePath,
+    string path,
     string password,
 };
 
