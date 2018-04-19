@@ -895,21 +895,16 @@ public class ProgramFileReader {
                 typeStack.push(mapType);
                 return index;
             case 'H':
-                if (index == 0 && (chars.length > 1 && chars[1] == ';')) {
-                    typeStack.push(BTypes.typeStream);
-                    return index + 2;
+                index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo);
+                BType streamConstraintType = typeStack.pop();
+                BType streamType;
+                if (streamConstraintType == BTypes.typeAny) {
+                    streamType = BTypes.typeStream;
                 } else {
-                    index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo);
-                    BType streamConstrainedType = typeStack.pop();
-                    BType streamType;
-                    if (streamConstrainedType == BTypes.typeAny) {
-                        streamType = BTypes.typeStream;
-                    } else {
-                        streamType = new BStreamType(streamConstrainedType);
-                    }
-                    typeStack.push(streamType);
-                    return index;
+                    streamType = new BStreamType(streamConstraintType);
                 }
+                typeStack.push(streamType);
+                return index;
             case 'U':
                 // TODO : Fix this for type casting.
                 typeStack.push(new BFunctionType());
@@ -970,14 +965,11 @@ public class ProgramFileReader {
                     return new BMapType(constrainedType);
                 }
             case 'H':
-                if (desc.length() == 1 || (desc.length() > 1 && desc.charAt(1) == ';')) {
-                    return BTypes.typeStream;
-                }
-                BType streamConstrainedType = getBTypeFromDescriptor(desc.substring(1));
-                if (streamConstrainedType == BTypes.typeAny) {
+                BType streamConstraintType = getBTypeFromDescriptor(desc.substring(1));
+                if (streamConstraintType == BTypes.typeAny) {
                     return BTypes.typeStream;
                 } else {
-                    return new BStreamType(streamConstrainedType);
+                    return new BStreamType(streamConstraintType);
                 }
             case 'C':
             case 'X':

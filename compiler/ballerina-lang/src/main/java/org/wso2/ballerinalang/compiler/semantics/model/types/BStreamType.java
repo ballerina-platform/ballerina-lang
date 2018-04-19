@@ -49,7 +49,7 @@ public class BStreamType extends BBuiltInRefType implements ConstrainedType {
 
     @Override
     public String toString() {
-        if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.ERROR) {
+        if (constraint.tag == TypeTags.ANY) {
             return super.toString();
         }
 
@@ -58,10 +58,6 @@ public class BStreamType extends BBuiltInRefType implements ConstrainedType {
 
     @Override
     public String getDesc() {
-        if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.ERROR) {
-            return TypeDescriptor.SIG_STREAM + ";";
-        }
-
         return TypeDescriptor.SIG_STREAM + constraint.getDesc();
     }
 }
