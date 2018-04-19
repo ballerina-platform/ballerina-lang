@@ -16,6 +16,6 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function
-    main([]);
+    main();
     test:assertEquals("[w1] iw: 200 kw: 5.44", outputs[0]);
 }

@@ -16,7 +16,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function
-    main([]);
+    main();
     test:assertEquals(15, outputs[0]);
     test:assertEquals("Hello!", outputs[1]);
     test:assertEquals("06/10: quotient=0 remainder=6", outputs[2]);

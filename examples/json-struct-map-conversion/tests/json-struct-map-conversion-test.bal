@@ -16,7 +16,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function
-    main([]);
+    main();
 
     json jt1 = {"title":"The Revenant","year":"2015","released":"08 Jan 2016","writer":{"fname":"Michael","lname":"Punke","age":30}};
 
