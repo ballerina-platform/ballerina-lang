@@ -282,33 +282,33 @@ function testCloseConnectionPool() returns (int) {
     return count;
 }
 
-function testSelect() returns (table) {
+function testSelect() returns (json) {
 
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalary);
-    return salaryTable;
+    return check <json>salaryTable;
 }
 
-function testSelectCompatibleLambdaInput() returns (table) {
+function testSelectCompatibleLambdaInput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInput);
-    return salaryTable;
+    return check <json>salaryTable;
 }
 
-function testSelectCompatibleLambdaOutput() returns (table) {
+function testSelectCompatibleLambdaOutput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleOutput);
-    return salaryTable;
+    return check <json>salaryTable;
 }
 
-function testSelectCompatibleLambdaInputOutput() returns (table) {
+function testSelectCompatibleLambdaInputOutput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInputOutput);
-    return salaryTable;
+    return check <json>salaryTable;
 }
 
 function getEmployeeSalary(Employee e) returns (EmployeeSalary) {

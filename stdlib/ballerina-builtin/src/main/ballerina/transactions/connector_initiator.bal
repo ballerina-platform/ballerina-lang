@@ -33,7 +33,7 @@ type InitiatorClientEP object {
     }
 
     function init (InitiatorClientConfig conf) {
-        endpoint http:Client httpEP {targets:[{url:conf.registerAtURL}],
+        endpoint http:Client httpEP {url:conf.registerAtURL,
                                             timeoutMillis:conf.timeoutMillis,
                                             retryConfig:{count:conf.retryConfig.count,
                                                       interval:conf.retryConfig.interval}};

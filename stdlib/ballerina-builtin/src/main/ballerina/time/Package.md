@@ -11,7 +11,7 @@ The package has two main types as [Time](time.html#Time) and [Timezone](time.htm
 time:Time time = time:currentTime(); // Create an object of type ‘Time’.
 
 int timeValue = time.time;  // Time in milliseconds since January 1, 1970, 00:00:00 GMT. E.g., 1523513039.
-int nanoTime = time:nanoTime(); // Time in nanoseconds since January 1, 1970, 00:00:00 GMT. E.g., 2426115697486340
+int nanoTime = time:nanoTime(); // Time in nanoseconds since an arbitrary origin. Therefore, it should be used only to calculate durations. E.g., 2426115697486340.
 string zoneId = time.zone.zoneId; // Time zone as an identifier. E.g., “America/Panama”.
 int zoneoffset = time.zone.zoneOffset; // Time zone as an offset. E.g., -05:00.
 

@@ -39,7 +39,7 @@ public type SimpleDurableTopicSubscriber object {
         self.subscriber = topicSubscriber;
     }
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
         match (subscriber) {
             DurableTopicSubscriber c => {
                 c.register(serviceType);
@@ -51,10 +51,10 @@ public type SimpleDurableTopicSubscriber object {
         }
     }
 
-    public function start () {
+    public function start() {
     }
 
-    public function getCallerActions () returns (DurableTopicSubscriberConnector) {
+    public function getCallerActions() returns DurableTopicSubscriberActions {
         match (subscriber) {
             DurableTopicSubscriber c => return c.getCallerActions();
             () => {
@@ -64,10 +64,10 @@ public type SimpleDurableTopicSubscriber object {
         }
     }
 
-    public function stop () {
+    public function stop() {
     }
 
-    public function createTextMessage(string message) returns (Message | Error) {
+    public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
             () => {
@@ -89,4 +89,3 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration {
     string messageSelector;
     string topicPattern;
 };
-

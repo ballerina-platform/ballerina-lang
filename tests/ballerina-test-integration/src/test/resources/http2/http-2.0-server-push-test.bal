@@ -6,11 +6,7 @@ endpoint http:Listener frontendEP {
 };
 
 endpoint http:Client backendClientEP {
-    targets: [
-        {
-            url: "http://localhost:7090"
-        }
-    ],
+    url: "http://localhost:7090",
     // HTTP version is set to 2.0.
     httpVersion:"2.0"
 };

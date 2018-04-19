@@ -30,10 +30,12 @@ public class ConnectorDoc extends Documentable {
 
     /**
      * Constructor.
-     * @param name connector name.
+     *
+     * @param name        connector name.
      * @param description description.
-     * @param children connector actions.
-     * @param fields fields of the connector.
+     * @param children    connector actions.
+     * @param fields      fields of the connector.
+     * @param isConnector whether a connector or an object.
      */
     public ConnectorDoc(String name, String description, List<Documentable> children, List<Field> fields,
                         boolean isConnector) {

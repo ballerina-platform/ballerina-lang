@@ -22,7 +22,7 @@ endpoint http:Listener participant1EP {
 };
 
 endpoint http:Client participant2EP {
-    targets:[{url: "http://localhost:8890"}]
+    url: "http://localhost:8890"
 };
 
 State state = new();
@@ -215,7 +215,7 @@ type State object {
     function toString() returns string {
         return io:sprintf("abortedByParticipant=%b,abortedFunctionCalled=%b,committedFunctionCalled=%s," +
                             "localParticipantAbortedFunctionCalled=%s,localParticipantCommittedFunctionCalled=%s",
-                            [abortedByParticipant, abortedFunctionCalled, committedFunctionCalled,
-                            localParticipantAbortedFunctionCalled, localParticipantCommittedFunctionCalled]);
+                            abortedByParticipant, abortedFunctionCalled, committedFunctionCalled,
+                            localParticipantAbortedFunctionCalled, localParticipantCommittedFunctionCalled);
     }
 };

@@ -183,10 +183,8 @@ public type SubscriberServiceEndpointConfiguration {
 function retrieveHubAndTopicUrl (string resourceUrl, http:SecureSocket? secureSocket) returns @tainted
 ((string, string) | WebSubError) {
     endpoint http:Client resourceEP {
-        targets:[{
-            url:resourceUrl,
-            secureSocket: secureSocket
-        }]
+        url:resourceUrl,
+        secureSocket: secureSocket
         //followRedirects:{enabled:true} //TODO: enable when re-direction is fixed
     };
     http:Request request = new;
