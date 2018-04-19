@@ -18,9 +18,9 @@ public interface HandshakeFuture {
     /**
      * Notify the success of the WebSocket handshake.
      *
-     * @param session Session for the successful connection.
+     * @param webSocketConnection {@link WebSocketConnection} for the successful connection.
      */
-    public void notifySuccess(Session session);
+    public void notifySuccess(WebSocketConnection webSocketConnection);
 
     /**
      * Notify any error occurred during the handshake.

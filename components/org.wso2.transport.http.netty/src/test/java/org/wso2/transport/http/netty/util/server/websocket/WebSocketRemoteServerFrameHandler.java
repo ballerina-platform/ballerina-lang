@@ -30,6 +30,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.ByteBuffer;
+
 /**
  * Simple WebSocket frame handler for testing
  */
@@ -59,7 +61,12 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
             }
             ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
         } else if (frame instanceof BinaryWebSocketFrame) {
-            ctx.channel().writeAndFlush(frame.retain());
+            ByteBuffer receivedBuffer = frame.content().nioBuffer();
+            receivedBuffer.rewind();
+            ByteBuffer clonedBuffer = ByteBuffer.allocate(receivedBuffer.capacity());
+            clonedBuffer.put(receivedBuffer);
+            clonedBuffer.flip();
+            ctx.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(clonedBuffer)));
         } else if (frame instanceof CloseWebSocketFrame) {
             ctx.close();
         } else {

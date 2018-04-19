@@ -70,7 +70,7 @@ public interface WebSocketMessage {
      *
      * @return the session of the connection.
      */
-    Session getChannelSession();
+    WebSocketConnection getWebSocketConnection();
 
     /**
      * Set header for the message.

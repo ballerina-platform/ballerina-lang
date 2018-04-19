@@ -22,8 +22,7 @@ package org.wso2.transport.http.netty.contractimpl.websocket;
 import io.netty.channel.ChannelFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
-
-import javax.websocket.Session;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 /**
  * Implementation of WebSocket handshake future.
@@ -31,7 +30,7 @@ import javax.websocket.Session;
 public class HandshakeFutureImpl implements HandshakeFuture {
 
     private Throwable throwable = null;
-    private Session session = null;
+    private WebSocketConnection webSocketConnection = null;
     private HandshakeListener handshakeListener;
     private ChannelFuture channelFuture;
     private boolean isSync = false;
@@ -52,19 +51,19 @@ public class HandshakeFutureImpl implements HandshakeFuture {
         if (throwable != null) {
             handshakeListener.onError(throwable);
         }
-        if (session != null) {
-            handshakeListener.onSuccess(session);
+        if (webSocketConnection != null) {
+            handshakeListener.onSuccess(webSocketConnection);
         }
         return this;
     }
 
     @Override
-    public void notifySuccess(Session session) {
-        this.session = session;
+    public void notifySuccess(WebSocketConnection webSocketConnection) {
+        this.webSocketConnection = webSocketConnection;
         if (handshakeListener == null || throwable != null) {
             return;
         }
-        handshakeListener.onSuccess(session);
+        handshakeListener.onSuccess(webSocketConnection);
     }
 
     @Override

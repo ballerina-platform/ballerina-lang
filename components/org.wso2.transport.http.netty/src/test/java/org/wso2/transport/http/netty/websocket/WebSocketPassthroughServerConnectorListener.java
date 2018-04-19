@@ -28,6 +28,7 @@ import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
@@ -55,48 +56,43 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
         WsClientConnectorConfig configuration = new WsClientConnectorConfig(remoteUrl);
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);
         WebSocketConnectorListener clientConnectorListener = new WebSocketPassthroughClientConnectorListener();
+        clientConnector.connect(clientConnectorListener).setHandshakeListener(new HandshakeListener() {
+            @Override
+            public void onSuccess(WebSocketConnection clientWebSocketConnection) {
+                HandshakeFuture serverFuture = initMessage.handshake();
+                serverFuture.setHandshakeListener(new HandshakeListener() {
+                    @Override
+                    public void onSuccess(WebSocketConnection serverWebSocketConnection) {
+                        WebSocketPassThroughTestConnectionManager.getInstance().
+                                interRelateSessions(serverWebSocketConnection, clientWebSocketConnection);
+                    }
 
-        try {
-            clientConnector.connect(clientConnectorListener).setHandshakeListener(new HandshakeListener() {
-                @Override
-                public void onSuccess(Session clientSession) {
-                    HandshakeFuture serverFuture = initMessage.handshake();
-                    serverFuture.setHandshakeListener(new HandshakeListener() {
-                        @Override
-                        public void onSuccess(Session serverSession) {
-                            WebSocketPassThroughTestSessionManager.getInstance().
-                                    interRelateSessions(serverSession, clientSession);
-                        }
+                    @Override
+                    public void onError(Throwable t) {
+                        logger.error(t.getMessage());
+                        Assert.assertTrue(false, "Error: " + t.getMessage());
+                    }
+                });
+            }
 
-                        @Override
-                        public void onError(Throwable t) {
-                            logger.error(t.getMessage());
-                            Assert.assertTrue(false, "Error: " + t.getMessage());
-                        }
-                    });
-                }
-
-                @Override
-                public void onError(Throwable t) {
-                    Assert.assertTrue(false, t.getMessage());
-                }
-            }).sync();
-        } catch (InterruptedException e) {
-            Assert.assertTrue(false, e.getMessage());
-        }
+            @Override
+            public void onError(Throwable t) {
+                Assert.assertTrue(false, t.getMessage());
+            }
+        });
     }
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
-        Session clientSession = WebSocketPassThroughTestSessionManager.getInstance().
-                getClientSession(textMessage.getChannelSession());
+        Session clientSession = WebSocketPassThroughTestConnectionManager.getInstance().
+                getClientConnection(textMessage.getChannelSession());
         clientSession.getAsyncRemote().sendText(textMessage.getText());
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
-        Session clientSession = WebSocketPassThroughTestSessionManager.getInstance()
-                .getClientSession(binaryMessage.getChannelSession());
+        Session clientSession = WebSocketPassThroughTestConnectionManager.getInstance()
+                .getClientConnection(binaryMessage.getChannelSession());
         clientSession.getAsyncRemote().sendBinary(binaryMessage.getByteBuffer());
     }
 
@@ -108,8 +104,8 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
         try {
-            Session clientSession = WebSocketPassThroughTestSessionManager.getInstance()
-                    .getClientSession(closeMessage.getChannelSession());
+            Session clientSession = WebSocketPassThroughTestConnectionManager.getInstance()
+                    .getClientConnection(closeMessage.getChannelSession());
             clientSession.close();
         } catch (IOException e) {
             logger.error("IO error when sending message: " + e.getMessage());

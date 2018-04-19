@@ -31,9 +31,10 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.HandshakeFutureImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
-import org.wso2.transport.http.netty.internal.websocket.WebSocketSessionImpl;
+import org.wso2.transport.http.netty.internal.websocket.DefaultWebSocketSession;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.transport.http.netty.listener.WebSocketSourceHandler;
 
@@ -139,9 +140,9 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
                 String selectedSubProtocol = handshaker.selectedSubprotocol();
                 webSocketSourceHandler.setNegotiatedSubProtocol(selectedSubProtocol);
                 setSubProtocol(selectedSubProtocol);
-                WebSocketSessionImpl session = (WebSocketSessionImpl) getChannelSession();
-                session.setIsOpen(true);
-                session.setNegotiatedSubProtocol(selectedSubProtocol);
+                DefaultWebSocketConnection webSocketConnection = (DefaultWebSocketConnection) getWebSocketConnection();
+                webSocketConnection.getDefaultWebSocketSession().setIsOpen(true);
+                webSocketConnection.getDefaultWebSocketSession().setNegotiatedSubProtocol(selectedSubProtocol);
 
                 //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
                 ChannelPipeline pipeline = ctx.pipeline();
@@ -157,7 +158,7 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
                 pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
                 setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
                 pipeline.fireChannelActive();
-                handshakeFuture.notifySuccess(webSocketSourceHandler.getChannelSession());
+                handshakeFuture.notifySuccess(webSocketConnection);
             });
             handshakeStarted = true;
             return handshakeFuture;

@@ -44,15 +44,15 @@ public class WebSocketPassthroughClientConnectorListener implements WebSocketCon
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
-        Session serverSession = WebSocketPassThroughTestSessionManager.getInstance().
-                getServerSession(textMessage.getChannelSession());
+        Session serverSession = WebSocketPassThroughTestConnectionManager.getInstance().
+                getServerConnection(textMessage.getChannelSession());
         serverSession.getAsyncRemote().sendText(textMessage.getText());
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
-        Session serverSession = WebSocketPassThroughTestSessionManager.getInstance().
-                getServerSession(binaryMessage.getChannelSession());
+        Session serverSession = WebSocketPassThroughTestConnectionManager.getInstance().
+                getServerConnection(binaryMessage.getChannelSession());
         serverSession.getAsyncRemote().sendBinary(binaryMessage.getByteBuffer());
     }
 

@@ -43,8 +43,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.HandshakeFutureImpl;
-import org.wso2.transport.http.netty.internal.websocket.WebSocketSessionImpl;
 
 import java.net.URI;
 import java.util.Map;
@@ -141,12 +141,12 @@ public class WebSocketClient {
                     .handshakeFuture().addListener((ChannelFutureListener) clientHandshakeFuture -> {
                 Throwable cause = clientHandshakeFuture.cause();
                 if (clientHandshakeFuture.isSuccess() && cause == null) {
-                    WebSocketSessionImpl session = (WebSocketSessionImpl) webSocketTargetHandler.getChannelSession();
+                    DefaultWebSocketConnection webSocketConnection = webSocketTargetHandler.getWebSocketConnection();
                     String actualSubProtocol = websocketHandshaker.actualSubprotocol();
                     webSocketTargetHandler.setActualSubProtocol(actualSubProtocol);
-                    session.setNegotiatedSubProtocol(actualSubProtocol);
-                    session.setIsOpen(true);
-                    handshakeFuture.notifySuccess(session);
+                    webSocketConnection.getDefaultWebSocketSession().setNegotiatedSubProtocol(actualSubProtocol);
+                    webSocketConnection.getDefaultWebSocketSession().setIsOpen(true);
+                    handshakeFuture.notifySuccess(webSocketConnection);
                 } else {
                     handshakeFuture.notifyError(cause);
                 }
