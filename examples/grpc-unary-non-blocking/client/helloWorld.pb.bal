@@ -16,7 +16,7 @@ public type HelloWorldBlockingStub object {
     }
 
     function hello(string req) returns (string|error) {
-        any|grpc:ConnectorError unionResp = self.stub.blockingExecute("HelloWorld/hello", req);
+        var unionResp = self.stub.blockingExecute("HelloWorld/hello", req);
         match unionResp {
             error payloadError => {
                 return payloadError;
@@ -67,7 +67,7 @@ public type HelloWorldBlockingClient object {
         self.stub = stub;
     }
 
-    public function getClient() returns (HelloWorldBlockingStub) {
+    public function getCallerActions() returns (HelloWorldBlockingStub) {
         return self.stub;
     }
 };
@@ -90,7 +90,7 @@ public type HelloWorldClient object {
         self.stub = stub;
     }
 
-    public function getClient() returns (HelloWorldStub) {
+    public function getCallerActions() returns (HelloWorldStub) {
         return self.stub;
     }
 };
