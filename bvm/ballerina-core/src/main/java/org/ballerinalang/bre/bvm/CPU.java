@@ -3054,7 +3054,7 @@ public class CPU {
             return checkTupleCast(rhsValue, lhsType);
         }
 
-        if (lhsType.getTag() == TypeTags.SINGLETON_TAG || lhsType.getTag() == TypeTags.NULL_TAG) {
+        if (lhsType.getTag() == TypeTags.SINGLETON_TAG) {
             return checkSingletonAssignable(rhsValue, lhsType);
         }
         
@@ -3062,12 +3062,10 @@ public class CPU {
     }
 
     private static boolean checkSingletonAssignable(BValue rhsValue, BType lhsType) {
-        BSingletonType singletonType = (BSingletonType) lhsType;
         if (rhsValue == null) {
-            if (lhsType.getTag() == TypeTags.NULL_TAG) {
-                return true;
-            }
+            return false;
         } else {
+            BSingletonType singletonType = (BSingletonType) lhsType;
             if (rhsValue.getType().getTag() == singletonType.getSuperType().getTag()) {
                 if (rhsValue.equals(singletonType.valueSpace)) {
                     return true;
@@ -3130,7 +3128,7 @@ public class CPU {
             return checkTupleCast(rhsValue, lhsType);
         }
 
-        if (lhsType.getTag() == TypeTags.SINGLETON_TAG || lhsType.getTag() == TypeTags.NULL_TAG) {
+        if (lhsType.getTag() == TypeTags.SINGLETON_TAG) {
             return checkSingletonAssignable(rhsValue, lhsType);
         }
 
