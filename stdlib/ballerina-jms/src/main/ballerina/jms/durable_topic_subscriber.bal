@@ -31,7 +31,7 @@ public type DurableTopicSubscriber object {
     public function start () {
     }
 
-    public function getClient () returns (DurableTopicSubscriberConnector) {
+    public function getCallerActions () returns (DurableTopicSubscriberConnector) {
         return connector;
     }
 

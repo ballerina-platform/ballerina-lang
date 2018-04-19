@@ -51,7 +51,7 @@ public type Listener object {
 
     @Description {value:"Returns the connector that client code uses"}
     @Return {value:"The connector that client code uses"}
-    public function getClient() returns (http:Connection);
+    public function getCallerActions() returns (http:Connection);
 
     @Description {value:"Stops the registered service"}
     public function stop();
@@ -96,8 +96,8 @@ public function Listener::start() {
     self.sendSubscriptionRequest();
 }
 
-public function Listener::getClient() returns (http:Connection) {
-    return self.serviceEndpoint.getClient();
+public function Listener::getCallerActions() returns (http:Connection) {
+    return self.serviceEndpoint.getCallerActions();
 }
 
 public function Listener::stop () {

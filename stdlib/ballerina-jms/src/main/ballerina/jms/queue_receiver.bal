@@ -32,7 +32,7 @@ public type QueueReceiver object {
     public function start () {
     }
 
-    public function getClient () returns (QueueReceiverConnector) {
+    public function getCallerActions () returns (QueueReceiverConnector) {
         return connector;
     }
 
