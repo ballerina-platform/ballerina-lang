@@ -72,8 +72,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         }
 
         super.channelActive(ctx);
-        ctx.channel().config().setAutoRead(false);
-        ctx.channel().read();
     }
 
     @SuppressWarnings("unchecked")
@@ -102,7 +100,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 if (httpInboundResponse.decoderResult().isFailure()) {
                     log.warn(httpInboundResponse.decoderResult().cause().getMessage());
                 }
-                ctx.channel().read();
             } else {
                 if (targetRespMsg != null) {
                     HttpContent httpContent = (HttpContent) msg;

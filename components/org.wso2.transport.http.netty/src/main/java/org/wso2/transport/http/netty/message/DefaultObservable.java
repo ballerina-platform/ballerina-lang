@@ -29,7 +29,6 @@ public class DefaultObservable implements Observable {
 
     @Override
     public void setListener(Listener listener) {
-        System.out.println("setListener");
         this.listener = listener;
     }
 
@@ -40,22 +39,14 @@ public class DefaultObservable implements Observable {
 
     @Override
     public void notifyAddListener(HttpContent httpContent) {
-        System.out.println("onAdd---------------");
-
         if (listener != null) {
-            System.out.println("onAdd within if");
-
             listener.onAdd(httpContent);
         }
     }
 
     @Override
     public void notifyGetListener(HttpContent httpContent) {
-        System.out.println("onRemove---------------");
-
         if (listener != null) {
-            System.out.println("onRemove within if");
-
             listener.onRemove(httpContent);
         }
     }

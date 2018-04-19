@@ -77,7 +77,7 @@ public class ForwardedClientTemplate {
         httpMessageDataStreamer.getOutputStream().write("test".getBytes());
         httpMessageDataStreamer.getOutputStream().close();
 
-        latch.await(5, TimeUnit.SECONDS);
+        latch.await(15, TimeUnit.SECONDS);
 
         HTTPCarbonMessage response = listener.getHttpResponseMessage();
         TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());

@@ -20,8 +20,6 @@ package org.wso2.transport.http.netty.message;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Util;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,6 +33,7 @@ public class DefaultListener implements Listener {
     private AtomicInteger cumulativeByteQuantity = new AtomicInteger(0);
     private final ChannelHandlerContext ctx;
     private boolean readCompleted = false;
+    private boolean first = true;
 
     public DefaultListener(ChannelHandlerContext ctx) {
         this.ctx = ctx;
@@ -42,8 +41,11 @@ public class DefaultListener implements Listener {
 
     @Override
     public void onAdd(HttpContent httpContent) {
+        if (first) {
+            ctx.channel().config().setAutoRead(false);
+            first = false;
+        }
         int count = this.cumulativeByteQuantity.addAndGet(httpContent.content().readableBytes());
-        System.out.println("onAdd count:" + count);
         if (count < MAXIMUM_BYTE_SIZE) {
             if (Util.isLastHttpContent(httpContent)) {
                 readCompleted = true;
@@ -56,7 +58,6 @@ public class DefaultListener implements Listener {
     @Override
     public void onRemove(HttpContent httpContent) {
         int count = this.cumulativeByteQuantity.addAndGet(-(httpContent.content().readableBytes()));
-        System.out.println("onRemove count:" + count);
         if (count < MAXIMUM_BYTE_SIZE && !readCompleted) {
             this.ctx.channel().read();
         }

@@ -97,7 +97,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         allChannels.add(ctx.channel());
-        System.out.println("Channel active");
         // Start the server connection Timer
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
         if (this.handlerExecutor != null) {
@@ -105,15 +104,12 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
         this.ctx = ctx;
         this.remoteAddress = ctx.channel().remoteAddress();
-        ctx.channel().config().setAutoRead(false);
-        ctx.channel().read();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
-            System.out.println("Channel Read request");
             HttpRequest httpRequest = (HttpRequest) msg;
             sourceReqCmsg = setupCarbonMessage(httpRequest, ctx);
             notifyRequestListener(sourceReqCmsg, ctx);
@@ -121,12 +117,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             if (httpRequest.decoderResult().isFailure()) {
                 log.warn(httpRequest.decoderResult().cause().getMessage());
             }
-            ctx.channel().read();
         } else {
             if (sourceReqCmsg != null) {
                 if (msg instanceof HttpContent) {
                     HttpContent httpContent = (HttpContent) msg;
-                    System.out.println("Channel Read content");
                     sourceReqCmsg.addHttpContent(httpContent);
                     if (Util.isLastHttpContent(httpContent)) {
                         if (handlerExecutor != null) {
