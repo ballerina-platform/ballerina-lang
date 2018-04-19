@@ -4,7 +4,7 @@ import ballerina/runtime;
 
 string response;
 int total = 0;
-function testClientStreaming (string[] args) returns (string) {
+function testClientStreaming(string[] args) returns (string) {
     // Client endpoint configuration
     endpoint HelloWorldClient helloWorldEp {
         host:"localhost",
@@ -13,7 +13,7 @@ function testClientStreaming (string[] args) returns (string) {
 
     endpoint grpc:Client ep;
     // Executing unary non-blocking call registering server message listener.
-    var res = helloWorldEp -> lotsOfGreetings(HelloWorldMessageListener);
+    var res = helloWorldEp->lotsOfGreetings(HelloWorldMessageListener);
     match res {
         grpc:error err => {
             io:print("error");
@@ -27,13 +27,13 @@ function testClientStreaming (string[] args) returns (string) {
 
     foreach greet in args {
         io:print("send greeting: " + greet);
-        error? connErr = ep -> send(greet);
-        io:println(connErr.message but {() => ("send greeting: " + greet)});
+        error? connErr = ep->send(greet);
+        io:println(connErr.message but { () => ("send greeting: " + greet) });
     }
-    _ = ep -> complete();
+    _ = ep->complete();
 
     int wait = 0;
-    while(total < 1) {
+    while (total < 1) {
         runtime:sleepCurrentWorker(1000);
         io:println("msg count: " + total);
         if (wait > 10) {
@@ -49,21 +49,21 @@ function testClientStreaming (string[] args) returns (string) {
 service<grpc:Service> HelloWorldMessageListener {
 
     // Resource registered to receive server messages
-    onMessage (string message) {
+    onMessage(string message) {
         response = untaint message;
         io:println("Response received from server: " + message);
         total = 1;
     }
 
     // Resource registered to receive server error messages
-    onError (error err) {
+    onError(error err) {
         if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }
 
     // Resource registered to receive server completed message.
-    onComplete () {
+    onComplete() {
         total = 1;
         io:println("Server Complete Sending Responses.");
     }
@@ -76,13 +76,13 @@ public type HelloWorldStub object {
         grpc:Stub stub;
     }
 
-    function initStub (grpc:Client clientEndpoint) {
+    function initStub(grpc:Client clientEndpoint) {
         grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
         self.stub = navStub;
     }
 
-    function lotsOfGreetings (typedesc listener, grpc:Headers... headers) returns (grpc:Client|error) {
+    function lotsOfGreetings(typedesc listener, grpc:Headers... headers) returns (grpc:Client|error) {
         var res = self.stub.streamingExecute("HelloWorld/lotsOfGreetings", listener, ...headers);
         match res {
             error err => {
@@ -103,7 +103,7 @@ public type HelloWorldClient object {
         HelloWorldStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfig config) {
+    public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);
@@ -114,7 +114,7 @@ public type HelloWorldClient object {
         self.stub = stub;
     }
 
-    public function getCallerActions () returns (HelloWorldStub) {
+    public function getCallerActions() returns (HelloWorldStub) {
         return self.stub;
     }
 };

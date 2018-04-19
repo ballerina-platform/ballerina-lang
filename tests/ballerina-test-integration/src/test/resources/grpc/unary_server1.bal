@@ -23,54 +23,54 @@ endpoint grpc:Listener ep {
 
 @grpc:serviceConfig
 service HelloWorld bind ep {
-    hello (endpoint caller, string name) {
+    hello(endpoint caller, string name) {
         io:println("name: " + name);
         string message = "Hello " + name;
-        error? err = caller -> send(message);
-        io:println(err.message but {() => ("Server send response : " + message)});
-        _ = caller -> complete();
+        error? err = caller->send(message);
+        io:println(err.message but { () => ("Server send response : " + message) });
+        _ = caller->complete();
     }
 
-    testInt (endpoint caller, int age) {
+    testInt(endpoint caller, int age) {
         io:println("age: " + age);
         int displayAge = age - 2;
-        error? err = caller -> send(displayAge);
-        io:println(err.message but {() => ("display age : " + displayAge)});
-        _ = caller -> complete();
+        error? err = caller->send(displayAge);
+        io:println(err.message but { () => ("display age : " + displayAge) });
+        _ = caller->complete();
     }
 
-    testFloat (endpoint caller, float salary) {
+    testFloat(endpoint caller, float salary) {
         io:println("gross salary: " + salary);
         float netSalary = salary * 0.88;
-        error? err = caller -> send(netSalary);
-        io:println(err.message but {() => ("net salary : " + netSalary)});
-        _ = caller -> complete();
+        error? err = caller->send(netSalary);
+        io:println(err.message but { () => ("net salary : " + netSalary) });
+        _ = caller->complete();
     }
 
-    testBoolean (endpoint caller, boolean available) {
+    testBoolean(endpoint caller, boolean available) {
         io:println("is available: " + available);
         boolean aval = available || true;
-        error? err = caller -> send(aval);
-        io:println(err.message but {() => ("avaliability : " + aval)});
-        _ = caller -> complete();
+        error? err = caller->send(aval);
+        io:println(err.message but { () => ("avaliability : " + aval) });
+        _ = caller->complete();
     }
 
-    testStruct (endpoint caller, Request msg) {
+    testStruct(endpoint caller, Request msg) {
         io:println(msg.name + " : " + msg.message);
         Response response = {resp:"Acknowledge " + msg.name};
-        error? err = caller -> send(response);
-        io:println(err.message but {() => ("msg : " + response.resp)});
-        _ = caller -> complete();
+        error? err = caller->send(response);
+        io:println(err.message but { () => ("msg : " + response.resp) });
+        _ = caller->complete();
     }
 
-    testNoRequest (endpoint caller) {
+    testNoRequest(endpoint caller) {
         string resp = "service invoked with no request";
-        error? err = caller -> send(resp);
-        io:println(err.message but {() => ("response : " + resp)});
-        _ = caller -> complete();
+        error? err = caller->send(resp);
+        io:println(err.message but { () => ("response : " + resp) });
+        _ = caller->complete();
     }
 
-    testNoResponse (endpoint caller, string msg) {
+    testNoResponse(endpoint caller, string msg) {
         io:println("Request: " + msg);
     }
 }

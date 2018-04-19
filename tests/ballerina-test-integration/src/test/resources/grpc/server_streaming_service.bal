@@ -12,15 +12,15 @@ endpoint grpc:Listener ep {
 service HelloWorld bind ep {
 
     @grpc:resourceConfig {streaming:true}
-    lotsOfReplies (endpoint caller, string name) {
+    lotsOfReplies(endpoint caller, string name) {
         io:println("Server received hello from " + name);
         string[] greets = ["Hi", "Hey", "GM"];
         foreach greet in greets {
-            error? err = caller -> send(greet + " " + name);
-            io:println(err.message but {() => ("send reply: " + greet + " " + name)});
+            error? err = caller->send(greet + " " + name);
+            io:println(err.message but { () => ("send reply: " + greet + " " + name) });
         }
         // Once all messages are sent, server send complete message to notify the client, I’m done.
-        _ = caller -> complete();
+        _ = caller->complete();
         io:println("send all responses sucessfully.");
     }
 

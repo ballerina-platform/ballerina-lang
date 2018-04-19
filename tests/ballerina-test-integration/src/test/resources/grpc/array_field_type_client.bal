@@ -17,17 +17,17 @@ import ballerina/io;
 import ballerina/grpc;
 
 endpoint HelloWorldBlockingClient HelloWorldBlockingEp {
-    host: "localhost",
-    port: 9090
+    host:"localhost",
+    port:9090
 };
 
-function testIntArrayInput (TestInt req) returns (int|string) {
+function testIntArrayInput(TestInt req) returns (int|string) {
     io:println("testIntArrayInput: input:");
     io:println(req);
-    (int, grpc:Headers)|error unionResp = HelloWorldBlockingEp -> testIntArrayInput(req);
+    (int, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testIntArrayInput(req);
     io:println(unionResp);
     match unionResp {
-        (int,grpc:Headers) payload => {
+        (int, grpc:Headers) payload => {
             io:println("Client Got Response : ");
             int result;
             (result, _) = payload;
@@ -41,13 +41,13 @@ function testIntArrayInput (TestInt req) returns (int|string) {
     }
 }
 
-function testStringArrayInput (TestString req) returns (string) {
+function testStringArrayInput(TestString req) returns (string) {
     io:println("testStringArrayInput: input:");
     io:println(req);
-    (string, grpc:Headers)|error unionResp = HelloWorldBlockingEp -> testStringArrayInput(req);
+    (string, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testStringArrayInput(req);
     io:println(unionResp);
     match unionResp {
-        (string,grpc:Headers) payload => {
+        (string, grpc:Headers) payload => {
             io:println("Client Got Response : ");
             string result;
             (result, _) = payload;
@@ -61,13 +61,13 @@ function testStringArrayInput (TestString req) returns (string) {
     }
 }
 
-function testFloatArrayInput (TestFloat req) returns (float|string) {
+function testFloatArrayInput(TestFloat req) returns (float|string) {
     io:println("testFloatArrayInput: input:");
     io:println(req);
-    (float, grpc:Headers)|error unionResp = HelloWorldBlockingEp -> testFloatArrayInput(req);
+    (float, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testFloatArrayInput(req);
     io:println(unionResp);
     match unionResp {
-        (float,grpc:Headers) payload => {
+        (float, grpc:Headers) payload => {
             io:println("Client Got Response : ");
             float result;
             (result, _) = payload;
@@ -81,13 +81,13 @@ function testFloatArrayInput (TestFloat req) returns (float|string) {
     }
 }
 
-function testBooleanArrayInput (TestBoolean req) returns (boolean|string) {
+function testBooleanArrayInput(TestBoolean req) returns (boolean|string) {
     io:println("testBooleanArrayInput: input:");
     io:println(req);
-    (boolean, grpc:Headers)|error unionResp = HelloWorldBlockingEp -> testBooleanArrayInput(req);
+    (boolean, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testBooleanArrayInput(req);
     io:println(unionResp);
     match unionResp {
-        (boolean,grpc:Headers) payload => {
+        (boolean, grpc:Headers) payload => {
             io:println("Client Got Response : ");
             boolean result;
             (result, _) = payload;
@@ -101,13 +101,13 @@ function testBooleanArrayInput (TestBoolean req) returns (boolean|string) {
     }
 }
 
-function testStructArrayInput (TestStruct req) returns (string) {
+function testStructArrayInput(TestStruct req) returns (string) {
     io:println("testStructArrayInput: input:");
     io:println(req);
-    (string, grpc:Headers)|error unionResp = HelloWorldBlockingEp -> testStructArrayInput(req);
+    (string, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testStructArrayInput(req);
     io:println(unionResp);
     match unionResp {
-        (string,grpc:Headers) payload => {
+        (string, grpc:Headers) payload => {
             io:println("Client Got Response : ");
             string result;
             (result, _) = payload;
@@ -121,12 +121,12 @@ function testStructArrayInput (TestStruct req) returns (string) {
     }
 }
 
-function testIntArrayOutput () returns (TestInt|string) {
+function testIntArrayOutput() returns (TestInt|string) {
     io:println("testIntArrayOutput: No input:");
-    (TestInt, grpc:Headers)|error unionResp = HelloWorldBlockingEp -> testIntArrayOutput();
+    (TestInt, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testIntArrayOutput();
     io:println(unionResp);
     match unionResp {
-        (TestInt,grpc:Headers) payload => {
+        (TestInt, grpc:Headers) payload => {
             io:println("Client Got Response : ");
             TestInt result;
             (result, _) = payload;
@@ -140,12 +140,12 @@ function testIntArrayOutput () returns (TestInt|string) {
     }
 }
 
-function testStringArrayOutput () returns (TestString|string) {
+function testStringArrayOutput() returns (TestString|string) {
     io:println("testStringArrayOutput: No input:");
-    (TestString, grpc:Headers)|error unionResp = HelloWorldBlockingEp -> testStringArrayOutput();
+    (TestString, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testStringArrayOutput();
     io:println(unionResp);
     match unionResp {
-        (TestString,grpc:Headers) payload => {
+        (TestString, grpc:Headers) payload => {
             io:println("Client Got Response : ");
             TestString result;
             (result, _) = payload;
@@ -159,12 +159,12 @@ function testStringArrayOutput () returns (TestString|string) {
     }
 }
 
-function testFloatArrayOutput () returns (TestFloat|string) {
+function testFloatArrayOutput() returns (TestFloat|string) {
     io:println("testFloatArrayOutput: No input:");
-    (TestFloat, grpc:Headers)|error unionResp = HelloWorldBlockingEp -> testFloatArrayOutput();
+    (TestFloat, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testFloatArrayOutput();
     io:println(unionResp);
     match unionResp {
-        (TestFloat,grpc:Headers) payload => {
+        (TestFloat, grpc:Headers) payload => {
             io:println("Client Got Response : ");
             TestFloat result;
             (result, _) = payload;
@@ -178,12 +178,12 @@ function testFloatArrayOutput () returns (TestFloat|string) {
     }
 }
 
-function testBooleanArrayOutput () returns (TestBoolean|string) {
+function testBooleanArrayOutput() returns (TestBoolean|string) {
     io:println("testBooleanArrayOutput: No input:");
-    (TestBoolean, grpc:Headers)|error unionResp = HelloWorldBlockingEp -> testBooleanArrayOutput();
+    (TestBoolean, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testBooleanArrayOutput();
     io:println(unionResp);
     match unionResp {
-        (TestBoolean,grpc:Headers) payload => {
+        (TestBoolean, grpc:Headers) payload => {
             io:println("Client Got Response : ");
             TestBoolean result;
             (result, _) = payload;
@@ -197,12 +197,12 @@ function testBooleanArrayOutput () returns (TestBoolean|string) {
     }
 }
 
-function testStructArrayOutput () returns (TestStruct|string) {
+function testStructArrayOutput() returns (TestStruct|string) {
     io:println("testStructArrayOutput: No input:");
-    (TestStruct, grpc:Headers)|error unionResp = HelloWorldBlockingEp -> testStructArrayOutput();
+    (TestStruct, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testStructArrayOutput();
     io:println(unionResp);
     match unionResp {
-        (TestStruct,grpc:Headers) payload => {
+        (TestStruct, grpc:Headers) payload => {
             io:println("Client Got Response : ");
             TestStruct result;
             (result, _) = payload;
@@ -223,13 +223,13 @@ public type HelloWorldBlockingStub object {
         grpc:Stub stub;
     }
 
-    function initStub (grpc:Client clientEndpoint) {
+    function initStub(grpc:Client clientEndpoint) {
         grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "blocking", DESCRIPTOR_KEY, descriptorMap);
         self.stub = navStub;
     }
 
-    function testIntArrayInput (TestInt req, grpc:Headers... headers) returns ((int, grpc:Headers)|error) {
+    function testIntArrayInput(TestInt req, grpc:Headers... headers) returns ((int, grpc:Headers)|error) {
         var unionResp = self.stub.blockingExecute("HelloWorld/testIntArrayInput", req, ...headers);
         match unionResp {
             error payloadError => {
@@ -244,7 +244,7 @@ public type HelloWorldBlockingStub object {
         }
     }
 
-    function testStringArrayInput (TestString req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
+    function testStringArrayInput(TestString req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
         var unionResp = self.stub.blockingExecute("HelloWorld/testStringArrayInput", req, ...headers);
         match unionResp {
             error payloadError => {
@@ -259,7 +259,7 @@ public type HelloWorldBlockingStub object {
         }
     }
 
-    function testFloatArrayInput (TestFloat req, grpc:Headers... headers) returns ((float, grpc:Headers)|error) {
+    function testFloatArrayInput(TestFloat req, grpc:Headers... headers) returns ((float, grpc:Headers)|error) {
         var unionResp = self.stub.blockingExecute("HelloWorld/testFloatArrayInput", req, ...headers);
         match unionResp {
             error payloadError => {
@@ -274,7 +274,7 @@ public type HelloWorldBlockingStub object {
         }
     }
 
-    function testBooleanArrayInput (TestBoolean req, grpc:Headers... headers) returns ((boolean, grpc:Headers)|error) {
+    function testBooleanArrayInput(TestBoolean req, grpc:Headers... headers) returns ((boolean, grpc:Headers)|error) {
         var unionResp = self.stub.blockingExecute("HelloWorld/testBooleanArrayInput", req, ...headers);
         match unionResp {
             error payloadError => {
@@ -289,7 +289,7 @@ public type HelloWorldBlockingStub object {
         }
     }
 
-    function testStructArrayInput (TestStruct req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
+    function testStructArrayInput(TestStruct req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
         var unionResp = self.stub.blockingExecute("HelloWorld/testStructArrayInput", req, ...headers);
         match unionResp {
             error payloadError => {
@@ -304,7 +304,7 @@ public type HelloWorldBlockingStub object {
         }
     }
 
-    function testIntArrayOutput (grpc:Headers... headers) returns ((TestInt, grpc:Headers)|error) {
+    function testIntArrayOutput(grpc:Headers... headers) returns ((TestInt, grpc:Headers)|error) {
         Empty req = {};
         var unionResp = self.stub.blockingExecute("HelloWorld/testIntArrayOutput", req, ...headers);
         match unionResp {
@@ -320,7 +320,7 @@ public type HelloWorldBlockingStub object {
         }
     }
 
-    function testStringArrayOutput (grpc:Headers... headers) returns ((TestString, grpc:Headers)|error) {
+    function testStringArrayOutput(grpc:Headers... headers) returns ((TestString, grpc:Headers)|error) {
         Empty req = {};
         var unionResp = self.stub.blockingExecute("HelloWorld/testStringArrayOutput", req, ...headers);
         match unionResp {
@@ -336,7 +336,7 @@ public type HelloWorldBlockingStub object {
         }
     }
 
-    function testFloatArrayOutput (grpc:Headers... headers) returns ((TestFloat, grpc:Headers)|error) {
+    function testFloatArrayOutput(grpc:Headers... headers) returns ((TestFloat, grpc:Headers)|error) {
         Empty req = {};
         var unionResp = self.stub.blockingExecute("HelloWorld/testFloatArrayOutput", req, ...headers);
         match unionResp {
@@ -352,7 +352,7 @@ public type HelloWorldBlockingStub object {
         }
     }
 
-    function testBooleanArrayOutput (grpc:Headers... headers) returns ((TestBoolean, grpc:Headers)|error) {
+    function testBooleanArrayOutput(grpc:Headers... headers) returns ((TestBoolean, grpc:Headers)|error) {
         Empty req = {};
         var unionResp = self.stub.blockingExecute("HelloWorld/testBooleanArrayOutput", req, ...headers);
         match unionResp {
@@ -368,7 +368,7 @@ public type HelloWorldBlockingStub object {
         }
     }
 
-    function testStructArrayOutput (grpc:Headers... headers) returns ((TestStruct, grpc:Headers)|error) {
+    function testStructArrayOutput(grpc:Headers... headers) returns ((TestStruct, grpc:Headers)|error) {
         Empty req = {};
         var unionResp = self.stub.blockingExecute("HelloWorld/testStructArrayOutput", req, ...headers);
         match unionResp {
@@ -393,53 +393,53 @@ public type HelloWorldStub object {
         grpc:Stub stub;
     }
 
-    function initStub (grpc:Client clientEndpoint) {
+    function initStub(grpc:Client clientEndpoint) {
         grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
         self.stub = navStub;
     }
 
-    function testIntArrayInput (TestInt req, typedesc listener, grpc:Headers... headers) returns (error?) {
+    function testIntArrayInput(TestInt req, typedesc listener, grpc:Headers... headers) returns (error?) {
         return self.stub.nonBlockingExecute("HelloWorld/testIntArrayInput", req, listener, ...headers);
     }
 
-    function testStringArrayInput (TestString req, typedesc listener, grpc:Headers... headers) returns (error?) {
+    function testStringArrayInput(TestString req, typedesc listener, grpc:Headers... headers) returns (error?) {
         return self.stub.nonBlockingExecute("HelloWorld/testStringArrayInput", req, listener, ...headers);
     }
 
-    function testFloatArrayInput (TestFloat req, typedesc listener, grpc:Headers... headers) returns (error?) {
+    function testFloatArrayInput(TestFloat req, typedesc listener, grpc:Headers... headers) returns (error?) {
         return self.stub.nonBlockingExecute("HelloWorld/testFloatArrayInput", req, listener, ...headers);
     }
 
-    function testBooleanArrayInput (TestBoolean req, typedesc listener, grpc:Headers... headers) returns (error?) {
+    function testBooleanArrayInput(TestBoolean req, typedesc listener, grpc:Headers... headers) returns (error?) {
         return self.stub.nonBlockingExecute("HelloWorld/testBooleanArrayInput", req, listener, ...headers);
     }
 
-    function testStructArrayInput (TestStruct req, typedesc listener, grpc:Headers... headers) returns (error?) {
+    function testStructArrayInput(TestStruct req, typedesc listener, grpc:Headers... headers) returns (error?) {
         return self.stub.nonBlockingExecute("HelloWorld/testStructArrayInput", req, listener, ...headers);
     }
 
-    function testIntArrayOutput (typedesc listener, grpc:Headers... headers) returns (error?) {
+    function testIntArrayOutput(typedesc listener, grpc:Headers... headers) returns (error?) {
         Empty req = {};
         return self.stub.nonBlockingExecute("HelloWorld/testIntArrayOutput", req, listener, ...headers);
     }
 
-    function testStringArrayOutput (typedesc listener, grpc:Headers... headers) returns (error?) {
+    function testStringArrayOutput(typedesc listener, grpc:Headers... headers) returns (error?) {
         Empty req = {};
         return self.stub.nonBlockingExecute("HelloWorld/testStringArrayOutput", req, listener, ...headers);
     }
 
-    function testFloatArrayOutput (typedesc listener, grpc:Headers... headers) returns (error?) {
+    function testFloatArrayOutput(typedesc listener, grpc:Headers... headers) returns (error?) {
         Empty req = {};
         return self.stub.nonBlockingExecute("HelloWorld/testFloatArrayOutput", req, listener, ...headers);
     }
 
-    function testBooleanArrayOutput (typedesc listener, grpc:Headers... headers) returns (error?) {
+    function testBooleanArrayOutput(typedesc listener, grpc:Headers... headers) returns (error?) {
         Empty req = {};
         return self.stub.nonBlockingExecute("HelloWorld/testBooleanArrayOutput", req, listener, ...headers);
     }
 
-    function testStructArrayOutput (typedesc listener, grpc:Headers... headers) returns (error?) {
+    function testStructArrayOutput(typedesc listener, grpc:Headers... headers) returns (error?) {
         Empty req = {};
         return self.stub.nonBlockingExecute("HelloWorld/testStructArrayOutput", req, listener, ...headers);
     }
@@ -454,7 +454,7 @@ public type HelloWorldBlockingClient object {
         HelloWorldBlockingStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfig config) {
+    public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);
@@ -465,7 +465,7 @@ public type HelloWorldBlockingClient object {
         self.stub = stub;
     }
 
-    public function getCallerActions () returns (HelloWorldBlockingStub) {
+    public function getCallerActions() returns (HelloWorldBlockingStub) {
         return self.stub;
     }
 };
@@ -477,7 +477,7 @@ public type HelloWorldClient object {
         HelloWorldStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfig config) {
+    public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);
@@ -488,7 +488,7 @@ public type HelloWorldClient object {
         self.stub = stub;
     }
 
-    public function getCallerActions () returns (HelloWorldStub) {
+    public function getCallerActions() returns (HelloWorldStub) {
         return self.stub;
     }
 };

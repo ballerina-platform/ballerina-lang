@@ -5,14 +5,14 @@ import ballerina/runtime;
 
 string[] responses;
 int total = 0;
-function testServerStreaming (string name) returns (string[]) {
+function testServerStreaming(string name) returns (string[]) {
     // Client endpoint configuration
     endpoint HelloWorldClient helloWorldEp {
         host:"localhost",
         port:9090
     };
     // Executing unary non-blocking call registering server message listener.
-    error? result = helloWorldEp -> lotsOfReplies(name, HelloWorldMessageListener);
+    error? result = helloWorldEp->lotsOfReplies(name, HelloWorldMessageListener);
     match result {
         error payloadError => {
             io:println("Error occured while sending event " + payloadError.message);
@@ -25,7 +25,7 @@ function testServerStreaming (string name) returns (string[]) {
     }
 
     int wait = 0;
-    while(total < 4) {
+    while (total < 4) {
         runtime:sleepCurrentWorker(1000);
         io:println("msg count: " + total);
         if (wait > 10) {
@@ -41,21 +41,21 @@ function testServerStreaming (string name) returns (string[]) {
 service<grpc:Service> HelloWorldMessageListener {
 
     // Resource registered to receive server messages
-    onMessage (string message) {
+    onMessage(string message) {
         io:println("Response received from server: " + message);
         responses[total] = message;
         total = total + 1;
     }
 
     // Resource registered to receive server error messages
-    onError (error err) {
+    onError(error err) {
         if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }
 
     // Resource registered to receive server completed message.
-    onComplete () {
+    onComplete() {
         io:println("Server Complete Sending Response.");
         responses[total] = "Server Complete Sending Response.";
         total = total + 1;
@@ -68,13 +68,13 @@ public type HelloWorldStub object {
         grpc:Client clientEndpoint;
         grpc:Stub stub;
     }
-    function initStub (grpc:Client clientEndpoint) {
+    function initStub(grpc:Client clientEndpoint) {
         grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
         self.stub = navStub;
     }
 
-    function lotsOfReplies (string req, typedesc listener, grpc:Headers... headers) returns (error?) {
+    function lotsOfReplies(string req, typedesc listener, grpc:Headers... headers) returns (error?) {
         return self.stub.nonBlockingExecute("HelloWorld/lotsOfReplies", req, listener, ...headers);
     }
 };
@@ -87,7 +87,7 @@ public type HelloWorldClient object {
         HelloWorldStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfig config) {
+    public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);
@@ -98,7 +98,7 @@ public type HelloWorldClient object {
         self.stub = stub;
     }
 
-    public function getCallerActions () returns (HelloWorldStub) {
+    public function getCallerActions() returns (HelloWorldStub) {
         return self.stub;
     }
 };

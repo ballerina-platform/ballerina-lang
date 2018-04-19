@@ -15,11 +15,11 @@ endpoint grpc:Service ep {
     generateClientConnector:false}
 service<grpc:Listener> Chat bind ep {
     map consMap;
-    onOpen (endpoint client) {
+    onOpen(endpoint client) {
         consMap[<string>client.id] = client;
     }
 
-    onMessage (endpoint client, ChatMessage chatMsg) {
+    onMessage(endpoint client, ChatMessage chatMsg) {
         endpoint grpc:Service con;
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
         io:println(msg);
@@ -28,19 +28,19 @@ service<grpc:Listener> Chat bind ep {
         int i = 0;
         while (i < len) {
             con = check <grpc:Service>consMap[conKeys[i]];
-            error? err = con -> send(msg);
-            io:println(err.message but {() => ""});
+            error? err = con->send(msg);
+            io:println(err.message but { () => "" });
             i = i + 1;
         }
     }
 
-    onError (endpoint client, grpc:ServerError err) {
+    onError(endpoint client, grpc:ServerError err) {
         if (err != ()) {
             io:println("Something unexpected happens at server : " + err.message);
         }
     }
 
-    onComplete (endpoint client) {
+    onComplete(endpoint client) {
         endpoint grpc:Service con;
         string msg = string `{{client.id}} left the chat`;
         io:println(msg);
@@ -50,8 +50,8 @@ service<grpc:Listener> Chat bind ep {
         int i = 0;
         while (i < len) {
             con = check <grpc:Service>consMap[conKeys[i]];
-            error? err = con -> send(msg);
-            io:println(err.message but {() => ""});
+            error? err = con->send(msg);
+            io:println(err.message but { () => "" });
             i = i + 1;
         }
     }

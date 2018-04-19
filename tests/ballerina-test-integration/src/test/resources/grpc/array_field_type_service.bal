@@ -24,106 +24,106 @@ endpoint grpc:Listener ep {
 @grpc:serviceConfig
 service HelloWorld bind ep {
 
-    testIntArrayInput (endpoint caller, TestInt req) {
+    testIntArrayInput(endpoint caller, TestInt req) {
         io:println(req);
-        int [] numbers = req.values;
+        int[] numbers = req.values;
         int result;
         foreach number in numbers {
             result = result + number;
         }
-        error? err = caller -> send(result);
-        io:println(err.message but {() => ("Result: " + result)});
-        _ = caller -> complete();
+        error? err = caller->send(result);
+        io:println(err.message but { () => ("Result: " + result) });
+        _ = caller->complete();
     }
 
-    testStringArrayInput (endpoint caller, TestString req) {
+    testStringArrayInput(endpoint caller, TestString req) {
         io:println(req);
         string[] values = req.values;
         string result;
         foreach value in values {
             result = result + "," + value;
         }
-        error? err = caller -> send(result);
-        io:println(err.message but {() => ("Result: " + result)});
-        _ = caller -> complete();
+        error? err = caller->send(result);
+        io:println(err.message but { () => ("Result: " + result) });
+        _ = caller->complete();
     }
 
-    testFloatArrayInput (endpoint caller, TestFloat req) {
+    testFloatArrayInput(endpoint caller, TestFloat req) {
         io:println(req);
         float[] values = req.values;
         float result;
         foreach value in values {
             result = result + value;
         }
-        error? err = caller -> send(result);
-        io:println(err.message but {() => ("Result: " + result)});
-        _ = caller -> complete();
+        error? err = caller->send(result);
+        io:println(err.message but { () => ("Result: " + result) });
+        _ = caller->complete();
     }
 
-    testBooleanArrayInput (endpoint caller, TestBoolean req) {
+    testBooleanArrayInput(endpoint caller, TestBoolean req) {
         io:println(req);
         boolean[] values = req.values;
         boolean result;
         foreach value in values {
             result = result || value;
         }
-        error? err = caller -> send(result);
-        io:println(err.message but {() => ("Result: " + result)});
-        _ = caller -> complete();
+        error? err = caller->send(result);
+        io:println(err.message but { () => ("Result: " + result) });
+        _ = caller->complete();
     }
 
-    testStructArrayInput (endpoint caller, TestStruct req) {
+    testStructArrayInput(endpoint caller, TestStruct req) {
         io:println(req);
         A[] values = req.values;
         string result;
         foreach value in values {
             result = result + "," + value.name;
         }
-        error? err = caller -> send(result);
-        io:println(err.message but {() => ("Result: " + result)});
-        _ = caller -> complete();
+        error? err = caller->send(result);
+        io:println(err.message but { () => ("Result: " + result) });
+        _ = caller->complete();
     }
 
-    testIntArrayOutput (endpoint caller) {
-        TestInt intArray = {values:[1,2,3,4,5]};
-        error? err = caller -> send(intArray);
-        io:println(err.message but {() => ("Response: ")});
+    testIntArrayOutput(endpoint caller) {
+        TestInt intArray = {values:[1, 2, 3, 4, 5]};
+        error? err = caller->send(intArray);
+        io:println(err.message but { () => ("Response: ") });
         io:println(intArray);
-        _ = caller -> complete();
+        _ = caller->complete();
     }
 
-    testStringArrayOutput (endpoint caller) {
+    testStringArrayOutput(endpoint caller) {
         TestString stringArray = {values:["A", "B", "C"]};
-        error? err = caller -> send(stringArray);
-        io:println(err.message but {() => ("Response: ")});
+        error? err = caller->send(stringArray);
+        io:println(err.message but { () => ("Response: ") });
         io:println(stringArray);
-        _ = caller -> complete();
+        _ = caller->complete();
     }
 
-    testFloatArrayOutput (endpoint caller) {
+    testFloatArrayOutput(endpoint caller) {
         TestFloat floatArray = {values:[1.1, 1.2, 1.3, 1.4, 1.5]};
-        error? err = caller -> send(floatArray);
-        io:println(err.message but {() => ("Response: ")});
+        error? err = caller->send(floatArray);
+        io:println(err.message but { () => ("Response: ") });
         io:println(floatArray);
-        _ = caller -> complete();
+        _ = caller->complete();
     }
 
-    testBooleanArrayOutput (endpoint caller) {
+    testBooleanArrayOutput(endpoint caller) {
         TestBoolean booleanArray = {values:[true, false, true]};
-        error? err = caller -> send(booleanArray);
-        io:println(err.message but {() => ("Response: ")});
+        error? err = caller->send(booleanArray);
+        io:println(err.message but { () => ("Response: ") });
         io:println(booleanArray);
-        _ = caller -> complete();
+        _ = caller->complete();
     }
 
-    testStructArrayOutput (endpoint caller) {
-        A a1 = {name: "Sam"};
-        A a2 = {name: "John"};
+    testStructArrayOutput(endpoint caller) {
+        A a1 = {name:"Sam"};
+        A a2 = {name:"John"};
         TestStruct structArray = {values:[a1, a2]};
-        error? err = caller -> send(structArray);
-        io:println(err.message but {() => ("Response: ")});
+        error? err = caller->send(structArray);
+        io:println(err.message but { () => ("Response: ") });
         io:println(structArray);
-        _ = caller -> complete();
+        _ = caller->complete();
     }
 }
 
