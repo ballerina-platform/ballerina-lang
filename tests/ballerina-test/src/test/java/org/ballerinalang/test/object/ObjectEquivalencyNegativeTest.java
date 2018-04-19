@@ -27,38 +27,36 @@ import org.testng.annotations.Test;
  */
 public class ObjectEquivalencyNegativeTest {
 
-    @Test(description = "Test equivalence of structs that are in the same package", enabled = false)
+    @Test(description = "Test equivalence of structs that are in the same package")
     public void testEquivalenceOfStructsInSamePackage() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct-equivalency-01-negative.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object-equivalency-01-negative.bal");
 
         BAssertUtil.validateError(compileResult, 0,
-                "unsafe cast from 'employee01' to 'person01', use multi-return cast expression", 17, 18);
+                "incompatible types: expected 'person01', found 'person01|error'", 22, 18);
         BAssertUtil.validateError(compileResult, 1,
-                "unsafe cast from 'employee02' to 'person02', use multi-return cast expression", 36, 18);
+                "incompatible types: expected 'person02', found 'person02|error'", 46, 18);
         BAssertUtil.validateError(compileResult, 2,
-                "unsafe cast from 'employee03' to 'person03', use multi-return cast expression", 54, 18);
+                "incompatible types: expected 'person03', found 'person03|error'", 69, 18);
         BAssertUtil.validateError(compileResult, 3,
-                "unsafe cast from 'employee04' to 'person04', use multi-return cast expression", 76, 18);
+                "incompatible types: expected 'person04', found 'person04|error'", 97, 18);
         BAssertUtil.validateError(compileResult, 4,
-                "unsafe cast from 'employee05' to 'person05', use multi-return cast expression", 100, 18);
+                "incompatible types: expected 'person05', found 'person05|error'", 128, 18);
         BAssertUtil.validateError(compileResult, 5,
-                "unsafe cast from 'employee06' to 'person06', use multi-return cast expression", 122, 18);
+                "incompatible types: expected 'person06', found 'person06|error'", 155, 18);
         BAssertUtil.validateError(compileResult, 6,
-                "unsafe cast from 'employee07' to 'person07', use multi-return cast expression", 166, 18);
+                "incompatible types: expected 'person07', found 'person07|error'", 214, 18);
         BAssertUtil.validateError(compileResult, 7,
-                "unsafe cast from 'employee08' to 'person08', use multi-return cast expression", 214, 18);
+                "incompatible types: expected 'person08', found 'person08|error'", 280, 18);
         BAssertUtil.validateError(compileResult, 8,
-                "unsafe cast from 'employee09' to 'person09', use multi-return cast expression", 262, 18);
+                "incompatible types: expected 'person09', found 'person09|error'", 346, 18);
     }
 
-    @Test(description = "Test equivalence of structs that are in the same package from a third package",
-            enabled = false)
+    @Test(description = "Test equivalence of structs that are in the same package from a third package")
     public void testEquivalenceOfStructsInSamePackageFromDifferentPackage() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct-equivalency-02-negative.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object-equivalency-02-negative.bal");
 
         BAssertUtil.validateError(compileResult, 0,
-                "unsafe cast from 'org.foo.bar:userBar' to 'org.foo:userFoo', " +
-                        "use multi-return cast expression", 11, 23);
+                "incompatible types: expected 'org.foo:user', found 'org.foo:userFoo|error'", 11, 23);
 
     }
 }
