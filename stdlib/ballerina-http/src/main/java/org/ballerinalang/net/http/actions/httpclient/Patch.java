@@ -27,8 +27,6 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.observability.ObservabilityUtils;
-import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -71,11 +69,7 @@ public class Patch extends AbstractHTTPAction {
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         HTTPCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_PATCH);
-
-        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
-        HttpUtil.injectHeaders(outboundRequestMsg, ObservabilityUtils.getContextProperties(observerContext));
-        observerContext.addTags(HttpUtil.extractTags(outboundRequestMsg));
-
+        HttpUtil.checkAndObserveHttpRequest(context, outboundRequestMsg);
         return outboundRequestMsg;
     }
 
