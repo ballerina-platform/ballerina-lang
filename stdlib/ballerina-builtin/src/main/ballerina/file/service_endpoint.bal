@@ -21,52 +21,37 @@ package ballerina.file;
 /////////////////////////
 public type Listener object {
     private {
-        Connection conn;
         ListenerEndpointConfiguration config;
     }
 
     @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
     @Param {value:"config: The ServiceEndpointConfiguration of the endpoint"}
     @Return {value:"Error occured during initialization"}
-    public function init(ListenerEndpointConfiguration config);
+    public function init(ListenerEndpointConfiguration config) {
+        self.config = config;
+        check self.initEndpoint();
+    }
 
     @Description {value:"Gets called when the endpoint is being initialized during the package initialization time"}
     @Return {value:"Error occured during initialization"}
-    public native function initEndpoint () returns (error);
+    native function initEndpoint() returns error?;
 
     @Description {value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
     @Param {value:"ep: The endpoint to which the service should be registered to"}
     @Param {value:"serviceType: The type of the service to be registered"}
-    public native function register (typedesc serviceType);
+    public native function register(typedesc serviceType);
 
     @Description {value:"Starts the registered service"}
-    public native function start ();
-
-    @Description {value:"Returns the connector that client code uses"}
-    @Return {value:"The connector that client code uses"}
-    public native function getClient () returns (Connection);
+    public native function start();
 
     @Description {value:"Stops the registered service"}
-    public native function stop ();
+    public native function stop();
 };
-
-@Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
-@Param {value:"config: The ServiceEndpointConfiguration of the endpoint"}
-@Return {value:"Error occured during initialization"}
-public function Listener::init (ListenerEndpointConfiguration config) {
-    self.config = config;
-    var err = self.initEndpoint();
-    if (err != null) {
-        throw err;
-    }
-}
 
 @Description {value:"Configuration for local file system service endpoint"}
 @Field {value:"path: Listener directory path"}
-@Field {value: "recursive: Recursively monitor all folders in the given folder path"}
+@Field {value:"recursive: Recursively monitor all sub folders in the given folder path"}
 public type ListenerEndpointConfiguration {
     @readonly string path,
     @readonly boolean recursive,
 };
-
-public type Connection {};

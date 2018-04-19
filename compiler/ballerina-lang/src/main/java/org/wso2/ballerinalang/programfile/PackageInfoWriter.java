@@ -529,10 +529,15 @@ public class PackageInfoWriter {
             throws IOException {
         dataOutStream.writeInt(defaultValueInfo.typeDescCPIndex);
         String typeDesc = defaultValueInfo.desc;
-        if (TypeDescriptor.SIG_BOOLEAN.equals(typeDesc)) {
-            dataOutStream.writeBoolean(defaultValueInfo.booleanValue);
-        } else {
-            dataOutStream.writeInt(defaultValueInfo.valueCPIndex);
+        switch (typeDesc) {
+            case TypeDescriptor.SIG_BOOLEAN:
+                dataOutStream.writeBoolean(defaultValueInfo.booleanValue);
+                break;
+            case TypeDescriptor.SIG_NULL:
+                // write nothing
+                break;
+            default:
+                dataOutStream.writeInt(defaultValueInfo.valueCPIndex);
         }
     }
 }

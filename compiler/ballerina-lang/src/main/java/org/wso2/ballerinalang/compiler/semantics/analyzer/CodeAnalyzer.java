@@ -260,6 +260,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.visitInvocable(funcNode, funcEnv);
         this.returnWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
+
+        funcNode.defaultableParams.forEach(param -> {
+            if (param.getVariable().expr.getKind() != NodeKind.LITERAL) {
+                this.dlog.error(param.getVariable().expr.pos, DiagnosticCode.INVALID_DEFAULT_PARAM_VALUE,
+                        param.getVariable().name);
+            }
+        });
     }
 
     private void visitInvocable(BLangInvokableNode invNode, SymbolEnv invokableEnv) {

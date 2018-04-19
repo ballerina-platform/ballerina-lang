@@ -23,11 +23,3 @@ public type FileEvent {
     string name,
     string operation,
 };
-
-@Description {value:"Represents an error which will occur while DirectoryListener operations"}
-@Field {value:"message:  An error message explaining about the error"}
-@Field {value:"cause: The error(s) that caused FSError to get thrown"}
-public type FSError {
-    string message,
-    error? cause,
-};

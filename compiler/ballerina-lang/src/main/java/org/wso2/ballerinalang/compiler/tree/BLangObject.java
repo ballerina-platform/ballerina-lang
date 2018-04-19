@@ -86,6 +86,11 @@ public class BLangObject extends BLangNode implements ObjectNode {
     }
 
     @Override
+    public FunctionNode getInitFunction() {
+        return initFunction;
+    }
+
+    @Override
     public Set<Flag> getFlags() {
         return flagSet;
     }

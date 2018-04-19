@@ -61,7 +61,7 @@ public class MatchExpressionTest {
         Assert.assertEquals(results[0].stringValue(), "value4");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMatchExprWithMismatchingTypes() {
         BValue[] results = BRunUtil.invoke(compileResult, "testMatchExpr", new BValue[] { new BBoolean(true) });
         Assert.assertEquals(results[0].stringValue(), "value4");
