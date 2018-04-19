@@ -16,7 +16,7 @@ public function mockPrint (any s) {
 @test:Config
 function testFunc() {
     // Invoking the main function.
-    main([]);
+    main();
     xml xml1 = xml `<book>The Lost World</book>`;
     xml xml2 = xml `Hello, world!`;
     xml xml3 = xml `<!--I am a comment-->`;
