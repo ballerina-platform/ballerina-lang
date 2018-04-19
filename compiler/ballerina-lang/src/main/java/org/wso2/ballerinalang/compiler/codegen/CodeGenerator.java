@@ -197,6 +197,7 @@ import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.ParameterAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
@@ -1956,7 +1957,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.addWorkerInfoEntries(funcInfo, funcNode.getWorkers());
 
         // Add parameter default value info
-        addParameterDefaultValues(funcNode, funcInfo);
+        addParameterAttributeInfo(funcNode, funcInfo);
 
         this.currentPkgInfo.functionInfoMap.put(funcSymbol.name.value, funcInfo);
     }
@@ -1979,7 +1980,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.addWorkerInfoEntries(transformerInfo, invokable.getWorkers());
 
         // Add parameter default value info
-        addParameterDefaultValues(invokable, transformerInfo);
+        addParameterAttributeInfo(invokable, transformerInfo);
         this.currentPkgInfo.transformerInfoMap.put(transformerSymbol.name.value, transformerInfo);
     }
 
@@ -3224,6 +3225,21 @@ public class CodeGenerator extends BLangNodeVisitor {
         return getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
     }
 
+    private void addParameterAttributeInfo(BLangInvokableNode invokableNode, CallableUnitInfo callableUnitInfo) {
+        // Add required params, defaultable params and rest params counts
+        int paramAttrIndex =
+                addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.PARAMETERS_ATTRIBUTE.value());
+        ParameterAttributeInfo paramAttrInfo =
+                new ParameterAttributeInfo(paramAttrIndex);
+        paramAttrInfo.requiredParamsCount = invokableNode.requiredParams.size();
+        paramAttrInfo.defaultableParamsCount = invokableNode.defaultableParams.size();
+        paramAttrInfo.restParamCount = invokableNode.restParam != null ? 1 : 0;
+        callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.PARAMETERS_ATTRIBUTE, paramAttrInfo);
+        
+        // Add parameter default values
+        addParameterDefaultValues(invokableNode, callableUnitInfo);
+    }
+    
     private void addParameterDefaultValues(BLangInvokableNode invokableNode, CallableUnitInfo callableUnitInfo) {
         int paramDefaultsAttrNameIndex =
                 addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE.value());
