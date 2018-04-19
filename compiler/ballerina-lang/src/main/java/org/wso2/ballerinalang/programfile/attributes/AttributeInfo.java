@@ -41,6 +41,7 @@ public interface AttributeInfo {
         ERROR_TABLE("ErrorTable"),
         LINE_NUMBER_TABLE_ATTRIBUTE("LineNumberTable"),
         DEFAULT_VALUE_ATTRIBUTE("DefaultValue"),
+        PARAMETERS_ATTRIBUTE("Parameters"),
         TAINT_TABLE("TaintTable");
 
         private String value;
