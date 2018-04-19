@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.os;
+package org.ballerinalang.nativeimpl.system;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -25,12 +25,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.os:getEnv.
+ * Native function ballerina.system:getEnv.
  *
  * @since 0.94.1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "os",
+        orgName = "ballerina", packageName = "system",
         functionName = "getEnv",
         args = {@Argument(name = "name", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

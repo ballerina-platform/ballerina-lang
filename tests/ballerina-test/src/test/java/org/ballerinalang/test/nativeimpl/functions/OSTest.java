@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test class for os package.
+ * Test class for system package.
  */
 public class OSTest {
 

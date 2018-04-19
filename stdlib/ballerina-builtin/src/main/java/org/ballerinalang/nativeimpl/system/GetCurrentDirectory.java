@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.os;
+package org.ballerinalang.nativeimpl.system;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -23,12 +23,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.BuiltInUtils;
 
 /**
- * Native function ballerina.os:getCurrentDirectory.
+ * Native function ballerina.system:getCurrentDirectory.
  *
  * @since 0.94.1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "os",
+        orgName = "ballerina", packageName = "system",
         functionName = "getCurrentDirectory",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
