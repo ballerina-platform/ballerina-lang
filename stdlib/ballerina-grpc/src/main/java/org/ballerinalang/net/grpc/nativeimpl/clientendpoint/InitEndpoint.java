@@ -37,12 +37,15 @@ import org.ballerinalang.net.grpc.EndpointConstants;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,20 +83,26 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             // Creating client endpoint with channel as native data.
             Struct endpointConfig = clientEndpoint.getStructField(EndpointConstants.ENDPOINT_CONFIG);
-            SenderConfiguration configuration = populateSenderConfigurationOptions(endpointConfig);
-            String host = context.getStringArgument(GrpcConstants.CLIENT_ENDPOINT_HOST_INDEX);
-            long port = context.getIntArgument(GrpcConstants.CLIENT_ENDPOINT_PORT_INDEX);
+            String urlString = endpointConfig.getStringField(GrpcConstants.CLIENT_ENDPOINT_URL);
+            String scheme;
+            URL url;
+            try {
+                url = new URL(urlString);
+            } catch (MalformedURLException e) {
+                throw new BallerinaException("Malformed URL: " + urlString);
+            }
+            scheme = url.getProtocol();
+            SenderConfiguration configuration = populateSenderConfigurationOptions(endpointConfig, scheme);
             ManagedChannel channel;
             if (configuration.getSSLConfig() == null) {
-                channel = ManagedChannelBuilder.forAddress(host, Integer.parseInt(Long.toString(port)))
+                channel = ManagedChannelBuilder.forAddress(url.getHost(), url.getPort())
                         .usePlaintext(true)
                         .build();
             } else {
                 SslContext sslContext = new SSLHandlerFactory(configuration.getSSLConfig())
                         .createHttp2TLSContextForClient();
                 channel = NettyChannelBuilder
-                        .forAddress(generateSocketAddress(host, Integer
-                                .parseInt(Long.toString(port))))
+                        .forAddress(generateSocketAddress(url.getHost(), url.getPort()))
                         .flowControlWindow(65 * 1024)
                         .maxInboundMessageSize(MAX_MESSAGE_SIZE)
                         .sslContext(sslContext).build();
@@ -120,16 +129,10 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         }
     }
     
-    private SenderConfiguration populateSenderConfigurationOptions(Struct clientEndpointConfig) {
+    private SenderConfiguration populateSenderConfigurationOptions(Struct clientEndpointConfig, String scheme) {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
-        ProxyServerConfiguration proxyServerConfiguration = null;
-        
-        Struct secureSocket = null;
-        Value[] targetServices = clientEndpointConfig.getArrayField(GrpcConstants.TARGET_SERVICES);
-        
-        for (Value targetService : targetServices) {
-            secureSocket = targetService.getStructValue().getStructField(GrpcConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
-            
+        senderConfiguration.setScheme(scheme);
+        Struct secureSocket = clientEndpointConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
             if (secureSocket != null) {
                 Struct trustStore = secureSocket.getStructField(GrpcConstants.ENDPOINT_CONFIG_TRUST_STORE);
                 Struct keyStore = secureSocket.getStructField(GrpcConstants.ENDPOINT_CONFIG_KEY_STORE);
@@ -208,7 +211,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                     senderConfiguration.setParameters(clientParams);
                 }
             }
-        }
+        
 //        Struct proxy = clientEndpointConfig.getStructField(GrpcConstants.PROXY_STRUCT_REFERENCE);
 //        if (proxy != null) {
 //            String proxyHost = proxy.getStringField(GrpcConstants.PROXY_HOST);

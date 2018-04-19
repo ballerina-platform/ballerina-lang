@@ -183,7 +183,6 @@ public class GrpcConstants {
     public static final String PROXY_PASSWORD = "password";
     public static final String CLIENT_EP_HTTP_VERSION = "httpVersion";
     
-    public static final int CLIENT_ENDPOINT_HOST_INDEX = 0;
-    public static final int CLIENT_ENDPOINT_PORT_INDEX = 0;
+    public static final String CLIENT_ENDPOINT_URL = "url";
     
 }

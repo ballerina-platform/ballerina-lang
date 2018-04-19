@@ -64,22 +64,11 @@ public type Client object {
 documentation {
     Represents the gRPC client endpoint configuration
 
-    F{{targets}} - The SSL configurations for the client endpoint.
-}
-public type ClientEndpointConfig {
-    TargetService[] targets,
-};
-
-documentation {
-    Represents the gRPC client endpoint configuration
-
-    F{{host}} - The server hostname.
-    F{{port}} - The server port.
+    F{{url}} - The server url.
     F{{secureSocket}} - The SSL configurations for the client endpoint.
 }
-public type TargetService {
-    string host,
-    int port,
+public type ClientEndpointConfig {
+    string url,
     SecureSocket? secureSocket,
 };
 
