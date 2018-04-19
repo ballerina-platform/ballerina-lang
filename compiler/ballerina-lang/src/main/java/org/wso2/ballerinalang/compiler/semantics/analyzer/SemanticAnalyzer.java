@@ -443,8 +443,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
             } else {
-                if (!(attributeSymbol.tag == SymTag.VARIABLE) || ((BVarSymbol) attributeSymbol).docTag != attribute
-                        .docTag) {
+                if (!(attributeSymbol.tag == SymTag.VARIABLE || attributeSymbol.tag == SymTag.ENDPOINT) || (
+                        (BVarSymbol) attributeSymbol).docTag != attribute.docTag) {
                     this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE, attribute
                             .documentationField, attribute.docTag.getValue());
                     continue;

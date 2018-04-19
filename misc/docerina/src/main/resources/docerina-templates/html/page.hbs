@@ -107,6 +107,22 @@
       <div class="row cBallerina-io-Gray-row">
          <div class="container">
             <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 cBallerina-io-Home-Left-col">
+                 <div class="cBlallerina-io-docs-right-nav-container">
+                  <div class="cLectColStyle cLeftColTop">
+                      <div class="cBallerina-io-docs-Title cBallerina-io-x">BALLERINA X</div>
+                        <div class="cCollaps-Menu-first">
+                            {{#each primitives}}
+                                <ul class="">
+                                    <li>
+                                        <a href="{{href}}">
+                                            <span class="bold">{{caption.value}}</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            {{/each}}
+                        </div>
+                  </div>
+                </div>
                 <div class="cBlallerina-io-docs-right-nav-container">
                   <div class="cLectColStyle cLeftColTop">
                       <div class="cBallerina-io-docs-Title cBallerina-io-primitive-types">PRIMITIVE TYPES</div>
@@ -317,14 +333,14 @@
                                                    <tr>
                                                       <th class="cAPI-table-name">Parameter Name</th>
                                                       <th class="cAPI-table-type">Data Type</th>
-                                                      <th class="cAPI-table-defult"></th>
+                                                      <th class="cAPI-table-default">Default Value</th>
                                                       <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each parameters}}
                                                    <tr>
                                                       <td class="cAPI-table-name">{{name}}</td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
-                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-default"></td>
                                                       <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}
@@ -335,14 +351,14 @@
                                                    <tr>
                                                       <th class="cAPI-table-name"></th>
                                                       <th class="cAPI-table-type">Return Type</th>
-                                                      <th class="cAPI-table-defult"></th>
+                                                      <th class="cAPI-table-default"></th>
                                                       <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each returnParams}}
                                                    <tr>
                                                       <td class="cAPI-table-name"></td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
-                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-default"></td>
                                                       <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}
@@ -368,14 +384,14 @@
                                           <tr>
                                              <th class="cAPI-table-name">Parameter Name</th>
                                              <th class="cAPI-table-type">Data Type</th>
-                                             <th class="cAPI-table-defult"></th>
+                                             <th class="cAPI-table-default">Default Value</th>
                                              <th class="cAPI-table-desc">Description</th>
                                           </tr>
                                           {{#each parameters}}
                                           <tr>
                                              <td class="cAPI-table-name">{{name}}</td>
                                              <td class="cAPI-table-type">{{dataType}}</td>
-                                             <td class="cAPI-table-defult"></td>
+                                             <td class="cAPI-table-default"></td>
                                              <td class="cAPI-table-desc">{{{description}}}</td>
                                           </tr>
                                           {{/each}}
@@ -386,14 +402,14 @@
                                           <tr>
                                              <th class="cAPI-table-name"></th>
                                              <th class="cAPI-table-type">Return Type</th>
-                                             <th class="cAPI-table-defult"></th>
+                                             <th class="cAPI-table-default"></th>
                                              <th class="cAPI-table-desc">Description</th>
                                           </tr>
                                           {{#each returnParams}}
                                           <tr>
                                              <td class="cAPI-table-name"></td>
                                              <td class="cAPI-table-type">{{dataType}} </td>
-                                             <td class="cAPI-table-defult"></td>
+                                             <td class="cAPI-table-default"></td>
                                              <td class="cAPI-table-desc">{{{description}}}</td>
                                           </tr>
                                           {{/each}}
@@ -414,7 +430,7 @@
                                           <tr>
                                              <th class="cAPI-table-name">Field Name</th>
                                              <th class="cAPI-table-type">Data Type</th>
-                                             <th class="cAPI-table-defult">Default Value</th>
+                                             <th class="cAPI-table-default">Default Value</th>
                                              <th class="cAPI-table-desc">Description</th>
                                              
                                           </tr>
@@ -422,7 +438,7 @@
                                           <tr>
                                              <td class="cAPI-table-name">{{name}}</td>
                                              <td class="cAPI-table-type">{{dataType}}</td>
-                                             <td class="cAPI-table-defult">{{defaultValue}}</td>
+                                             <td class="cAPI-table-default">{{defaultValue}}</td>
                                              <td class="cAPI-table-desc">{{{description}}}</td>
                                             
                                           </tr>
@@ -447,14 +463,14 @@
                                                    <tr>
                                                       <th class="cAPI-table-name">Parameter Name</th>
                                                       <th class="cAPI-table-type">Data Type</th>
-                                                      <th class="cAPI-table-defult"></th>
+                                                      <th class="cAPI-table-default">Default Value</th>
                                                       <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each parameters}}
                                                    <tr>
                                                       <td class="cAPI-table-name">{{name}}</td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
-                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-default"></td>
                                                       <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}
@@ -465,14 +481,14 @@
                                                    <tr>
                                                       <th class="cAPI-table-name"></th>
                                                       <th class="cAPI-table-type">Return Type</th>
-                                                      <th class="cAPI-table-defult"></th>
+                                                      <th class="cAPI-table-default"></th>
                                                       <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each returnParams}}
                                                    <tr>
                                                       <td class="cAPI-table-name"></td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
-                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-default"></td>
                                                       <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}
@@ -498,14 +514,14 @@
                                           <tr>
                                              <th class="cAPI-table-name">Parameter Name</th>
                                              <th class="cAPI-table-type">Data Type</th>
-                                             <th class="cAPI-table-defult">Default Value</th>
+                                             <th class="cAPI-table-default">Default Value</th>
                                              <th class="cAPI-table-desc">Description</th>
                                           </tr>
                                           {{#each fields}}
                                           <tr>
                                              <td class="cAPI-table-name">{{name}}</td>
                                              <td class="cAPI-table-type">{{dataType}}</td>
-                                              <td class="cAPI-table-defult">{{defaultValue}}</td>
+                                              <td class="cAPI-table-default">{{defaultValue}}</td>
                                              <td class="cAPI-table-desc">{{{description}}}</td>
                                           </tr>
                                           {{/each}}
@@ -532,14 +548,14 @@
                                                    <tr>
                                                       <th class="cAPI-table-name">Parameter Name</th>
                                                       <th class="cAPI-table-type">Data Type</th>
-                                                      <th class="cAPI-table-defult"></th>
+                                                      <th class="cAPI-table-default">Default Value</th>
                                                       <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each parameters}}
                                                    <tr>
                                                       <td class="cAPI-table-name">{{name}}</td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
-                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-default"></td>
                                                       <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}
@@ -550,14 +566,14 @@
                                                    <tr>
                                                       <th class="cAPI-table-name"></th>
                                                       <th class="cAPI-table-type">Return Type</th>
-                                                      <th class="cAPI-table-defult"></th>
+                                                      <th class="cAPI-table-default"></th>
                                                       <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each returnParams}}
                                                    <tr>
                                                       <td class="cAPI-table-name"></td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
-                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-default"></td>
                                                       <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}
@@ -583,14 +599,14 @@
                                           <tr>
                                              <th class="cAPI-table-name">Field Name</th>
                                              <th class="cAPI-table-type">Data Type</th>
-                                             <th class="cAPI-table-defult">Default Value</th>
+                                             <th class="cAPI-table-default">Default Value</th>
                                              <th class="cAPI-table-desc">Description</th>
                                           </tr>
                                           {{#each fields}}
                                           <tr>
                                              <td class="cAPI-table-name">{{name}}</td>
                                              <td class="cAPI-table-type">{{dataType}}</td>
-                                             <td class="cAPI-table-defult">{{defaultValue}}</td>
+                                             <td class="cAPI-table-default">{{defaultValue}}</td>
                                              <td class="cAPI-table-desc">{{{description}}}</td>
                                           </tr>
                                           {{/each}}
@@ -616,14 +632,14 @@
                                                    <tr>
                                                       <th class="cAPI-table-name">Parameter Name</th>
                                                       <th class="cAPI-table-type">Data Type</th>
-                                                      <th class="cAPI-table-type"></th>
+                                                      <th class="cAPI-table-default">Default Value</th>
                                                       <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each parameters}}
                                                    <tr>
                                                       <td class="cAPI-table-name">{{name}}</td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
-                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-default"></td>
                                                       <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}
@@ -634,14 +650,14 @@
                                                    <tr>
                                                       <th class="cAPI-table-name"></th>
                                                       <th class="cAPI-table-type">Return Type</th>
-                                                      <th class="cAPI-table-defult"></th>
+                                                      <th class="cAPI-table-default"></th>
                                                       <th class="cAPI-table-desc">Description</th>
                                                    </tr>
                                                    {{#each returnParams}}
                                                    <tr>
                                                       <td class="cAPI-table-name"></td>
                                                       <td class="cAPI-table-type">{{dataType}}</td>
-                                                      <td class="cAPI-table-defult"></td>
+                                                      <td class="cAPI-table-default"></td>
                                                       <td class="cAPI-table-desc">{{{description}}}</td>
                                                    </tr>
                                                    {{/each}}

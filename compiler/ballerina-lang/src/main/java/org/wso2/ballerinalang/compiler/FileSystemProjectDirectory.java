@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -52,8 +53,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
 
     @Override
     public boolean canHandle(Path dirPath) {
-        Path absDotBallerinaDirPath = dirPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
-        return Files.exists(absDotBallerinaDirPath, LinkOption.NOFOLLOW_LINKS);
+        return RepoUtils.hasProjectRepo(dirPath);
     }
 
     @Override

@@ -9,6 +9,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Comparator;
 import java.util.stream.Stream;
 
 /**
@@ -33,10 +34,16 @@ public class PathConverter implements Converter<Path> {
     }
 
     @Override
-    public Stream<Path> expand(Path path) {
+    public Stream<Path> latest(Path path) {
         if (Files.isDirectory(path)) {
             try {
-                return Files.list(path);
+                return Files.list(path)
+                            .map(SortablePath::new)
+                            .filter(SortablePath::valid)
+                            .sorted(Comparator.reverseOrder())
+                            .limit(1)
+                            .map(SortablePath::getPath);
+
             } catch (IOException ignore) {
             }
         }

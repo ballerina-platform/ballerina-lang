@@ -30,7 +30,7 @@ function testLocalTransacton() returns (int, int) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
 
     int returnVal = 0;
@@ -46,13 +46,13 @@ function testLocalTransacton() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 200", ResultCount);
+    var temp = testDB->select("Select COUNT(*) as countval from CustomersTrx where registrationID = 200", ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return (returnVal, count);
 }
 
@@ -66,8 +66,8 @@ function testTransactonRollback() returns (int, int) {
     int returnVal = 0;
     int count;
 
-    var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
-    var temp1 = testDB -> mirror("CustomersTrx2", CustomersTrx2);
+    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+    var temp1 = testDB->mirror("CustomersTrx2", CustomersTrx2);
 
     table dt0 = check temp0;
     table dt1 = check temp1;
@@ -86,14 +86,14 @@ function testTransactonRollback() returns (int, int) {
 
 
     //check whether update action is performed
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 295", ResultCount);
+    var temp = testDB->select("Select COUNT(*) as countval from CustomersTrx where registrationID = 295", ResultCount);
 
     table dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return (returnVal, count);
 }
 
@@ -107,7 +107,7 @@ function testTransactonAbort() returns (int, int) {
     int returnVal = -1;
     int count;
 
-    var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
 
     transaction {
@@ -126,14 +126,14 @@ function testTransactonAbort() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 220", ResultCount);
+    var temp = testDB->select("Select COUNT(*) as countval from CustomersTrx where registrationID = 220", ResultCount);
     table dt = check temp;
 
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return (returnVal, count);
 }
 
@@ -147,7 +147,7 @@ function testTransactonErrorThrow() returns (int, int, int) {
     int returnVal = 0;
     int catchValue = 0;
     int count;
-    var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
 
     try {
@@ -167,13 +167,13 @@ function testTransactonErrorThrow() returns (int, int, int) {
         catchValue = -1;
     }
     //check whether update action is performed
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 260", ResultCount);
+    var temp = testDB->select("Select COUNT(*) as countval from CustomersTrx where registrationID = 260", ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return (returnVal, catchValue, count);
 }
 
@@ -187,7 +187,7 @@ function testTransactionErrorThrowAndCatch() returns (int, int, int) {
     int returnVal = 0;
     int catchValue = 0;
     int count;
-    var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
 
     transaction {
@@ -207,14 +207,14 @@ function testTransactionErrorThrowAndCatch() returns (int, int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 250", ResultCount);
+    var temp = testDB->select("Select COUNT(*) as countval from CustomersTrx where registrationID = 250", ResultCount);
     table dt = check temp;
 
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return (returnVal, catchValue, count);
 }
 
@@ -227,7 +227,7 @@ function testTransactonCommitted() returns (int, int) {
 
     int returnVal = 1;
     int count;
-    var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
 
     table dt0 = check temp0;
     transaction {
@@ -241,13 +241,13 @@ function testTransactonCommitted() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 300", ResultCount);
+    var temp = testDB->select("Select COUNT(*) as countval from CustomersTrx where registrationID = 300", ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return (returnVal, count);
 }
 
@@ -261,7 +261,7 @@ function testTwoTransactons() returns (int, int, int) {
     int returnVal1 = 1;
     int returnVal2 = 1;
     int count;
-    var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
     transaction {
         CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:400, creditLimit:5000.75,
@@ -285,13 +285,13 @@ function testTwoTransactons() returns (int, int, int) {
         returnVal2 = 0;
     }
     //check whether update action is performed
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 400", ResultCount);
+    var temp = testDB->select("Select COUNT(*) as countval from CustomersTrx where registrationID = 400", ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return (returnVal1, returnVal2, count);
 }
 
@@ -302,7 +302,7 @@ function testTransactonWithoutHandlers() returns (int) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
 
     transaction {
@@ -316,14 +316,14 @@ function testTransactonWithoutHandlers() returns (int) {
 
     int count;
     //check whether update action is performed
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where
+    var temp = testDB->select("Select COUNT(*) as countval from CustomersTrx where
                                       registrationID = 350", ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return count;
 }
 
@@ -336,8 +336,8 @@ function testLocalTransactionFailed() returns (string, int) {
 
     string a = "beforetx";
     int count = -1;
-    var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
-    var temp1 = testDB -> mirror("CustomersTrx2", CustomersTrx2);
+    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+    var temp1 = testDB->mirror("CustomersTrx2", CustomersTrx2);
 
     table dt0 = check temp0;
     table dt1 = check temp1;
@@ -346,7 +346,8 @@ function testLocalTransactionFailed() returns (string, int) {
             a = a + " inTrx";
             CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:111, creditLimit:5000.75,
                 country:"USA"};
-            CustomersTrx2 c2 = {customerId:1, firstName:"James", lastName:"Clerk", registrationID:111, creditLimit:5000.75,
+            CustomersTrx2 c2 = {customerId:1, firstName:"James", lastName:"Clerk", registrationID:111, creditLimit:
+            5000.75,
                 country:"USA"};
             var result1 = dt0.add(c1);
             var result2 = dt1.add(c2);
@@ -359,14 +360,14 @@ function testLocalTransactionFailed() returns (string, int) {
 
     }
     a = a + " afterTrx";
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 111", ResultCount);
+    var temp = testDB->select("Select COUNT(*) as countval from CustomersTrx where registrationID = 111", ResultCount);
     table dt = check temp;
 
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return (a, count);
 }
 
@@ -380,8 +381,8 @@ function testLocalTransactonSuccessWithFailed() returns (string, int) {
     string a = "beforetx";
     int count = -1;
     int i = 0;
-    var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
-    var temp1 = testDB -> mirror("CustomersTrx2", CustomersTrx2);
+    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+    var temp1 = testDB->mirror("CustomersTrx2", CustomersTrx2);
 
     table dt0 = check temp0;
     table dt1 = check temp1;
@@ -397,7 +398,8 @@ function testLocalTransactonSuccessWithFailed() returns (string, int) {
                 var result2 = dt0.add(c2);
 
             } else {
-                CustomersTrx2 c3 = {customerId:1, firstName:"James", lastName:"Clerk", registrationID:222, creditLimit:5000.75,
+                CustomersTrx2 c3 = {customerId:1, firstName:"James", lastName:"Clerk", registrationID:222, creditLimit:
+                5000.75,
                     country:"USA"};
                 var result3 = dt1.add(c3);
             }
@@ -409,14 +411,14 @@ function testLocalTransactonSuccessWithFailed() returns (string, int) {
         a = a + " inCatch";
     }
     a = a + " afterTrx";
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 222", ResultCount);
+    var temp = testDB->select("Select COUNT(*) as countval from CustomersTrx where registrationID = 222", ResultCount);
     table dt = check temp;
 
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return (a, count);
 }
 
@@ -435,11 +437,12 @@ function testLocalTransactonFailedWithNextupdate() returns (int) {
 
     int i = 0;
 
-    var temp1 = testDB1 -> mirror("CustomersTrx2", CustomersTrx2);
+    var temp1 = testDB1->mirror("CustomersTrx2", CustomersTrx2);
     table dt1 = check temp1;
     try {
         transaction {
-            CustomersTrx2 c1 = {customerId:1, firstName:"James", lastName:"Clerk", registrationID:1234, creditLimit:5000.75,
+            CustomersTrx2 c1 = {customerId:1, firstName:"James", lastName:"Clerk", registrationID:1234, creditLimit:
+            5000.75,
                 country:"USA"};
             var result1 = dt1.add(c1);
         }
@@ -451,16 +454,16 @@ function testLocalTransactonFailedWithNextupdate() returns (int) {
         country:"USA"};
     var result2 = dt1.add(c2);
 
-    _ = testDB1 -> close();
+    _ = testDB1->close();
 
-    var temp = testDB2 -> select("Select COUNT(*) as countval from CustomersTrx2 where registrationID = 12343",
+    var temp = testDB2->select("Select COUNT(*) as countval from CustomersTrx2 where registrationID = 12343",
         ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         i = rs.COUNTVAL;
     }
-    _ = testDB2 -> close();
+    _ = testDB2->close();
     return i;
 }
 
@@ -473,7 +476,7 @@ function testNestedTwoLevelTransactonSuccess() returns (int, int) {
 
     int returnVal = 0;
     int count;
-    var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
     transaction {
         CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:333, creditLimit:5000.75,
@@ -488,14 +491,14 @@ function testNestedTwoLevelTransactonSuccess() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 333",
+    var temp = testDB->select("Select COUNT(*) as countval from CustomersTrx where registrationID = 333",
         ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return (returnVal, count);
 }
 
@@ -508,7 +511,7 @@ function testNestedThreeLevelTransactonSuccess() returns (int, int) {
 
     int returnVal = 0;
     int count;
-    var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
+    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
     table dt0 = check temp0;
     transaction {
         CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:444, creditLimit:5000.75,
@@ -528,13 +531,13 @@ function testNestedThreeLevelTransactonSuccess() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 444", ResultCount);
+    var temp = testDB->select("Select COUNT(*) as countval from CustomersTrx where registrationID = 444", ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return (returnVal, count);
 }
 
@@ -547,8 +550,8 @@ function testNestedThreeLevelTransactonFailed() returns (int, int) {
 
     int returnVal = 0;
     int count;
-    var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
-    var temp1 = testDB -> mirror("CustomersTrx2", CustomersTrx2);
+    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+    var temp1 = testDB->mirror("CustomersTrx2", CustomersTrx2);
 
     table dt0 = check temp0;
     table dt1 = check temp1;
@@ -575,13 +578,13 @@ function testNestedThreeLevelTransactonFailed() returns (int, int) {
         // ignore.
     }
     //check whether update action is performed
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 555", ResultCount);
+    var temp = testDB->select("Select COUNT(*) as countval from CustomersTrx where registrationID = 555", ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return (returnVal, count);
 }
 
@@ -596,8 +599,8 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, in
     int index = 0;
     string a = "start";
     int count;
-    var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
-    var temp1 = testDB -> mirror("CustomersTrx2", CustomersTrx2);
+    var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
+    var temp1 = testDB->mirror("CustomersTrx2", CustomersTrx2);
 
     table dt0 = check temp0;
     table dt1 = check temp1;
@@ -638,13 +641,13 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess() returns (int, in
         // ignore.
     }
     //check whether update action is performed
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 666", ResultCount);
+    var temp = testDB->select("Select COUNT(*) as countval from CustomersTrx where registrationID = 666", ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return (returnVal, count, a);
 }
 
@@ -661,13 +664,13 @@ function testTransactionWithWorkers() returns (int) {
 
     //check whether update action is performed
     int count;
-    var temp = testDB -> select("Select COUNT(*) as countval from CustomersTrx where registrationID = 834", ResultCount);
+    var temp = testDB->select("Select COUNT(*) as countval from CustomersTrx where registrationID = 834", ResultCount);
     table dt = check temp;
     while (dt.hasNext()) {
         var rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB -> close();
+    _ = testDB->close();
     return count;
 }
 
@@ -676,14 +679,14 @@ function invokeWorkers(sql:Client testDBClient) {
 
 
     worker w1 {
-        var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
+        var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
         table dt0 = check temp0;
         CustomersTrx c1 = {firstName:"James", lastName:"Clerk", registrationID:834, creditLimit:5000.75, country:"USA"};
         var result1 = dt0.add(c1);
     }
 
     worker w2 {
-        var temp0 = testDB -> mirror("CustomersTrx", CustomersTrx);
+        var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
         table dt0 = check temp0;
         runtime:sleepCurrentWorker(5000);
         CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:834, creditLimit:5000.75, country:"USA"};
@@ -691,4 +694,3 @@ function invokeWorkers(sql:Client testDBClient) {
     }
 
 }
-

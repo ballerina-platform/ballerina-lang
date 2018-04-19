@@ -9,6 +9,9 @@ public type PushPromise object {
         string method;
     }
 
+    public new (path = "/", method = "GET") {
+    }
+
     @Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
     @Param {value:"headerName: The header name"}
     @Return {value:"The first header value for the provided header name. Returns null if the header does not exist."}
