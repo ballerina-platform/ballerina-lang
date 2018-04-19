@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.jwt.crypto;
+package org.ballerinalang.nativeimpl.internal.jwt.crypto;
 
 /**
  * A checked exception for wrapping potential exceptions thrown during JWT signature processing.
