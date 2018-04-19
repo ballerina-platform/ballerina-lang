@@ -187,7 +187,7 @@ public class TableIterationTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
+                "[{\"id\":1,\"salary\":100.0},{\"id\":2,\"salary\":200.0},{\"id\":3,\"salary\":300.0}]");
     }
 
     @Test()
@@ -196,7 +196,7 @@ public class TableIterationTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
+                "[{\"id\":1,\"salary\":100.0},{\"id\":2,\"salary\":200.0},{\"id\":3,\"salary\":300.0}]");
     }
 
     @Test()
@@ -205,7 +205,7 @@ public class TableIterationTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
+                "[{\"id\":1,\"salary\":100.0},{\"id\":2,\"salary\":200.0},{\"id\":3,\"salary\":300.0}]");
     }
 
     @Test()
@@ -214,7 +214,7 @@ public class TableIterationTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "{data: [{id:1, salary:100.0}, {id:2, salary:200.0}, {id:3, salary:300.0}]}");
+                "[{\"id\":1,\"salary\":100.0},{\"id\":2,\"salary\":200.0},{\"id\":3,\"salary\":300.0}]");
     }
 
     @AfterSuite
