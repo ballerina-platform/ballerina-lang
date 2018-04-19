@@ -260,8 +260,8 @@ public final class Constants {
     public static final String CHUNKING_CONFIG = "chunking_config";
 
     // Trace Logger related parameters
-    public static final String TRACE_LOG_UPSTREAM = "tracelog.http.upstream";
-    public static final String TRACE_LOG_DOWNSTREAM = "tracelog.http.downstream";
+    public static final String TRACE_LOG_UPSTREAM = "http.tracelog.upstream";
+    public static final String TRACE_LOG_DOWNSTREAM = "http.tracelog.downstream";
 
     public static final String LISTENER_PORT = "LISTENER_PORT";
 
