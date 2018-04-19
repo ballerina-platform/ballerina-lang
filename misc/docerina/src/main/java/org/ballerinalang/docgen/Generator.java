@@ -44,6 +44,8 @@ import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.DocumentationAttributeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -276,7 +278,12 @@ public class Generator {
     private static String extractLink(BLangType typeNode) {
         if (typeNode instanceof BLangUserDefinedType) {
             BLangUserDefinedType type = (BLangUserDefinedType) typeNode;
-            return type.pkgAlias + ".html#" + type.typeName.getValue();
+            String pkg = type.pkgAlias.getValue();
+            BTypeSymbol tsymbol = ((BLangUserDefinedType) type).type.tsymbol;
+            if (tsymbol instanceof BStructSymbol) {
+                pkg = ((BStructSymbol) tsymbol).pkgID.getName().getValue();
+            }
+            return pkg + ".html#" + type.typeName.getValue();
         } else if (typeNode instanceof BLangValueType) {
             if (((BLangValueType) typeNode).type != null && ((BLangValueType) typeNode).type.tsymbol != null) {
                 return BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF + ".html#" + typeNode.type.tsymbol.getName()
