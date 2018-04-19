@@ -25,7 +25,7 @@ function testIssueJwt (string keyStorePath) returns (string)|error {
     }
 }
 
-function testValidateJwt (string jwtToken, string trustStorePath) returns (boolean)|error {
+function testValidateJwt (string jwtToken, string trustStorePath) returns boolean|error {
     io:println(jwtToken);
     jwt:JWTValidatorConfig config = {};
     config.issuer = "wso2";
@@ -37,10 +37,7 @@ function testValidateJwt (string jwtToken, string trustStorePath) returns (boole
 
     var value = jwt:validate(jwtToken, config);
     match value {
-        (boolean, jwt:Payload) result => {
-        var (isValid, payload) = result;
-            return isValid;
-        }
+        jwt:Payload result => return true;
         error err => return err;
     }
 }
