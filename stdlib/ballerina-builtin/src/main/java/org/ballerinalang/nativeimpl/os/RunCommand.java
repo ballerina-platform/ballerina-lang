@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
     functionName = "runCommand",
     args = {
         @Argument(name = "command", type = TypeKind.STRING),
-        @Argument(name = "workspace", type = TypeKind.STRING),
+        @Argument(name = "workingDir", type = TypeKind.STRING),
         @Argument(name = "timeoutValue", type = TypeKind.INT)
     },
     returnType = {

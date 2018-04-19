@@ -40,8 +40,8 @@ public native function getArchitecture () returns (string);
 
 @Description { value:"Execute a given CMD command or a script"}
 @Param {value:"command: Command to be executed"}
-@Param {value:"workspace: Execution workspace, the command will be executed from here"}
+@Param {value:"workingDir: Execution workspace, the command will be executed from here"}
 @Param {value:"timeoutValue: Timeout value for the process to exit, if this is exceeded the process is killed"}
 @Return { value:" Returns a error if the execution is not successfull or user timeout exceeds"}
-public native function runCommand(@sensitive string command, string workspace = "", int timeoutValue = -1)
+public native function runCommand(@sensitive string command, string workingDir = "", int timeoutValue = -1)
                                                                                                     returns error|();
