@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
+import static org.ballerinalang.net.grpc.MessageConstants.COMMA;
+import static org.ballerinalang.net.grpc.MessageConstants.INPUT_TYPE_NAME;
+import static org.ballerinalang.net.grpc.MessageConstants.SPACE;
+
 /**
  * Bean class of non blocking function object.
  */
@@ -26,6 +30,9 @@ public class NonBlockingFunction {
     private String operationId;
     private String inputDataType;
     private String methodId;
+    private String inputComma = COMMA;
+    private String inputAttributeName = INPUT_TYPE_NAME;
+    private String space = SPACE;
     
     public NonBlockingFunction(String stubTypeName, String connectorId,
                                String operationId, String inputDataType, String methodId) {
@@ -77,5 +84,28 @@ public class NonBlockingFunction {
     
     public void setConnectorId(String connectorId) {
         this.connectorId = connectorId;
+    }
+    
+    public String getInputComma() {
+        return inputComma;
+    }
+    
+    public void setInputComma(String inputComma) {
+        this.inputComma = inputComma;
+        if (inputComma == null) {
+            this.space = null;
+        }
+    }
+    
+    public String getInputAttributeName() {
+        return inputAttributeName;
+    }
+    
+    public void setInputAttributeName(String inputAttributeName) {
+        this.inputAttributeName = inputAttributeName;
+    }
+    
+    public String getSpace() {
+        return space;
     }
 }

@@ -122,5 +122,16 @@ public class MessageConstants {
     public static final String BOOLEAN = "boolean";
     public static final String BLOB = "blob";
     
-    
+    //stub template builder constants
+    public static final String COMMA = ",";
+    public static final String INPUT_TYPE_NAME = "req";
+    public static final String RESULT_TYPE_NAME = "result";
+    public static final String IGNORE_CAST = "_";
+    public static final String INIT_EMPTY_STUB = "Empty req = {};";
+    public static final String EMPTY_DATATYPE_NAME = "Empty";
+    public static final String DIAMOND_CAST_OPEN = "<";
+    public static final String DIAMOND_CAST_CLOSE = ">";
+    public static final String BRACKET_OPEN = "(";
+    public static final String BRACKET_CLOSE = ")";
+    public static final String SPACE = " ";
 }

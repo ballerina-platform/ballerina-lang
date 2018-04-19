@@ -14,7 +14,8 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
         self.stub = navStub;
     }
     {{/stubs}}{{#blockingFunctions}}
-    function {{operationId}} ({{inputDataType}} req, grpc:Headers... headers) returns (({{outputDataType}}, grpc:Headers)|error) {
+    function {{operationId}} ({{inputDataType}}{{&space}}{{inputAttributeName}}{{inputComma}}{{&space}}grpc:Headers... headers) returns (({{outputDataType}}{{outputComma}} grpc:Headers)|error) {
+        {{&initEmptyStub}}
         var unionResp = self.stub.blockingExecute("{{methodId}}", req, ...headers);
         match unionResp {
             error payloadError => {
@@ -23,13 +24,13 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
             (any, grpc:Headers) payload => {
                 any result;
                 grpc:Headers resHeaders;
-                (result, resHeaders) = payload;
-                return (<{{outputDataType}}>result, resHeaders);
+                ({{resultCast}}, resHeaders) = payload;
+                return {{&openBracket}}{{&castSymbolOpen}}{{outputDataType}}{{&castSymbolClose}}{{resultOut}}{{outputComma}}{{&space}}resHeaders{{&closeBracket}};
             }
         }
     }
     {{/blockingFunctions}}{{#nonBlockingFunctions}}
-    function {{operationId}} ({{inputDataType}} req, typedesc listener, grpc:Headers... headers) returns error? {
+    function {{operationId}} ({{inputDataType}}{{&space}}{{inputAttributeName}}{{inputComma}}{{&space}}typedesc listener, grpc:Headers... headers) returns (error?) {
         return self.stub.nonBlockingExecute("{{methodId}}", req, listener, ...headers);
     }
     {{/nonBlockingFunctions}}{{#streamingFunctions}}
@@ -73,7 +74,7 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Client object {
 {{/client}}
 {{#structs}}
 type {{structId}} {
-    {{#attribute}}{{type}} {{name}};
+    {{#attribute}}{{type}}{{label}} {{name}};
     {{/attribute}}
 };
 {{/structs}}
