@@ -70,7 +70,7 @@ under the License.
             <package name="org.ballerinalang.test.launch.*"/>
             <package name="org.ballerinalang.test.lock.*"/>
             <package name="org.ballerinalang.test.task.*"/>
-            <!-- <package name="org.ballerinalang.test.caching.*"/> -->
+            <package name="org.ballerinalang.test.cache.*"/>
             <package name="org.ballerinalang.test.mime.*"/>
             <package name="org.ballerinalang.test.security.*"/>
             <package name="org.ballerinalang.test.jwt.*"/>
