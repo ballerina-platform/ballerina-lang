@@ -57,7 +57,7 @@ public type Client object {
 
     @Description {value:"Returns the connector that client code uses"}
     @Return {value:"The connector that client code uses"}
-    public function getClient () returns (HubClientConnector) {
+    public function getCallerActions () returns (HubClientConnector) {
         //TODO: create a single object - move to init
         HubClientConnector webSubHubClientConn = new HubClientConnector(config.url, httpClientEndpoint);
         return webSubHubClientConn;

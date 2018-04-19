@@ -53,9 +53,9 @@ public type SimpleQueueReceiver object {
     public function start () {
     }
 
-    public function getClient () returns (QueueReceiverConnector) {
+    public function getCallerActions () returns (QueueReceiverConnector) {
         match (queueReceiver) {
-            QueueReceiver c => return c.getClient();
+            QueueReceiver c => return c.getCallerActions();
             () => {
                 error e = {message: "Queue receiver cannot be nil"};
                 throw e;

@@ -28,7 +28,7 @@ public type TopicPublisher object {
     public function start () {
     }
 
-    public function getClient () returns (TopicPublisherConnector) {
+    public function getCallerActions () returns (TopicPublisherConnector) {
         return self.connector;
     }
 
