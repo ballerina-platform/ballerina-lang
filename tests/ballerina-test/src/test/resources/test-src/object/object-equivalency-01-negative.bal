@@ -17,7 +17,7 @@ public type employee01 object {
 };
 
 // Field name mismatch
-function testEqOfStructsInSamePackage01() returns (string) {
+function testEqOfObjectsInSamePackage01() returns (string) {
     employee01 e = new (14, "rat");
     person01 p = <person01> e;
     return p.name;
@@ -41,7 +41,7 @@ public type employee02 object {
 };
 
 // Type name mismatch
-function testEqOfStructsInSamePackage02() returns (string) {
+function testEqOfObjectsInSamePackage02() returns (string) {
     employee02 e = new (14, "rat");
     person02 p = <person02> e;
     return p.name;
@@ -64,7 +64,7 @@ public type employee03 object {
 };
 
 // Field count mismatch
-function testEqOfStructsInSamePackage03() returns (string) {
+function testEqOfObjectsInSamePackage03() returns (string) {
     employee03 e = new (14, "rat");
     person03 p = <person03> e;
     return p.name;
@@ -91,8 +91,8 @@ public type employee04 object {
     new (age, name) {}
 };
 
-// Private fields in RHS struct name mismatch
-function testEqOfStructsInSamePackage04() returns (string) {
+// Private fields in RHS object name mismatch
+function testEqOfObjectsInSamePackage04() returns (string) {
     employee04 e = new (14, "rat");
     person04 p = <person04> e;
     return p.name;
@@ -122,8 +122,8 @@ public type employee05 object {
     new (age, name) {}
 };
 
-// Private fields in LHS struct name mismatch
-function testEqOfStructsInSamePackage05() returns (string) {
+// Private fields in LHS object name mismatch
+function testEqOfObjectsInSamePackage05() returns (string) {
     employee05 e = new (14, "rat");
     person05 p = <person05> e;
     return p.name;
@@ -149,8 +149,8 @@ type employee06 object {
     new (age, name) {}
 };
 
-// Private structs type mismatch
-function testEqOfStructsInSamePackage06() returns (string) {
+// Private Objects type mismatch
+function testEqOfObjectsInSamePackage06() returns (string) {
     employee06 e = new (14, "rat");
     person06 p = <person06> e;
     return p.name;
@@ -208,8 +208,8 @@ public function employee07::getAge() returns (int) {
     return self.age;
 }
 
-// Public structs attached function count mismatch
-function testEqOfStructsInSamePackage07() returns (string) {
+// Public Objects attached function count mismatch
+function testEqOfObjectsInSamePackage07() returns (string) {
     employee07 e = new (14, "rat");
     person07 p = <person07> e;
     return p.name;
@@ -274,8 +274,8 @@ public function employee08::getSSN() returns (string) {
     return self.ssn;
 }
 
-// Public structs attached function visibility mismatch
-function testEqOfStructsInSamePackage08() returns (string) {
+// Public Objects attached function visibility mismatch
+function testEqOfObjectsInSamePackage08() returns (string) {
     employee08 e = new (14, "rat");
     person08 p = <person08> e;
     return p.name;
@@ -340,8 +340,8 @@ public function employee09::getSSN() returns (string) {
     return self.ssn;
 }
 
-// Public structs attached function signature mismatch
-function testEqOfStructsInSamePackage09() returns (string) {
+// Public Objects attached function signature mismatch
+function testEqOfObjectsInSamePackage09() returns (string) {
     employee09 e = new (14, "rat");
     person09 p = <person09> e;
     return p.name;
