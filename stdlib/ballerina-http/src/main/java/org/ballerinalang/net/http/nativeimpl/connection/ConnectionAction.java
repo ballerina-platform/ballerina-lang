@@ -121,8 +121,8 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         }
     }
 
-    private OutputStream getOutputStream(DataContext dataContext, HTTPCarbonMessage outboundResponse, HttpResponseFuture
-            outboundResponseStatusFuture) {
+    private OutputStream getOutputStream(DataContext dataContext, HTTPCarbonMessage outboundResponse,
+                                         HttpResponseFuture outboundResponseStatusFuture) {
         final HttpMessageDataStreamer outboundMsgDataStreamer;
         final PooledDataStreamerFactory pooledDataStreamerFactory = (PooledDataStreamerFactory)
                 outboundResponse.getProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY);
