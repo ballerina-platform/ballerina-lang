@@ -75,7 +75,7 @@ documentation {
     F{{transferEncoding}} - The types of encoding applied to the request
     F{{chunking}} - The chunking behaviour of the request
     F{{followRedirects}} - Redirect related options
-    F{{retry}} - Retry related options
+    F{{retryConfig}} - Retry related options
     F{{proxy}} - Proxy related options
     F{{connectionThrottling}} - The configurations for controlling the number of connections allowed concurrently
     F{{cache}} - The configurations for controlling the caching behaviour
@@ -91,7 +91,7 @@ public type SimpleClientEndpointConfiguration {
     TransferEncoding transferEncoding = "CHUNKING",
     Chunking chunking = "AUTO",
     FollowRedirects? followRedirects,
-    Retry? retry,
+    RetryConfig? retryConfig,
     ProxyConfig? proxy,
     ConnectionThrottling? connectionThrottling,
     CacheConfig cache = {},
@@ -121,7 +121,7 @@ public function SimpleClient::init(SimpleClientEndpointConfiguration simpleConfi
     self.httpEP.config.transferEncoding = simpleConfig.transferEncoding;
     self.httpEP.config.chunking = simpleConfig.chunking;
     self.httpEP.config.followRedirects = simpleConfig.followRedirects;
-    self.httpEP.config.retry = simpleConfig.retry;
+    self.httpEP.config.retryConfig = simpleConfig.retryConfig;
     self.httpEP.config.proxy = simpleConfig.proxy;
     self.httpEP.config.connectionThrottling = simpleConfig.connectionThrottling;
 

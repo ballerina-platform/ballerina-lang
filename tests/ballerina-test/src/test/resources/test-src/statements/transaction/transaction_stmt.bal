@@ -385,7 +385,7 @@ function testTransactionStmtWithFail() returns (string) {
     transaction with retries = 4 {
         a = a + " inTrx";
         if (i == 0) {
-            fail ;
+            retry;
         }
     } onretry {
         a = a + " inFailed";
