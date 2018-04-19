@@ -23,6 +23,10 @@ public type Listener object {
         int id;
     }
 
+    private {
+        CallerAction conn;
+    }
+
     documentation {
         Gets called when the endpoint is being initialize during package init time
 

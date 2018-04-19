@@ -16,79 +16,61 @@
 import ballerina/io;
 import ballerina/grpc;
 
-endpoint grpc:Service ep {
+endpoint grpc:Listener ep {
     host:"localhost",
     port:9090
 };
 
-@grpc:serviceConfig {generateClientConnector:false}
-service<grpc:Listener> HelloWorld bind ep {
-    hello (endpoint client, string name) {
+@grpc:serviceConfig
+service HelloWorld bind ep {
+    hello (endpoint caller, string name) {
         io:println("name: " + name);
         string message = "Hello " + name;
-        grpc:ConnectorError err = client -> send(message);
-        io:println("Server send response : " + message );
-        if (err != ()) {
-            io:println("Error at helloWorld : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller -> send(message);
+        io:println(err.message but {() => ("Server send response : " + message)});
+        _ = caller -> complete();
     }
 
-    testInt (endpoint client, int age) {
+    testInt (endpoint caller, int age) {
         io:println("age: " + age);
         int displayAge = age - 2;
-        grpc:ConnectorError err = client -> send(displayAge);
-        io:println("display age : " + displayAge);
-        if (err != ()) {
-            io:println("Error at test : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller -> send(displayAge);
+        io:println(err.message but {() => ("display age : " + displayAge)});
+        _ = caller -> complete();
     }
 
-    testFloat (endpoint client, float salary) {
+    testFloat (endpoint caller, float salary) {
         io:println("gross salary: " + salary);
         float netSalary = salary * 0.88;
-        grpc:ConnectorError err = client -> send(netSalary);
-        io:println("net salary : " + netSalary);
-        if (err != ()) {
-            io:println("Error at test : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller -> send(netSalary);
+        io:println(err.message but {() => ("net salary : " + netSalary)});
+        _ = caller -> complete();
     }
 
-    testBoolean (endpoint client, boolean available) {
+    testBoolean (endpoint caller, boolean available) {
         io:println("is available: " + available);
         boolean aval = available || true;
-        grpc:ConnectorError err = client -> send(aval);
-        io:println("avaliability : " + aval);
-        if (err != ()) {
-            io:println("Error at test : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller -> send(aval);
+        io:println(err.message but {() => ("avaliability : " + aval)});
+        _ = caller -> complete();
     }
 
-    testStruct (endpoint client, Request msg) {
+    testStruct (endpoint caller, Request msg) {
         io:println(msg.name + " : " + msg.message);
         Response response = {resp:"Acknowledge " + msg.name};
-        grpc:ConnectorError err = client -> send(response);
-        io:println("msg : " + response.resp);
-        if (err != ()) {
-            io:println("Error at test : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller -> send(response);
+        io:println(err.message but {() => ("msg : " + response.resp)});
+        _ = caller -> complete();
     }
 
-    testNoRequest (endpoint client) {
+    testNoRequest (endpoint caller) {
         string resp = "service invoked with no request";
-        grpc:ConnectorError err = client -> send(resp);
-        io:println("response : " + resp);
-        if (err != ()) {
-            io:println("Error at test : " + err.message);
-        }
-        _ = client -> complete();
+        error? err = caller -> send(resp);
+        io:println(err.message but {() => ("response : " + resp)});
+        _ = caller -> complete();
     }
 
-    testNoResponse (endpoint client, string msg) {
+    testNoResponse (endpoint caller, string msg) {
         io:println("Request: " + msg);
     }
 }

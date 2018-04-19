@@ -30,7 +30,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.grpc.EndpointConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.config.EndpointConfiguration;
 import org.ballerinalang.net.grpc.nativeimpl.EndpointUtils;
@@ -70,7 +69,8 @@ public class Init extends BlockingNativeCallableUnit {
         try {
             Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             // Creating client endpoint with channel as native data.
-            Struct endpointConfig = clientEndpoint.getStructField(EndpointConstants.ENDPOINT_CONFIG);
+            BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
+            Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
             EndpointConfiguration configuration = EndpointUtils.getEndpointConfiguration(endpointConfig);
             ManagedChannel channel;
             if (configuration.getSslConfig() == null) {

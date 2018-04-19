@@ -38,7 +38,7 @@ function testServerStreaming (string name) returns (string[]) {
 }
 
 // Server Message Listener.
-service<grpc:Listener> HelloWorldMessageListener {
+service<grpc:Service> HelloWorldMessageListener {
 
     // Resource registered to receive server messages
     onMessage (string message) {
@@ -48,7 +48,7 @@ service<grpc:Listener> HelloWorldMessageListener {
     }
 
     // Resource registered to receive server error messages
-    onError (grpc:ServerError err) {
+    onError (error err) {
         if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
@@ -66,21 +66,16 @@ service<grpc:Listener> HelloWorldMessageListener {
 public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;
-        grpc:ServiceStub serviceStub;
+        grpc:Stub stub;
     }
     function initStub (grpc:Client clientEndpoint) {
-        grpc:ServiceStub navStub = new;
+        grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.serviceStub = navStub;
+        self.stub = navStub;
     }
 
     function lotsOfReplies (string req, typedesc listener, grpc:Headers... headers) returns (error?) {
-        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/lotsOfReplies", req, listener, ...headers);
-        if (err1 != ()) {
-            error err = {message:err1.message};
-            return err;
-        }
-        return ();
+        return self.stub.nonBlockingExecute("HelloWorld/lotsOfReplies", req, listener, ...headers);
     }
 };
 

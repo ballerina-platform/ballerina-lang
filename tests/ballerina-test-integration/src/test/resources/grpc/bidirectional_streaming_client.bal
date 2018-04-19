@@ -28,23 +28,21 @@ function main (string... args) {
     ChatMessage mes = new;
     mes.name = "Sam";
     mes.message = "Hi ";
-    grpc:ConnectorError connErr = ep -> send(mes);
-    if (connErr != ()) {
-        io:println("Error at lotsOfGreetings : " + connErr.message);
-    }
+    error? connErr = ep -> send(mes);
+    io:println(err.message but {() => ""});
     //this will hold forever since this is chat application
     runtime:sleepCurrentWorker(6000);
     _ = ep -> complete();
 }
 
 
-service<grpc:Listener> ChatMessageListener {
+service<grpc:Service> ChatMessageListener {
 
     onMessage (string message) {
         io:println("Response received from server: " + message);
     }
 
-    onError (grpc:ServerError err) {
+    onError (error err) {
         if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
@@ -59,21 +57,20 @@ service<grpc:Listener> ChatMessageListener {
 public type ChatStub object {
     public {
         grpc:Client clientEndpoint;
-        grpc:ServiceStub serviceStub;
+        grpc:Stub stub;
     }
 
     function initStub (grpc:Client clientEndpoint) {
-        grpc:ServiceStub navStub = new;
+        grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.serviceStub = navStub;
+        self.stub = navStub;
     }
 
     function chat (typedesc listener, grpc:Headers... headers) returns (grpc:Client|error) {
-        var res = stub.serviceStub.streamingExecute("Chat/chat", listener, ...header);
+        var res = stub.stub.streamingExecute("Chat/chat", listener, ...header);
         match res {
-            grpc:ConnectorError err1 => {
-                error err = {message:err1.message};
-                return err;
+            error err1 => {
+                return err1;
             }
             grpc:Client con => {
                 return con;

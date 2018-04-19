@@ -27,10 +27,8 @@ function testClientStreaming (string[] args) returns (string) {
 
     foreach greet in args {
         io:print("send greeting: " + greet);
-        grpc:ConnectorError connErr = ep -> send(greet);
-        if (connErr != ()) {
-            io:println("Error at LotsOfGreetings : " + connErr.message);
-        }
+        error? connErr = ep -> send(greet);
+        io:println(connErr.message but {() => ("send greeting: " + greet)});
     }
     _ = ep -> complete();
 
@@ -48,7 +46,7 @@ function testClientStreaming (string[] args) returns (string) {
 }
 
 // Server Message Listener.
-service<grpc:Listener> HelloWorldMessageListener {
+service<grpc:Service> HelloWorldMessageListener {
 
     // Resource registered to receive server messages
     onMessage (string message) {
@@ -58,7 +56,7 @@ service<grpc:Listener> HelloWorldMessageListener {
     }
 
     // Resource registered to receive server error messages
-    onError (grpc:ServerError err) {
+    onError (error err) {
         if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
@@ -75,21 +73,20 @@ service<grpc:Listener> HelloWorldMessageListener {
 public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;
-        grpc:ServiceStub serviceStub;
+        grpc:Stub stub;
     }
 
     function initStub (grpc:Client clientEndpoint) {
-        grpc:ServiceStub navStub = new;
+        grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.serviceStub = navStub;
+        self.stub = navStub;
     }
 
     function lotsOfGreetings (typedesc listener, grpc:Headers... headers) returns (grpc:Client|error) {
-        var res = self.serviceStub.streamingExecute("HelloWorld/lotsOfGreetings", listener, ...headers);
+        var res = self.stub.streamingExecute("HelloWorld/lotsOfGreetings", listener, ...headers);
         match res {
-            grpc:ConnectorError err => {
-                error err1 = {message:err.message};
-                return err1;
+            error err => {
+                return err;
             }
             grpc:Client con => {
                 return con;

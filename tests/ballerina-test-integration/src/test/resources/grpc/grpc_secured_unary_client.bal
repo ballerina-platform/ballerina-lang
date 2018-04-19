@@ -46,21 +46,20 @@ function testUnarySecuredBlocking() returns (string) {
 public type HelloWorldBlockingStub object {
     public {
         grpc:Client clientEndpoint;
-        grpc:ServiceStub serviceStub;
+        grpc:Stub stub;
     }
 
     function initStub(grpc:Client clientEndpoint) {
-        grpc:ServiceStub navStub = new;
+        grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.serviceStub = navStub;
+        self.stub = navStub;
     }
 
     function hello (string req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
-        (any,grpc:Headers)|grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/hello", req, ...headers);
+        var unionResp = self.stub.blockingExecute("HelloWorld/hello", req, ...headers);
         match unionResp {
-            grpc:ConnectorError payloadError => {
-                error err = {message:payloadError.message};
-                return err;
+            error payloadError => {
+                return payloadError;
             }
             (any,grpc:Headers) payload => {
                 any result;
@@ -75,22 +74,17 @@ public type HelloWorldBlockingStub object {
 public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;
-        grpc:ServiceStub serviceStub;
+        grpc:Stub stub;
     }
 
     function initStub(grpc:Client clientEndpoint) {
-        grpc:ServiceStub navStub = new;
+        grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.serviceStub = navStub;
+        self.stub = navStub;
     }
 
     function hello (string req, typedesc listener, grpc:Headers... headers) returns (error| ()) {
-        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/hello", req, listener, ...headers);
-        if (err1 != ()) {
-            error err = {message:err1.message};
-            return err;
-        }
-        return ();
+        return self.stub.nonBlockingExecute("HelloWorld/hello", req, listener, ...headers);
     }
 };
 

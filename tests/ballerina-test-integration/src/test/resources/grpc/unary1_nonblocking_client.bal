@@ -52,7 +52,7 @@ function testUnaryNonBlockingClient () returns (string []) {
 }
 
 // Server Message Listener.
-service<grpc:Listener> HelloWorldMessageListener {
+service<grpc:Service> HelloWorldMessageListener {
 
     // Resource registered to receive server messages
     onMessage (string message) {
@@ -62,7 +62,7 @@ service<grpc:Listener> HelloWorldMessageListener {
     }
 
     // Resource registered to receive server error messages
-    onError (grpc:ServerError err) {
+    onError (error err) {
         if (err != null) {
             io:println("Error reported from server: " + err.message);
         }
@@ -79,21 +79,20 @@ service<grpc:Listener> HelloWorldMessageListener {
 public type HelloWorldBlockingStub object {
     public {
         grpc:Client clientEndpoint;
-        grpc:ServiceStub serviceStub;
+        grpc:Stub stub;
     }
 
     function initStub (grpc:Client clientEndpoint) {
-        grpc:ServiceStub navStub = new;
+        grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.serviceStub = navStub;
+        self.stub = navStub;
     }
 
     function hello (string req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
-        (any,grpc:Headers) | grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/hello", req, ...headers);
+        var unionResp = self.stub.blockingExecute("HelloWorld/hello", req, ...headers);
         match unionResp {
-            grpc:ConnectorError payloadError => {
-                error err = {message:payloadError.message};
-                return err;
+            error payloadError => {
+                return payloadError;
             }
             (any,grpc:Headers) payload => {
                 any result;
@@ -105,11 +104,10 @@ public type HelloWorldBlockingStub object {
     }
 
     function testInt (int req, grpc:Headers... headers) returns ((int, grpc:Headers)|error) {
-        (any,grpc:Headers) | grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/testInt", req, ...headers);
+        var unionResp = self.stub.blockingExecute("HelloWorld/testInt", req, ...headers);
         match unionResp {
-            grpc:ConnectorError payloadError => {
-                error err = {message:payloadError.message};
-                return err;
+            error payloadError => {
+                return payloadError;
             }
             (any,grpc:Headers) payload => {
                 any result;
@@ -121,11 +119,10 @@ public type HelloWorldBlockingStub object {
     }
 
     function testFloat (float req, grpc:Headers... headers) returns ((float, grpc:Headers)|error) {
-        (any,grpc:Headers) | grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/testFloat", req, ...headers);
+        var unionResp = self.stub.blockingExecute("HelloWorld/testFloat", req, ...headers);
         match unionResp {
-            grpc:ConnectorError payloadError => {
-                error err = {message:payloadError.message};
-                return err;
+            error payloadError => {
+                return payloadError;
             }
             (any,grpc:Headers) payload => {
                 any result;
@@ -137,11 +134,10 @@ public type HelloWorldBlockingStub object {
     }
 
     function testBoolean (boolean req, grpc:Headers... headers) returns ((boolean, grpc:Headers)|error) {
-        (any,grpc:Headers) | grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/testBoolean", req, ...headers);
+        var unionResp = self.stub.blockingExecute("HelloWorld/testBoolean", req, ...headers);
         match unionResp {
-            grpc:ConnectorError payloadError => {
-                error err = {message:payloadError.message};
-                return err;
+            error payloadError => {
+                return payloadError;
             }
             (any,grpc:Headers) payload => {
                 any result;
@@ -153,11 +149,10 @@ public type HelloWorldBlockingStub object {
     }
 
     function testStruct (Request req, grpc:Headers... headers) returns ((Response, grpc:Headers)|error) {
-        (any,grpc:Headers) | grpc:ConnectorError unionResp = self.serviceStub.blockingExecute("HelloWorld/testStruct", req, ...headers);
+        var unionResp = self.stub.blockingExecute("HelloWorld/testStruct", req, ...headers);
         match unionResp {
-            grpc:ConnectorError payloadError => {
-                error err = {message:payloadError.message};
-                return err;
+            error payloadError => {
+                return payloadError;
             }
             (any,grpc:Headers) payload => {
                 any result;
@@ -173,58 +168,33 @@ public type HelloWorldBlockingStub object {
 public type HelloWorldStub object {
     public {
         grpc:Client clientEndpoint;
-        grpc:ServiceStub serviceStub;
+        grpc:Stub stub;
     }
 
     function initStub (grpc:Client clientEndpoint) {
-        grpc:ServiceStub navStub = new;
+        grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.serviceStub = navStub;
+        self.stub = navStub;
     }
 
     function hello (string req, typedesc listener, grpc:Headers... headers) returns (error?) {
-        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/hello", req, listener, ...headers);
-        if (err1 != ()) {
-            error err = {message:err1.message};
-            return err;
-        }
-        return ();
+        return self.stub.nonBlockingExecute("HelloWorld/hello", req, listener, ...headers);
     }
 
     function testInt (int req, typedesc listener, grpc:Headers... headers) returns (error?) {
-        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/testInt", req, listener, ...headers);
-        if (err1 != ()) {
-            error err = {message:err1.message};
-            return err;
-        }
-        return ();
+        return self.stub.nonBlockingExecute("HelloWorld/testInt", req, listener, ...headers);
     }
 
     function testFloat (float req, typedesc listener, grpc:Headers... headers) returns (error?) {
-        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/testFloat", req, listener, ...headers);
-        if (err1 != ()) {
-            error err = {message:err1.message};
-            return err;
-        }
-        return ();
+        return self.stub.nonBlockingExecute("HelloWorld/testFloat", req, listener, ...headers);
     }
 
     function testBoolean (boolean req, typedesc listener, grpc:Headers... headers) returns (error?) {
-        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/testBoolean", req, listener, ...headers);
-        if (err1 != ()) {
-            error err = {message:err1.message};
-            return err;
-        }
-        return ();
+        return self.stub.nonBlockingExecute("HelloWorld/testBoolean", req, listener, ...headers);
     }
 
     function testStruct (Request req, typedesc listener, grpc:Headers... headers) returns (error?) {
-        var err1 = self.serviceStub.nonBlockingExecute("HelloWorld/testStruct", req, listener, ...headers);
-        if (err1 != ()) {
-            error err = {message:err1.message};
-            return err;
-        }
-        return ();
+        return self.stub.nonBlockingExecute("HelloWorld/testStruct", req, listener, ...headers);
     }
 };
 

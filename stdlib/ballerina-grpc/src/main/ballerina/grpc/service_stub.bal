@@ -57,6 +57,6 @@ public type Stub object {
         P{{methodID}} - remote procedure call id.
         P{{listenerService}} - call back listener service.
     }
-    public native function streamingExecute(string methodID, typedesc listenerService, Headers... headers) returns (Client|error?);
+    public native function streamingExecute(string methodID, typedesc listenerService, Headers... headers) returns (Client|error);
 
 };
