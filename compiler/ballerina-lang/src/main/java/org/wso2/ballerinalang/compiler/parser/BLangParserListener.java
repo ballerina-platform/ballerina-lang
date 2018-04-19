@@ -838,7 +838,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String typeName = ctx.getChild(0).getText();
         if (ctx.nameReference() != null) {
             this.pkgBuilder.addConstraintType(getCurrentPos(ctx), getWS(ctx), typeName);
-        } else if (ctx.typeName() != null || ctx.valueTypeName() != null) {
+        } else if (ctx.typeName() != null) {
             this.pkgBuilder.addConstraintTypeWithTypeName(getCurrentPos(ctx), getWS(ctx), typeName);
         } else {
             this.pkgBuilder.addBuiltInReferenceType(getCurrentPos(ctx), getWS(ctx), typeName);

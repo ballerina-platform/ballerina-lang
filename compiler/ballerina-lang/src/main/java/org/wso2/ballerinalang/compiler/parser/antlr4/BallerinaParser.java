@@ -4234,7 +4234,7 @@ public class BallerinaParser extends Parser {
 					setState(971);
 					match(LT);
 					setState(972);
-					nameReference();
+					typeName(0);
 					setState(973);
 					match(GT);
 					}
@@ -15744,7 +15744,7 @@ public class BallerinaParser extends Parser {
 		"\u03c4\3\2\2\2\u03c4\u03d5\3\2\2\2\u03c5\u03ca\7K\2\2\u03c6\u03c7\7\u008c"+
 		"\2\2\u03c7\u03c8\5\u00f0y\2\u03c8\u03c9\7\u008b\2\2\u03c9\u03cb\3\2\2"+
 		"\2\u03ca\u03c6\3\2\2\2\u03ca\u03cb\3\2\2\2\u03cb\u03d5\3\2\2\2\u03cc\u03d1"+
-		"\7L\2\2\u03cd\u03ce\7\u008c\2\2\u03ce\u03cf\5\u00f0y\2\u03cf\u03d0\7\u008b"+
+		"\7L\2\2\u03cd\u03ce\7\u008c\2\2\u03ce\u03cf\5R*\2\u03cf\u03d0\7\u008b"+
 		"\2\2\u03d0\u03d2\3\2\2\2\u03d1\u03cd\3\2\2\2\u03d1\u03d2\3\2\2\2\u03d2"+
 		"\u03d5\3\2\2\2\u03d3\u03d5\5`\61\2\u03d4\u03a3\3\2\2\2\u03d4\u03aa\3\2"+
 		"\2\2\u03d4\u03b1\3\2\2\2\u03d4\u03be\3\2\2\2\u03d4\u03c5\3\2\2\2\u03d4"+
