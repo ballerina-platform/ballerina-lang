@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.compiler;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -26,6 +27,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -215,7 +217,7 @@ public class LSContextManager {
         }
 
         @Override
-        public void saveCompiledPackage(InputStream source, String fileName) {
+        public void saveCompiledPackage(CompiledPackage compiledPackage, Path dirPath, String fileName) throws IOException {
 
         }
 
