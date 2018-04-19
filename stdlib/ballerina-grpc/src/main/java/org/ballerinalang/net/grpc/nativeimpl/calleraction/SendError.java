@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.clientresponder;
+package org.ballerinalang.net.grpc.nativeimpl.calleraction;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -23,7 +23,6 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -32,14 +31,13 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.CALLER_ACTION;
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
 import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.RESPONSE_MESSAGE_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageConstants.SERVER_ERROR;
 import static org.ballerinalang.net.grpc.MessageUtils.getContextHeader;
 
 /**
@@ -50,49 +48,44 @@ import static org.ballerinalang.net.grpc.MessageUtils.getContextHeader;
 @BallerinaFunction(
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "errorResponse",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_RESPONDER,
+        functionName = "sendError",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = CALLER_ACTION,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {
-                @Argument(name = "serverError", type = TypeKind.STRUCT, structType = SERVER_ERROR,
-                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
+                @Argument(name = "statusCode", type = TypeKind.INT),
+                @Argument(name = "message", type = TypeKind.STRING),
                 @Argument(name = "headers", type = TypeKind.ARRAY)
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
-                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
+                @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN)
         },
         isPublic = true
 )
-public class ErrorResponse extends BlockingNativeCallableUnit {
-    private static final Logger LOG = LoggerFactory.getLogger(ErrorResponse.class);
+public class SendError extends BlockingNativeCallableUnit {
+    private static final Logger LOG = LoggerFactory.getLogger(SendError.class);
     private static final int MESSAGE_HEADER_REF_INDEX = 1;
 
     @Override
     public void execute(Context context) {
         BStruct endpointClient = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
         BRefValueArray headerValues = (BRefValueArray) context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
-        BValue responseValue = context.getRefArgument(RESPONSE_MESSAGE_REF_INDEX);
+        long statusCode = context.getIntArgument(0);
+        String errorMsg = context.getStringArgument(0);
         io.grpc.Context msgContext = getContextHeader(headerValues);
 
-        if (responseValue instanceof BStruct) {
-            BStruct responseStruct = (BStruct) responseValue;
-            int statusCode = Integer.parseInt(String.valueOf(responseStruct.getIntField(0)));
-            String errorMsg = responseStruct.getStringField(0);
-            StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
-            if (responseObserver == null) {
-                context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
-                        .fromCode(Status.INTERNAL.getCode()).withDescription("Error while sending the error. Response" +
-                                " observer not found."))));
-            } else {
-                io.grpc.Context previous = msgContext != null ? msgContext.attach() : null;
-                try {
-                    responseObserver.onError(new StatusRuntimeException(Status.fromCodeValue(statusCode)
-                            .withDescription(errorMsg)));
-                } finally {
-                    if (previous != null) {
-                        msgContext.detach(previous);
-                    }
+        StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
+        if (responseObserver == null) {
+            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+                    .fromCode(Status.INTERNAL.getCode()).withDescription("Error while sending the error. Response" +
+                            " observer not found."))));
+        } else {
+            io.grpc.Context previous = msgContext != null ? msgContext.attach() : null;
+            try {
+                responseObserver.onError(new StatusRuntimeException(Status.fromCodeValue((int) statusCode)
+                        .withDescription(errorMsg)));
+            } finally {
+                if (previous != null) {
+                    msgContext.detach(previous);
                 }
             }
         }

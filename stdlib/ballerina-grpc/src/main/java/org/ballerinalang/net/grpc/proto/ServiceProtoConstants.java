@@ -50,7 +50,7 @@ public class ServiceProtoConstants {
     public static final String ANN_SERVICE_CONFIG = "serviceConfig";
     public static final String ANN_MESSAGE_LISTENER = "messageListener";
 
-    public static final String SERVICE_CONFIG_RPC_ENDPOINT = "rpcEndpoint";
+    public static final String SERVICE_CONFIG_RPC_ENDPOINT = "name";
     public static final String SERVICE_CONFIG_CLIENT_STREAMING = "clientStreaming";
     public static final String SERVICE_CONFIG_SERVER_STREAMING = "serverStreaming";
     public static final String SERVICE_CONFIG_GENERATE_CLIENT = "generateClientConnector";

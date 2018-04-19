@@ -57,13 +57,13 @@ import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAG
 @BallerinaFunction(
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "initEndpoint",
+        functionName = "init",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_ENDPOINT_TYPE,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfig")},
         isPublic = true
 )
-public class InitEndpoint extends BlockingNativeCallableUnit {
+public class Init extends BlockingNativeCallableUnit {
     
     @Override
     public void execute(Context context) {

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.clientresponder;
+package org.ballerinalang.net.grpc.nativeimpl.calleraction;
 
 import com.google.protobuf.Descriptors;
 import io.grpc.Status;
@@ -24,72 +24,65 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.CALLER_ACTION;
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
 import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageConstants.RESPONSE_MESSAGE_REF_INDEX;
 import static org.ballerinalang.net.grpc.MessageUtils.getContextHeader;
 
 /**
- * Native function to respond the caller.
+ * Native function to inform the caller, server finished sending messages.
  *
- * @since 0.96.1
+ * @since 1.0.0
  */
 @BallerinaFunction(
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "send",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_RESPONDER,
+        functionName = "complete",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = CALLER_ACTION,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {
-                @Argument(name = "res", type = TypeKind.ANY),
                 @Argument(name = "headers", type = TypeKind.ARRAY)
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
-                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
+                @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN)
         },
         isPublic = true
 )
-public class Send extends BlockingNativeCallableUnit {
-    private static final Logger LOG = LoggerFactory.getLogger(Send.class);
-    private static final int MESSAGE_HEADER_REF_INDEX = 2;
-    
+public class Complete extends BlockingNativeCallableUnit {
+    private static final Logger LOG = LoggerFactory.getLogger(Complete.class);
+    private static final int MESSAGE_HEADER_REF_INDEX = 1;
+
     @Override
     public void execute(Context context) {
-        BStruct clientEndpoint = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
-        BValue responseValue = context.getRefArgument(RESPONSE_MESSAGE_REF_INDEX);
+        BStruct endpointClient = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
         BRefValueArray headerValues = (BRefValueArray) context.getRefArgument(MESSAGE_HEADER_REF_INDEX);
-        StreamObserver<Message> responseObserver = MessageUtils.getResponseObserver(clientEndpoint);
-        Descriptors.Descriptor outputType = (Descriptors.Descriptor) clientEndpoint.getNativeData(MessageConstants
+        StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
+        Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(MessageConstants
                 .RESPONSE_MESSAGE_DEFINITION);
         io.grpc.Context msgContext = getContextHeader(headerValues);
 
         if (responseObserver == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                     .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
-                    "response sender does not exist"))));
+                            "response sender does not exist"))));
         } else {
             io.grpc.Context previous = msgContext != null ? msgContext.attach() : null;
             try {
-                // If there is no response message like conn -> send(), system doesn't send the message.
                 if (!MessageUtils.isEmptyResponse(outputType)) {
-                    Message responseMessage = MessageUtils.generateProtoMessage(responseValue, outputType);
-                    responseObserver.onNext(responseMessage);
+                    responseObserver.onCompleted();
                 }
             } catch (Throwable e) {
                 LOG.error("Error while sending client response.", e);
