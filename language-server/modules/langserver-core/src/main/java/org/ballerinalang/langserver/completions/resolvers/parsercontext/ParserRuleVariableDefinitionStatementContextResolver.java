@@ -65,8 +65,8 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
 
             // Add the create keyword
             CompletionItem createKeyword = new CompletionItem();
-            createKeyword.setInsertText(Snippet.CREATE_KEYWORD_SNIPPET.toString());
-            createKeyword.setLabel(ItemResolverConstants.CREATE_KEYWORD);
+            createKeyword.setInsertText(Snippet.CHECK_KEYWORD_SNIPPET.toString());
+            createKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
             createKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
 
             List<SymbolInfo> filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
