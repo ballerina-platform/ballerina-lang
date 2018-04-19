@@ -18,9 +18,9 @@ package ballerina.http;
 
 import ballerina/internal;
 import ballerina/auth;
-import ballerina/caching;
+import ballerina/cache;
 
-caching:Cache authzCache = new(expiryTimeMillis = 300000);
+cache:Cache authzCache = new(expiryTimeMillis = 300000);
 @Description {value:"Authz handler instance"}
 HttpAuthzHandler authzHandler = new(authzCache);
 

@@ -32,6 +32,7 @@ import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.StructDoc;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -82,6 +83,8 @@ public class HtmlDocTest {
         FunctionDoc functionDoc = (FunctionDoc) page.constructs.get(0);
         Assert.assertEquals(functionDoc.parameters.get(0).toString(), "string name", "Invalid parameter string value");
         Assert.assertEquals(functionDoc.returnParams.get(0).toString(), "string", "Invalid return type");
+        Assert.assertEquals(functionDoc.returnParams.get(0).href, "primitive-types.html#string", "Invalid link " +
+                "to return type");
     }
 
     @Test(description = "Connectors in a package should be shown in the constructs")
@@ -575,7 +578,8 @@ public class HtmlDocTest {
      * @return BLangPackage
      */
     private BLangPackage createPackage(String source) {
-        BallerinaFile ballerinaFile = LSCompiler.compileContent(source, CompilerPhase.DEFINE);
+        LSCompiler lsCompiler = new LSCompiler(WorkspaceDocumentManagerImpl.getInstance());
+        BallerinaFile ballerinaFile = lsCompiler.compileContent(source, CompilerPhase.DEFINE);
         if (!ballerinaFile.getDiagnostics().isEmpty()) {
             ballerinaFile.getDiagnostics().stream().forEach(System.err::println);
             throw new IllegalStateException("Compilation errors detected.");

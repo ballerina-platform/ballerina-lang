@@ -27,7 +27,7 @@ public class CacheRepo extends NonSysRepo<Path> {
         String pkgVersion = pkg.version.value;
 
         return new Patten(Patten.path("caches"),
-                          Patten.WILDCARD_DIR,
+                          Patten.LATEST_VERSION_DIR,
                           Patten.path(orgName, pkgName, pkgVersion, "src"),
                           Patten.WILDCARD_SOURCE);
     }

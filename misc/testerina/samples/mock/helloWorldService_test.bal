@@ -23,7 +23,7 @@ function stopMock () {
 }
 function testService () {
     endpoint http:Client httpEndpoint {
-        targets:[{ url:uri }]
+        url:uri
     };
 
     // Check whether the service is started

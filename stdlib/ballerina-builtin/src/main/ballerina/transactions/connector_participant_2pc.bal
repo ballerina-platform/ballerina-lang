@@ -35,15 +35,15 @@ public type Participant2pcClientEP object {
     }
 
     public function init(Participant2pcClientConfig conf) {
-        endpoint http:Client httpEP {targets:[{url:conf.participantURL}],
+        endpoint http:Client httpEP {url:conf.participantURL,
                                             timeoutMillis:conf.timeoutMillis,
-                                            retry:{count:conf.retryConfig.count,
+                                            retryConfig:{count:conf.retryConfig.count,
                                                       interval:conf.retryConfig.interval}};
         self.httpClient = httpEP;
         self.conf = conf;
     }
 
-    public function getClient() returns Participant2pcClient {
+    public function getCallerActions() returns Participant2pcClient {
         Participant2pcClient client = new;
         client.clientEP = self;
         return client;
@@ -70,10 +70,11 @@ public type Participant2pcClient object {
             return err;
         } else if (statusCode == http:OK_200) {
             json payload = check res.getJsonPayload();
-            PrepareResponse prepareRes = <PrepareResponse>payload; //TODO: Change this this to use the safe assignment operator
+            PrepareResponse prepareRes = <PrepareResponse>payload;
             return prepareRes.message;
         } else {
-            error err = {message:"Prepare failed. Transaction: " + transactionId + ", Participant: " + self.clientEP.conf.participantURL};
+            error err = {message:"Prepare failed. Transaction: " + transactionId + ", Participant: " +
+                                    self.clientEP.conf.participantURL};
             return err;
         }
     }
@@ -87,7 +88,7 @@ public type Participant2pcClient object {
         var result = httpClient -> post("/notify", req);
         http:Response res = check result;
         json payload = check res.getJsonPayload();
-        NotifyResponse notifyRes = <NotifyResponse>payload;  //TODO: Change this this to use the safe assignment operator
+        NotifyResponse notifyRes = <NotifyResponse>payload;
         string msg = notifyRes.message;
         int statusCode = res.statusCode;
         if (statusCode == http:OK_200) {

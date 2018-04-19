@@ -459,38 +459,27 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didOpen(DidOpenTextDocumentParams params) {
-        LSDocument document = new LSDocument(params.getTextDocument().getUri());
-        Path openedPath = CommonUtil.getPath(document);
+        Path openedPath = CommonUtil.getPath(new LSDocument(params.getTextDocument().getUri()));
         if (openedPath == null) {
             return;
         }
 
         String content = params.getTextDocument().getText();
-        this.documentManager.openFile(openedPath, content);
-
-        compileAndSendDiagnostics(content, document, openedPath);
+        compileAndSendDiagnostics(content, openedPath);
     }
 
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
-        LSDocument document = new LSDocument(params.getTextDocument().getUri());
-        Path changedPath = CommonUtil.getPath(document);
+        Path changedPath = CommonUtil.getPath(new LSDocument(params.getTextDocument().getUri()));
         if (changedPath == null) {
             return;
         }
 
         String content = params.getContentChanges().get(0).getText();
-        this.documentManager.updateFile(changedPath, content);
-
-        this.diagPushDebouncer.call(new Runnable() {
-            @Override
-            public void run() {
-                compileAndSendDiagnostics(content, document, changedPath);
-            }
-        });
+        this.diagPushDebouncer.call(() -> compileAndSendDiagnostics(content, changedPath));
     }
 
-    private void compileAndSendDiagnostics(String content, LSDocument document, Path path) {
+    private void compileAndSendDiagnostics(String content, Path path) {
         BallerinaFile balFile;
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         String tempFileId = LSCompiler.getUnsavedFileIdOrNull(path.toString());
@@ -498,7 +487,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
         if (tempFileId != null) {
             compilationPath = LSCompiler.createAndGetTempFile(tempFileId);
         }
-        balFile = LSCompiler.compileContent(content, compilationPath, CompilerPhase.TAINT_ANALYZE, false);
+        balFile = LSCompiler.compileContent(content, compilationPath, CompilerPhase.TAINT_ANALYZE, documentManager,
+                                            false);
         if (balFile.getDiagnostics() != null) {
             balDiagnostics = balFile.getDiagnostics();
         }
