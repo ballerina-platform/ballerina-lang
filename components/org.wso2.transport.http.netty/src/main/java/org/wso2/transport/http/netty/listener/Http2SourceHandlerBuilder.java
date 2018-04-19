@@ -24,7 +24,11 @@ import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Settings;
+import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.common.FrameLogger;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+
+import static io.netty.handler.logging.LogLevel.TRACE;
 
 /**
  * {@code HTTP2SourceHandlerBuilder} is used to build the HTTP2SourceHandler.
@@ -35,17 +39,22 @@ public final class Http2SourceHandlerBuilder
     private String interfaceId;
     private ServerConnectorFuture serverConnectorFuture;
     private String serverName;
+    private HttpServerChannelInitializer serverChannelInitializer;
 
     public Http2SourceHandlerBuilder(String interfaceId, ServerConnectorFuture serverConnectorFuture,
-                                     String serverName) {
+                                     String serverName, HttpServerChannelInitializer serverChannelInitializer) {
         this.interfaceId = interfaceId;
         this.serverConnectorFuture = serverConnectorFuture;
         this.serverName = serverName;
+        this.serverChannelInitializer = serverChannelInitializer;
     }
 
     @Override
     public Http2SourceHandler build() {
         Http2Connection conn = new DefaultHttp2Connection(true);
+        if (serverChannelInitializer.isHttpTraceLogEnabled()) {
+            frameLogger(new FrameLogger(TRACE, Constants.TRACE_LOG_DOWNSTREAM));
+        }
         connection(conn);
         return super.build();
     }

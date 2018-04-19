@@ -70,7 +70,7 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         if (httpTraceLogEnabled) {
             ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,
-                                  new HTTPTraceLoggingHandler("tracelog.http.upstream"));
+                                  new HTTPTraceLoggingHandler(Constants.TRACE_LOG_UPSTREAM));
         }
         RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount
                 , originalChannelContext, isIdleHandlerOfTargetChannelRemoved, connectionManager);

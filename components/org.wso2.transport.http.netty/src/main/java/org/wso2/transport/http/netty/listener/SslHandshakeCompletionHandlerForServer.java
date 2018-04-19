@@ -48,7 +48,7 @@ public class SslHandshakeCompletionHandlerForServer extends ChannelInboundHandle
             SslHandshakeCompletionEvent event = (SslHandshakeCompletionEvent) evt;
 
             if (event.isSuccess()) {
-                this.httpServerChannelInitializer.configureHTTPPipeline(serverPipeline, Constants.HTTP_SCHEME);
+                this.httpServerChannelInitializer.configureHttpPipeline(serverPipeline, Constants.HTTP_SCHEME);
                 serverPipeline.fireChannelActive();
             } else {
                 ctx.close();

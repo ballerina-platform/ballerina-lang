@@ -19,6 +19,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -625,13 +626,29 @@ public class Util {
     }
 
     /**
-     * **************************.
+     * Creates HTTP carbon message
      *
-     * @param httpMessage the future of outbound response write operation
-     * @param ctx            the channel future related to response write operation
+     * @param httpMessage   HTTP message
+     * @param ctx           Channel handler context
      */
     public static HTTPCarbonMessage createHTTPCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx) {
         Listener contentListener = new DefaultListener(ctx);
         return new HTTPCarbonMessage(httpMessage, contentListener);
+    }
+
+    /**
+     * Removes handlers from the pipeline if they are present.
+     *
+     * @param pipeline     the channel pipeline
+     * @param handlerNames names of the handlers to be removed
+     */
+    public static void safelyRemoveHandlers(ChannelPipeline pipeline, String... handlerNames) {
+        for (String name : handlerNames) {
+            if (pipeline.get(name) != null) {
+                pipeline.remove(name);
+            } else {
+                log.debug("Trying to remove not engaged {} handler from the pipeline", name);
+            }
+        }
     }
 }
