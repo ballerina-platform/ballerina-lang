@@ -94,7 +94,7 @@ public type LoadBalanceClientEndpointConfiguration {
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
     CacheConfig cache = {},
-    string acceptEncoding = "auto",
+    AcceptEncoding acceptEncoding = ACCEPT_ENCODING_AUTO,
     AuthConfig? auth,
     string algorithm = ROUND_ROBIN,
 };
