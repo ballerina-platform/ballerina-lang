@@ -23,10 +23,12 @@ package org.ballerinalang.net.grpc.builder.components;
 public class Attribute {
     private String name;
     private String type;
+    private String label;
     
-    public Attribute(String name, String type) {
+    public Attribute(String name, String type, String label) {
         this.name = name;
         this.type = type;
+        this.label = label;
     }
   
     public String getName() {
@@ -43,5 +45,13 @@ public class Attribute {
     
     public void setType(String type) {
         this.type = type;
+    }
+    
+    public String getLabel() {
+        return label;
+    }
+    
+    public void setLabel(String label) {
+        this.label = label;
     }
 }

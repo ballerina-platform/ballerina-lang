@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.jwt;
+package ballerina.internal;
 
 @Description {value:"VerifySignature the signature of a given jwt."}
 @Param {value:"data: Original data which has signed."}
@@ -44,3 +44,8 @@ type KeyStore {
     string keyStoreFilePath,
     string keyStorePassword,
 };
+
+@Description {value:"Parse JSON string to generate JSON object."}
+@Param {value:"s: JSON string"}
+@Return {value:"JSON object."}
+public native function parseJson (string s) returns (json|error);

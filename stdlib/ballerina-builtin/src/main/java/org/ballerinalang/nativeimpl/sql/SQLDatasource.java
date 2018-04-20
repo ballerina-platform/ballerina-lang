@@ -50,27 +50,33 @@ public class SQLDatasource implements BValue {
 
     private HikariDataSource hikariDataSource;
     private String databaseName;
+    private String databaseProductName;
     private String connectorId;
     private boolean xaConn;
-
-    public String getDatabaseName() {
-        return databaseName;
-    }
 
     public SQLDatasource() {}
 
     public boolean init(Struct options, String url, String dbType, String hostOrPath, int port, String username,
             String password, String dbName, String dbOptions) {
         buildDataSource(options, url, dbType, hostOrPath, dbName, port, username, password, dbOptions);
+        databaseName = dbName;
         connectorId = UUID.randomUUID().toString();
         xaConn = isXADataSource();
         try (Connection con = getSQLConnection()) {
-            databaseName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
+            databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
         } catch (SQLException e) {
             throw new BallerinaException("error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(),
                     e);
         }
         return true;
+    }
+
+    public String getDatabaseName() {
+        return databaseName;
+    }
+
+    public String getDatabaseProductName() {
+        return databaseProductName;
     }
 
     public Connection getSQLConnection() {
