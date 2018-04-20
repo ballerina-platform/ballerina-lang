@@ -105,6 +105,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -1047,15 +1048,17 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangMatchExpression bLangMatchExpression) {
         SymbolEnv matchExprEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) TreeBuilder.createBlockNode(), env);
         checkExpr(bLangMatchExpression.expr, matchExprEnv);
-        Set<BType> matchExprTypes = new LinkedHashSet<>();
+
+        // Type check and resolve patterns and their expressions
         bLangMatchExpression.patternClauses.forEach(pattern -> {
             if (!pattern.variable.name.value.endsWith(Names.IGNORE.value)) {
                 symbolEnter.defineNode(pattern.variable, matchExprEnv);
             }
             checkExpr(pattern.expr, matchExprEnv, expType);
             pattern.variable.type = symResolver.resolveTypeNode(pattern.variable.typeNode, matchExprEnv);
-            matchExprTypes.add(getActualType(pattern.expr));
         });
+
+        Set<BType> matchExprTypes = getMatchExpressionTypes(bLangMatchExpression);
 
         BType actualType;
         if (matchExprTypes.contains(symTable.errType)) {
@@ -1067,6 +1070,46 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(bLangMatchExpression, actualType, expType);
+    }
+
+    private List<BType> getTypesList(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) type;
+            return new ArrayList<>(unionType.memberTypes);
+        } else {
+            return Lists.of(type);
+        }
+    }
+
+    private Set<BType> getMatchExpressionTypes(BLangMatchExpression bLangMatchExpression) {
+        List<BType> exprTypes = getTypesList(bLangMatchExpression.expr.type);
+        Set<BType> matchExprTypes = new LinkedHashSet<>();
+        for (BType type : exprTypes) {
+            boolean assignable = false;
+            for (BLangMatchExprPatternClause pattern : bLangMatchExpression.patternClauses) {
+                BType patternExprType = pattern.expr.type;
+
+                // Type of the pattern expression, becomes one of the types of the whole but expression
+                matchExprTypes.addAll(getTypesList(patternExprType));
+
+                if (type.tag == TypeTags.ERROR || patternExprType.tag == TypeTags.ERROR) {
+                    return new HashSet<>(Lists.of(symTable.errType));
+                }
+
+                assignable = this.types.isAssignable(type, pattern.variable.type);
+                if (assignable) {
+                    break;
+                }
+            }
+
+            // If the matching expr type is not matching to any pattern, it becomes one of the types
+            // returned by the whole but expression
+            if (!assignable) {
+                matchExprTypes.add(type);
+            }
+        }
+
+        return matchExprTypes;
     }
 
     @Override
