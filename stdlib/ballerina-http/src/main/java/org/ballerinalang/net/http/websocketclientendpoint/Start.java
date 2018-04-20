@@ -85,7 +85,9 @@ public class Start extends BlockingNativeCallableUnit {
         handshakeFuture.setHandshakeListener(
                 new WsHandshakeListener(context, wsService, clientConnectorListener, readyOnConnect, countDownLatch));
         try {
-            countDownLatch.await(60, TimeUnit.SECONDS);
+            if (!countDownLatch.await(60, TimeUnit.SECONDS)) {
+                throw new BallerinaConnectorException("Waiting for WebSocket handshake in not successful");
+            }
         } catch (InterruptedException e) {
             throw new BallerinaConnectorException("Error occurred: " + e.getMessage());
 
@@ -101,7 +103,8 @@ public class Start extends BlockingNativeCallableUnit {
         CountDownLatch countDownLatch;
 
         WsHandshakeListener(Context context, WebSocketService wsService,
-                            WebSocketClientConnectorListener clientConnectorListener, boolean readyOnConnect, CountDownLatch countDownLatch) {
+                            WebSocketClientConnectorListener clientConnectorListener, boolean readyOnConnect,
+                            CountDownLatch countDownLatch) {
             this.context = context;
             this.wsService = wsService;
             this.clientConnectorListener = clientConnectorListener;
@@ -116,7 +119,6 @@ public class Start extends BlockingNativeCallableUnit {
             BStruct webSocketConnector = BLangConnectorSPIUtil.createObject(
                     wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                     PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
-            System.out.println("Setting connection ++++++++++++");
             webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION, webSocketConnection);
             WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClientEndpoint);
             WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService,

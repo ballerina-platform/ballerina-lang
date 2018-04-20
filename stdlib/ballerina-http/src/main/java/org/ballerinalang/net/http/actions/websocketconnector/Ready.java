@@ -19,7 +19,6 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.NativeCallableUnit;
@@ -31,8 +30,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
-
-import java.nio.ByteBuffer;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
