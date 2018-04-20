@@ -42,11 +42,11 @@ import java.util.zip.Checksum;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
-        functionName = "getCRC32",
+        functionName = "crc32",
         args = {@Argument(name = "content", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true)
-public class GetCRC32 extends BlockingNativeCallableUnit {
+public class Crc32 extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {

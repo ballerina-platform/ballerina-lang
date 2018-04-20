@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.ballerinalang.nativeimpl.transactions;
+package io.ballerina.transactions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
