@@ -7,12 +7,11 @@ endpoint http:Listener serviceEnpoint {
 };
 
 endpoint http:Client bankInfoService {
-    targets:[{url: "http://localhost:9090/bankinfo/product"}]
-
+    url: "http://localhost:9090/bankinfo/product"
 };
 
 endpoint http:Client branchLocatorService {
-    targets:[{url: "http://localhost:9090/branchlocator/product"}]
+    url: "http://localhost:9090/branchlocator/product"
 };
 
 @http:ServiceConfig {

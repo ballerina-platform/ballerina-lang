@@ -27,7 +27,7 @@ public type {{cut info.title " "}}ClientEp object {
         self.config = config;
     }
 
-    public function getClient() returns ({{cut info.title " "}}Client) {
+    public function getCallerActions() returns ({{cut info.title " "}}Client) {
         return new {{cut info.title " "}}Client(self);
     }
 };

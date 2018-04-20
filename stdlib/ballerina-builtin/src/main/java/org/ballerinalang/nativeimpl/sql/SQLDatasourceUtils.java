@@ -629,10 +629,10 @@ public class SQLDatasourceUtils {
     }
 
     public static void setRefCursorValue(Connection connection, PreparedStatement stmt, int index, int direction,
-            String databaseName) {
+            String databaseProductName) {
         try {
             if (Constants.QueryParamDirection.OUT == direction) {
-                if (ORACLE_DATABASE_NAME.equals(databaseName)) {
+                if (ORACLE_DATABASE_NAME.equals(databaseProductName)) {
                     // Since oracle does not support general java.sql.Types.REF_CURSOR in manipulating ref cursors it
                     // is required to use oracle.jdbc.OracleTypes.CURSOR here. In order to avoid oracle driver being
                     // a runtime dependency always, we have directly used the value(-10) of general oracle.jdbc
@@ -1095,8 +1095,8 @@ public class SQLDatasourceUtils {
         datasource.init(options, "", database, host, port, username, password, name, dbOptions);
 
         BStruct sqlClient = BLangConnectorSPIUtil
-                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
-        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
+                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
+        sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
         return sqlClient;
     }
 
@@ -1113,8 +1113,8 @@ public class SQLDatasourceUtils {
         datasource.init(options, url, dbType, "", 0, username, password, "", "");
 
         BStruct sqlClient = BLangConnectorSPIUtil
-                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
-        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
+                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
+        sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
         return sqlClient;
     }
 
@@ -1146,8 +1146,8 @@ public class SQLDatasourceUtils {
         datasource.init(options, "", database, hostOrPath, port, username, password, name, dbOptions);
 
         BStruct sqlClient = BLangConnectorSPIUtil
-                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
-        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
+                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
+        sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
         return sqlClient;
     }
 

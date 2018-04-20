@@ -5,7 +5,7 @@ import org.ballerinalang.repository.PackageSourceEntry;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.util.HomeRepoUtils;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,7 +52,7 @@ public class URIConverter implements Converter<URI> {
     }
 
     @Override
-    public Stream<URI> expand(URI u) {
+    public Stream<URI> latest(URI u) {
         throw new UnsupportedOperationException();
     }
 
@@ -65,7 +65,7 @@ public class URIConverter implements Converter<URI> {
     public Stream<PackageSourceEntry> finalize(URI u, PackageID packageID) {
         String orgName = packageID.getOrgName().getValue();
         String pkgName = packageID.getName().getValue();
-        Path destDirPath = HomeRepoUtils.createAndGetHomeReposPath().resolve(Paths.get("repo", orgName, pkgName));
+        Path destDirPath = RepoUtils.createAndGetHomeReposPath().resolve(Paths.get("repo", orgName, pkgName));
         createDirectory(destDirPath);
         try {
             String fullPkgPath = orgName + "/" + pkgName;
@@ -73,7 +73,7 @@ public class URIConverter implements Converter<URI> {
             executor.execute("packaging.pull/ballerina.pull.balx", u.toString(), destDirPath.toString(),
                              fullPkgPath, File.separator);
             // TODO Simplify using ZipRepo
-            Patten pattern = new Patten(Patten.WILDCARD_DIR,
+            Patten pattern = new Patten(Patten.LATEST_VERSION_DIR,
                                         Patten.path(pkgName + ".zip"),
                                         Patten.path("src"), Patten.WILDCARD_SOURCE);
             return pattern.convertToSources(new ZipConverter(destDirPath), packageID);
