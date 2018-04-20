@@ -9,6 +9,7 @@ function main(string... args) {
     string resultFileName = untaintedReturn(<string>args[2]);
 
     string functionName = args[3];
+    addFunctions();
 
     function() func = getFunction(functionName);
 
@@ -17,7 +18,7 @@ function main(string... args) {
 }
 
 function executeBenchmark(function () f, string functionName, int warmupIterations,
-                            int benchmarkIterations, string resultsFileName) {
+int benchmarkIterations, string resultsFileName) {
 
     io:println("Executing function " + functionName + " " + (warmupIterations + benchmarkIterations) + " times.Please wait...");
 
@@ -36,19 +37,19 @@ function executeBenchmark(function () f, string functionName, int warmupIteratio
     int endTime = time:nanoTime();
 
     string resultsFileLocation = "results/" + resultsFileName + ".csv";
-    io:ByteChannel channel = io:openFile(resultsFileLocation, "A");
-    io:CharacterChannel charChannel = check io:createCharacterChannel(channel, "UTF-8");
-    int resultWrite = check charChannel.writeCharacters("\n" + functionName + ",", 0);
+    io:ByteChannel channel = io:openFile(resultsFileLocation, "a");
+    io:CharacterChannel charChannel = new io:CharacterChannel(channel, "UTF-8");
+    int resultWrite = check charChannel.write("\n" + functionName + ",", 0);
 
     float totalTime = (endTime - startTime);
     float totalTimeMilli = (totalTime / 1000000.0);
-    resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f,", [totalTimeMilli]), 0);
+    resultWrite = check charChannel.write(io:sprintf("%10.2f,", totalTimeMilli), 0);
 
     float avgLatency = (<float>totalTime / <float>benchmarkIterations);
-    resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f,", [avgLatency]), 0);
+    resultWrite = check charChannel.write(io:sprintf("%10.2f,", avgLatency), 0);
 
     float tps = (1000000000.0 / avgLatency);
-    resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f", [tps]), 0);
+    resultWrite = check charChannel.write(io:sprintf("%10.2f", tps), 0);
     var result = channel.close();
 }
 

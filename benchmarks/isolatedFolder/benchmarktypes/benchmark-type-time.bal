@@ -56,12 +56,6 @@ public function benchmarkFormatTimeFunction() {
     string timeString = time.format("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 }
 
-public function benchmarkFormatTimeToRFC1123function() {
-    time:Timezone zoneValue = {zoneId:"America/Panama"};
-    time:Time time = new(1498488382444, zoneValue);
-    string timeString = time.formatTo(time:TIME_FORMAT_RFC_1123);
-}
-
 public function benchmarkTimeGetFunctions() {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
     time:Time time = new(1456876583555, zoneValue);

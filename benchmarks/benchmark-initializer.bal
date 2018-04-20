@@ -31,9 +31,9 @@ function prepare(int warmupIterations, int benchmarkIterations, string resultsFi
     if (file:exists(reameMePath)){
         var result = file:delete(reameMePath);
     }
-    io:ByteChannel channelR = io:openFile(fileReadMeLocation, "W");
-    io:CharacterChannel charChannelR = check io:createCharacterChannel(channelR, "UTF-8");
-    int resultWriteR = check charChannelR.writeCharacters("This test carried out with warmupIterations of " +
+    io:ByteChannel channelR = io:openFile(fileReadMeLocation, "w");
+    io:CharacterChannel charChannelR = new io:CharacterChannel(channelR, "UTF-8");
+    int resultWriteR = check charChannelR.write("This test carried out with warmupIterations of " +
             warmupIterations + " and benchmarkIterations of " + benchmarkIterations + ".", 0);
 
     // write results file
@@ -42,9 +42,9 @@ function prepare(int warmupIterations, int benchmarkIterations, string resultsFi
     if (file:exists(resultsFile)) {
         var result = file:delete(resultsFile);
     }
-    io:ByteChannel channel = io:openFile(resultsFileLocation, "W");
-    io:CharacterChannel charChannel = check io:createCharacterChannel(channel, "UTF-8");
-    int resultWrite = check charChannel.writeCharacters("Function_Name,Total Time (ms),Average Latency (ns),Throughput (operations/second) ", 0);
+    io:ByteChannel channel = io:openFile(resultsFileLocation, "w");
+    io:CharacterChannel charChannel = new io:CharacterChannel(channel, "UTF-8");
+    int resultWrite = check charChannel.write("Function_Name,Total Time (ms),Average Latency (ns),Throughput (operations/second) ", 0);
     var result = channel.close();
 }
 

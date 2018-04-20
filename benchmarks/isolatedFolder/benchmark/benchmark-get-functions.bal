@@ -6,7 +6,6 @@ import ballerina/io;
 map<function()> functions;
 
 function getFunction(string name) returns (function()) {
-    addFunctions();
     return functions[name];
 }
 
@@ -62,7 +61,6 @@ function addFunctions() {
     functions["benchmarkParseTimeFunction"] = benchmarktypes:benchmarkParseTimeFunction;
     functions["benchmarkToStringWithCreateTimeFunction"] = benchmarktypes:benchmarkToStringWithCreateTimeFunction;
     functions["benchmarkFormatTimeFunction"] = benchmarktypes:benchmarkFormatTimeFunction;
-    functions["benchmarkFormatTimeToRFC1123function"] = benchmarktypes:benchmarkFormatTimeToRFC1123function;
     functions["benchmarkTimeGetFunctions"] = benchmarktypes:benchmarkTimeGetFunctions;
     functions["benchmarkGetDateFunction"] = benchmarktypes:benchmarkGetDateFunction;
     functions["benchmarkGetTimeFunction"] = benchmarktypes:benchmarkGetTimeFunction;
@@ -83,15 +81,6 @@ function addFunctions() {
     functions["benchmarkInitFileChannelAppendMode"] = benchmarkio:benchmarkInitFileChannelAppendMode;
     functions["benchmarkReadBytes"] = benchmarkio:benchmarkReadBytes;
     functions["benchmarkWriteBytes"] = benchmarkio:benchmarkWriteBytes;
-    functions["benchmarkInitCharacterChannelReadMode"] = benchmarkio:benchmarkInitCharacterChannelReadMode;
-    functions["benchmarkInitCharacterChannelWriteMode"] = benchmarkio:benchmarkInitCharacterChannelWriteMode;
-    functions["benchmarkInitCharacterChannelAppendMode"] = benchmarkio:benchmarkInitCharacterChannelAppendMode;
-    functions["benchmarkWriteCharacters"] = benchmarkio:benchmarkWriteCharacters;
-    functions["benchmarkReadCharacters"] = benchmarkio:benchmarkReadCharacters;
-    functions["benchmarkReadJson"] = benchmarkio:benchmarkReadJson;
-    functions["benchmarkWriteJson"] = benchmarkio:benchmarkWriteJson;
-    functions["benchmarkReadXML"] = benchmarkio:benchmarkReadXML;
-    functions["benchmarkWriteXML"] = benchmarkio:benchmarkWriteXML;
 
 }
 
