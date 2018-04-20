@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -17,6 +17,15 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Package name="org.ballerinalang.builtin"/>
+        <Package name="org.ballerinalang.database.sql.actions"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.database.sql.BMirrorTable"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.database.h2"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.database.mysql"/>
     </Match>
 </FindBugsFilter>

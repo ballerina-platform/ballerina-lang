@@ -67,11 +67,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-h2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-mysql</artifactId>
+            <artifactId>ballerina-database</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
