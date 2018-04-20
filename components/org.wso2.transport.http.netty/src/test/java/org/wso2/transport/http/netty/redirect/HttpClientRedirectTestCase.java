@@ -88,6 +88,7 @@ public class HttpClientRedirectTestCase {
     private TransportsConfiguration transportsConfiguration;
     private ConnectionManager connectionManager;
     private static final String FINAL_DESTINATION = "http://localhost:9093/destination";
+    private static final String FINAL_HTTPS_DESTINATION = "https://localhost:9093/destination";
     private static final String FIRST_DESTINATION = "http://localhost:9092/destination";
     private static final int DESTINATION_PORT1 = 9091;
     private static final int DESTINATION_PORT2 = 9092;
@@ -96,6 +97,7 @@ public class HttpClientRedirectTestCase {
     private static final String URL2 = "http://testRedirect/url2";
 
     private String testValue = "Test Message";
+    private String redirectServerTestValue = "Redirecting";
     private String testValueForLoopRedirect = "Test Loop";
 
     @BeforeClass
@@ -127,9 +129,9 @@ public class HttpClientRedirectTestCase {
         Set<SenderConfiguration> senderConfig = transportsConfigurationForHttps.getSenderConfigurations();
         senderConfig.forEach(config -> {
             if (config.getId().contains(Constants.HTTPS_SCHEME)) {
-                config.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
                 config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
-                config.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
+                config.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+                config.setFollowRedirect(true);
             }
         });
         httpsClientConnector = connectorFactory.createHttpClientConnector(HTTPConnectorUtil
@@ -473,17 +475,17 @@ public class HttpClientRedirectTestCase {
     @Test
     public void integrationTestForSingleRedirect() {
         try {
-            //This server starts on port 9092 and give testValue as an output
+            //This server starts on port 9093 and give testValue as an output
             HttpServer httpServer = TestUtil.startHTTPServer(DESTINATION_PORT3,
                     new RedirectServerInitializer(testValue, Constants.TEXT_PLAIN, 200, null, 0));
-            //This server starts on port 9091 and give a redirect response to 9092
+            //This server starts on port 9091 and give a redirect response to 9093
             HttpServer redirectServer = TestUtil.startHTTPServer(DESTINATION_PORT1,
-                    new RedirectServerInitializer(testValue, Constants.TEXT_PLAIN,
+                    new RedirectServerInitializer(redirectServerTestValue, Constants.TEXT_PLAIN,
                             HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 0));
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);
-            //Send a request to server that runs on port 9091 and it should redirect to server that runs on port 9092
+            //Send a request to server that runs on port 9091 and it should redirect to server that runs on port 9093
             HttpResponseFuture responseFuture = httpClientConnector
                     .send(createHttpCarbonRequest(null, DESTINATION_PORT1, HTTP_SCHEME));
             responseFuture.setHttpConnectorListener(listener);
@@ -495,7 +497,7 @@ public class HttpClientRedirectTestCase {
             String result = new BufferedReader(
                     new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream())).lines()
                     .collect(Collectors.joining("\n"));
-            //Output should match with the response given by 9000 server
+            //Output should match with the response given by 9003 server
             assertEquals(testValue, result);
             redirectServer.shutdown();
             httpServer.shutdown();
@@ -510,13 +512,13 @@ public class HttpClientRedirectTestCase {
     @Test
     public void integrationTestForRedirectWithHttps() {
         try {
-            //This server starts on port 9092 and give testValue as an output
+            //This server starts on port 9093 and give testValue as an output
             HttpsServer httpServer = TestUtil.startHttpsServer(DESTINATION_PORT3,
                     new RedirectServerInitializer(testValue, Constants.TEXT_PLAIN, 200, null, 0));
-            //This server starts on port 9091 and give a redirect response to 9092
+            //This server starts on port 9091 and give a redirect response to 9093
             HttpsServer redirectServer = TestUtil.startHttpsServer(DESTINATION_PORT1,
-                    new RedirectServerInitializer(testValue, Constants.TEXT_PLAIN,
-                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 0));
+                    new RedirectServerInitializer(redirectServerTestValue, Constants.TEXT_PLAIN,
+                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_HTTPS_DESTINATION, 0));
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);
@@ -532,12 +534,48 @@ public class HttpClientRedirectTestCase {
             String result = new BufferedReader(
                     new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream())).lines()
                     .collect(Collectors.joining("\n"));
-            //Output should match with the response given by 9092 server
+            //Output should match with the response given by 9093 server
             assertEquals(testValue, result);
             redirectServer.shutdown();
             httpServer.shutdown();
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running integrationTestForRedirectWithHttps", e);
+        }
+    }
+
+    /**
+     * Integration test to test the ultimate request URI of the server, from which the response came from.
+     */
+    @Test
+    public void integrationTestForResolvedRequestedURI() {
+        try {
+            HttpServer httpServer = TestUtil.startHTTPServer(DESTINATION_PORT3,
+                    new RedirectServerInitializer(testValue, Constants.TEXT_PLAIN, 200, null, 0));
+            HttpServer redirectServer2 = TestUtil.startHTTPServer(DESTINATION_PORT2,
+                    new RedirectServerInitializer(redirectServerTestValue, Constants.TEXT_PLAIN,
+                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 0));
+
+            HttpServer redirectServer1 = TestUtil.startHTTPServer(DESTINATION_PORT1,
+                    new RedirectServerInitializer(redirectServerTestValue, Constants.TEXT_PLAIN,
+                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), FIRST_DESTINATION, 0));
+
+            CountDownLatch latch = new CountDownLatch(1);
+            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
+            HttpResponseFuture responseFuture = httpClientConnector
+                    .send(createHttpCarbonRequest(null, DESTINATION_PORT1, HTTP_SCHEME));
+            responseFuture.setHttpConnectorListener(listener);
+
+            latch.await(60, TimeUnit.SECONDS);
+
+            HTTPCarbonMessage response = listener.getHttpResponseMessage();
+            assertNotNull(response);
+            String receivedResolvedUri = response.getProperty(Constants.RESOLVED_REQUESTED_URI).toString();
+            assertEquals(receivedResolvedUri, FINAL_DESTINATION);
+            redirectServer2.shutdown();
+            redirectServer1.shutdown();
+            httpServer.shutdown();
+        } catch (Exception e) {
+            TestUtil.handleException("Exception occurred while running integrationTestForResolvedRequestedURI", e);
         }
     }
 
@@ -558,7 +596,7 @@ public class HttpClientRedirectTestCase {
 
             //Server1 starts on port 9091 and give a redirect response that should goto port 9093 server
             HttpServer redirectServer1 = TestUtil.startHTTPServer(DESTINATION_PORT1,
-                    new RedirectServerInitializer(testValue, Constants.TEXT_PLAIN,
+                    new RedirectServerInitializer(redirectServerTestValue, Constants.TEXT_PLAIN,
                             HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 0));
 
             //Server2 starts on port 9093 and give a redirect response to some other domain
@@ -586,42 +624,6 @@ public class HttpClientRedirectTestCase {
 
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running testRedirectionLoop", e);
-        }
-    }
-
-    /**
-     * Integration test to test the ultimate request URI that was made to receive the response.
-     */
-    @Test
-    public void integrationTestForResolvedRequestedURI() {
-        try {
-            HttpServer httpServer = TestUtil.startHTTPServer(DESTINATION_PORT3,
-                    new RedirectServerInitializer(testValue, Constants.TEXT_PLAIN, 200, null, 0));
-            HttpServer redirectServer2 = TestUtil.startHTTPServer(DESTINATION_PORT2,
-                    new RedirectServerInitializer(testValue, Constants.TEXT_PLAIN,
-                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), FINAL_DESTINATION, 0));
-
-            HttpServer redirectServer1 = TestUtil.startHTTPServer(DESTINATION_PORT1,
-                    new RedirectServerInitializer(testValue, Constants.TEXT_PLAIN,
-                            HttpResponseStatus.TEMPORARY_REDIRECT.code(), FIRST_DESTINATION, 0));
-
-            CountDownLatch latch = new CountDownLatch(1);
-            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
-            HttpResponseFuture responseFuture = httpClientConnector
-                    .send(createHttpCarbonRequest(null, DESTINATION_PORT1, HTTP_SCHEME));
-            responseFuture.setHttpConnectorListener(listener);
-
-            latch.await(60, TimeUnit.SECONDS);
-
-            HTTPCarbonMessage response = listener.getHttpResponseMessage();
-            assertNotNull(response);
-            String receivedResolvedUri = response.getProperty(Constants.RESOLVED_REQUESTED_URI).toString();
-            assertEquals(receivedResolvedUri, FINAL_DESTINATION);
-            redirectServer2.shutdown();
-            redirectServer1.shutdown();
-            httpServer.shutdown();
-        } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running integrationTestForResolvedRequestedURI", e);
         }
     }
 
