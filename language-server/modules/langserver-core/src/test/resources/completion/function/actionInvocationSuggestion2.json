@@ -62,11 +62,11 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"get(string path, http:Request req)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
+      "label":"get(string path)(ballerina.http:Response|ballerina.http:HttpConnectorError)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"get(${1:path}, ${2:req})",
+      "insertText":"get(${1:path})",
       "insertTextFormat":"Snippet"
     },
     {
