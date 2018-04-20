@@ -13,7 +13,7 @@ function startService(){
 }
 
 @test:Config {
-    enable:false,
+    enable:true,
     before:"startService",
     after:"stopService"
 }
@@ -27,7 +27,7 @@ function testFunc() {
 
 function testAuthSuccess () {
     // create client
-    endpoint http:Client httpEndpoint { targets:[{ url:"http://localhost:9090" }],
+    endpoint http:Client httpEndpoint {  url:"https://localhost:9090" ,
         auth: {scheme:"basic", username:"tom", password:"password1"} };
     http:Request req = new;
     // Send a GET request to the specified endpoint
@@ -42,7 +42,7 @@ function testAuthSuccess () {
 
 function testAuthnFailure () {
     // create client
-    endpoint http:Client httpEndpoint { targets:[{ url:"http://localhost:9090" }],
+    endpoint http:Client httpEndpoint { url:"https://localhost:9090",
         auth: {scheme:"basic", username:"tom", password:"password"} };
     http:Request req = new;
     // Send a GET request to the specified endpoint
@@ -57,7 +57,7 @@ function testAuthnFailure () {
 
 function testAuthzFailure () {
     // create client
-    endpoint http:Client httpEndpoint { targets:[{ url:"http://localhost:9090" }],
+    endpoint http:Client httpEndpoint { url:"https://localhost:9090",
         auth: {scheme:"basic", username:"dick", password:"password2"} };
     http:Request req = new;
     // Send a GET request to the specified endpoint
