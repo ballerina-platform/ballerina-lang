@@ -118,7 +118,14 @@ public class CompiledPackageSymbolEnter {
     public BPackageSymbol definePackage(PackageID packageId,
                                         PackageRepository packageRepository,
                                         byte[] packageBinaryContent) {
-        return definePackage(packageId, packageRepository, new ByteArrayInputStream(packageBinaryContent));
+        BPackageSymbol pkgSymbol = definePackage(packageId, packageRepository,
+                new ByteArrayInputStream(packageBinaryContent));
+
+        // Strip magic value (4 bytes) and the version (2 bytes) off from the binary content of the package.
+        byte[] modifiedPkgBinaryContent = Arrays.copyOfRange(
+                packageBinaryContent, 6, packageBinaryContent.length);
+        pkgSymbol.packageFile = new CompiledBinaryFile.PackageFile(modifiedPkgBinaryContent);
+        return pkgSymbol;
     }
 
     public BPackageSymbol definePackage(PackageID packageId,

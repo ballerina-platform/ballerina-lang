@@ -22,7 +22,6 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * Dump Ballerina {@code PackageFile} model (BALO) to a file.
@@ -31,28 +30,14 @@ import java.io.OutputStream;
  */
 public class PackageFileWriter {
 
-    public static byte[] writePackage(PackageInfo packageInfo) throws IOException {
+    public static byte[] writePackage(PackageFile packageFile) throws IOException {
         ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
-        writePackage(packageInfo, byteArrayOS);
-        return byteArrayOS.toByteArray();
-    }
-
-    public static void writePackage(PackageInfo packageInfo, OutputStream programOutStream) throws IOException {
-        DataOutputStream dataOutStream = null;
-        try {
-            dataOutStream = new DataOutputStream(programOutStream);
+        try (DataOutputStream dataOutStream = new DataOutputStream(byteArrayOS)) {
             dataOutStream.writeInt(PackageFile.MAGIC_VALUE);
             dataOutStream.writeShort(PackageFile.LANG_VERSION);
 
-            // Write the package info structure
-            PackageInfoWriter.writePackageInfo(packageInfo, dataOutStream);
-
-            dataOutStream.flush();
-            dataOutStream.close();
-        } finally {
-            if (dataOutStream != null) {
-                dataOutStream.close();
-            }
+            dataOutStream.write(packageFile.pkgBinaryContent);
+            return byteArrayOS.toByteArray();
         }
     }
 }
