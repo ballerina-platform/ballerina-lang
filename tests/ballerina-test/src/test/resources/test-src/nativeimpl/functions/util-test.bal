@@ -1,4 +1,5 @@
 import ballerina/util;
+import ballerina/internal;
 import ballerina/security.crypto;
 import ballerina/io;
 
@@ -56,7 +57,7 @@ function testHMACValueFromBase64ToBase16Encoding (string base, string key) retur
 }
 
 function testParseJson (string s) returns (json|error) {
-    match util:parseJson(s) {
+    match internal:parseJson(s) {
         json result => {
             return result;
         }
