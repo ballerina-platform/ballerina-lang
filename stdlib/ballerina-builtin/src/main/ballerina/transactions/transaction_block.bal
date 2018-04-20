@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.transactions;
-
 documentation {
     When a transaction block in Ballerina code begins, it will call this function to begin a transaction.
     If this is a new transaction (transactionId == () ), then this instance will become the initiator and will

@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 documentation {
     Represents HTTP connection which can be used to comminicate either with client or with other service.

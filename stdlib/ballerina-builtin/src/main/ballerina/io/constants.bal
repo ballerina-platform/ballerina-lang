@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.io;
 
 @Description {value : "Supported record formats of CSV"}
 public type Format "default"|"csv"|"tdf";

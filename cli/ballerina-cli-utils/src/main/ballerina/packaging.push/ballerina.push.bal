@@ -1,4 +1,3 @@
-package packaging.push;
 
 import ballerina/io;
 import ballerina/mime;

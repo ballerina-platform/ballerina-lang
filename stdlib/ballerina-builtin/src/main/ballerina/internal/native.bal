@@ -3,7 +3,6 @@
 //  ballerina.internal package defines Internal APIs exposed by Ballerina Virtual Machine (BVM).
 //  They are subject to change in a undocumented or unsupported way, use with caution.
 //
-package ballerina.internal;
 
 public type anyStruct {};
 

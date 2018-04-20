@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.file;
 
 documentation {
     Represents an event which will trigger when there is a changes to listining direcotry.
