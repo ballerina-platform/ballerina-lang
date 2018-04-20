@@ -1,6 +1,5 @@
 package packaging.push;
 
-import ballerina/file;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
