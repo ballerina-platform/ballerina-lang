@@ -30,7 +30,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.grpc.EndpointConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.config.EndpointConfiguration;
 import org.ballerinalang.net.grpc.nativeimpl.EndpointUtils;
@@ -57,20 +56,21 @@ import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAG
 @BallerinaFunction(
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "initEndpoint",
+        functionName = "init",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_ENDPOINT_TYPE,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfig")},
         isPublic = true
 )
-public class InitEndpoint extends BlockingNativeCallableUnit {
+public class Init extends BlockingNativeCallableUnit {
     
     @Override
     public void execute(Context context) {
         try {
             Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             // Creating client endpoint with channel as native data.
-            Struct endpointConfig = clientEndpoint.getStructField(EndpointConstants.ENDPOINT_CONFIG);
+            BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
+            Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
             EndpointConfiguration configuration = EndpointUtils.getEndpointConfiguration(endpointConfig);
             ManagedChannel channel;
             if (configuration.getSslConfig() == null) {

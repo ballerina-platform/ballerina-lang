@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/grpc;
 
 function main (string[] args) {
 {{#nonBlockingEndpoint}}
@@ -16,14 +17,14 @@ function main (string[] args) {
 }
 
 {{#messageListener}}
-service<grpc:Listener> {{connectorId}}MessageListener {
+service<grpc:Service> {{connectorId}}MessageListener {
 
     onMessage (string message) {
         io:println("Response received from server: " + message);
     }
 
-    onError (grpc:ServerError err) {
-        if (err != null) {
+    onError (error err) {
+        if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }
