@@ -20,21 +20,27 @@ package org.wso2.transport.http.netty.util.client.http2;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
+import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.util.TestUtil;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 /**
  * A utility class which generates HTTP/2.0 requests.
  */
-public class RequestGenerator {
+public class MessageGenerator {
 
     public static HTTPCarbonMessage generateRequest(HttpMethod httpMethod, String payload) {
         HTTPCarbonMessage httpCarbonMessage = new HttpCarbonRequest(new DefaultHttpRequest(
@@ -51,5 +57,31 @@ public class RequestGenerator {
             httpCarbonMessage.addHttpContent(new DefaultLastHttpContent());
         }
         return httpCarbonMessage;
+    }
+
+    public static HTTPCarbonMessage generateResponse(String response) throws UnsupportedEncodingException {
+        return generateResponse(response, null);
+    }
+
+    public static HTTPCarbonMessage generateResponse(String response, HttpResponseStatus status)
+            throws UnsupportedEncodingException {
+        if (status == null) {
+            status = HttpResponseStatus.OK;
+        }
+        HTTPCarbonMessage httpResponse =
+                new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1, status));
+        httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
+        httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
+        httpResponse.setProperty(Constants.HTTP_STATUS_CODE, status.code());
+
+        if (response != null) {
+            byte[] responseByteValues = response.getBytes("UTF-8");
+            ByteBuffer responseValueByteBuffer = ByteBuffer.wrap(responseByteValues);
+            httpResponse.
+                    addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(responseValueByteBuffer)));
+        } else {
+            httpResponse.completeMessage();
+        }
+        return httpResponse;
     }
 }

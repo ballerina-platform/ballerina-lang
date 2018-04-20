@@ -34,6 +34,11 @@ public class HttpCarbonRequest extends HTTPCarbonMessage {
         this.httpRequest = (HttpRequest) this.httpMessage;
     }
 
+    public HttpCarbonRequest(HttpRequest httpRequest, Listener listener) {
+        super(httpRequest, listener);
+        this.httpRequest = (HttpRequest) this.httpMessage;
+    }
+
     public void setHttpVersion(HttpVersion httpVersion) {
         this.httpRequest.setProtocolVersion(httpVersion);
     }

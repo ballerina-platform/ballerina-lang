@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.sender.http2;
 
+import io.netty.handler.codec.http2.Http2Headers;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -27,6 +28,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * {@code OutboundMsgHolder} holds data related to a single outbound invocation.
@@ -47,12 +49,19 @@ public class OutboundMsgHolder {
     private long lastReadWriteTime;
     private boolean requestWritten;
 
-    public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage, Http2ClientChannel http2ClientChannel) {
+    private boolean markedForRedirection = false;
+    private AtomicInteger redirectCount = new AtomicInteger(0);
+    private Http2Headers redirectResponseHeaders;
+
+    public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage) {
         this.requestCarbonMessage = httpCarbonMessage;
-        this.http2ClientChannel = http2ClientChannel;
         promises = new LinkedBlockingQueue<>();
         pushResponsesMap = new ConcurrentHashMap<>();
         responseFuture = new DefaultHttpResponseFuture(this);
+    }
+
+    public void setHttp2ClientChannel(Http2ClientChannel http2ClientChannel) {
+        this.http2ClientChannel = http2ClientChannel;
     }
 
     /**
@@ -204,6 +213,40 @@ public class OutboundMsgHolder {
      */
     public void setRequestWritten(boolean requestWritten) {
         this.requestWritten = requestWritten;
+    }
+
+    /**
+     * Increments and gets the redirects count.
+     *
+     * @return number of redirects
+     */
+    public int incrementRedirectCount() {
+        return redirectCount.incrementAndGet();
+    }
+
+    public boolean isMarkedForRedirection() {
+        return markedForRedirection;
+    }
+
+    public void markForRedirection() {
+        this.markedForRedirection = true;
+    }
+
+    public Http2Headers getRedirectResponseHeaders() {
+        return redirectResponseHeaders;
+    }
+
+    public void setRedirectResponseHeaders(Http2Headers redirectResponseHeaders) {
+        this.redirectResponseHeaders = redirectResponseHeaders;
+    }
+
+    public void clearRedirectionState() {
+        markedForRedirection = false;
+        redirectResponseHeaders = null;
+    }
+
+    public void updateRequest(HTTPCarbonMessage requestCarbonMessage) {
+        this.requestCarbonMessage = requestCarbonMessage;
     }
 }
 

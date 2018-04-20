@@ -111,39 +111,11 @@ public class OCSPStaplingTest {
 
     @BeforeClass
     public void setUp() throws Exception {
-        Security.addProvider(new BouncyCastleProvider());
-        Utils utils = new Utils();
-        KeyPair caKeyPair = utils.generateRSAKeyPair();
-
-        X509Certificate caCert = utils.generateFakeRootCert(caKeyPair);
-        BigInteger serialNumber = BigInteger.valueOf(01);
-
-        OCSPReq request = getOCSPRequest(caCert, serialNumber);
-        byte[] issuerCertEnc = caCert.getEncoded();
-        X509CertificateHolder certificateHolder = new X509CertificateHolder(issuerCertEnc);
-
-        OCSPResp response = generateOCSPResponse(request, certificateHolder, caKeyPair.getPrivate());
-        SingleResp singleResp = ((BasicOCSPResp) response.getResponseObject()).getResponses()[0];
-
-        OCSPCache cache = OCSPCache.getCache();
-        int cacheSize = 51;
-        int cacheDelay = 15;
-        cache.init(cacheSize, cacheDelay);
-        cache.setCacheValue(response, serialNumber, singleResp, request, null);
-
+        createMockOCSPResponse();
         TransportsConfiguration transportsConfiguration = TestUtil
                 .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
         Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
-
-        senderConfig.forEach(config -> {
-            if (config.getId().contains(httpsScheme)) {
-                config.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFilePath));
-                config.setTrustStorePass(trustStorePassword);
-                config.setTLSStoreType(tlsStoreType);
-                config.setHostNameVerificationEnabled(false);
-                config.setOcspStaplingEnabled(true);
-            }
-        });
+        setSenderConfigs(senderConfig);
 
         factory = new DefaultHttpWsConnectorFactory();
 
@@ -161,6 +133,18 @@ public class OCSPStaplingTest {
 
     }
 
+    private void setSenderConfigs(Set<SenderConfiguration> senderConfig) {
+        senderConfig.forEach(config -> {
+            if (config.getId().contains(httpsScheme)) {
+                config.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFilePath));
+                config.setTrustStorePass(trustStorePassword);
+                config.setTLSStoreType(tlsStoreType);
+                config.setHostNameVerificationEnabled(false);
+                config.setOcspStaplingEnabled(true);
+            }
+        });
+    }
+
     @Test (description = "Tests with ocsp stapling enabled client and a server.")
     public void testOcspStapling() {
         try {
@@ -172,7 +156,7 @@ public class OCSPStaplingTest {
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
 
-            latch.await(5, TimeUnit.SECONDS);
+            latch.await(10, TimeUnit.SECONDS);
 
             HTTPCarbonMessage response = listener.getHttpResponseMessage();
             assertNotNull(response);
@@ -278,6 +262,32 @@ public class OCSPStaplingTest {
                 .getDeclaredMethod("generateOCSPRequest", X509Certificate.class, BigInteger.class);
         generateOCSPRequest.setAccessible(true);
         return (OCSPReq) generateOCSPRequest.invoke(ocspVerifier, caCert, serialNumber);
+    }
+
+    private void createMockOCSPResponse() throws Exception {
+        Security.addProvider(new BouncyCastleProvider());
+        Utils utils = new Utils();
+        KeyPair caKeyPair = utils.generateRSAKeyPair();
+
+        X509Certificate caCert = utils.generateFakeRootCert(caKeyPair);
+        BigInteger serialNumber = BigInteger.valueOf(01);
+
+        OCSPReq request = getOCSPRequest(caCert, serialNumber);
+        byte[] issuerCertEnc = caCert.getEncoded();
+        X509CertificateHolder certificateHolder = new X509CertificateHolder(issuerCertEnc);
+
+        OCSPResp response = generateOCSPResponse(request, certificateHolder, caKeyPair.getPrivate());
+        SingleResp singleResp = ((BasicOCSPResp) response.getResponseObject()).getResponses()[0];
+        cacheOcspResponse(response, serialNumber, singleResp, request);
+
+    }
+
+    private void cacheOcspResponse(OCSPResp response, BigInteger serialNumber, SingleResp singleResp, OCSPReq request) {
+        OCSPCache cache = OCSPCache.getCache();
+        int cacheSize = 51;
+        int cacheDelay = 15;
+        cache.init(cacheSize, cacheDelay);
+        cache.setCacheValue(response, serialNumber, singleResp, request, null);
     }
 
     @AfterClass

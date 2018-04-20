@@ -235,7 +235,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                                    new HTTPTraceLoggingHandler(Constants.TRACE_LOG_DOWNSTREAM));
         }
         if (httpAccessLogEnabled) {
-            pipeline.addLast(Constants.HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler("accesslog.http"));
+            pipeline.addLast(Constants.HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler("http.accesslog"));
         }
         pipeline.addLast(Constants.HTTP2_UPGRADE_HANDLER,
                          new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory, Integer.MAX_VALUE));

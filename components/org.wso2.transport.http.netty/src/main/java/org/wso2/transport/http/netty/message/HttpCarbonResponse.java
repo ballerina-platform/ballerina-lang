@@ -33,6 +33,11 @@ public class HttpCarbonResponse extends HTTPCarbonMessage {
         this.httpResponse = (HttpResponse) this.httpMessage;
     }
 
+    public HttpCarbonResponse(HttpResponse httpResponse, Listener listener) {
+        super(httpResponse, listener);
+        this.httpResponse = (HttpResponse) this.httpMessage;
+    }
+
     public void setStatus(HttpResponseStatus httpResponseStatus) {
         this.httpResponse.setStatus(httpResponseStatus);
     }

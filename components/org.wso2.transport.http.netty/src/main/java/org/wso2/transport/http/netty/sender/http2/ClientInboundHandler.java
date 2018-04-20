@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
+import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
@@ -60,8 +61,12 @@ public class ClientInboundHandler extends Http2EventAdapter {
                       http2ClientChannel.toString(), streamId, endOfStream);
         }
 
-        http2ClientChannel.getDataEventListeners().
-                forEach(dataEventListener -> dataEventListener.onDataRead(streamId, ctx, endOfStream));
+        for (Http2DataEventListener listener : http2ClientChannel.getDataEventListeners()) {
+            if (!listener.onDataRead(ctx, streamId, data, endOfStream)) {
+                return data.readableBytes() + padding;
+            }
+        }
+
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         boolean isServerPush = false;
         if (outboundMsgHolder == null) {
@@ -108,8 +113,13 @@ public class ClientInboundHandler extends Http2EventAdapter {
             log.debug("Reading Http2 headers on channel: {} with stream id: {}, isEndOfStream: {}",
                       http2ClientChannel.toString(), streamId, endStream);
         }
-        http2ClientChannel.getDataEventListeners().
-                forEach(dataEventListener -> dataEventListener.onDataRead(streamId, ctx, endStream));
+
+        for (Http2DataEventListener listener : http2ClientChannel.getDataEventListeners()) {
+            if (!listener.onHeadersRead(ctx, streamId, headers, endStream)) {
+                return;
+            }
+        }
+
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         boolean isServerPush = false;
         if (outboundMsgHolder == null) {
@@ -165,8 +175,11 @@ public class ClientInboundHandler extends Http2EventAdapter {
             log.debug("Received a push promise on channel: {} over stream id: {}, promisedStreamId: {}",
                       http2ClientChannel.toString(), streamId, promisedStreamId);
         }
-        http2ClientChannel.getDataEventListeners().
-                forEach(dataEventListener -> dataEventListener.onDataRead(streamId, ctx, false));
+        for (Http2DataEventListener listener : http2ClientChannel.getDataEventListeners()) {
+            if (!listener.onPushPromiseRead(ctx, streamId, headers, false)) {
+                return;
+            }
+        }
 
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         if (outboundMsgHolder == null) {
@@ -176,7 +189,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
         }
         http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
         http2ClientChannel.getDataEventListeners().
-                forEach(dataEventListener -> dataEventListener.onStreamInit(promisedStreamId, ctx));
+                forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, promisedStreamId));
         Http2PushPromise pushPromise =
                 new Http2PushPromise(Util.createHttpRequestFromHttp2Headers(headers, streamId), outboundMsgHolder);
         pushPromise.setPromisedStreamId(promisedStreamId);
@@ -216,7 +229,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
                     notifyHttpListener(new Exception("Error while setting http headers", e));
         }
         // Create HTTP Carbon Response
-        HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse);
+        HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse, new DefaultListener(ctx));
 
         // Setting properties of the HTTP Carbon Response
         responseCarbonMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));

@@ -17,7 +17,9 @@
  */
 package org.wso2.transport.http.netty.sender.http2;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http2.Http2Headers;
 
 /**
  * {@code Http2DataEventListener} represents a data listener for http2 data transfer events.
@@ -27,42 +29,82 @@ public interface Http2DataEventListener {
     /**
      * Gets notified for an event on a stream initialization.
      *
-     * @param streamId the related stream id
      * @param ctx      the channel handler context
+     * @param streamId the related stream id
+     * @return whether to continue the execution of rest of the listeners
      */
-    void onStreamInit(int streamId, ChannelHandlerContext ctx);
+    boolean onStreamInit(ChannelHandlerContext ctx, int streamId);
+
+    /**
+     * Gets notified for an event on a header read on a particular stream.
+     *
+     * @param ctx         the channel handler context
+     * @param streamId    the related stream id
+     * @param headers     http2 headers
+     * @param endOfStream whether stream terminate with this data read operation
+     * @return whether to continue the execution of rest of the listeners
+     */
+    boolean onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream);
 
     /**
      * Gets notified for an event on a data read on a particular stream.
      *
-     * @param streamId    the related stream id
      * @param ctx         the channel handler context
+     * @param streamId    the related stream id
+     * @param data        the bytebuf contains data
      * @param endOfStream whether stream terminate with this data read operation
+     * @return whether to continue the execution of rest of the listeners
      */
-    void onDataRead(int streamId, ChannelHandlerContext ctx, boolean endOfStream);
+    boolean onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, boolean endOfStream);
+
+    /**
+     * Gets notified for an event on a push promise read on a particular stream.
+     *
+     * @param ctx         the channel handler context
+     * @param streamId    the related stream id
+     * @param headers     http2 headers
+     * @param endOfStream whether stream terminate with this data read operation
+     * @return whether to continue the execution of rest of the listeners
+     */
+    boolean onPushPromiseRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream);
+
+    /**
+     * Gets notified for an event on a headers write on a particular stream.
+     *
+     * @param ctx         the channel handler context
+     * @param streamId    the related stream id
+     * @param headers        http2 headers
+     * @param endOfStream whether stream terminate with this data read operation
+     * @return whether to continue the execution of rest of the listeners
+     */
+    boolean onHeadersWrite(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream);
 
     /**
      * Gets notified for an event on a data write on a particular stream.
      *
-     * @param streamId    the related stream id
      * @param ctx         the channel handler context
+     * @param streamId    the related stream id
+     * @param data        the bytebuf contains data
      * @param endOfStream whether stream terminate with this data read operation
+     * @return whether to continue the execution of rest of the listeners
      */
-    void onDataWrite(int streamId, ChannelHandlerContext ctx, boolean endOfStream);
+    boolean onDataWrite(ChannelHandlerContext ctx, int streamId, ByteBuf data, boolean endOfStream);
 
     /**
      * Gets notified on  a stream reset.
      *
      * @param streamId the stream id
+     * @return whether to continue the execution of rest of the listeners
      */
-    void onStreamReset(int streamId);
+    boolean onStreamReset(int streamId);
 
     /**
      * Gets notified on a stream close.
      *
      * @param streamId the related stream id
+     * @return whether to continue the execution of rest of the listeners
      */
-    void onStreamClose(int streamId);
+    boolean onStreamClose(int streamId);
 
     /**
      * Destroy this {@code Http2DataEventListener}.

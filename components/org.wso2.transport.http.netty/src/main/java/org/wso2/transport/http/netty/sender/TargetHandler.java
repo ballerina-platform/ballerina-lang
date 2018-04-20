@@ -39,6 +39,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
+import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
@@ -47,6 +48,7 @@ import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.ClientOutboundHandler;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
 import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
 
@@ -131,7 +133,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     }
 
     private HTTPCarbonMessage setUpCarbonMessage(ChannelHandlerContext ctx, Object msg) {
-        targetRespMsg = new HttpCarbonResponse((HttpResponse) msg);
+        targetRespMsg = new HttpCarbonResponse((HttpResponse) msg, new DefaultListener(ctx));
         targetRespMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
 
         targetRespMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
@@ -222,13 +224,16 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         http2ClientChannel.setUpgradedToHttp2(true);
 
         // Remove Http specific handlers
-        safelyRemoveHandlers(targetChannel.getChannel().pipeline(),
-                                  Constants.IDLE_STATE_HANDLER, Constants.HTTP_TRACE_LOG_HANDLER);
+        safelyRemoveHandlers(targetChannel.getChannel().pipeline(), Constants.REDIRECT_HANDLER,
+                             Constants.IDLE_STATE_HANDLER, Constants.HTTP_TRACE_LOG_HANDLER);
+        http2ClientChannel.addDataEventListener(
+                Constants.IDLE_STATE_HANDLER,
+                new TimeoutHandler(http2ClientChannel.getSocketIdleTimeout(), http2ClientChannel));
 
         http2ClientChannel.getInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID).setRequestWritten(true);
         http2ClientChannel.getDataEventListeners().
                 forEach(dataEventListener ->
-                                dataEventListener.onStreamInit(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID, ctx));
+                                dataEventListener.onStreamInit(ctx, Http2CodecUtil.HTTP_UPGRADE_STREAM_ID));
         handoverChannelToHttp2ConnectionManager();
     }
 

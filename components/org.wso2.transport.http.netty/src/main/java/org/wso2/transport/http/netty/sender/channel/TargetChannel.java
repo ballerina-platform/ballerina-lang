@@ -40,7 +40,7 @@ import org.wso2.transport.http.netty.sender.HttpClientChannelInitializer;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
-import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
+import org.wso2.transport.http.netty.sender.http2.RedirectHandler;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -86,6 +86,10 @@ public class TargetChannel {
                     new Http2ClientChannel(httpClientChannelInitializer.getHttp2ConnectionManager(),
                                            httpClientChannelInitializer.getConnection(),
                                            httpRoute, channelFuture.channel());
+            if (httpClientChannelInitializer.isFollowRedirect()) {
+                http2ClientChannel.addDataEventListener(Constants.REDIRECT_HANDLER,
+                        new RedirectHandler(http2ClientChannel, httpClientChannelInitializer.getMaxRedirectCount()));
+            }
         }
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
     }
@@ -162,7 +166,7 @@ public class TargetChannel {
         this.getChannel().pipeline().addBefore((followRedirect ? Constants.REDIRECT_HANDLER : Constants.TARGET_HANDLER),
                 Constants.IDLE_STATE_HANDLER, new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0,
                         TimeUnit.MILLISECONDS));
-        http2ClientChannel.addDataEventListener(new TimeoutHandler(socketIdleTimeout, http2ClientChannel));
+        http2ClientChannel.setSocketIdleTimeout(socketIdleTimeout);
     }
 
     public void setCorrelationIdForLogging() {

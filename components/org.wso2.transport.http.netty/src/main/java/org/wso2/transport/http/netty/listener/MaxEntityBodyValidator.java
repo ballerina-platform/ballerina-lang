@@ -60,6 +60,7 @@ public class MaxEntityBodyValidator extends ChannelInboundHandlerAdapter {
                 if (isContentLengthInvalid(inboundRequest, maxEntityBodySize)) {
                     sendEntityTooLargeResponse(ctx);
                 }
+                ctx.channel().read();
             } else {
                 HttpContent inboundContent = (HttpContent) msg;
                 this.currentSize += inboundContent.content().readableBytes();
@@ -72,6 +73,8 @@ public class MaxEntityBodyValidator extends ChannelInboundHandlerAdapter {
                         while (!this.fullContent.isEmpty()) {
                             super.channelRead(ctx, this.fullContent.pop());
                         }
+                    } else {
+                        ctx.channel().read();
                     }
                 }
             }
