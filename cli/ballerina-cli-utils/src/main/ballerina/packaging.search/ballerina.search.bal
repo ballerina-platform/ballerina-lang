@@ -22,7 +22,7 @@ function search (string url, string querySearched) {
         }
     };
     http:Request req = new;
-    var result = httpEndpoint -> get(untaint querySearched, req);
+    var result = httpEndpoint -> get(untaint querySearched, request=req);
     http:Response httpResponse = new;
     match result {
         http:Response response => httpResponse = response;
