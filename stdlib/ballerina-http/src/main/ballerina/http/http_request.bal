@@ -215,7 +215,7 @@ public function Request::setContentType (string contentType) {
 
 public function Request::getContentType () returns (string) {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.getContentType();
+    return entity.getContentType();
 }
 
 public function Request::getJsonPayload () returns (json | PayloadError) {

@@ -174,7 +174,7 @@ service<http:Service> test bind mockEP {
 
 function handleNestedParts (mime:Entity parentPart) returns (string) {
     string content = "";
-    string contentTypeOfParent = parentPart.getContentType() but {() => ""};
+    string contentTypeOfParent = parentPart.getContentType();
     if (contentTypeOfParent.hasPrefix("multipart/")) {
         match parentPart.getBodyParts() {
             mime:EntityError err => {

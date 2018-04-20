@@ -130,7 +130,7 @@ public type Entity object {
         if (self.hasHeader(CONTENT_TYPE)) {
             contentTypeHeaderValue = self.getHeader(CONTENT_TYPE);
         }
-        return contentTypeHeaderValue;;
+        return contentTypeHeaderValue;
     }
 
     public function setContentId(string contentId) {
