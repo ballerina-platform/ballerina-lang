@@ -1,6 +1,6 @@
 import ballerina/util;
 import ballerina/internal;
-import ballerina/security.crypto;
+import ballerina/crypto;
 import ballerina/io;
 
 function testEncodeDecode (string content) returns (string | util:Base64EncodeError) {

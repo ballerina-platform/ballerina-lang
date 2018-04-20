@@ -27,23 +27,20 @@ import org.ballerinalang.model.values.BValue;
 import java.util.Map;
 
 /**
- * AuthenticationContext represents and holds the authenticated user information.
+ * UserPrincipal represents and holds the authenticated user information.
  *
  * @since 0.970.0
  */
-public class AuthenticationContext {
+public class UserPrincipal {
 
     public static final int USER_ID_STRING_FIELD_INDEX = 0;
     public static final int USER_NAME_STRING_FIELD_INDEX = 1;
-    public static final int GROUPS_REF_FIELD_INDEX = 0;
-    public static final int CLAIMS_REF_FIELD_INDEX = 1;
-    public static final int SCOPES_REF_FIELD_INDEX = 2;
-    public static final int AUTH_TYPE_STRING_FIELD_INDEX = 2;
-    public static final int AUTH_TOKEN_STRING_FIELD_INDEX = 3;
+    public static final int CLAIMS_REF_FIELD_INDEX = 0;
+    public static final int SCOPES_REF_FIELD_INDEX = 1;
 
     private BStruct authContextStruct;
 
-    public AuthenticationContext(BStruct authContextStruct) {
+    public UserPrincipal(BStruct authContextStruct) {
         this.authContextStruct = authContextStruct;
     }
 
@@ -61,14 +58,6 @@ public class AuthenticationContext {
 
     public void setUsername(String username) {
         authContextStruct.setStringField(USER_NAME_STRING_FIELD_INDEX, username);
-    }
-
-    public String[] getGroups() {
-        return getStringArrayField(authContextStruct.getRefField(GROUPS_REF_FIELD_INDEX));
-    }
-
-    public void setGroups(String[] groups) {
-        authContextStruct.setRefField(GROUPS_REF_FIELD_INDEX, new BStringArray(groups));
     }
 
     public Map<String, String> getClaims() {
@@ -89,22 +78,6 @@ public class AuthenticationContext {
 
     public void setScopes(String[] scopes) {
         authContextStruct.setRefField(SCOPES_REF_FIELD_INDEX, new BStringArray(scopes));
-    }
-
-    public String getAuthType() {
-        return authContextStruct.getStringField(AUTH_TYPE_STRING_FIELD_INDEX);
-    }
-
-    public void setAuthType(String authType) {
-        authContextStruct.setStringField(AUTH_TYPE_STRING_FIELD_INDEX, authType);
-    }
-
-    public String getAuthToken() {
-        return authContextStruct.getStringField(AUTH_TOKEN_STRING_FIELD_INDEX);
-    }
-
-    public void setAuthToken(String authToken) {
-        authContextStruct.setStringField(AUTH_TOKEN_STRING_FIELD_INDEX, authToken);
     }
 
     public static String[] getStringArrayField(BValue bValue) {
