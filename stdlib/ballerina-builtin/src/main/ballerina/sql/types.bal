@@ -160,23 +160,25 @@ documentation {
     F{{recordType}} - In case of OUT direction, if the sqlType is REFCURSOR, this represents the record type to map a result row.
 }
 
-public type CallParam {
+public type Parameter {
     SQLType sqlType,
     any value,
     Direction direction,
     typedesc recordType,
 };
 
-public type Parameter
-(SQLType, any, Direction)|
-(SQLType, any)|
-CallParam|//To used with the SQL out parameters
-any;
+//public type Parameter
+//(SQLType, any, Direction)|
+//(SQLType, any)|
+//CallParam|//To used with the SQL out parameters
+//any;
+
+public type Param string|int|boolean|float|Parameter;
 
 //Given data for Parameter is passed into the actions after converting to the ParameterType record
-type ParameterType {
-    SQLType sqlType,
-    any value,
-    Direction direction,
-    typedesc recordType,
-};
+//type ParameterType {
+//    SQLType sqlType,
+//    any value,
+//    Direction direction,
+//    typedesc recordType,
+//};

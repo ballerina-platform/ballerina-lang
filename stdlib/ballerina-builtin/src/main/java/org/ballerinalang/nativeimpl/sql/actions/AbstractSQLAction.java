@@ -301,30 +301,11 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         int paramCount = (int) parameters.size();
         for (int i = 0; i < paramCount; ++i) {
             BRefType typeValue = parameters.get(i);
-            BStruct paramStruct = getSQLParameter(context);
-            if (typeValue.getType().getTag() == TypeTags.TUPLE_TAG) {
-                if (((BRefValueArray) typeValue).size() == 3) {
-                    paramStruct.setRefField(0, ((BRefValueArray) typeValue).get(0));
-                    paramStruct.setRefField(1, ((BRefValueArray) typeValue).get(1));
-                    paramStruct.setRefField(2, ((BRefValueArray) typeValue).get(2));
-                } else if (((BRefValueArray) typeValue).size() == 2) {
-                    paramStruct.setRefField(0, ((BRefValueArray) typeValue).get(0));
-
-                    if (((BTupleType) typeValue.getType()).getTupleTypes().get(1).getTag()
-                            == TypeTags.FINITE_TYPE_TAG) {
-                        paramStruct.setRefField(1, null);
-                        paramStruct.setRefField(2, ((BRefValueArray) typeValue).get(1));
-                    } else {
-                        paramStruct.setRefField(1, ((BRefValueArray) typeValue).get(1));
-                        paramStruct.setRefField(2, new BString(Constants.QueryParamDirection.DIR_IN));
-                    }
-
-                } else {
-                    throw new BallerinaException("Invalid argument combination is given for input parameter:" + i);
-                }
-            } else if (typeValue.getType().getTag() == TypeTags.STRUCT_TAG) {
+            BStruct paramStruct;
+            if (typeValue.getType().getTag() == TypeTags.STRUCT_TAG) {
                 paramStruct = (BStruct) typeValue;
             } else {
+                paramStruct = getSQLParameter(context);
                 paramStruct.setRefField(0, new BString(SQLDatasourceUtils.getSQLType(typeValue.getType())));
                 paramStruct.setRefField(1, typeValue);
                 paramStruct.setRefField(2, new BString(Constants.QueryParamDirection.DIR_IN));
@@ -336,7 +317,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private static BStruct getSQLParameter(Context context) {
         PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(Constants.SQL_PACKAGE_PATH);
-        StructInfo paramStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_PARAMETER_TYPE);
+        StructInfo paramStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_PARAMETER);
         return new BStruct(paramStructInfo.getType());
     }
 

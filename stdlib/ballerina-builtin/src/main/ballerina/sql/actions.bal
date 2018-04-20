@@ -29,7 +29,7 @@ public type CallerActions object {
         R{{}} -  `table[]` if there are tables returned by the call action and else nill,
                 `error` will be returned if there is any error.
     } //Returns array of tables if there are any.
-    public native function call(@sensitive string sqlQuery, typedesc[]? recordType, Parameter... parameters)
+    public native function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
         returns @tainted table[]|error;
 
     documentation {
@@ -39,7 +39,7 @@ public type CallerActions object {
         P{{recordType}} - Type of the returned table.
         R{{}} - `table` table returned by the sql query statement else `error` will be returned if there is any error.
     }
-    public native function select(@sensitive string sqlQuery, typedesc? recordType, Parameter... parameters)
+    public native function select(@sensitive string sqlQuery, typedesc? recordType, Param... parameters)
         returns @tainted table|error;
 
     documentation {
@@ -56,7 +56,7 @@ public type CallerActions object {
         R{{}} - `int` number of rows updated by the statement and else `error` will be returned if there is any error.
 
     }
-    public native function update(@sensitive string sqlQuery, Parameter... parameters) returns int|error;
+    public native function update(@sensitive string sqlQuery, Param... parameters) returns int|error;
 
 
     documentation {
@@ -66,7 +66,7 @@ public type CallerActions object {
         R{{}} - `int[]` An array of updated row count by each of statements in batch and
                 else `error` will be returned if there is any error.
     }
-    public native function batchUpdate(@sensitive string sqlQuery, Parameter[]... parameters) returns int[]|error;
+    public native function batchUpdate(@sensitive string sqlQuery, Param[]... parameters) returns int[]|error;
 
 
     documentation {
@@ -81,7 +81,7 @@ public type CallerActions object {
 
     }
     public native function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
-                                                   Parameter... parameters) returns (int, string[])|error;
+                                                   Param... parameters) returns (int, string[])|error;
 
     documentation {
         The getProxyTable action implementation for SQL connector which returns a reflection of a database
