@@ -1,4 +1,3 @@
-package ballerina.http;
 
 import ballerina/file;
 import ballerina/io;
@@ -296,7 +295,7 @@ public function Response::getBodyParts () returns mime:Entity[] | mime:EntityErr
 }
 
 public function Response::setETag(json|xml|string|blob payload) {
-    string etag = crypto:getCRC32(payload);
+    string etag = crypto:crc32(payload);
     self.setHeader(ETAG, etag);
 }
 

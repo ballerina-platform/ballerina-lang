@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.io;
 
 @Description {value:"Ballerina ByteChannel represents a channel which will allow I/O operations to be done"}
 public type ByteChannel object {
+
     @Description {value:"Function to read bytes"}
     @Param {value:"nBytes: Number of bytes which should be read"}
     @Return {value:"The bytes which were read"}
@@ -35,4 +35,16 @@ public type ByteChannel object {
     @Description {value:"Function to close a byte channel"}
     @Return {value:"Returns if there's any error while performaing I/O operation"}
     public native function close() returns error?;
+
+    @Description {value:"Encode a given ByteChannel with Base64 encoding scheme."}
+    @Param {value:"valueToBeEncoded: Content that needs to be encoded"}
+    @Return {value:"Return an encoded ByteChannel"}
+    @Return {value:"error will get return, in case of errors"}
+    public native function base64Encode() returns ByteChannel|error;
+
+    @Description {value:"Decode a given ByteChannel with Base64 encoding scheme."}
+    @Param {value:"valueToBeDecoded: Content that needs to be decoded"}
+    @Return {value:"Return a decoded ByteChannel"}
+    @Return {value:"error will get return, in case of errors"}
+    public native function base64Decode() returns ByteChannel|error;
 };

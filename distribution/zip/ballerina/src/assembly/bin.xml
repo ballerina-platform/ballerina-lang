@@ -157,6 +157,7 @@
                 <include>org.ballerinalang:ballerina-builtin:jar</include>
                 <include>org.ballerinalang:ballerina-logging:jar</include>
                 <include>org.ballerinalang:ballerina-http:jar</include>
+                <include>org.ballerinalang:ballerina-transactions:jar</include>
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
                 <include>org.ballerinalang:ballerina-mime:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>

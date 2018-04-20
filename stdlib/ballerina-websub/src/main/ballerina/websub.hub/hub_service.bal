@@ -13,15 +13,14 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.websub.hub;
 
-import ballerina/sql;
+import ballerina/crypto;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/crypto;
+import ballerina/sql;
+import ballerina/system;
 import ballerina/time;
-import ballerina/util;
 import ballerina/websub;
 
 endpoint http:Listener hubServiceEP {
@@ -257,7 +256,7 @@ function verifyIntent(string callback, string topic, map params) {
     if (!(leaseSeconds > 0)) {
           leaseSeconds = hubLeaseSeconds;
     }
-    string challenge = util:uuid();
+    string challenge = system:uuid();
 
     http:Request request = new;
 
@@ -511,17 +510,17 @@ public function distributeContent(string callback, websub:SubscriptionDetails su
             string xHubSignature = hubSignatureMethod + "=";
             string generatedSignature = "";
             if (websub:SHA1.equalsIgnoreCase(hubSignatureMethod)) { //not recommended
-                generatedSignature = crypto:getHmac(stringPayload, subscriptionDetails.secret, crypto:SHA1);
+                generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA1);
             } else if (websub:SHA256.equalsIgnoreCase(hubSignatureMethod)) {
-                generatedSignature = crypto:getHmac(stringPayload, subscriptionDetails.secret, crypto:SHA256);
+                generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA256);
             } else if (websub:MD5.equalsIgnoreCase(hubSignatureMethod)) {
-                generatedSignature = crypto:getHmac(stringPayload, subscriptionDetails.secret, crypto:MD5);
+                generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:MD5);
             }
             xHubSignature = xHubSignature + generatedSignature;
             request.setHeader(websub:X_HUB_SIGNATURE, xHubSignature);
         }
 
-        request.setHeader(websub:X_HUB_UUID, util:uuid());
+        request.setHeader(websub:X_HUB_UUID, system:uuid());
         request.setHeader(websub:X_HUB_TOPIC, subscriptionDetails.topic);
         request.setHeader("Link", buildWebSubLinkHeader(hubPublicUrl, subscriptionDetails.topic));
         request.setJsonPayload(payload);

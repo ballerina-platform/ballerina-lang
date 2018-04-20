@@ -9,7 +9,7 @@ function testVoidFunction() returns int {
 
 function testVoid() {
     worker w1 {
-        runtime:sleepCurrentWorker(3000);
+        runtime:sleep(3000);
         testNew();
     }
     worker w2 {
@@ -20,7 +20,7 @@ function testVoid() {
 
 function testNew(){
     worker w1 {
-        runtime:sleepCurrentWorker(2000);
+        runtime:sleep(2000);
     }
     worker w2 {
         i = 10;
