@@ -14,33 +14,33 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.nativeimpl.internal;
+package org.ballerinalang.nativeimpl.reflect;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Get struct field's Annotations.
+ * Get Resource's Annotations.
  *
  * @since 0.965.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
-        functionName = "getStructFieldAnnotations"
+        orgName = "ballerina", packageName = "reflect",
+        functionName = "getResourceAnnotations"
 )
-public class GetFieldAnnotations extends AbstractAnnotationReader {
+public class GetResourceAnnotations extends AbstractAnnotationReader {
 
     @Override
     public void execute(Context context) {
         BTypeDescValue bTypeValue = (BTypeDescValue) context.getRefArgument(0);
-        if (!(bTypeValue.value() instanceof BStructType)) {
-            context.setReturnValues((BValue) null); ;
+        if (!(bTypeValue.value() instanceof BServiceType)) {
+            context.setReturnValues((BValue) null);
         }
-        BStructType structType = (BStructType) bTypeValue.value();
-        String key = structType.getName() + DOT + context.getStringArgument(0);
-        context.setReturnValues(getAnnotationValue(context, structType.getPackagePath(), key));
+        BServiceType serviceType = (BServiceType) bTypeValue.value();
+        String key = serviceType.getName() + DOT + context.getStringArgument(0);
+        context.setReturnValues(getAnnotationValue(context, serviceType.getPackagePath(), key));
     }
 }
