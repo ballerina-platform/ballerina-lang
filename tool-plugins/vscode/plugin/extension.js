@@ -22,7 +22,7 @@ const { LanguageClient, LanguageClientOptions, ServerOptions } = require('vscode
 const path = require('path');
 const fs = require('fs');
 const { getLSService } = require('./serverStarter');
-const { activate:activateRenderer } = require('./renderer');
+const { activate:activateRenderer, errored:rendererErrored } = require('./renderer');
 
 let oldConfig;
 
@@ -73,7 +73,7 @@ function showSDKNotSetWarning() {
 function checkSDK(sdkPath) {
 	try {
 		if (fs.readdirSync(path.join(sdkPath, 'resources')).indexOf('composer') > -1) {
-			return;
+			return true;
 		}
 	} catch(e) {
 		// could not read the sdk path. Let the warning show
@@ -86,6 +86,7 @@ function checkSDK(sdkPath) {
 			commands.executeCommand('workbench.action.openGlobalSettings');
 		}
 	});
+	return false;
 }
 
 exports.activate = function(context) {
@@ -102,10 +103,14 @@ exports.activate = function(context) {
 	if (!config.sdk) {
 		// sdk path is not set. The plugin can't activate. Show warning and exit.
 		showSDKNotSetWarning();
+		rendererErrored(context);
 		return;
 	}
 
-	checkSDK(config.sdk);
+	if(!checkSDK(config.sdk)){
+		rendererErrored(context);
+		return;
+	}
 
 	if (!config.showLSErrors) {
 		clientOptions.outputChannel = dropOutputChannel;
