@@ -78,11 +78,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-mysql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-h2</artifactId>
+            <artifactId>ballerina-database</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.jms</groupId>
@@ -290,8 +286,7 @@
                                 strip-bouncycastle,
                                 ballerina-websub,
                                 ballerina-jms,
-                                ballerina-mysql,
-                                ballerina-h2
+                                ballerina-database
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>
