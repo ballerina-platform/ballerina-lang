@@ -75,10 +75,6 @@ under the License.
             <package name="org.ballerinalang.test.net.grpc"/>
             <package name="org.ballerinalang.test.metrics.*"/>
             <package name="org.ballerinalang.test.runtime.*"/>
-            <package name="org.ballerinalang.test.net.http.*">
-                <exclude name="org.ballerinalang.test.net.http.resiliency.*"/>
-                <exclude name="org.ballerinalang.test.net.http.HttpCachingClientTest"/>
-            </package>
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->
