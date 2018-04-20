@@ -18,7 +18,7 @@ package ballerina.websub;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/security.crypto;
+import ballerina/crypto;
 
 documentation {
     The HTTP based Caller actions for outbound WebSub Subscription, Unsubscription, Registration, Unregistration and
