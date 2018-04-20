@@ -33,9 +33,9 @@ public type CallStackElement {
     int lineNumber;
 };
 
-public native function getCallStack () returns (CallStackElement[]);
+public native function getCallStack() returns (CallStackElement[]);
 
-public native function getErrorCallStackFrame (error? e) returns (CallStackElement);
+public native function getErrorCallStackFrame(error? e) returns (CallStackElement);
 
 public type CallFailedException {
     string message;

@@ -17,7 +17,7 @@
 package ballerina.auth;
 
 import ballerina/config;
-import ballerina/security.crypto;
+import ballerina/crypto;
 
 @final string CONFIG_USER_SECTION = "b7a.users";
 

@@ -11,12 +11,12 @@ function lockWithinLockInWorkers() returns (int, string) {
             lock {
                 ab:lockInt1 = 66;
             }
-            runtime:sleepCurrentWorker(100);
+            runtime:sleep(100);
             ab:lockInt1 = 45;
         }
     }
     worker w2 {
-        runtime:sleepCurrentWorker(20);
+        runtime:sleep(20);
         lock {
             ab:lockString1 = "hello";
             lock {
@@ -26,7 +26,7 @@ function lockWithinLockInWorkers() returns (int, string) {
         }
     }
     worker w3 {
-        runtime:sleepCurrentWorker(30);
+        runtime:sleep(30);
         return (ab:lockInt1, ab:lockString1);
     }
 }

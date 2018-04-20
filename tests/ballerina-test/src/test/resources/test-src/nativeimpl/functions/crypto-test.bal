@@ -1,4 +1,4 @@
-import ballerina/security.crypto;
+import ballerina/crypto;
 
 function testHmacWithMD5 (string base, string key) returns (string) {
     return crypto:getHmac(base, key, crypto:MD5);

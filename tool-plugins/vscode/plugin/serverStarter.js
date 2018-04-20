@@ -71,8 +71,15 @@ function startServices() {
         server.listen(LSPort, () => {
             console.log('Listening for Ballerina Language Server on: ', LSPort);
             server.removeListener('error', onLSError);
-            serverProcess = spawn('java', ['-cp', getClassPath(), main, LSPort, parserPort]);
-            
+
+            const args = ['-cp', getClassPath()]
+
+            if (process.env.LSDEBUG === "true") {
+                args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y')
+            }
+
+            serverProcess = spawn('java', [...args, main, LSPort, parserPort]);
+
             serverProcess.stdout.on('data', (data) => {
                 console.log(`ls: ${data}`);
                 if (`${data}`.indexOf('Parser started successfully') > -1) {

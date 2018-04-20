@@ -688,7 +688,7 @@ function invokeWorkers(sql:Client testDBClient) {
     worker w2 {
         var temp0 = testDB->mirror("CustomersTrx", CustomersTrx);
         table dt0 = check temp0;
-        runtime:sleepCurrentWorker(5000);
+        runtime:sleep(5000);
         CustomersTrx c2 = {firstName:"James", lastName:"Clerk", registrationID:834, creditLimit:5000.75, country:"USA"};
         var result2 = dt0.add(c2);
     }

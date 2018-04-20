@@ -84,7 +84,7 @@ function getServiceSecureSocketConfig() returns (http:ServiceSecureSocket | ()) 
                                                 default="${ballerina.home}/bre/security/ballerinaKeystore.p12");
     string keyStorePassword = config:getAsString("b7a.websub.hub.ssl.key_store.password", default="ballerina");
     http:ServiceSecureSocket serviceSecureSocket =
-                                    { keyStore: { filePath: keyStoreFilePath, password: keyStorePassword } };
+                                    { keyStore: { path: keyStoreFilePath, password: keyStorePassword } };
     return serviceSecureSocket;
 }
 
@@ -103,7 +103,7 @@ function getSecureSocketConfig() returns (http:SecureSocket | ()) {
             return;
         }
         http:SecureSocket secureSocket = {
-            trustStore: { filePath: trustStoreFilePath, password: trustStorePassword},
+            trustStore: { path: trustStoreFilePath, password: trustStorePassword},
             verifyHostname: false
         };
         return secureSocket;
@@ -112,7 +112,7 @@ function getSecureSocketConfig() returns (http:SecureSocket | ()) {
     trustStoreFilePath = config:getAsString("b7a.websub.hub.ssl.trust_store.file_path",
                                                     default="${ballerina.home}/bre/security/ballerinaTruststore.p12");
     trustStorePassword = config:getAsString("b7a.websub.hub.ssl.trust_store.password", default="ballerina");
-    http:SecureSocket secureSocket = { trustStore: { filePath: trustStoreFilePath, password: trustStorePassword},
+    http:SecureSocket secureSocket = { trustStore: { path: trustStoreFilePath, password: trustStorePassword},
                                         verifyHostname: false};
     return secureSocket;
 }

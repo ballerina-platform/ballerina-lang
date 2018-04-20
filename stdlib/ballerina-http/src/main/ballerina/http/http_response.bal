@@ -3,7 +3,7 @@ package ballerina.http;
 import ballerina/file;
 import ballerina/io;
 import ballerina/mime;
-import ballerina/security.crypto;
+import ballerina/crypto;
 import ballerina/time;
 
 @Description { value:"Represents an HTTP response message"}
