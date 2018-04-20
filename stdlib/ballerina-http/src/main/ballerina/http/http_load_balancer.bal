@@ -23,7 +23,7 @@ public type LoadBalancer object {
    public {
        string serviceUri;
        ClientEndpointConfig config;
-       HttpClient[] loadBalanceClientsArray;
+       CallerActions[] loadBalanceClientsArray;
        string algorithm;
        int nextIndex; // Keeps to index which needs to be take the next load balance endpoint.
        boolean failover;
@@ -317,7 +317,7 @@ function performLoadBalanceAction (LoadBalancer lb, string path, Request outRequ
     loadBalanceConnectorError.httpConnectorError = [];
 
     while (loadBalanceTermination < lengthof lb.loadBalanceClientsArray) {
-        HttpClient loadBalanceClient = roundRobin(lb, lb.loadBalanceClientsArray);
+        CallerActions loadBalanceClient = roundRobin(lb, lb.loadBalanceClientsArray);
 
         match invokeEndpoint(path, outRequest, requestAction, loadBalanceClient) {
             Response inResponse => return inResponse;
@@ -336,8 +336,8 @@ function performLoadBalanceAction (LoadBalancer lb, string path, Request outRequ
 }
 
 // Round Robin Algorithm implementation with respect to load balancing endpoints.
-public function roundRobin(LoadBalancer lb, HttpClient[] loadBalanceConfigArray) returns (HttpClient) {
-    HttpClient httpClient = new;
+public function roundRobin(LoadBalancer lb, CallerActions[] loadBalanceConfigArray) returns (CallerActions) {
+    CallerActions httpClient = new;
 
     lock {
         if (lb.nextIndex == ((lengthof (loadBalanceConfigArray)) - 1)) {

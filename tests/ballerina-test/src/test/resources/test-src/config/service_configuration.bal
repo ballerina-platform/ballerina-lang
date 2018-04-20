@@ -14,10 +14,10 @@ service<http:Service> hello bind backendEP{
         methods:["GET"],
         path:"/"
     }
-    sayHello (endpoint outboundEP, http:Request request) {
+    sayHello (endpoint caller, http:Request request) {
         http:Response response = {};
         response.setStringPayload("Hello World!!!");
-        _ = outboundEP -> respond(response);
+        _ = caller -> respond(response);
     }
 }
 

@@ -30,7 +30,7 @@ public type HttpOperation "FORWARD" | "GET" | "POST" | "DELETE" | "OPTIONS" | "P
 
 // makes the actual endpoints call according to the http operation passed in.
 public function invokeEndpoint (string path, Request outRequest,
-                                HttpOperation requestAction, HttpClient httpClient) returns Response|HttpConnectorError {
+                                HttpOperation requestAction, CallerActions httpClient) returns Response|HttpConnectorError {
     if (HTTP_GET == requestAction) {
         return httpClient.get(path, request = outRequest);
     } else if (HTTP_POST == requestAction) {

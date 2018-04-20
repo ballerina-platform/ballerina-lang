@@ -14,7 +14,7 @@ service<http:Service> testService bind testEP {
         methods:["GET"],
         path:"/t1/{person}/bar/{yearParam}/foo"
     }
-     test1 (endpoint client, http:Request req, string person, string yearParam) {
+     test1 (endpoint caller, http:Request req, string person, string yearParam) {
         http:Response res = new;
         json outJson = {};
         outJson.pathParams = string `{{person}}, {{yearParam}}`;
@@ -40,14 +40,14 @@ service<http:Service> testService bind testEP {
         outJson.queryParams = string `x={{x}}&y={{y}}`;
 
         res.setJsonPayload(outJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/t2/{person}/foo;a=5;b=10"
     }
-     testEncoded (endpoint client, http:Request req, string person) {
+     testEncoded (endpoint caller, http:Request req, string person) {
         http:Response res = new;
         json outJson = {};
         outJson.person = person;
@@ -59,6 +59,6 @@ service<http:Service> testService bind testEP {
         outJson.fooParamSize = lengthof fooMParams;
 
         res.setJsonPayload(outJson);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 }
