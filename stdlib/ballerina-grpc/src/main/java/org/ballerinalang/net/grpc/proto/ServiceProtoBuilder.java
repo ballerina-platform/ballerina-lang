@@ -18,7 +18,7 @@
 package org.ballerinalang.net.grpc.proto;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
-import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
+import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
@@ -33,7 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.ORG_NAME;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.ANN_MESSAGE_LISTENER;
 
 /**
@@ -41,8 +43,9 @@ import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.ANN_MESSAGE
  *
  * @since 1.0
  */
-@SupportedAnnotationPackages(
-        value = PROTOCOL_STRUCT_PACKAGE_GRPC
+@SupportEndpointTypes(
+        value = {@SupportEndpointTypes.EndpointType(orgName = ORG_NAME, packageName = PROTOCOL_PACKAGE_GRPC, name =
+                SERVICE_ENDPOINT_TYPE)}
 )
 public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
