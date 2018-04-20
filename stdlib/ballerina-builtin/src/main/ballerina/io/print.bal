@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.io;
 
 @Description { value:"Prints a 'any' value to the STDOUT"}
 @Param { value:"a: any value to be printed" }

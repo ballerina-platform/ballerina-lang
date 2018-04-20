@@ -1,4 +1,3 @@
-package ballerina.os;
 
 @Description {value:"Returns the environment variable value associated with the provided name."}
 @Param {value:"name: Name of the environment variable"}

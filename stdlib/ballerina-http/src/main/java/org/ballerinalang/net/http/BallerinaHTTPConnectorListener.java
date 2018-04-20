@@ -103,16 +103,20 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
         Resource balResource = httpResource.getBalResource();
 
-        ObserverContext ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_HTTP,
-                                                                        balResource.getServiceName(),
-                                                                        balResource.getName(), null);
-        Map<String, String> httpHeaders = new HashMap<>();
-        httpCarbonMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
-        ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
-
-        ctx.addTag(TAG_KEY_HTTP_METHOD, (String) httpCarbonMessage.getProperty(HttpConstants.HTTP_METHOD));
-        ctx.addTag(TAG_KEY_PROTOCOL, (String) httpCarbonMessage.getProperty(HttpConstants.PROTOCOL));
-        ctx.addTag(TAG_KEY_HTTP_URL, (String) httpCarbonMessage.getProperty(HttpConstants.REQUEST_URL));
+        ObserverContext ctx = null;
+        if (ObservabilityUtils.isObservabilityEnabled()) {
+            ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_HTTP,
+                    balResource.getServiceName(),
+                    balResource.getName(), null);
+            Map<String, String> httpHeaders = new HashMap<>();
+            httpCarbonMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
+            if (ctx != null) {
+                ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
+                ctx.addTag(TAG_KEY_HTTP_METHOD, (String) httpCarbonMessage.getProperty(HttpConstants.HTTP_METHOD));
+                ctx.addTag(TAG_KEY_PROTOCOL, (String) httpCarbonMessage.getProperty(HttpConstants.PROTOCOL));
+                ctx.addTag(TAG_KEY_HTTP_URL, (String) httpCarbonMessage.getProperty(HttpConstants.REQUEST_URL));
+            }
+        }
 
         CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage);
         //TODO handle BallerinaConnectorException

@@ -1,4 +1,3 @@
-package mb;
 
 public type BrokerURLConfig {
     string username = "admin",

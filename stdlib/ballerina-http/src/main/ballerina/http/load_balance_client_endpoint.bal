@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 documentation {
     LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.
