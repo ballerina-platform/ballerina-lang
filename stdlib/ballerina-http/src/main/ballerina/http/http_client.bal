@@ -37,7 +37,7 @@ public type HttpClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public native function head(@sensitive string path, Request req) returns (Response | HttpConnectorError);
+    public native function head(@sensitive string path, Request? req = ()) returns (Response | HttpConnectorError);
 
     @Description {value:"The PUT action implementation of the HTTP Connector."}
     @Param {value:"path: Resource path "}

@@ -92,7 +92,7 @@ public type HttpCachingClient object {
     @Param {value:"req: An HTTP outbound request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    public function head (string path, Request req) returns (Response|HttpConnectorError);
+    public function head (string path, Request? req = ()) returns (Response|HttpConnectorError);
 
     @Description {value:"Responses returned for PUT requests are not cacheable. Therefore, the requests are simply directed to the origin server. In addition, PUT requests invalidate the currently stored responses for the given path."}
     @Param {value:"path: Resource path "}
@@ -200,9 +200,10 @@ public function HttpCachingClient::post (string path, Request req) returns (Resp
     }
 }
 
-public function HttpCachingClient::head (string path, Request req) returns (Response|HttpConnectorError) {
-    setRequestCacheControlHeader(req);
-    return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared);
+public function HttpCachingClient::head (string path, Request? req = ()) returns (Response|HttpConnectorError) {
+    Request request = req ?: new;
+    setRequestCacheControlHeader(request);
+    return getCachedResponse(self.cache, self.httpClient, request, HEAD, path, self.cacheConfig.isShared);
 }
 
 public function HttpCachingClient::put (string path, Request req) returns (Response|HttpConnectorError) {
@@ -596,7 +597,7 @@ function sendNewRequest(HttpClient httpClient, Request request, string path, str
     if (httpMethod == GET) {
         return httpClient.get(path, req = request);
     } else if (httpMethod == HEAD) {
-        return httpClient.head(path, request);
+        return httpClient.head(path, req = request);
     } else {
         HttpConnectorError err = {message: "HTTP method not supported in caching client: " + httpMethod};
         return err;

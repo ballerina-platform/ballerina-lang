@@ -47,7 +47,7 @@ public function invokeEndpoint (string path, Request outRequest,
     } else if (HTTP_FORWARD == requestAction) {
         return httpClient.forward(path, outRequest);
     } else if (HTTP_HEAD == requestAction) {
-        return httpClient.head(path, outRequest);
+        return httpClient.head(path, req = outRequest);
     } else {
         return getError();
     }

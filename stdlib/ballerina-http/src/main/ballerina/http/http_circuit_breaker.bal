@@ -137,7 +137,7 @@ public type CircuitBreakerClient object {
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    public function head (string path, Request req) returns (Response | HttpConnectorError);
+    public function head (string path, Request? req = ()) returns (Response | HttpConnectorError);
 
     @Description {value:"The PUT action implementation of the Circuit Breaker. Protects the invocation of the PUT action of the underlying HTTP client connector."}
     @Param {value:"path: Resource path"}
@@ -247,7 +247,7 @@ public function CircuitBreakerClient::post (string path, Request req) returns (R
     }
 }
 
-public function CircuitBreakerClient::head (string path, Request req) returns (Response | HttpConnectorError) {
+public function CircuitBreakerClient::head (string path, Request? req = ()) returns (Response | HttpConnectorError) {
    HttpClient httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -256,7 +256,7 @@ public function CircuitBreakerClient::head (string path, Request req) returns (R
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
-       match httpClient.head(path, req) {
+       match httpClient.head(path, req = req) {
             Response service_response => {
                                     updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
                                     return service_response;

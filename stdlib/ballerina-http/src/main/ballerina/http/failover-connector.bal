@@ -73,7 +73,7 @@ public type Failover object {
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the function invocation, if any"}
-    public function head(string path, Request req) returns (Response | HttpConnectorError);
+    public function head(string path, Request? req = ()) returns (Response | HttpConnectorError);
 
     @Description {value:"The PATCH function implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
@@ -176,8 +176,9 @@ public function Failover::post(string path, Request req) returns (Response | Htt
 @Param {value:"request: A Request struct"}
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
-public function Failover::head(string path, Request req) returns (Response | HttpConnectorError) {
-    return performFailoverAction(path, req, HTTP_HEAD, self.failoverInferredConfig);
+public function Failover::head(string path, Request? req = ()) returns (Response | HttpConnectorError) {
+    Request request = req ?: new;
+    return performFailoverAction(path, request, HTTP_HEAD, self.failoverInferredConfig);
 }
 
 @Description {value:"The PATCH function implementation of the Failover Connector."}
