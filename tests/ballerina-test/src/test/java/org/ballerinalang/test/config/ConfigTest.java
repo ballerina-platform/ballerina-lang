@@ -222,7 +222,7 @@ public class ConfigTest {
         Assert.assertTrue(((BBoolean) returnVals[0]).booleanValue());
     }
 
-    @Test(description = "Test for configuring a service", enabled = false)
+    @Test(description = "Test for configuring a service")
     public void testConfiguringAService() throws IOException {
         registry.initRegistry(null, Paths.get(resourceRoot, "datafiles", "config", "service-config.conf").toString(),
                               null);
