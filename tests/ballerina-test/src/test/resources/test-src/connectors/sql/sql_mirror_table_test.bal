@@ -39,13 +39,13 @@ function testIterateMirrorTable() returns (Employee[], Employee[]) {
 }
 
 function testIterateMirrorTableAfterClose() returns (Employee[], Employee[], error) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->mirror("employeeItr", Employee);
+    var temp = testDB->getProxyTable("employeeItr", Employee);
     table dt = check temp;
 
     Employee[] employeeArray1;
@@ -81,7 +81,7 @@ function testIterateMirrorTableAfterClose() returns (Employee[], Employee[], err
     catch (error err) {
         e = err;
     }
-    _ = testDB->close();
+    _ = testDB.stop();
     return (employeeArray1, employeeArray2, e);
 }
 

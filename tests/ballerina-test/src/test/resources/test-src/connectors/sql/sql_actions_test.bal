@@ -1011,8 +1011,8 @@ function testComplexTypeRetrieval() returns (string, string, string, string) {
 }
 
 function testSelectLoadToMemory() returns (Employee[], Employee[], Employee[]) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -1047,13 +1047,13 @@ function testSelectLoadToMemory() returns (Employee[], Employee[], Employee[]) {
         i++;
     }
 
-    _ = testDB->close();
+    _ = testDB.stop();
     return (employeeArray1, employeeArray2, employeeArray3);
 }
 
 function testLoadToMemorySelectAfterTableClose() returns (Employee[], Employee[], error) {
-    endpoint sql:Client testDB {
-        url:"hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    endpoint jdbc:Client testDB {
+        url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
     };
@@ -1091,7 +1091,7 @@ function testLoadToMemorySelectAfterTableClose() returns (Employee[], Employee[]
     catch (error err) {
         e = err;
     }
-    _ = testDB->close();
+    _ = testDB.stop();
     return (employeeArray1, employeeArray2, e);
 }
 
