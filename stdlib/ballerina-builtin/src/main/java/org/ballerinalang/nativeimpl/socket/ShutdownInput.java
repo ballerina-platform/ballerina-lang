@@ -22,8 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
+import org.ballerinalang.nativeimpl.io.channels.SocketIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -32,40 +32,38 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.channels.ByteChannel;
-
 /**
- * Native function to close a Client socket.
+ * Native function to ShutdownInput in a socket.
  *
- * @since 0.963.0
+ * @since 0.970.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "closeSocket",
+        functionName = "shutdownInput",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Socket", structPackage = "ballerina.io"),
-        returnType = { @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+        returnType = { @ReturnType(type = TypeKind.STRUCT, structType = "error")},
         isPublic = true
 )
-public class CloseSocket extends BlockingNativeCallableUnit {
+public class ShutdownInput extends BlockingNativeCallableUnit {
 
-    private static final Logger log = LoggerFactory.getLogger(CloseSocket.class);
+    private static final Logger log = LoggerFactory.getLogger(ShutdownInput.class);
 
     @Override
     public void execute(Context context) {
         BStruct socket;
         try {
             socket = (BStruct) context.getRefArgument(0);
-            ByteChannel byteChannel = (ByteChannel) socket.getNativeData(IOConstants.CLIENT_SOCKET_NAME);
             BStruct byteChannelStruct = (BStruct) socket.getRefField(0);
-            Channel channel = (Channel) byteChannelStruct
-                    .getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            byteChannel.close();
-            channel.close();
+            Channel channel = (Channel) byteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+            if (channel instanceof SocketIOChannel) {
+                SocketIOChannel socketIOChannel = (SocketIOChannel) channel;
+                socketIOChannel.shutdownInput();
+            }
         } catch (Throwable e) {
-            String message = "Failed to close the socket:" + e.getMessage();
+            String message = "Failed to shutdown input in socket:" + e.getMessage();
             log.error(message, e);
             context.setReturnValues(IOUtils.createError(context, message));
         }
-        context.setReturnValues((BValue) null);
+        context.setReturnValues();
     }
 }

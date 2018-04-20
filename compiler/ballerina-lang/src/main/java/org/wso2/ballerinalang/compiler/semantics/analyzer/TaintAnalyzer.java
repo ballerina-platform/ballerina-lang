@@ -1889,7 +1889,29 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // If list is not moving, there is a recursion. Derive the tainted status of all the blocked
             // functions by using annotations and if annotations are not present generate error.
             if (remainingBlockedNodeCount != 0 && analyzedBlockedNodeCount == remainingBlockedNodeCount) {
-                boolean partialResolutionFound = analyzeBlockedNodeWithReturnAnnotations(remainingBlockedNodeMap);
+                boolean partialResolutionFound = false;
+                // Check each stagnated function and derive the tainted / untainted status of the return value based on
+                // annotations.
+                Map<BlockingNode, List<BlockedNode>> remainingBlockedNodesAfterAnnotationCheck = new LinkedHashMap<>();
+                for (BlockingNode blockingNode : remainingBlockedNodeMap.keySet()) {
+                    List<BlockedNode> blockedNodeList = remainingBlockedNodeMap.get(blockingNode);
+                    List<BlockedNode> remainingBlockedNodeList = new ArrayList<>();
+                    for (BlockedNode blockedNode : blockedNodeList) {
+                        boolean retParamIsAnnotated = hasAnnotation(blockedNode.invokableNode.returnTypeAnnAttachments,
+                                ANNOTATION_TAINTED) || hasAnnotation(blockedNode.invokableNode.returnTypeAnnAttachments,
+                                ANNOTATION_UNTAINTED);
+                        if (retParamIsAnnotated) {
+                            attachTaintTableBasedOnAnnotations(blockedNode.invokableNode);
+                            partialResolutionFound = true;
+                        } else {
+                            remainingBlockedNodeList.add(blockedNode);
+                        }
+                    }
+                    if (remainingBlockedNodeList.size() > 0) {
+                        remainingBlockedNodesAfterAnnotationCheck.put(blockingNode, remainingBlockedNodeList);
+                    }
+                }
+                remainingBlockedNodeMap = remainingBlockedNodesAfterAnnotationCheck;
                 if (!partialResolutionFound) {
                     // If returns of remaining blocked nodes are not annotated, generate errors, since
                     // taint analyzer cannot accurately finish the analysis unless required annotations were
@@ -1907,27 +1929,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
             sortedBlockedNodeMap = remainingBlockedNodeMap;
         }
-    }
-
-    private boolean analyzeBlockedNodeWithReturnAnnotations(Map<BlockingNode, List<BlockedNode>> blockedNodeMap) {
-        boolean partialResolutionFound = false;
-        for (BlockingNode blockingNode : blockedNodeMap.keySet()) {
-            List<BlockedNode> blockedNodeList = blockedNodeMap.get(blockingNode);
-            for (BlockedNode blockedNode : blockedNodeList) {
-                boolean retParamIsAnnotated = hasAnnotation(blockedNode.invokableNode.returnTypeAnnAttachments,
-                        ANNOTATION_TAINTED) || hasAnnotation(blockedNode.invokableNode.returnTypeAnnAttachments,
-                        ANNOTATION_UNTAINTED);
-
-                if (retParamIsAnnotated) {
-                    attachTaintTableBasedOnAnnotations(blockedNode.invokableNode);
-                    //TODO: Re-enable this once websub looping issue is resolved
-                    //return true;
-                    partialResolutionFound = true;
-                }
-            }
-        }
-        //return false;
-        return partialResolutionFound;
     }
 
     private BLangVariable getParam(BLangInvokableNode invNode, int paramIndex, int requiredParamCount,
