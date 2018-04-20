@@ -95,7 +95,7 @@ public type FailoverClientEndpointConfiguration {
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
     CacheConfig cache = {},
-    string acceptEncoding = "auto",
+    AcceptEncoding acceptEncoding = ACCEPT_ENCODING_AUTO,
     AuthConfig? auth,
     int[] failoverCodes = [501, 502, 503, 504],
     int intervalMillis,
