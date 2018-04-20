@@ -76,19 +76,20 @@ public type ServiceEndpointConfiguration {
 @Field {value:"keyStore: KeyStore related options"}
 @Field {value:"protocols: SSL/TLS protocol related options"}
 @Field {value:"certValidation: Certificate validation against CRL or OCSP related options"}
-@Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
+@Field {value:
+"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
 @Field {value:"sslVerifyClient: The type of client certificate verification"}
 @Field {value:"shareSession: Enable/disable new ssl session creation"}
 @Field {value:"ocspStapling: Enable/disable ocsp stapling"}
 public type ServiceSecureSocket {
-TrustStore? trustStore,
-KeyStore? keyStore,
-Protocols? protocol,
-ValidateCert? certValidation,
-string[] ciphers,
-string sslVerifyClient,
-boolean shareSession = true,
-ServiceOcspStapling? ocspStapling,
+    TrustStore? trustStore,
+    KeyStore? keyStore,
+    Protocols? protocol,
+    ValidateCert? certValidation,
+    string[] ciphers,
+    string sslVerifyClient,
+    boolean shareSession = true,
+    ServiceOcspStapling? ocspStapling,
 };
 
 public type Service object {
