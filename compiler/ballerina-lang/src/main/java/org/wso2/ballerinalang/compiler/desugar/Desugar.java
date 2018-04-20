@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -2642,6 +2643,13 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BType getSafeType(BType type, boolean liftError) {
+        // Since JSON is by default contains null, we need to create a new json type which
+        // is not-nullable.
+        if (type.tag == TypeTags.JSON) {
+            BJSONType jsonType = (BJSONType) type;
+            return new BJSONType(jsonType.tag, jsonType.constraint, jsonType.tsymbol, false);
+        }
+
         if (type.tag != TypeTags.UNION) {
             return type;
         }
