@@ -1,14 +1,14 @@
 import ballerina/io;
 
 type Employee {
-    int id;
-    string name;
-    float salary;
+    int id,
+    string name,
+    float salary,
 };
 
-function main (string... args) {
-    //Create an in-memory table constrained by the Employee struct.
-    table < Employee> tb = table {};
+function main(string... args) {
+    //Create an in-memory table constrained by the Employee type.
+    table<Employee> tb = table {};
 
     //Add some data rows to the table.
     Employee e1 = {id:1, name:"Jane", salary:300.50};
@@ -22,7 +22,7 @@ function main (string... args) {
     _ = tb.add(e4);
 
     //Print the table data.
-    io:print("Table Data:");
+    io:print("Table Information: ");
     io:println(tb);
 
     //Access using the 'foreach' loop.
@@ -41,32 +41,22 @@ function main (string... args) {
     io:println(tb);
 
     //Convert to JSON.
-    var j = <json> tb;
+    json j = check <json>tb;
 
-    match j {
-        json jsonRes => {
-                       io:print("JSON:");
-                       io:println(j);
-                   }
-        error err =>  io:println("error: " + err.message);
-    }
+    io:print("JSON: ");
+    io:println(j);
 
     //Convert to XML.
-    var x = <xml> tb;
+    xml x = check <xml>tb;
 
-    match x {
-        xml xmlRes => {
-                   io:print("XML:");
-                   io:println(x);
-               }
-        error err =>  io:println("error: " + err.message);
-    }
+    io:print("XML: ");
+    io:println(x);
 }
 
-function isLowerSalary (Employee p) returns (boolean) {
+function isLowerSalary(Employee p) returns (boolean) {
     return p.salary < 200;
 }
 
-function getSalary (Employee p) returns (float) {
+function getSalary(Employee p) returns (float) {
     return p.salary;
 }

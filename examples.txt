@@ -44,8 +44,10 @@ Fork/Join
 Fork/Join Condition Some
 Fork/Join Variable Access
 Async
-SQL Connector
-Table with SQL Connector
+JDBC Client
+MYSQL Client
+Table with MYSQL Client
+SQL Queries On Tables
 Transactions
 Distributed Transactions
 Transformers
