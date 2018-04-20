@@ -4,7 +4,7 @@ This package includes functions to manage task timers and task appointments.
 
 ### Task timers
 
-Timers execute periodic tasks. The initial execution of a task happens after a specific time period from the task registration, which is denoted using `delay`.  The frequency at which the tasks needs to be executed is defined using the `interval`. If the `delay` is not specified the `delay` will be the same as `interval`. The `delay` and `interval` times are defined in milliseconds.
+Timers execute periodic tasks. The initial execution of a task happens after a specific time period from the task registration, which is denoted using `delay`. Use the `interval` to specify the frequency at which tasks execute. If the `delay` is not specified, the `interval` is taken as the `delay`. The `delay` and `interval` times are defined in milliseconds.
 
 The tasks that need to be executed is defined in the `onTriggerFunction` function.  If an error is returned when executing the `onTriggerFunction` function, the `onErrorFunction` is executed.
 
