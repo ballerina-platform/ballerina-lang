@@ -63,7 +63,7 @@ public class TestHttp2WithALPN {
     private int port = 8443;
     private HttpWsConnectorFactory connectorFactory;
 
-    @BeforeClass(enabled = false)
+    @BeforeClass
     public void setup() throws InterruptedException {
 
         TransportsConfiguration transportsConfiguration = TestUtil
@@ -91,7 +91,7 @@ public class TestHttp2WithALPN {
 
     }
 
-    @Test(enabled = false)
+    @Test
     public void testHttp2Post() {
         try {
             String testValue = "Test";
@@ -125,7 +125,7 @@ public class TestHttp2WithALPN {
         return listenerConfiguration;
     }
 
-    @AfterClass(enabled = false)
+    @AfterClass
     public void cleanUp() throws ServerConnectorException {
         httpClientConnector.close();
         serverConnector.stop();
