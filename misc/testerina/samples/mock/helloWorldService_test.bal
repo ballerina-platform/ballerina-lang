@@ -6,7 +6,7 @@ import ballerina/test;
 import ballerina/config;
 
 
-string url = "http://0.0.0.0:9092/hello";
+string uri = "http://0.0.0.0:9092";
 boolean isHelloServiceStarted;
 
 function startMock () {
@@ -23,13 +23,13 @@ function stopMock () {
 }
 function testService () {
     endpoint http:Client httpEndpoint {
-        targets:[{ uri:url }]
+        url:uri
     };
 
     // Check whether the service is started
     test:assertTrue(isHelloServiceStarted, msg = "Hello service failed to start");
 
-    http:Request req = {};
+    http:Request req = new;
     // Send a GET request to the specified endpoint
     io:println("GET request:");
     var response = httpEndpoint -> get("/hello", req);
@@ -39,6 +39,6 @@ function testService () {
             json expected = {"Hello":"World"};
             test:assertEquals(jsonRes, expected);
         }
-        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint: " +url);
+        http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint: " +uri);
     }
 }

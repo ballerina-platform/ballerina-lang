@@ -86,7 +86,7 @@ public class GlobalVarServicePkgTest {
         Assert.assertEquals(bJson.value().get("glbVarPkgFunc").asText(), "8876");
     }
 
-    @Test(description = "Test assigning global variable to service variable from different package", enabled = false)
+    @Test(description = "Test assigning global variable to service variable from different package")
     public void testAssigningGlobalVarToServiceVarFromDiffPkg() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-pkg/assign-to-service-var-from-diff-pkg",
                                                                   "GET");

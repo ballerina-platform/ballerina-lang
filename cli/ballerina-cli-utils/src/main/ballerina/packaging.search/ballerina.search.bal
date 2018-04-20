@@ -4,35 +4,37 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/time;
 
+documentation {
+    Function to search packages from ballerina central.
+
+    P{{url}} - The endpoint url to be invoked.
+    P{{querySearched}} - The text searched for.
+}
 function search (string url, string querySearched) {
     endpoint http:Client httpEndpoint {
-        targets: [
-        {
-            url: url,
-            secureSocket: {
-                trustStore: {
-                    filePath: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                    password: "ballerina"
-                },
-                verifyHostname:false,
-                shareSession: true
-                }
-            }  
-        ]
+        url:url,
+        secureSocket:{
+            trustStore:{
+                path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password:"ballerina"
+            },
+            verifyHostname:false,
+            shareSession:true
+        }
     };
     http:Request req = new;
     var result = httpEndpoint -> get(untaint querySearched, req);
     http:Response httpResponse = check result;
-
-    json jsonResponse = check (httpResponse.getJsonPayload());
+    json jsonResponse = null;
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
-        error err = {message:"remote registry failed for url :" + url};
-        throw err;
+        io:println("remote registry failed for url : " + url + "/" + querySearched);
     } else if (statusCode != "200") {
-        string message = (jsonResponse.msg.toString() but {()=> "error occurred when searching for packages"});
+        jsonResponse = check (httpResponse.getJsonPayload());
+        string message = jsonResponse.msg.toString();
         io:println(message);
     } else {
+        jsonResponse = check (httpResponse.getJsonPayload());
         json[] artifacts = check <json[]>jsonResponse.artifacts;
         if (artifacts == null || lengthof artifacts > 0) {
             int artifactsLength = lengthof artifacts;
@@ -47,20 +49,28 @@ function search (string url, string querySearched) {
             int i = 0;
             while (i < artifactsLength) {
                 json jsonElement = artifacts[i];
-                string orgName = (jsonElement.orgName.toString() but {()=> ""});
-                string packageName = (jsonElement.packageName.toString() but {()=> ""});
+                string orgName = jsonElement.orgName.toString();
+                string packageName = jsonElement.packageName.toString();
                 printInCLI(orgName + "/" + packageName, 30);
                 
-                string summary = (jsonElement.summary.toString() but {()=> ""});
+                string summary = jsonElement.summary.toString();
                 printInCLI(summary, 40);
                 
-                string authors = (jsonElement.authors.toString() but {()=> ""});
+                string authors = "";
+                json authorsArr = jsonElement.authors;
+                foreach authorIndex in [0..lengthof authorsArr - 1] {
+                    if (authorIndex == lengthof authorsArr - 1) {
+                        authors = authors + authorsArr[authorIndex].toString();
+                    } else {
+                        authors = authors + " , " + authorsArr[authorIndex].toString();
+                    }
+                }
                 printInCLI(authors, 40);
 
                 json createTimeJson = <json>jsonElement.createdDate;
                 printInCLI(getDateCreated(createTimeJson), 20);
                 
-                string packageVersion = (jsonElement.packageVersion.toString() but {()=> ""});
+                string packageVersion = jsonElement.packageVersion.toString();
                 printInCLI(packageVersion, 15);               
                 i = i + 1;
                 io:println("");
@@ -71,6 +81,12 @@ function search (string url, string querySearched) {
     }
 }
 
+documentation {
+    Function to print package information.
+
+    P{{element}} - The text to be printed.
+    P{{charactersAllowed}} - The maximum number of characters to be printed.
+}
 function printInCLI(string element, int charactersAllowed) {
     int lengthOfElement = element.length();
     if (lengthOfElement > charactersAllowed || lengthOfElement == charactersAllowed) {
@@ -87,13 +103,23 @@ function printInCLI(string element, int charactersAllowed) {
     }
 }
 
+documentation {
+    Function to get the date the package was created in UTC.
+
+    P{{jsonObj}} - The time object as a json.
+    R{{}} - `string` The date and time the package was created.
+}
 function getDateCreated(json jsonObj) returns string {
-    int timeInMillis = <int>(jsonObj.time but {()=>0});
+    string jsonTime = jsonObj.time.toString();
+    int timeInMillis = check <int> jsonTime;
     time:Time timeStruct = new(timeInMillis, {zoneId:"UTC",zoneOffset:0});
     string customTimeString = timeStruct.format("yyyy-MM-dd-E");
     return customTimeString;
 }
 
-function main (string[] args) {
+documentation {
+    Main function which invokes the method to search for packages.
+}
+function main (string... args) {
     search(args[0], args[1]);
 }

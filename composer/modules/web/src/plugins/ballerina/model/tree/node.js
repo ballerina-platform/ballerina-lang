@@ -164,7 +164,11 @@ class Node extends EventChannel {
      * @param {boolean?} pretty ignore WS and put default WS.
      * @return {string} source.
      */
-    getSource(pretty) {
+    getSource(pretty, stripComments = false) {
+        const regex = /\/\/.*\n*/g;
+        if (stripComments) {
+            return getSourceOf(this, pretty).replace(regex, '').trim();
+        }
         return getSourceOf(this, pretty);
     }
 

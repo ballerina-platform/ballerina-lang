@@ -7,7 +7,7 @@ import ballerina/log;
 import ballerina/runtime;
 
 int total = 0;
-function main (string[] args) {
+function main (string... args) {
 
     endpoint ChatClient chatEp {
         host:"localhost",
@@ -100,7 +100,7 @@ public type ChatClient object {
         stub.initStub(client);
         self.stub = stub;
     }
-    public function getClient () returns (ChatStub) {
+    public function getCallerActions () returns (ChatStub) {
         return self.stub;
     }
 };

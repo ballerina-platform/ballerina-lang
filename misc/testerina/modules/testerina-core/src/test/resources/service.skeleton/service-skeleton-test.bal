@@ -6,8 +6,8 @@ string uri = "http://0.0.0.0:9095/v1";
 boolean isServiceSkeletonStarted;
 
 function init() {
-    isServiceSkeletonStarted = test:startServiceSkeleton("src/test/resources/service.skeleton/tmp", "mypackage",
-                                                         "src/test/resources/service.skeleton/petstore.yaml");
+    isServiceSkeletonStarted = test:startServiceSkeleton("mypackage",
+        "src/test/resources/service.skeleton/petstore.yaml");
 }
 
 function clean() {
@@ -17,9 +17,7 @@ function clean() {
 @test:Config{before: "init", after: "clean"}
 function testService () {
     endpoint http:Client httpEndpoint {
-        targets:[{
-            url:uri
-        }]
+        url:uri
     };
 
     test:assertTrue(isServiceSkeletonStarted, msg = "Service skeleton failed to start");

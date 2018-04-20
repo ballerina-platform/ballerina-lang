@@ -52,9 +52,9 @@ public class SQLActionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/connectors/sql/sql-actions-test.bal");
-        resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql-actions-negative.bal");
-        resultMirror = BCompileUtil.compile("test-src/connectors/sql/sql-mirror-table-test.bal");
+        result = BCompileUtil.compile("test-src/connectors/sql/sql_actions_test.bal");
+        resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql_actions_negative_test.bal");
+        resultMirror = BCompileUtil.compile("test-src/connectors/sql/sql_mirror_table_test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLConnectorDataFile.sql");
     }
@@ -148,8 +148,35 @@ public class SQLActionsTest {
         final String expected = "Peter";
         BString retValue2 = (BString) returns[1];
         final String expected2 = "John";
+        BString retValue3 = (BString) returns[2];
+        final String expected3 = "Watson";
         Assert.assertEquals(retValue.stringValue(), expected);
         Assert.assertEquals(retValue2.stringValue(), expected2);
+        Assert.assertEquals(retValue3.stringValue(), expected3);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() {
+        BValue[] returns = BRunUtil
+                .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndLowerConstraintCount");
+        Assert.assertTrue(returns[0].stringValue().contains("message:\"execute stored procedure failed: Mismatching "
+                + "record type count: 1 and returned result set count: 2 from the stored procedure\""));
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testCallProcedureWithMultipleResultSetsAndNilConstraintCount() {
+        BValue[] returns = BRunUtil
+                .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndNilConstraintCount");
+        Assert.assertTrue(returns[0].stringValue().contains("message:\"execute stored procedure failed: Mismatching "
+                + "record type count: 0 and returned result set count: 2 from the stored procedure\""));
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() {
+        BValue[] returns = BRunUtil
+                .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndHigherConstraintCount");
+        Assert.assertTrue(returns[0].stringValue().contains("message:\"execute stored procedure failed: Mismatching "
+                + "record type count: 3 and returned result set count: 2 from the stored procedure\""));
     }
 
     @Test(groups = "ConnectorTest")

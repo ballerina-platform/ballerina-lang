@@ -9,7 +9,7 @@ public type functionRecord {
     function () f;
 };
 
-public function main(string[] args) {
+function main(string... args) {
 
     if (lengthof args < 3) {
         io:println("ERROR: Please specify the number of warm-up iterations and benchmark iterations.");
@@ -80,13 +80,13 @@ function executeBenchmarks(functionRecord[] functionArray, int warmupIterations,
 
         float totalTime = (endTime - startTime);
         float totalTimeMilli = (totalTime / 1000000.0);
-        resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f,", [totalTimeMilli]), 0);
+        resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f,", totalTimeMilli), 0);
 
         float avgLatency = (<float>totalTime / <float>benchmarkIterations);
-        resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f,", [avgLatency]), 0);
+        resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f,", avgLatency), 0);
 
         float tps = (1000000000.0 / avgLatency);
-        resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f", [tps]), 0);
+        resultWrite = check charChannel.writeCharacters(io:sprintf("%10.2f", tps), 0);
     }
 
 }

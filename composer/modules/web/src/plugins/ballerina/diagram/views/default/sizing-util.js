@@ -263,7 +263,7 @@ class SizingUtil {
         // we will calculate the width of the expression and adjust the block statement
         const expression = node.getParameter();
         if (expression) {
-            components.expression = this.getTextWidth(expression.getSource(true), 0,
+            components.expression = this.getTextWidth(expression.getSource(true, true), 0,
                                         this.config.compoundStatement.heading.width);
         }
     }
@@ -442,7 +442,7 @@ class SizingUtil {
         let width = 0;
         if (parameters.length > 0) {
             for (let i = 0; i < parameters.length; i++) {
-                width += this.getTextWidth(parameters[i].getSource(true), 0).w + 21;
+                width += this.getTextWidth(parameters[i].getSource(true, true), 0).w + 21;
             }
         }
 
@@ -561,7 +561,7 @@ class SizingUtil {
      */
     sizeRetryNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(true), viewState);
+        this.sizeStatement(node.getSource(true, true), viewState);
     }
 
 
@@ -684,7 +684,7 @@ class SizingUtil {
 
         // Set the globals to fit the globals container
         variables.forEach((global) => {
-            const text = this.getTextWidth(global.getSource(true), 0, 295).text;
+            const text = this.getTextWidth(global.getSource(true, true), 0, 295).text;
             global.viewState.globalText = text;
         });
     }
@@ -709,7 +709,7 @@ class SizingUtil {
     sizeVariableNode(node) {
         // For argument parameters and return types in the panel decorator
         const paramViewState = node.viewState;
-        paramViewState.w = this.getTextWidth(node.getSource(true), 0).w;
+        paramViewState.w = this.getTextWidth(node.getSource(true, true), 0).w;
         paramViewState.h = this.config.panelHeading.heading.height - 7;
 
             // Creating component for delete icon.
@@ -752,7 +752,7 @@ class SizingUtil {
      *
      */
     sizeXmlnsNode(node) {
-        this.sizeStatement(node.getSource(true), node.viewState);
+        this.sizeStatement(node.getSource(true, true), node.viewState);
     }
 
     /**
@@ -1078,7 +1078,7 @@ class SizingUtil {
      */
     sizeAbortNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(true), viewState);
+        this.sizeStatement(node.getSource(true, true), viewState);
     }
 
 
@@ -1090,7 +1090,7 @@ class SizingUtil {
      */
     sizeAssignmentNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(true), viewState);
+        this.sizeStatement(node.getSource(true, true), viewState);
         this.adjustToLambdaSize(node, viewState);
         this.sizeActionInvocationStatement(node);
         this.sizeClientResponderStatement(node);
@@ -1104,7 +1104,7 @@ class SizingUtil {
      */
     sizeBindNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(true), viewState);
+        this.sizeStatement(node.getSource(true, true), viewState);
     }
 
     /**
@@ -1130,7 +1130,7 @@ class SizingUtil {
      */
     sizeBreakNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(true), viewState);
+        this.sizeStatement(node.getSource(true, true), viewState);
     }
 
     /**
@@ -1141,7 +1141,7 @@ class SizingUtil {
      */
     sizeNextNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(true), viewState);
+        this.sizeStatement(node.getSource(true, true), viewState);
     }
 
 
@@ -1153,7 +1153,7 @@ class SizingUtil {
      */
     sizeExpressionStatementNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(true), viewState);
+        this.sizeStatement(node.getSource(true, true), viewState);
         this.sizeActionInvocationStatement(node);
         this.sizeClientResponderStatement(node);
     }
@@ -1337,8 +1337,8 @@ class SizingUtil {
         node.viewState.bBox.h = height;
         node.viewState.bBox.w = (this.config.statement.width < width) ? width :
             100;
-        components.expression = this.getTextWidth(node.expression.getSource(true), 0,
-            node.viewState.bBox.w / 2);
+        components.expression = this.getTextWidth(node.expression.getSource(true, true), 0,
+            node.viewState.bBox.w);
     }
 
 
@@ -1352,12 +1352,13 @@ class SizingUtil {
         const components = node.viewState.components;
         node.viewState.bBox.h = node.statement.viewState.bBox.h + this.config.statement.height;
         node.viewState.bBox.w = node.statement.viewState.bBox.w;
-        components.expression = this.getTextWidth(node.variableNode.getSource(true), 0,
-            node.viewState.bBox.w / 2);
 
         node.viewState.bBox.h += 10;
         // Calculate the left margin.
         this.calcLeftMargin(node.viewState.bBox, [node.statement], false, false);
+
+        components.expression = this.getTextWidth(node.variableNode.getSource(true, true), 0,
+            this.getActualWidth(node.viewState.bBox));
     }
 
 
@@ -1378,7 +1379,7 @@ class SizingUtil {
      */
     sizeReturnNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(true), viewState);
+        this.sizeStatement(node.getSource(true, true), viewState);
         this.adjustToLambdaSize(node, viewState);
         this.sizeClientResponderStatement(node);
         if (viewState.displayText === '()') {
@@ -1406,7 +1407,7 @@ class SizingUtil {
      */
     sizeThrowNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(true), viewState);
+        this.sizeStatement(node.getSource(true, true), viewState);
     }
 
 
@@ -1603,7 +1604,7 @@ class SizingUtil {
      */
     sizeVariableDefNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(true), viewState);
+        this.sizeStatement(node.getSource(true, true), viewState);
         this.adjustToLambdaSize(node, viewState);
 
         // Truncate the endpoint name to fit the statement box
@@ -1641,7 +1642,7 @@ class SizingUtil {
             viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
             viewState.alias = 'ClientResponderNode';
             if (TreeUtil.isReturn(node)) {
-                const paramText = node.expression.getSource(true);
+                const paramText = node.expression.getSource(true, true);
                 const displayText = this.getTextWidth(paramText, 0,
                     (this.config.clientLine.width + this.config.lifeLine.gutter.h));
                 viewState.displayText = displayText.text;
@@ -1649,7 +1650,7 @@ class SizingUtil {
             if (TreeUtil.isAssignment(node)) {
                 const exp = node.getExpression();
                 const argExpSource = exp.getArgumentExpressions().map((arg) => {
-                    return arg.getSource();
+                    return arg.getSource(true, true);
                 }).join(', ');
                 const displayText = this.getTextWidth(argExpSource, 0,
                     (this.config.clientLine.width + this.config.lifeLine.gutter.h));
@@ -1658,7 +1659,7 @@ class SizingUtil {
             if (TreeUtil.isVariableDef(node)) {
                 const exp = node.variable.getInitialExpression();
                 const argExpSource = exp.getArgumentExpressions().map((arg) => {
-                    return arg.getSource();
+                    return arg.getSource(true, true);
                 }).join(', ');
                 const displayText = this.getTextWidth(argExpSource, 0,
                     (this.config.clientLine.width + this.config.lifeLine.gutter.h));
@@ -1667,7 +1668,7 @@ class SizingUtil {
             if (TreeUtil.isExpressionStatement(node)) {
                 const exp = node.getExpression();
                 const argExpSource = exp.getArgumentExpressions().map((arg) => {
-                    return arg.getSource();
+                    return arg.getSource(true, true);
                 }).join(', ');
                 const displayText = this.getTextWidth(argExpSource, 0,
                     (this.config.clientLine.width + this.config.lifeLine.gutter.h));
@@ -1728,7 +1729,7 @@ class SizingUtil {
         // for compound statement like if , while we need to render condition expression
         // we will calculate the width of the expression and adjust the block statement
         if (expression) {
-            components.expression = this.getTextWidth(expression.getSource(true), 0,
+            components.expression = this.getTextWidth(expression.getSource(true, true), 0,
                                         this.config.flowChartControlStatement.heading.width - 5);
         }
     }
@@ -1752,6 +1753,11 @@ class SizingUtil {
             (leftMargin + ((acumilate) ? this.config.flowChartControlStatement.padding.left : 0));
     }
 
+    getActualWidth(bBox) {
+        return ((bBox.leftMargin === 0) ? this.config.flowChartControlStatement.gap.left : bBox.leftMargin)
+            + bBox.w;
+    }
+
     /**
      * Calculate dimention of WorkerReceive nodes.
      *
@@ -1760,7 +1766,7 @@ class SizingUtil {
      */
     sizeWorkerReceiveNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(true), viewState);
+        this.sizeStatement(node.getSource(true, true), viewState);
     }
 
 
@@ -1772,7 +1778,7 @@ class SizingUtil {
      */
     sizeWorkerSendNode(node) {
         const viewState = node.viewState;
-        this.sizeStatement(node.getSource(true), viewState);
+        this.sizeStatement(node.getSource(true, true), viewState);
     }
 
 
@@ -1901,7 +1907,7 @@ class SizingUtil {
         if (expression) {
             // see how much space we have to draw the condition
             const available = bodyWidth - this.config.compoundStatement.heading.width - 10;
-            components.expression = this.getTextWidth(expression.getSource(true), 0, available);
+            components.expression = this.getTextWidth(expression.getSource(true, true), 0, available);
         }
     }
 

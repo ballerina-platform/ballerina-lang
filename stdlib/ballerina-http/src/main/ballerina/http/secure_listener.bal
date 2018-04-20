@@ -47,7 +47,7 @@ public type SecureListener object {
 
     @Description {value:"Returns the connector that client code uses"}
     @Return {value:"The connector that client code uses"}
-    public function getClient() returns (Connection);
+    public function getCallerActions() returns (Connection);
 
     @Description {value:"Stops the registered service"}
     public function stop();
@@ -80,16 +80,21 @@ public type SecureEndpointConfiguration {
 @Description {value:"Configuration for authentication providers"}
 @Field {value:"scheme: Authentication schem"}
 @Field {value:"id: Authention provider instance id"}
+@Field {value:"authProvider: Authentication schem implementation"}
+@Field {value:"issuer: Identifier of the token issuer"}
+@Field {value:"audience: Identifier of the token recipients"}
+@Field {value:"trustStore: Trustore configurations"}
+@Field {value:"certificateAlias: Token signed key alias"}
+@Field {value:"clockSkew: Time in seconds to mitigate clock skew"}
 public type AuthProvider {
     string scheme,
     string id,
     string authProvider,
-    string filePath,
     string issuer,
     string audience,
     TrustStore? trustStore,
     string certificateAlias,
-    int timeSkew,
+    int clockSkew,
 };
 
 public function SecureListener::init (SecureEndpointConfiguration config) {
@@ -122,7 +127,7 @@ function addAuthFiltersForSecureListener (SecureEndpointConfiguration config) {
 @Return {value:"Array of Filters comprising of authn and authz Filters"}
 function createAuthFiltersForSecureListener (SecureEndpointConfiguration config) returns (Filter[]) {
     // parse and create authentication handlers
-    //AuthHandlerRegistry registry = new;
+    AuthHandlerRegistry registry;
     match config.authProviders {
         AuthProvider[] providers => {
             int i = 1;
@@ -141,17 +146,17 @@ function createAuthFiltersForSecureListener (SecureEndpointConfiguration config)
         }
     }
     Filter[] authFilters = [];
-    //AuthnHandlerChain authnHandlerChain = new(registry);
-    AuthnFilter authnFilter = new(authnRequestFilterFunc, responseFilterFunc);
-    AuthzFilter authzFilter = new(authzRequestFilterFunc, responseFilterFunc);
-    authFilters[0] = <Filter>authnFilter;
-    authFilters[1] = authzFilter;
+    AuthnHandlerChain authnHandlerChain = new(registry);
+    AuthnFilter authnFilter = new(authnHandlerChain);
+    AuthzFilter authzFilter = new;
+    authFilters[0] = check <Filter> authnFilter;
+    authFilters[1] = <Filter> authzFilter;
     return authFilters;
 }
 
 function createBasicAuthHandler () returns HttpAuthnHandler  {
     auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider1 = <auth:AuthProvider> configAuthProvider;
+    auth:AuthProvider authProvider1 = check <auth:AuthProvider> configAuthProvider;
     HttpBasicAuthnHandler basicAuthHandler = new(authProvider1);
     return check <HttpAuthnHandler> basicAuthHandler;
 }
@@ -161,7 +166,7 @@ function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler 
         auth:AuthProvider authProvider1;
         if (authProvider.authProvider == AUTH_PROVIDER_CONFIG) {
             auth:ConfigAuthProvider configAuthProvider = new;
-            authProvider1 = <auth:AuthProvider> configAuthProvider;
+            authProvider1 = check <auth:AuthProvider> configAuthProvider;
         } else {
             // other auth providers are unsupported yet
             error e = {message:"Invalid auth provider: " + authProvider.authProvider };
@@ -174,7 +179,8 @@ function createAuthHandler (AuthProvider authProvider) returns HttpAuthnHandler 
         jwtConfig.issuer = authProvider.issuer;
         jwtConfig.audience = authProvider.audience;
         jwtConfig.certificateAlias = authProvider.certificateAlias;
-        jwtConfig.trustStoreFilePath = authProvider.trustStore.filePath but {() => ""};
+        jwtConfig.clockSkew = authProvider.clockSkew;
+        jwtConfig.trustStoreFilePath = authProvider.trustStore.path but {() => ""};
         jwtConfig.trustStorePassword = authProvider.trustStore.password but {() => ""};
         auth:JWTAuthProvider jwtAuthProvider = new (jwtConfig);
         HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
@@ -206,8 +212,8 @@ public function SecureListener::start () {
 
 @Description {value:"Returns the connector that client code uses"}
 @Return {value:"The connector that client code uses"}
-public function SecureListener::getClient () returns (Connection) {
-    return self.httpListener.getClient();
+public function SecureListener::getCallerActions () returns (Connection) {
+    return self.httpListener.getCallerActions();
 }
 
 @Description {value:"Stops the registered service"}

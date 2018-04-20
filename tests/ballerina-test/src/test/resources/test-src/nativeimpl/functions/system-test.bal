@@ -24,12 +24,12 @@ function testPrintAndPrintlnBoolean(boolean v1, boolean v2){
     // output is equal to v1\nv2
 }
 
-//function testPrintAndPrintlnConnector() {
-//    Foo f1 = create Foo();
-//    Foo f2 = create Foo();
-//    io:println(f1);
-//    io:print(f2);
-//}
+function testPrintAndPrintlnConnector() {
+    Foo f1 =  new Foo();
+    Foo f2 =  new Foo();
+    io:println(f1);
+    io:print(f2);
+}
 
 function testPrintAndPrintlnFunctionPointer() {
     function (int, int) returns (int) addFunction = func1;
@@ -37,8 +37,12 @@ function testPrintAndPrintlnFunctionPointer() {
     io:print(addFunction);
 }
 
-function testSprintf(string fmtStr, any[] fmtArgs) returns (string) {
-    return io:sprintf(fmtStr, fmtArgs);
+function testSprintf(string fmtStr, any... fmtArgs) returns (string) {
+    return io:sprintf(fmtStr, ...fmtArgs);
+}
+
+function testSprintfMix(string fmtStr, string s1, string s2, int i1) returns (string) {
+    return io:sprintf(fmtStr, s1, s2, i1);
 }
 
 function printNewline() {
@@ -50,8 +54,20 @@ function func1 (int a, int b) returns (int) {
     return c;
 }
 
-//connector Foo() {
-//    action bar() (int) {
-//        return 5;
-//    }
-//}
+type Foo object {
+    function bar() returns (int) {
+        return 5;
+    }
+};
+
+function testPrintMixVarargs(string s1, int i1, float f1, boolean b1) {
+    io:print(s1, i1, f1, b1);
+}
+
+function testPrintVarargs(string s1, string s2, string s3) {
+    io:print(s1, s2, s3);
+}
+
+function testPrintlnVarargs(string s1, string s2, string s3) {
+    io:println(s1, s2, s3);
+}

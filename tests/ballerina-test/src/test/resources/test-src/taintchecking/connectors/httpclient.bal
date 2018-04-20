@@ -1,12 +1,10 @@
 import ballerina/http;
 
 endpoint http:Client clientEndpoint {
-    targets: [{
-        url: "https://postman-echo.com"
-    }]
+    url: "https://postman-echo.com"
 };
 
-function main (string[] args) {
+function main (string... args) {
     string param = "staticValue";
     string headerName = "staticValue";
     string headerValue = "staticValue";

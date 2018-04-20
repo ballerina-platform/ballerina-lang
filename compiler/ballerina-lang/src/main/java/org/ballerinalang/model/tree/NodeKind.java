@@ -100,7 +100,7 @@ public enum NodeKind {
     /* Statements */
     ABORT,
     DONE,
-    FAIL,
+    RETRY,
     ASSIGNMENT,
     COMPOUND_ASSIGNMENT,
     POST_INCREMENT,
@@ -141,6 +141,8 @@ public enum NodeKind {
 
     /* Clauses */
     ORDER_BY,
+    ORDER_BY_VARIABLE,
+    LIMIT,
     GROUP_BY,
     HAVING,
     SELECT_CLAUSE,

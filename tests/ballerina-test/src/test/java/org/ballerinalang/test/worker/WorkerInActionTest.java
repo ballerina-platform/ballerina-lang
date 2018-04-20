@@ -36,14 +36,14 @@ public class WorkerInActionTest {
         this.result = BCompileUtil.compile("test-src/workers/worker-in-action.bal");
     }
 
-    @Test(description = "Test TestConnector action1", enabled = false)
+    @Test(description = "Test TestConnector action1")
     public void testConnectorAction1() {
         BValue[] returns = BRunUtil.invoke(result, "testAction1");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "result from sampleWorker");
     }
 
-    @Test(description = "Test TestConnector action2", enabled = false)
+    @Test(description = "Test TestConnector action2")
     public void testConnectorAction2() {
         BValue[] returns = BRunUtil.invoke(result, "testAction2");
         Assert.assertEquals(returns.length, 1);

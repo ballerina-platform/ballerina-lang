@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,8 +53,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
 
     @Override
     public boolean canHandle(Path dirPath) {
-        Path absDotBallerinaDirPath = dirPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
-        return Files.exists(absDotBallerinaDirPath, LinkOption.NOFOLLOW_LINKS);
+        return RepoUtils.hasProjectRepo(dirPath);
     }
 
     @Override
@@ -88,9 +89,12 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     }
 
     private boolean isSpecialDirectory(Path dirName) {
-        // TODO Improve this logic in an extensible manner.
-        return dirName.toString().equals(ProjectDirConstants.DOT_BALLERINA_DIR_NAME) ||
-                dirName.toString().equals(ProjectDirConstants.TARGET_DIR_NAME);
+        List<String> ignoreDirs = Arrays.asList(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
+                                                ProjectDirConstants.TEST_DIR_NAME,
+                                                ProjectDirConstants.TARGET_DIR_NAME,
+                                                ProjectDirConstants.RESOURCE_DIR_NAME,
+                                                ProjectDirConstants.DOT_GIT_DIR_NAME);
+        return ignoreDirs.contains(dirName.toString());
     }
 
     @Override

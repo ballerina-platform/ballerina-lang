@@ -86,54 +86,6 @@ function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
     return result;
 }
 
-function createHttpClientArray (ClientEndpointConfig config) returns HttpClient[] {
-    HttpClient[] httpClients = [];
-    int i=0;
-    boolean httpClientRequired = false;
-    string uri = config.targets[0].url;
-    var cbConfig = config.circuitBreaker;
-    match cbConfig {
-        CircuitBreakerConfig cb => {
-            if (uri.hasSuffix("/")) {
-                int lastIndex = uri.length() - 1;
-                uri = uri.subString(0, lastIndex);
-            }
-            httpClientRequired = false;
-        }
-        () => {
-            httpClientRequired = true;
-        }
-    }
-
-    foreach target in config.targets {
-        uri = target.url;
-        if (uri.hasSuffix("/")) {
-            int lastIndex = uri.length() - 1;
-            uri = uri.subString(0, lastIndex);
-        } 
-        if (!httpClientRequired) {
-            httpClients[i] = createCircuitBreakerClient(uri, config);
-        } else {
-            var retryConfig = config.retry;
-            match retryConfig {
-                Retry retry => {
-                    httpClients[i] = createRetryClient(uri, config);
-                }
-                () => {
-                    if (config.cache.enabled) {
-                        httpClients[i] = createHttpCachingClient(uri, config, config.cache);
-                    } else {
-                        httpClients[i] = createHttpSecureClient(uri, config);
-                    }
-                }
-            }
-        }
-        httpClients[i].config = config;
-        i = i+1;
-    }
-    return httpClients;
-}
-
 function getError() returns HttpConnectorError {
     HttpConnectorError httpConnectorError = {};
     httpConnectorError.statusCode = 400;

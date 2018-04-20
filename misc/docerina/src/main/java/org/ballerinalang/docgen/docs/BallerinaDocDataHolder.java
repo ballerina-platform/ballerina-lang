@@ -18,6 +18,7 @@
 
 package org.ballerinalang.docgen.docs;
 
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.docgen.model.PackageDoc;
 
 import java.util.HashMap;
@@ -34,6 +35,7 @@ public class BallerinaDocDataHolder {
      * Value - {@link PackageDoc}.
      */
     private Map<String, PackageDoc> packageMap;
+    private String orgName;
 
     protected BallerinaDocDataHolder() {
         packageMap = new HashMap<String, PackageDoc>();
@@ -49,5 +51,14 @@ public class BallerinaDocDataHolder {
 
     public void setPackageMap(Map<String, PackageDoc> packageMap) {
         this.packageMap = packageMap;
+    }
+
+    public String getOrgName() {
+        if (orgName != null) {
+            return orgName;
+        }
+        orgName = ConfigRegistry.getInstance().getAsString("orgName");
+        orgName = orgName == null ? "ballerina/" : orgName + "/";
+        return orgName;
     }
 }

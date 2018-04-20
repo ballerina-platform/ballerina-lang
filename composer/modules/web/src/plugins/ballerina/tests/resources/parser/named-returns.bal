@@ -20,7 +20,7 @@ function getDefaultValues () (int a, float b,
 }
 
 
-function main (string[] args) {
+function main (string... args) {
     var q1, r1 = divideBy10(93);
     system:println("93/10: " + "quotient=" + q1 + " " +
                    "remainder=" + r1);

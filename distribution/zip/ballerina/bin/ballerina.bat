@@ -64,7 +64,7 @@ FOR %%C in ("%BALLERINA_HOME%\bre\lib\bootstrap\*.jar") DO set BALLERINA_CLASSPA
 
 set BALLERINA_CLASSPATH="%JAVA_HOME%\lib\tools.jar";%BALLERINA_CLASSPATH%;
 
-FOR %%D in ("%BALLERINA_HOME%\bre\lib\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\%%~nD%%~xD"
+set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\*"
 
 rem ----- Process the input command -------------------------------------------
 
@@ -112,7 +112,7 @@ rem ---------- Add jars to classpath ----------------
 
 set BALLERINA_CLASSPATH=.\bre\lib\bootstrap;%BALLERINA_CLASSPATH%
 
-set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dtransports.netty.conf="%BALLERINA_HOME%\bre\conf\netty-transports.yml" -Dfile.encoding=UTF8 -Dballerina.version=${project.version} -Djava.util.logging.config.file="%BALLERINA_HOME%\bre\conf\logging.properties" -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager"
+set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dfile.encoding=UTF8 -Dballerina.version=${project.version} -Djava.util.logging.config.file="%BALLERINA_HOME%\bre\conf\logging.properties" -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager"
 
 
 :runJava

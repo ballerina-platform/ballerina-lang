@@ -51,6 +51,8 @@ import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ChunkConfig;
@@ -58,7 +60,6 @@ import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
-import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
@@ -71,7 +72,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -103,10 +103,11 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_INDE
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_HOST;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_PORT;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_HOSTNAME;
+import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_PORT;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 
@@ -216,8 +217,8 @@ public class HttpUtil {
      * @param entity            Represent an entity
      * @param isRequest         boolean representing whether the message is a request or a response
      */
-    protected static void populateEntityBody(Context context, BStruct httpMessageStruct, BStruct entity,
-                                             boolean isRequest) {
+    public static void populateEntityBody(Context context, BStruct httpMessageStruct, BStruct entity,
+                                          boolean isRequest) {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
@@ -355,8 +356,7 @@ public class HttpUtil {
         Object carbonStatusCode = requestMessage.getProperty(HTTP_STATUS_CODE);
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = ex.getMessage();
-        log.error(errorMsg);
-        ErrorHandlerUtils.printError(ex);
+        log.error(errorMsg, ex);
         sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
@@ -750,88 +750,6 @@ public class HttpUtil {
         return host + ":" + port;
     }
 
-    @Deprecated
-    private static void extractBasicConfig(Annotation configInfo, Set<ListenerConfiguration> listenerConfSet) {
-        AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_HOST);
-        AnnAttrValue portAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_PORT);
-        AnnAttrValue keepAliveAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_KEEP_ALIVE);
-        AnnAttrValue transferEncoding = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_TRANSFER_ENCODING);
-        AnnAttrValue chunking = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_CHUNKING);
-        AnnAttrValue maxUriLength = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_MAXIMUM_URL_LENGTH);
-        AnnAttrValue maxHeaderSize = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE);
-        AnnAttrValue maxEntityBodySize = configInfo.getAnnAttrValue(
-                HttpConstants.ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE);
-        AnnAttrValue versionAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_HTTP_VERSION);
-
-        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
-        if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
-            listenerConfiguration.setPort(Math.toIntExact(portAttrVal.getIntValue()));
-
-            listenerConfiguration.setScheme(HttpConstants.PROTOCOL_HTTP);
-            if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                listenerConfiguration.setHost(hostAttrVal.getStringValue());
-            } else {
-                listenerConfiguration.setHost(HttpConstants.HTTP_DEFAULT_HOST);
-            }
-
-            // For the moment we don't have to pass it down to transport as we only support
-            // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
-            if (transferEncoding != null && !HttpConstants.ANN_CONFIG_ATTR_CHUNKING
-                    .equalsIgnoreCase(transferEncoding.getStringValue())) {
-                throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
-                        + transferEncoding.getStringValue());
-            }
-
-            if (chunking != null) {
-                ChunkConfig chunkConfig = getChunkConfig(chunking.getStringValue());
-                listenerConfiguration.setChunkConfig(chunkConfig);
-            } else {
-                listenerConfiguration.setChunkConfig(ChunkConfig.AUTO);
-            }
-
-            if (keepAliveAttrVal != null) {
-                KeepAliveConfig keepAliveConfig = getKeepAliveConfig(keepAliveAttrVal.getStringValue());
-                listenerConfiguration.setKeepAliveConfig(keepAliveConfig);
-            } else {
-                listenerConfiguration.setKeepAliveConfig(KeepAliveConfig.AUTO);
-            }
-
-            RequestSizeValidationConfig requestSizeValidationConfig =
-                    listenerConfiguration.getRequestSizeValidationConfig();
-            if (maxUriLength != null) {
-                if (maxUriLength.getIntValue() > 0) {
-                    requestSizeValidationConfig.setMaxUriLength(Math.toIntExact(maxUriLength.getIntValue()));
-                } else {
-                    throw new BallerinaConnectorException("Invalid configuration found for maxUriLength : "
-                            + maxUriLength.getIntValue());
-                }
-            }
-            if (maxHeaderSize != null) {
-                if (maxHeaderSize.getIntValue() > 0) {
-                    requestSizeValidationConfig.setMaxHeaderSize(Math.toIntExact(maxHeaderSize.getIntValue()));
-                } else {
-                    throw new BallerinaConnectorException("Invalid configuration found for maxHeaderSize : "
-                            + maxHeaderSize.getIntValue());
-                }
-            }
-            if (maxEntityBodySize != null) {
-                if (maxEntityBodySize.getIntValue() > 0) {
-                    requestSizeValidationConfig.setMaxEntityBodySize(Math.toIntExact(maxEntityBodySize.getIntValue()));
-                } else {
-                    throw new BallerinaConnectorException("Invalid configuration found for maxEntityBodySize : "
-                            + maxEntityBodySize.getIntValue());
-                }
-            }
-            if (versionAttrVal != null) {
-                listenerConfiguration.setVersion(versionAttrVal.getStringValue());
-            }
-
-            listenerConfiguration
-                    .setId(getListenerInterface(listenerConfiguration.getHost(), listenerConfiguration.getPort()));
-            listenerConfSet.add(listenerConfiguration);
-        }
-    }
-
     public static ChunkConfig getChunkConfig(String chunkConfig) {
         switch (chunkConfig) {
             case HttpConstants.AUTO:
@@ -1159,13 +1077,22 @@ public class HttpUtil {
         return new DefaultHttpWsConnectorFactory();
     }
 
-    public static Map<String, String> extractTags(HTTPCarbonMessage msg) {
-        Map<String, String> tags = new HashMap<>();
-        tags.put(TAG_KEY_HTTP_METHOD, String.valueOf(msg.getProperty(HttpConstants.HTTP_METHOD)));
-        tags.put(TAG_KEY_HTTP_URL, String.valueOf(msg.getProperty(HttpConstants.TO)));
-        tags.put(TAG_KEY_HTTP_HOST, String.valueOf(msg.getProperty(PROPERTY_HTTP_HOST)));
-        tags.put(TAG_KEY_HTTP_PORT, String.valueOf(msg.getProperty(PROPERTY_HTTP_PORT)));
-        return tags;
+    public static void checkAndObserveHttpRequest(Context context, HTTPCarbonMessage message) {
+        if (!ObservabilityUtils.isObservabilityEnabled()) {
+            return;
+        }
+        ObserverContext observerContext = ObservabilityUtils.getParentContext(context);
+        HttpUtil.injectHeaders(message, ObservabilityUtils.getContextProperties(observerContext));
+        observerContext.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
+        observerContext.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
+        observerContext.addTag(TAG_KEY_PEER_HOSTNAME, String.valueOf(message.getProperty(PROPERTY_HTTP_HOST)));
+        observerContext.addTag(TAG_KEY_PEER_PORT, String.valueOf(message.getProperty(PROPERTY_HTTP_PORT)));
+        // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
+        // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
+        // some value to HTTP Status Code to make sure that tags will not change depending on various
+        // circumstances.
+        // HTTP Status code must be a number.
+        observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
     }
 
     public static void injectHeaders(HTTPCarbonMessage msg, Map<String, String> headers) {
