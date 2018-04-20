@@ -153,7 +153,7 @@ public class GrpcConstants {
     public static final int GRPC_DEFAULT_PORT = 9090;
     
     public static final String ENDPOINT_CONFIG_TRUST_STORE = "trustStore";
-    public static final String FILE_PATH = "filePath";
+    public static final String FILE_PATH = "path";
     public static final String PASSWORD = "password";
     public static final String PROTOCOL_VERSION = "name";
     public static final String ENABLED_PROTOCOLS = "versions";

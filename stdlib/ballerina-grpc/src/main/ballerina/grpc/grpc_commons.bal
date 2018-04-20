@@ -35,7 +35,7 @@ public type TransferEncoding "CHUNKING";
 @Field {value:"filePath: File path to trust store file"}
 @Field {value:"password: Trust store password"}
 public type TrustStore {
-    string filePath,
+    string path,
     string password,
 };
 
@@ -43,7 +43,7 @@ public type TrustStore {
 @Field {value:"filePath: File path to key store file"}
 @Field {value:"password: Key store password"}
 public type KeyStore {
-    string filePath,
+    string path,
     string password,
 };
 

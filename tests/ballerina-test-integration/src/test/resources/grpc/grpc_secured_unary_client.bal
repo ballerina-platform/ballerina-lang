@@ -14,17 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
+import ballerina/grpc;
+
 function testUnarySecuredBlocking () returns (string) {
     endpoint HelloWorldBlockingClient helloWorldBlockingEp {
         url:"https://localhost:8085",
         secureSocket:{
                          keyStore:{
-                                      filePath:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                                      path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
                                       password:"ballerina"
                                   },
                          trustStore:{
-                                        filePath:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                                        password:"ballerina"
+                                      path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                                      password:"ballerina"
                                     },
                          protocol:{
                                       name:"TLSv1.2",
