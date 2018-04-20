@@ -19,8 +19,6 @@
 
 package org.wso2.transport.http.netty.contract.websocket;
 
-import javax.websocket.Session;
-
 /**
  * Future listener for WebSocket handshake.
  */

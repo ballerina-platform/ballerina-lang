@@ -53,7 +53,6 @@ import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
-import javax.websocket.Session;
 
 /**
  * WebSocket Client Handler. This class responsible for handling the inbound messages for the WebSocket Client.

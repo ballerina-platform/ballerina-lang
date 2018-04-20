@@ -20,7 +20,6 @@
 package org.wso2.transport.http.netty.contract.websocket;
 
 import java.util.Map;
-import javax.websocket.Session;
 
 /**
  * This is the common interface for all WebSocket messages.

@@ -24,7 +24,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.websocket.Session;
 
 /**
  * Implementation of {@link WebSocketMessage}.

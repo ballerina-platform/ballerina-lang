@@ -38,7 +38,6 @@ import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
-import javax.websocket.Session;
 
 /**
  * Server Connector Listener to check WebSocket pass-through scenarios.

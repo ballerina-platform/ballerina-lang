@@ -44,8 +44,8 @@ public class WebSocketUtil {
         return ctx.channel().id().asLongText();
     }
 
-    public static DefaultWebSocketConnection getWebSocketConnection(ChannelHandlerContext ctx,
-                                                                    boolean isSecured, String uri) throws URISyntaxException {
+    public static DefaultWebSocketConnection getWebSocketConnection(ChannelHandlerContext ctx, boolean isSecured,
+                                                                    String uri) throws URISyntaxException {
         DefaultWebSocketSession session = new DefaultWebSocketSession(ctx, isSecured, uri, getSessionID(ctx));
         return new DefaultWebSocketConnection(ctx, session);
     }

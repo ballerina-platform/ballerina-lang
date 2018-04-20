@@ -6,6 +6,9 @@ import org.wso2.transport.http.netty.internal.websocket.DefaultWebSocketSession;
 
 import javax.websocket.Session;
 
+/**
+ * Default implementation of {@link WebSocketConnection}.
+ */
 public class DefaultWebSocketConnection implements WebSocketConnection {
 
     private final ChannelHandlerContext ctx;

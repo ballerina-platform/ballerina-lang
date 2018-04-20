@@ -29,8 +29,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
-import javax.websocket.Session;
-
 /**
  * Client connector Listener to check WebSocket pass-through scenarios.
  */
