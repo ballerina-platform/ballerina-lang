@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 documentation {
     LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.
@@ -95,7 +94,7 @@ public type LoadBalanceClientEndpointConfiguration {
     ConnectionThrottling? connectionThrottling,
     TargetService[] targets,
     CacheConfig cache = {},
-    string acceptEncoding = "auto",
+    AcceptEncoding acceptEncoding = ACCEPT_ENCODING_AUTO,
     AuthConfig? auth,
     string algorithm = ROUND_ROBIN,
     boolean failover = true;

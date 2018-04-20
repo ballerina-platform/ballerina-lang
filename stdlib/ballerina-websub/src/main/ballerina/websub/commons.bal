@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-package ballerina.websub;
 
 import ballerina/http;
 import ballerina/log;
@@ -92,7 +91,7 @@ public type IntentVerificationRequest object {
                         topic.
         R{{}} `http:Response` The response to the hub verifying/denying intent to subscribe.
     }
-    public function buildSubscriptionVerificationResponse (string topic = "") returns (http:Response | ());
+    public function buildSubscriptionVerificationResponse (string topic = "") returns http:Response;
 
     documentation {
         Function to build intent verification response for unsubscription requests sent.
@@ -101,12 +100,12 @@ public type IntentVerificationRequest object {
                         topic.
         R{{}} `http:Response` The response to the hub verifying/denying intent to unsubscribe.
     }
-    public function buildUnsubscriptionVerificationResponse (string topic = "") returns (http:Response | ());
+    public function buildUnsubscriptionVerificationResponse (string topic = "") returns http:Response;
 
 };
 
 public function IntentVerificationRequest::buildSubscriptionVerificationResponse (string topic = "") returns
-(http:Response | ()) {
+http:Response {
     SubscriberServiceConfiguration subscriberServiceConfiguration = {};
     if (topic == "") {
         subscriberServiceConfiguration = retrieveAnnotations();
@@ -117,7 +116,7 @@ public function IntentVerificationRequest::buildSubscriptionVerificationResponse
 }
 
 public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse (string topic = "") returns
-(http:Response | ()) {
+http:Response {
     SubscriberServiceConfiguration subscriberServiceConfiguration = {};
     if (topic == "") {
         subscriberServiceConfiguration = retrieveAnnotations();
@@ -136,36 +135,36 @@ documentation {
     R{{}} `http:Response` The response to the hub verifying/denying intent to subscripe/unsubscribe
 }
 function buildIntentVerificationResponse(IntentVerificationRequest intentVerificationRequest, string mode,
-                        SubscriberServiceConfiguration webSubSubscriberAnnotations) returns (http:Response | ()) {
+                                    SubscriberServiceConfiguration webSubSubscriberAnnotations) returns http:Response {
     http:Response response = new;
     string topic = webSubSubscriberAnnotations.topic;
     if (topic == "") {
-        log:printError("Unable to verify intent since the topic is not specified");
-        return;
-    }
-
-    string reqMode = intentVerificationRequest.mode;
-    string challenge = intentVerificationRequest.challenge;
-    string reqTopic = intentVerificationRequest.topic;
-
-    match (http:decode(reqTopic, "UTF-8")) {
-        string decodedTopic => reqTopic = decodedTopic;
-        error => {}
-    }
-
-    string reqLeaseSeconds = <string> intentVerificationRequest.leaseSeconds;
-
-    if (reqMode == mode && reqTopic == topic) {
-        response.statusCode = http:ACCEPTED_202;
-        response.setStringPayload(challenge);
-        log:printInfo("Intent Verification agreed - Mode [" + mode + "], Topic [" + topic +"], Lease Seconds ["
-                      + reqLeaseSeconds + "]");
-    } else {
         response.statusCode = http:NOT_FOUND_404;
-        log:printWarn("Intent Verification denied - Mode [" + mode + "], Topic [" + topic +"]");
+        log:printError("Intent Verification denied - Mode [" + mode + "], Topic [" + topic +"], since topic unavailable"
+                        + " as an annotation or unspecified as a parameter");
+    } else {
+        string reqMode = intentVerificationRequest.mode;
+        string challenge = intentVerificationRequest.challenge;
+        string reqTopic = intentVerificationRequest.topic;
+
+        match (http:decode(reqTopic, "UTF-8")) {
+            string decodedTopic => reqTopic = decodedTopic;
+            error => {}
+        }
+
+        string reqLeaseSeconds = <string> intentVerificationRequest.leaseSeconds;
+
+        if (reqMode == mode && reqTopic == topic) {
+            response.statusCode = http:ACCEPTED_202;
+            response.setStringPayload(challenge);
+            log:printInfo("Intent Verification agreed - Mode [" + mode + "], Topic [" + topic +"], Lease Seconds ["
+                          + reqLeaseSeconds + "]");
+        } else {
+            response.statusCode = http:NOT_FOUND_404;
+            log:printWarn("Intent Verification denied - Mode [" + mode + "], Topic [" + topic +"]");
+        }
     }
     return response;
-
 }
 
 documentation {
@@ -249,7 +248,7 @@ documentation {
     F{{payload}} The payload of the notification received.
     F{{request}} The HTTP POST request received as the notification.
 }
-public type NotificationRequest {
+public type Notification {
     json payload,
     http:Request request,
 };

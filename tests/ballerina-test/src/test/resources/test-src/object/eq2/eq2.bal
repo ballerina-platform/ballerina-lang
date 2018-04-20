@@ -1,4 +1,3 @@
-package eq2;
 
 public type employee object {
     public {

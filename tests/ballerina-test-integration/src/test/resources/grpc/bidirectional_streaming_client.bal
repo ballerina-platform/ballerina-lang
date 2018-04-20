@@ -1,5 +1,4 @@
 // This is client implementation for bidirectional streaming scenario
-package client;
 
 import ballerina/grpc;
 import ballerina/io;
@@ -31,7 +30,7 @@ function main(string... args) {
     error? connErr = ep->send(mes);
     io:println(err.message but { () => "" });
     //this will hold forever since this is chat application
-    runtime:sleepCurrentWorker(6000);
+    runtime:sleep(6000);
     _ = ep->complete();
 }
 

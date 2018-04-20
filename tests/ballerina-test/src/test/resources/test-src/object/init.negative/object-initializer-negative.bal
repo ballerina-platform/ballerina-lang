@@ -1,4 +1,3 @@
-package init.negative;
 
 import initializers as inp;
 

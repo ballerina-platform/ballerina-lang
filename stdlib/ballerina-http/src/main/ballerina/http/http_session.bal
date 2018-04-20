@@ -1,4 +1,3 @@
-package ballerina.http;
 
 //TODO Remove this class once service session LC is introduced
 //@Description { value:"Represents an HTTP Session"}

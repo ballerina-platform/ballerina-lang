@@ -1,4 +1,3 @@
-package ballerina.mime;
 
 @Description {value:"Represent 'application/octet-stream' media type"}
 @final public string APPLICATION_OCTET_STREAM = "application/octet-stream";

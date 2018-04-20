@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 @Description {value:"Stands for the round robin algorithm for load balancing."}
 @final public string ROUND_ROBIN = "round-robin";
