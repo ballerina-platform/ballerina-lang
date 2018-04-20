@@ -15,7 +15,7 @@ function initCSVChannel(string filePath, io:Mode permission, string encoding, io
 }
 
 function initOpenCsv(string filePath, io:Mode permission, string encoding, io:Seperator fs) {
-    csvChannel =check io:openCsvFile(filePath, mode=permission, fieldSeperator=fs,charset=encoding);
+    csvChannel =check io:openCsvFile(filePath, mode="r", fieldSeperator=",",charset="UTF-8");
 }
 
 function nextRecord() returns (string[]|error) {
