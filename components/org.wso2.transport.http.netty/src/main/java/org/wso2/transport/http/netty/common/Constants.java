@@ -140,6 +140,7 @@ public final class Constants {
     public static final String TLS_STORE_TYPE = "tlsStoreType";
 
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
+    public static final String RESOLVED_REQUESTED_URI = "RESOLVED_REQUESTED_URI";
 
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
 
@@ -185,6 +186,9 @@ public final class Constants {
     public static final String WEBSOCKET_TARGET = "WEBSOCKET_TARGET";
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
     public static final String WEBSOCKET_HEADER_SUBPROTOCOL = "Sec-WebSocket-Protocol";
+
+    public static final int WEBSOCKET_STATUS_CODE_NORMAL_CLOSURE = 1000;
+    public static final int WEBSOCKET_STATUS_CODE_GOING_AWAY = 1001;
 
     // Callback related parameters
     public static final String HTTP_CONNECTION_CLOSE = "close";
@@ -232,24 +236,20 @@ public final class Constants {
     public static final String HTTP_ACCESS_LOG_HANDLER = "http-access-logger";
     public static final String WEBSOCKET_SERVER_HANDSHAKE_HANDLER = "websocket-server-handshake-handler";
 
-    public static final AttributeKey<Integer> REDIRECT_COUNT = AttributeKey.valueOf
-            ("REDIRECT_COUNT");
-    public static final AttributeKey<HTTPCarbonMessage> ORIGINAL_REQUEST = AttributeKey.valueOf
-            ("ORIGINAL_REQUEST");
+    public static final AttributeKey<Integer> REDIRECT_COUNT = AttributeKey.valueOf("REDIRECT_COUNT");
+    public static final AttributeKey<String> RESOLVED_REQUESTED_URI_ATTR = AttributeKey
+            .valueOf("RESOLVED_REQUESTED_URI_ATTR");
+    public static final AttributeKey<HTTPCarbonMessage> ORIGINAL_REQUEST = AttributeKey.valueOf("ORIGINAL_REQUEST");
     public static final AttributeKey<HttpResponseFuture> RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL = AttributeKey
-            .valueOf
-            ("RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL");
+            .valueOf("RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL");
     public static final AttributeKey<Long> ORIGINAL_CHANNEL_START_TIME = AttributeKey
-            .valueOf
-                    ("ORIGINAL_CHANNEL_START_TIME");
+            .valueOf("ORIGINAL_CHANNEL_START_TIME");
     public static final AttributeKey<Integer> ORIGINAL_CHANNEL_TIMEOUT = AttributeKey
-            .valueOf
-                    ("ORIGINAL_CHANNEL_TIMEOUT");
+            .valueOf("ORIGINAL_CHANNEL_TIMEOUT");
     public static final AttributeKey<TargetChannel> TARGET_CHANNEL_REFERENCE = AttributeKey
-            .valueOf
-                    ("TARGET_CHANNEL_REFERENCE");
-    public static final AttributeKey<DefaultHttpClientConnector> CLIENT_CONNECTOR =
-            AttributeKey.valueOf("CLIENT_CONNECTOR");
+            .valueOf("TARGET_CHANNEL_REFERENCE");
+    public static final AttributeKey<DefaultHttpClientConnector> CLIENT_CONNECTOR = AttributeKey
+            .valueOf("CLIENT_CONNECTOR");
 
     public static final String UTF8 = "UTF-8";
     public static final String URL_AUTHORITY = "://";
@@ -265,6 +265,8 @@ public final class Constants {
     // Trace Logger related parameters
     public static final String TRACE_LOG_UPSTREAM = "http.tracelog.upstream";
     public static final String TRACE_LOG_DOWNSTREAM = "http.tracelog.downstream";
+
+    public static final String ACCESS_LOG = "http.accesslog";
 
     public static final String LISTENER_PORT = "LISTENER_PORT";
 

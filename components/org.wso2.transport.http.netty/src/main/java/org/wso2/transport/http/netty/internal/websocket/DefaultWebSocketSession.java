@@ -47,13 +47,14 @@ public class DefaultWebSocketSession extends WebSocketSessionAdapter {
     private final WebSocketBasicRemoteEndpoint basicRemoteEndpoint;
     private final WebSocketAsyncRemoteEndpoint asyncRemoteEndpoint;
     private String negotiatedSubProtocol = null;
-    private boolean isOpen = false;
+    private boolean open = false;
     private Map<String, Object> userProperties = new HashMap<>();
 
     public DefaultWebSocketSession(ChannelHandlerContext ctx, boolean isSecure, String requestedUri,
                                    String sessionId) throws URISyntaxException {
         this.ctx = ctx;
         this.isSecure = isSecure;
+        this.open = true;
         this.requestedUri = new URI(requestedUri);
         this.sessionId = sessionId;
         this.basicRemoteEndpoint = new WebSocketBasicRemoteEndpoint(ctx);
@@ -78,7 +79,7 @@ public class DefaultWebSocketSession extends WebSocketSessionAdapter {
     @Override
     public void close() throws IOException {
         ctx.channel().close();
-        this.isOpen = false;
+        this.open = false;
     }
 
     @Override
@@ -86,7 +87,7 @@ public class DefaultWebSocketSession extends WebSocketSessionAdapter {
         ctx.channel().writeAndFlush(new CloseWebSocketFrame(closeReason.getCloseCode().getCode(),
                                                     closeReason.getReasonPhrase()));
         ctx.channel().close();
-        this.isOpen = false;
+        this.open = false;
     }
 
     @Override
@@ -110,7 +111,7 @@ public class DefaultWebSocketSession extends WebSocketSessionAdapter {
 
     @Override
     public boolean isOpen() {
-        return isOpen;
+        return open;
     }
 
     @Override
@@ -123,7 +124,7 @@ public class DefaultWebSocketSession extends WebSocketSessionAdapter {
      * @param isOpen true if the connection is still open.
      */
     public void setIsOpen(boolean isOpen) {
-        this.isOpen = isOpen;
+        this.open = isOpen;
     }
 
     /**
