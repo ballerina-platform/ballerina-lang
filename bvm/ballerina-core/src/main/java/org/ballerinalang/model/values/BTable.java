@@ -160,7 +160,7 @@ public class BTable implements BRefType<Object>, BCollection {
 
     public boolean hasNext(boolean isInTransaction) {
         if (tableClosed) {
-            throw new BallerinaException("Trying to perform an operation over a closed table");
+            throw new BallerinaException("Trying to perform hasNext operation over a closed table");
         }
         if (isIteratorGenerationConditionMet()) {
             generateIterator();

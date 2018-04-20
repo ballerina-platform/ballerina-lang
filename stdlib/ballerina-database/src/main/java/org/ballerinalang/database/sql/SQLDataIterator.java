@@ -78,7 +78,7 @@ public class SQLDataIterator extends TableIterator {
     @Override
     public void close(boolean isInTransaction) {
         try {
-            if (rs != null && !(rs instanceof CachedRowSet) && !rs.isClosed()){
+            if (rs != null && !(rs instanceof CachedRowSet) && !rs.isClosed()) {
                 rs.close();
             }
             resourceManager.gracefullyReleaseResources(isInTransaction);

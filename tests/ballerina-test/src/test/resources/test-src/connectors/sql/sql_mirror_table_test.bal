@@ -45,8 +45,7 @@ function testIterateMirrorTableAfterClose() returns (Employee[], Employee[], err
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->getProxyTable("employeeItr", Employee);
-    table dt = check temp;
+    table dt = check testDB->getProxyTable("employeeItr", Employee);
 
     Employee[] employeeArray1;
     Employee[] employeeArray2;
@@ -77,11 +76,11 @@ function testIterateMirrorTableAfterClose() returns (Employee[], Employee[], err
             Employee e = {id:rs.id, name:rs.name, address:rs.address};
             employeeArray3[i] = e;
             i++;
-        }}
-    catch (error err) {
+        }
+    } catch (error err) {
         e = err;
     }
-    _ = testDB.stop();
+    testDB.stop();
     return (employeeArray1, employeeArray2, e);
 }
 

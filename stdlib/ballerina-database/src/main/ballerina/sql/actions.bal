@@ -39,7 +39,7 @@ documentation {
         P{{loadToMemory}} - Indicates whether to load the retrieved data to memory or not.
         R{{}} - `table` table returned by the sql query statement else `error` will be returned if there is any error.
     }
-public native function select(@sensitive string sqlQuery, typedesc? recordType, boolean? loadToMemory = false,
+public native function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
 Param... parameters) returns @tainted table|error;
 
 documentation {

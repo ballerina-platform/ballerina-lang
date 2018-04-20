@@ -79,7 +79,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
-import javax.sql.RowSetMetaData;
 import javax.sql.rowset.CachedRowSet;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_DB_TYPE_SQL;
@@ -127,7 +126,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             } else {
                 rm.addResultSet(rs);
             }
-            context.setReturnValues(constructTable(rm, context, rs, structType, loadSQLTableToMemory, columnDefinitions));
+            context.setReturnValues(
+                    constructTable(rm, context, rs, structType, loadSQLTableToMemory, columnDefinitions));
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);

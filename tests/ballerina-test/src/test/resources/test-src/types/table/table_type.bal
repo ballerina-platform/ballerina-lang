@@ -913,7 +913,6 @@ function testMutltipleRowsWithoutLoop() returns (int, int, int, int, string, str
     } else {
         s2 = s2 + "_" + "NO";
     }
-    io:println(s2);
     if (dt.hasNext()) {
         s2 = s2 + "_" + "HAS";
     } else {

@@ -53,7 +53,6 @@ type Employee {
     string address,
 };
 
-
 function testInsertTableData() returns (int) {
     endpoint jdbc:Client testDB {
         url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
@@ -1017,8 +1016,7 @@ function testSelectLoadToMemory() returns (Employee[], Employee[], Employee[]) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from employeeItr", Employee, loadToMemory = true);
-    table dt = check temp;
+    table dt = check testDB->select("SELECT * from employeeItr", Employee, loadToMemory = true);
 
     Employee[] employeeArray1;
     Employee[] employeeArray2;
@@ -1047,7 +1045,7 @@ function testSelectLoadToMemory() returns (Employee[], Employee[], Employee[]) {
         i++;
     }
 
-    _ = testDB.stop();
+    testDB.stop();
     return (employeeArray1, employeeArray2, employeeArray3);
 }
 
@@ -1058,8 +1056,7 @@ function testLoadToMemorySelectAfterTableClose() returns (Employee[], Employee[]
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from employeeItr", Employee, loadToMemory = true);
-    table dt = check temp;
+    table dt = check testDB->select("SELECT * from employeeItr", Employee, loadToMemory = true);
 
     Employee[] employeeArray1;
     Employee[] employeeArray2;
@@ -1087,11 +1084,12 @@ function testLoadToMemorySelectAfterTableClose() returns (Employee[], Employee[]
             Employee e = {id:rs.id, name:rs.name, address:rs.address};
             employeeArray3[i] = e;
             i++;
-        }}
+        }
+    }
     catch (error err) {
         e = err;
     }
-    _ = testDB.stop();
+    testDB.stop();
     return (employeeArray1, employeeArray2, e);
 }
 
