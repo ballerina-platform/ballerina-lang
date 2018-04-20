@@ -28,7 +28,7 @@ service<http:Service> passthrough bind passthroughEP {
     }
     passthrough (endpoint outboundEP, http:Request req) {
         if (req.getHeader("AcceptValue") == "auto") {
-            var clientResponse = acceptEncodingAutoEP -> post("/", req);
+            var clientResponse = acceptEncodingAutoEP -> post("/", request = req);
             match clientResponse {
                 http:Response res => {
                     _ = outboundEP -> respond(res);
@@ -41,7 +41,7 @@ service<http:Service> passthrough bind passthroughEP {
                 }
             }
         } else if (req.getHeader("AcceptValue") == "enable") {
-            var clientResponse = acceptEncodingEnableEP -> post("/", req);
+            var clientResponse = acceptEncodingEnableEP -> post("/", request = req);
             match clientResponse {
                 http:Response res => {
                     _ = outboundEP -> respond(res);
@@ -54,7 +54,7 @@ service<http:Service> passthrough bind passthroughEP {
                 }
             }
         } else if (req.getHeader("AcceptValue") == "disable") {
-            var clientResponse = acceptEncodingDisableEP -> post("/", req);
+            var clientResponse = acceptEncodingDisableEP -> post("/", request = req);
             match clientResponse {
                 http:Response res => {
                     _ = outboundEP -> respond(res);
