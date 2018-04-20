@@ -27,7 +27,9 @@ import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
+import org.wso2.ballerinalang.programfile.PackageFileWriter;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 
 import java.io.ByteArrayInputStream;
@@ -142,10 +144,10 @@ public class BinaryFileWriter {
             compiledPackageFileName += BLANG_COMPILED_PKG_EXT;
         }
 
-        addPackageBinaryContent(packageNode.packageID,
-                packageNode.symbol.packageFile.pkgBinaryContent, compiledPackage);
         Path destDirPath = getPackageDirPathInProjectRepo(packageNode.packageID);
         try {
+            addPackageBinaryContent(packageNode.packageID,
+                    packageNode.symbol.packageFile, compiledPackage);
             this.sourceDirectory.saveCompiledPackage(compiledPackage, destDirPath, compiledPackageFileName);
         } catch (IOException e) {
             String msg = "error writing the compiled package(balo) of '" +
@@ -176,7 +178,10 @@ public class BinaryFileWriter {
         return this.sourceDirectory.getPath().resolve(relativePkgPath);
     }
 
-    private void addPackageBinaryContent(PackageID pkgId, byte[] pkgBinaryContent, CompiledPackage compiledPackage) {
+    private void addPackageBinaryContent(PackageID pkgId,
+                                         CompiledBinaryFile.PackageFile packageFile,
+                                         CompiledPackage compiledPackage) throws IOException {
+        byte[] pkgBinaryContent = PackageFileWriter.writePackage(packageFile);
         ByteArrayBasedCompiledPackageEntry pkgBinaryEntry = new ByteArrayBasedCompiledPackageEntry(
                 pkgBinaryContent, getPackageBinaryName(pkgId), CompilerOutputEntry.Kind.OBJ);
         compiledPackage.setPackageBinaryEntry(pkgBinaryEntry);

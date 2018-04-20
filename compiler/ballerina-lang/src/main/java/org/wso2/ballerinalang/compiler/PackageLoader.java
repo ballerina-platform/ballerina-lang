@@ -57,7 +57,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.util.HomeRepoUtils;
 
 import java.net.URI;
@@ -364,7 +363,6 @@ public class PackageLoader {
         BPackageSymbol pkgSymbol = this.compiledPkgSymbolEnter.definePackage(
                 pkgId, null, pkgBinaryContent);
         this.packageCache.putSymbol(pkgId, pkgSymbol);
-        pkgSymbol.packageFile = new CompiledBinaryFile.PackageFile(pkgBinaryContent);
 
         // TODO create CompiledPackage
         return pkgSymbol;
