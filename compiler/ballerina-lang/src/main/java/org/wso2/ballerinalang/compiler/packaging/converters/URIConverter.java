@@ -9,6 +9,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,6 +22,7 @@ import java.util.stream.Stream;
 public class URIConverter implements Converter<URI> {
 
     private final URI base;
+    private PrintStream outStream = System.err;
 
     public URIConverter(URI base) {
         this.base = base;
@@ -77,7 +79,8 @@ public class URIConverter implements Converter<URI> {
                                         Patten.path(pkgName + ".zip"),
                                         Patten.path("src"), Patten.WILDCARD_SOURCE);
             return pattern.convertToSources(new ZipConverter(destDirPath), packageID);
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            outStream.println("Error occurred when pulling the remote artifact");
         }
         return Stream.of();
     }
