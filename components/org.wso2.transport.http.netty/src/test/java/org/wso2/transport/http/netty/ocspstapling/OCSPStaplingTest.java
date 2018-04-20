@@ -116,7 +116,6 @@ public class OCSPStaplingTest {
                 .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
         Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
         setSenderConfigs(senderConfig);
-
         factory = new DefaultHttpWsConnectorFactory();
 
         String keyStoreFilePath = "/simple-test-config/localcrt.p12";

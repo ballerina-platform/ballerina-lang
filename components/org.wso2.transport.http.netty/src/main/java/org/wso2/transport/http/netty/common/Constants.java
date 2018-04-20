@@ -231,12 +231,9 @@ public final class Constants {
     public static final String HTTP_TRACE_LOG_HANDLER = "http-trace-logger";
     public static final String HTTP_ACCESS_LOG_HANDLER = "http-access-logger";
     public static final String WEBSOCKET_SERVER_HANDSHAKE_HANDLER = "websocket-server-handshake-handler";
-    public static final String RESOLVED_REQUESTED_URI = "resolvedRequestedUri";
 
     public static final AttributeKey<Integer> REDIRECT_COUNT = AttributeKey.valueOf
             ("REDIRECT_COUNT");
-    public static final AttributeKey<String> RESOLVED_REQUESTED_URI_ATTR = AttributeKey.valueOf
-            ("RESOLVED_REQUESTED_URI_ATTR");
     public static final AttributeKey<HTTPCarbonMessage> ORIGINAL_REQUEST = AttributeKey.valueOf
             ("ORIGINAL_REQUEST");
     public static final AttributeKey<HttpResponseFuture> RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL = AttributeKey
