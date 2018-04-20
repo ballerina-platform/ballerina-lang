@@ -110,7 +110,7 @@
                  <div class="cBlallerina-io-docs-right-nav-container">
                   <div class="cLectColStyle cLeftColTop">
                       <div class="cBallerina-io-docs-Title cBallerina-io-x">BALLERINA X</div>
-                        <div class="cCollaps-Menu-first">
+                        <div class="cCollaps-Menu-second">
                             {{#each primitives}}
                                 <ul class="">
                                     <li>
@@ -698,25 +698,20 @@
                                        <p>
                                           <span class="fw-right gray xs-icon"></span>{{{description}}}
                                        </p>
-                                       {{/if}} {{#if attributes}}
+                                       {{/if}}
                                        <p>
-                                          <label class="table-header-text">Attributes:</label>
                                        </p>
                                        <table>
                                           <tr>
-                                             <th class="cAPI-table-name">Attribute Name</th>
+                                             <th class="cAPI-table-name">Attachment Points</th>
                                              <th class="cAPI-table-type">Data Type</th>
-                                             <th class="cAPI-table-desc">Description</th>
                                           </tr>
-                                          {{#each attributes}}
                                           <tr>
-                                             <td class="cAPI-table-name">{{name}}</td>
+                                             <td class="cAPI-table-name">{{attachments}}</td>
                                              <td class="cAPI-table-type"><a href="{{href}}">{{dataType}}</a></td>
-                                             <td class="cAPI-table-desc">{{{description}}}</td>
                                           </tr>
-                                          {{/each}}
                                        </table>
-                                       {{/if}} {{/if}}
+                                       {{/if}}
                                        <!-- Global Variables-->
                                        {{#if isGlobalVariable}}
                                        <h2 id="{{name}}">

@@ -80,7 +80,7 @@ public type Response object {
     public function removeAllHeaders ();
 
     @Description {value:"Get all transport header names from the response."}
-    @Param {value:"res: The response message"}
+    @Return {value:"An array of all transport header names"}
     public function getHeaderNames () returns (string[]);
 
     @Description {value:"Set the content-type header to response"}

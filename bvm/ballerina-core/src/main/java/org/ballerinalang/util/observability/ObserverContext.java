@@ -68,10 +68,6 @@ public class ObserverContext {
         tags.put(key, value);
     }
 
-    public void addTags(Map<String, String> tags) {
-        this.tags.putAll(tags);
-    }
-
     public Map<String, String> getTags() {
         return Collections.unmodifiableMap(tags);
     }
