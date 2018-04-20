@@ -72,8 +72,8 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
                     self.cacheAuthzResult(authzCacheKey, authorized);
                     return authorized;
                 } else {
-                    log:printDebug("No scopes found for user: " + username + " to access resource: " + resourceName + ",
-                                                                                                    method:" + method);
+                    log:printDebug("No scopes found for user: " + username + " to access resource: " + resourceName +
+                            ", method:" + method);
                     return false;
                 }
             }
