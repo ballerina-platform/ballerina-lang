@@ -65,9 +65,9 @@ public class Select extends AbstractSQLAction {
 
             String query = context.getStringArgument(0);
             BStructType structType = getStructType(context, 1);
-            boolean loadSQLTableToMemory = context.getBooleanArgument(0);
+            boolean loadSQLTableToMemory = ((BBoolean) context.getRefArgument(2)).booleanValue();
 
-            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(2);
+            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(3);
             SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);
 
             ObserverContext observerContext = ObservabilityUtils.getParentContext(context);

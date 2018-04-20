@@ -39,7 +39,7 @@ public type CallerActions object {
         P{{recordType}} - Type of the returned table.
         R{{}} - `table` table returned by the sql query statement else `error` will be returned if there is any error.
     }
-    public native function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory,
+    public native function select(@sensitive string sqlQuery, typedesc? recordType, boolean? loadToMemory = false,
     Parameter... parameters) returns @tainted table|error;
 
     documentation {

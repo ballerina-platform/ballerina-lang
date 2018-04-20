@@ -158,7 +158,7 @@ function testSelectData() returns (string) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ResultCustomers, false);
+    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ResultCustomers);
     table dt = check dtRet;
     string firstName;
 
@@ -178,7 +178,7 @@ function testSelectIntFloatData() returns (int, int, float, float) {
     };
 
     var dtRet = testDB->select("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
-        where row_id = 1", ResultDataType, false);
+        where row_id = 1", ResultDataType);
     table dt = check dtRet;
     int int_type;
     int long_type;
@@ -203,7 +203,7 @@ function testCallProcedure() returns (string) {
     };
 
     _ = testDB->call("{call InsertPersonData(100,'James')}", ());
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 100", ResultCustomers, false);
+    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = 100", ResultCustomers);
     table dt = check dtRet;
     string firstName;
     while (dt.hasNext()) {
@@ -269,7 +269,7 @@ function testQueryParameters() returns (string) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers, false, 1);
+    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers, 1);
     table dt = check dtRet;
 
     string firstName;
@@ -289,7 +289,7 @@ function testQueryParameters2() returns (string) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers, false,
+    var dtRet = testDB->select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers,
         (sql:TYPE_INTEGER, 1));
     table dt = check dtRet;
 
@@ -358,7 +358,7 @@ function testArrayofQueryParameters() returns (string) {
     sql:Parameter para3 = (sql:TYPE_DOUBLE, doubleArray);
 
     var dtRet = testDB->select("SELECT  FirstName from Customers where FirstName = ? or lastName = 'A' or
-        lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?)", ResultCustomers, false,
+        lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?)", ResultCustomers,
         para0, para1, para2, para3);
     table dt = check dtRet;
 
@@ -383,7 +383,7 @@ function testBoolArrayofQueryParameters() returns (int) {
     boolean accepted3 = true;
     boolean[] boolDataArray = [accepted1, accepted2, accepted3];
 
-    var dt1Ret = testDB->select("SELECT blob_type from DataTypeTable where row_id = 1", ResultBlob, false);
+    var dt1Ret = testDB->select("SELECT blob_type from DataTypeTable where row_id = 1", ResultBlob);
     table dt1 = check dt1Ret;
 
     blob blobData;
@@ -398,7 +398,7 @@ function testBoolArrayofQueryParameters() returns (int) {
     sql:Parameter para2 = (sql:TYPE_BLOB, blobDataArray);
 
     var dtRet = testDB->select("SELECT  int_type from DataTypeTable where row_id = ? and boolean_type in(?) and
-        blob_type in (?)", ResultIntType, false, para0, para1, para2);
+        blob_type in (?)", ResultIntType, para0, para1, para2);
     table dt = check dtRet;
 
     int value;
@@ -445,7 +445,7 @@ function testArrayInParameters() returns (int, map, map, map, map, map, map) {
     insertCount = check insertCountRet;
 
     var dtRet = testDB->select("SELECT int_array, long_array, double_array, boolean_array,
-        string_array, float_array from ArrayTypes where row_id = 2", ResultArrayType, false);
+        string_array, float_array from ArrayTypes where row_id = 2", ResultArrayType);
     table dt = check dtRet;
 
     while (dt.hasNext()) {
@@ -796,7 +796,7 @@ function testBatchUpdateWithFailure() returns (int[], int) {
     updateCount = check updateCountRet;
 
     var dtRet = testDB->select("SELECT count(*) as countval from Customers where customerId in (111,222,333)",
-        ResultCount, false);
+        ResultCount);
     table dt = check dtRet;
 
     while (dt.hasNext()) {
@@ -891,7 +891,7 @@ function testDateTimeNullInValues() returns (string) {
         para0, para1, para2, para3, para4);
 
     var dtRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 33", ResultDates, false);
+                from DateTimeTypes where row_id = 33", ResultDates);
     table dt = check dtRet;
 
     string data;
@@ -924,7 +924,7 @@ function testDateTimeNullOutValues() returns (int) {
     _ = testDB->call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", (),
         para1, para2, para3, para4, para5, para6, para7, para8, para9);
 
-    var dtRet = testDB->select("SELECT count(*) as countval from DateTimeTypes where row_id = 123", ResultCount, false);
+    var dtRet = testDB->select("SELECT count(*) as countval from DateTimeTypes where row_id = 123", ResultCount);
     table dt = check dtRet;
 
     int count;
@@ -977,7 +977,7 @@ function testDateTimeOutParams(int time, int date, int timestamp) returns (int) 
     _ = testDB->call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", (),
         para1, para2, para3, para4, para5, para6, para7, para8, para9);
 
-    var dtRet = testDB->select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", ResultCount, false);
+    var dtRet = testDB->select("SELECT count(*) as countval from DateTimeTypes where row_id = 10", ResultCount);
     table dt = check dtRet;
 
     int count;
@@ -1014,22 +1014,22 @@ function testComplexTypeRetrieval() returns (string, string, string, string) {
     string s3;
     string s4;
 
-    var dtRet = testDB->select("SELECT * from DataTypeTable where row_id = 1", (), false);
+    var dtRet = testDB->select("SELECT * from DataTypeTable where row_id = 1", ());
     table dt = check dtRet;
     var x1 = check <xml>dt;
     s1 = io:sprintf("%l", x1);
 
-    dtRet = testDB->select("SELECT * from DateTimeTypes where row_id = 1", (), false);
+    dtRet = testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
     dt = check dtRet;
     var x2 = check <xml>dt;
     s2 = io:sprintf("%l", x2);
 
-    dtRet = testDB->select("SELECT * from DataTypeTable where row_id = 1", (), false);
+    dtRet = testDB->select("SELECT * from DataTypeTable where row_id = 1", ());
     dt = check dtRet;
     var j = check <json>dt;
     s3 = io:sprintf("%j", j);
 
-    dtRet = testDB->select("SELECT * from DateTimeTypes where row_id = 1", (), false);
+    dtRet = testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
     dt = check dtRet;
     j = check <json>dt;
     s4 = io:sprintf("%j", j);
@@ -1045,7 +1045,7 @@ function testSelectLoadToMemory() returns (Employee[], Employee[], Employee[]) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from employeeItr", Employee, true);
+    var temp = testDB->select("SELECT * from employeeItr", Employee, loadToMemory = true);
     table dt = check temp;
 
     Employee[] employeeArray1;
@@ -1086,7 +1086,7 @@ function testLoadToMemorySelectAfterTableClose() returns (Employee[], Employee[]
         poolOptions:{maximumPoolSize:1}
     };
 
-    var temp = testDB->select("SELECT * from employeeItr", Employee, true);
+    var temp = testDB->select("SELECT * from employeeItr", Employee, loadToMemory = true);
     table dt = check temp;
 
     Employee[] employeeArray1;
@@ -1130,8 +1130,7 @@ function testCloseConnectionPool() returns (int) {
         poolOptions:{maximumPoolSize:1}
     };
 
-    var dtRet = testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount,
-        false);
+    var dtRet = testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount);
     table dt = check dtRet;
 
     int count;

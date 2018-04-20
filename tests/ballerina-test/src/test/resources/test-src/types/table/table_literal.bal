@@ -69,7 +69,7 @@ function checkTableCount(string tablePrefix) returns (int) {
     int count;
     try {
         var temp = testDB->select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like
-         ?", ResultCount, false, p1);
+         ?", ResultCount, p1);
         table dt = check temp;
         while (dt.hasNext()) {
             var rs = check <ResultCount>dt.getNext();
