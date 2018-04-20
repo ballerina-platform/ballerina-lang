@@ -14,13 +14,13 @@ service<http:Service> echo bind echoEP {
         methods:["POST"],
         path:"/"
     }
-    echo (endpoint outboundEP, http:Request req) {
+    echo (endpoint caller, http:Request req) {
         var payload = req.getStringPayload();
         match payload {
             string payloadValue => {
                 http:Response resp = new;
                 resp.setStringPayload(payloadValue);
-                _ = outboundEP -> respond(resp);
+                _ = caller -> respond(resp);
             }
             any | () => {
                 io:println("Error while fetching string payload");

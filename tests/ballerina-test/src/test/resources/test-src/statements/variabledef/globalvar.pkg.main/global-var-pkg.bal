@@ -1,4 +1,3 @@
-package globalvar.pkg.main;
 
 import globalvar.pkg.variable;
 

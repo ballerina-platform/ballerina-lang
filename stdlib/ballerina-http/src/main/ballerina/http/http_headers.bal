@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 // Please maintain alphabetical order when adding new header names
 documentation { HTTP header key 'age'. Gives the current age of a cached HTTP response. }

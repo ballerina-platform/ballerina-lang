@@ -22,11 +22,11 @@ service<http:Service> EventServiceMock bind eventEP {
         methods:["GET"],
         path:"/"
     }
-    getEvents (endpoint client, http:Request req) {
+    getEvents (endpoint caller, http:Request req) {
         http:Response res = new;
         json j = {"a":"b"};
         res.setJsonPayload(j);
-        _ = client -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 

@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.internal;
 
 //JOSH header parameters
 @final string ALG = "alg";

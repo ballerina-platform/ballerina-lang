@@ -1,4 +1,3 @@
-package eq;
 
 public type person object {
     public {

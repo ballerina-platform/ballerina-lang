@@ -17,16 +17,16 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
-import static org.ballerinalang.net.grpc.MessageConstants.BRACKET_CLOSE;
-import static org.ballerinalang.net.grpc.MessageConstants.BRACKET_OPEN;
-import static org.ballerinalang.net.grpc.MessageConstants.COMMA;
-import static org.ballerinalang.net.grpc.MessageConstants.DIAMOND_CAST_CLOSE;
-import static org.ballerinalang.net.grpc.MessageConstants.DIAMOND_CAST_OPEN;
-import static org.ballerinalang.net.grpc.MessageConstants.IGNORE_CAST;
-import static org.ballerinalang.net.grpc.MessageConstants.INIT_EMPTY_STUB;
-import static org.ballerinalang.net.grpc.MessageConstants.INPUT_TYPE_NAME;
-import static org.ballerinalang.net.grpc.MessageConstants.RESULT_TYPE_NAME;
-import static org.ballerinalang.net.grpc.MessageConstants.SPACE;
+import static org.ballerinalang.net.grpc.GrpcConstants.BRACKET_CLOSE;
+import static org.ballerinalang.net.grpc.GrpcConstants.BRACKET_OPEN;
+import static org.ballerinalang.net.grpc.GrpcConstants.COMMA;
+import static org.ballerinalang.net.grpc.GrpcConstants.DIAMOND_CAST_CLOSE;
+import static org.ballerinalang.net.grpc.GrpcConstants.DIAMOND_CAST_OPEN;
+import static org.ballerinalang.net.grpc.GrpcConstants.IGNORE_CAST;
+import static org.ballerinalang.net.grpc.GrpcConstants.INIT_EMPTY_STUB;
+import static org.ballerinalang.net.grpc.GrpcConstants.INPUT_TYPE_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.RESULT_TYPE_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.SPACE;
 
 /**
  * Bean class of blocking function object.

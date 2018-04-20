@@ -1,4 +1,3 @@
-package ballerina.lang.strings;
 
 import ballerina/doc;
 

@@ -62,7 +62,7 @@ function startWindowQuery() returns (StatusCount[]) {
     teacherStream5.publish(t2);
     teacherStream5.publish(t3);
 
-    runtime:sleepCurrentWorker(1000);
+    runtime:sleep(1000);
     return globalStatusCountArray;
 }
 

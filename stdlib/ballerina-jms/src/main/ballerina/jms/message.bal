@@ -1,4 +1,3 @@
-package ballerina.jms;
 
 public type Message object {
     documentation {Gets text content of the JMS message
