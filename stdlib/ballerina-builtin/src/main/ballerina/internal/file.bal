@@ -25,7 +25,7 @@ public type IOError {
 };
 
 @Description {value: "Reference to the file location" }
-type Path object{
+public type Path object{
     private {
       string root;
     }
@@ -43,7 +43,7 @@ type Path object{
 
     @Description { value: "Retreives the absolute path from the provided location"}
     @Return {value:"Returns the absolute path string value"}
-    native function getPathValue() returns string;
+    public native function getPathValue() returns string;
 
     @Description {value: "Retreives the name of the file from the provided location"}
     @Return {value:"Returns the name of the file"}
@@ -53,7 +53,7 @@ type Path object{
 @Description { value: "Check for existance of the file"}
 @Param {value: "path: Refernce to the file location"}
 @Return {value: "true if the file exists"}
-native function exists(@sensitive Path path) returns boolean;
+public native function exists(@sensitive Path path) returns boolean;
 
 @Description { value: "Returns the list of paths in the directory"}
 @Param {value: "path: Reference to the file path location"}
@@ -73,7 +73,7 @@ native function delete(@sensitive Path path) returns boolean | IOError;
 @Description {value: "Creates a directory in the specified location"}
 @Param {value: "path: Reference to the file path location"}
 @Return {value : "error if the directory could not be created"}
-native function createDirectory(@sensitive Path path) returns boolean | IOError;
+public native function createDirectory(@sensitive Path path) returns boolean | IOError;
 
 @Description {value: "Creates a file in the specified location"}
 @Param {value: "path: Reference to the file path location"}

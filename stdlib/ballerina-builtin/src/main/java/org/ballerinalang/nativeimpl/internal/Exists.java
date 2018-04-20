@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.file;
+package org.ballerinalang.nativeimpl.internal;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -37,7 +37,7 @@ import java.nio.file.Path;
  * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "file",
+        orgName = "ballerina", packageName = "internal",
         functionName = "exists",
         args = {
                 @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path",
