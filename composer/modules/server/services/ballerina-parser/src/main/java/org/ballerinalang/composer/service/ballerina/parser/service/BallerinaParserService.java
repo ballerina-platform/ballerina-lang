@@ -434,13 +434,13 @@ public class BallerinaParserService implements ComposerService {
 
         BallerinaFile bFile;
         ExtendedWorkspaceDocumentManagerImpl documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
-        Optional<Lock> docMgrFileLock = documentManager.lockFile(filePath);
-        Optional<Lock> lock = documentManager.lockWriteAndEnableExplicitMode(filePath);
+        Optional<Lock> lock = documentManager.lockFile(filePath);
+        documentManager.enableExplicitMode(filePath);
         try {
             bFile = LSCompiler.compileContent(content, filePath, CompilerPhase.CODE_ANALYZE, documentManager, true);
         } finally {
-            lock.ifPresent(documentManager::unlockWriteAndDisableExplicitMode);
-            docMgrFileLock.ifPresent(Lock::unlock);
+            documentManager.disableExplicitMode();
+            lock.ifPresent(Lock::unlock);
         }
         programDir = (bFile.isBallerinaProject()) ? LSCompiler.getSourceRoot(filePath) : "";
 

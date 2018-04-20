@@ -165,6 +165,12 @@ public class BallerinaDocGenerator {
                 String indexTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY, "index");
                 String indexFilePath = output + File.separator + "index" + HTML;
                 Writer.writeHtmlDocument(packageNameList, indexTemplateName, indexFilePath);
+
+                String pkgListTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_LIST_TEMPLATE_NAME_KEY,
+                        "package-list");
+                String pkgListFilePath = output + File.separator + "package-list" + HTML;
+                Writer.writeHtmlDocument(packageNameList, pkgListTemplateName, pkgListFilePath);
+
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     out.println("Copying HTML theme...");
                 }
