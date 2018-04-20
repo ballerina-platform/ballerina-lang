@@ -2,6 +2,12 @@ import ballerina/io;
 
 io:CSVChannel? csvChannel;
 
+type Employee {
+    string id;
+    string name;
+    float salary;
+};
+
 function initCSVChannel(string filePath, io:Mode permission, string encoding, io:Seperator fieldSeperator) {
     io:ByteChannel byteChannel = io:openFile(filePath, permission);
     io:CharacterChannel charChannel = new io:CharacterChannel(byteChannel, encoding);
@@ -39,4 +45,24 @@ function close() {
 
 function hasNextRecord() returns boolean? {
     return csvChannel.hasNext();
+}
+
+function getTable(string filePath, io:Mode permission, string encoding, io:Seperator fieldSeperator) returns float|error {
+
+    io:ByteChannel byteChannel = io:openFile(filePath, permission);
+    io:CharacterChannel charChannel = new io:CharacterChannel(byteChannel, encoding);
+    io:CSVChannel csv = new io:CSVChannel(charChannel, fs = fieldSeperator);
+    float total;
+    match csv.getTable(Employee) {
+        table<Employee> tb => {
+            foreach x in tb {
+                total = total + x.salary;
+            }
+            return total;
+        }
+        error err => {
+            return err;
+        }
+
+    }
 }
