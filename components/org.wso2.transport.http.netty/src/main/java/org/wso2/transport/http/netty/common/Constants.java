@@ -266,6 +266,8 @@ public final class Constants {
     public static final String TRACE_LOG_UPSTREAM = "http.tracelog.upstream";
     public static final String TRACE_LOG_DOWNSTREAM = "http.tracelog.downstream";
 
+    public static final String ACCESS_LOG = "http.accesslog";
+
     public static final String LISTENER_PORT = "LISTENER_PORT";
 
     public static final String REQUEST_LINE_TOO_LONG = "An HTTP line is larger than";
