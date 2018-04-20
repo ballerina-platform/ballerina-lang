@@ -69,7 +69,6 @@ function startFilterQuery() returns (Employee[]) {
 }
 
 function printEmployeeNumber(Employee e) {
-    io:println("printEmployeeName function invoked for Employee event for Employee employee name:" + e.name);
     addToGlobalEmployeeArray(e);
 }
 

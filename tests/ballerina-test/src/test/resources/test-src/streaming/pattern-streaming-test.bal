@@ -54,8 +54,6 @@ function testPatternQuery () {
 }
 
 function printTempDifference(TempDiffInfo tempDiff) {
-    io:println("printTemoDifference function invoked for Room:" + tempDiff.roomNo + " and temp difference :" +
-        + tempDiff.tempDifference);
     addToGlobalTempDiffArray(tempDiff);
 }
 
@@ -163,8 +161,6 @@ function runPatternQuery2() returns (RoomKeyAction[]) {
 }
 
 function alertRoomAction1(RoomKeyAction action) {
-    io:println("alertRoomAction function invoked for Room:" + action.roomNo + " and the action :" +
-        action.userAction);
     addToGlobalRoomActions(action);
 
 }
@@ -220,8 +216,6 @@ function runPatternQuery3() returns (RoomKeyAction[]) {
 }
 
 function alertRoomAction2(RoomKeyAction action) {
-    io:println("alertRoomAction function invoked for Room:" + action.roomNo + " and the action :" +
-        action.userAction);
     addToGlobalRoomActions2(action);
 
 }
@@ -278,8 +272,6 @@ function runPatternQuery4() returns (RoomKeyAction[]) {
 
 
 function alertRoomAction3(RoomKeyAction action) {
-    io:println("alertRoomAction function invoked for Room:" + action.roomNo + " and the action :" +
-        action.userAction);
     addToGlobalRoomActions3(action);
 
 }
@@ -330,8 +322,6 @@ function runPatternQuery5() returns (RoomKeyAction[]) {
 
 
 function alertRoomAction4(RoomKeyAction action) {
-    io:println("alertRoomAction function invoked for Room:" + action.roomNo + " and the action :" +
-        action.userAction);
     addToGlobalRoomActions4(action);
 
 }
