@@ -116,10 +116,15 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             WebSocketDispatcher.setPathParams(bValues, paramDetails, pathParams, 2);
 
             // TODO: Need to revisit this code of observation.
-            ObserverContext ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_WEBSOCKET,
-                                                                            onUpgradeResource.getServiceName(),
-                                                                            onUpgradeResource.getName(), null);
-//            ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
+            ObserverContext ctx = null;
+            if (ObservabilityUtils.isObservabilityEnabled()) {
+                ctx = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_WEBSOCKET,
+                        onUpgradeResource.getServiceName(),
+                        onUpgradeResource.getName(), null);
+                // if (ctx != null) {
+                //     ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
+                // }
+            }
 
             Executor.submit(onUpgradeResource, new CallableUnitCallback() {
                 @Override
