@@ -68,6 +68,13 @@ public type Client object {
     function getClient() returns sql:CallerActions {
         return self.h2Client;
     }
+
+    documentation {
+        Stops the JDBC client.
+    }
+    public function stop() {
+        sql:close(self.h2Client);
+    }
 };
 
 native function createClient(ClientEndpointConfiguration config) returns sql:CallerActions;

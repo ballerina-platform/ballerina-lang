@@ -17,6 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 import ballerina/util;
+import ballerina/jdbc;
 import ballerina/sql;
 
 endpoint http:Listener participant2EP {
@@ -29,8 +30,8 @@ endpoint http:Listener participant2EP {
 //        options: {url:"jdbc:hsqldb:hsql://localhost:9001/TEST_SQL_CONNECTOR"}
 //};
 
-endpoint sql:Client testDB {
-    url: "hsqldb:hsql://localhost:9001/TEST_SQL_CONNECTOR",
+endpoint jdbc:Client testDB {
+    url: "jdbc:hsqldb:hsql://localhost:9001/TEST_SQL_CONNECTOR",
     username: "SA",
     poolOptions: {maximumPoolSize:10}
 };
@@ -94,7 +95,7 @@ service<http:Service> participant2 bind participant2EP {
     }
     checkCustomerExists(endpoint ep, http:Request req, string uuid) {
         http:Response res = new;  res.statusCode = 200;
-        sql:Parameter para1 = (sql:TYPE_VARCHAR, uuid);
+        sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:uuid};
         var x = testDB -> select("SELECT registrationID FROM Customers WHERE registrationID = ?", Registration, para1);
         match x {
             table dt => {
