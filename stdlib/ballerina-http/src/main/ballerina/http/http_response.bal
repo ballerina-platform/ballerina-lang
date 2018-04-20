@@ -313,44 +313,43 @@ public function Response::setLastModified() {
 
 public function Response::setJsonPayload (json payload, string contentType="application/json") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setJson(payload, contentType);
+    entity.setJson(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
 public function Response::setXmlPayload (xml payload, string contentType="application/xml") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setXml(payload, contentType);
+    entity.setXml(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
 public function Response::setStringPayload (string payload, string contentType="text/plain") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setText(payload, contentType);
+    entity.setText(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
 public function Response::setBinaryPayload (blob payload, string contentType="application/octec-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setBlob(payload, contentType);
+    entity.setBlob(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
 public function Response::setBodyParts (mime:Entity[] bodyParts, string contentType="multipart/form-data") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setBodyParts(bodyParts, contentType);
+    entity.setBodyParts(bodyParts, contentType = contentType);
     self.setEntity(entity);
 }
 
 public function Response::setFileAsPayload (string filePath, @sensitive string contentType = "application/octec-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setFileAsEntityBody(filePath, contentType);
+    entity.setFileAsEntityBody(filePath, contentType = contentType);
     self.setEntity(entity);
 }
 
 public function Response::setByteChannel (io:ByteChannel payload, string contentType="application/octec-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setByteChannel(payload);
-    entity.contentType = mime:getMediaType(contentType);
+    entity.setByteChannel(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
@@ -365,21 +364,3 @@ public function Response::setPayload ((string | xml | json | blob | io:ByteChann
     }
 }
 
-@Description {value:"Construct MediaType struct from the content-type header value"}
-@Param {value:"response: The outbound response message"}
-@Param {value:"defaultContentType: Default content-type to be used in case the content-type header doesn't contain any value"}
-@Return {value:"Return 'MediaType' struct"}
-function getMediaTypeFromResponse (Response response, @sensitive string defaultContentType) returns (mime:MediaType) {
-    mime:MediaType mediaType = mime:getMediaType(defaultContentType);
-
-    if (response.hasHeader(mime:CONTENT_TYPE)) {
-        string contentTypeValue = response.getHeader(mime:CONTENT_TYPE);
-        if (contentTypeValue != "") { // TODO: may need to trim this before doing an empty string check
-            return mime:getMediaType(contentTypeValue);
-        } else {
-            return mediaType;
-        }
-    } else {
-        return mediaType;
-    }
-}

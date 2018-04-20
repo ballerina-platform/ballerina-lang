@@ -1,5 +1,6 @@
 import ballerina/mime;
 import ballerina/http;
+import ballerina/io;
 
 endpoint http:NonListener mockEP {
     port:9090
@@ -15,7 +16,7 @@ service<http:Service> echo bind mockEP {
         http:Response response = new;
         mime:Entity responseEntity = new;
         match request.getByteChannel() {
-            http:PayloadError err => log:printInfo("invalid value");
+            http:PayloadError err => io:print("invalid value");
             io:ByteChannel byteChannel => responseEntity.setByteChannel(byteChannel);
         }
         response.setEntity(responseEntity);

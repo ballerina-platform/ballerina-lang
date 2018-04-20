@@ -20,7 +20,7 @@ function getDispositionTestObj() returns mime:ContentDisposition {
 
 //Media type tests
 function testGetMediaType(string contentType) returns mime:MediaType|error {
-    return mime:getMediaTypeObject(contentType);
+    return mime:getMediaType(contentType);
 }
 
 function testGetBaseTypeOnMediaType(mime:MediaType mediaType) returns (string) {
@@ -41,22 +41,22 @@ function testToStringOnContentDisposition(mime:ContentDisposition contentDisposi
 
 function testSetMediaTypeToEntity() returns string {
     mime:Entity entity = new;
-    entity.setMediaType(getMediaTypeTestObj());
-    mime:MediaType receivedMediaType = check entity.getMediaType();
-    return receivedMediaType.toString();
+    mime:MediaType mediaType = getMediaTypeTestObj();
+    entity.setContentType(mediaType.toString());
+    return entity.getContentType();
 }
 
 function testSetMediaTypeAndGetValueAsHeader() returns string {
     mime:Entity entity = new;
-    entity.setMediaType(getMediaTypeTestObj());
+    mime:MediaType mediaType = getMediaTypeTestObj();
+    entity.setContentType(mediaType.toString());
     return entity.getHeader(mime:CONTENT_TYPE);
 }
 
 function testSetHeaderAndGetMediaType() returns string {
     mime:Entity entity = new;
     entity.setHeader(mime:CONTENT_TYPE, "text/plain; charset=UTF-8");
-    mime:MediaType receivedMediaType = check entity.getMediaType();
-    return receivedMediaType.toString();
+    return entity.getContentType();
 }
 
 //Content-disposition tests

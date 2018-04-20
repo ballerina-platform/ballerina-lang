@@ -174,7 +174,7 @@ service<http:Service> test bind mockEP {
 
 function handleNestedParts (mime:Entity parentPart) returns (string) {
     string content = "";
-    string contentTypeOfParent = parentPart.contentType.toString();
+    string contentTypeOfParent = parentPart.getContentType();
     if (contentTypeOfParent.hasPrefix("multipart/")) {
         match parentPart.getBodyParts() {
             mime:EntityError err => {
@@ -194,7 +194,8 @@ function handleNestedParts (mime:Entity parentPart) returns (string) {
 }
 
 function handleContent (mime:Entity bodyPart) returns (string) {
-    string baseType = bodyPart.contentType.getBaseType();
+    mime:MediaType mediaType = check mime:getMediaType(bodyPart.getContentType());
+    string baseType = mediaType.getBaseType();
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         var payload = bodyPart.getXml();
         match payload {

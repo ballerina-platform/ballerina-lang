@@ -115,23 +115,23 @@ level message and an entity(body part) inside of a multipart entity."}
 @Field {value:"contentDisposition: Represent values related to Content-Disposition header"}
 public type Entity object {
     private {
-        MediaType mediaType;
+        MediaType contentType;
         string contentId;
         int contentLength;
         ContentDisposition contentDisposition;
     }
 
-    public function setMediaType (MediaType mediaType) {
-        self.mediaType = mediaType;
-        self.setHeader(CONTENT_TYPE, mediaType.toString());
+    public function setContentType (string mediaType) {
+        self.contentType = check getMediaType(mediaType);
+        self.setHeader(CONTENT_TYPE, mediaType);
     }
 
-    public function getMediaType () returns MediaType | error {
+    public function getContentType () returns string {
         string contentTypeHeaderValue;
         if (self.hasHeader(CONTENT_TYPE)) {
             contentTypeHeaderValue = self.getHeader(CONTENT_TYPE);
         }
-        return getMediaTypeObject(contentTypeHeaderValue);
+        return contentTypeHeaderValue;
     }
 
     public function setContentId(string contentId) {
@@ -430,7 +430,7 @@ function getEncoding (MediaType contentType) returns (string) {
 @Description {value:"Given the Content-Type in string, get the MediaType object populated with it."}
 @Param {value:"contentType: Content-Type in string"}
 @Return {value:"Return MediaType struct or an error in case of error"}
-public native function getMediaTypeObject (string contentType) returns MediaType | error;
+public native function getMediaType (string contentType) returns MediaType | error;
 
 @Description {value:"Given the Content-Disposition as a string, get the ContentDisposition struct object with it."}
 @Param {value:"contentType: Content-Type in string"}

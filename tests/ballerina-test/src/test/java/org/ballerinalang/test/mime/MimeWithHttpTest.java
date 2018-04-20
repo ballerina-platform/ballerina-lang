@@ -32,12 +32,12 @@ public class MimeWithHttpTest {
 
     @BeforeClass
     public void setup() {
-        String sourceFilePath = "test-src/mime/mime-test.bal";
+        String sourceFilePath = "test-src/mime/mime-with-http.bal";
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
     @Test(description = "When the payload exceeds 2MB check whether the response received back matches  " +
-            "the original content length", enabled = false)
+            "the original content length")
     public void testLargePayload() {
         String path = "/test/largepayload";
         try {
