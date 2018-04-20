@@ -42,7 +42,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class Close implements NativeCallableUnit {
+public class CloseByteChannel implements NativeCallableUnit {
 
     /**
      * The index of the ByteChannel in ballerina.io#close().
@@ -71,7 +71,7 @@ public class Close implements NativeCallableUnit {
         BStruct channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
-        IOUtils.close(byteChannel, eventContext, Close::closeResponse);
+        IOUtils.close(byteChannel, eventContext, CloseByteChannel::closeResponse);
     }
 
     @Override

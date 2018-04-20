@@ -119,14 +119,14 @@ documentation {
     P{{permission}} - The permissions provided.
     R{{}} - `ByteChannel` of the file content.
 }
-function getFileChannel (string filePath, string permission) returns (io:ByteChannel) {
+function getFileChannel (string filePath, io:Mode permission) returns (io:ByteChannel) {
     io:ByteChannel channel = io:openFile(untaint filePath, permission);
     return channel;
 }
 
 documentation {
     Function to read the bytes from the byte channel.
-    
+
     P{{channel}} - The byte channel.
     P{{numberOfBytes}} - The number of bytes to be read.
     R{{}} - `blob` of the bytes read as a blob along with the `int` number of bytes read.
@@ -140,7 +140,7 @@ function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, in
 
 documentation {
     Function to write the bytes from the byte channel.
-    
+
     P{{channel}} - The byte channel.
     P{{content}} - The content to be written as a blob.
     P{{startOffset}} - The offset.
@@ -153,7 +153,7 @@ function writeBytes (io:ByteChannel channel, blob content, int startOffset) retu
 
 documentation {
     Function to copy files from source to the destination path.
-    
+
     P{{pkgSize}} - The size of the package pulled.
     P{{src}} - The byte channel of the source file.
     P{{dest}} - The byte channel of the destination folder.
@@ -196,7 +196,7 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
 
 documentation {
     Function to include the right pad.
-    
+
     P{{logMsg}} - The log message to be printed.
     P{{logMsgLength}} - The length of the log message.
     R{{}} - `string` The log message to be printed after adding the right pad.
@@ -216,7 +216,7 @@ function rightPad (string logMsg, int logMsgLength) returns (string) {
 
 documentation {
     Function to truncate the string.
-    
+
     P{{text}} - The string to be truncated.
     R{{}} - `string` The truncated string.
 }
@@ -244,7 +244,7 @@ function truncateString (string text) returns (string) {
 
 documentation {
     Function to create directories.
-    
+
     P{{directoryPath}} - The directory path to be created.
     R{{}} - `boolean` If the directories were created or not.
 }
@@ -260,7 +260,7 @@ function createDirectories(string directoryPath) returns (boolean) {
 
 documentation {
     Function to invoke the FileServer endpoint.
-    
+
     P{{url}} - The endpoint url to be invoked.
     R{{}} - `Response` The response got after invoking the endpoint.
 }

@@ -84,17 +84,16 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
 
     @Override
     public Optional<Lock> lockFile(Path filePath) {
+        if (filePath == null) {
+            return Optional.empty();
+        }
         WorkspaceDocument document = documentList.get(filePath);
-        Lock lock = null;
-        if (document != null) {
-            lock = document.getLock();
-            lock.lock();
-        } else if (filePath != null) {
+        if (document == null) {
             document = new WorkspaceDocument(filePath, "");
             documentList.put(filePath, document);
-            lock = document.getLock();
-            lock.lock();
         }
-        return Optional.ofNullable(lock);
+        Lock lock = document.getLock();
+        lock.lock();
+        return Optional.of(lock);
     }
 }
