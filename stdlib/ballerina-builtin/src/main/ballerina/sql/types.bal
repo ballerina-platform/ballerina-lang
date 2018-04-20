@@ -60,52 +60,48 @@ public type ClientEndpointConfiguration {
 
 documentation {
     The SQL Datatype of the parameter.
-}
 
+    VARCHAR - Small, variable-length character string.
+    CHAR - Small, fixed-length character string.
+    LONGVARCHAR - Large, variable-length character string.
+    NCHAR - Small, fixed-length character string with unicode support.
+    LONGNVARCHAR - Large, variable-length character string with unicode support.
+
+    BIT - Single bit value that can be zero or one, or nil.
+    BOOLEAN - Boolean value either True or false.
+    TINYINT - 8-bit integer value which may be unsigned or signed.
+    SMALLINT - 16-bit signed integer value which may be unsigned or signed.
+    INTEGER - 32-bit signed integer value which may be unsigned or signed.
+    BIGINT - 64-bit signed integer value which may be unsigned or signed.
+
+    NUMERIC - Fixed-precision and scaled decimal values.
+    DECIMAL - Fixed-precision and scaled decimal values.
+    REAL - Single precision floating point number.
+    FLOAT - Double precision floating point number.
+    DOUBLE - Double precision floating point number.
+
+    BINARY - Small, fixed-length binary value.
+    BLOB - Binary Large Object.
+    LONGVARBINARY - Large, variable-length binary value.
+    VARBINARY - Small, variable-length binary value.
+
+    CLOB - Character Large Object.
+    NCLOB - Character large objects in multibyte national character set.
+
+    DATE - Date consisting of day, month, and year.
+    TIME - Time consisting of hours, minutes, and seconds.
+    DATETIME - Both DATE and TIME with additional a nanosecond field.
+    TIMESTAMP - Both DATE and TIME with additional a nanosecond field.
+
+    ARRAY - Composite data value that consists of zero or more elements of a specified data type.
+    STRUCT - User defined structured type, consists of one or more attributes.
+    REFCURSOR - Cursor value.
+}
 public type SQLType "VARCHAR"|"CHAR"|"LONGVARCHAR"|"NCHAR"|"LONGNVARCHAR"|"NVARCHAR"|"BIT"|"BOOLEAN"|
 "TINYINT"|"SMALLINT"|"INTEGER"|"BIGINT"|"NUMERIC"|"DECIMAL"|"REAL"|"FLOAT"|"DOUBLE"|
 "BINARY"|"BLOB"|"LONGVARBINARY"|"VARBINARY"|"CLOB"|"NCLOB"|"DATE"|"TIME"|"DATETIME"|
 "TIMESTAMP"|"ARRAY"|"STRUCT"|"REFCURSOR";
 
-//documentation {
-//    The SQL Datatype of the parameter.
-//
-//    V{{VARCHAR}} - Small, variable-length character string.
-//    V{{CHAR}} - Small, fixed-length character string.
-//    F{{LONGVARCHAR}} - Large, variable-length character string.
-//    F{{NCHAR}} - Small, fixed-length character string with unicode support.
-//    F{{LONGNVARCHAR}} - Large, variable-length character string with unicode support.
-//
-//    F{{BIT}} - Single bit value that can be zero or one, or nil.
-//    F{{BOOLEAN}} - Boolean value either True or false.
-//    F{{TINYINT}} - 8-bit integer value which may be unsigned or signed.
-//    F{{SMALLINT}} - 16-bit signed integer value which may be unsigned or signed.
-//    F{{INTEGER}} - 32-bit signed integer value which may be unsigned or signed.
-//    F{{BIGINT}} - 64-bit signed integer value which may be unsigned or signed.
-//
-//    F{{NUMERIC}} - Fixed-precision and scaled decimal values.
-//    F{{DECIMAL}} - Fixed-precision and scaled decimal values.
-//    F{{REAL}} - Single precision floating point number.
-//    F{{FLOAT}} - Double precision floating point number.
-//    F{{DOUBLE}} - Double precision floating point number.
-//
-//    F{{BINARY}} - Small, fixed-length binary value.
-//    F{{BLOB}} - Binary Large Object.
-//    F{{LONGVARBINARY}} - Large, variable-length binary value.
-//    F{{VARBINARY}} - Small, variable-length binary value.
-//
-//    F{{CLOB}} - Character Large Object.
-//    F{{NCLOB}} - Character large objects in multibyte national character set.
-//
-//    F{{DATE}} - Date consisting of day, month, and year.
-//    F{{TIME}} - Time consisting of hours, minutes, and seconds.
-//    F{{DATETIME}} - Both DATE and TIME with additional a nanosecond field.
-//    F{{TIMESTAMP}} - Both DATE and TIME with additional a nanosecond field.
-//
-//    F{{ARRAY}} - Composite data value that consists of zero or more elements of a specified data type.
-//    F{{STRUCT}} - User defined structured type, consists of one or more attributes.
-//    F{{REFCURSOR}} - Cursor value.
-//}
 @final public SQLType TYPE_VARCHAR = "VARCHAR";
 @final public SQLType TYPE_CHAR = "CHAR";
 @final public SQLType TYPE_LONGVARCHAR = "LONGVARCHAR";
@@ -137,13 +133,13 @@ public type SQLType "VARCHAR"|"CHAR"|"LONGVARCHAR"|"NCHAR"|"LONGNVARCHAR"|"NVARC
 @final public SQLType TYPE_STRUCT = "STRUCT";
 @final public SQLType TYPE_REFCURSOR = "REFCURSOR";
 
-//documentation {
-//    The direction of the parameter.
-//
-//    F{{IN}} - IN parameters are used to send values to stored procedures.
-//    F{{OUT}} - OUT parameters are used to get values from stored procedures.
-//    F{{INOUT}} - INOUT parameters are used to send values and get values from stored procedures.
-//}
+documentation {
+    The direction of the parameter.
+
+    IN - IN parameters are used to send values to stored procedures.
+    OUT - OUT parameters are used to get values from stored procedures.
+    INOUT - INOUT parameters are used to send values and get values from stored procedures.
+}
 
 public type Direction "IN"|"OUT"|"INOUT";
 
@@ -174,11 +170,3 @@ public type Parameter {
 //any;
 
 public type Param string|int|boolean|float|Parameter;
-
-//Given data for Parameter is passed into the actions after converting to the ParameterType record
-//type ParameterType {
-//    SQLType sqlType,
-//    any value,
-//    Direction direction,
-//    typedesc recordType,
-//};

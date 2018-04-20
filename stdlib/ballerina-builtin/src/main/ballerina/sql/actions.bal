@@ -28,7 +28,7 @@ public type CallerActions object {
         P{{recordType}} - Array of record types of the returned tables if there is any.
         R{{}} -  `table[]` if there are tables returned by the call action and else nill,
                 `error` will be returned if there is any error.
-    } //Returns array of tables if there are any.
+    }
     public native function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
         returns @tainted table[]|error;
 
@@ -93,3 +93,5 @@ public type CallerActions object {
     }
     public native function getProxyTable(@sensitive string tableName, typedesc recordType) returns @tainted table|error;
 };
+
+public native function createSQLClient(ClientEndpointConfiguration config) returns CallerActions;

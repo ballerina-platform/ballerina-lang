@@ -14,17 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.sql;
+package ballerina.jdbc;
+
+import ballerina/sql;
 
 documentation {
-    Represents an SQL client endpoint.
+    Represents an JDBC SQL client endpoint.
 
     F{{config}} - The configurations associated with the SQL endpoint.
 }
 public type Client object {
     private {
-        ClientEndpointConfiguration config;
-        CallerActions callerActions;
+        sql:ClientEndpointConfiguration config;
+        sql:CallerActions callerActions;
     }
 
     documentation {
@@ -32,16 +34,14 @@ public type Client object {
 
         P{{config}} - he ClientEndpointConfiguration of the endpoint.
     }
-    function init(ClientEndpointConfiguration config) {
-        self.callerActions = createSQLClient(config);
+    function init(sql:ClientEndpointConfiguration config) {
+        self.callerActions = sql:createSQLClient(config);
     }
 
     documentation {
         Returns the connector that the client code uses.
     }
-    function getClient() returns CallerActions {
+    function getClient() returns sql:CallerActions {
         return self.callerActions;
     }
 };
-
-native function createSQLClient(ClientEndpointConfiguration config) returns CallerActions;

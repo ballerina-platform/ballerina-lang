@@ -1,4 +1,5 @@
 import ballerina/sql;
+import ballerina/jdbc;
 
 type Employee {
     int id,
@@ -7,7 +8,7 @@ type Employee {
 };
 
 function testIterateMirrorTable() returns (Employee[], Employee[]) {
-    endpoint sql:Client testDB {
+    endpoint jdbc:Client testDB {
         url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
@@ -38,7 +39,7 @@ function testIterateMirrorTable() returns (Employee[], Employee[]) {
 }
 
 function testAddToMirrorTable() returns (Employee[]) {
-    endpoint sql:Client testDB {
+    endpoint jdbc:Client testDB {
         url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
@@ -69,7 +70,7 @@ function testAddToMirrorTable() returns (Employee[]) {
 }
 
 function testAddToMirrorTableNegative() returns (any) {
-    endpoint sql:Client testDB {
+    endpoint jdbc:Client testDB {
         url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:1}
@@ -88,7 +89,7 @@ function testAddToMirrorTableNegative() returns (any) {
 
 
 function testDeleteFromMirrorTable() returns (boolean, int) {
-    endpoint sql:Client testDB {
+    endpoint jdbc:Client testDB {
         url:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username:"SA",
         poolOptions:{maximumPoolSize:2}
