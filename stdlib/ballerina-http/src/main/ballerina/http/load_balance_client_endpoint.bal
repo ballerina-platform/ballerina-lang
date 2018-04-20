@@ -49,7 +49,7 @@ public type LoadBalanceClient object {
     documentation {
         Returns the backing HTTP client used by the load balance client endpoint.
     }
-    public function getCallerActions() returns HttpClient {
+    public function getCallerActions() returns CallerActions {
         return httpEP.httpClient;
     }
 
@@ -143,17 +143,17 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
     return clientEPConfig;
 }
 
-function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig) returns HttpClient {
+function createLoadBalancerClient(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig) returns CallerActions {
     ClientEndpointConfig config = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig,
                                                                             loadBalanceClientConfig.targets[0]);
-    HttpClient[] lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
+    CallerActions[] lbClients = createLoadBalanceHttpClientArray(loadBalanceClientConfig);
     return new LoadBalancer(loadBalanceClientConfig.targets[0].url, config, lbClients,
                                             loadBalanceClientConfig.algorithm, 0, loadBalanceClientConfig.failover);
 }
 
 function createLoadBalanceHttpClientArray (LoadBalanceClientEndpointConfiguration loadBalanceClientConfig)
-                                                                                                returns HttpClient[] {
-    HttpClient[] httpClients = [];
+                                                                                                returns CallerActions[] {
+    CallerActions[] httpClients = [];
     int i = 0;
     boolean httpClientRequired = false;
     string uri = loadBalanceClientConfig.targets[0].url;

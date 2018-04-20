@@ -22,7 +22,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
     @http:ResourceConfig {
         methods:["POST"]
     }
-    locator (endpoint outboundEP, http:Request req) {
+    locator (endpoint caller, http:Request req) {
 
         http:Request backendServiceReq = new;
         var jsonLocatorReq = req.getJsonPayload();
@@ -76,7 +76,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
                 io:println("Error occurred while writing info response");
             }
         }
-        _ = outboundEP -> respond(infomationResponse);
+        _ = caller -> respond(infomationResponse);
     }
 }
 
@@ -89,7 +89,7 @@ service<http:Service> Bankinfo bind serviceEnpoint {
     @http:ResourceConfig {
         methods:["POST"]
     }
-    product (endpoint outboundEP, http:Request req) {
+    product (endpoint caller, http:Request req) {
         http:Response res = new;
         var jsonRequest = req.getJsonPayload();
         match jsonRequest {
@@ -110,7 +110,7 @@ service<http:Service> Bankinfo bind serviceEnpoint {
             }
         }
 
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 
@@ -123,7 +123,7 @@ service<http:Service> Banklocator bind serviceEnpoint {
     @http:ResourceConfig {
         methods:["POST"]
     }
-    product (endpoint outboundEP, http:Request req) {
+    product (endpoint caller, http:Request req) {
         http:Response res = new;
         var jsonRequest = req.getJsonPayload();
         match jsonRequest {
@@ -143,7 +143,7 @@ service<http:Service> Banklocator bind serviceEnpoint {
             }
         }
 
-        _ = outboundEP -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 

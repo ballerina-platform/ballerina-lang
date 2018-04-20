@@ -20,22 +20,22 @@ service<http:Service> ^"sample Service" bind testEP{
         methods:["GET"],
         path:"/resource"
     }
-    ^"sample resource" (endpoint outboundEp, http:Request req) {
+    ^"sample resource" (endpoint caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"key":"keyVal", "value":"valueOfTheString"};
         res.setJsonPayload(responseJson);
-        _ = outboundEp -> respond(res);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/resource2"
     }
-    ^"sample resource2" (endpoint outboundEp, http:Request req) {
+    ^"sample resource2" (endpoint caller, http:Request req) {
         http:Response res = new;
         string ^"a a" = "hello";
         res.setStringPayload(^"a a");
-        _ = outboundEp -> respond(res);
+        _ = caller -> respond(res);
     }
 }
 

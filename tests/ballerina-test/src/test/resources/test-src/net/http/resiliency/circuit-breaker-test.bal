@@ -44,7 +44,7 @@ function testTypicalScenario () returns (http:Response[] , http:HttpConnectorErr
     int counter = 0;
     http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
     MockClient mockClient = new;
-    cbClient.httpClient = <http:HttpClient> mockClient;
+    cbClient.httpClient = <http:CallerActions> mockClient;
 
     while (counter < 8) {
        http:Request request = new;
@@ -88,7 +88,7 @@ function testTrialRunFailure () returns (http:Response[] , http:HttpConnectorErr
     int counter = 0;
     http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
     MockClient mockClient = new;
-    cbClient.httpClient = <http:HttpClient> mockClient;
+    cbClient.httpClient = <http:CallerActions> mockClient;
 
     while (counter < 8) {
         http:Request request = new;
@@ -132,7 +132,7 @@ function testHttpStatusCodeFailure () returns (http:Response[] , http:HttpConnec
     int counter = 0;
     http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
     MockClient mockClient = new;
-    cbClient.httpClient = <http:HttpClient> mockClient;
+    cbClient.httpClient = <http:CallerActions> mockClient;
 
     while (counter < 8) {
         http:Request request = new;
