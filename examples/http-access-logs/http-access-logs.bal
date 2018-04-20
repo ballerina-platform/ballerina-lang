@@ -12,9 +12,9 @@ service<http:Service> helloService bind helloServiceEP {
         methods:["GET"],
         path:"/"
     }
-    hello (endpoint outboundEP, http:Request request) {
+    hello (endpoint caller, http:Request request) {
         http:Response response = new;
         response.setStringPayload("Successful");
-        _ = outboundEP -> respond(response);
+        _ = caller -> respond(response);
     }
 }

@@ -1,11 +1,10 @@
 import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
+
 endpoint http:Client clientEndpoint {
-    targets: [{
-                  url: "https://postman-echo.com"
-              }]
-    };
+    url:"https://postman-echo.com"
+};
 
 function main (string... args) {
 
