@@ -52,6 +52,7 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.DEFAUL
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.DEFAULT_SKELETON_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.SAMPLE_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.SKELETON_TEMPLATE_NAME;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getLabelName;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getMappingBalType;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getTypeName;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.writeBallerina;
@@ -120,17 +121,21 @@ public class BallerinaFileBuilder {
             for (DescriptorProtos.DescriptorProto descriptorProto : messageTypeList) {
                 String[] attributesNameArr = new String[descriptorProto.getFieldCount()];
                 String[] attributesTypeArr = new String[descriptorProto.getFieldCount()];
+                String[] attributesLabelArr = new String[descriptorProto.getFieldCount()];
                 int j = 0;
                 for (DescriptorProtos.FieldDescriptorProto fieldDescriptorProto : descriptorProto
                         .getFieldList()) {
                     attributesNameArr[j] = fieldDescriptorProto.getName();
+                    attributesLabelArr[j] = fieldDescriptorProto.getLabel() != null ? getLabelName
+                            (fieldDescriptorProto.getLabel().getNumber()) : null;
                     attributesTypeArr[j] = !fieldDescriptorProto.getTypeName().equals("") ? fieldDescriptorProto
                             .getTypeName().split(PACKAGE_SEPARATOR_REGEX)[fieldDescriptorProto.getTypeName()
                             .split(PACKAGE_SEPARATOR_REGEX).length - 1] : getTypeName(fieldDescriptorProto.getType()
                             .getNumber());
                     j++;
                 }
-                clientStubBal.addStruct(descriptorProto.getName(), attributesNameArr, attributesTypeArr);
+                clientStubBal.addStruct(descriptorProto.getName(), attributesNameArr, attributesTypeArr,
+                        attributesLabelArr);
             }
             for (DescriptorProtos.EnumDescriptorProto descriptorProto : enumDescriptorProtos) {
                 String[] attributesNameArr = new String[descriptorProto.getValueCount()];
@@ -159,7 +164,7 @@ public class BallerinaFileBuilder {
                 resMessageName = getMappingBalType(typeOut);
                 if ((EMPTY_DATA_TYPE.equals(reqMessageName) || EMPTY_DATA_TYPE.equals(resMessageName))
                         && !(clientStubBal.isStructContains(EMPTY_DATA_TYPE))) {
-                    clientStubBal.addStruct(EMPTY_DATA_TYPE, new String[0], new String[0]);
+                    clientStubBal.addStruct(EMPTY_DATA_TYPE, new String[0], new String[0], new String[0]);
                 }
                 ActionBuilder.build(methodName, reqMessageName, resMessageName
                         , methodID, methodType, clientStubBal);
