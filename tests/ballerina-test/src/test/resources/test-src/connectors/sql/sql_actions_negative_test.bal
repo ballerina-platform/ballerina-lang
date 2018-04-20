@@ -37,7 +37,7 @@ function testSelectData() returns (string) {
         }
 
     } finally {
-        _ = testDB->close();
+        testDB.stop();
     }
     return returnData;
 }
@@ -66,7 +66,7 @@ function testGeneratedKeyOnInsert() returns (string) {
         }
 
     } finally {
-        _ = testDB->close();
+        testDB.stop();
     }
     return id;
 }
@@ -90,7 +90,7 @@ function testCallProcedure() returns (string) {
             }
         }
     } finally {
-        _ = testDB->close();
+        testDB.stop();
     }
     return returnData;
 }
@@ -133,7 +133,7 @@ function testCallProcedure() returns (string) {
 //            }
 //        }
 //    } finally {
-//        _ = testDB->close();
+//        testDB.stop();
 //    }
 //    return returnVal;
 //}
@@ -164,7 +164,7 @@ function testInvalidArrayofQueryParameters() returns (string) {
         }
 
     } finally {
-        _ = testDB->close();
+        testDB.stop();
     }
     return returnData;
 }
@@ -193,11 +193,11 @@ function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() return
                 firstName2 = rs.FIRSTNAME;
             }
 
-            _ = testDB->close();
+            testDB.stop();
             return (firstName1, firstName2);
         }
         error e => {
-            _ = testDB->close();
+            testDB.stop();
             return e;
         }
     }
@@ -227,11 +227,11 @@ function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() retur
                 firstName2 = rs.FIRSTNAME;
             }
 
-            _ = testDB->close();
+            testDB.stop();
             return (firstName1, firstName2);
         }
         error e => {
-            _ = testDB->close();
+            testDB.stop();
             return e;
         }
     }
@@ -264,7 +264,7 @@ function testCallProcedureWithMultipleResultSetsAndNilConstraintCount() returns 
             return (firstName1, firstName2);
         }
         error e => {
-            _ = testDB->close();
+            testDB.stop();
             return e;
         }
     }

@@ -34,7 +34,7 @@ function testIterateMirrorTable() returns (Employee[], Employee[]) {
         i++;
     }
 
-    _ = testDB->close();
+    testDB.stop();
     return (employeeArray1, employeeArray2);
 }
 
@@ -64,7 +64,7 @@ function testAddToMirrorTable() returns (Employee[]) {
         i++;
     }
 
-    _ = testDB->close();
+    testDB.stop();
 
     return employeeArray;
 }
@@ -82,7 +82,7 @@ function testAddToMirrorTableNegative() returns (any) {
 
     var result = dt.add(e1);
 
-    _ = testDB->close();
+    testDB.stop();
 
     return result;
 }
@@ -107,7 +107,7 @@ function testDeleteFromMirrorTable() returns (boolean, int) {
     table dt2 = check testDB->select("SELECT  * from employeeDel", Employee);
     boolean hasNext = dt2.hasNext();
 
-    _ = testDB->close();
+    testDB.stop();
 
     return (hasNext, removedCount);
 }

@@ -43,13 +43,6 @@ public type CallerActions object {
         returns @tainted table|error;
 
     documentation {
-        The close action implementation for SQL connector to shutdown the connection pool.
-        R{{}} - `error` will be returned if there is any error.
-    }
-    public native function close() returns (error?);
-
-
-    documentation {
         The update action implementation for SQL connector to update data and schema of the database.
 
         P{{sqlQuery}} - SQL statement to execute.
@@ -93,3 +86,8 @@ public type CallerActions object {
     }
     public native function getProxyTable(@sensitive string tableName, typedesc recordType) returns @tainted table|error;
 };
+
+documentation {
+        The close action implementation for SQL connector to shutdown the connection pool.
+}
+public native function close(CallerActions callerActions);

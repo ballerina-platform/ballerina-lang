@@ -22,10 +22,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.sql.Constants;
 import org.ballerinalang.nativeimpl.sql.SQLDatasource;
-import org.ballerinalang.nativeimpl.sql.SQLDatasourceUtils;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * {@code Close} is the Close action implementation of the SQL Connector Connection pool.
@@ -35,23 +33,17 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS),
-        returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "error", structPackage = "ballerina.builtin")
+        args = {
+                @Argument(name = "parameters", type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS ,
+                          structPackage = "ballerina.sql")
         }
 )
 public class Close extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        try {
-            BStruct bConnector = (BStruct) context.getRefArgument(0);
-            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);
-            closeConnections(datasource);
-            context.setReturnValues(null);
-        } catch (Throwable e) {
-            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
-            SQLDatasourceUtils.handleErrorOnTransaction(context);
-        }
+        BStruct bConnector = (BStruct) context.getRefArgument(0);
+        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);
+        closeConnections(datasource);
     }
 }

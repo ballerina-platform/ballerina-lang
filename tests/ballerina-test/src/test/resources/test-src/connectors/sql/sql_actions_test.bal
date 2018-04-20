@@ -56,7 +56,7 @@ function testInsertTableData() returns (int) {
 
     var insertCount = check testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                          values ('James', 'Clerk', 2, 5000.75, 'USA')");
-    _ = testDB->close();
+    testDB.stop();
     return insertCount;
 }
 
@@ -68,7 +68,7 @@ function testCreateTable() returns (int) {
     };
 
     int returnValue = check testDB->update("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))");
-    _ = testDB->close();
+    testDB.stop();
     return returnValue;
 }
 
@@ -80,7 +80,7 @@ function testUpdateTableData() returns (int) {
     };
 
     var updateCount = check testDB->update("Update Customers set country = 'UK' where registrationID = 1");
-    _ = testDB->close();
+    testDB.stop();
     return updateCount;
 }
 
@@ -108,7 +108,7 @@ function testGeneratedKeyOnInsert() returns (string) {
         }
     }
 
-    _ = testDB->close();
+    testDB.stop();
     return returnVal;
 }
 
@@ -138,7 +138,7 @@ function testGeneratedKeyWithColumn() returns (string) {
         }
     }
 
-    _ = testDB->close();
+    testDB.stop();
     return returnVal;
 }
 
@@ -156,7 +156,7 @@ function testSelectData() returns (string) {
         ResultCustomers rs = check <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
-    _ = testDB->close();
+    testDB.stop();
     return firstName;
 }
 
@@ -180,7 +180,7 @@ function testSelectIntFloatData() returns (int, int, float, float) {
         float_type = rs.FLOAT_TYPE;
         double_type = rs.DOUBLE_TYPE;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (int_type, long_type, float_type, double_type);
 }
 
@@ -198,7 +198,7 @@ function testCallProcedure() returns (string) {
         ResultCustomers rs = check <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
-    _ = testDB->close();
+    testDB.stop();
     return firstName;
 }
 
@@ -216,7 +216,7 @@ function testCallProcedureWithResultSet() returns (string) {
         ResultCustomers rs = check <ResultCustomers>dts[0].getNext();
         firstName = rs.FIRSTNAME;
     }
-    _ = testDB->close();
+    testDB.stop();
     return firstName;
 }
 
@@ -244,7 +244,7 @@ function testCallProcedureWithMultipleResultSets() returns (string, string, stri
         lastName = rs.LASTNAME;
     }
 
-    _ = testDB->close();
+    testDB.stop();
     return (firstName1, firstName2, lastName);
 }
 
@@ -263,7 +263,7 @@ function testQueryParameters() returns (string) {
         ResultCustomers rs = check <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
-    _ = testDB->close();
+    testDB.stop();
     return firstName;
 }
 
@@ -284,7 +284,7 @@ function testQueryParameters2() returns (string) {
         ResultCustomers rs = check <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
-    _ = testDB->close();
+    testDB.stop();
     return firstName;
 }
 
@@ -304,7 +304,7 @@ function testInsertTableDataWithParameters() returns (int) {
 
     int insertCount = check testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", para1, para2, para3, para4, para5);
-    _ = testDB->close();
+    testDB.stop();
     return insertCount;
 }
 
@@ -318,7 +318,7 @@ function testInsertTableDataWithParameters2() returns (int) {
     int insertCount = check testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", "Anne", "James", 3, 5000.75, "UK");
 
-    _ = testDB->close();
+    testDB.stop();
     return insertCount;
 }
 
@@ -333,7 +333,7 @@ function testInsertTableDataWithParameters3() returns (int) {
     int insertCount = check testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", s1, "James", 3, 5000.75, "UK");
 
-    _ = testDB->close();
+    testDB.stop();
     return insertCount;
 }
 
@@ -361,7 +361,7 @@ function testArrayofQueryParameters() returns (string) {
         ResultCustomers rs = check <ResultCustomers>dt.getNext();
         firstName = rs.FIRSTNAME;
     }
-    _ = testDB->close();
+    testDB.stop();
     return firstName;
 }
 
@@ -397,7 +397,7 @@ function testBoolArrayofQueryParameters() returns (int) {
         ResultIntType rs = check <ResultIntType>dt.getNext();
         value = rs.INT_TYPE;
     }
-    _ = testDB->close();
+    testDB.stop();
     return value;
 }
 
@@ -445,7 +445,7 @@ function testArrayInParameters() returns (int, map, map, map, map, map, map) {
         string_arr = rs.STRING_ARRAY;
         float_arr = rs.FLOAT_ARRAY;
     }
-    _ = testDB->close();
+    testDB.stop();
     return (insertCount, int_arr, long_arr, double_arr, string_arr, boolean_arr, float_arr);
 }
 
@@ -476,7 +476,7 @@ function testOutParameters() returns (any, any, any, any, any, any, any, any, an
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
 
-    _ = testDB->close();
+    testDB.stop();
 
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
     paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
@@ -509,7 +509,7 @@ function testNullOutParameters() returns (any, any, any, any, any, any, any, any
     _ = testDB->call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
-    _ = testDB->close();
+    testDB.stop();
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
     paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
     paraBlob.value, paraBinary.value);
@@ -543,13 +543,9 @@ function testINParameters() returns (int) {
             smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
-    _ = testDB->close();
+    testDB.stop();
     return insertCount;
 }
-
-
-////////////////////////////////////////////////////
-
 
 function testNullINParameterValues() returns (int) {
     endpoint jdbc:Client testDB {
@@ -579,7 +575,7 @@ function testNullINParameterValues() returns (int) {
             smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
-    _ = testDB->close();
+    testDB.stop();
     return insertCount;
 }
 
@@ -610,7 +606,7 @@ function testINOutParameters() returns (any, any, any, any, any, any, any, any, 
     _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
-    _ = testDB->close();
+    testDB.stop();
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
     paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
     paraBlob.value, paraBinary.value);
@@ -642,7 +638,7 @@ function testNullINOutParameters() returns (any, any, any, any, any, any, any, a
     _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
-    _ = testDB->close();
+    testDB.stop();
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
     paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
     paraBlob.value, paraBinary.value);
@@ -657,7 +653,7 @@ function testEmptySQLType() returns (int) {
 
     int insertCount = check testDB->update("Insert into Customers (firstName) values (?)", "Anne");
 
-    _ = testDB->close();
+    testDB.stop();
     return insertCount;
 }
 
@@ -676,7 +672,7 @@ function testArrayOutParameters() returns (any, any, any, any, any, any) {
     sql:Parameter para5 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
     sql:Parameter para6 = {sqlType:sql:TYPE_ARRAY, direction:sql:DIRECTION_OUT};
     _ = testDB->call("{call TestArrayOutParams(?,?,?,?,?,?)}", (), para1, para2, para3, para4, para5, para6);
-    _ = testDB->close();
+    testDB.stop();
     return (para1.value, para2.value, para3.value, para4.value, para5.value, para6.value);
 }
 
@@ -698,7 +694,7 @@ function testArrayInOutParameters() returns (any, any, any, any, any, any, any) 
 
     _ = testDB->call("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", (),
         para1, para2, para3, para4, para5, para6, para7, para8);
-    _ = testDB->close();
+    testDB.stop();
     return (para2.value, para3.value, para4.value, para5.value, para6.value, para7.value, para8.value);
 }
 
@@ -727,7 +723,7 @@ function testArrayInOutParameters() returns (any, any, any, any, any, any, any) 
 //
 //    int[] updateCount = check testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country}
 //                                     values (?,?,?,?,?)", parameters1, parameters2);
-//    _ = testDB->close();
+//    testDB.stop();
 //    return updateCount;
 //}
 
@@ -786,7 +782,7 @@ function testArrayInOutParameters() returns (any, any, any, any, any, any, any) 
 //        count = rs.COUNTVAL;
 //    }
 //
-//    _ = testDB->close();
+//    testDB.stop();
 //    return (updateCount, count);
 //}
 
@@ -800,7 +796,7 @@ function testBatchUpdateWithNullParam() returns (int[]) {
     int[] updateCount = check testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values ('Alex','Smith',20,3400.5,'Colombo')");
 
-    _ = testDB->close();
+    testDB.stop();
     return updateCount;
 }
 
@@ -844,7 +840,7 @@ function testDateTimeInParameters() returns (int[]) {
 
     returnValues[2] = insertCount3;
 
-    _ = testDB->close();
+    testDB.stop();
     return returnValues;
 }
 
@@ -874,7 +870,7 @@ function testDateTimeNullInValues() returns (string) {
     var j = check <json>dt;
     data = io:sprintf("%j", [j]);
 
-    _ = testDB->close();
+    testDB.stop();
     return data;
 }
 
@@ -906,7 +902,7 @@ function testDateTimeNullOutValues() returns (int) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return count;
 }
 
@@ -924,7 +920,7 @@ function testDateTimeNullInOutValues() returns (any, any, any, any) {
     sql:Parameter para5 = {sqlType:sql:TYPE_DATETIME, value:null, direction:sql:DIRECTION_INOUT};
 
     _ = testDB->call("{call TestDateINOUTParams(?,?,?,?,?)}", (), para1, para2, para3, para4, para5);
-    _ = testDB->close();
+    testDB.stop();
     return (para2.value, para3.value, para4.value, para5.value);
 }
 
@@ -958,7 +954,7 @@ function testDateTimeOutParams(int time, int date, int timestamp) returns (int) 
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return count;
 }
 
@@ -971,7 +967,7 @@ function testStructOutParameters() returns (any) {
 
     sql:Parameter para1 = {sqlType:sql:TYPE_STRUCT, direction:sql:DIRECTION_OUT};
     _ = testDB->call("{call TestStructOut(?)}", (), para1);
-    _ = testDB->close();
+    testDB.stop();
     return para1.value;
 }
 
@@ -1003,7 +999,7 @@ function testComplexTypeRetrieval() returns (string, string, string, string) {
     j = check <json>dt;
     s4 = io:sprintf("%j", [j]);
 
-    _ = testDB->close();
+    testDB.stop();
     return (s1, s2, s3, s4);
 }
 
@@ -1021,6 +1017,6 @@ function testCloseConnectionPool() returns (int) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
-    _ = testDB->close();
+    testDB.stop();
     return count;
 }
