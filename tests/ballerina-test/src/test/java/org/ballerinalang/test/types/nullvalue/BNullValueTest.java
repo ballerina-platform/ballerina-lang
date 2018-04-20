@@ -176,12 +176,6 @@ public class BNullValueTest {
         BRunUtil.invoke(positiveCompileResult, "testNullMapAccess", new BValue[]{});
     }
 
-    @Test(description = "Test accessing an element in a null array", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*", enabled = false)
-    void testActionInNullConenctor() {
-        BRunUtil.invoke(positiveCompileResult, "testActionInNullConenctor", new BValue[]{});
-    }
-
     @Test(description = "Test negative test cases")
     void testNullValueNegative() {
         Assert.assertEquals(negativeResult.getErrorCount(), 5);
