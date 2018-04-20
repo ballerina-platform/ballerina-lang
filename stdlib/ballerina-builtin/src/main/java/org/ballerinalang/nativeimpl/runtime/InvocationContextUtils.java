@@ -66,8 +66,9 @@ public class InvocationContextUtils {
         UserPrincipal userPrincipal = new UserPrincipal(userPrincipalStruct);
         BStruct authContextStruct = createAuthContext(context);
         AuthContext authContext = new AuthContext(authContextStruct);
-        BStruct invocationContextStruct = createInvocationContext(context,userPrincipalStruct, authContextStruct);
-        InvocationContext invocationContext = new InvocationContext(invocationContextStruct,userPrincipal, authContext);
+        BStruct invocationContextStruct = createInvocationContext(context, userPrincipalStruct, authContextStruct);
+        InvocationContext invocationContext = new InvocationContext(
+                invocationContextStruct, userPrincipal, authContext);
         return invocationContext;
     }
 
@@ -79,10 +80,10 @@ public class InvocationContextUtils {
         return packageInfo.getStructInfo(structName);
     }
 
-    private static BStruct createInvocationContext(Context context,BStruct userPrincipal, BStruct authContext) {
+    private static BStruct createInvocationContext(Context context, BStruct userPrincipal, BStruct authContext) {
         StructInfo invocationContextInfo = getStructInfo(context, PACKAGE_RUNTIME, STRUCT_TYPE_INVOCATION_CONTEXT);
         UUID invocationId = UUID.randomUUID();
-        return BLangVMStructs.createBStruct(invocationContextInfo, invocationId.toString(),userPrincipal, authContext);
+        return BLangVMStructs.createBStruct(invocationContextInfo, invocationId.toString(), userPrincipal, authContext);
     }
 
     private static BStruct createAuthContext(Context context) {
