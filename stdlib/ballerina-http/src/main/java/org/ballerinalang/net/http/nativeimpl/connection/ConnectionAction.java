@@ -54,16 +54,21 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         if (HeaderUtil.isMultipart(contentType)) {
             boundaryString = HttpUtil.addBoundaryIfNotExist(responseMessage, contentType);
         }
+
+        HttpMessageDataStreamer outboundMsgDataStreamer = getMessageDataStreamer(responseMessage);
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
+        HttpConnectorListener outboundResStatusConnectorListener =
+                new HttpResponseConnectorListener(dataContext, outboundMsgDataStreamer);
+        outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
+
+        OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
         BStruct entityStruct = MimeUtil.extractEntity(outboundResponseStruct);
         if (entityStruct != null) {
             if (boundaryString != null) {
-                serializeMultiparts(dataContext, responseMessage, boundaryString, outboundRespStatusFuture,
-                                    entityStruct);
+                serializeMultiparts(boundaryString, entityStruct, messageOutputStream);
             } else {
                 MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-                serializeMsgDataSource(dataContext, responseMessage, outboundMessageSource, outboundRespStatusFuture,
-                                       entityStruct);
+                serializeMsgDataSource(outboundMessageSource, entityStruct, messageOutputStream);
             }
         }
     }
@@ -72,21 +77,16 @@ public abstract class ConnectionAction implements NativeCallableUnit {
      * Serialize multipart entity body. If an array of body parts exist, encode body parts else serialize body content
      * if it exist as a byte channel.
      *
-     * @param dataContext              Holds the ballerina context and callback
-     * @param responseMessage          Response message that needs to be sent out.
      * @param boundaryString           Boundary string that should be used in encoding body parts
-     * @param outboundRespStatusFuture Represent the future events and results of connectors
      * @param entityStruct             Represent the entity that holds the actual body
+     * @param messageOutputStream      Represent the output stream
      */
-    private void serializeMultiparts(DataContext dataContext, HTTPCarbonMessage responseMessage, String boundaryString,
-                                     HttpResponseFuture outboundRespStatusFuture, BStruct entityStruct) {
+    private void serializeMultiparts(String boundaryString, BStruct entityStruct, OutputStream messageOutputStream) {
         BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
         if (bodyParts != null && bodyParts.size() > 0) {
             MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, boundaryString);
-            serializeMsgDataSource(dataContext, responseMessage, multipartDataSource, outboundRespStatusFuture,
-                    entityStruct);
+            serializeMsgDataSource(multipartDataSource, entityStruct, messageOutputStream);
         } else {
-            OutputStream messageOutputStream = getOutputStream(dataContext, responseMessage, outboundRespStatusFuture);
             try {
                 EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
             } catch (IOException e) {
@@ -104,10 +104,8 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         outResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
     }
 
-    protected void serializeMsgDataSource(DataContext dataContext, HTTPCarbonMessage responseMessage,
-                                          MessageDataSource outboundMessageSource,
-                                          HttpResponseFuture outboundResponseStatusFuture, BStruct entityStruct) {
-        OutputStream messageOutputStream = getOutputStream(dataContext, responseMessage, outboundResponseStatusFuture);
+    protected void serializeMsgDataSource(MessageDataSource outboundMessageSource, BStruct entityStruct,
+                                          OutputStream messageOutputStream) {
         try {
             if (outboundMessageSource != null) {
                 outboundMessageSource.serializeData(messageOutputStream);
@@ -121,8 +119,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         }
     }
 
-    private OutputStream getOutputStream(DataContext dataContext, HTTPCarbonMessage outboundResponse,
-                                         HttpResponseFuture outboundResponseStatusFuture) {
+    protected HttpMessageDataStreamer getMessageDataStreamer(HTTPCarbonMessage outboundResponse) {
         final HttpMessageDataStreamer outboundMsgDataStreamer;
         final PooledDataStreamerFactory pooledDataStreamerFactory = (PooledDataStreamerFactory)
                 outboundResponse.getProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY);
@@ -131,10 +128,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         } else {
             outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundResponse);
         }
-        HttpConnectorListener outboundResStatusConnectorListener =
-                new HttpResponseConnectorListener(dataContext, outboundMsgDataStreamer);
-        outboundResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
-        return outboundMsgDataStreamer.getOutputStream();
+        return outboundMsgDataStreamer;
     }
 
     @Override

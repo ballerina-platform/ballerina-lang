@@ -32,9 +32,13 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+
+import java.io.OutputStream;
 
 /**
  * {@code PushPromisedResponse} is the native function to respond back the client with Server Push response.
@@ -81,15 +85,18 @@ public class PushPromisedResponse extends ConnectionAction {
     private void pushResponseRobust(DataContext dataContext, HTTPCarbonMessage requestMessage,
                                         BStruct outboundResponseStruct, HTTPCarbonMessage responseMessage,
                                         Http2PushPromise http2PushPromise) {
-        BStruct entityStruct = MimeUtil.extractEntity(outboundResponseStruct);
         HttpResponseFuture outboundRespStatusFuture =
                 HttpUtil.pushResponse(requestMessage, responseMessage, http2PushPromise);
+        HttpMessageDataStreamer outboundMsgDataStreamer = getMessageDataStreamer(responseMessage);
+        HttpConnectorListener outboundResStatusConnectorListener =
+                new HttpResponseConnectorListener(dataContext, outboundMsgDataStreamer);
+        outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
+        OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
+
+        BStruct entityStruct = MimeUtil.extractEntity(outboundResponseStruct);
         if (entityStruct != null) {
             MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-            serializeMsgDataSource(dataContext, responseMessage, outboundMessageSource, outboundRespStatusFuture,
-                                   entityStruct);
-        } else {
-            setResponseConnectorListener(dataContext, outboundRespStatusFuture);
+            serializeMsgDataSource(outboundMessageSource, entityStruct, messageOutputStream);
         }
     }
 }
