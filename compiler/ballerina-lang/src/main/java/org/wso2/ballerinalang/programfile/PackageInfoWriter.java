@@ -22,6 +22,8 @@ import org.wso2.ballerinalang.programfile.Instruction.Operand;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.CodeAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.DefaultValueAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.DocumentationAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.DocumentationAttributeInfo.ParameterDocumentInfo;
 import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
@@ -501,6 +503,17 @@ public class PackageInfoWriter {
                     for (Boolean taintStatus : taintRecord) {
                         attrDataOutStream.writeBoolean(taintStatus);
                     }
+                }
+                break;
+            case DOCUMENT_ATTACHMENT_ATTRIBUTE:
+                DocumentationAttributeInfo docAttrInfo = (DocumentationAttributeInfo) attributeInfo;
+                attrDataOutStream.writeInt(docAttrInfo.descriptionCPIndex);
+                attrDataOutStream.writeShort(docAttrInfo.paramDocInfoList.size());
+                for (ParameterDocumentInfo paramDocInfo : docAttrInfo.paramDocInfoList) {
+                    attrDataOutStream.writeInt(paramDocInfo.nameCPIndex);
+                    attrDataOutStream.writeInt(paramDocInfo.typeSigCPIndex);
+                    attrDataOutStream.writeInt(paramDocInfo.paramKindCPIndex);
+                    attrDataOutStream.writeInt(paramDocInfo.descriptionCPIndex);
                 }
                 break;
         }
