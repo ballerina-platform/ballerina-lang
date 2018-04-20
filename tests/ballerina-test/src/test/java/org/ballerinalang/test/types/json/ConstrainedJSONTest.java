@@ -73,7 +73,7 @@ public class ConstrainedJSONTest {
         BAssertUtil.validateError(negativeResult, 6, "undefined field 'foo' in struct 'PhoneNumber'", 67, 107);
         
         BAssertUtil.validateError(negativeResult, 7,
-                "incompatible types: 'json<Person>[]' cannot be convert to 'json<Student>[]'", 72, 14);
+                "incompatible types: 'json<Person>[]' cannot be converted to 'json<Student>[]'", 72, 14);
 
         BAssertUtil.validateError(negativeResult, 8, "incompatible types: expected 'json', found 'blob[]'", 78, 14);
     }
