@@ -90,6 +90,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private List<CompilerPlugin> pluginList;
     private Map<DefinitionID, List<CompilerPlugin>> processorMap;
     private Map<DefinitionID, List<CompilerPlugin>> endpointProcessorMap;
+    private boolean pluginLoaded = false;
 
 
     public static CompilerPluginRunner getInstance(CompilerContext context) {
@@ -238,8 +239,12 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     // private methods
 
     private void loadPlugins() {
+        if (pluginLoaded) {
+            return;
+        }
         ServiceLoader<CompilerPlugin> pluginLoader = ServiceLoader.load(CompilerPlugin.class);
         pluginLoader.forEach(this::initPlugin);
+        pluginLoaded = true;
     }
 
     private void initPlugin(CompilerPlugin plugin) {
