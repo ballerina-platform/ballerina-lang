@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.package internal;
 
-package ballerina.internal;
 
 import ballerina/file;
 

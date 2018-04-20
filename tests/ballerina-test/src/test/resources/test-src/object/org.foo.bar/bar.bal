@@ -1,4 +1,3 @@
-package org.foo.bar;
 
 public type officer object {
     public {

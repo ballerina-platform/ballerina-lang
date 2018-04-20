@@ -1,4 +1,3 @@
-package ballerina.builtin;
 
 @Description { value: "Options struct for XML to JSON conversion "}
 @Field {value:"attributePrefix:  prefix to add to the key to identify a XML attribute and namespaces, default value is '@'."}

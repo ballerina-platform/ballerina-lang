@@ -1,4 +1,3 @@
-package restfulservice.samples;
 
 import ballerina/http;
 

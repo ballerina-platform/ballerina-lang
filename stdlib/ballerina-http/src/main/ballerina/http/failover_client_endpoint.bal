@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 documentation {
     FailoverClient endpoint provides failover support over multiple HTTP clients.

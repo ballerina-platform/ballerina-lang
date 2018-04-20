@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.system;
 
 @Description {value:"Returns the environment variable value associated with the provided name."}
 @Param {value:"name: Name of the environment variable"}
