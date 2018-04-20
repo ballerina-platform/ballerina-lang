@@ -225,11 +225,11 @@ public function validateSignature (string xHubSignature, string stringPayload, s
     string generatedSignature;
 
     if (SHA1.equalsIgnoreCase(method)) {
-        generatedSignature = crypto:getHmac(stringPayload, secret, crypto:SHA1);
+        generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA1);
     } else if (SHA256.equalsIgnoreCase(method)) {
-        generatedSignature = crypto:getHmac(stringPayload, secret, crypto:SHA256);
+        generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA256);
     } else if (MD5.equalsIgnoreCase(method)) {
-        generatedSignature = crypto:getHmac(stringPayload, secret, crypto:MD5);
+        generatedSignature = crypto:hmac(stringPayload, secret, crypto:MD5);
     } else {
         WebSubError webSubError = { message:"Unsupported signature method: " + method };
         return webSubError;
