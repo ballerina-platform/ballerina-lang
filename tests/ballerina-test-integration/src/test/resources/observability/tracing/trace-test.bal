@@ -15,7 +15,6 @@
 // under the License.
 import ballerina/http;
 import ballerina/testing;
-import ballerina/observe;
 
 endpoint http:Listener listener {
     port : 9090
@@ -26,30 +25,20 @@ endpoint http:Listener listener {
 }
 service echoService bind listener {
     resourceOne (endpoint caller, http:Request clientRequest) {
-        observe:Span span = observe:startSpan("testService", "echo span", (), observe:REFERENCE_TYPE_ROOT, ());
-        span.log("TestEvent", "This is a test info log");
-        span.logError("TestError", "This is a test error log");
-        span.addTag("TestTag", "Test tag message");
         http:Response outResponse = new;
         http:Request request = new;
-        http:Response | () response = callNextResource(span);
+        http:Response | () response = callNextResource();
         outResponse.setStringPayload("Hello, World!");
         match response {
             http:Response res => _ = caller -> respond(res);
             () => _ = caller -> respond(new http:Response());
         }
-
-        span.finishSpan();
     }
 
-    resourceTwo (endpoint outboundEP, http:Request clientRequest) {
-        observe:SpanContext spanContext = observe:extractSpanContextFromHttpHeader(clientRequest, "test-group");
-        observe:Span span = observe:startSpan("testService", "resource two", (), observe:REFERENCE_TYPE_CHILDOF, spanContext);
-        string | () baggageItem = span.getBaggageItem("BaggageItem");
+    resourceTwo (endpoint caller, http:Request clientRequest) {
         http:Response res = new;
         res.setStringPayload("Hello, World 2!");
-        _ = outboundEP -> respond(res);
-        span.finishSpan();
+        _ = caller -> respond(res);
     }
 
     getFinishedSpansCount(endpoint caller, http:Request clientRequest) {
@@ -60,16 +49,12 @@ service echoService bind listener {
     }
 }
 
-function callNextResource(observe:Span parentSpan) returns (http:Response | ()) {
+function callNextResource() returns (http:Response | ()) {
     endpoint http:Client httpEndpoint {
         url: "http://localhost:9090/echoService"
     };
-    observe:Span span = observe:startSpan("testService", "calling next resource", (), observe:REFERENCE_TYPE_CHILDOF, parentSpan);
-    span.setBaggageItem("BaggageItem", "Baggage message");
     http:Request request = new;
-    request = span.injectSpanContextToHttpHeader(request, "test-group");
     var resp = httpEndpoint -> get("/resourceTwo", request);
-    span.finishSpan();
     match resp {
         http:HttpConnectorError err => return ();
         http:Response response => return response;
