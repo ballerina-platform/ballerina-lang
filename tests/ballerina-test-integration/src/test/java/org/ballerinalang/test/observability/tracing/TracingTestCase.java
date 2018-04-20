@@ -53,7 +53,7 @@ public class TracingTestCase {
         serverInstance.startServer();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSpanWithTwoResources() throws Exception {
         HttpClientRequest.doGet("http://localhost:9090/echoService/resourceOne");
         Thread.sleep(1000);
