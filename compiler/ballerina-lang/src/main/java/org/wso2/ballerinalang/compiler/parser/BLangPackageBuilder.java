@@ -177,7 +177,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -187,6 +186,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -652,6 +652,7 @@ public class BLangPackageBuilder {
         }
 
         if (value.startsWith(IDENTIFIER_LITERAL_PREFIX) && value.endsWith(IDENTIFIER_LITERAL_SUFFIX)) {
+            value = StringEscapeUtils.unescapeJava(value);
             node.setValue(value.substring(2, value.length() - 1));
             node.setLiteral(true);
         } else {
@@ -2157,11 +2158,11 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(doneNode);
     }
 
-    public void addFailStatement(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangFail failNode = (BLangFail) TreeBuilder.createFailNode();
-        failNode.pos = pos;
-        failNode.addWS(ws);
-        addStmtToCurrentBlock(failNode);
+    public void addRetryStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangRetry retryNode = (BLangRetry) TreeBuilder.createRetryNode();
+        retryNode.pos = pos;
+        retryNode.addWS(ws);
+        addStmtToCurrentBlock(retryNode);
     }
 
     public void addRetryCountExpression() {
@@ -3082,14 +3083,15 @@ public class BLangPackageBuilder {
         streamActionNode.addWS(ws);
         this.streamActionNodeStack.push(streamActionNode);
         this.startLambdaFunctionDef(packageID);
+        this.startBlock();
     }
 
     public void endStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        endCallableUnitBody(ws);
         StreamActionNode streamActionNode = this.streamActionNodeStack.peek();
         ((BLangStreamAction) streamActionNode).pos = pos;
         streamActionNode.addWS(ws);
         this.addLambdaFunctionDef(pos, ws, true, false, false);
-        // we dont pop the exprNodeStack.It will be popped in a later stage after creating streamActionNode
         streamActionNode.setInvokableBody((BLangLambdaFunction) this.exprNodeStack.pop());
     }
 

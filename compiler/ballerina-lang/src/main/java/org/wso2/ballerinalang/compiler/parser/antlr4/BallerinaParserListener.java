@@ -1274,15 +1274,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitAbortStatement(BallerinaParser.AbortStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#failStatement}.
+	 * Enter a parse tree produced by {@link BallerinaParser#retryStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterFailStatement(BallerinaParser.FailStatementContext ctx);
+	void enterRetryStatement(BallerinaParser.RetryStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#failStatement}.
+	 * Exit a parse tree produced by {@link BallerinaParser#retryStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitFailStatement(BallerinaParser.FailStatementContext ctx);
+	void exitRetryStatement(BallerinaParser.RetryStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#retriesStatement}.
 	 * @param ctx the parse tree

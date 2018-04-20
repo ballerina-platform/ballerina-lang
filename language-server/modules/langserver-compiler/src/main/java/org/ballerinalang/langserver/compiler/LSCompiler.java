@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.compiler.common.CustomErrorStrategyFactory;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProgramDirectory;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
 import org.ballerinalang.langserver.compiler.workspace.repository.WorkspacePackageRepository;
@@ -39,7 +38,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -90,7 +91,13 @@ public class LSCompiler {
         }
     }
 
-    public static BallerinaFile compileContent(String content, CompilerPhase phase) {
+    private final WorkspaceDocumentManager documentManager;
+
+    public LSCompiler(WorkspaceDocumentManager documentManager) {
+        this.documentManager = documentManager;
+    }
+
+    public BallerinaFile compileContent(String content, CompilerPhase phase) {
         return compileContent(content, phase, true);
     }
 
@@ -101,8 +108,7 @@ public class LSCompiler {
      * @param phase
      * @return
      */
-    public static BallerinaFile compileContent(String content, CompilerPhase phase, boolean preserveWhitespace) {
-        WorkspaceDocumentManager documentManager = WorkspaceDocumentManagerImpl.getInstance();
+    public BallerinaFile compileContent(String content, CompilerPhase phase, boolean preserveWhitespace) {
         java.nio.file.Path filePath = createAndGetTempFile(UNTITLED_BAL);
         Optional<Lock> fileLock = documentManager.lockFile(filePath);
         try {
@@ -112,8 +118,7 @@ public class LSCompiler {
                 documentManager.openFile(filePath, content);
             }
 
-            BallerinaFile ballerinaFile = LSCompiler.compile(documentManager, filePath, CompilerPhase.DEFINE,
-                                                             preserveWhitespace);
+            BallerinaFile ballerinaFile = LSCompiler.compile(filePath, phase, documentManager, preserveWhitespace);
 
             documentManager.closeFile(filePath);
             return ballerinaFile;
@@ -122,13 +127,12 @@ public class LSCompiler {
         }
     }
 
-    public static BallerinaFile compileContent(String content, Path filePath, CompilerPhase phase) {
+    public BallerinaFile compileContent(String content, Path filePath, CompilerPhase phase) {
         return compileContent(content, filePath, phase, true);
     }
 
-    public static BallerinaFile compileContent(String content, Path filePath, CompilerPhase phase,
+    public BallerinaFile compileContent(String content, Path filePath, CompilerPhase phase,
                                                boolean preserveWhitespace) {
-        WorkspaceDocumentManager documentManager = WorkspaceDocumentManagerImpl.getInstance();
         return compileContent(content, filePath, phase, documentManager, preserveWhitespace);
     }
 
@@ -141,7 +145,7 @@ public class LSCompiler {
             } else {
                 documentManager.openFile(filePath, content);
             }
-            return LSCompiler.compile(documentManager, filePath, phase, preserveWhitespace);
+            return LSCompiler.compile(filePath, phase, documentManager, preserveWhitespace);
         } finally {
             lock.ifPresent(Lock::unlock);
         }
@@ -194,16 +198,17 @@ public class LSCompiler {
 
         if (isProjectDir(sourceRoot.getSourceRoot(), sourceRoot.getURIString())) {
             context.put(SourceDirectory.class,
-                        new LangServerFSProjectDirectory(sourceRoot.getSourceRootPath(), documentManager));
+                        LangServerFSProjectDirectory.getInstance(context, sourceRoot.getSourceRootPath(),
+                                                                 documentManager));
         } else {
             context.put(SourceDirectory.class,
-                        new LangServerFSProgramDirectory(sourceRoot.getSourceRootPath(), documentManager));
+                        LangServerFSProgramDirectory.getInstance(context, sourceRoot.getSourceRootPath(),
+                                                                 documentManager));
         }
         return context;
     }
 
-
-    private static BallerinaFile compile(WorkspaceDocumentManager documentManager, Path path, CompilerPhase phase,
+    private static BallerinaFile compile(Path path, CompilerPhase phase, WorkspaceDocumentManager documentManager,
                                          boolean preserveWhiteSpace) {
         String sourceRoot = getSourceRoot(path);
         String pkgName = getPackageNameForGivenFile(sourceRoot, path.toString());
@@ -334,7 +339,11 @@ public class LSCompiler {
      * @return {@link String} project root | null
      */
     public static String findProjectRoot(String parentDir) {
-        Path path = Paths.get(parentDir, ".ballerina");
+        Path path = Paths.get(parentDir);
+        if (!RepoUtils.hasProjectRepo(path)) {
+            return null;
+        }
+        path = path.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
         if (java.nio.file.Files.exists(path)) {
             return parentDir;
         }

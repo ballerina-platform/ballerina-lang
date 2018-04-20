@@ -48,7 +48,7 @@ public type Client object {
     public function start() {
     }
 
-    public function getClient() returns ABCClient {
+    public function getCallerActions() returns ABCClient {
         return self.abcClient;
     }
 

@@ -32,6 +32,7 @@
         </groups>
 
         <packages>
+            <package name="org.ballerinalang.test.service.http.configuration"/>
             <package name="org.ballerinalang.test.service.http.sample"/>
             <package name="org.ballerinalang.test.service.http2"/>
             <package name="org.ballerinalang.test.transaction"/>

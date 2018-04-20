@@ -193,7 +193,7 @@ public final class Constants {
     public static final String SQL_PACKAGE_PATH = "ballerina.sql";
     public static final String SQL_PARAMETER_TYPE = "ParameterType";
     public static final String BUILTIN_PACKAGE_PATH = "ballerina.builtin";
-    public static final String SQL_CLIENT = "SQLClient";
+    public static final String CALLER_ACTIONS = "CallerActions";
 
     public static final String SQL_JDBC_PREFIX = "jdbc:";
     public static final String SQL_SERVER_DB_POSTFIX = "_SERVER";

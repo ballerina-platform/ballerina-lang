@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Test cases for ballerina.security.crypto native functions.
+ * Test cases for ballerina.crypto native functions.
  */
 public class CryptoTest {
 

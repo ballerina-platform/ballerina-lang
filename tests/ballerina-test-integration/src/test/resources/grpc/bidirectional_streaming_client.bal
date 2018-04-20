@@ -7,7 +7,7 @@ import ballerina/log;
 import ballerina/runtime;
 
 int total = 0;
-function main (string... args) {
+function main(string... args) {
 
     endpoint ChatClient chatEp {
         host:"localhost",
@@ -16,7 +16,7 @@ function main (string... args) {
 
     endpoint grpc:Client ep;
     // Executing unary non-blocking call registering server message listener.
-    var res = chatEp -> chat(ChatMessageListener);
+    var res = chatEp->chat(ChatMessageListener);
     match res {
         grpc:error err => {
             io:print("error");
@@ -28,29 +28,27 @@ function main (string... args) {
     ChatMessage mes = new;
     mes.name = "Sam";
     mes.message = "Hi ";
-    grpc:ConnectorError connErr = ep -> send(mes);
-    if (connErr != ()) {
-        io:println("Error at lotsOfGreetings : " + connErr.message);
-    }
+    error? connErr = ep->send(mes);
+    io:println(err.message but { () => "" });
     //this will hold forever since this is chat application
-    runtime:sleepCurrentWorker(6000);
-    _ = ep -> complete();
+    runtime:sleep(6000);
+    _ = ep->complete();
 }
 
 
-service<grpc:Listener> ChatMessageListener {
+service<grpc:Service> ChatMessageListener {
 
-    onMessage (string message) {
+    onMessage(string message) {
         io:println("Response received from server: " + message);
     }
 
-    onError (grpc:ServerError err) {
+    onError(error err) {
         if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }
 
-    onComplete () {
+    onComplete() {
         io:println("Server Complete Sending Responses.");
     }
 }
@@ -59,21 +57,20 @@ service<grpc:Listener> ChatMessageListener {
 public type ChatStub object {
     public {
         grpc:Client clientEndpoint;
-        grpc:ServiceStub serviceStub;
+        grpc:Stub stub;
     }
 
-    function initStub (grpc:Client clientEndpoint) {
-        grpc:ServiceStub navStub = new;
+    function initStub(grpc:Client clientEndpoint) {
+        grpc:Stub navStub = new;
         navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.serviceStub = navStub;
+        self.stub = navStub;
     }
 
-    function chat (typedesc listener, grpc:Headers... headers) returns (grpc:Client|error) {
-        var res = stub.serviceStub.streamingExecute("Chat/chat", listener, ...header);
+    function chat(typedesc listener, grpc:Headers... headers) returns (grpc:Client|error) {
+        var res = stub.stub.streamingExecute("Chat/chat", listener, ...header);
         match res {
-            grpc:ConnectorError err1 => {
-                error err = {message:err1.message};
-                return err;
+            error err1 => {
+                return err1;
             }
             grpc:Client con => {
                 return con;
@@ -90,7 +87,7 @@ public type ChatClient object {
         ChatStub stub;
     }
 
-    public function init (grpc:ClientEndpointConfig config) {
+    public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
         grpc:Client client = new;
         client.init(config);
@@ -100,7 +97,7 @@ public type ChatClient object {
         stub.initStub(client);
         self.stub = stub;
     }
-    public function getClient () returns (ChatStub) {
+    public function getCallerActions() returns (ChatStub) {
         return self.stub;
     }
 };

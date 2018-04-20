@@ -18,9 +18,9 @@ package ballerina.http;
 
 import ballerina/internal;
 import ballerina/auth;
-import ballerina/caching;
+import ballerina/cache;
 
-caching:Cache authzCache = new(expiryTimeMillis = 300000);
+cache:Cache authzCache = new(expiryTimeMillis = 300000);
 @Description {value:"Authz handler instance"}
 HttpAuthzHandler authzHandler = new(authzCache);
 
@@ -49,7 +49,7 @@ public type AuthzFilter object {
         match scopes {
             string[] scopeNames => {
                 if (authzHandler.canHandle(request)) {
-                    authorized = authzHandler.handle(runtime:getInvocationContext().authenticationContext.username,
+                    authorized = authzHandler.handle(runtime:getInvocationContext().userPrincipal.username,
                         context.serviceName, context.resourceName, request.method, scopeNames);
                 } else {
                     authorized = false;

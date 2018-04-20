@@ -27,14 +27,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 
 /**
- * An in-memory document manager that keeps dirty files in-memory and will match the collection of files currently
- * open in tool's workspace.
+ * An in-memory document manager that keeps dirty files in-memory and will match the collection of files currently open
+ * in tool's workspace.
  */
 public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceDocumentManagerImpl.class);
 
-    private Map<Path, WorkspaceDocument> documentList = new ConcurrentHashMap<>();
+    private volatile Map<Path, WorkspaceDocument> documentList = new ConcurrentHashMap<>();
 
     private static WorkspaceDocumentManagerImpl instance = new WorkspaceDocumentManagerImpl();
 
@@ -84,12 +84,16 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
 
     @Override
     public Optional<Lock> lockFile(Path filePath) {
-        WorkspaceDocument document = documentList.get(filePath);
-        Lock lock = null;
-        if (document != null) {
-            lock = document.getLock();
-            lock.lock();
+        if (filePath == null) {
+            return Optional.empty();
         }
-        return Optional.ofNullable(lock);
+        WorkspaceDocument document = documentList.get(filePath);
+        if (document == null) {
+            document = new WorkspaceDocument(filePath, "");
+            documentList.put(filePath, document);
+        }
+        Lock lock = document.getLock();
+        lock.lock();
+        return Optional.of(lock);
     }
 }

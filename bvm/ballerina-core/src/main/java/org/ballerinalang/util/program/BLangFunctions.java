@@ -137,6 +137,13 @@ public class BLangFunctions {
      * same calling thread, but rather executes all the workers in their own separate threads.
      * This is specifically useful in executing service resources, where the calling transport
      * threads shouldn't be blocked, but rather the worker threads should be used.
+     *
+     * @param callableUnitInfo of the resource.
+     * @param parentCtx        of the resource execution.
+     * @param observerContext  for the resource invocation.
+     * @param argRegs          parameters.
+     * @param retRegs          parameters.
+     * @param responseCallback to be executed when execution completes.
      */
     public static void invokeServiceCallable(CallableUnitInfo callableUnitInfo, WorkerExecutionContext parentCtx,
                                              ObserverContext observerContext, int[] argRegs, int[] retRegs,
