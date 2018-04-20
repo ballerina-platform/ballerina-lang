@@ -33,7 +33,7 @@ public type HttpSecureClient object {
     public {
         string serviceUri;
         ClientEndpointConfig config;
-        HttpClient httpClient;
+        CallerActions httpClient;
     }
 
     public new(serviceUri, config) {
@@ -228,14 +228,14 @@ public type HttpSecureClient object {
 };
 
 @Description {value:"Creates an HTTP client capable of securing HTTP requests with authentication."}
-public function createHttpSecureClient(string url, ClientEndpointConfig config) returns HttpClient {
+public function createHttpSecureClient(string url, ClientEndpointConfig config) returns CallerActions {
     match config.auth {
         AuthConfig => {
             HttpSecureClient httpSecureClient = new(url, config);
             return httpSecureClient;
         }
         () => {
-            HttpClient httpClient = createSimpleHttpClient(url, config);
+            CallerActions httpClient = createSimpleHttpClient(url, config);
             return httpClient;
         }
     }
@@ -299,7 +299,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     string clientId = config.auth.clientId but { () => EMPTY_STRING };
     string clientSecret = config.auth.clientSecret but { () => EMPTY_STRING };
     string refreshUrl = config.auth.refreshUrl but { () => EMPTY_STRING };
-    HttpClient refreshTokenClient = createHttpSecureClient(refreshUrl, {});
+    CallerActions refreshTokenClient = createHttpSecureClient(refreshUrl, {});
     string refreshTokenRequestPath = "/oauth2/v3/token";
     string requestParams = "refresh_token=" + refreshToken + "&grant_type=refresh_token&client_secret=" + clientSecret + "&client_id=" + clientId;
     string base64ClientIdSecret;

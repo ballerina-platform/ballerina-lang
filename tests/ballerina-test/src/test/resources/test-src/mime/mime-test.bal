@@ -258,7 +258,7 @@ service<http:Service> echo bind mockEP {
         methods:["POST"],
         path:"/largepayload"
     }
-    getPayloadFromFileChannel (endpoint client, http:Request request) {
+    getPayloadFromFileChannel (endpoint caller, http:Request request) {
         http:Response response = new;
         mime:Entity responseEntity = new;
         match request.getByteChannel() {
@@ -266,7 +266,7 @@ service<http:Service> echo bind mockEP {
             io:ByteChannel byteChannel => responseEntity.setByteChannel(byteChannel);
         }
         response.setEntity(responseEntity);
-        _ = client -> respond(response);
+        _ = caller -> respond(response);
     }
 }
 

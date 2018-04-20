@@ -15,8 +15,8 @@
 // under the License.
 
 
-@Description { value:"An HTTP client for interacting with an HTTP server."}
-public type HttpClient object {
+@Description { value:"The Caller actions for interacting with an HTTP server."}
+public type CallerActions object {
     //These properties are populated from the init call to the client connector as these were needed later stage
     //for retry and other few places.
     public {

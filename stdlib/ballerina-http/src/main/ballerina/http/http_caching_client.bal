@@ -69,7 +69,7 @@ public type HttpCachingClient object {
     public {
         string serviceUri;
         ClientEndpointConfig config;
-        HttpClient httpClient;
+        CallerActions httpClient;
         HttpCache cache;
         CacheConfig cacheConfig;
     }
@@ -181,7 +181,7 @@ public type HttpCachingClient object {
 
 @Description {value:"Creates an HTTP client capable of caching HTTP responses."}
 public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig)
-                                                                                                returns HttpClient {
+                                                                                                returns CallerActions {
     HttpCachingClient httpCachingClient = new(url, config, cacheConfig);
     log:printDebug("Created HTTP caching client: " + io:sprintf("%r", httpCachingClient));
     return httpCachingClient;
@@ -327,7 +327,7 @@ public function HttpCachingClient::rejectPromise(PushPromise promise) {
     self.httpClient.rejectPromise(promise);
 }
 
-function getCachedResponse(HttpCache cache, HttpClient httpClient, Request req, string httpMethod, string path,
+function getCachedResponse(HttpCache cache, CallerActions httpClient, Request req, string httpMethod, string path,
                            boolean isShared) returns Response|HttpConnectorError {
     time:Time currentT = time:currentTime();
     req.parseCacheControlHeader();
@@ -390,7 +390,7 @@ function getCachedResponse(HttpCache cache, HttpClient httpClient, Request req, 
     }
 }
 
-function getValidationResponse(HttpClient httpClient, Request req, Response cachedResponse, HttpCache cache,
+function getValidationResponse(CallerActions httpClient, Request req, Response cachedResponse, HttpCache cache,
                                time:Time currentT, string path, string httpMethod, boolean isFreshResponse)
                                                                                 returns Response|HttpConnectorError {
     // If the no-cache directive is set, always validate the response before serving
@@ -581,7 +581,7 @@ function isStaleResponseAccepted(RequestCacheControl? requestCacheControl, Respo
 }
 
 // Based https://tools.ietf.org/html/rfc7234#section-4.3.1
-function sendValidationRequest(HttpClient httpClient, string path, Response cachedResponse)
+function sendValidationRequest(CallerActions httpClient, string path, Response cachedResponse)
                                                                                 returns Response|HttpConnectorError {
     Request validationRequest = new;
 
@@ -602,7 +602,7 @@ function sendValidationRequest(HttpClient httpClient, string path, Response cach
     }
 }
 
-function sendNewRequest(HttpClient httpClient, Request request, string path, string httpMethod)
+function sendNewRequest(CallerActions httpClient, Request request, string path, string httpMethod)
                                                                                 returns Response|HttpConnectorError {
     if (httpMethod == GET) {
         return httpClient.get(path, request = request);

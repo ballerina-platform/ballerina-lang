@@ -63,7 +63,7 @@ endpoint DummyEndpoint ep { conf1 : "test1"};
 
 
 service<DummyServiceType> foo bind ep {
-    getAction (endpoint client, string x, float y){
-        client -> invoke1("t", 1);
+    getAction (endpoint caller, string x, float y){
+        caller -> invoke1("t", 1);
     }
 }
