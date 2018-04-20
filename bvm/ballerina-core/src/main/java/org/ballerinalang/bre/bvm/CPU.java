@@ -1364,7 +1364,7 @@ public class CPU {
                 k = operands[2];
                 jsonVal = (BJSON) sf.refRegs[i];
                 if (jsonVal == null) {
-                    handleNullRefError(ctx);
+                    sf.refRegs[k] = null;
                     break;
                 }
 
