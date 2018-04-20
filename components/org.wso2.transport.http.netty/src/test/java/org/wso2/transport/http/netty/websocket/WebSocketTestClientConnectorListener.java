@@ -42,7 +42,6 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketTestClientConnectorListener.class);
 
-    private final CountDownLatch latch;
     private final Queue<String> textQueue = new LinkedList<>();
     private final Queue<ByteBuffer> bufferQueue = new LinkedList<>();
     private final Queue<Throwable> errorsQueue = new LinkedList<>();
@@ -52,9 +51,14 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     private boolean isPingReceived = false;
     private boolean isIdleTimeout = false;
     private boolean isClose = false;
+    private CountDownLatch latch;
 
     public WebSocketTestClientConnectorListener(CountDownLatch latch) {
         this.latch = latch;
+    }
+
+    public void setCountDownLatch(CountDownLatch countDownLatch) {
+        this.latch = countDownLatch;
     }
 
     @Override
@@ -66,7 +70,8 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     public void onMessage(WebSocketTextMessage textMessage) {
         if (PING.equals(textMessage.getText())) {
             try {
-                textMessage.getChannelSession().getAsyncRemote().sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
+                textMessage.getWebSocketConnection()
+                        .getSession().getAsyncRemote().sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
             } catch (IOException e) {
                 errorsQueue.add(e);
             }

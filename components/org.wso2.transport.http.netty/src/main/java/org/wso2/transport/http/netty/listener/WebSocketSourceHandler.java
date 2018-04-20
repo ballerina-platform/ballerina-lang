@@ -39,13 +39,13 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketCloseMessageImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketControlMessageImpl;
 import org.wso2.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
-import org.wso2.transport.http.netty.internal.websocket.DefaultWebSocketSession;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 
 import java.net.InetSocketAddress;
@@ -62,7 +62,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
     private final ChannelHandlerContext ctx;
     private final boolean isSecured;
     private final ServerConnectorFuture connectorFuture;
-    private final DefaultWebSocketSession channelSession;
+    private final DefaultWebSocketConnection webSocketConnection;
     private final Map<String, String> headers;
     private final String interfaceId;
     private String subProtocol = null;
@@ -71,18 +71,18 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
     /**
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
      * @param isSecured       indication of whether the connection is secured or not.
-     * @param channelSession  session relates to the channel.
+     * @param webSocketConnection  connection relates to the channel.
      * @param httpRequest     {@link HttpRequest} which contains the details of WebSocket Upgrade.
      * @param headers         Headers obtained from HTTP WebSocket upgrade request.
      * @param ctx             {@link ChannelHandlerContext} of WebSocket connection.
      * @param interfaceId     given ID for the socket interface.
      */
     public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, boolean isSecured,
-                                  DefaultWebSocketSession channelSession, HttpRequest httpRequest,
+                                  DefaultWebSocketConnection webSocketConnection, HttpRequest httpRequest,
                                   Map<String, String> headers, ChannelHandlerContext ctx, String interfaceId) {
         this.connectorFuture = connectorFuture;
         this.isSecured = isSecured;
-        this.channelSession = channelSession;
+        this.webSocketConnection = webSocketConnection;
         this.ctx = ctx;
         this.interfaceId = interfaceId;
         this.target = httpRequest.uri();
@@ -108,8 +108,8 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
      *
      * @return the server session of this source handler.
      */
-    public DefaultWebSocketSession getChannelSession() {
-        return channelSession;
+    public DefaultWebSocketConnection getWebSocketConnection() {
+        return webSocketConnection;
     }
 
     /**
@@ -140,8 +140,8 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
             handlerExecutor = null;
         }
 
-        if (channelSession.isOpen()) {
-            channelSession.setIsOpen(false);
+        if (webSocketConnection.getDefaultWebSocketSession().isOpen()) {
+            webSocketConnection.getDefaultWebSocketSession().setIsOpen(false);
             int statusCode = 1001; // Client is going away.
             String reasonText = "Client is going away";
             notifyCloseMessage(statusCode, reasonText);
@@ -184,7 +184,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
         String reasonText = closeWebSocketFrame.reasonText();
         int statusCode = closeWebSocketFrame.statusCode();
         ctx.channel().close();
-        channelSession.setIsOpen(false);
+        webSocketConnection.getDefaultWebSocketSession().setIsOpen(false);
         WebSocketMessageImpl webSocketCloseMessage = new WebSocketCloseMessageImpl(statusCode, reasonText);
         closeWebSocketFrame.release();
         setupCommonProperties(webSocketCloseMessage);
@@ -193,7 +193,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
 
     private void notifyCloseMessage(int statusCode, String reasonText) throws ServerConnectorException {
         ctx.channel().close();
-        channelSession.setIsOpen(false);
+        webSocketConnection.getDefaultWebSocketSession().setIsOpen(false);
         WebSocketMessageImpl webSocketCloseMessage =
                 new WebSocketCloseMessageImpl(statusCode, reasonText);
         setupCommonProperties(webSocketCloseMessage);
@@ -227,9 +227,9 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
         webSocketMessage.setListenerInterface(interfaceId);
         webSocketMessage.setIsConnectionSecured(isSecured);
         webSocketMessage.setIsServerMessage(true);
-        webSocketMessage.setChannelSession(channelSession);
+        webSocketMessage.setWebSocketConnection(webSocketConnection);
         webSocketMessage.setHeaders(headers);
-        webSocketMessage.setSessionlID(channelSession.getId());
+        webSocketMessage.setSessionlID(webSocketConnection.getId());
 
         webSocketMessage.setProperty(Constants.SRC_HANDLER, this);
         webSocketMessage.setProperty(Constants.LISTENER_PORT,

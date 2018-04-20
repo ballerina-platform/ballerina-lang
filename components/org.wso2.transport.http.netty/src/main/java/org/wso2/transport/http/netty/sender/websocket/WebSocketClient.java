@@ -20,7 +20,7 @@
 package org.wso2.transport.http.netty.sender.websocket;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -43,8 +43,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.HandshakeFutureImpl;
-import org.wso2.transport.http.netty.internal.websocket.DefaultWebSocketSession;
 
 import java.net.URI;
 import java.util.Map;
@@ -66,6 +66,8 @@ public class WebSocketClient {
     private final Map<String, String> headers;
     private final WebSocketConnectorListener connectorListener;
     private final EventLoopGroup wsClientEventLoopGroup;
+    private final boolean autoRead;
+    private Channel channel = null;
 
     /**
      * @param url url of the remote endpoint.
@@ -75,13 +77,15 @@ public class WebSocketClient {
      * @param connectorListener connector listener to notify incoming messages.
      */
     public WebSocketClient(String url, String subProtocols, int idleTimeout, EventLoopGroup wsClientEventLoopGroup,
-                           Map<String, String> headers, WebSocketConnectorListener connectorListener) {
+                           Map<String, String> headers, WebSocketConnectorListener connectorListener,
+                           boolean autoRead) {
         this.url = url;
         this.subProtocols = subProtocols;
         this.idleTimeout = idleTimeout;
         this.headers = headers;
         this.connectorListener = connectorListener;
         this.wsClientEventLoopGroup = wsClientEventLoopGroup;
+        this.autoRead = autoRead;
     }
 
     /**
@@ -136,26 +140,25 @@ public class WebSocketClient {
                     }
                 });
 
-            clientBootstrap.connect(uri.getHost(), port).sync();
-            ChannelFuture future = webSocketTargetHandler
+            channel = clientBootstrap.connect(uri.getHost(), port).sync().channel();
+            webSocketTargetHandler
                     .handshakeFuture().addListener((ChannelFutureListener) clientHandshakeFuture -> {
                 Throwable cause = clientHandshakeFuture.cause();
                 if (clientHandshakeFuture.isSuccess() && cause == null) {
-                    DefaultWebSocketSession session =
-                            (DefaultWebSocketSession) webSocketTargetHandler.getChannelSession();
+                    channel.config().setAutoRead(autoRead);
+                    DefaultWebSocketConnection webSocketConnection = webSocketTargetHandler.getWebSocketConnection();
                     String actualSubProtocol = websocketHandshaker.actualSubprotocol();
                     webSocketTargetHandler.setActualSubProtocol(actualSubProtocol);
-                    session.setNegotiatedSubProtocol(actualSubProtocol);
-                    handshakeFuture.notifySuccess(session);
+                    webSocketConnection.getDefaultWebSocketSession().setNegotiatedSubProtocol(actualSubProtocol);
+                    webSocketConnection.getDefaultWebSocketSession().setIsOpen(true);
+                    handshakeFuture.notifySuccess(webSocketConnection);
                 } else {
                     handshakeFuture.notifyError(cause);
                 }
-            }).sync();
-            handshakeFuture.setChannelFuture(future);
+            });
         } catch (Throwable t) {
             handshakeFuture.notifyError(t);
         }
-
         return handshakeFuture;
     }
 

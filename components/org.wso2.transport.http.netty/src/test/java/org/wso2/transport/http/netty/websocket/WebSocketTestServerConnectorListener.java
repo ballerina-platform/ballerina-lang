@@ -26,6 +26,7 @@ import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
@@ -59,14 +60,15 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         HandshakeFuture future = initMessage.handshake(null, true, 3000);
         future.setHandshakeListener(new HandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
+            public void onSuccess(WebSocketConnection webSocketConnection) {
                 sessionList.forEach(
                         currentSession -> {
                             currentSession.getAsyncRemote().
                                     sendText(WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
                         }
                 );
-                sessionList.add(session);
+                sessionList.add(webSocketConnection.getSession());
+                webSocketConnection.startReadingFrames();
             }
 
             @Override
@@ -79,7 +81,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
-        Session session = textMessage.getChannelSession();
+        Session session = textMessage.getWebSocketConnection().getSession();
         String receivedTextToClient = textMessage.getText();
         log.debug("text: " + receivedTextToClient);
         try {
@@ -95,7 +97,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
-        Session session = binaryMessage.getChannelSession();
+        Session session = binaryMessage.getWebSocketConnection().getSession();
         ByteBuffer receivedByteBufferToClient = binaryMessage.getByteBuffer();
         log.debug("ByteBuffer: " + receivedByteBufferToClient);
         session.getAsyncRemote().sendBinary(receivedByteBufferToClient);
@@ -109,7 +111,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         }
 
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
-            Session session = controlMessage.getChannelSession();
+            Session session = controlMessage.getWebSocketConnection().getSession();
             try {
                 session.getAsyncRemote().sendPong(controlMessage.getPayload());
             } catch (IOException e) {
@@ -137,7 +139,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
         this.isIdleTimeout = true;
         try {
-            Session session = controlMessage.getChannelSession();
+            Session session = controlMessage.getWebSocketConnection().getSession();
             session.close(new CloseReason(() -> 1001, "Connection timeout"));
         } catch (IOException e) {
             log.error("Error occurred while closing the connection: " + e.getMessage());

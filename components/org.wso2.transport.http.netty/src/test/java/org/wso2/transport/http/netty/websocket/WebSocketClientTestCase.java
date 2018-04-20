@@ -31,6 +31,7 @@ import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
@@ -39,8 +40,10 @@ import org.wso2.transport.http.netty.util.server.websocket.WebSocketRemoteServer
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
 
@@ -75,8 +78,8 @@ public class WebSocketClientTestCase {
         HandshakeFuture handshakeFuture = handshake(connectorListener);
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                session.getAsyncRemote().sendText(textSent);
+            public void onSuccess(WebSocketConnection webSocketConnection) {
+                webSocketConnection.getSession().getAsyncRemote().sendText(textSent);
             }
 
             @Override
@@ -100,8 +103,8 @@ public class WebSocketClientTestCase {
         HandshakeFuture handshakeFuture = handshake(connectorListener);
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                session.getAsyncRemote().sendBinary(bufferSent);
+            public void onSuccess(WebSocketConnection webSocketConnection) {
+                webSocketConnection.getSession().getAsyncRemote().sendBinary(bufferSent);
             }
 
             @Override
@@ -125,8 +128,8 @@ public class WebSocketClientTestCase {
         HandshakeFuture pingHandshakeFuture = handshake(pingConnectorListener);
         pingHandshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                session.getAsyncRemote().sendText(PING);
+            public void onSuccess(WebSocketConnection webSocketConnection) {
+                webSocketConnection.getSession().getAsyncRemote().sendText(PING);
             }
 
             @Override
@@ -145,11 +148,11 @@ public class WebSocketClientTestCase {
         HandshakeFuture pongHandshakeFuture = handshake(pongConnectorListener);
         pongHandshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
+            public void onSuccess(WebSocketConnection webSocketConnection) {
                 try {
                     byte[] bytes = {1, 2, 3, 4, 5};
                     ByteBuffer buffer = ByteBuffer.wrap(bytes);
-                    session.getAsyncRemote().sendPing(buffer);
+                    webSocketConnection.getSession().getAsyncRemote().sendPing(buffer);
                 } catch (IOException e) {
                     log.error(e.getMessage());
                     Assert.assertTrue(false, e.getMessage());
@@ -174,8 +177,8 @@ public class WebSocketClientTestCase {
         HandshakeFuture handshakeFuture1 = handshake(connectorListener1);
         handshakeFuture1.setHandshakeListener(new HandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                session.getAsyncRemote().sendText(textsSent[0]);
+            public void onSuccess(WebSocketConnection webSocketConnection) {
+                webSocketConnection.getSession().getAsyncRemote().sendText(textsSent[0]);
             }
 
             @Override
@@ -193,9 +196,9 @@ public class WebSocketClientTestCase {
         HandshakeFuture handshakeFuture2 = handshake(connectorListener2);
         handshakeFuture2.setHandshakeListener(new HandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
+            public void onSuccess(WebSocketConnection webSocketConnection) {
                 for (int i = 0; i < textsSent.length; i++) {
-                    session.getAsyncRemote().sendText(textsSent[i]);
+                    webSocketConnection.getSession().getAsyncRemote().sendText(textsSent[i]);
                 }
             }
 
@@ -222,7 +225,7 @@ public class WebSocketClientTestCase {
         HandshakeFuture handshakeFuture = handshake(connectorListener);
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
+            public void onSuccess(WebSocketConnection webSocketConnection) {
             }
 
             @Override
@@ -247,8 +250,8 @@ public class WebSocketClientTestCase {
         HandshakeFuture handshakeFutureSuccess = handshake(connectorListenerSuccess);
         handshakeFutureSuccess.setHandshakeListener(new HandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                Assert.assertEquals(session.getNegotiatedSubprotocol(), "json");
+            public void onSuccess(WebSocketConnection webSocketConnection) {
+                Assert.assertEquals(webSocketConnection.getSession().getNegotiatedSubprotocol(), "json");
                 latchSuccess.countDown();
             }
 
@@ -273,7 +276,7 @@ public class WebSocketClientTestCase {
         HandshakeFuture handshakeFutureFail = handshake(connectorListenerFail);
         handshakeFutureFail.setHandshakeListener(new HandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
+            public void onSuccess(WebSocketConnection webSocketConnection) {
                 Assert.assertFalse(true, "Should not negotiate");
                 latchFail.countDown();
             }
@@ -296,8 +299,8 @@ public class WebSocketClientTestCase {
         HandshakeFuture handshakeFuture = handshake(connectorListener);
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                session.getAsyncRemote().sendText(closeText);
+            public void onSuccess(WebSocketConnection webSocketConnection) {
+                webSocketConnection.getSession().getAsyncRemote().sendText(closeText);
             }
 
             @Override
@@ -322,8 +325,8 @@ public class WebSocketClientTestCase {
         HandshakeFuture handshakeFuture = handshake(connectorListener);
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                session.getAsyncRemote().sendText(closeText);
+            public void onSuccess(WebSocketConnection webSocketConnection) {
+                webSocketConnection.getSession().getAsyncRemote().sendText(closeText);
             }
 
             @Override
@@ -338,6 +341,47 @@ public class WebSocketClientTestCase {
         WebSocketCloseMessage closeMessage = connectorListener.getCloseMessage();
         Assert.assertEquals(closeMessage.getCloseCode(), 1001);
         Assert.assertEquals(closeMessage.getCloseReason(), "Server is going away");
+    }
+
+    @Test(priority = 7, description = "Test the behavior of client connector when auto read is false.")
+    public void autoReadFalseTest() throws Throwable {
+        CountDownLatch latch = new CountDownLatch(1);
+        String textSent = "testText";
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener(latch);
+        configuration = new WsClientConnectorConfig(url);
+        configuration.setAutoRead(false);
+        clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
+        HandshakeFuture handshakeFuture = handshake(connectorListener);
+        AtomicReference<WebSocketConnection> wsConnection = new AtomicReference<>();
+        handshakeFuture.setHandshakeListener(new HandshakeListener() {
+            @Override
+            public void onSuccess(WebSocketConnection webSocketConnection) {
+                webSocketConnection.getSession().getAsyncRemote().sendText(textSent);
+                wsConnection.set(webSocketConnection);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                log.error(t.getMessage());
+                Assert.assertTrue(false, t.getMessage());
+            }
+        });
+
+        latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        String textReceived = null;
+        try {
+            textReceived = connectorListener.getReceivedTextToClient();
+            Assert.assertTrue(false, "Expected exception");
+        } catch (NoSuchElementException ex) {
+            Assert.assertTrue(true, "Expected exception thrown");
+        }
+        Assert.assertEquals(textReceived, null);
+        latch = new CountDownLatch(1);
+        connectorListener.setCountDownLatch(latch);
+        wsConnection.get().readNextFrame();
+        latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        textReceived = connectorListener.getReceivedTextToClient();
+        Assert.assertEquals(textReceived, textSent);
     }
 
     @AfterClass

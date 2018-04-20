@@ -26,6 +26,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketBinaryMessageImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.WebSocketControlMessageImpl;
@@ -43,9 +44,10 @@ public class WebSocketUtil {
         return ctx.channel().id().asLongText();
     }
 
-    public static DefaultWebSocketSession getSession(ChannelHandlerContext ctx,
-                                                     boolean isSecured, String uri) throws URISyntaxException {
-        return new DefaultWebSocketSession(ctx, isSecured, uri, getSessionID(ctx));
+    public static DefaultWebSocketConnection getWebSocketConnection(ChannelHandlerContext ctx, boolean isSecured,
+                                                                    String uri) throws URISyntaxException {
+        DefaultWebSocketSession session = new DefaultWebSocketSession(ctx, isSecured, uri, getSessionID(ctx));
+        return new DefaultWebSocketConnection(ctx, session);
     }
 
     public static WebSocketControlMessage getWebsocketControlMessage(WebSocketFrame webSocketFrame,

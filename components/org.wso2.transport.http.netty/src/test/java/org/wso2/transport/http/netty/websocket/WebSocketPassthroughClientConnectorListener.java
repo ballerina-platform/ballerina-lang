@@ -23,12 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
-
-import javax.websocket.Session;
 
 /**
  * Client connector Listener to check WebSocket pass-through scenarios.
@@ -44,16 +43,18 @@ public class WebSocketPassthroughClientConnectorListener implements WebSocketCon
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
-        Session serverSession = WebSocketPassThroughTestSessionManager.getInstance().
-                getServerSession(textMessage.getChannelSession());
-        serverSession.getAsyncRemote().sendText(textMessage.getText());
+        WebSocketConnection serverConnection = WebSocketPassThroughTestConnectionManager.getInstance().
+                getServerConnection(textMessage.getWebSocketConnection());
+        serverConnection.getSession().getAsyncRemote().sendText(textMessage.getText());
+        serverConnection.readNextFrame();
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
-        Session serverSession = WebSocketPassThroughTestSessionManager.getInstance().
-                getServerSession(binaryMessage.getChannelSession());
-        serverSession.getAsyncRemote().sendBinary(binaryMessage.getByteBuffer());
+        WebSocketConnection serverConnection = WebSocketPassThroughTestConnectionManager.getInstance().
+                getServerConnection(binaryMessage.getWebSocketConnection());
+        serverConnection.getSession().getAsyncRemote().sendBinary(binaryMessage.getByteBuffer());
+        serverConnection.readNextFrame();
     }
 
     @Override
