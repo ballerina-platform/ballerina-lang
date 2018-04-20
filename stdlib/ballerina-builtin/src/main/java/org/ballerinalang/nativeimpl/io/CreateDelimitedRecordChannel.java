@@ -19,14 +19,14 @@ package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.nativeimpl.io.utils.IOUtils;
+import org.ballerinalang.nativeimpl.io.csv.Format;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +38,11 @@ import org.slf4j.LoggerFactory;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "createDelimitedRecordChannel",
-        args = {@Argument(name = "channel", type = TypeKind.STRUCT, structType = "DelimitedRecordChannel",
+        functionName = "init",
+        receiver = @Receiver(type = TypeKind.STRUCT,
+                structType = "DelimitedTextRecordChannel",
+                structPackage = "ballerina.io"),
+        args = {@Argument(name = "channel", type = TypeKind.STRUCT, structType = "CharacterChannel",
                 structPackage = "ballerina.io"),
                 @Argument(name = "recordSeparator", type = TypeKind.STRING),
                 @Argument(name = "fieldSeparator", type = TypeKind.STRING)},
@@ -55,23 +58,27 @@ public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
     /**
      * The index od the text record channel in ballerina.io#createDelimitedRecordChannel().
      */
+    private static final int CHAR_CHANNEL_INDEX = 1;
+    /**
+     * Specifies the index of the record channel.
+     */
     private static final int RECORD_CHANNEL_INDEX = 0;
     /**
      * The index of the record channel separator in ballerina.io#createDelimitedRecordChannel().
      */
-    private static final int RECORD_SEPARATOR_INDEX = 0;
+    private static final int RECORD_SEPARATOR_INDEX = 1;
     /**
      * The index of the field separator in ballerina.io#createDelimitedRecordChannel().
      */
-    private static final int FIELD_SEPARATOR_INDEX = 1;
+    private static final int FIELD_SEPARATOR_INDEX = 0;
     /**
-     * The package path of the byte channel.
+     * Represents the format of the record.
      */
-    private static final String RECORD_CHANNEL_PACKAGE = "ballerina.io";
+    private static final int FORMAT_INDEX = 2;
     /**
-     * The type of the byte channel.
+     * Default format type.
      */
-    private static final String STRUCT_TYPE = "DelimitedRecordChannel";
+    private static final String DEFAULT = "default";
 
     /**
      * {@inheritDoc}
@@ -80,25 +87,26 @@ public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         try {
             //File which holds access to the channel information
-            BStruct textRecordChannelInfo = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
+            BStruct characterChannelInfo = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
             String recordSeparator = context.getStringArgument(RECORD_SEPARATOR_INDEX);
             String fieldSeparator = context.getStringArgument(FIELD_SEPARATOR_INDEX);
-
-            BStruct textRecordChannel = BLangConnectorSPIUtil.createBStruct(context, RECORD_CHANNEL_PACKAGE,
-                    STRUCT_TYPE);
-
+            String format = context.getStringArgument(FORMAT_INDEX);
+            BStruct textRecordChannel = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
             //Will get the relevant byte channel and will create a character channel
-            CharacterChannel characterChannel = (CharacterChannel) textRecordChannelInfo.getNativeData(IOConstants
+            CharacterChannel characterChannel = (CharacterChannel) characterChannelInfo.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
-            DelimitedRecordChannel bCharacterChannel = new DelimitedRecordChannel(characterChannel, recordSeparator,
-                    fieldSeparator);
-            textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, bCharacterChannel);
-            context.setReturnValues(textRecordChannel);
+            DelimitedRecordChannel delimitedRecordChannel;
+            if (DEFAULT.equals(format)) {
+                delimitedRecordChannel = new DelimitedRecordChannel(characterChannel, recordSeparator, fieldSeparator);
+            } else {
+                delimitedRecordChannel = new DelimitedRecordChannel(characterChannel, Format.valueOf(format));
+            }
+            textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, delimitedRecordChannel);
         } catch (Throwable e) {
             String message =
                     "Error occurred while converting character channel to textRecord channel:" + e.getMessage();
             log.error(message, e);
-            context.setReturnValues(IOUtils.createError(context, message));
+            throw new BallerinaIOException(message, e);
         }
     }
 }
