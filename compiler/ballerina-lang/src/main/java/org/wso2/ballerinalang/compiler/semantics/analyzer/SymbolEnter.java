@@ -658,6 +658,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (variable.expr == null) {
             return;
         }
+        if (variable.expr.getKind() != NodeKind.LITERAL) {
+            this.dlog.error(variable.expr.pos, DiagnosticCode.INVALID_DEFAULT_PARAM_VALUE, variable.name);
+            return;
+        }
         BLangLiteral literal = (BLangLiteral) variable.expr;
         variable.symbol.defaultValue = literal.value;
     }
@@ -1024,8 +1028,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                         .peek(varDefNode -> defineNode(varDefNode.var, invokableEnv))
                         .map(varDefNode -> {
                             BVarSymbol varSymbol = varDefNode.var.symbol;
-                            BLangLiteral literal = (BLangLiteral) varDefNode.var.expr;
-                            varSymbol.defaultValue = literal.value;
+                            if (varDefNode.var.expr.getKind() != NodeKind.LITERAL) {
+                                this.dlog.error(varDefNode.var.expr.pos, DiagnosticCode.INVALID_DEFAULT_PARAM_VALUE,
+                                        varDefNode.var.name);
+                            } else {
+                                BLangLiteral literal = (BLangLiteral) varDefNode.var.expr;
+                                varSymbol.defaultValue = literal.value;
+                            }
                             return varSymbol;
                         })
                         .collect(Collectors.toList());
