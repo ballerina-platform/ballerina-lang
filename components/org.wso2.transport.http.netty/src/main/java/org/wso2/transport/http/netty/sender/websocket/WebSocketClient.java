@@ -125,6 +125,7 @@ public class WebSocketClient {
                             pipeline.addLast(sslCtx.newHandler(ch.alloc(), host, port));
                         }
                         pipeline.addLast(new HttpClientCodec());
+                        // Assuming that WebSocket Handshake messages will not be large than 8KB
                         pipeline.addLast(new HttpObjectAggregator(8192));
                         pipeline.addLast(WebSocketClientCompressionHandler.INSTANCE);
                         if (idleTimeout > 0) {
