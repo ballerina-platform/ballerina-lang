@@ -88,17 +88,11 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-mysql-jar/META-INF/ballerina
+                ${project.build.directory}/extracted-distributions/ballerina-database-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
-        <fileSet>
-            <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-h2-jar/META-INF/ballerina
-            </directory>
-            <outputDirectory>src</outputDirectory>
-        </fileSet>
-    </fileSets>
+    </fileSets>n
 
     <files>
         <file>
@@ -162,8 +156,7 @@
                 <include>org.ballerinalang:ballerina-mime:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
                 <include>org.ballerinalang:ballerina-jms:jar</include>
-                <include>org.ballerinalang:ballerina-mysql:jar</include>
-                <include>org.ballerinalang:ballerina-h2:jar</include>
+                <include>org.ballerinalang:ballerina-database:jar</include>
                 <include>org.ballerinalang:strip-bouncycastle:jar</include>
                 <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>
