@@ -67,7 +67,7 @@ public function HttpJwtAuthnHandler::handle (Request req) returns (boolean) {
             return authenticated;
         }
         error err => {
-            log:printErrorCause("Error while validating JWT token ", err);
+            log:printError("Error while validating JWT token ", err = err);
             return false;
         }
     }
