@@ -115,12 +115,12 @@ function forkJoinWithSomeJoin() returns int | error {
 	     int a = 5;
 	     int b = 0;
 	     m["x"] = a;
-         runtime:sleepCurrentWorker(1000);
+         runtime:sleep(1000);
 	   }
 	   worker w2 {
 	     int a = 5;
 	     int b = 15;
-         runtime:sleepCurrentWorker(1000);
+         runtime:sleep(1000);
 	     m["x"] = a;
 	   }
 	   worker w3 {

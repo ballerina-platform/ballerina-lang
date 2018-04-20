@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver;
 
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
@@ -45,10 +46,14 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
+        this(WorkspaceDocumentManagerImpl.getInstance());
+    }
+
+    public BallerinaLanguageServer(WorkspaceDocumentManager documentManager) {
         // TODO: Revisit the API for using the global completion context
         LSGlobalContext lsGlobalContext = new LSGlobalContext();
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
-        lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, WorkspaceDocumentManagerImpl.getInstance());
+        lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, documentManager);
         LSAnnotationCache.initiate();
 
         textService = new BallerinaTextDocumentService(lsGlobalContext);

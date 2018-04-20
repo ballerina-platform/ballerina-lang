@@ -18,7 +18,7 @@ public interface Converter<T> {
 
     T combine(T t, String pathPart);
 
-    Stream<T> expand(T t);
+    Stream<T> latest(T t);
 
     Stream<T> expandBal(T t);
 

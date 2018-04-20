@@ -22,7 +22,7 @@ endpoint http:Listener initiatorEP {
 };
 
 endpoint http:Client participant1EP {
-    targets:[{url: "http://localhost:8889"}]
+    url: "http://localhost:8889"
 };
 
 State state = new();
@@ -277,8 +277,8 @@ type State object {
         return io:sprintf("abortedByInitiator=%b,abortedByLocalParticipant=%b,abortedFunctionCalled=%b," +
                             "committedFunctionCalled=%s,localParticipantCommittedFunctionCalled=%s," +
                             "localParticipantAbortedFunctionCalled=%s",
-                            [abortedByInitiator, abortedByLocalParticipant, abortedFunctionCalled,
+                            abortedByInitiator, abortedByLocalParticipant, abortedFunctionCalled,
                             committedFunctionCalled, localParticipantCommittedFunctionCalled,
-                            localParticipantAbortedFunctionCalled]);
+                            localParticipantAbortedFunctionCalled);
     }
 };

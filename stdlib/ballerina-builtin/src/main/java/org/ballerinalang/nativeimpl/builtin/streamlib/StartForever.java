@@ -52,7 +52,7 @@ import java.util.Set;
                 @Argument(name = "funcPointers", type = TypeKind.ARRAY)
         },
         returnType = {@ReturnType(type = TypeKind.NONE)},
-        isPublic = true)
+        isPublic = false)
 public class StartForever extends BlockingNativeCallableUnit {
 
     @Override

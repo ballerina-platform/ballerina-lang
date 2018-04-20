@@ -115,7 +115,7 @@ THROW       : 'throw' ;
 RETURN      : 'return' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
-FAIL        : 'fail' ;
+RETRY        : 'retry' ;
 ONRETRY     : 'onretry' ;
 RETRIES     : 'retries' ;
 ONABORT     : 'onabort' ;

@@ -22,21 +22,21 @@ public type Headers object {
 
         P{{headerName}} - The header name.
     }
-    public native function exists (string headerName) returns (boolean);
+    public native function exists(string headerName) returns (boolean);
 
     documentation {
         Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned.
 
         P{{headerName}} - The header name.
     }
-    public native function get (string headerName) returns (string|());
+    public native function get(string headerName) returns (string|());
 
     documentation {
         Gets transport headers from the request.
 
         P{{headerName}} - The header name.
     }
-    public native function getAll (string headerName) returns (string[]);
+    public native function getAll(string headerName) returns (string[]);
 
     documentation {
         Sets the value of a transport header.
@@ -44,7 +44,7 @@ public type Headers object {
         P{{headerName}} - The header name.
         P{{headerValue}} - The header value.
     }
-    public native function setEntry (string headerName, string headerValue);
+    public native function setEntry(string headerName, string headerValue);
 
     documentation {
         Adds the specified key/value pair as an HTTP header to the request.
@@ -52,17 +52,17 @@ public type Headers object {
         P{{headerName}} - The header name.
         P{{headerValue}} - The header value.
     }
-    public native function addEntry (string headerName, string headerValue);
+    public native function addEntry(string headerName, string headerValue);
 
     documentation {
         Removes a transport header from the request.
 
         P{{headerName}} - The header name.
     }
-    public native function remove (string headerName);
+    public native function remove(string headerName);
 
     documentation {
         Removes all transport headers from the message.
     }
-    public native function removeAll ();
+    public native function removeAll();
 };

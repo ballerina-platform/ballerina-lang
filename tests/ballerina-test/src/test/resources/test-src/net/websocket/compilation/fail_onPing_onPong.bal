@@ -11,10 +11,10 @@ endpoint http:WebSocketListener echoEP {
 }
 service<http:WebSocketService> echo bind echoEP {
 
-    onPing(endpoint conn, boolean so){
+    onPing(endpoint conn, boolean so) {
 
     }
-    onPong(endpoint conn){
+    onPong(endpoint conn) {
 
     }
 }

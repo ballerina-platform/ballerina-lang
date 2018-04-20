@@ -29,7 +29,7 @@ public interface OpenTracer {
     /**
      * Initializes the {@link Tracer} implementation with configurations.
      *
-     * throws {@link InvalidConfigurationException}
+     * @throws InvalidConfigurationException if the configurations are invalid.
      */
     void init() throws InvalidConfigurationException;
 

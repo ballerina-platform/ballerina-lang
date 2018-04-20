@@ -10,18 +10,18 @@ documentation {
 
     F{{serviceUri}} - Target service url.
     F{{config}}  - HTTP ClientEndpointConfig to be used for HTTP client invocation.
-    F{{retry}} - Retry related configuration.
+    F{{retryConfig}} - Retry related configuration.
     F{{httpClient}}  - HTTP client for outbound HTTP requests.
 }
 public type RetryClient object {
     public {
         string serviceUri;
         ClientEndpointConfig config;
-        Retry retry;
+        RetryConfig retryConfig;
         HttpClient httpClient;
     }
 
-    public new (serviceUri, config, retry, httpClient) {}
+    public new (serviceUri, config, retryConfig, httpClient) {}
 
     documentation {
         The POST function implementation of the HTTP retry client. Protects the invocation of the POST function attached to the underlying HTTP client.
@@ -224,10 +224,10 @@ function performRetryClientExecuteAction (@sensitive string path, Request reques
 function performRetryAction (@sensitive string path, Request request, HttpOperation requestAction,
                                 RetryClient retryClient) returns (Response | HttpConnectorError) {
     int currentRetryCount = 0;
-    int retryCount = retryClient.retry.count;
-    int interval = retryClient.retry.interval;
-    float backOffFactor = retryClient.retry.backOffFactor;
-    int maxWaitInterval = retryClient.retry.maxWaitInterval;
+    int retryCount = retryClient.retryConfig.count;
+    int interval = retryClient.retryConfig.interval;
+    float backOffFactor = retryClient.retryConfig.backOffFactor;
+    int maxWaitInterval = retryClient.retryConfig.maxWaitInterval;
     if (backOffFactor <= 0) {
         backOffFactor = 1;
     }
@@ -263,7 +263,7 @@ function performRetryAction (@sensitive string path, Request request, HttpOperat
         if (currentRetryCount != 0) {
            interval = getWaitTime(backOffFactor, maxWaitInterval, interval);
         }
-        runtime:sleepCurrentWorker(interval);
+        runtime:sleep(interval);
         currentRetryCount = currentRetryCount + 1;
     }
     return httpConnectorError;
