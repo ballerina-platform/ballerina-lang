@@ -37,8 +37,12 @@ function testPrintAndPrintlnFunctionPointer() {
     io:print(addFunction);
 }
 
-function testSprintf(string fmtStr, any[] fmtArgs) returns (string) {
-    return io:sprintf(fmtStr, fmtArgs);
+function testSprintf(string fmtStr, any... fmtArgs) returns (string) {
+    return io:sprintf(fmtStr, ...fmtArgs);
+}
+
+function testSprintfMix(string fmtStr, string s1, string s2, int i1) returns (string) {
+    return io:sprintf(fmtStr, s1, s2, i1);
 }
 
 function printNewline() {
@@ -55,3 +59,15 @@ type Foo object {
         return 5;
     }
 };
+
+function testPrintMixVarargs(string s1, int i1, float f1, boolean b1) {
+    io:print(s1, i1, f1, b1);
+}
+
+function testPrintVarargs(string s1, string s2, string s3) {
+    io:print(s1, s2, s3);
+}
+
+function testPrintlnVarargs(string s1, string s2, string s3) {
+    io:println(s1, s2, s3);
+}

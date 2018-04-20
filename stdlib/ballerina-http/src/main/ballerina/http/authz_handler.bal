@@ -16,7 +16,7 @@
 
 package ballerina.http;
 
-import ballerina/caching;
+import ballerina/cache;
 import ballerina/runtime;
 import ballerina/log;
 import ballerina/io;
@@ -25,7 +25,7 @@ import ballerina/io;
 @Field {value:"authzCache: authorization cache instance"}
 type HttpAuthzHandler object {
     public {
-        caching:Cache? authzCache;
+        cache:Cache? authzCache;
     }
     new (authzCache) {
     }
@@ -84,7 +84,7 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
 function HttpAuthzHandler::authorizeFromCache(string authzCacheKey) returns (boolean|()) {
     try {
         match self.authzCache {
-            caching:Cache cache => {
+            cache:Cache cache => {
                 return check <boolean> cache.get(authzCacheKey);
             }
         () => {
@@ -102,7 +102,7 @@ function HttpAuthzHandler::authorizeFromCache(string authzCacheKey) returns (boo
 @Param {value:"isAuthorized: authorization decision"}
 function HttpAuthzHandler::cacheAuthzResult (string authzCacheKey, boolean isAuthorized) {
     match self.authzCache {
-        caching:Cache cache => {
+        cache:Cache cache => {
             cache.put(authzCacheKey, isAuthorized);
         }
         () => {

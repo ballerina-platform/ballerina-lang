@@ -9,7 +9,7 @@ public type SimpleTopicPublisher object {
 
     private {
         jms:SimpleTopicPublisher? publisher;
-        TopicPublisherConnector? publisherConnector;
+        TopicPublisherActions? producerActions;
     }
 
     public function init(SimpleTopicPublisherEndpointConfiguration config) {
@@ -22,19 +22,19 @@ public type SimpleTopicPublisher object {
         topicPattern: config.topicPattern
     };
     self.publisher = topicPublisher;
-    self.publisherConnector = new TopicPublisherConnector(topicPublisher);
+    self.producerActions = new TopicPublisherActions(topicPublisher);
     self.config = config;
 }
 
-    public function register (typedesc serviceType) {
+    public function register(typedesc serviceType) {
     }
 
-    public function start () {
+    public function start() {
     }
 
-    public function getClient () returns (TopicPublisherConnector) {
-        match (self.publisherConnector) {
-            TopicPublisherConnector s => return s;
+    public function getCallerActions() returns TopicPublisherActions {
+        match (self.producerActions) {
+            TopicPublisherActions s => return s;
             () => {
                 error e = {message:"Topic publisher connector cannot be nil"};
                 throw e;
@@ -42,16 +42,16 @@ public type SimpleTopicPublisher object {
         }
     }
 
-    public function stop () {
+    public function stop() {
     }
 
-    public function createTextMessage(string message) returns (Message|Error) {
+    public function createTextMessage(string message) returns Message|error {
         match (self.publisher) {
             jms:SimpleTopicPublisher s => {
                 var result = s.createTextMessage(message);
                 match (result) {
                     jms:Message m => return new Message(m);
-                    jms:Error e => return e;
+                    error e => return e;
                 }
             }
             () => {
@@ -63,14 +63,14 @@ public type SimpleTopicPublisher object {
     }
 };
 
-public type TopicPublisherConnector object {
+public type TopicPublisherActions object {
     private {
         jms:SimpleTopicPublisher publisher;
     }
 
     new (publisher) {}
 
-    public function send (Message m) returns (Error | ()) {
+    public function send (Message m) returns error? {
         endpoint jms:SimpleTopicPublisher publisherEP = self.publisher;
         var result = publisherEP->send(m.getJMSMessage());
         return result;
@@ -88,4 +88,3 @@ public type SimpleTopicPublisherEndpointConfiguration {
     map properties,
     string topicPattern,
 };
-

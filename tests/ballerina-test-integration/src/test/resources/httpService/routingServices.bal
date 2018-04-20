@@ -7,11 +7,11 @@ endpoint http:Listener serviceEP {
 };
 
 endpoint http:Client nasdaqEP {
-    targets:[{url:"http://localhost:9090/nasdaqStocks"}]
+    url:"http://localhost:9090/nasdaqStocks"
 };
 
 endpoint http:Client nyseEP {
-    targets:[{url:"http://localhost:9090/nyseStocks"}]
+    url:"http://localhost:9090/nyseStocks"
 };
 
 @http:ServiceConfig {basePath:"/cbr"}
