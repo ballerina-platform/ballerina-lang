@@ -27,9 +27,8 @@ function testSubscriptionFunctionWithIncorrectObjectParameter () {
     s1.subscribe(printJobDescription);
 }
 
+int arrayIndex = 0;
 Employee globalEmployee;
-Employee[] globalEmployeeArray = [];
-int employeeIndex = 0;
 
 function testGlobalStream () returns (Employee, Employee, Employee) {
     Employee origEmployee = globalEmployee;
@@ -58,7 +57,11 @@ function testStreamPublishingAndSubscriptionForObject () returns (Employee, Empl
     return (origEmployee, publishedEmployee, newEmployee);
 }
 
+
+Employee[] globalEmployeeArray = [];
+
 function testStreamPublishingAndSubscriptionForMultipleObjectEvents () returns (Employee[], Employee[]) {
+    arrayIndex = 0;
     stream<Employee> s1;
     s1.subscribe(addToGlobalEmployeeArray);
     Employee e1 = { id:1234, name:"Maryam" };
@@ -75,6 +78,75 @@ function testStreamPublishingAndSubscriptionForMultipleObjectEvents () returns (
     return (publishedEmployees, globalEmployeeArray);
 }
 
+int[] globalIntegerArray = [];
+
+function testStreamPublishingAndSubscriptionForIntegerStream () returns (int[], int[]) {
+    arrayIndex = 0;
+    stream<int> intStream;
+    intStream.subscribe(addToGlobalIntegerArray);
+    int[] publishedIntegerEvents = [11, 24857, 0, -1, 999];
+    foreach intEvent in publishedIntegerEvents {
+        intStream.publish(intEvent);
+    }
+    int startTime = time:currentTime().time;
+    while (lengthof globalIntegerArray < lengthof publishedIntegerEvents && time:currentTime().time - startTime < 3000) {
+        //allow for value update
+    }
+    return (publishedIntegerEvents, globalIntegerArray);
+}
+
+boolean[] globalBooleanArray = [];
+
+function testStreamPublishingAndSubscriptionForBooleanStream () returns (boolean[], boolean[]) {
+    arrayIndex = 0;
+    stream<boolean> booleanStream;
+    booleanStream.subscribe(addToGlobalBooleanArray);
+    boolean[] publishedBooleanEvents = [true, false, false, true, false];
+    foreach booleanEvent in publishedBooleanEvents {
+        booleanStream.publish(booleanEvent);
+    }
+    int startTime = time:currentTime().time;
+    while (lengthof globalBooleanArray < lengthof publishedBooleanEvents && time:currentTime().time - startTime < 3000) {
+        //allow for value update
+    }
+    return (publishedBooleanEvents, globalBooleanArray);
+}
+
+any[] globalAnyArray = [];
+
+function testStreamPublishingAndSubscriptionForUnionTypeStream () returns (any[], any[]) {
+    globalAnyArray = [];
+    arrayIndex = 0;
+    stream<int[]|string|boolean> unionStream;
+    unionStream.subscribe(addToGlobalAnyArrayForUnionType);
+    int[] intarray = [1, 2, 3];
+    any[] publishedEvents = [intarray, "Maryam", false];
+    foreach event in publishedEvents {
+        unionStream.publish(event);
+    }
+    int startTime = time:currentTime().time;
+    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 3000) {
+        //allow for value update
+    }
+    return (publishedEvents, globalAnyArray);
+}
+
+function testStreamPublishingAndSubscriptionForTupleTypeStream () returns (any[], any[]) {
+    globalAnyArray = [];
+    arrayIndex = 0;
+    stream<(string, int)> tupleStream;
+    tupleStream.subscribe(addToGlobalAnyArrayForTupleType);
+    any[] publishedEvents = [("Maryam", 1234), ("Ziyad", 9876)];
+    foreach event in publishedEvents {
+        tupleStream.publish(event);
+    }
+    int startTime = time:currentTime().time;
+    while (lengthof globalAnyArray < lengthof publishedEvents && time:currentTime().time - startTime < 3000) {
+        //allow for value update
+    }
+    return (publishedEvents, globalAnyArray);
+}
+
 function printJobDescription (Job j) {
     log:printInfo(j.description);
 }
@@ -84,6 +156,26 @@ function assignGlobalEmployee (Employee e) {
 }
 
 function addToGlobalEmployeeArray (Employee e) {
-    globalEmployeeArray[employeeIndex] = e;
-    employeeIndex = employeeIndex + 1;
+    globalEmployeeArray[arrayIndex] = e;
+    arrayIndex = arrayIndex + 1;
+}
+
+function addToGlobalBooleanArray (boolean b) {
+    globalBooleanArray[arrayIndex] = b;
+    arrayIndex = arrayIndex + 1;
+}
+
+function addToGlobalIntegerArray (int i) {
+    globalIntegerArray[arrayIndex] = i;
+    arrayIndex = arrayIndex + 1;
+}
+
+function addToGlobalAnyArrayForUnionType (int[]|string|boolean val) {
+    globalAnyArray[arrayIndex] = val;
+    arrayIndex = arrayIndex + 1;
+}
+
+function addToGlobalAnyArrayForTupleType ((string, int) val) {
+    globalAnyArray[arrayIndex] = val;
+    arrayIndex = arrayIndex + 1;
 }
