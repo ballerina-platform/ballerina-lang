@@ -278,7 +278,7 @@ function prepareRequest(Request req, ClientEndpointConfig config) returns (()|Ht
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
         }
     } else if (scheme == JWT_SCHEME){
-        string authToken = runtime:getInvocationContext().authenticationContext.authToken;
+        string authToken = runtime:getInvocationContext().authContext.authToken;
         req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
     }
     return ();
