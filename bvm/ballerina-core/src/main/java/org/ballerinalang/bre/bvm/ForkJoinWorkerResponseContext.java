@@ -150,7 +150,8 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
             return null;
         }
         WorkerDataChannel dataChannel = getWorkerDataChannel(channelName);
-        return dataChannel.tryTakeData().value;
+        WorkerDataChannel.WorkerResult result = dataChannel.tryTakeData();
+        return result != null ? result.value : null;
     }
 
     private void printError(String workerName, BStruct error) {
