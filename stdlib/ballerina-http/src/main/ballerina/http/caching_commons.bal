@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.http;
 
 // Cache-control directives
 @Description {value:"Forces the cache to validate a cached response with the origin server before serving."}

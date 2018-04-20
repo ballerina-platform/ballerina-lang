@@ -9,14 +9,9 @@ options {
 
 // starting point for parsing a bal file
 compilationUnit
-    :   packageDeclaration?
-        (importDeclaration | namespaceDeclaration)*
+    :   (importDeclaration | namespaceDeclaration)*
         (documentationAttachment? deprecatedAttachment? annotationAttachment* definition)*
         EOF
-    ;
-
-packageDeclaration
-    :   PACKAGE packageName SEMICOLON
     ;
 
 packageName
